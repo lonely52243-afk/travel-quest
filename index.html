@@ -1,0 +1,1077 @@
+<!DOCTYPE html>
+<html lang="zh-TW" data-theme="dark">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<meta name="theme-color" content="#05070D">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-title" content="旅運探險">
+<title>TRAVEL QUEST · 旅運探險</title>
+<link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 512 512'%3E%3Cdefs%3E%3ClinearGradient id='g' x1='0' y1='0' x2='1' y2='1'%3E%3Cstop offset='0%25' stop-color='%2300F0FF'/%3E%3Cstop offset='50%25' stop-color='%23C6FF00'/%3E%3Cstop offset='100%25' stop-color='%23FF2E9A'/%3E%3C/linearGradient%3E%3C/defs%3E%3Crect width='512' height='512' rx='96' fill='%2305070D'/%3E%3Ctext x='256' y='300' font-size='240' text-anchor='middle' fill='url(%23g)' font-family='monospace' font-weight='900'%3ETQ%3C/text%3E%3C/svg%3E">
+<style>
+* { box-sizing: border-box; margin: 0; padding: 0; -webkit-tap-highlight-color: transparent; }
+:root[data-theme="dark"] { --bg-0:#06080F;--bg-1:#0B0F1A;--bg-2:#111827;--bg-elev:#1A2235;--neon:#22D3EE;--neon-2:#F472B6;--neon-3:#A3E635;--gold:#FBBF24;--text:#F1F5F9;--text-2:#94A3B8;--text-3:#475569;--line:#1E293B;--line-2:#334155;--danger:#F43F5E;--shadow-md:0 8px 24px -8px rgba(0,0,0,0.5); }
+:root[data-theme="light"] { --bg-0:#F8FAFC;--bg-1:#FFFFFF;--bg-2:#F1F5F9;--bg-elev:#E2E8F0;--neon:#0891B2;--neon-2:#DB2777;--neon-3:#65A30D;--gold:#D97706;--text:#0F172A;--text-2:#475569;--text-3:#94A3B8;--line:#E2E8F0;--line-2:#CBD5E1;--danger:#DC2626;--shadow-md:0 8px 24px -8px rgba(15,23,42,0.12); }
+html,body { min-height:100%;background:var(--bg-0);color:var(--text);font-family:-apple-system,"SF Pro Text","Segoe UI","Microsoft JhengHei","PingFang TC",system-ui,sans-serif;-webkit-font-smoothing:antialiased;font-size:15px;overflow-x:hidden; }
+:root[data-theme="dark"] body::before { content:'';position:fixed;inset:0;background:radial-gradient(circle at 15% 20%,rgba(34,211,238,0.08),transparent 40%),radial-gradient(circle at 85% 80%,rgba(244,114,182,0.06),transparent 40%);pointer-events:none;z-index:0; }
+.app-shell { position:relative;z-index:1;min-height:100vh;display:flex;flex-direction:column; }
+.topbar { position:sticky;top:0;z-index:100;background:color-mix(in srgb,var(--bg-0) 85%,transparent);backdrop-filter:blur(20px);-webkit-backdrop-filter:blur(20px);border-bottom:1px solid var(--line); }
+.topbar-inner { max-width:1280px;margin:0 auto;padding:14px 20px;display:flex;align-items:center;justify-content:space-between;gap:16px; }
+.brand { display:flex;align-items:center;gap:12px; }
+.brand-mark { width:38px;height:38px;border-radius:10px;background:linear-gradient(135deg,var(--neon),var(--neon-2));display:flex;align-items:center;justify-content:center;font-weight:900;font-size:14px;color:#05070D;letter-spacing:-0.5px;box-shadow:0 0 24px -4px var(--neon); }
+.brand-text { display:flex;flex-direction:column;line-height:1.1; }
+.brand-title { font-size:15px;font-weight:800;color:var(--text); }
+.brand-sub { font-size:10px;color:var(--text-3);letter-spacing:2px;text-transform:uppercase;margin-top:2px; }
+.topbar-actions { display:flex;gap:8px;align-items:center; }
+.icon-btn { width:40px;height:40px;border-radius:10px;background:var(--bg-2);border:1px solid var(--line);color:var(--text-2);font-size:17px;cursor:pointer;display:flex;align-items:center;justify-content:center; }
+.icon-btn:hover { border-color:var(--neon);color:var(--neon); }
+.icon-btn.on { border-color:var(--neon);color:var(--neon);background:color-mix(in srgb,var(--neon) 12%,var(--bg-2)); }
+.main { flex:1;max-width:1280px;width:100%;margin:0 auto;padding:24px 20px 60px;display:grid;grid-template-columns:420px 1fr;gap:24px;align-items:start; }
+.control-panel { position:sticky;top:90px;display:flex;flex-direction:column;gap:16px; }
+.result-panel { min-height:400px;min-width:0; }
+.mode-tabs { display:grid;grid-template-columns:1fr 1fr;gap:8px;padding:6px;background:var(--bg-2);border-radius:14px;border:1px solid var(--line); }
+.mode-tab { padding:14px 12px;border-radius:10px;text-align:center;cursor:pointer;display:flex;align-items:center;justify-content:center;gap:8px;color:var(--text-2);font-weight:700;font-size:14px; }
+.mode-tab.active { background:linear-gradient(135deg,var(--neon),var(--neon-2));color:#05070D; }
+.mode-tab-icon { font-size:18px; }
+.card { background:var(--bg-1);border:1px solid var(--line);border-radius:16px;padding:24px;box-shadow:var(--shadow-md); }
+.card-title { font-size:11px;font-weight:800;letter-spacing:2.5px;text-transform:uppercase;color:var(--neon);margin-bottom:20px;display:flex;align-items:center;gap:8px; }
+.card-title::before { content:'';width:4px;height:16px;background:linear-gradient(180deg,var(--neon),var(--neon-2));border-radius:2px; }
+.field { margin-bottom:16px; }
+.field-label { display:block;font-size:11px;font-weight:700;letter-spacing:1.5px;color:var(--text-2);text-transform:uppercase;margin-bottom:8px; }
+.field-label .required { color:var(--neon);margin-left:2px; }
+.input,.select { width:100%;padding:14px 16px;background:var(--bg-0);border:1.5px solid var(--line);border-radius:10px;color:var(--text);font-family:inherit;font-size:15px;font-weight:600;outline:none;appearance:none;-webkit-appearance:none; }
+.select { background-image:url("data:image/svg+xml;charset=UTF-8,%3csvg xmlns='http://www.w3.org/2000/svg' width='14' height='14' viewBox='0 0 24 24' fill='none' stroke='%2394A3B8' stroke-width='2.5'%3e%3cpolyline points='6 9 12 15 18 9'/%3e%3c/svg%3e");background-repeat:no-repeat;background-position:right 14px center;padding-right:42px;cursor:pointer; }
+.input:focus,.select:focus { border-color:var(--neon);box-shadow:0 0 0 4px color-mix(in srgb,var(--neon) 15%,transparent); }
+.input::placeholder { color:var(--text-3); }
+.select option { background:var(--bg-1);color:var(--text); }
+.location-group { display:grid;grid-template-columns:130px 1fr;gap:10px;margin-bottom:16px; }
+.location-group .field { margin:0; }
+.swap-row { display:flex;align-items:center;justify-content:center;margin:-8px 0;position:relative;z-index:2; }
+.swap-btn { width:36px;height:36px;border-radius:50%;background:var(--bg-elev);border:1.5px solid var(--line-2);color:var(--text-2);cursor:pointer;display:flex;align-items:center;justify-content:center;font-size:15px; }
+.swap-btn:hover { background:var(--neon);color:#05070D;transform:rotate(180deg); }
+.transport-picker { display:grid;grid-template-columns:repeat(3,1fr);gap:8px;margin-bottom:20px; }
+.transport-option { padding:14px 8px;border-radius:12px;background:var(--bg-2);border:1.5px solid var(--line);text-align:center;cursor:pointer;user-select:none; }
+.transport-option.active { border-color:var(--neon);background:color-mix(in srgb,var(--neon) 10%,var(--bg-2));box-shadow:0 0 0 4px color-mix(in srgb,var(--neon) 12%,transparent); }
+.transport-icon { font-size:22px;display:block;margin-bottom:4px; }
+.transport-name { font-size:11px;font-weight:800;letter-spacing:1.5px;color:var(--text-2); }
+.transport-option.active .transport-name { color:var(--neon); }
+.btn-primary { width:100%;padding:18px 24px;font-family:inherit;font-size:15px;font-weight:800;letter-spacing:2px;text-transform:uppercase;border:none;border-radius:12px;cursor:pointer;color:#05070D;background:linear-gradient(135deg,var(--neon),var(--neon-3));display:flex;align-items:center;justify-content:center;gap:10px; }
+.btn-primary:disabled { cursor:not-allowed;background:var(--bg-elev);color:var(--text-3); }
+.btn-ghost { padding:12px 18px;font-family:inherit;font-size:13px;font-weight:700;border-radius:10px;cursor:pointer;background:transparent;border:1.5px solid var(--line-2);color:var(--text-2);display:inline-flex;align-items:center;justify-content:center;gap:6px; }
+.btn-ghost:hover { border-color:var(--neon);color:var(--neon); }
+.checkbox-row { display:flex;align-items:center;gap:10px;padding:12px 14px;background:var(--bg-0);border:1.5px solid var(--line);border-radius:10px;cursor:pointer;margin-bottom:16px;user-select:none; }
+.checkbox-row input[type="checkbox"] { width:18px;height:18px;accent-color:var(--neon);cursor:pointer;margin:0; }
+.checkbox-row span { font-size:13px;font-weight:600; }
+.result-empty { text-align:center;padding:100px 30px;color:var(--text-3); }
+.result-empty-icon { font-size:64px;margin-bottom:20px;opacity:0.3; }
+.result-empty-title { font-size:16px;font-weight:700;color:var(--text-2);margin-bottom:8px; }
+.result-empty-sub { font-size:13px;line-height:1.6; }
+.scanning { text-align:center;padding:80px 30px; }
+.scanning-text { font-size:13px;font-weight:800;letter-spacing:4px;color:var(--neon);text-transform:uppercase;margin-bottom:24px; }
+.scanning-bar { width:200px;height:4px;margin:0 auto;background:var(--bg-elev);border-radius:2px;overflow:hidden;position:relative; }
+.scanning-bar::after { content:'';position:absolute;inset:0;background:linear-gradient(90deg,transparent,var(--neon),transparent);animation:scan 1.4s ease-in-out infinite; }
+@keyframes scan { 0%{transform:translateX(-100%);} 100%{transform:translateX(100%);} }
+.result-header { display:flex;align-items:flex-start;justify-content:space-between;gap:20px;margin-bottom:20px;padding-bottom:20px;border-bottom:1px solid var(--line);flex-wrap:wrap; }
+.result-route { display:flex;align-items:center;gap:16px;flex-wrap:wrap; }
+.route-station { display:flex;flex-direction:column;gap:2px; }
+.route-name { font-size:24px;font-weight:900;line-height:1.1; }
+.route-time { font-size:13px;font-weight:700;color:var(--text-2); }
+.route-arrow { font-size:20px;color:var(--neon); }
+.result-meta { display:flex;flex-direction:column;gap:4px;align-items:flex-end;text-align:right; }
+.result-count { font-size:24px;font-weight:900;color:var(--neon);line-height:1; }
+.result-count-label { font-size:10px;color:var(--text-3);letter-spacing:2px;text-transform:uppercase;font-weight:700; }
+.filter-tags { display:flex;flex-wrap:wrap;gap:6px;margin-bottom:16px; }
+.filter-tag { padding:4px 10px;border-radius:20px;font-size:11px;font-weight:700;background:color-mix(in srgb,var(--neon-2) 15%,transparent);color:var(--neon-2); }
+.fare-info { display:flex;flex-wrap:wrap;gap:12px;padding:14px 16px;background:color-mix(in srgb,var(--gold) 8%,var(--bg-0));border:1px solid color-mix(in srgb,var(--gold) 25%,transparent);border-radius:10px;margin-bottom:20px; }
+.fare-item { display:flex;align-items:baseline;gap:6px; }
+.fare-label { font-size:11px;font-weight:700;color:var(--gold); }
+.fare-price { font-size:16px;font-weight:900;color:var(--gold); }
+.stat-row { display:flex;gap:16px;padding:12px 16px;background:var(--bg-2);border-radius:10px;margin-bottom:20px; }
+.stat-item { display:flex;align-items:center;gap:6px;font-size:12px;font-weight:700;color:var(--text-2); }
+.stat-item strong { color:var(--text);font-size:14px; }
+.action-row { display:grid;grid-template-columns:1fr 1fr 1fr;gap:8px;margin-bottom:20px; }
+.train-list { display:flex;flex-direction:column;gap:8px;max-height:640px;overflow-y:auto;padding-right:8px; }
+.train-card { display:grid;grid-template-columns:56px 1fr auto;align-items:center;gap:16px;padding:16px 18px;background:var(--bg-1);border:1.5px solid var(--line);border-radius:14px; }
+.train-card.next { border-color:var(--neon-3);background:linear-gradient(135deg,color-mix(in srgb,var(--neon-3) 8%,var(--bg-1)),var(--bg-1)); }
+.train-time-block { display:flex;flex-direction:column;align-items:center;text-align:center;padding-right:16px;margin-right:16px;border-right:1.5px solid var(--line); }
+.train-dep { font-size:22px;font-weight:900;line-height:1.1; }
+.train-dep-label { font-size:9px;color:var(--text-3);letter-spacing:1.5px;text-transform:uppercase;font-weight:700;margin-top:3px; }
+.train-info-block { display:flex;flex-direction:column;gap:6px;min-width:0; }
+.train-arrival { display:flex;align-items:center;gap:8px;font-size:15px;font-weight:700;color:var(--text-2); }
+.train-arrival-arrow { color:var(--neon);font-size:12px; }
+.train-arrival-time { color:var(--text); }
+.train-meta { display:flex;align-items:center;gap:8px;flex-wrap:wrap;font-size:11px;color:var(--text-3);font-weight:600; }
+.train-no { font-weight:800;color:var(--text-2); }
+.train-type-name { color:var(--text-3); }
+.train-badges { display:flex;gap:4px;flex-wrap:wrap;margin-top:2px; }
+.badge { display:inline-flex;align-items:center;gap:3px;padding:2px 8px;border-radius:6px;font-size:10px;font-weight:800;white-space:nowrap; }
+.badge-express { background:color-mix(in srgb,var(--neon) 15%,transparent);color:var(--neon); }
+.badge-first { background:color-mix(in srgb,var(--gold) 15%,transparent);color:var(--gold); }
+.badge-last { background:color-mix(in srgb,var(--neon-2) 15%,transparent);color:var(--neon-2); }
+.badge-ontime { background:color-mix(in srgb,var(--neon-3) 15%,transparent);color:var(--neon-3); }
+.badge-delay { background:color-mix(in srgb,var(--danger) 15%,transparent);color:var(--danger); }
+.badge-soon { background:color-mix(in srgb,var(--gold) 15%,transparent);color:var(--gold); }
+.badge-countdown { background:color-mix(in srgb,var(--neon-3) 15%,transparent);color:var(--neon-3); }
+.train-actions-block { display:flex;flex-direction:column;align-items:flex-end;gap:8px; }
+.train-duration { font-size:14px;font-weight:900;color:var(--text); }
+.train-duration-label { font-size:9px;color:var(--text-3);letter-spacing:1.5px;text-transform:uppercase;font-weight:700;text-align:right; }
+.book-icon-btn { display:inline-flex;align-items:center;justify-content:center;width:32px;height:32px;border-radius:8px;background:var(--neon-2);color:#fff;text-decoration:none;font-size:14px; }
+.now-line { display:flex;align-items:center;gap:12px;margin:4px 0;padding:0 4px; }
+.now-line::before,.now-line::after { content:'';flex:1;height:1px;background:linear-gradient(90deg,transparent,var(--danger),transparent); }
+.now-line-label { font-size:10px;font-weight:800;color:var(--danger);letter-spacing:2px;padding:2px 10px;border-radius:10px;background:color-mix(in srgb,var(--danger) 12%,transparent); }
+.bus-grid { display:grid;grid-template-columns:repeat(auto-fill,minmax(76px,1fr));gap:10px;margin-top:20px; }
+.bus-chip { padding:14px 6px;text-align:center;font-weight:800;font-size:16px;background:var(--bg-0);border:1.5px solid var(--line);border-radius:10px;color:var(--text); }
+.parking-list { display:flex;flex-direction:column;gap:10px;margin-top:20px; }
+.parking-item { display:grid;grid-template-columns:40px 1fr auto;gap:14px;align-items:center;padding:16px 18px;background:var(--bg-1);border:1.5px solid var(--line);border-radius:14px; }
+.parking-rank { width:40px;height:40px;border-radius:10px;background:linear-gradient(135deg,var(--neon),var(--neon-2));color:#05070D;font-weight:900;font-size:16px;display:flex;align-items:center;justify-content:center; }
+.parking-info { display:flex;flex-direction:column;gap:6px;min-width:0; }
+.parking-name { font-weight:800;font-size:15px;color:var(--text);text-decoration:none;word-break:break-word; }
+.parking-name:hover { color:var(--neon); }
+.parking-meta { display:flex;align-items:center;gap:12px;flex-wrap:wrap;font-size:12px;color:var(--text-3);font-weight:600; }
+.parking-badge { padding:4px 10px;border-radius:8px;font-weight:800;font-size:11px; }
+.parking-badge.ok { background:color-mix(in srgb,var(--neon-3) 15%,transparent);color:var(--neon-3); }
+.parking-badge.warn { background:color-mix(in srgb,var(--gold) 15%,transparent);color:var(--gold); }
+.parking-badge.none { background:var(--bg-2);color:var(--text-3); }
+.parking-map-btn { width:44px;height:44px;border-radius:10px;background:color-mix(in srgb,var(--neon) 10%,var(--bg-2));border:1.5px solid color-mix(in srgb,var(--neon) 40%,transparent);color:var(--neon);text-decoration:none;display:flex;align-items:center;justify-content:center;font-size:18px; }
+.error-card { background:color-mix(in srgb,var(--danger) 6%,var(--bg-1));border:1.5px solid color-mix(in srgb,var(--danger) 30%,transparent);border-radius:16px;padding:40px 30px;text-align:center; }
+.error-title { font-size:18px;font-weight:900;color:var(--danger);margin-bottom:10px; }
+.error-msg { font-size:14px;color:var(--text-2);line-height:1.6;margin-bottom:24px; }
+.loc-card { background:var(--bg-1);border:1.5px solid var(--line);border-radius:16px;padding:40px 30px;text-align:center; }
+.loc-icon { font-size:56px;margin-bottom:16px; }
+.loc-name { font-size:24px;font-weight:900;margin-bottom:32px; }
+.loc-actions { display:flex;flex-direction:column;gap:10px;max-width:400px;margin:0 auto; }
+.loc-link { display:flex;align-items:center;justify-content:center;gap:10px;padding:16px 24px;border-radius:12px;font-weight:800;font-size:14px;text-decoration:none; }
+.loc-link.primary { background:linear-gradient(135deg,var(--neon),var(--neon-3));color:#05070D; }
+.loc-link.secondary { background:transparent;border:1.5px solid var(--neon-2);color:var(--neon-2); }
+.chips-wrap { display:flex;flex-wrap:wrap;gap:6px; }
+.chip { padding:8px 14px;border-radius:20px;background:var(--bg-0);border:1.5px solid var(--line);color:var(--text-2);font-size:12px;font-weight:700;cursor:pointer;display:inline-flex;align-items:center;gap:6px; }
+.chip:hover { border-color:var(--neon);color:var(--neon); }
+.chip-x { font-size:15px;opacity:0.5;padding:0 2px; }
+.toast { position:fixed;bottom:30px;left:50%;transform:translateX(-50%) translateY(120px);background:var(--bg-1);border:1.5px solid var(--neon-3);color:var(--neon-3);padding:14px 28px;border-radius:12px;font-size:13px;font-weight:800;z-index:10000;transition:transform 0.35s; }
+.toast.show { transform:translateX(-50%) translateY(0); }
+@media (max-width:1024px) { .main { grid-template-columns:1fr;gap:20px; } .control-panel { position:static; } }
+@media (max-width:640px) { .main { padding:16px 14px 50px; } .card { padding:20px 18px; } .location-group { grid-template-columns:1fr; } .action-row { grid-template-columns:1fr 1fr; } }
+</style>
+</head>
+<body>
+<div class="app-shell">
+  <header class="topbar">
+    <div class="topbar-inner">
+      <div class="brand">
+        <div class="brand-mark">TQ</div>
+        <div class="brand-text">
+          <div class="brand-title">旅運探險</div>
+          <div class="brand-sub">Travel Quest</div>
+        </div>
+      </div>
+      <div class="topbar-actions">
+        <button class="icon-btn" id="theme-toggle">🌙</button>
+        <button class="icon-btn on" id="sound-toggle">🔊</button>
+      </div>
+    </div>
+  </header>
+
+  <main class="main">
+    <aside class="control-panel">
+      <div class="mode-tabs">
+        <div class="mode-tab active" data-tab="transport"><span class="mode-tab-icon">🚄</span><span>交通</span></div>
+        <div class="mode-tab" data-tab="parking"><span class="mode-tab-icon">🅿️</span><span>停車</span></div>
+      </div>
+
+      <div class="card" id="panel-transport">
+        <div class="card-title">查詢設定</div>
+        <div class="transport-picker">
+          <div class="transport-option active" data-type="HSR"><span class="transport-icon">🚄</span><span class="transport-name">高鐵</span></div>
+          <div class="transport-option" data-type="TRA"><span class="transport-icon">🚆</span><span class="transport-name">台鐵</span></div>
+          <div class="transport-option" data-type="BUS"><span class="transport-icon">🚌</span><span class="transport-name">統聯</span></div>
+        </div>
+        <input type="hidden" id="tr-type" value="HSR">
+
+        <div id="tr-stations">
+          <div class="location-group">
+            <div class="field" id="tr-from-region-field"><label class="field-label">縣市</label><select class="select" id="tr-from-region"></select></div>
+            <div class="field"><label class="field-label">起站<span class="required">*</span></label><select class="select" id="tr-from"></select></div>
+          </div>
+          <div class="swap-row"><button class="swap-btn" id="swap-btn">⇅</button></div>
+          <div class="location-group">
+            <div class="field" id="tr-to-region-field"><label class="field-label">縣市</label><select class="select" id="tr-to-region"></select></div>
+            <div class="field"><label class="field-label">迄站<span class="required">*</span></label><select class="select" id="tr-to"></select></div>
+          </div>
+        </div>
+
+        <div id="tr-route" style="display:none"><div class="field"><label class="field-label">路線</label><select class="select" id="tr-route-idx"></select></div></div>
+
+        <div id="tra-filter-row" style="display:none">
+          <div class="location-group" style="grid-template-columns:1fr 1fr">
+            <div class="field"><label class="field-label">車種</label><select class="select" id="tr-cat"><option value="">全部</option><option value="fast">快車</option><option value="normal">普通</option></select></div>
+            <div class="field"><label class="field-label">時段</label><select class="select" id="tr-slot"><option value="">全部</option><option value="morning">上午</option><option value="afternoon">下午</option><option value="evening">晚上</option></select></div>
+          </div>
+        </div>
+
+        <div class="field" id="tr-after-field" style="display:none"><label class="field-label">出發時間之後</label><input class="input" type="time" id="tr-after"></div>
+
+        <label class="checkbox-row" id="express-filter-wrap"><input type="checkbox" id="tr-express-only"><span>⚡ 只顯示直達車</span></label>
+
+        <div class="field"><label class="field-label">出發日期<span class="required">*</span></label><input class="input" type="date" id="tr-date"></div>
+
+        <button class="btn-primary" id="tr-go"><span>查詢班次</span><span>→</span></button>
+        <div id="fav-area" style="margin-top:20px"></div>
+        <div id="hist-area" style="margin-top:16px"></div>
+      </div>
+
+      <div class="card" id="panel-parking" style="display:none">
+        <div class="card-title">查詢設定</div>
+        <div class="field"><label class="field-label">地點<span class="required">*</span></label><input class="input" type="text" id="pk-kw" placeholder="例：高雄車站"></div>
+        <div class="field"><label class="field-label">停車場類型</label><select class="select" id="pk-type"><option value="car">🅿️ 汽車</option><option value="motor">🏍️ 機車</option></select></div>
+        <div class="location-group" style="grid-template-columns:1fr 1fr">
+          <button class="btn-ghost" id="pk-map">🗺️ 看地圖</button>
+          <button class="btn-primary" id="pk-go" style="padding:12px 16px"><span>查停車場</span></button>
+        </div>
+      </div>
+    </aside>
+
+    <section class="result-panel" id="result">
+      <div class="result-empty">
+        <div class="result-empty-icon">🧭</div>
+        <div class="result-empty-title">準備開始查詢</div>
+        <div class="result-empty-sub">選擇交通工具與起迄站<br>即可開始你的旅運探險</div>
+      </div>
+    </section>
+  </main>
+</div>
+
+<div class="toast" id="toast">已複製</div>
+
+<script>
+const TDX_PROXY = 'https://tdx-proxy.val.run/?url=';
+const GOOGLE_MAPS_API_KEY = 'AIzaSyCIvKAXRAz33Ucbp-Z-43wY2J1ctimxFxY';
+
+function vibrate(p) { if (navigator.vibrate) { try { navigator.vibrate(p); } catch (e) {} } }
+
+const Sound = (() => {
+  let _ctx = null, _enabled = true;
+  function ctx() {
+    if (!_ctx) { try { _ctx = new (window.AudioContext || window.webkitAudioContext)(); } catch (e) { _enabled = false; } }
+    if (_ctx && _ctx.state === 'suspended') _ctx.resume();
+    return _ctx;
+  }
+  function tone(f, d, t, v, delay) {
+    if (!_enabled) return;
+    const c = ctx(); if (!c) return;
+    const o = c.createOscillator(), g = c.createGain();
+    o.type = t || 'square';
+    o.frequency.setValueAtTime(f, c.currentTime + (delay||0));
+    g.gain.setValueAtTime(0, c.currentTime + (delay||0));
+    g.gain.linearRampToValueAtTime(v || 0.08, c.currentTime + (delay||0) + 0.01);
+    g.gain.exponentialRampToValueAtTime(0.001, c.currentTime + (delay||0) + d);
+    o.connect(g); g.connect(c.destination);
+    o.start(c.currentTime + (delay||0));
+    o.stop(c.currentTime + (delay||0) + d + 0.05);
+  }
+  return {
+    click: () => { tone(880, 0.06, 'square', 0.05); vibrate(10); },
+    tab: () => { tone(660, 0.08); tone(990, 0.08, 'square', 0.05, 0.05); vibrate(15); },
+    start: () => { tone(440, 0.1, 'sawtooth'); tone(660, 0.1, 'sawtooth', 0.05, 0.08); tone(880, 0.15, 'sawtooth', 0.05, 0.16); vibrate(30); },
+    error: () => { tone(200, 0.15, 'sawtooth'); tone(150, 0.3, 'sawtooth', 0.08, 0.15); vibrate([30, 50, 30]); },
+    win: () => { [523,659,784,1047].forEach((f,i) => tone(f, 0.15, 'square', 0.07, i*0.08)); vibrate([10, 20, 10, 20, 10]); },
+    toggle: () => { _enabled = !_enabled; if (_enabled) tone(880, 0.08); return _enabled; }
+  };
+})();
+
+const themeBtn = document.getElementById('theme-toggle');
+const savedTheme = localStorage.getItem('tq_theme') || 'dark';
+document.documentElement.setAttribute('data-theme', savedTheme);
+themeBtn.textContent = savedTheme === 'dark' ? '🌙' : '☀️';
+themeBtn.onclick = () => {
+  const next = document.documentElement.getAttribute('data-theme') === 'dark' ? 'light' : 'dark';
+  document.documentElement.setAttribute('data-theme', next);
+  themeBtn.textContent = next === 'dark' ? '🌙' : '☀️';
+  localStorage.setItem('tq_theme', next);
+};
+const soundBtn = document.getElementById('sound-toggle');
+soundBtn.onclick = () => {
+  const on = Sound.toggle();
+  soundBtn.classList.toggle('on', on);
+  soundBtn.textContent = on ? '🔊' : '🔇';
+};
+
+const HSR_STATIONS = ['南港','台北','板橋','桃園','新竹','苗栗','台中','彰化','雲林','嘉義','台南','左營'];
+const HSR_CODES = { '南港':'0990','台北':'1000','板橋':'1010','桃園':'1020','新竹':'1030','苗栗':'1035','台中':'1040','彰化':'1043','雲林':'1047','嘉義':'1050','台南':'1060','左營':'1070' };
+const BUS_ROUTES = [
+  { from:'台北', to:'高雄', routeIds:['1610'], direction:0 },
+  { from:'高雄', to:'台北', routeIds:['1610'], direction:1 },
+  { from:'台北', to:'台南', routeIds:['1611'], direction:0 },
+  { from:'台南', to:'台北', routeIds:['1611'], direction:1 },
+  { from:'台北', to:'屏東', routeIds:['1613','1839'], direction:0 },
+  { from:'屏東', to:'台北', routeIds:['1613','1839'], direction:1 },
+  { from:'台北', to:'台中', routeIds:['1619','1620'], direction:0 },
+  { from:'台中', to:'台北', routeIds:['1619','1620'], direction:1 },
+  { from:'台中', to:'屏東', routeIds:['1873'], direction:0 },
+  { from:'屏東', to:'台中', routeIds:['1873'], direction:1 }
+];
+const SLOT_RANGES = { morning:{s:'06:00',e:'11:59'}, afternoon:{s:'12:00',e:'17:59'}, evening:{s:'18:00',e:'23:59'} };
+const PARK_CITY_MAP = {
+  '臺北市':'Taipei','台北市':'Taipei','新北市':'NewTaipei','桃園市':'Taoyuan',
+  '臺中市':'Taichung','台中市':'Taichung','臺南市':'Tainan','台南市':'Tainan',
+  '高雄市':'Kaohsiung','基隆市':'Keelung','新竹市':'Hsinchu','新竹縣':'HsinchuCounty',
+  '苗栗縣':'MiaoliCounty','彰化縣':'ChanghuaCounty','南投縣':'NantouCounty',
+  '雲林縣':'YunlinCounty','嘉義市':'Chiayi','嘉義縣':'ChiayiCounty',
+  '屏東縣':'PingtungCounty','宜蘭縣':'YilanCounty','花蓮縣':'HualienCounty',
+  '臺東縣':'TaitungCounty','台東縣':'TaitungCounty'
+};
+const BUS_STOPS = {
+  '1610':['台北轉運站','重陽站','經國轉運站','中壢服務區','中港轉運站','岡山站','楠梓站','建國客運站'],
+  '1611':['台北轉運站','重陽站','中壢服務區','中港轉運站','永康站','台南轉運站'],
+  '1613':['台北轉運站','重陽站','中港轉運站','仁德站','屏東轉運站'],
+  '1619':['台北轉運站','重陽站','中港轉運站','台中車站','朝馬站'],
+  '1620':['台北轉運站','重陽站','中清站','台中車站'],
+  '1839':['台北轉運站','重陽站','中港轉運站','仁德站','屏東轉運站'],
+  '1873':['台中車站','朝馬站','中港轉運站','仁德站','屏東轉運站']
+};
+
+const Utils = {
+  today() { const d = new Date(); return d.getFullYear() + '-' + String(d.getMonth()+1).padStart(2,'0') + '-' + String(d.getDate()).padStart(2,'0'); },
+  timeToMin(t) { const p = String(t).split(':'); return (+p[0])*60 + (+p[1]); },
+  timeDiff(s, e) { let a = this.timeToMin(s), b = this.timeToMin(e); if (b < a) b += 1440; return b - a; },
+  formatDiff(min) { if (min < 60) return min + '分'; const h = Math.floor(min/60), m = min%60; return m === 0 ? h + '時' : h + '時' + m + '分'; },
+  weekday(dateStr) { const idx = new Date(dateStr).getDay(); return '週' + ['日','一','二','三','四','五','六'][idx]; },
+  weekdayKey(dateStr) { return ['Sunday','Monday','Tuesday','Wednesday','Thursday','Friday','Saturday'][new Date(dateStr).getDay()]; },
+  distance(lat1, lon1, lat2, lon2) { const R = 6371; const dLat = (lat2-lat1)*Math.PI/180; const dLon = (lon2-lon1)*Math.PI/180; const a = Math.sin(dLat/2)**2 + Math.cos(lat1*Math.PI/180)*Math.cos(lat2*Math.PI/180)*Math.sin(dLon/2)**2; return R * 2 * Math.atan2(Math.sqrt(a), Math.sqrt(1-a)); },
+  checkDateRange(dateStr, mode) {
+    const maxDays = mode === 'TRA' ? 60 : (mode === 'HSR' ? 45 : 60);
+    const today = new Date(); today.setHours(0,0,0,0);
+    const target = new Date(dateStr + 'T00:00:00');
+    const diff = Math.floor((target - today) / 86400000);
+    if (diff < 0) throw new Error('不能查詢過去的日期');
+    if (diff > maxDays) throw new Error((mode === 'TRA' ? '台鐵' : '高鐵') + ' 僅能查詢未來 ' + maxDays + ' 天內');
+  },
+  minutesUntil(timeStr, dateStr) {
+    if (dateStr !== Utils.today()) return null;
+    const now = new Date();
+    const nowMin = now.getHours() * 60 + now.getMinutes();
+    return Utils.timeToMin(timeStr) - nowMin;
+  }
+};
+
+function escapeHtml(s) { return String(s == null ? '' : s).replace(/[&<>"']/g, c => ({ '&':'&amp;', '<':'&lt;', '>':'&gt;', '"':'&quot;', "'":'&#39;' }[c])); }
+function showToast(msg) { const t = document.getElementById('toast'); t.textContent = msg; t.classList.add('show'); clearTimeout(t._timer); t._timer = setTimeout(() => t.classList.remove('show'), 1800); }
+async function copyToClipboard(text) { try { await navigator.clipboard.writeText(text); showToast('✅ 已複製'); Sound.click(); } catch (e) { showToast('❌ 複製失敗'); } }
+async function shareContent(title, text) { if (navigator.share) { try { await navigator.share({ title, text }); Sound.click(); } catch (e) {} } else { await copyToClipboard(text); } }
+
+const TDX = (() => {
+  const _cache = new Map();
+  async function _fetch(path, ck, ttlSec, retry) {
+    const now = Date.now();
+    const c = _cache.get(ck);
+    if (c && now < c.exp) return c.data;
+    const url = TDX_PROXY + encodeURIComponent(path);
+    const res = await fetch(url);
+    if (res.status === 429 && !retry) { await new Promise(r => setTimeout(r, 2000)); return _fetch(path, ck, ttlSec, true); }
+    if (!res.ok) throw new Error('TDX 查詢失敗：HTTP ' + res.status);
+    const data = await res.json();
+    _cache.set(ck, { data, exp: now + ttlSec*1000 });
+    return data;
+  }
+
+  let _traStationsCache = null;
+  async function getTRAStations() {
+    if (_traStationsCache) return _traStationsCache;
+    const raw = await _fetch('/api/basic/v2/Rail/TRA/Station?$format=JSON', 'TRA_STATIONS', 86400);
+    if (!Array.isArray(raw)) return [];
+    const list = raw.map(s => ({ id: String(s.StationID || ''), name: (s.StationName && s.StationName.Zh_tw) || '', county: extractCounty(s.StationAddress || '', (s.StationName && s.StationName.Zh_tw) || '', String(s.StationID || '')) })).filter(s => s.id && s.name);
+    list.sort((a, b) => a.id.localeCompare(b.id));
+    _traStationsCache = list;
+    return list;
+  }
+
+  function extractCounty(addr, name, id) {
+    const s = String(addr || '').trim();
+    if (s) { const m = s.match(/^(.{2,3}[市縣])/); if (m) return m[1].replace(/^臺/, '台'); }
+    const nameMap = [
+      { keys:['基隆','七堵','八堵','暖暖','四腳亭','瑞芳','猴硐','三貂嶺','牡丹','雙溪','貢寮','福隆','石城','大里','大溪','龜山','外澳','頭城','頂埔','礁溪','四城'], county:'基隆市' },
+      { keys:['松山','南港','萬華','台北'], county:'台北市' },
+      { keys:['板橋','樹林','鶯歌','汐止','汐科','五堵','百福','平溪','十分','菁桐','泰山','林口','淡水','中和','永和','土城','三峽','三重','蘆洲','五股'], county:'新北市' },
+      { keys:['桃園','中壢','楊梅','內壢','埔心','富岡','新富'], county:'桃園市' },
+      { keys:['新竹','竹中','竹東','竹北','北新竹','千甲','新莊','六家','香山','崎頂','湖口','新豐'], county:'新竹市' },
+      { keys:['苗栗','竹南','後龍','通霄','苑裡','造橋','豐富','銅鑼','三義','大山','談文','龍港','白沙屯'], county:'苗栗縣' },
+      { keys:['台中','豐原','后里','潭子','大甲','清水','沙鹿','龍井','大肚','追分','成功','新烏日','烏日','大慶','五權','精武','太原','松竹'], county:'台中市' },
+      { keys:['彰化','員林','花壇','大村','永靖','社頭','田中','二水','溪湖','北斗','田尾','埤頭','溪州','竹塘','二林','大城','芳苑'], county:'彰化縣' },
+      { keys:['南投','集集','水里','車埕','濁水','龍泉'], county:'南投縣' },
+      { keys:['斗六','斗南','林內','石榴','大林','石龜'], county:'雲林縣' },
+      { keys:['嘉義','民雄','水上','南靖','嘉北'], county:'嘉義市' },
+      { keys:['台南','新營','柳營','林鳳營','隆田','善化','新市','永康','大橋','保安','仁德','中洲','後壁','拔林'], county:'台南市' },
+      { keys:['高雄','岡山','橋頭','楠梓','左營','新左營','鼓山','美術館','內惟','三塊厝','鳳山','後庄','九曲堂','路竹'], county:'高雄市' },
+      { keys:['屏東','潮州','枋寮','南州','林邊','佳冬','崁頂','竹田','麟洛','六塊厝'], county:'屏東縣' },
+      { keys:['宜蘭','羅東','蘇澳','冬山','五結','壯圍','員山','三星','大同','東澳','永樂','新馬','二結','中里'], county:'宜蘭縣' },
+      { keys:['花蓮','吉安','志學','壽豐','鳳林','萬榮','光復','瑞穗','玉里','富里','新城','秀林','崇德','和仁','和平','漢本'], county:'花蓮縣' },
+      { keys:['台東','關山','瑞源','鹿野','山里','知本','太麻里','金崙','瀧溪','大武','康樂'], county:'台東縣' }
+    ];
+    for (const group of nameMap) for (const key of group.keys) if (name.includes(key)) return group.county;
+    return '其他';
+  }
+
+  async function getTRADelays() {
+    try {
+      const raw = await _fetch('/api/basic/v2/Rail/TRA/LiveTrainDelay?$format=JSON', 'TRA_DELAY', 60);
+      const map = {};
+      if (Array.isArray(raw)) for (const d of raw) map[String(d.TrainNo)] = Number(d.DelayTime) || 0;
+      return map;
+    } catch (e) { return {}; }
+  }
+
+  // ✅ 已移除「過濾已發車班次」的功能
+  // 現在查「今天」會顯示全天所有班次
+
+  function _filterBySlot(trains, slotKey) {
+    if (!slotKey) return trains;
+    const r = SLOT_RANGES[slotKey]; if (!r) return trains;
+    return trains.filter(t => t.time >= r.s && t.time <= r.e);
+  }
+  function _filterAfter(trains, afterTime) {
+    if (!afterTime) return trains;
+    return trains.filter(t => t.time >= afterTime);
+  }
+
+  async function queryHSRFare(from, to) {
+    const fc = HSR_CODES[from], tc = HSR_CODES[to];
+    if (!fc || !tc) return null;
+    try {
+      const raw = await _fetch('/api/basic/v2/Rail/THSR/ODFare/' + fc + '/to/' + tc + '?$format=JSON', 'HSRFARE_' + fc + '_' + tc, 86400);
+      if (!Array.isArray(raw)) return null;
+      const fares = {};
+      for (const f of raw) {
+        if (f.FareClass !== 1) continue;
+        if (f.CabinClass === 1) fares.standard = f.Price;
+        if (f.CabinClass === 2) fares.business = f.Price;
+      }
+      return fares;
+    } catch (e) { return null; }
+  }
+
+  async function queryTRAFare(fromId, toId) {
+    try {
+      const raw = await _fetch('/api/basic/v2/Rail/TRA/ODFare/' + fromId + '/to/' + toId + '?$format=JSON', 'TRAFARE_' + fromId + '_' + toId, 86400);
+      if (!Array.isArray(raw)) return null;
+      const fares = {};
+      for (const f of raw) {
+        if (f.FareClass !== 1) continue;
+        const tt = f.TrainType;
+        if (tt === 1) fares.tzeChiang = f.Price;
+        if (tt === 2) fares.chuKuang = f.Price;
+        if (tt === 3) fares.local = f.Price;
+      }
+      return fares;
+    } catch (e) { return null; }
+  }
+
+  async function queryHSR(from, to, date, timeSlot, afterTime, expressOnly) {
+    const fc = HSR_CODES[from], tc = HSR_CODES[to];
+    if (!fc || !tc) throw new Error('站點代碼錯誤');
+    const raw = await _fetch('/api/basic/v2/Rail/THSR/DailyTimetable/OD/' + fc + '/to/' + tc + '/' + date + '?$format=JSON', 'HSR_' + fc + '_' + tc + '_' + date, 1800);
+    if (!Array.isArray(raw)) throw new Error('TDX 回傳格式錯誤');
+    let trains = [];
+    for (const t of raw) {
+      if (!t.OriginStopTime || !t.OriginStopTime.DepartureTime) continue;
+      const dep = t.OriginStopTime.DepartureTime;
+      const arr = t.DestinationStopTime ? t.DestinationStopTime.ArrivalTime : '';
+      const trainNo = t.DailyTrainInfo ? String(t.DailyTrainInfo.TrainNo) : '';
+      const isExpress = trainNo.startsWith('1');
+      trains.push({ time: dep, arrTime: arr, trainNo, isExpress, diffMin: arr ? Utils.timeDiff(dep, arr) : 0, delay: 0 });
+    }
+    trains.sort((a,b) => a.time.localeCompare(b.time));
+    // ✅ 移除 _filterCutoff
+    if (timeSlot) trains = _filterBySlot(trains, timeSlot);
+    if (afterTime) trains = _filterAfter(trains, afterTime);
+    if (expressOnly) trains = trains.filter(t => t.isExpress);
+    if (trains.length > 0) { trains[0].isFirst = true; trains[trains.length - 1].isLast = true; }
+    return { type:'HSR', from, to, date, timeSlot, afterTime, expressOnly, totalCount: trains.length, filtered: trains };
+  }
+
+  function _resolveTRA(c, n) {
+    if (c && c.startsWith('110')) return { name:'自強', icon:'🚄', isFast:true };
+    if (c && c.startsWith('111')) return { name:'自強', icon:'🚄', isFast:true };
+    if (c && c.startsWith('113')) return { name:'自強', icon:'🚄', isFast:true };
+    if (c && c.startsWith('114')) return { name:'自強', icon:'🚄', isFast:true };
+    if (c && c.startsWith('115')) return { name:'自強', icon:'🚄', isFast:true };
+    if (c && c.startsWith('116')) return { name:'自強', icon:'🚄', isFast:true };
+    if (c && c.startsWith('120')) return { name:'莒光', icon:'🚃', isFast:true };
+    if (c && c.startsWith('121')) return { name:'莒光', icon:'🚃', isFast:true };
+    if (c && c.startsWith('130')) return { name:'復興', icon:'🚃', isFast:true };
+    if (c && c.startsWith('140')) return { name:'區間', icon:'🚈', isFast:false };
+    if (c && c.startsWith('141')) return { name:'區間', icon:'🚈', isFast:false };
+    if (c && c.startsWith('150')) return { name:'區間快', icon:'🚈', isFast:false };
+    if (c && c.startsWith('151')) return { name:'區間快', icon:'🚈', isFast:false };
+    if (n && n.includes('太魯閣')) return { name:'太魯閣', icon:'🚄', isFast:true };
+    if (n && n.includes('普悠瑪')) return { name:'普悠瑪', icon:'🚄', isFast:true };
+    if (n && n.includes('自強')) return { name:'自強', icon:'🚄', isFast:true };
+    if (n && n.includes('莒光')) return { name:'莒光', icon:'🚃', isFast:true };
+    if (n && n.includes('區間快')) return { name:'區間快', icon:'🚈', isFast:false };
+    if (n && n.includes('區間')) return { name:'區間', icon:'🚈', isFast:false };
+    return { name:'其他', icon:'🚆', isFast:false };
+  }
+
+  async function queryTRA(fromId, toId, date, timeSlot, category, afterTime) {
+    const [odRaw, stationRaw, delays] = await Promise.all([
+      _fetch('/api/basic/v2/Rail/TRA/DailyTimetable/OD/' + fromId + '/to/' + toId + '/' + date + '?$format=JSON', 'TRA_OD_' + fromId + '_' + toId + '_' + date, 1800),
+      _fetch('/api/basic/v2/Rail/TRA/DailyTimetable/Station/' + fromId + '/' + date + '?$format=JSON', 'TRA_ST_' + fromId + '_' + date, 1800),
+      getTRADelays()
+    ]);
+    const odList = Array.isArray(odRaw) ? odRaw : [];
+    const stationList = Array.isArray(stationRaw) ? stationRaw : [];
+    const odTrainNos = new Set();
+    let trains = [];
+    for (const t of odList) {
+      if (!t.OriginStopTime || !t.OriginStopTime.DepartureTime) continue;
+      if (!t.DestinationStopTime || !t.DestinationStopTime.ArrivalTime) continue;
+      const trainNo = t.DailyTrainInfo ? String(t.DailyTrainInfo.TrainNo) : '';
+      const trainTypeId = t.DailyTrainInfo && t.DailyTrainInfo.TrainTypeID ? String(t.DailyTrainInfo.TrainTypeID) : '';
+      const trainTypeName = t.DailyTrainInfo && t.DailyTrainInfo.TrainTypeName ? (t.DailyTrainInfo.TrainTypeName.Zh_tw || '') : '';
+      const depTime = t.OriginStopTime.DepartureTime;
+      const arrTime = t.DestinationStopTime.ArrivalTime;
+      const info = _resolveTRA(trainTypeId, trainTypeName);
+      if (category === 'fast' && !info.isFast) continue;
+      if (category === 'normal' && info.isFast) continue;
+      odTrainNos.add(trainNo);
+      trains.push({ time: depTime, arrTime, trainNo, typeName: info.name, typeIcon: info.icon, diffMin: Utils.timeDiff(depTime, arrTime), delay: delays[trainNo] || 0, isDirect: true });
+    }
+    const addedFromStation = new Set();
+    for (const t of stationList) {
+      const trainNo = t.TrainNo ? String(t.TrainNo) : '';
+      if (odTrainNos.has(trainNo) || addedFromStation.has(trainNo)) continue;
+      const endingId = String(t.EndingStationID || '');
+      if (endingId !== toId) continue;
+      const depTime = t.DepartureTime;
+      if (!depTime) continue;
+      const trainTypeId = t.TrainTypeID ? String(t.TrainTypeID) : '';
+      const trainTypeName = (t.TrainTypeName && t.TrainTypeName.Zh_tw) || '';
+      const info = _resolveTRA(trainTypeId, trainTypeName);
+      if (category === 'fast' && !info.isFast) continue;
+      if (category === 'normal' && info.isFast) continue;
+      addedFromStation.add(trainNo);
+      trains.push({ time: depTime, arrTime: '', trainNo, typeName: info.name, typeIcon: info.icon, diffMin: 0, delay: delays[trainNo] || 0, isDirect: false });
+    }
+    trains.sort((a, b) => a.time.localeCompare(b.time));
+    // ✅ 移除 _filterCutoff
+    if (timeSlot) trains = _filterBySlot(trains, timeSlot);
+    if (afterTime) trains = _filterAfter(trains, afterTime);
+    if (trains.length > 0) { trains[0].isFirst = true; trains[trains.length - 1].isLast = true; }
+    return { type:'TRA', from:fromId, to:toId, date, timeSlot, category, afterTime, totalCount: trains.length, directCount: trains.filter(t => t.isDirect).length, filtered: trains };
+  }
+
+  async function queryBus(routeIdx, date, afterTime) {
+    const route = BUS_ROUTES[routeIdx];
+    if (!route) throw new Error('路線錯誤');
+    const wk = Utils.weekdayKey(date);
+    let times = [];
+    for (const rid of route.routeIds) {
+      try {
+        const sch = await _fetch('/api/basic/v2/Bus/Schedule/InterCity/' + rid + '?$format=JSON', 'BUS_SCH_' + rid, 1800);
+        if (!Array.isArray(sch)) continue;
+        for (const sub of sch) {
+          if (sub.Direction !== route.direction) continue;
+          if (!sub.Timetables) continue;
+          for (const tt of sub.Timetables) {
+            if (tt.ServiceDay && tt.ServiceDay[wk] !== 1) continue;
+            if (tt.StopTimes && tt.StopTimes.length > 0) times.push(tt.StopTimes[0].DepartureTime);
+          }
+        }
+      } catch (e) {}
+    }
+    times = [...new Set(times)].sort();
+    // ✅ 移除「已發車班次過濾」
+    if (afterTime) times = times.filter(t => t >= afterTime);
+    return { type:'BUS', from:route.from, to:route.to, date, routeIdx, totalCount: times.length, times };
+  }
+
+  async function queryParkingBasic(city) {
+    const d = await _fetch('/api/basic/v1/Parking/OffStreet/CarPark/City/' + city + '?$format=JSON', 'PARK_BASIC_' + city, 86400);
+    return (d && d.CarParks) || [];
+  }
+  async function queryParkingAvail(city) {
+    const d = await _fetch('/api/basic/v1/Parking/OffStreet/ParkingAvailability/City/' + city + '?$format=JSON', 'PARK_AVAIL_' + city, 60);
+    return (d && d.ParkingAvailabilities) || [];
+  }
+
+  return { getTRAStations, getTRADelays, queryHSR, queryHSRFare, queryTRA, queryTRAFare, queryBus, queryParkingBasic, queryParkingAvail };
+})();
+
+const Geo = {
+  async geocode(address) {
+    const url = 'https://maps.googleapis.com/maps/api/geocode/json?address=' + encodeURIComponent(address) + '&language=zh-TW&region=TW&key=' + GOOGLE_MAPS_API_KEY;
+    const res = await fetch(url);
+    if (!res.ok) return { error: 'HTTP_' + res.status };
+    const data = await res.json();
+    if (data.status !== 'OK') return { error: 'GEO_' + data.status };
+    const r = data.results[0];
+    let city = '';
+    for (const c of r.address_components) if ((c.types || []).includes('administrative_area_level_1')) { city = c.long_name; break; }
+    return { lat: r.geometry.location.lat, lng: r.geometry.location.lng, address: r.formatted_address, city };
+  }
+};
+
+async function parkQuery(keyword, type, radiusKm) {
+  const geo = await Geo.geocode(keyword);
+  if (geo.error) {
+    const em = geo.error;
+    if (em === 'GEO_ZERO_RESULTS') return { error: '找不到「' + keyword + '」' };
+    if (em === 'GEO_REQUEST_DENIED') return { error: '地圖服務未啟用' };
+    if (em === 'GEO_OVER_QUERY_LIMIT') return { error: '地圖查詢額度已滿' };
+    return { error: '位置解析失敗（' + em + '）' };
+  }
+  const cityCode = PARK_CITY_MAP[geo.city];
+  if (!cityCode) return { error: '不支援的地區：' + (geo.city || '未知') };
+  const [basic, avails] = await Promise.all([TDX.queryParkingBasic(cityCode), TDX.queryParkingAvail(cityCode)]);
+  if (basic.length === 0) return { error: '該地區無停車場資料' };
+  const idMap = {}, nameMap = {};
+  for (const a of avails) {
+    if (a.CarParkID) idMap[a.CarParkID] = a;
+    const nm = a.CarParkName ? (a.CarParkName.Zh_tw || '') : '';
+    if (nm) nameMap[nm] = a;
+  }
+  const typeCode = type === 'motor' ? '2' : '1';
+  const nearby = [];
+  for (const p of basic) {
+    const pos = p.CarParkPosition || {};
+    if (pos.PositionLat === undefined || pos.PositionLon === undefined) continue;
+    if (String(p.CarParkType || '') !== typeCode) continue;
+    const d = Utils.distance(geo.lat, geo.lng, pos.PositionLat, pos.PositionLon);
+    if (d > radiusKm) continue;
+    const pName = p.CarParkName ? (p.CarParkName.Zh_tw || '') : '';
+    const av = idMap[p.CarParkID] || (pName ? nameMap[pName] : null);
+    nearby.push({ name: pName || '(未命名)', distance: d, total: av && av.TotalSpaces !== undefined ? av.TotalSpaces : null, available: av && av.AvailableSpaces !== undefined ? av.AvailableSpaces : null, lat: pos.PositionLat, lng: pos.PositionLon });
+  }
+  nearby.sort((a, b) => { const aH = a.available !== null ? 1 : 0, bH = b.available !== null ? 1 : 0; if (aH !== bH) return bH - aH; return a.distance - b.distance; });
+  return { keyword, type, geo, parks: nearby, radiusKm };
+}
+
+const Store = {
+  getFavs() { try { return JSON.parse(localStorage.getItem('tq_favs') || '[]'); } catch(e) { return []; } },
+  addFav(fav) { const favs = this.getFavs(); if (favs.some(f => f.type===fav.type && f.from===fav.from && f.to===fav.to)) return false; favs.unshift(fav); if (favs.length > 8) favs.length = 8; localStorage.setItem('tq_favs', JSON.stringify(favs)); return true; },
+  removeFav(idx) { const favs = this.getFavs(); favs.splice(idx, 1); localStorage.setItem('tq_favs', JSON.stringify(favs)); },
+  getHist() { try { return JSON.parse(localStorage.getItem('tq_hist') || '[]'); } catch(e) { return []; } },
+  addHist(h) { let hist = this.getHist(); hist = hist.filter(x => !(x.type===h.type && x.from===h.from && x.to===h.to)); hist.unshift(h); if (hist.length > 6) hist.length = 6; localStorage.setItem('tq_hist', JSON.stringify(hist)); },
+  clearHist() { localStorage.removeItem('tq_hist'); }
+};
+
+let _traStationsList = [];
+let _traStationsLoaded = false;
+let _traStationsInitialized = false;
+let _traAllStations = [];
+let _traCounties = {};
+
+function traIdToName(id) { const s = _traStationsList.find(x => x.id === id); return s ? s.name : id; }
+
+const $ = id => document.getElementById(id);
+const resultEl = $('result');
+let _lastResultText = '';
+let _lastResultTitle = '';
+
+document.querySelectorAll('.mode-tab').forEach(tab => {
+  tab.onclick = () => {
+    Sound.tab();
+    document.querySelectorAll('.mode-tab').forEach(t => t.classList.remove('active'));
+    tab.classList.add('active');
+    const which = tab.dataset.tab;
+    if (which === 'transport') { $('panel-transport').style.display = 'block'; $('panel-parking').style.display = 'none'; }
+    else { $('panel-transport').style.display = 'none'; $('panel-parking').style.display = 'block'; }
+  };
+});
+
+document.querySelectorAll('.transport-option').forEach(opt => {
+  opt.onclick = () => {
+    Sound.tab();
+    document.querySelectorAll('.transport-option').forEach(o => o.classList.remove('active'));
+    opt.classList.add('active');
+    $('tr-type').value = opt.dataset.type;
+    updateTransportUI();
+  };
+});
+
+$('tr-date').value = Utils.today();
+
+function fillHSRStations() {
+  const from = $('tr-from'), to = $('tr-to');
+  from.innerHTML = ''; to.innerHTML = '';
+  for (const s of HSR_STATIONS) {
+    from.innerHTML += '<option value="' + s + '">' + s + '</option>';
+    to.innerHTML += '<option value="' + s + '">' + s + '</option>';
+  }
+  from.value = '台北'; to.value = '左營';
+}
+
+async function fillTRAStationsAsync() {
+  if (_traStationsInitialized) return;
+  const fromRegion = $('tr-from-region'), toRegion = $('tr-to-region');
+  const from = $('tr-from'), to = $('tr-to');
+  fromRegion.innerHTML = '<option value="">載入中…</option>';
+  toRegion.innerHTML = '<option value="">載入中…</option>';
+  from.innerHTML = '<option value="">—</option>';
+  to.innerHTML = '<option value="">—</option>';
+  try {
+    const list = await TDX.getTRAStations();
+    _traStationsList = list;
+    _traAllStations = list;
+    _traCounties = {};
+    for (const s of list) { const c = s.county || '其他'; if (!_traCounties[c]) _traCounties[c] = []; _traCounties[c].push(s); }
+    const order = ['基隆市','台北市','新北市','桃園市','新竹市','新竹縣','苗栗縣','台中市','彰化縣','南投縣','雲林縣','嘉義市','嘉義縣','台南市','高雄市','屏東縣','宜蘭縣','花蓮縣','台東縣','其他'];
+    const counties = Object.keys(_traCounties).sort((a,b) => { const ai = order.indexOf(a), bi = order.indexOf(b); return (ai === -1 ? 999 : ai) - (bi === -1 ? 999 : bi); });
+    fromRegion.innerHTML = ''; toRegion.innerHTML = '';
+    for (const c of counties) {
+      const cnt = _traCounties[c].length;
+      fromRegion.innerHTML += '<option value="' + c + '">' + c + '（' + cnt + '）</option>';
+      toRegion.innerHTML += '<option value="' + c + '">' + c + '（' + cnt + '）</option>';
+    }
+    const tpC = counties.find(c => c === '台北市') || counties[0];
+    const khC = counties.find(c => c === '高雄市') || counties[1];
+    if (tpC) fromRegion.value = tpC;
+    if (khC) toRegion.value = khC;
+    fillTRAStationsByCounty('from');
+    fillTRAStationsByCounty('to');
+    const tpS = _traCounties[tpC]?.find(s => s.name === '台北');
+    const khS = _traCounties[khC]?.find(s => s.name === '高雄');
+    if (tpS) from.value = tpS.id;
+    if (khS) to.value = khS.id;
+    _traStationsLoaded = true;
+    _traStationsInitialized = true;
+  } catch (e) {
+    fromRegion.innerHTML = '<option value="">載入失敗</option>';
+    toRegion.innerHTML = '<option value="">載入失敗</option>';
+  }
+}
+
+function fillTRAStationsByCounty(which) {
+  const countySel = which === 'from' ? $('tr-from-region') : $('tr-to-region');
+  const stationSel = which === 'from' ? $('tr-from') : $('tr-to');
+  const list = _traCounties[countySel.value] || [];
+  stationSel.innerHTML = '';
+  for (const s of list) stationSel.innerHTML += '<option value="' + s.id + '">' + s.name + '</option>';
+}
+
+function fillBusRoutes() {
+  const sel = $('tr-route-idx');
+  sel.innerHTML = '';
+  BUS_ROUTES.forEach((r, i) => { sel.innerHTML += '<option value="' + i + '">' + r.from + ' → ' + r.to + '</option>'; });
+}
+
+function updateTransportUI() {
+  const t = $('tr-type').value;
+  const traFilterRow = $('tra-filter-row');
+  const afterField = $('tr-after-field');
+  const expressWrap = $('express-filter-wrap');
+  const fromRegionField = $('tr-from-region-field');
+  const toRegionField = $('tr-to-region-field');
+  if (t === 'BUS') { $('tr-stations').style.display = 'none'; $('tr-route').style.display = 'block'; }
+  else { $('tr-stations').style.display = 'block'; $('tr-route').style.display = 'none'; if (t === 'HSR') fillHSRStations(); else if (t === 'TRA') fillTRAStationsAsync(); }
+  $('tr-cat').disabled = (t !== 'TRA');
+  if (t === 'TRA') {
+    traFilterRow.style.display = 'block';
+    afterField.style.display = 'block';
+    if (fromRegionField) fromRegionField.style.display = 'block';
+    if (toRegionField) toRegionField.style.display = 'block';
+  } else {
+    traFilterRow.style.display = 'none';
+    afterField.style.display = 'none';
+    if (fromRegionField) fromRegionField.style.display = 'none';
+    if (toRegionField) toRegionField.style.display = 'none';
+  }
+  if (t === 'HSR') expressWrap.style.display = 'flex';
+  else { expressWrap.style.display = 'none'; $('tr-express-only').checked = false; }
+}
+
+$('tr-from-region').onchange = () => { Sound.click(); fillTRAStationsByCounty('from'); };
+$('tr-to-region').onchange = () => { Sound.click(); fillTRAStationsByCounty('to'); };
+
+$('swap-btn').onclick = () => {
+  Sound.click();
+  const t = $('tr-type').value;
+  if (t === 'TRA') {
+    const fr = $('tr-from-region').value, tr = $('tr-to-region').value;
+    $('tr-from-region').value = tr; $('tr-to-region').value = fr;
+    fillTRAStationsByCounty('from'); fillTRAStationsByCounty('to');
+    const f = $('tr-from').value, to = $('tr-to').value;
+    $('tr-from').value = to; $('tr-to').value = f;
+  } else {
+    const f = $('tr-from').value, to = $('tr-to').value;
+    $('tr-from').value = to; $('tr-to').value = f;
+  }
+};
+
+updateTransportUI();
+fillBusRoutes();
+
+function renderFavs() {
+  const el = $('fav-area');
+  const favs = Store.getFavs();
+  if (favs.length === 0) { el.innerHTML = ''; return; }
+  let html = '<div style="font-size:10px;color:var(--text-3);letter-spacing:2px;margin-bottom:8px;font-weight:700">★ 最愛路線</div><div class="chips-wrap">';
+  favs.forEach((f, i) => { html += '<div class="chip" data-fav-idx="' + i + '">' + escapeHtml(f.type + ' ' + f.from + '→' + f.to) + '<span class="chip-x" data-del-fav="' + i + '">×</span></div>'; });
+  html += '</div>';
+  el.innerHTML = html;
+  el.querySelectorAll('[data-del-fav]').forEach(x => { x.onclick = (e) => { e.stopPropagation(); Sound.click(); Store.removeFav(+x.dataset.delFav); renderFavs(); }; });
+  el.querySelectorAll('.chip').forEach(chip => {
+    chip.onclick = (e) => {
+      if (e.target.classList.contains('chip-x')) return;
+      Sound.click();
+      const f = favs[+chip.dataset.favIdx];
+      $('tr-type').value = f.type;
+      document.querySelectorAll('.transport-option').forEach(o => o.classList.toggle('active', o.dataset.type === f.type));
+      updateTransportUI();
+      setTimeout(() => {
+        if (f.type === 'BUS') { const idx = BUS_ROUTES.findIndex(r => r.from===f.from && r.to===f.to); if (idx >= 0) $('tr-route-idx').value = idx; }
+        else if (f.type === 'TRA') {
+          if (f.fromId) { const st = _traAllStations.find(s => s.id === f.fromId); if (st && st.county) { $('tr-from-region').value = st.county; fillTRAStationsByCounty('from'); } $('tr-from').value = f.fromId; }
+          if (f.toId) { const st = _traAllStations.find(s => s.id === f.toId); if (st && st.county) { $('tr-to-region').value = st.county; fillTRAStationsByCounty('to'); } $('tr-to').value = f.toId; }
+        } else { $('tr-from').value = f.from; $('tr-to').value = f.to; }
+        $('tr-go').click();
+      }, 120);
+    };
+  });
+}
+
+function renderHist() {
+  const el = $('hist-area');
+  const hist = Store.getHist();
+  if (hist.length === 0) { el.innerHTML = ''; return; }
+  let html = '<div style="font-size:10px;color:var(--text-3);letter-spacing:2px;margin-bottom:8px;font-weight:700">🕐 最近查詢 <span style="cursor:pointer;color:var(--danger);float:right" id="clear-hist">清空</span></div><div class="chips-wrap">';
+  hist.forEach((h, i) => { html += '<div class="chip" data-hist-idx="' + i + '">' + escapeHtml(h.from) + '→' + escapeHtml(h.to) + '</div>'; });
+  html += '</div>';
+  el.innerHTML = html;
+  const clearBtn = $('clear-hist');
+  if (clearBtn) clearBtn.onclick = (e) => { e.stopPropagation(); Sound.click(); Store.clearHist(); renderHist(); };
+  el.querySelectorAll('[data-hist-idx]').forEach(chip => {
+    chip.onclick = () => {
+      Sound.click();
+      const h = hist[+chip.dataset.histIdx];
+      $('tr-type').value = h.type;
+      document.querySelectorAll('.transport-option').forEach(o => o.classList.toggle('active', o.dataset.type === h.type));
+      updateTransportUI();
+      setTimeout(() => {
+        if (h.type === 'BUS') { const idx = BUS_ROUTES.findIndex(r => r.from===h.from && r.to===h.to); if (idx >= 0) $('tr-route-idx').value = idx; }
+        else if (h.type === 'TRA') {
+          if (h.fromId) { const st = _traAllStations.find(s => s.id === h.fromId); if (st && st.county) { $('tr-from-region').value = st.county; fillTRAStationsByCounty('from'); } $('tr-from').value = h.fromId; }
+          if (h.toId) { const st = _traAllStations.find(s => s.id === h.toId); if (st && st.county) { $('tr-to-region').value = st.county; fillTRAStationsByCounty('to'); } $('tr-to').value = h.toId; }
+        } else { $('tr-from').value = h.from; $('tr-to').value = h.to; }
+        $('tr-go').click();
+      }, 120);
+    };
+  });
+}
+
+renderFavs();
+renderHist();
+
+$('tr-go').onclick = async () => {
+  const btn = $('tr-go');
+  if (btn.disabled) return;
+  const type = $('tr-type').value;
+  if (type === 'TRA' && !_traStationsLoaded) { Sound.error(); showToast('⏳ 台鐵站點載入中'); return; }
+  Sound.start();
+  btn.disabled = true;
+  btn.innerHTML = '<span>查詢中…</span>';
+  showScanning();
+  _lastResultText = ''; _lastResultTitle = '';
+  try {
+    const date = $('tr-date').value;
+    const afterTime = (type === 'TRA') ? ($('tr-after').value || '') : '';
+    if (!date) throw new Error('請選擇日期');
+    if (type === 'BUS') {
+      const idx = +$('tr-route-idx').value;
+      const r = await TDX.queryBus(idx, date, '');
+      renderBus(r);
+      Store.addHist({ type:'BUS', from:r.from, to:r.to });
+    } else if (type === 'HSR') {
+      Utils.checkDateRange(date, 'HSR');
+      const from = $('tr-from').value, to = $('tr-to').value;
+      if (from === to) throw new Error('起迄站不能相同');
+      const expressOnly = $('tr-express-only').checked;
+      const [r, f] = await Promise.all([TDX.queryHSR(from, to, date, null, '', expressOnly), TDX.queryHSRFare(from, to)]);
+      renderTrain(r, '🚄 高鐵', '#22D3EE', f, 'HSR');
+      Store.addHist({ type, from, to });
+    } else {
+      Utils.checkDateRange(date, 'TRA');
+      const fromId = $('tr-from').value, toId = $('tr-to').value;
+      if (!fromId || !toId) throw new Error('請選擇起迄站');
+      if (fromId === toId) throw new Error('起迄站不能相同');
+      const slot = $('tr-slot').value, cat = $('tr-cat').value;
+      const [r, f] = await Promise.all([TDX.queryTRA(fromId, toId, date, slot, cat, afterTime), TDX.queryTRAFare(fromId, toId)]);
+      renderTrain(r, '🚆 台鐵', '#A3E635', f, 'TRA');
+      Store.addHist({ type, from: traIdToName(fromId), to: traIdToName(toId), fromId, toId });
+    }
+    Sound.win();
+    renderHist();
+  } catch (e) {
+    Sound.error();
+    showError(e.message);
+  } finally {
+    btn.disabled = false;
+    btn.innerHTML = '<span>查詢班次</span><span>→</span>';
+  }
+};
+
+function showScanning() { resultEl.innerHTML = '<div class="scanning"><div class="scanning-text">查詢中</div><div class="scanning-bar"></div></div>'; }
+function showError(msg) { resultEl.innerHTML = '<div class="error-card"><div class="error-title">⚠ 查詢失敗</div><div class="error-msg">' + escapeHtml(msg) + '</div><button class="btn-ghost" onclick="document.getElementById(\'tr-go\').click()">🔄 重新查詢</button></div>'; }
+
+function renderTrain(r, title, color, fare, mode) {
+  const fromName = mode === 'TRA' ? traIdToName(r.from) : r.from;
+  const toName = mode === 'TRA' ? traIdToName(r.to) : r.to;
+  if (r.filtered.length === 0) {
+    resultEl.innerHTML = '<div class="card"><div class="result-header"><div class="result-route"><div class="route-station"><div class="route-name">' + escapeHtml(fromName) + '</div></div><div class="route-arrow">→</div><div class="route-station"><div class="route-name">' + escapeHtml(toName) + '</div></div></div><div class="result-meta"><div class="route-time">' + r.date + ' ' + Utils.weekday(r.date) + '</div></div></div><div style="text-align:center;padding:60px 0;color:var(--text-3)"><div style="font-size:48px;margin-bottom:16px;opacity:0.4">✕</div><div style="font-size:14px;font-weight:700">此時段無班次</div></div><div style="text-align:center;margin-top:20px"><button class="btn-ghost" onclick="document.getElementById(\'tr-go\').click()">🔄 重新查詢</button></div></div>';
+    return;
+  }
+  let fareHtml = '';
+  if (fare) {
+    const items = [];
+    if (mode === 'HSR') { if (fare.standard) items.push({ label: '標準', price: fare.standard }); if (fare.business) items.push({ label: '商務', price: fare.business }); }
+    else { if (fare.tzeChiang) items.push({ label: '自強', price: fare.tzeChiang }); if (fare.chuKuang) items.push({ label: '莒光', price: fare.chuKuang }); if (fare.local) items.push({ label: '區間', price: fare.local }); }
+    if (items.length > 0) fareHtml = '<div class="fare-info">' + items.map(i => '<div class="fare-item"><span class="fare-label">' + i.label + '</span><span class="fare-price">$' + i.price + '</span></div>').join('') + '</div>';
+  }
+  let filterTags = [];
+  if (r.timeSlot) { const labels = { morning:'☀️ 上午', afternoon:'🌤️ 下午', evening:'🌙 晚上' }; filterTags.push(labels[r.timeSlot] || r.timeSlot); }
+  if (r.afterTime) filterTags.push('⏰ ' + r.afterTime + ' 後');
+  if (r.expressOnly) filterTags.push('⚡ 僅直達');
+  const filterHtml = filterTags.length > 0 ? '<div class="filter-tags">' + filterTags.map(t => '<span class="filter-tag">' + escapeHtml(t) + '</span>').join('') + '</div>' : '';
+  let statHtml = '';
+  if (mode === 'TRA' && r.directCount !== undefined) {
+    const transferCount = r.totalCount - r.directCount;
+    statHtml = '<div class="stat-row"><div class="stat-item">🚄 直達 <strong>' + r.directCount + '</strong></div><div class="stat-item">🔄 需轉乘 <strong>' + transferCount + '</strong></div></div>';
+  }
+  const nowTime = String(new Date().getHours()).padStart(2,'0') + ':' + String(new Date().getMinutes()).padStart(2,'0');
+  let rows = '';
+  const list = r.filtered.slice(0, 80);
+  let nowLineInserted = false;
+  let nextTrainMarked = false;
+  const copyLines = [title + ' ' + fromName + ' → ' + toName, r.date + ' ' + Utils.weekday(r.date)];
+  list.forEach((t, i) => {
+    if (!nowLineInserted && r.date === Utils.today() && t.time > nowTime) {
+      rows += '<div class="now-line"><div class="now-line-label">⬇ 現在 ' + nowTime + '</div></div>';
+      nowLineInserted = true;
+    }
+    let badges = '';
+    if (t.isExpress) badges += '<span class="badge badge-express">⚡ 直達</span>';
+    if (t.isFirst) badges += '<span class="badge badge-first">🌅 首班</span>';
+    if (t.isLast) badges += '<span class="badge badge-last">🌙 末班</span>';
+    let delayHtml = '';
+    if (t.delay > 0) delayHtml = '<span class="badge badge-delay">⚠ 誤點 ' + t.delay + ' 分</span>';
+    else if (r.date === Utils.today() && mode !== 'BUS') delayHtml = '<span class="badge badge-ontime">✓ 準點</span>';
+    let countdownHtml = '';
+    const mins = Utils.minutesUntil(t.time, r.date);
+    if (mins !== null && mins >= 0) {
+      if (mins <= 15) countdownHtml = '<span class="badge badge-soon">🔥 ' + mins + ' 分鐘</span>';
+      else if (mins <= 60) countdownHtml = '<span class="badge badge-countdown">⏱ ' + mins + ' 分鐘</span>';
+    }
+    let isNext = false;
+    if (!nextTrainMarked && r.date === Utils.today() && mins !== null && mins >= 0) { isNext = true; nextTrainMarked = true; }
+    let bookHtml = '';
+    if (mode === 'HSR') bookHtml = '<a class="book-icon-btn" href="https://www.thsrc.com.tw/" target="_blank" rel="noopener">🎫</a>';
+    else if (mode === 'TRA') bookHtml = '<a class="book-icon-btn" href="https://tip.railway.gov.tw/tra-tip-web/tip" target="_blank" rel="noopener">🎫</a>';
+    const arrDisplay = t.arrTime ? '<span class="train-arrival-arrow">→</span> <span class="train-arrival-time">' + t.arrTime + '</span>' : '<span class="train-arrival-arrow">→</span> <span style="opacity:0.4">？</span>';
+    const durDisplay = t.isDirect ? '<div class="train-duration">' + Utils.formatDiff(t.diffMin) + '</div><div class="train-duration-label">車程</div>' : '<div class="train-duration" style="color:var(--neon-2)">🔄</div><div class="train-duration-label">需轉乘</div>';
+    rows += '<div class="train-card ' + (isNext ? 'next' : '') + '" style="animation-delay:' + Math.min(i*30, 500) + 'ms"><div class="train-time-block"><div class="train-dep">' + t.time + '</div><div class="train-dep-label">出發</div></div><div class="train-info-block"><div class="train-arrival">' + arrDisplay + '</div><div class="train-meta"><span class="train-no">' + t.trainNo + '</span><span class="train-type-name">' + (t.typeName || title.replace(/[🚄🚆🚌]\s/, '')) + '</span></div><div class="train-badges">' + badges + countdownHtml + delayHtml + '</div></div><div class="train-actions-block">' + durDisplay + bookHtml + '</div></div>';
+    copyLines.push(t.time + ' → ' + (t.arrTime || '?') + ' ' + t.trainNo + ' ' + (t.typeName || ''));
+  });
+  const headerHtml = '<div class="result-header"><div class="result-route"><div class="route-station"><div class="route-name">' + escapeHtml(fromName) + '</div><div class="route-time">' + r.date + '</div></div><div class="route-arrow">→</div><div class="route-station"><div class="route-name">' + escapeHtml(toName) + '</div><div class="route-time">' + Utils.weekday(r.date) + '</div></div></div><div class="result-meta"><div class="result-count">' + r.totalCount + '</div><div class="result-count-label">班次</div></div></div>';
+  resultEl.innerHTML = '<div class="card" style="border-color:' + color + '30">' + headerHtml + filterHtml + statHtml + fareHtml + '<div class="action-row"><button class="btn-ghost" id="add-fav">★ 收藏</button><button class="btn-ghost" id="copy-result">📋 複製</button><button class="btn-ghost" id="share-result">📤 分享</button></div><div class="train-list">' + rows + '</div>' + (r.filtered.length > 80 ? '<div style="text-align:center;margin-top:16px;color:var(--text-3);font-size:12px">… 僅顯示前 80 班</div>' : '') + '</div>';
+  _lastResultText = copyLines.join('\n');
+  _lastResultTitle = title + ' ' + fromName + '→' + toName;
+  $('add-fav').onclick = () => {
+    Sound.click();
+    const type = $('tr-type').value;
+    const fav = { type };
+    if (type === 'BUS') { const route = BUS_ROUTES[+$('tr-route-idx').value]; fav.from = route.from; fav.to = route.to; }
+    else if (type === 'TRA') { const fid = $('tr-from').value, tid = $('tr-to').value; fav.fromId = fid; fav.toId = tid; fav.from = traIdToName(fid); fav.to = traIdToName(tid); }
+    else { fav.from = $('tr-from').value; fav.to = $('tr-to').value; }
+    const added = Store.addFav(fav);
+    showToast(added ? '✅ 已收藏' : 'ℹ️ 已存在收藏');
+    if (added) renderFavs();
+  };
+  $('copy-result').onclick = () => copyToClipboard(_lastResultText);
+  $('share-result').onclick = () => shareContent(_lastResultTitle, _lastResultText);
+}
+
+function renderBus(r) {
+  if (r.times.length === 0) {
+    resultEl.innerHTML = '<div class="card"><div style="text-align:center;padding:60px 0;color:var(--text-3)"><div style="font-size:48px;margin-bottom:16px;opacity:0.4">✕</div><div style="font-size:14px;font-weight:700">當日無班次</div></div></div>';
+    return;
+  }
+  let stopsHtml = '';
+  const route = BUS_ROUTES[r.routeIdx];
+  if (route) for (const rid of route.routeIds) { const stops = BUS_STOPS[rid]; if (stops) stopsHtml += '<div style="padding:14px 16px;background:var(--bg-0);border-radius:10px;margin-bottom:12px;font-size:12px;color:var(--text-2);line-height:1.7"><strong style="color:var(--neon);letter-spacing:1px">🚏 ' + rid + '</strong><br>' + stops.join(' → ') + '</div>'; }
+  let cells = '';
+  r.times.forEach((t, i) => { cells += '<div class="bus-chip" style="animation-delay:' + Math.min(i*20, 400) + 'ms">' + t + '</div>'; });
+  _lastResultText = '🚌 統聯 ' + r.from + ' → ' + r.to + '\n' + r.date + ' ' + Utils.weekday(r.date) + '\n共 ' + r.totalCount + ' 班\n\n' + r.times.join('  ');
+  _lastResultTitle = '統聯 ' + r.from + '→' + r.to;
+  resultEl.innerHTML = '<div class="card"><div class="result-header"><div class="result-route"><div class="route-station"><div class="route-name">' + escapeHtml(r.from) + '</div><div class="route-time">' + r.date + '</div></div><div class="route-arrow">→</div><div class="route-station"><div class="route-name">' + escapeHtml(r.to) + '</div><div class="route-time">' + Utils.weekday(r.date) + '</div></div></div><div class="result-meta"><div class="result-count">' + r.totalCount + '</div><div class="result-count-label">班次</div></div></div>' + stopsHtml + '<div class="action-row"><button class="btn-ghost" id="add-fav">★ 收藏</button><button class="btn-ghost" id="copy-result">📋 複製</button><button class="btn-ghost" id="share-result">📤 分享</button></div><div class="bus-grid">' + cells + '</div></div>';
+  $('add-fav').onclick = () => { Sound.click(); const added = Store.addFav({ type:'BUS', from:r.from, to:r.to }); showToast(added ? '✅ 已收藏' : 'ℹ️ 已存在收藏'); if (added) renderFavs(); };
+  $('copy-result').onclick = () => copyToClipboard(_lastResultText);
+  $('share-result').onclick = () => shareContent(_lastResultTitle, _lastResultText);
+}
+
+$('pk-map').onclick = () => {
+  Sound.click();
+  const kw = $('pk-kw').value.trim();
+  if (!kw) { Sound.error(); return alert('請輸入地點'); }
+  const enc = encodeURIComponent(kw);
+  resultEl.innerHTML = '<div class="loc-card"><div class="loc-icon">📍</div><div class="loc-name">' + escapeHtml(kw) + '</div><div class="loc-actions"><a class="loc-link primary" href="https://www.google.com/maps/search/?api=1&query=' + enc + '" target="_blank" rel="noopener">🗺️ 在地圖上查看</a><a class="loc-link secondary" href="https://www.google.com/maps/dir/?api=1&destination=' + enc + '" target="_blank" rel="noopener">🧭 導航到此處</a></div></div>';
+  Sound.win();
+};
+
+$('pk-kw').addEventListener('keydown', e => { if (e.key === 'Enter') $('pk-map').click(); });
+
+$('pk-go').onclick = async () => {
+  const btn = $('pk-go');
+  if (btn.disabled) return;
+  Sound.start();
+  const kw = $('pk-kw').value.trim();
+  if (!kw) { Sound.error(); return alert('請輸入地點'); }
+  const type = $('pk-type').value;
+  btn.disabled = true;
+  showScanning();
+  try {
+    let r = await parkQuery(kw, type, 1);
+    if (r.error) throw new Error(r.error);
+    if (r.parks.length === 0) {
+      r = await parkQuery(kw, type, 2);
+      if (r.error) throw new Error(r.error);
+      if (r.parks.length === 0) { resultEl.innerHTML = '<div class="card"><div style="text-align:center;padding:60px 0;color:var(--text-3)"><div style="font-size:48px;margin-bottom:16px;opacity:0.4">✕</div><div style="font-size:14px;font-weight:700">2 公里內無停車場</div></div></div>'; Sound.error(); return; }
+      renderPark(r, '半徑 1km 無結果 · 已擴大至 2km');
+      Sound.win();
+      return;
+    }
+    renderPark(r, null);
+    Sound.win();
+  } catch (e) { Sound.error(); showError(e.message); }
+  finally { btn.disabled = false; btn.innerHTML = '<span>查停車場</span>'; }
+};
+
+function renderPark(r, note) {
+  const isMotor = r.type === 'motor';
+  const vi = isMotor ? '🏍️' : '🚗';
+  let items = '';
+  const copyLines = [(isMotor ? '機車' : '汽車') + '停車場 · ' + r.keyword, '半徑 ' + r.radiusKm + 'km · 共 ' + r.parks.length + ' 座'];
+  r.parks.forEach((p, i) => {
+    let badge;
+    if (p.available !== null && p.total !== null) { const ratio = p.available / Math.max(p.total, 1); const cls = ratio > 0.3 ? 'ok' : 'warn'; badge = '<span class="parking-badge ' + cls + '">' + vi + ' ' + p.available + '/' + p.total + '</span>'; }
+    else if (p.available !== null) badge = '<span class="parking-badge ok">' + vi + ' ' + p.available + '</span>';
+    else badge = '<span class="parking-badge none">⚠ 無即時車位</span>';
+    const dist = p.distance < 1 ? Math.round(p.distance * 1000) + ' m' : p.distance.toFixed(1) + ' km';
+    const mapUrl = (p.lat != null && p.lng != null) ? 'https://www.google.com/maps/search/?api=1&query=' + Number(p.lat).toFixed(6) + ',' + Number(p.lng).toFixed(6) : null;
+    const nameHtml = mapUrl ? '<a href="' + mapUrl + '" target="_blank" rel="noopener" class="parking-name">' + escapeHtml(p.name) + '</a>' : '<span class="parking-name">' + escapeHtml(p.name) + '</span>';
+    const mapBtn = mapUrl ? '<a href="' + mapUrl + '" target="_blank" rel="noopener" class="parking-map-btn">🗺️</a>' : '';
+    items += '<div class="parking-item"><div class="parking-rank">' + (i+1) + '</div><div class="parking-info">' + nameHtml + '<div class="parking-meta"><span>📏 ' + dist + '</span>' + badge + '</div></div>' + mapBtn + '</div>';
+    copyLines.push((i+1) + '. ' + p.name + ' · ' + dist + ' · ' + (p.available !== null ? p.available + '/' + (p.total || '?') : '無即時車位') + (mapUrl ? ' · ' + mapUrl : ''));
+  });
+  _lastResultText = copyLines.join('\n');
+  _lastResultTitle = (isMotor ? '機車' : '汽車') + '停車場 ' + r.keyword;
+  resultEl.innerHTML = '<div class="card"><div class="result-header"><div class="result-route"><div class="route-station"><div class="route-name">' + escapeHtml(r.keyword) + '</div><div class="route-time">半徑 ' + r.radiusKm + 'km</div></div></div><div class="result-meta"><div class="result-count">' + r.parks.length + '</div><div class="result-count-label">停車場</div></div></div>' + (note ? '<div class="filter-tags"><span class="filter-tag">' + escapeHtml(note) + '</span></div>' : '') + '<div class="action-row" style="grid-template-columns:1fr 1fr"><button class="btn-ghost" id="copy-result">📋 複製</button><button class="btn-ghost" id="share-result">📤 分享</button></div><div class="parking-list">' + items + '</div></div>';
+  $('copy-result').onclick = () => copyToClipboard(_lastResultText);
+  $('share-result').onclick = () => shareContent(_lastResultTitle, _lastResultText);
+}
+
+document.addEventListener('keydown', (e) => {
+  if (e.key === 'Escape') {
+    resultEl.innerHTML = '<div class="result-empty"><div class="result-empty-icon">🧭</div><div class="result-empty-title">準備開始查詢</div><div class="result-empty-sub">選擇交通工具與起迄站<br>即可開始你的旅運探險</div></div>';
+  }
+});
+</script>
+</body>
+</html>
