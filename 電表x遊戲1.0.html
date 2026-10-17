@@ -1659,7 +1659,7 @@ body.mode-roster .stat.warn .v{color:var(--crimson)}
    共用圖示＋名冊清單版（簡潔）
    ============================================================ */
 .ui-ic{display:inline-flex;align-items:center;justify-content:center;vertical-align:middle;flex:none;font-style:normal}
-.ui-ic>i{display:block;background-repeat:no-repeat;filter:drop-shadow(0 1px 1px rgba(0,0,0,.35))}
+.ui-ic>i,.ui-ic>g-i{display:block;background-repeat:no-repeat;filter:drop-shadow(0 1px 1px rgba(0,0,0,.35))}
 
 /* 搜尋放大鏡改成金色線條 */
 .roster-search::before{content:"";width:15px;height:15px;opacity:.85;
@@ -1931,6 +1931,32 @@ g-i.gi>g-i{display:block;background-repeat:no-repeat}
 .rg-btn:disabled{opacity:.35;cursor:default}
 .rg-off{display:block;margin:8px auto 0;padding:4px 8px;border:0;background:none;color:var(--ink-2);font:12px "Noto Sans TC",sans-serif;text-decoration:underline;cursor:pointer}
 .rg button:focus-visible{outline:2px solid var(--gold-3);outline-offset:2px}
+/* ===== 戰鬥上方精簡 ===== */
+.bt-head{flex-wrap:nowrap!important;gap:6px}
+.bt-ttl{flex:none;font-size:18px!important;letter-spacing:0!important}
+.bt-fl{margin-right:0!important;flex:none}
+.bt-goal{order:0!important;flex:1 1 auto!important;min-width:0;max-width:none!important;text-align:left!important}
+.bt-spd,.bt-chip,.bt-x{flex:none}
+.bt-legend-bar{flex-wrap:nowrap!important;justify-content:flex-start!important;overflow-x:auto;overflow-y:hidden;max-height:none!important;scrollbar-width:none;-webkit-overflow-scrolling:touch}
+.bt-legend-bar::-webkit-scrollbar{display:none}
+.bt-legend-bar .lbc{flex:none;white-space:nowrap;display:inline-flex;align-items:center;gap:3px}
+.lbc.bld{border-color:#c9a55c;color:#ffe9b0;background:rgba(201,165,92,.14)}
+.lbc .lbt{font-style:normal;margin-left:2px;color:#c9a55c}
+.lb-empty{font:10px "JetBrains Mono",monospace;color:#4a5a72;white-space:nowrap}
+.bt-mastery:empty{display:none}
+.bt-mastery{flex-direction:column;align-items:stretch;gap:6px;padding:8px;border-radius:8px;background:rgba(201,165,92,.05);border:1px solid rgba(201,165,92,.2)}
+.bt-drawer-bl{display:flex;flex-wrap:wrap;gap:4px;justify-content:center}
+.bt-drawer-m{display:flex;flex-wrap:wrap;gap:5px;justify-content:center}
+/* ===== 戰利品連續視窗 ===== */
+.bt-modal.chain .bt-modal-box{animation:none!important}
+.bt-modal.chain{transition:none}
+.loot-step{display:flex;align-items:center;justify-content:center;gap:6px;margin:-6px 0 10px;font:700 11px "Noto Sans TC",sans-serif;color:#c9a55c;letter-spacing:.08em}
+.loot-step span{display:inline-flex;gap:3px}
+.loot-step i{width:6px;height:6px;border-radius:50%;background:rgba(201,165,92,.35)}
+.loot-step i.on{background:#ffd54a;box-shadow:0 0 6px #ffd54a}
+/* ===== 面板外觀統一：標題字型、關閉鈕 ===== */
+.cx-hb b,.ac-hd b{font:900 17px "Cinzel","Noto Serif TC",serif!important;color:#e8d18f!important;letter-spacing:.12em!important;text-shadow:0 0 12px rgba(201,165,92,.5)}
+.ac-box,.cx-box{border-color:#c9a55c}
 /* ===== 雲端存檔／存檔與帳號 ===== */
 .cl-toast{position:fixed;left:50%;bottom:calc(24px + env(safe-area-inset-bottom));transform:translateX(-50%);z-index:600;max-width:calc(100vw - 32px);padding:10px 18px;border-radius:16px;background:rgba(11,17,28,.96);border:1px solid #c9a55c;color:#ffe9b0;font:600 13px/1.5 "Noto Sans TC",sans-serif;text-align:center;box-shadow:0 6px 18px rgba(0,0,0,.5);pointer-events:none}
 .cl-top{z-index:520}
@@ -3136,11 +3162,11 @@ const UI_OVR = {coin:"S3.ming", pom:"S3.pom", scroll:"S3.bless", art:"S3.art"};
 const UI_IMG = "https://lonely52243.neocities.org/電表/IMG_3677.png";
 const UI_W = 1536, UI_H = 459;
 const UI_BOX = {dice:[14,21,152,146],pom:[182,23,139,144],mingbag:[338,24,138,150],trial:[493,21,135,153],none:[646,36,127,131],leave:[781,33,145,139],go:[930,24,143,150],art:[1086,13,131,161],harvest:[1237,25,145,149],glass:[1396,23,113,151],scroll:[19,242,147,138],coin:[184,242,142,138],level:[344,241,142,139],date:[515,244,135,128],report:[695,248,135,125],miss:[877,248,135,124],atk:[1055,242,153,138],hp:[1229,249,147,131],def:[1396,247,109,133]};
+/* 所有圖示都用同一個 gi() 畫：圖集登記在 GI_SHEETS，這裡把舊的介面圖集也登記進去 */
+GI_SHEETS.UI = {u:UI_IMG, W:UI_W, H:UI_H, b:UI_BOX};
 function uiIcon(k, sz){
   if(UI_OVR[k]) return gi(UI_OVR[k], sz);
-  const b = UI_BOX[k]; if(!b) return "";
-  const r = sz / Math.max(b[2], b[3]);
-  return '<i class="ui-ic" style="width:'+sz+'px;height:'+sz+'px"><i style="width:'+(b[2]*r).toFixed(1)+'px;height:'+(b[3]*r).toFixed(1)+'px;background-image:url(\''+UI_IMG+'\');background-size:'+(UI_W/b[2]*100).toFixed(2)+'% '+(UI_H/b[3]*100).toFixed(2)+'%;background-position:'+(b[0]/(UI_W-b[2])*100).toFixed(2)+'% '+(b[1]/(UI_H-b[3])*100).toFixed(2)+'%"></i></i>';
+  return UI_BOX[k] ? gi("UI."+k, sz, "ui-ic") : "";
 }
 /* 戰鬥數值：由無盡挑戰的公式算（還沒載入時回傳 null） */
 function rosterStatsOf(u){
@@ -4422,7 +4448,7 @@ body.bt-lite.bt-flag-c2 .bt-bn{animation-duration:.6s!important}
 /* ===== v28：神器／契約／凱旋／流派 ===== */
 .bt-legend-bar .lbc.art{color:#ffb3ad;border-color:#ff7b72;background:rgba(248,81,73,.14)}
 .art-ic{display:inline-flex;align-items:center;justify-content:center;vertical-align:middle;flex:none;font-style:normal}
-.art-ic>i{display:block;background-repeat:no-repeat;filter:drop-shadow(0 1px 2px rgba(0,0,0,.6))}
+.art-ic>i,.art-ic>g-i{display:block;background-repeat:no-repeat;filter:drop-shadow(0 1px 2px rgba(0,0,0,.6))}
 .bt-legend-bar .lbc.pact{color:#d9c4ff;border-color:#a371f7;background:rgba(163,113,247,.14)}
 .bt-art .bt-ch-item.warn{border-color:rgba(255,123,114,.6)}
 .bt-pact .bt-ch-item.warn{border-color:rgba(163,113,247,.6);background:linear-gradient(90deg,rgba(163,113,247,.16),rgba(201,165,92,.03))}
@@ -5023,9 +5049,6 @@ function openSettings(){
       else if(k==="ougisave"){try{localStorage.setItem(OUGI_KEY,v)}catch(x){}}
       else if(k==="fullpom"){try{localStorage.setItem(FULLPOM_KEY,v)}catch(x){}}
       else if(k==="boss1"){try{localStorage.setItem(BOSS1_KEY,v)}catch(x){}spdBtn()}
-      else if(k==="cloudsync"){const uid=G&&G.uid;if(!uid)return;if(cloudInfo(uid).need){cloudToast("請先輸入轉移碼");setTimeout(()=>cloudToast(null),1800);return}bankSave();cloudToast("☁️ 同步中…");Cloud.sig[uid]="";Cloud.push(uid,(ok,err)=>{cloudToast(ok?"✅ 已同步":"⚠️ 同步失敗："+(err||"未知原因"));setTimeout(()=>cloudToast(null),ok?1800:6000);renderSettings()});return}
-      else if(k==="cloudcopy"){const c=fmtCode(cloudInfo(G.uid).code);try{navigator.clipboard.writeText(c).then(()=>{cloudToast("✅ 已複製 "+c);setTimeout(()=>cloudToast(null),1500)},()=>{})}catch(x){}return}
-      else if(k==="cloudbind"){const uid=G&&G.uid;if(!uid)return;cloudBind(uid,ok=>{if(!ok)return;G._noBank=true;closeSettings();closeBattle();cloudToast("✅ 已接回進度，請重新開始挑戰");setTimeout(()=>cloudToast(null),2500)});return}
       else if(k==="tips"){try{localStorage.removeItem(TIP_OFF_KEY);localStorage.removeItem(SPD_HINT_KEY);localStorage.removeItem("meter_roster_guide_off")}catch(x){}try{rgShow()}catch(x){}if(G)G.seen={};snd(880,1320,.1,.06,"triangle")}
       else if(k==="pf"){PF[v]=!PF[v];savePF()}
       else if(k==="pfset"){PF=pfDefault(v);savePF()}
@@ -5226,7 +5249,7 @@ function floorAtkBonus(f){return f<=50?1+f*.025:1+50*.025+(f-50)*BAL.floorAtkRat
 function floorPierce(f){return Math.min(0.4,f*0.0008)}
 const divineCap=()=>has("ares1")?200:100;
 const noReset=()=>has("zeus5");
-function comboBonus(){const p=G.p,cs=hasArt("csoul");return Math.min(p.comboMax*(cs?2:1),p.combo*p.comboUp*(cs?1.5:1))*(hasLegend("legend4")?2:1)*(hasSolo("solo_zeus")?1.5:1)}
+function comboBonus(){const p=G.p;return Math.min(p.comboMax*artMul("comboCap"),p.combo*p.comboUp*artMul("comboUp"))*(hasLegend("legend4")?2:1)*(hasSolo("solo_zeus")?1.5:1)}
 const comboSteps=()=>Math.min(10,Math.floor(G.p.combo/10));
 /* 會直接改數值的祝福（其餘都在戰鬥時即時讀取 bv，專精加成自動生效） */
 const STAT_FX={
@@ -5741,7 +5764,7 @@ function chainDl(){return G.chainFloor+FRIEREN_GAP_MAX}
 function pickSpecial(f){
   if(!G||!G.p||f===500)return null;
   if(!MYTH_ONLY&&G.chainSeen&&!G.chainDone&&f>=G.chainAt)return mythByName("芙莉蓮");
-  if(!(MYTH_RATE>0)||Math.random()>=MYTH_RATE*(1+.5*pactLv("tyrant")))return null;
+  if(!(MYTH_RATE>0)||Math.random()>=MYTH_RATE)return null;
   const pl=MYTHS.filter(b=>b.f<=f&&(MYTH_ONLY?b.n===MYTH_ONLY:(b.n!=="芙莉蓮"&&!(b.n==="菲倫"&&G.chainSeen))));
   return pl.length?pl[Math.floor(Math.random()*pl.length)]:null;
 }
@@ -5788,13 +5811,12 @@ function genMyth(f,b){
   if(tr.mul!==1){en.maxHp=Math.round(en.maxHp*tr.mul);en.hp=en.maxHp;en.atk*=1+(tr.mul-1)*.4}
   if(b.n==="芙莉蓮"){const ct=mtE(en,"chantTime",0);if(ct)en.ch.t=ct;en.sealCd=Math.min(en.sealCd,mtE(en,"sealCd",20))}
   if(b.n==="塔納托斯")en.ms.mark=mtE(en,"instantMark",0);
-  {const ty=1+.2*pactLv("tyrant");if(ty>1){en.maxHp=Math.round(en.maxHp*ty);en.hp=en.maxHp;en.atk*=ty}}
   if(b.twoPhase){en.name="💎 "+b.displayName;en.ss={phase:1,stolen:[],balls:[],ballsLive:false,curse:0,ballT:0,tauntT:12,dashT:10,ball15:15,trans:false,pissed:false,noBless:false}}
   return en;
 }
 const isMyth=a=>!!(G&&G.e&&G.e.myth&&G.e.mab===a);
 /* 芙莉蓮：連擊抗性（玩家連擊每 10 層，她受傷 -4%，最多 -40%） */
-function eDmgMul(){let m=1;if(hasArt("frost")&&G.e&&G.e.frozen&&G.e.stopT>0)m*=1.5;if(isMyth("詠唱・殺人魔法"))m*=1-Math.min(.4,.04*Math.floor(G.p.combo/10));if(isMyth("亡者之握")&&G.e.shield>0)m*=mt("skeletonDefense",1);return m}
+function eDmgMul(){let m=artMul("eDmg",G.e);if(isMyth("詠唱・殺人魔法"))m*=1-Math.min(.4,.04*Math.floor(G.p.combo/10));if(isMyth("亡者之握")&&G.e.shield>0)m*=mt("skeletonDefense",1);return m}
 function setMythDom(){
   const e=G.e,b=e.mb,s=R.Spr.style;
   if(b.twoPhase){
@@ -5817,7 +5839,7 @@ function setMythDom(){
   setT(R.El,"💎 "+getMythTierTitle(e.tier||1));R.El.style.color=getMythTierColor(e.tier||1);
   R.Ab.innerHTML='<span class="mb" data-myth="'+b.ab+'">'+(MYTH_SIG[b.ab]||b.ab)+'</span>'+(e.abilities||[]).map(n=>{const a=AB_MAP[n];return '<span class="'+a.cls+'" data-ab="'+n+'" data-mul="'+e.abMul+'">'+n+(e.abMul>1?'×'+abMulTxt(e.abMul):'')+'</span>'}).join("");
   setCls(R.Fl,"bt-fl myth");
-  setT(R.Fl,"第 "+G.floor+" 層");if(R.Goal)setT(R.Goal,nextGoal());
+  setT(R.Fl,"第 "+G.floor+" 層");if(R.Goal){const ng=nextGoal();setT(R.Goal,goalShort(ng));R.Goal.title=ng}
   R.Eh._w=R.Eg._w=null;
 }
 function showMythModal(name){
@@ -5860,7 +5882,7 @@ function mythChoice(g){
   m=document.createElement("div");m.className="bt-modal myth bt-myth-modal on";
   const nb=Object.keys(p.blessings).length+p.duos.length+p.legends.length+p.solos.length;
   const nm=(b.title?b.title+" · ":"")+b.n;
-  const noRun=!!b.noRun||hasArt("doom");
+  const noRun=!!b.noRun||artAny("noRun");
   m.innerHTML='<div class="bt-modal-box"><div class="bt-modal-title">💎 神話 BOSS 出現！</div><div class="bt-myth-name">—— '+nm+' ——</div>'+
    '<div class="bt-myth-ab"><b>'+(MYTH_SIG[b.ab]||b.ab)+'</b>　'+(MYTH_DESC[b.ab]||"")+'</div>'+(e.tier>1?'<div class="bt-myth-tier" style="color:'+getMythTierColor(e.tier)+'">💎 第 '+e.tier+' 次降臨・'+getMythTierTitle(e.tier)+'（血量／攻擊 ×'+e.tierMul.toFixed(1)+'）<br>'+tierLines(e).join('<br>')+'</div>':'')+
    (noRun?'<div class="bt-myth-lose">🚫 這次無法逃跑<br><span class="bt-myth-quote">'+(b.noRun?'「我不會讓你走的。」':'🔔 終焉之鐘：不能逃跑')+'</span></div>':
@@ -5915,7 +5937,7 @@ function stunP(sec,txt){
   if(p.ccImm>0){fx("p","免疫","heal");return false}
   const decay=getPlayerCCDecay();
   if(decay<=0){fx("p","抗性","heal");return false}
-  const fin=sec*decay*(hasArt("godfoe")?.5:1);
+  const fin=sec*decay*artMul("stun");
   p.stunT=Math.max(p.stunT||0,fin);G.pT=Math.max(G.pT,fin);
   p.ccChain=(p.ccChain||0)+1;p.ccChainT=0;p.ccImm=1.5;
   log("💫 "+txt+" "+fin.toFixed(1)+" 秒"+(decay<1?"（遞減 ×"+decay.toFixed(2)+"）":""),"e");fx("p",txt,"crit");
@@ -5924,7 +5946,7 @@ function stunP(sec,txt){
 /* 每幀：持續效果（流血／季節／凝視／醉酒） */
 function mythStep(dt){
   const p=G.p,e=G.e,a=e.mab,ms=e.ms||(e.ms={});
-  if(p.bleed){p.bleed.t-=dt;p.dotAcc=(p.dotAcc||0)+p.maxHp*.01*p.bleed.n*dt*(hasArt("godfoe")?.5:1)*(ksIs("antibody")?.6:1);if(p.bleed.t<=0)p.bleed=null}
+  if(p.bleed){p.bleed.t-=dt;p.dotAcc=(p.dotAcc||0)+p.maxHp*.01*p.bleed.n*dt*artMul("bleed")*(ksIs("antibody")?.6:1);if(p.bleed.t<=0)p.bleed=null}
   if(a==="冥界之花"){
     e.seaT-=dt;
     if(e.seaT<=0){
@@ -6111,7 +6133,7 @@ function mythReward(){
   if(nm==="菲倫"){
     p.atkInt=Math.max(.2,p.atkInt*.92);
     p.legendaries.push({k:"fern",n:"一般攻擊魔法",d:"攻擊間隔永久 -8%"});
-    log("👑 獲得傳說祝福「一般攻擊魔法」：攻擊間隔永久 -8%","legend");banner("👑 一般攻擊魔法","duo");
+    log("👑 獲得至高祝福「一般攻擊魔法」：攻擊間隔永久 -8%","legend");banner("👑 一般攻擊魔法","duo");
     updateLegendBar();
   }
   if(nm==="芙莉蓮"){
@@ -6119,7 +6141,7 @@ function mythReward(){
     const om=p.maxHp;p.maxHp=Math.round(p.maxHp*1.1);p.hp+=p.maxHp-om;
     G.dice=(G.dice||0)+3;
     p.legendaries.push({k:"frieren",n:"葬送者之證",d:"攻擊 +10%、生命 +10%、🎲 +3"});
-    log("👑 獲得傳說祝福「葬送者之證」：攻擊 +10%、生命 +10%、🎲 +3","legend");banner("👑 葬送者之證","duo");
+    log("👑 獲得至高祝福「葬送者之證」：攻擊 +10%、生命 +10%、🎲 +3","legend");banner("👑 葬送者之證","duo");
     updateLegendBar();
   }
   if(nm==="高速婆婆"){
@@ -6129,7 +6151,7 @@ function mythReward(){
     if(ss)ss.ballsLive=false;
     p.atkInt=Math.max(.2,p.atkInt*.94);p.dodge=Math.min(.6,p.dodge+.04);
     p.legendaries.push({k:"tabby",n:"借來的高速",d:"攻擊間隔永久 -6%、閃避 +4%"});
-    log("👑 獲得傳說祝福「借來的高速」：攻擊間隔永久 -6%、閃避 +4%","legend");banner("👑 借來的高速","duo");
+    log("👑 獲得至高祝福「借來的高速」：攻擊間隔永久 -6%、閃避 +4%","legend");banner("👑 借來的高速","duo");
     if(G._lowWin){const l=pickL(TABBY_REVERSE);mythTimer(G,()=>banner(l,"legend tline"),700);log("👵 "+l,"legend")}
     updateLegendBar();
   }
@@ -6138,8 +6160,8 @@ function mythReward(){
 /* ============ 500 層深淵壓縮（神話 BOSS 不例外） ============ */
 /* 深淵：500 層開始，到 550 層逐步達到全額（攻擊 ×0.75、生存 ×0.7） */
 function abyssT(f){return f>=500?Math.min(1,(f-500)/50):0}
-function atkMulFloor(){return G?1-(1-BAL.atkMul500)*abyssT(G.floor)*(hasArt("abyss")?.5:1):1}
-function survivalMul(){return G?1-(1-BAL.survivalMul500)*abyssT(G.floor)*(hasArt("abyss")?.5:1):1}
+function atkMulFloor(){return G?1-(1-BAL.atkMul500)*abyssT(G.floor)*artMul("abyssMul"):1}
+function survivalMul(){return G?1-(1-BAL.survivalMul500)*abyssT(G.floor)*artMul("abyssMul"):1}
 /* 500 層後深淵場地組：每 50 層換一張，750 層後循環 */
 const ABYSS_MAPS=[
  {u:"https://lonely52243.neocities.org/電表/圖庫/IMG_3560.jpeg",y:"50%"},
@@ -6447,7 +6469,7 @@ function zeusChain(d,depth){
 /* 波塞冬：推三次就撞牆 */
 function poseidonPush(d){
   if(!(Math.random()<kbChance()))return;
-  if(hasArt("trident"))xdmg(d*.5,"crit");
+  artEach("onKnock",d);
   const e=G.e;e.pushChain=(e.pushChain||0)+1;
   if(e.pushChain>=3){
     e.pushChain=0;
@@ -6644,7 +6666,7 @@ function showPomPick(fromBless,avoid){
   const rbb=rb.querySelector("#btPomRr");if(rbb)rbb.onclick=()=>{if(rrUse("pom"))showPomPick(fromBless,c)};
   modPom.querySelector(".bt-pom-list").onclick=e=>{const t=e.target.closest("[data-pom]");if(!t)return;upgradeBlessing(t.dataset.pom);close()};
   modPom.querySelector(".bt-pom-skip").onclick=()=>{log("⬆️ 放棄了一顆 Pom","e");close()};
-  modPom.classList.add("on");sLegend();
+  modPom.classList.add("on");lootStep(modPom.querySelector(".bt-modal-box"));sLegend();
 }
 
 /* 敵人身上目前有幾種異常狀態（特權地位用） */
@@ -6658,7 +6680,7 @@ function statusCount(e){
 function mirRarityTip(){return ""}
 /* ============ 畫面骨架 ============ */
 function panelHtml(){return `
-<div class="bt-head"><span class="bt-ttl">⚔️ 無盡挑戰</span><span class="bt-fl" id="btFl"></span><span class="bt-goal" id="btGoal"></span><button class="bt-spd" id="btSpd" type="button" aria-label="戰鬥速度">⏩×1</button><span class="bt-chip" id="btBest"></span><button class="bt-x" id="btX">✕</button></div>
+<div class="bt-head"><span class="bt-ttl" title="無盡挑戰" aria-label="無盡挑戰">⚔️</span><span class="bt-fl" id="btFl"></span><span class="bt-goal" id="btGoal"></span><button class="bt-spd" id="btSpd" type="button" aria-label="戰鬥速度">⏩×1</button><span class="bt-chip" id="btBest"></span><button class="bt-x" id="btX">✕</button></div>
 <div class="bt-topinfo"><span>${uiIcon("atk",15)} 攻擊 <b id="btTopAtk">0</b></span><span>${uiIcon("coin",15)} 冥晶 <b id="btTopMing">0</b></span><span>${uiIcon("dice",15)} 重抽 <b id="btTopDice">0</b></span></div>
 <div class="bt-legend-bar" id="btLegendBar"></div>
 <div class="bt-mastery" id="btMastery"></div>
@@ -6692,7 +6714,7 @@ function bind(){
   R.Sheet.onclick=sheetClick;
   R.PavWrap.onclick=showStatModal;
   R.Ab.onclick=e=>{const _s=e.target.closest("[data-sk]");if(_s)showSkModal(_s.dataset.sk);const t=e.target.closest("[data-ab]");if(t)showAbModal(t.dataset.ab,+t.dataset.mul||1);const m=e.target.closest("[data-myth]");if(m)showMythModal(m.dataset.myth);if(e.target.closest("[data-ghost]"))showGhostModal()};
-  const lkClick=e=>{const t=e.target.closest("[data-lk]");if(t)showLegendModal(t.dataset.lk)};
+  const lkClick=e=>{const t=e.target.closest("[data-lk]");if(!t)return;if(t.dataset.lk==="__tog"){try{localStorage.setItem(BAR_KEY,barOpen()?"0":"1")}catch(x){}try{sfxTap()}catch(x){}updateLegendBar();return}showLegendModal(t.dataset.lk)};
   R.LegendBar.onclick=lkClick;R.Mastery.onclick=lkClick;
 }
 
@@ -6735,7 +6757,7 @@ function showLegendModal(k){
   const show=(t,d,html)=>{T.textContent=t;if(html)D.innerHTML=d;else D.textContent=d;modLegend.classList.add("on")};
   if(k==="cat:duo"){show("🌟 雙重祝福（"+G.p.duos.length+" / "+duoCap()+"）",G.p.duos.map(x=>{const o=DUOS.find(y=>y.k===x);return"<b>"+o.n+"</b>　"+o.d+'<br><small style="color:#8a78a8">'+o.why+"</small>"}).join("<br>"),1);return}
   if(k==="cat:legend"){show("🏆 傳奇祝福（"+G.p.legends.length+" / "+LEGENDS.length+"）",G.p.legends.map(x=>{const o=LEGENDS.find(y=>y.k===x);return"<b>"+o.n+"</b>　"+o.d}).join("<br>"),1);return}
-  if(k==="cat:lgd"){show("👑 傳說祝福（擊敗特殊 BOSS 取得，逃跑也不會消失）",G.p.legendaries.map(o=>"<b>"+o.n+"</b>　"+o.d).join("<br>"),1);return}
+  if(k==="cat:lgd"){show("👑 至高祝福（擊敗特殊 BOSS 取得，逃跑也不會消失）",G.p.legendaries.map(o=>"<b>"+o.n+"</b>　"+o.d).join("<br>"),1);return}
   if(k==="cat:solo"){show("✨ 神格覺醒（"+G.p.solos.length+" / "+SOLOS.length+"）",G.p.solos.map(x=>{const o=SOLOS.find(y=>y.k===x);return"<b>"+o.n+"</b>　"+o.d}).join("<br>"),1);return}
   if(k==="oracle"){const o=ORACLES.find(x=>x.k===G.oracle);if(o)show(o.ic+" 今日神諭：「"+o.n+"」",o.d+"\n\n每天全公司都是同一個神諭，明天會換。今天第一次打到第 50 層有每日獎勵。");return}
   if(k==="art"){show("🗿 禁忌神器（"+G.arts.length+" / "+ART_MAX+"）",G.arts.map(a=>{const x=ARTMAP[a];return artImg(a,32)+" <b>"+x.n+"</b><br>✅ "+x.d+"<br>⚠️ "+x.c}).join("<br><br>"),1);return}
@@ -6821,7 +6843,7 @@ function showBlessingPick(reroll){
     if(Object.keys(G.p.blessings).length>=blessCap()){want=t.dataset.pick;box.innerHTML=replaceHtml(want);return}
     finishPick(t.dataset.pick);
   };
-  modPick.classList.add("on");sLegend();
+  modPick.classList.add("on");lootStep(modPick.querySelector(".bt-modal-box"));sLegend();
 }
 /* 雙重祝福手動選擇：最多 3 個，點一個就解鎖 */
 function showDuoPick(list){
@@ -6873,11 +6895,14 @@ function showUnlock(type,o){
   box.querySelector(".bt-unlock-btn").onclick=close;
   box.onclick=e=>{if(e.target===box)close()};
 }
+/* 祝福抽屜開關（記在手機） */
+const BAR_KEY="meter_battle_bar_open";
+function barOpen(){try{return localStorage.getItem(BAR_KEY)==="1"}catch(e){return false}}
 function updateLegendBar(){
   const p=G.p,out=[];
   const col={common:"#8ba0bd",rare:"#79c0ff",epic:"#c4a8f5",hero:"#ff9a3c",legend:"#ffd54a"};
   Object.keys(p.blessings).forEach(k=>{const b=BMAP[k];if(!b)return;out.push('<div class="lb'+(isSealed(k)?' seal':'')+'" data-lk="'+k+'" style="border-color:'+col[p.blessings[k]]+'">'+getGodIcon(b.god,22)+(bLv(k)>1?'<i class="lv">'+bLv(k)+'</i>':'')+'</div>')});
-  const nbl=Object.keys(p.blessings).length;if(nbl)out.unshift('<div class="lbc cap">'+uiIcon("scroll",14)+' '+nbl+'/'+blessCap()+'</div>');
+  const nbl=Object.keys(p.blessings).length;if(nbl)out.unshift('<div class="lbc cap" data-lk="__tog">'+uiIcon("scroll",14)+' '+nbl+'/'+blessCap()+'</div>');
   if(G.oracle){const o=ORACLES.find(x=>x.k===G.oracle);if(o)out.unshift('<div class="lbc oracle" data-lk="oracle">'+oracleIc(o,14)+' '+o.n+'</div>')}
   if(pactTotal())out.unshift('<div class="lbc pact" data-lk="pact">'+PACTS.filter(x=>pactLv(x.k)).map(x=>pactImg(x.k,14)+(pactLv(x.k)>1?pactLv(x.k):"")).join(" ")+'</div>');
   if(G.arts&&G.arts.length)out.unshift('<div class="lbc art" data-lk="art">'+uiIcon("art",14)+' '+G.arts.map(k=>artImg(k,14)).join("")+'</div>');
@@ -6886,11 +6911,15 @@ function updateLegendBar(){
   if(p.duos.length)out.push('<div class="lbc duo" data-lk="cat:duo">'+gi("S8.tag_duo",14)+' 雙重 ×'+p.duos.length+'</div>');
   if(p.legends.length)out.push('<div class="lbc legend" data-lk="cat:legend">'+gi("S8.tag_legend",14)+' 傳奇 ×'+p.legends.length+'</div>');
   if(p.solos.length)out.push('<div class="lbc solo" data-lk="cat:solo">'+gi("S8.tag_solo",14)+' 覺醒 ×'+p.solos.length+'</div>');
-  if(p.legendaries&&p.legendaries.length)out.push('<div class="lbc lgd" data-lk="cat:lgd">'+gi("S8.tag_lgd",14)+' 傳說 ×'+p.legendaries.length+'</div>');
-  R.LegendBar.innerHTML=out.length?out.join(""):'<span style="font:10px JetBrains Mono,monospace;color:#4a5a72">第 50 層起每 15 層獲得祝福・本場眾神：'+godsText()+'</span>';
+  if(p.legendaries&&p.legendaries.length)out.push('<div class="lbc lgd" data-lk="cat:lgd">'+gi("S8.tag_lgd",14)+' 至高 ×'+p.legendaries.length+'</div>');
+  /* 一行摘要：流派（點了展開祝福）＋信物、神器、契約、神諭、Pom、特殊祝福 */
+  const lbs=out.filter(h=>h.indexOf('<div class="lb')===0&&h.indexOf('<div class="lbc')!==0),chips=out.filter(h=>lbs.indexOf(h)<0);
+  const open=barOpen(),nb=Object.keys(p.blessings).length;
+  if(nb)chips.unshift('<div class="lbc bld" data-lk="__tog" role="button" aria-expanded="'+open+'">'+buildIcon(G,16)+' '+buildName(G)+'<i class="lbt">'+(open?'▴':'▾')+'</i></div>');
+  R.LegendBar.innerHTML=chips.length?chips.join(""):'<span class="lb-empty">第 50 層起每 15 層獲得祝福・本場眾神：'+godsText()+'</span>';
   const ms=[];
   GOD_KEYS.forEach(g=>{const c=godCount(g);if(c<=0)return;const t=masteryTier(g);ms.push('<span class="m'+(t>=2?' max':t>=1?' on':'')+'" data-lk="god:'+g+'">'+getGodIcon(g,16)+'<b>'+c+'</b>'+(t>=1?'<i>'+MASTERY[t].n+'</i>':'')+'</span>')});
-  if(R.Mastery)R.Mastery.innerHTML=ms.join("");
+  if(R.Mastery)R.Mastery.innerHTML=open&&nb?'<div class="bt-drawer-bl">'+lbs.join("")+'</div><div class="bt-drawer-m">'+ms.join("")+'</div>':"";
 }
 function statRow(k,v){return '<div class="bt-stat"><span>'+k+'</span><b>'+v+'</b></div>'}
 function showStatModal(){
@@ -7026,8 +7055,29 @@ const fmtCode=c=>c?String(c).slice(0,4)+"-"+String(c).slice(4):"";
 const normCode=c=>String(c||"").toUpperCase().replace(/[^A-Z0-9]/g,"");
 function lsSetObj(key,uid,val){try{const a=JSON.parse(localStorage.getItem(key))||{};a[uid]=val;localStorage.setItem(key,JSON.stringify(a))}catch(e){}}
 function lsGetObj(key,uid){try{return(JSON.parse(localStorage.getItem(key))||{})[uid]}catch(e){return undefined}}
+/* ============================================================
+   存檔總表：所有存在手機裡的資料都登記在這裡
+   HERO＝每位勇者各一份（{勇者ID: 資料}）
+     sync:"custom" 雲端有專門的合併規則（寫在 Cloud.merge）
+     sync:"auto"   自動上傳；雲端有、手機沒有時自動補回
+     sync:"none"   不上傳
+   PHONE（PREF_KEYS）＝整支手機共用的偏好設定，自動上傳
+   新增功能要存資料時：在這裡加一行，雲端同步與備份檔就會自動包含
+   ============================================================ */
+const STORE_HERO={
+  "meter_battle_v11":{n:"最高樓層",sync:"custom"},
+  "meter_battle_hit_v1":{n:"最高單擊",sync:"custom"},
+  "meter_battle_mirror_v1":{n:"魔鏡與冥晶",sync:"custom"},
+  "meter_battle_ks_v1":{n:"已解鎖信物",sync:"custom"},
+  "meter_battle_myth_v1":{n:"神話擊敗次數",sync:"custom"},
+  "meter_battle_codex_v1":{n:"圖鑑",sync:"custom"},
+  "meter_battle_run_v2":{n:"接關存檔",sync:"custom"},
+  "meter_battle_run_clr":{n:"接關清除時間",sync:"custom"},
+  "meter_battle_daily_v1":{n:"每日獎勵領取日",sync:"auto"},
+  "meter_battle_cloud_v1":{n:"雲端狀態（轉移碼）",sync:"none"}
+};
 /* 偏好設定：速度、畫面、聲音、提示、造型、暱稱……（整支手機共用） */
-const PREF_KEYS=["meter_battle_speed","meter_battle_perf","meter_battle_perf_flags","meter_battle_sound","meter_battle_vibrate","meter_battle_tips_off","meter_battle_spd_hint","meter_battle_ougisave","meter_battle_fullpom","meter_battle_boss1","meter_battle_autobuy","meter_roster_guide_off","meter_battle_codex_ui","meter_avatar_choice","meter_battle_nick"];
+const PREF_KEYS=["meter_battle_speed","meter_battle_perf","meter_battle_perf_flags","meter_battle_sound","meter_battle_vibrate","meter_battle_tips_off","meter_battle_spd_hint","meter_battle_ougisave","meter_battle_fullpom","meter_battle_boss1","meter_battle_bar_open","meter_battle_autobuy","meter_roster_guide_off","meter_battle_codex_ui","meter_avatar_choice","meter_battle_nick"];
 function prefsGet(){const o={};PREF_KEYS.forEach(k=>{try{const v=localStorage.getItem(k);if(v!==null)o[k]=v}catch(e){}});return o}
 function prefsSet(o,force){if(!o||typeof o!=="object")return;PREF_KEYS.forEach(k=>{if(!(k in o))return;try{if(force||localStorage.getItem(k)===null)localStorage.setItem(k,String(o[k]))}catch(e){}})}
 /* 接關存檔的時間：存檔時間或清除時間，取比較新的 */
@@ -7041,7 +7091,11 @@ const Cloud={
     const b=bankAll()[uid]||{};
     return{best:getBest(uid),hit:hitBest(uid),ming:b.ming||0,mir:b.mir||{},mirSide:b.mirSide||{},mt:b.t||0,
       ks:lsGetObj(KS_KEY,uid)||[],myth:lsGetObj(MYTH_KEY,uid)||{},cx:cxGet(uid),nick:getNick(),
-      run:noRun?null:getRun(uid),rt:noRun?0:runStamp(uid),prefs:prefsGet()};
+      run:noRun?null:getRun(uid),rt:noRun?0:runStamp(uid),prefs:prefsGet(),extra:Cloud.extraGet(uid)};
+  },
+  /* 總表裡 sync:"auto" 的資料 */
+  extraGet(uid){const o={};Object.keys(STORE_HERO).forEach(k=>{if(STORE_HERO[k].sync!=="auto")return;const v=lsGetObj(k,uid);if(v!==undefined)o[k]=v});return o},
+  extraMerge(uid,ex){if(!ex||typeof ex!=="object")return;Object.keys(ex).forEach(k=>{if(STORE_HERO[k]&&STORE_HERO[k].sync==="auto"&&lsGetObj(k,uid)===undefined)lsSetObj(k,uid,ex[k])})
   },
   /* 合併雲端與本機：樓層、單擊、擊敗次數取大；信物、圖鑑取聯集；冥晶、魔鏡、接關以較新的為準 */
   merge(uid,cd,force){
@@ -7063,6 +7117,7 @@ const Cloud={
       lsSetObj(RUN_CLR_KEY,uid,cd.rt);
     }
     if(cd.prefs&&(force||fresh))prefsSet(cd.prefs,force);
+    Cloud.extraMerge(uid,cd.extra);
     if(!getNick()&&cd.nick)setNick(cd.nick);
   },
   mergeCx(a,b){
@@ -7411,7 +7466,7 @@ const GHOST_AB={zeus:"疾行",poseidon:"巨力",athena:"護盾",aphrodite:"詛�
 /* 上傳成績時附上的快照：當下的攻擊、生命、防禦、暴擊、攻速、流派、主神、信物、神器 */
 function snapOf(g){
   const p=g.p,gods=GOD_KEYS.map(k=>[k,godCount(k)]).filter(x=>x[1]>0).sort((a,b)=>b[1]-a[1]).slice(0,3);
-  return JSON.stringify({a:Math.round(p.atk*(1+p.baseAtkBonus)*p.permAtk*(p.wrathAtk||1)*(p.sacAtk||1)),h:Math.round(p.maxHp),d:Math.round(p.def),c:+(p.crit||0).toFixed(3),cd:+(p.critDmg||0).toFixed(2),i:+(p.atkInt||1).toFixed(2),b:buildName(g),g:gods,k:g.keepsake||"",ar:g.arts||[],f:Math.max(0,g.floor-1),
+  return JSON.stringify({a:Math.round(p.atk*(1+p.baseAtkBonus)*p.permAtk*(p.wrathAtk||1)),h:Math.round(p.maxHp),d:Math.round(p.def),c:+(p.crit||0).toFixed(3),cd:+(p.critDmg||0).toFixed(2),i:+(p.atkInt||1).toFixed(2),b:buildName(g),g:gods,k:g.keepsake||"",ar:g.arts||[],f:Math.max(0,g.floor-1),
     bl:Object.keys(p.blessings).map(k=>k+"."+Math.max(0,RARITY_KEYS.indexOf(p.blessings[k]))+"."+bLv(k)),du:p.duos.slice(),lg:p.legends.slice(),so:p.solos.slice()});
 }
 /* 出現樓層：第一隻在 60～199 層之間隨機，之後每 200 層一隻（201～399、401～599…） */
@@ -7473,7 +7528,7 @@ function genGhost(f,gh){
   G._noSpecial=true;let e;try{e=genEnemy(f)}finally{G._noSpecial=false}
   if(!e||e.myth)return null;
   const b=eBase(f,{hp:1,at:1});
-  const theirs=Math.max(1,(s.a||1)*(s.h||1)),mine=Math.max(1,p.atk*(1+p.baseAtkBonus)*p.permAtk*(p.wrathAtk||1)*(p.sacAtk||1)*p.maxHp);
+  const theirs=Math.max(1,(s.a||1)*(s.h||1)),mine=Math.max(1,p.atk*(1+p.baseAtkBonus)*p.permAtk*(p.wrathAtk||1)*p.maxHp);
   const m = Math.max(1.0, Math.min(2.0, Math.sqrt(theirs/mine)));
   const by=ghostGods(s),gods=Object.keys(by).filter(g=>GODS[g]).sort((a,c)=>by[c].length-by[a].length);
   /* 祝福的稀有度、Pom 等級 → 能力強度（每張平均越好越強） */
@@ -7585,7 +7640,7 @@ function awakenTick(dt){
 /* ============ 神秘寶箱：擊敗怪物時偶爾掉落，自動打開 ============ */
 function chestDrop(){
   const g=G,p=g.p,f=g.floor;
-  if(hasArt("coin")||f<10||g._chestF===f||Math.random()>=.04*(1+pv("greedp","r")))return;
+  if(artAny("noChest")||f<10||g._chestF===f||Math.random()>=.04*(1+pv("greedp","r")))return;
   const cm=pv("greedp","x")||1;
   g._chestF=f;
   const base=Math.round((8+f*4)*(1+f/50));
@@ -7638,6 +7693,8 @@ function applyOracle(g){
 const oracleText=()=>{const {o}=todayOracle();return o.ic+" "+o.n+"："+o.d};
 
 /* ============ 下一個目標倒數 ============ */
+/* 上方目標的精簡寫法：「🎁 每日獎勵 還 49 層」→「🎁 每日 49 層」 */
+function goalShort(s){s=String(s||"");const m=s.match(/^(\S+)\s.*?(\d+)\s*層/);return m?m[1]+" "+m[2]+" 層":s}
 function nextGoal(){
   if(!G)return "";
   const f=G.floor,bs=BAL.blessStart,be=BAL.blessEvery;
@@ -7659,70 +7716,152 @@ const godsText=()=>(G&&G.gods?G.gods:GOD_KEYS).map(g=>GODS[g].ic+GODS[g].n).join
 
 /* ============ 禁忌神器：擊敗神話 BOSS 三選一，有代價、改規則；每場最多 3 件 ============ */
 const ART_MAX=3;
+/* ============================================================
+   禁忌神器：每件神器的「數值、說明、效果」都寫在自己這一筆
+   v＝數值（改這裡就好，說明文字會自動跟著變）
+   d／c＝效果／代價說明（由 v 產生）
+   其他欄位是效果，戰鬥程式會自動呼叫：
+     f(p)            拿到時立刻生效
+     atk(p,e,hpr)    攻擊倍率          eDmg(e)       敵人受到傷害倍率
+     eAtk()          怪物攻擊倍率      hurtIn()/hurtOut()  你受到傷害倍率（護盾前／後）
+     heal()          治療量倍率        ming()        冥晶倍率
+     dot()/direct()  持續／直接傷害倍率  poison()/fire()/boom()  中毒／火焰／爆炸倍率
+     skillCd()/ougi()/ougiCd()  技能冷卻、奧義傷害、奧義冷卻倍率
+     stun()/bleed()  受到暈眩時間、流血傷害倍率   abyssMul()  深淵壓縮倍率
+     kb()/link()/linkAtk()/cap()/pom()/trueDmg()/forgeStart()/floorShield()  加總類數值
+     light()/freezeDur()/freezeCh()  光明傷害、冰凍時間、冰凍機率倍率
+     critDmg(c)      暴擊傷害換算      comboCap()/comboUp()  連擊上限、連擊成長倍率
+     onFloor(p,e)    每層開場（fo＝執行順序）  tick(p,dt)  每格時間（to＝順序，回傳 true＝停止）
+     tickAll(p,dt)   每格時間（換層中也會跑）
+     onKill(p,e)  onCrit(p)  onSkill(p)  onAttack(p)  onCombo10(p)  onComboBreak(p)
+     onDodge(p)  onKnock(d)  onHeal(x)  onHurt(d,fromEnemy)  onDeath(p)（回傳 true＝復活）
+     mingDrop(m)     掉冥晶時改變數量
+   旗標：noShield noChest noRun noCritDmg fireEternal noLinkDr pierceShield
+   ============================================================ */
+const _hp=(p,m)=>{const o=p.maxHp;p.maxHp=Math.round(p.maxHp*m);if(m>1)p.hp+=p.maxHp-o;else p.hp=Math.min(p.hp,p.maxHp)};
+const _pc=x=>Math.round(x*100)+"%";
 const ARTS=[
- {k:"glass",ic:"🗡️",n:"玻璃大砲",d:"攻擊 ×1.7",c:"最大生命 ×0.6",f:p=>{p.atk=Math.round(p.atk*1.7);p.maxHp=Math.round(p.maxHp*.6);p.hp=Math.min(p.hp,p.maxHp)}},
- {k:"loop",ic:"♾️",n:"無盡迴圈",d:"技能冷卻 ×0.3",c:"每次施放技能扣 4% 目前生命"},
- {k:"greed",ic:"🪙",n:"貪婪之手",d:"冥晶 ×1.5",c:"受到敵人的傷害 +8%"},
- {k:"warp",ic:"⏳",n:"時間扭曲",d:"攻擊間隔 ×0.7（更快）",c:"每層開場 2.5 秒無法出手",f:p=>{p.atkInt=Math.max(.2,p.atkInt*.7)}},
- {k:"wrath",ic:"⚡",n:"宙斯之怒",d:"每次暴擊，本場攻擊永久 +1%（最多 +100%）",c:"暴擊不再加傷害",need:2},
- {k:"styx",ic:"🌊",n:"冥河契約",d:"受到的傷害 -20%",c:"冥晶掉落 -25%",need:4},
- {k:"berserk",ic:"🩸",n:"狂戰士之心",d:"生命越低攻擊越高（空血時 ×2.5）",c:"無法獲得護盾",need:6},
- {k:"wish",ic:"💀",n:"亡者之願",d:"每層開場，敵人直接損失 10% 血量（BOSS／神話 5%）",c:"每層開場失去 3% 最大生命（不會致死）"},
- {k:"slayer",ic:"🔱",n:"弒神之刃",d:"對神話 BOSS 傷害 ×1.6",c:"無（對菁英、BOSS 不再減傷）"},
- {k:"coin",ic:"🌗",n:"命運硬幣",d:"打怪掉冥晶時，70% 機率變 2 倍",c:"另外 30% 這次沒掉，還失去這場撿到冥晶的 5%；不再出現神秘寶箱",need:1},
- {k:"drum",ic:"🔨",n:"雷霆之鎚",d:"每 10 連擊，下一擊必定暴擊且傷害 ×2",c:"連擊中斷時間 3 秒 → 2.5 秒",need:3},
- {k:"godfoe",ic:"⛓️",n:"眾神之敵",d:"被暈眩的時間減半、流血傷害減半",c:"最大生命 ×0.92",need:5,f:p=>{p.maxHp=Math.round(p.maxHp*.92);p.hp=Math.min(p.hp,p.maxHp)}},
- {k:"vessel",ic:"🏺",n:"無盡之瓶",d:"每次獲得 Pom，額外多 1 顆",c:"無（祝福上限維持 12）",need:7},
- {k:"doom",ic:"🔔",n:"終焉之鐘",d:"之後每到 100 的倍數層，攻擊、生命永久 +10%",c:"每響一次，怪物攻擊再 +8%；不能逃離神話 BOSS",need:9},
- {k:"abyss",ic:"🌌",n:"深淵契約",d:"500 層後的深淵壓縮減半",c:"第 250 層起，怪物攻擊 +15%",need:11},
- {k:"plague",ic:"☠️",n:"瘟疫之種",d:"中毒傷害 ×2（中毒本來就無視防禦）",c:"每層開場失去 5% 最大生命（不會致死）",need:2},
- {k:"frost",ic:"❄️",n:"霜之哀傷",d:"冰凍時間 ×2（仍受控場上限），冰凍中的敵人受到傷害 ×1.5",c:"冰凍機率 ×0.8",need:3},
- {k:"fountain",ic:"⛲",n:"聖癒之泉",d:"每次治療，對敵人造成等量傷害",c:"治療量 -15%",need:3},
- {k:"trident",ic:"🔱",n:"海神三叉戟",d:"擊退機率 +30%，擊退時追加這一擊 50% 的傷害",c:"攻擊 -5%",need:3},
- {k:"forge",ic:"🔨",n:"鍛造之魂",d:"每層開場就有 5 層鍛造，爆炸傷害 ×2",c:"每層開場失去 5% 最大生命（不會致死）",need:4},
- {k:"eternal",ic:"🔥",n:"永恆之火",d:"火焰傷害 ×2，火焰不會熄滅",c:"每秒失去 0.5% 生命（不會低於 10%）",need:4},
- {k:"chariot",ic:"☀️",n:"太陽神車",d:"光明傷害 ×2，每 10 次攻擊造成敵人 3% 最大生命傷害",c:"治療效果 -25%",need:5},
- {k:"chain",ic:"🔗",n:"天后之鏈",d:"連結上限 +20，每層連結攻擊再 +3%",c:"連結不再提供減傷",need:6},
- {k:"voideye",ic:"👁️",n:"深淵之瞳",d:"20% 的傷害無視防禦",c:"最大生命 ×0.8",need:5,f:p=>{p.maxHp=Math.round(p.maxHp*.8);p.hp=Math.min(p.hp,p.maxHp)}},
- {k:"wheel",ic:"🎡",n:"命運之輪",d:"每 50 層獲得 1 個隨機祝福（不佔上限，本場最多 3 個）",c:"祝福上限 12 → 10",need:6},
- {k:"hourglass",ic:"⏳",n:"時之沙漏",d:"每 10 秒，技能與奧義冷卻 -3 秒",c:"攻擊間隔 +30%",need:7,f:p=>{p.atkInt*=1.3}},
- {k:"book",ic:"📖",n:"萬象之書",d:"中毒、火焰、餘燼等持續傷害 ×2",c:"直接傷害 ×0.7",need:8},
- {k:"belt",ic:"🥋",n:"巨人腰帶",d:"最大生命 ×2，每層開場獲得 20% 護盾",c:"攻擊 ×0.9",need:1,f:p=>{const o=p.maxHp;p.maxHp=Math.round(p.maxHp*2);p.hp+=p.maxHp-o}},
- {k:"csoul",ic:"💫",n:"連擊之魂",d:"連擊加成上限 ×2，連擊加成 ×1.5",c:"連擊中斷後 5 秒內無法累積連擊",need:2},
- {k:"bow",ic:"🏹",n:"獵月之弓",d:"暴擊額外傷害 ×2.5，暴擊率 +15%",c:"最大生命 ×0.85",need:3,f:p=>{p.crit=Math.min(1,p.crit+.15);p.maxHp=Math.round(p.maxHp*.85);p.hp=Math.min(p.hp,p.maxHp)}},
- {k:"boots",ic:"🪶",n:"風神之靴",d:"閃避 +30%（上限 60%），閃避後下一次攻擊 ×2",c:"最大生命 ×0.9",need:3,f:p=>{p.dodge=Math.min(.6,p.dodge+.3);p.maxHp=Math.round(p.maxHp*.9);p.hp=Math.min(p.hp,p.maxHp)}},
- {k:"ring",ic:"💍",n:"神威之戒",d:"奧義傷害 ×2，奧義冷卻 -30%",c:"最大生命 ×0.85",need:4,f:p=>{p.maxHp=Math.round(p.maxHp*.85);p.hp=Math.min(p.hp,p.maxHp)}},
- {k:"thorn",ic:"🌵",n:"荊棘之甲",d:"受到傷害時，反彈 150% 給敵人；最大生命 ×1.1",c:"無法獲得護盾",need:5,f:p=>{const o=p.maxHp;p.maxHp=Math.round(p.maxHp*1.1);p.hp+=p.maxHp-o}},
- {k:"venom",ic:"🧪",n:"永恆之毒",d:"中毒、火焰、餘燼等持續傷害 ×3",c:"直接傷害 ×0.8",need:6},
- {k:"proof",ic:"🏆",n:"弒神者之證",d:"每擊敗一隻菁英、BOSS、神話，本場攻擊永久 +1%（最多 +100%）",c:"最大生命 ×0.85",need:7,f:p=>{p.maxHp=Math.round(p.maxHp*.85);p.hp=Math.min(p.hp,p.maxHp)}},
- {k:"phoenix",ic:"🪽",n:"鳳凰之羽",d:"本場第一次死亡時復活，回復 50% 生命並無敵 5 秒",c:"最大生命 ×0.85",need:8,f:p=>{p.maxHp=Math.round(p.maxHp*.85);p.hp=Math.min(p.hp,p.maxHp)}},
- {k:"twheel",ic:"🕰️",n:"時光之輪",d:"每 45 秒，技能與奧義冷卻直接歸零",c:"攻擊間隔 +30%，最大生命 ×0.9",need:10,f:p=>{p.atkInt*=1.3;p.maxHp=Math.round(p.maxHp*.9);p.hp=Math.min(p.hp,p.maxHp)}},
- {k:"hades_key",ic:"🗝️",n:"黑帝斯的鑰匙",d:"每 10 層獲得 1 個稀有以上的祝福（不佔上限，本場最多 10 個）",c:"無",boss:"黑帝斯"},
- {k:"nyx_veil",ic:"🌑",n:"倪克斯的面紗",d:"每 10 秒進入夜幕 4 秒：無敵、攻擊 ×2、技能與奧義冷卻加倍快",c:"無",boss:"倪克斯"},
- {k:"frieren_book",ic:"📕",n:"芙莉蓮的魔法書",d:"每 10 秒施放殺人魔法：敵人 30% 最大生命傷害（無視防禦與韌性上限；BOSS、神話 15%）",c:"最大生命 ×0.9",boss:"芙莉蓮",f:p=>{p.maxHp=Math.round(p.maxHp*.9);p.hp=Math.min(p.hp,p.maxHp)}},
- {k:"tabby_curse",ic:"😾",n:"高速婆婆的詛咒",d:"每層開場，敵人失去 25% 生命（BOSS、神話 15%）",c:"每層開場失去 3% 最大生命（不會致死）",boss:"高速婆婆"},
- {k:"fern_bullet",ic:"🎯",n:"菲倫的破盾彈",d:"攻擊無視敵人護盾；打破護盾的那一擊傷害 ×3，再造成敵人當前生命 20% 的傷害",c:"攻擊間隔 +5%",boss:"菲倫",f:p=>{p.atkInt*=1.05}},
- {k:"ares_spear",ic:"🗡️",n:"戰神之矛",d:"攻擊 ×1.4，奧義傷害 ×2；用奧義擊殺敵人，本場攻擊永久 +3%（最多 +100%）",c:"最大生命 ×0.85",boss:"阿瑞斯",f:p=>{p.maxHp=Math.round(p.maxHp*.85);p.hp=Math.min(p.hp,p.maxHp)}},
- {k:"scythe",ic:"🌒",n:"死神之鐮",d:"生命低於 30% 時攻擊 ×2，且每 5 秒造成敵人當前生命 10% 的傷害；擊殺回復 10% 生命",c:"治療量 -15%",boss:"塔納托斯"}
+ {k:"glass",ic:"🗡️",n:"玻璃大砲",v:{atk:1.7,hp:.6},d:v=>"攻擊 ×"+v.atk,c:v=>"最大生命 ×"+v.hp,
+  f(p){p.atk=Math.round(p.atk*this.v.atk);_hp(p,this.v.hp)}},
+ {k:"loop",ic:"♾️",n:"無盡迴圈",v:{cd:.3,cost:.04},d:v=>"技能冷卻 ×"+v.cd,c:v=>"每次施放技能扣 "+_pc(v.cost)+" 目前生命",
+  skillCd(){return this.v.cd},onSkill(p){p.hp=Math.max(1,p.hp-Math.round(p.hp*this.v.cost))}},
+ {k:"greed",ic:"🪙",n:"貪婪之手",v:{ming:1.5,hurt:1.08},d:v=>"冥晶 ×"+v.ming,c:v=>"受到敵人的傷害 +"+_pc(v.hurt-1),
+  ming(){return this.v.ming},hurtIn(){return this.v.hurt}},
+ {k:"warp",ic:"⏳",n:"時間扭曲",v:{spd:.7,stall:2.5},d:v=>"攻擊間隔 ×"+v.spd+"（更快）",c:v=>"每層開場 "+v.stall+" 秒無法出手",
+  f(p){p.atkInt=Math.max(.2,p.atkInt*this.v.spd)},fo:10,onFloor(){G.pT=this.v.stall}},
+ {k:"wrath",ic:"⚡",n:"宙斯之怒",v:{per:.01,max:1},d:v=>"每次暴擊，本場攻擊永久 +"+_pc(v.per)+"（最多 +"+_pc(v.max)+"）",c:()=>"暴擊不再加傷害",need:2,
+  noCritDmg:true,onCrit(p){p.wrathAtk=Math.min(1+this.v.max,(p.wrathAtk||1)+this.v.per)}},
+ {k:"styx",ic:"🌊",n:"冥河契約",v:{dr:.2,ming:.75},d:v=>"受到的傷害 -"+_pc(v.dr),c:v=>"冥晶掉落 -"+_pc(1-v.ming),need:4,
+  hurtOut(){return 1-this.v.dr},ming(){return this.v.ming}},
+ {k:"berserk",ic:"🩸",n:"狂戰士之心",v:{max:2.5},d:v=>"生命越低攻擊越高（空血時 ×"+v.max+"）",c:()=>"無法獲得護盾",need:6,
+  noShield:true,atk(p,e,hpr){return 1+(this.v.max-1)*Math.max(0,1-hpr)}},
+ {k:"wish",ic:"💀",n:"亡者之願",v:{cut:.1,cutB:.05,cost:.03},d:v=>"每層開場，敵人直接損失 "+_pc(v.cut)+" 血量（BOSS／神話 "+_pc(v.cutB)+"）",c:v=>"每層開場失去 "+_pc(v.cost)+" 最大生命（不會致死）",
+  fo:90,onFloor(p,e){const cut=Math.round(e.maxHp*(e.myth||e.boss?this.v.cutB:this.v.cut));e.hp=Math.max(1,e.hp-cut);p.hp=Math.max(1,p.hp-Math.round(p.maxHp*this.v.cost))}},
+ {k:"slayer",ic:"🔱",n:"弒神之刃",v:{myth:1.6},d:v=>"對神話 BOSS 傷害 ×"+v.myth,c:()=>"無（對菁英、BOSS 不再減傷）",
+  atk(p,e){return e.myth?this.v.myth:1}},
+ {k:"coin",ic:"🌗",n:"命運硬幣",v:{p:.7,lose:.05},d:v=>"打怪掉冥晶時，"+_pc(v.p)+" 機率變 2 倍",c:v=>"另外 "+_pc(1-v.p)+" 這次沒掉，還失去這場撿到冥晶的 "+_pc(v.lose)+"；不再出現神秘寶箱",need:1,
+  noChest:true,mingDrop(ming){if(ming<=0)return ming;if(Math.random()<this.v.p){fx("e","🌗 正面","ming");return ming*2}const lose=Math.round(runMing()*this.v.lose);G.ming-=lose;fx("e","🌗 反面","heal");if(lose>0)fx("p","💠-"+fmt(lose),"ming");return 0}},
+ {k:"drum",ic:"🔨",n:"雷霆之鎚",v:{mul:2,combo:2.5},d:v=>"每 10 連擊，下一擊必定暴擊且傷害 ×"+v.mul,c:v=>"連擊中斷時間 3 秒 → "+v.combo+" 秒",need:3,
+  comboTime(){return this.v.combo},onCombo10(p){p.nextCrit=true;p.drumX=this.v.mul;fx("e","🔨 雷霆","combo")}},
+ {k:"godfoe",ic:"⛓️",n:"眾神之敵",v:{stun:.5,bleed:.5,hp:.92},d:()=>"被暈眩的時間減半、流血傷害減半",c:v=>"最大生命 ×"+v.hp,need:5,
+  f(p){_hp(p,this.v.hp)},stun(){return this.v.stun},bleed(){return this.v.bleed}},
+ {k:"vessel",ic:"🏺",n:"無盡之瓶",v:{pom:1},d:v=>"每次獲得 Pom，額外多 "+v.pom+" 顆",c:()=>"無（祝福上限維持 12）",need:7,
+  pom(){return this.v.pom}},
+ {k:"doom",ic:"🔔",n:"終焉之鐘",v:{up:.1,eatk:.08},d:v=>"之後每到 100 的倍數層，攻擊、生命永久 +"+_pc(v.up),c:v=>"每響一次，怪物攻擊再 +"+_pc(v.eatk)+"；不能逃離神話 BOSS",need:9,
+  noRun:true,eAtk(){return 1+this.v.eatk*(G.doomN||0)},
+  fo:80,onFloor(p){if(G.floor%100!==0)return;G.doomN=(G.doomN||0)+1;p.atk=Math.round(p.atk*(1+this.v.up));_hp(p,1+this.v.up);log("🔔 終焉之鐘第 "+G.doomN+" 響：攻擊、生命 +"+_pc(this.v.up)+"，怪物攻擊 +"+_pc(this.v.eatk*G.doomN),"legend");banner("🔔 終焉之鐘","legend")}},
+ {k:"abyss",ic:"🌌",n:"深淵契約",v:{half:.5,from:250,eatk:1.15},d:()=>"500 層後的深淵壓縮減半",c:v=>"第 "+v.from+" 層起，怪物攻擊 +"+_pc(v.eatk-1),need:11,
+  abyssMul(){return this.v.half},eAtk(){return G.floor>=this.v.from?this.v.eatk:1}},
+ {k:"plague",ic:"☠️",n:"瘟疫之種",v:{poison:2,cost:.05},d:v=>"中毒傷害 ×"+v.poison+"（中毒本來就無視防禦）",c:v=>"每層開場失去 "+_pc(v.cost)+" 最大生命（不會致死）",need:2,
+  poison(){return this.v.poison},fo:20,onFloor(p){p.hp=Math.max(1,p.hp-Math.round(p.maxHp*this.v.cost))}},
+ {k:"frost",ic:"❄️",n:"霜之哀傷",v:{dur:2,dmg:1.5,ch:.8},d:v=>"冰凍時間 ×"+v.dur+"（仍受控場上限），冰凍中的敵人受到傷害 ×"+v.dmg,c:v=>"冰凍機率 ×"+v.ch,need:3,
+  eDmg(e){return e&&e.frozen&&e.stopT>0?this.v.dmg:1},freezeDur(){return this.v.dur},freezeCh(){return this.v.ch}},
+ {k:"fountain",ic:"⛲",n:"聖癒之泉",v:{heal:.85},d:()=>"每次治療，對敵人造成等量傷害",c:v=>"治療量 -"+_pc(1-v.heal),need:3,
+  heal(){return this.v.heal},onHeal(x){if(x>=1&&G.e&&G.e.hp>0&&G.trans<=0&&!G.over)xdmg(x,"light")}},
+ {k:"trident",ic:"🔱",n:"海神三叉戟",v:{kb:.3,extra:.5,atk:.95},d:v=>"擊退機率 +"+_pc(v.kb)+"，擊退時追加這一擊 "+_pc(v.extra)+" 的傷害",c:v=>"攻擊 -"+_pc(1-v.atk),need:3,
+  kb(){return this.v.kb},onKnock(d){xdmg(d*this.v.extra,"crit")},atk(){return this.v.atk}},
+ {k:"forge",ic:"🔨",n:"鍛造之魂",v:{start:5,boom:2,cost:.05},d:v=>"每層開場就有 "+v.start+" 層鍛造，爆炸傷害 ×"+v.boom,c:v=>"每層開場失去 "+_pc(v.cost)+" 最大生命（不會致死）",need:4,
+  forgeStart(){return this.v.start},boom(){return this.v.boom},fo:30,onFloor(p){p.hp=Math.max(1,p.hp-Math.round(p.maxHp*this.v.cost))}},
+ {k:"eternal",ic:"🔥",n:"永恆之火",v:{fire:2,drain:.005,min:.1},d:v=>"火焰傷害 ×"+v.fire+"，火焰不會熄滅",c:v=>"每秒失去 "+(v.drain*100)+"% 生命（不會低於 "+_pc(v.min)+"）",need:4,
+  fire(){return this.v.fire},fireEternal:true,tickAll(p,dt){if(p.hp>p.maxHp*this.v.min)p.hp=Math.max(p.maxHp*this.v.min,p.hp-p.maxHp*this.v.drain*dt)}},
+ {k:"chariot",ic:"☀️",n:"太陽神車",v:{light:2,every:10,pct:.03,heal:.75},d:v=>"光明傷害 ×"+v.light+"，每 "+v.every+" 次攻擊造成敵人 "+_pc(v.pct)+" 最大生命傷害",c:v=>"治療效果 -"+_pc(1-v.heal),need:5,
+  heal(){return this.v.heal},light(){return this.v.light},onAttack(p){if((p.chariotN=(p.chariotN||0)+1)>=this.v.every){p.chariotN=0;xdmg(G.e.maxHp*this.v.pct,"light")}}},
+ {k:"chain",ic:"🔗",n:"天后之鏈",v:{link:20,atk:.03},d:v=>"連結上限 +"+v.link+"，每層連結攻擊再 +"+_pc(v.atk),c:()=>"連結不再提供減傷",need:6,
+  link(){return this.v.link},linkAtk(){return this.v.atk},noLinkDr:true},
+ {k:"voideye",ic:"👁️",n:"深淵之瞳",v:{tru:.2,hp:.8},d:v=>_pc(v.tru)+" 的傷害無視防禦",c:v=>"最大生命 ×"+v.hp,need:5,
+  f(p){_hp(p,this.v.hp)},trueDmg(){return this.v.tru}},
+ {k:"wheel",ic:"🎡",n:"命運之輪",v:{every:50,max:3,cap:2},d:v=>"每 "+v.every+" 層獲得 1 個隨機祝福（不佔上限，本場最多 "+v.max+" 個）",c:v=>"祝福上限 12 → "+(12-v.cap),need:6,
+  cap(){return -this.v.cap},fo:60,onFloor(p){if(G.floor%this.v.every===0&&(p.wheelN||0)<this.v.max){p.wheelN=(p.wheelN||0)+1;grantFreeBless(null,"命運之輪")}}},
+ {k:"hourglass",ic:"⏳",n:"時之沙漏",v:{every:10,cut:3,spd:1.3},d:v=>"每 "+v.every+" 秒，技能與奧義冷卻 -"+v.cut+" 秒",c:v=>"攻擊間隔 +"+_pc(v.spd-1),need:7,
+  f(p){p.atkInt*=this.v.spd},to:3,tick(p,dt){p.hgT=(p.hgT||0)+dt;if(p.hgT>=this.v.every){p.hgT=0;p.skillCd=Math.max(0,p.skillCd-this.v.cut);p.ougiCd=Math.max(0,p.ougiCd-this.v.cut);fx("p","⏳ 冷卻 -"+this.v.cut+"s","combo")}}},
+ {k:"book",ic:"📖",n:"萬象之書",v:{dot:2,direct:.7},d:v=>"中毒、火焰、餘燼等持續傷害 ×"+v.dot,c:v=>"直接傷害 ×"+v.direct,need:8,
+  dot(){return this.v.dot},direct(){return this.v.direct}},
+ {k:"belt",ic:"🥋",n:"巨人腰帶",v:{hp:2,shield:.2,atk:.9},d:v=>"最大生命 ×"+v.hp+"，每層開場獲得 "+_pc(v.shield)+" 護盾",c:v=>"攻擊 ×"+v.atk,need:1,
+  f(p){_hp(p,this.v.hp)},floorShield(){return this.v.shield},atk(){return this.v.atk}},
+ {k:"csoul",ic:"💫",n:"連擊之魂",v:{cap:2,up:1.5,lock:5},d:v=>"連擊加成上限 ×"+v.cap+"，連擊加成 ×"+v.up,c:v=>"連擊中斷後 "+v.lock+" 秒內無法累積連擊",need:2,
+  comboCap(){return this.v.cap},comboUp(){return this.v.up},onComboBreak(p){p.comboLock=G.time+this.v.lock}},
+ {k:"bow",ic:"🏹",n:"獵月之弓",v:{crit:.15,cd:2.5,hp:.85},d:v=>"暴擊額外傷害 ×"+v.cd+"，暴擊率 +"+_pc(v.crit),c:v=>"最大生命 ×"+v.hp,need:3,
+  f(p){p.crit=Math.min(1,p.crit+this.v.crit);_hp(p,this.v.hp)},critDmg(c){return 1+(c-1)*this.v.cd}},
+ {k:"boots",ic:"🪶",n:"風神之靴",v:{dodge:.3,mul:2,hp:.9},d:v=>"閃避 +"+_pc(v.dodge)+"（上限 60%），閃避後下一次攻擊 ×"+v.mul,c:v=>"最大生命 ×"+v.hp,need:3,
+  f(p){p.dodge=Math.min(.6,p.dodge+this.v.dodge);_hp(p,this.v.hp)},onDodge(p){p.bootX=this.v.mul}},
+ {k:"ring",ic:"💍",n:"神威之戒",v:{ougi:2,cd:.7,hp:.85},d:v=>"奧義傷害 ×"+v.ougi+"，奧義冷卻 -"+_pc(1-v.cd),c:v=>"最大生命 ×"+v.hp,need:4,
+  f(p){_hp(p,this.v.hp)},ougi(){return this.v.ougi},ougiCd(){return this.v.cd}},
+ {k:"thorn",ic:"🌵",n:"荊棘之甲",v:{ref:1.5,hp:1.1},d:v=>"受到傷害時，反彈 "+_pc(v.ref)+" 給敵人；最大生命 ×"+v.hp,c:()=>"無法獲得護盾",need:5,
+  noShield:true,f(p){_hp(p,this.v.hp)},onHurt(d,fromEnemy){if(fromEnemy&&d>0&&!G.over&&G.e&&G.e.hp>0)xdmg(d*this.v.ref,"normal")}},
+ {k:"venom",ic:"🧪",n:"永恆之毒",v:{dot:3,direct:.8},d:v=>"中毒、火焰、餘燼等持續傷害 ×"+v.dot,c:v=>"直接傷害 ×"+v.direct,need:6,
+  dot(){return this.v.dot},direct(){return this.v.direct}},
+ {k:"proof",ic:"🏆",n:"弒神者之證",v:{per:.01,max:1,hp:.85},d:v=>"每擊敗一隻菁英、BOSS、神話，本場攻擊永久 +"+_pc(v.per)+"（最多 +"+_pc(v.max)+"）",c:v=>"最大生命 ×"+v.hp,need:7,
+  f(p){_hp(p,this.v.hp)},atk(p){return 1+(p.proofAtk||0)},onKill(p,e){if(e.elite||e.boss||e.myth)p.proofAtk=Math.min(this.v.max,(p.proofAtk||0)+this.v.per)}},
+ {k:"phoenix",ic:"🪽",n:"鳳凰之羽",v:{hp:.5,inv:5,hpMax:.85},d:v=>"本場第一次死亡時復活，回復 "+_pc(v.hp)+" 生命並無敵 "+v.inv+" 秒",c:v=>"最大生命 ×"+v.hpMax,need:8,
+  f(p){_hp(p,this.v.hpMax)},onDeath(p){if(p.phoenixUsed)return false;p.phoenixUsed=true;p.hp=Math.round(p.maxHp*this.v.hp);p.ddInvT=this.v.inv;log("🪽 鳳凰之羽：浴火重生！回復 "+_pc(this.v.hp)+" 生命，無敵 "+this.v.inv+" 秒","legend");fx("p","重生","legend");screenFx("duo");banner("🪽 鳳凰重生","duo");return true}},
+ {k:"twheel",ic:"🕰️",n:"時光之輪",v:{every:45,spd:1.3,hp:.9},d:v=>"每 "+v.every+" 秒，技能與奧義冷卻直接歸零",c:v=>"攻擊間隔 +"+_pc(v.spd-1)+"，最大生命 ×"+v.hp,need:10,
+  f(p){p.atkInt*=this.v.spd;_hp(p,this.v.hp)},to:1,tick(p,dt){p.twT=(p.twT||0)+dt;if(p.twT>=this.v.every){p.twT=0;p.skillCd=0;p.ougiCd=0;log("🕰️ 時光之輪：技能、奧義冷卻歸零","legend");fx("p","🕰️ 冷卻歸零","combo")}}},
+ {k:"hades_key",ic:"🗝️",n:"黑帝斯的鑰匙",v:{every:10,max:10},d:v=>"每 "+v.every+" 層獲得 1 個稀有以上的祝福（不佔上限，本場最多 "+v.max+" 個）",c:()=>"無",boss:"黑帝斯",
+  fo:65,onFloor(p){if(G.floor%this.v.every===0&&(p.keyN||0)<this.v.max){p.keyN=(p.keyN||0)+1;grantFreeBless("rare+","黑帝斯的鑰匙")}}},
+ {k:"nyx_veil",ic:"🌑",n:"倪克斯的面紗",v:{every:10,dur:4,atk:2},d:v=>"每 "+v.every+" 秒進入夜幕 "+v.dur+" 秒：無敵、攻擊 ×"+v.atk+"、技能與奧義冷卻加倍快",c:()=>"無",boss:"倪克斯",
+  atk(p){return p.veilT>0?this.v.atk:1},to:4,tick(p,dt){p.veilCd=(p.veilCd||0)+dt;if(p.veilCd>=this.v.every){p.veilCd=0;p.veilT=this.v.dur;p.ddInvT=Math.max(p.ddInvT||0,this.v.dur);log("🌑 倪克斯的面紗：進入夜幕 "+this.v.dur+" 秒","legend");fx("p","夜幕","legend")}}},
+ {k:"frieren_book",ic:"📕",n:"芙莉蓮的魔法書",v:{every:10,pct:.3,boss:.5,hp:.9},d:v=>"每 "+v.every+" 秒施放殺人魔法：敵人 "+_pc(v.pct)+" 最大生命傷害（無視防禦與韌性上限；BOSS、神話 "+_pc(v.pct*v.boss)+"）",c:v=>"最大生命 ×"+v.hp,boss:"芙莉蓮",
+  f(p){_hp(p,this.v.hp)},to:5,tick(p,dt){if(!(G.e&&G.e.hp>0))return;p.fbT=(p.fbT||0)+dt;if(p.fbT>=this.v.every){p.fbT=0;const x=G.e.maxHp*this.v.pct*(G.e.myth||G.e.boss?this.v.boss:1);log("📕 殺人魔法！","legend");banner("📕 殺人魔法","legend");xdmg(x,"ougi",true);if(G.trans>0||G.over)return true}}},
+ {k:"tabby_curse",ic:"😾",n:"高速婆婆的詛咒",v:{cut:.25,cutB:.15,cost:.03},d:v=>"每層開場，敵人失去 "+_pc(v.cut)+" 生命（BOSS、神話 "+_pc(v.cutB)+"）",c:v=>"每層開場失去 "+_pc(v.cost)+" 最大生命（不會致死）",boss:"高速婆婆",
+  fo:40,onFloor(p,e){e.hp=Math.max(1,e.hp-Math.round(e.maxHp*(e.myth||e.boss?this.v.cutB:this.v.cut)));p.hp=Math.max(1,p.hp-Math.round(p.maxHp*this.v.cost))}},
+ {k:"fern_bullet",ic:"🎯",n:"菲倫的破盾彈",v:{mul:3,cur:.2,spd:1.05},d:v=>"攻擊無視敵人護盾；打破護盾的那一擊傷害 ×"+v.mul+"，再造成敵人當前生命 "+_pc(v.cur)+" 的傷害",c:v=>"攻擊間隔 +"+_pc(v.spd-1),boss:"菲倫",
+  f(p){p.atkInt*=this.v.spd},pierceShield:true},
+ {k:"ares_spear",ic:"🗡️",n:"戰神之矛",v:{atk:1.4,ougi:2,per:.03,max:1,hp:.85},d:v=>"攻擊 ×"+v.atk+"，奧義傷害 ×"+v.ougi+"；用奧義擊殺敵人，本場攻擊永久 +"+_pc(v.per)+"（最多 +"+_pc(v.max)+"）",c:v=>"最大生命 ×"+v.hp,boss:"阿瑞斯",
+  f(p){_hp(p,this.v.hp)},atk(p){return this.v.atk*(1+(p.spearAtk||0))},ougi(){return this.v.ougi},onKill(p){if(G.lastKind==="ougi")p.spearAtk=Math.min(this.v.max,(p.spearAtk||0)+this.v.per)}},
+ {k:"scythe",ic:"🌒",n:"死神之鐮",v:{low:.3,atk:2,every:5,pct:.1,heal:.1,healIn:.85},d:v=>"生命低於 "+_pc(v.low)+" 時攻擊 ×"+v.atk+"，且每 "+v.every+" 秒造成敵人當前生命 "+_pc(v.pct)+" 的傷害；擊殺回復 "+_pc(v.heal)+" 生命",c:v=>"治療量 -"+_pc(1-v.healIn),boss:"塔納托斯",
+  atk(p,e,hpr){return hpr<this.v.low?this.v.atk:1},heal(){return this.v.healIn},onKill(p){p.hp=Math.min(p.maxHp,p.hp+p.maxHp*this.v.heal*survivalMul())},
+  to:2,tick(p,dt){if(!(G.e&&G.e.hp>0&&p.hp/p.maxHp<this.v.low))return;p.scyT=(p.scyT||0)+dt;if(p.scyT>=this.v.every){p.scyT=0;fx("p","🌒 死神","legend");xdmg(G.e.hp*this.v.pct,"crit");if(G.trans>0||G.over)return true}}}
 ];
+ARTS.forEach(x=>{x.v=x.v||{};if(typeof x.d==="function")x.d=x.d(x.v);if(typeof x.c==="function")x.c=x.c(x.v)});
 const ARTMAP={};ARTS.forEach(x=>ARTMAP[x.k]=x);
+/* 神器效果的共用呼叫 */
+function artList(){const a=G&&G.arts;if(!a||!a.length)return[];const o=[];for(const k of a){const x=ARTMAP[k];if(x)o.push(x)}return o}
+function artMul(h,...a){let m=1;for(const x of artList())if(x[h])m*=x[h](...a);return m}
+function artSum(h,...a){let s=0;for(const x of artList())if(x[h])s+=x[h](...a);return s}
+function artAny(flag){return artList().some(x=>!!x[flag])}
+function artEach(h,...a){let r=false;for(const x of artList())if(x[h]&&x[h](...a)===true)r=true;return r}
+function artOrdered(h,ord,...a){const L=artList().filter(x=>x[h]).sort((x,y)=>(x[ord]||50)-(y[ord]||50));for(const x of L)if(x[h](...a)===true)return true;return false}
+function artVal(h,def){for(const x of artList())if(x[h])return x[h]();return def}
+
 /* 禁忌神器圖示：從一張 1536×1024 的圖裁切（x, y, 寬, 高）；圖上的 14、15、18 目前沒用到 */
 const ART_IMG="https://lonely52243.neocities.org/電表/0DE3EC96-76B7-4291-8620-3C8B232D9B03.png";
 const ART_BOX={glass:[22,92,239,208],loop:[287,96,223,188],greed:[537,60,195,240],warp:[775,71,250,228],wrath:[1041,69,221,231],styx:[1280,75,223,224],berserk:[28,382,218,228],sacrifice:[297,390,172,222],slayer:[520,379,231,231],godfoe:[778,382,220,231],abyss:[1027,371,235,240],drum:[1292,375,216,235],vessel:[34,690,191,230],doom:[679,690,188,231],wish:[894,691,174,230],coin:[1305,723,198,178]};
 /* 從大圖裁出一個圖示（b = [x, y, 寬, 高]，W/H = 原圖尺寸；用百分比定位，圖片縮放也不會跑掉） */
-function sprImg(url,W,H,b,sz){const r=sz/Math.max(b[2],b[3]);return '<i class="art-ic" style="width:'+sz+'px;height:'+sz+'px"><i style="width:'+(b[2]*r).toFixed(1)+'px;height:'+(b[3]*r).toFixed(1)+'px;background-image:url(\''+url+'\');background-size:'+(W/b[2]*100).toFixed(2)+'% '+(H/b[3]*100).toFixed(2)+'%;background-position:'+(b[0]/(W-b[2])*100).toFixed(2)+'% '+(b[1]/(H-b[3])*100).toFixed(2)+'%"></i></i>'}
+GI_SHEETS.ART={u:ART_IMG,W:1536,H:1024,b:ART_BOX};
+/* 依序找圖：keys 是候選的圖示代號，都沒有就用表情符號 */
+function iconPick(keys,emo,sz,cls){for(const k of keys){if(!k)continue;const p=k.split("."),s=GI_SHEETS[p[0]];if(s&&s.b[p[1]])return gi(k,sz,/^(ART|KS|PACT)$/.test(p[0])?cls:"")}return emo?emoIc(emo,sz):""}
 const ART_GI={wrath:"S4.a_wrath",vessel:"S4.a_vessel",greed:"S4.a_greed",drum:"S4.a_drum",plague:"S5.a_plague",frost:"S5.a_frost",fountain:"S5.a_fountain",trident:"S5.a_trident",forge:"S5.a_forge",eternal:"S5.a_eternal",chariot:"S5.a_chariot",chain:"S5.a_chain",voideye:"S5.a_voideye",wheel:"S5.a_wheel",hourglass:"S5.a_hourglass",book:"S5.a_book",hades_key:"S5.a_hades_key",nyx_veil:"S5.a_nyx_veil",frieren_book:"S5.a_frieren_book",tabby_curse:"S5.a_tabby_curse",fern_bullet:"S5.a_fern_bullet"};
 function emoIc(ic,sz){return '<i class="emo-ic" style="width:'+sz+'px;height:'+sz+'px;font-size:'+Math.round(sz*.72)+'px">'+ic+'</i>'}
-function artImg(k,sz){if(GI_SHEETS.S10.b["a_"+k])return gi("S10.a_"+k,sz);if(ART_GI[k])return gi(ART_GI[k],sz);const b=ART_BOX[k];return b?sprImg(ART_IMG,1536,1024,b,sz):(ARTMAP[k]?emoIc(ARTMAP[k].ic,sz):"")}
+function artImg(k,sz){return iconPick(["S10.a_"+k,ART_GI[k],"ART."+k],ARTMAP[k]&&ARTMAP[k].ic,sz,"art-ic")}
 function hasArt(k){return!!(G&&G.arts&&G.arts.includes(k))}
 /* 這場撿到的冥晶（不含帶進來的） */
 function runMing(){if(G.bankFloor===undefined)G.bankFloor=0;G.bankFloor=Math.min(G.bankFloor,G.ming);return Math.max(0,G.ming-G.bankFloor)}
 /* 無盡之瓶：每次拿 Pom 多 1 顆 */
-function pomGain(n){return n+(n>0&&hasArt("vessel")?1:0)}
+function pomGain(n){return n+(n>0?artSum("pom"):0)}
 /* 祝福上限（無盡之瓶 -2） */
-function blessCap(){return BAL.maxBlessings-(hasArt("wheel")?2:0)+((G&&G.p&&G.p.freeB)||0)}
+function blessCap(){return BAL.maxBlessings+artSum("cap")+((G&&G.p&&G.p.freeB)||0)}
 /* 神器造成的怪物攻擊加成（深淵契約、終焉之鐘） */
-function artEMul(){return (hasArt("abyss")&&G.floor>=250?1.15:1)*(hasArt("doom")?1+.08*(G.doomN||0):1)}
+function artEMul(){return artMul("eAtk")}
 const artUnlocked=x=>x.boss?getMythCount(x.boss)>0:(!x.need||codexCount()>=x.need);
 const artCond=x=>x.boss?"擊敗神話 BOSS「"+x.boss+"」":"神話圖鑑收錄 "+x.need+" 位";
 function queueArtifact(){
@@ -7763,7 +7902,8 @@ const PACTMAP={};PACTS.forEach(x=>PACTMAP[x.k]=x);
 /* 懲罰契約圖示（圖上 5、6、8、10、11、12 目前沒用到） */
 const PACT_IMG="https://lonely52243.neocities.org/電表/IMG_3673.png";
 const PACT_BOX={atk:[60,12,293,278],hp:[430,11,270,277],spd:[805,23,292,266],ab:[1167,20,305,270],greedp:[817,352,274,253],king:[76,667,264,267]};
-function pactImg(k,sz){if(GI_SHEETS.S10.b["p_"+k])return gi("S10.p_"+k,sz);const b=PACT_BOX[k];return b?sprImg(PACT_IMG,1536,1024,b,sz):(PACTMAP[k]?emoIc(PACTMAP[k].ic,sz):"")}
+GI_SHEETS.PACT={u:PACT_IMG,W:1536,H:1024,b:PACT_BOX};
+function pactImg(k,sz){return iconPick(["S10.p_"+k,"PACT."+k],PACTMAP[k]&&PACTMAP[k].ic,sz,"art-ic")}
 const pactLv=k=>(G&&G.pact&&G.pact[k])||0;
 const pactTotal=()=>G&&G.pact?Object.values(G.pact).reduce((a,b)=>a+b,0):0;
 const pactMing=()=>pv("atk","r");
@@ -7845,7 +7985,8 @@ const KS_COND={dragon:"抵達第 300 層",blood_oath:"擊敗神話 BOSS 阿瑞�
 const KS_IMG="https://lonely52243.neocities.org/電表/IMG_3670.png";
 const KS_BOX={blade:[180,30,232,193],eye:[482,7,210,216],feather:[804,9,226,214],coin:[1110,27,218,196],shield:[202,284,183,182],glass:[479,277,209,189],horn:[784,284,248,182],clover:[1113,287,212,179],abyss_eye:[177,532,235,187],medal:[487,523,194,196],blood:[819,526,198,193],seal:[1121,523,228,196],shard:[183,788,209,172],heart:[476,776,214,184],triumph:[806,778,219,182],antibody:[1125,785,211,175]};
 const KS_GI={dragon:"S4.k_dragon",blood_oath:"S4.k_blood_oath",void_pact:"S4.k_void_pact",death_mark:"S4.k_death_mark"};
-function ksImg(k,sz){if(KS_GI[k])return gi(KS_GI[k],sz);const b=KS_BOX[k];return b?sprImg(KS_IMG,1536,1024,b,sz):(KSMAP[k]?emoIc(KSMAP[k].ic,sz):"")}
+GI_SHEETS.KS={u:KS_IMG,W:1536,H:1024,b:KS_BOX};
+function ksImg(k,sz){return iconPick([KS_GI[k],"KS."+k],KSMAP[k]&&KSMAP[k].ic,sz,"art-ic")}
 const ksIs=k=>!!(G&&G.keepsake===k);
 const KS_KEY="meter_battle_ks_v1";
 function ksGot(uid){
@@ -7866,12 +8007,24 @@ function unlockKs(k){
 const ksName=g=>{const x=g&&g.keepsake&&KSMAP[g.keepsake];return x?x.ic+" "+x.n:"無"};
 const shuffle=a=>{for(let i=a.length-1;i>0;i--){const j=Math.floor(Math.random()*(i+1));[a[i],a[j]]=[a[j],a[i]]}return a};
 /* 通用的「選一個」視窗（信物、獎勵之門共用）；選完才關 */
+/* 同一層連續跳出的選擇視窗視為一串「戰利品」：顯示第幾項、不重播彈出動畫 */
+function lootStep(box){
+  if(!G||!box)return;
+  const now=performance.now(),chain=G._lootF===G.floor&&now-(G._lootT||0)<2500;
+  G._lootN=chain?(G._lootN||1)+1:1;G._lootF=G.floor;G._lootT=now;
+  const m=box.closest(".bt-modal");if(m)m.classList.toggle("chain",chain);
+  let h=box.querySelector(".loot-step");
+  if(G._lootN<2){if(h)h.remove();return}
+  if(!h){h=document.createElement("div");h.className="loot-step";box.insertBefore(h,box.firstChild)}
+  h.innerHTML='第 '+Math.max(1,G.floor-1)+' 層戰利品 <span>'+Array.from({length:G._lootN},(_,i)=>'<i'+(i===G._lootN-1?' class="on"':'')+'></i>').join("")+'</span> 第 '+G._lootN+' 項';
+}
+document.addEventListener("click",e=>{if(G&&e.target.closest&&e.target.closest(".bt-choice,.bt-pom,.bt-modal"))G._lootT=performance.now()},true);
 function choiceModal(cls,title,sub,items,onPick){
   const el=document.createElement("div");
   el.className="bt-modal on bt-choice "+cls;
   el.innerHTML='<div class="bt-modal-box"><div class="bt-modal-title">'+title+'</div>'+(sub?'<div class="bt-ch-sub">'+sub+'</div>':'')+
     '<div class="bt-ch-list">'+items.map(x=>'<button class="bt-ch-item'+(x.warn?' warn':'')+'" data-ch="'+x.k+'"><span class="ic">'+x.ic+'</span><span class="tx"><b>'+x.n+'</b><small>'+x.d+'</small></span></button>').join("")+'</div></div>';
-  document.body.appendChild(el);
+  document.body.appendChild(el);lootStep(el.querySelector(".bt-modal-box"));
   let done=false;
   el.querySelector(".bt-ch-list").onclick=e=>{
     const t=e.target.closest("[data-ch]");if(!t||done)return;
@@ -7949,7 +8102,7 @@ function restoreRun(data){
   G.arts=(G.arts||[]).filter(k=>ARTMAP[k]);
   if(G.pact)Object.keys(G.pact).forEach(k=>{if(!PACTMAP[k])delete G.pact[k]});
   MYTH_ENCOUNTERS=mythLoad(G.uid);
-  if(p.ksShield&&!hasArt("berserk"))p.shield=p.maxHp*p.ksShield;
+  if(p.ksShield&&!artAny("noShield"))p.shield=p.maxHp*p.ksShield;
   G.e=genEnemy(G.floor);
 }
 const fmtSaveTime=t=>{const d=new Date(t);return (d.getMonth()+1)+"/"+d.getDate()+" "+String(d.getHours()).padStart(2,"0")+":"+String(d.getMinutes()).padStart(2,"0")};
@@ -8050,14 +8203,14 @@ function addHaste(v,t){const p=G.p;if(p.hasteT<=0||v>=p.hasteV)p.hasteV=v;p.hast
 function atkSpeedMul(){let m=_asm();const e=G.e;if(e&&e.sk&&e.sk.length){if(e.sk.includes("重力場"))m*=.8;if(e.sk.includes("黑暗降臨"))m*=.9}if(G.p.bindT>0)m*=.75;if(G.p.hangT>0)m*=1-mt("hangover",.3);return m}
 function _asm(){const p=G.p;return 1+bv("zeus4")*comboSteps()+mirV("speed_R")+(p.hasteT>0?p.hasteV:0)+(hasDuo("duo_hd")&&isDrunk()?.5:0)}
 function addDivine(n){const p=G.p;p.divine=Math.min(divineCap(),p.divine+n)}
-function defFac(x){const f=100/(100+x);return hasArt("voideye")?f*.8+.2:f}
-const dotMul=()=>(hasArt("book")?2:1)*(hasArt("venom")?3:1);
-const directMul=()=>(hasArt("book")?.7:1)*(hasArt("venom")?.8:1);
-function critDmgEff(){const p=G.p,c=p.critDmg+(hasSolo("solo_artemis")?1:0);return hasArt("bow")?1+(c-1)*2.5:c}
-function healAmt(x){const p=G.p;x*=survivalMul();if(hasArt("fountain"))x*=.85;if(hasArt("chariot"))x*=.75;if(hasArt("scythe"))x*=.85;if(x<=0)return;x=Math.min(x,p.maxHp*.08);{const w=G._hw||(G._hw={t:0,s:0});if(G.time-w.t>=1){w.t=G.time;w.s=0}const room=p.maxHp*.25-w.s;if(room<=0)return;x=Math.min(x,room);w.s+=x}if(isMyth("冥界之花")&&G.e.season===1)x*=.5;p.hp=Math.min(p.maxHp,p.hp+x);if(hasArt("fountain")&&x>=1&&G.e&&G.e.hp>0&&G.trans<=0&&!G.over)xdmg(x,"light");if(x>=p.maxHp*.02&&G.time-(G._hfx||0)>.4){G._hfx=G.time;fx("p",Math.round(x),"heal")}}
+function defFac(x){const f=100/(100+x),t=Math.min(1,artSum("trueDmg"));return t?f*(1-t)+t:f}
+const dotMul=()=>artMul("dot");
+const directMul=()=>artMul("direct");
+function critDmgEff(){const p=G.p,c=p.critDmg+(hasSolo("solo_artemis")?1:0);let r=c;for(const x of artList())if(x.critDmg)r=x.critDmg(r);return r}
+function healAmt(x){const p=G.p;x*=survivalMul();x*=artMul("heal");if(x<=0)return;x=Math.min(x,p.maxHp*.08);{const w=G._hw||(G._hw={t:0,s:0});if(G.time-w.t>=1){w.t=G.time;w.s=0}const room=p.maxHp*.25-w.s;if(room<=0)return;x=Math.min(x,room);w.s+=x}if(isMyth("冥界之花")&&G.e.season===1)x*=.5;p.hp=Math.min(p.maxHp,p.hp+x);artEach("onHeal",x);if(x>=p.maxHp*.02&&G.time-(G._hfx||0)>.4){G._hfx=G.time;fx("p",Math.round(x),"heal")}}
 function healP(f){healAmt(G.p.maxHp*Math.min(f,.08))}
-function addShield(f){const p=G.p;if(hasArt("berserk")||hasArt("thorn"))return;f*=survivalMul();p.shield=Math.min(p.maxHp*.4,p.shield+p.maxHp*f)}
-function linkMax(){return 10+(hasArt("chain")?20:0)+(has("hera7")?Math.round(bv("hera7")):0)+(hasLegend("legend_hera")?10:0)+(hasSolo("solo_hera")?10:0)}
+function addShield(f){const p=G.p;if(artAny("noShield"))return;f*=survivalMul();p.shield=Math.min(p.maxHp*.4,p.shield+p.maxHp*f)}
+function linkMax(){return 10+artSum("link")+(has("hera7")?Math.round(bv("hera7")):0)+(hasLegend("legend_hera")?10:0)+(hasSolo("solo_hera")?10:0)}
 function forgeMax(){return has("hephaestus8")?20:15}
 
 /* 攻擊力倍率（不含樓層加成） */
@@ -8069,10 +8222,8 @@ function atkMul(){
   if(low&&has("hestia6"))m*=1+bv("hestia6");
   if(p.shield>0&&has("athena8"))m*=1+bv("athena8");
   if(has("hestia3"))m*=hpr<.5?1.3:1+bv("hestia3");
-  if(hasArt("trident"))m*=.95;
-  if(G.p.veilT>0)m*=2;
   if(G.p.summerT>0)m*=1.2;
-  if(p.link>0){m*=1+(bv("hera1")+bv("hera3")+(hasLegend("legend_hera")?.1:0))*p.link;if(has("hera5")&&p.link>=10)m*=1.4}
+  if(p.link>0){m*=1+(bv("hera1")+bv("hera3")+(hasLegend("legend_hera")?.1:0)+artSum("linkAtk"))*p.link;if(has("hera5")&&p.link>=10)m*=1.4}
   if(p.forge>0){m*=1+bv("hephaestus1")*p.forge}
   if(has("hephaestus8")&&p.forge>=20)m*=1.6;
   if(p.execute&&e.hp/e.maxHp<.3)m*=1+p.execute;
@@ -8089,14 +8240,9 @@ function atkMul(){
     if(mirLv("pride_R"))m*=1+mirV("pride_R")*GOD_KEYS.filter(g=>godCount(g)>0).length;
   }
   if(e.dmark)m*=1+.06*e.dmark;
-  if(hasArt("berserk"))m*=1+1.5*Math.max(0,1-hpr);
-  m*=(p.wrathAtk||1)*(p.sacAtk||1);
-  if(hasArt("slayer")&&e.myth)m*=1.6;
+  m*=(p.wrathAtk||1);
   if(ksIs("medal")&&(e.myth||e.elite||e.boss))m*=1.15;
-  if(hasArt("belt"))m*=.9;
-  if(hasArt("ares_spear"))m*=1.4*(1+(p.spearAtk||0));
-  if(hasArt("scythe")&&low)m*=2;
-  if(hasArt("proof"))m*=1+(p.proofAtk||0);
+  m*=artMul("atk",p,e,hpr);
   if(p.kingAtk)m*=1+p.kingAtk;
   return softMul(m);
 }
@@ -8104,13 +8250,13 @@ function curAtk(){const p=G.p;return p.atk*(1+p.baseAtkBonus)*floorAtkBonus(G.fl
 function drTotal(){
   const p=G.p;let dr=0;
   if(p.hp/p.maxHp<.2)dr+=bv("athena1");
-  dr+=(hasArt("chain")?0:Math.min(.25,bv("hera4")*p.link))+bv("apollo5")+bv("hephaestus3");
+  dr+=(artAny("noLinkDr")?0:Math.min(.25,bv("hera4")*p.link))+bv("apollo5")+bv("hephaestus3");
   dr=Math.min(.5,dr);dr*=survivalMul();return dr;
 }
 function hurtP(d,fromEnemy,opt){
   const p=G.p;G._abs=0;opt=opt||{};
   if(p.ddInvT>0)return 0;
-  if(fromEnemy&&hasArt("greed"))d=Math.round(d*1.08);
+  if(fromEnemy){const hi=artMul("hurtIn");if(hi!==1)d=Math.round(d*hi)}
   if(fromEnemy)d=Math.round(d*artEMul());
   G.lastHitBy=opt.src||(fromEnemy&&G.e?G.e.name+" 的攻擊":"持續傷害");
   d=athenaBlock(d,fromEnemy);if(d<=0)return 0;
@@ -8118,23 +8264,24 @@ function hurtP(d,fromEnemy,opt){
   if(fromEnemy&&mirLv("blood_R")&&statusCount(G.e)>=1)d=Math.round(d*(1-mirV("blood_R")));
   if(fromEnemy&&p.guardT>0)d=Math.round(d*(1-p.guardV));
   if(!opt.noShield&&p.shield>0&&d>0){const a=Math.min(p.shield,d);p.shield-=a;d-=a;G._abs=a}
-  if(hasArt("styx")&&d>0)d=Math.round(d*.8);
+  {const ho=artMul("hurtOut");if(ho!==1&&d>0)d=Math.round(d*ho)}
   p.hp-=d;
   if(p.hp<=0){
     if(has("athena5")&&p.deathCd<=0){p.deathCd=30;p.hp=Math.max(1,Math.round(p.maxHp*.2));log("✨ 致死免疫發動！","legend");fx("p","免死","legend");screenFx("duo")}
     else if((p.ddUsed||0)<mirV("death_L")){p.ddUsed=(p.ddUsed||0)+1;p.hp=Math.round(p.maxHp*.5);p.ddInvT=1.5;log("🪦 死裡逃生！回復 50% 生命（剩 "+(mirV("death_L")-p.ddUsed)+" 次）","legend");fx("p","死裡逃生","legend");screenFx("duo");banner("🪦 死裡逃生","duo")}
     else if(p.ddR>0&&mirLv("death_R")){p.ddR=0;p.ddRLast=G.floor;p.hp=Math.round(p.maxHp*.3);p.ddInvT=1.5;log("🛡️ 頑強抵抗！回復 30% 生命（"+mirV("death_R")+" 層後恢復）","legend");fx("p","頑強抵抗","legend");screenFx("duo");banner("🛡️ 頑強抵抗","duo")}
     else if(ksIs("seal")&&!p.ksRevived){p.ksRevived=true;p.hp=Math.round(p.maxHp*.4);p.ddInvT=1.5;log("💀 冥王之印：拒絕死亡！回復 40% 生命","legend");fx("p","冥王之印","legend");screenFx("duo");banner("💀 冥王之印","duo")}
-    else if(hasArt("phoenix")&&!p.phoenixUsed){p.phoenixUsed=true;p.hp=Math.round(p.maxHp*.5);p.ddInvT=5;log("🪽 鳳凰之羽：浴火重生！回復 50% 生命，無敵 5 秒","legend");fx("p","重生","legend");screenFx("duo");banner("🪽 鳳凰重生","duo")}
+    else if(artEach("onDeath",p)){}
     else{p.hp=0;defeat()}
   }
-  if(hasArt("thorn")&&fromEnemy&&d>0&&!G.over&&G.e&&G.e.hp>0)xdmg(d*1.5,"normal");
+  artEach("onHurt",d,fromEnemy);
   return d;
 }
 /* 額外傷害：無視防禦、不觸發荊棘、不算暴擊 */
 function xdmg(x,type,nocap){
   const e=G.e;x=Math.round(x);if(x<=0||e.hp<=0||G.trans>0||G.over)return;
   if(e.immT>0)return;
+  if(type==="light")x*=artMul("light");
   x=Math.max(1,Math.round(x*eDmgMul()*directMul()));
   let rest=x;if(e.shield>0){const a=Math.min(e.shield,rest);e.shield-=a;rest-=a}
   if(e.ss&&e.ss.rock)rest=Math.min(rest,Math.max(1,Math.ceil(e.maxHp*.25)));
@@ -8181,9 +8328,9 @@ function tryStop(sec,isFreeze){
   G._ccLast=fin;
   return true;
 }
-function freezeChance(){const p=G.p;let c=bv("demeter1");if(!c&&godCount("demeter")>0)c=.12;return Math.min(.9,c)}
+function freezeChance(){const p=G.p;let c=bv("demeter1");if(!c&&godCount("demeter")>0)c=.12;return Math.min(.9,c*artMul("freezeCh"))}
 function applyFreeze(sec,d){
-  sec=((sec||1)+bv("demeter6"))*(hasSolo("solo_demeter")?2:1);
+  sec=((sec||1)+bv("demeter6"))*(hasSolo("solo_demeter")?2:1)*artMul("freezeDur");
   if(!tryStop(sec,true))return false;
   fx("e","🧊冰凍 "+G._ccLast.toFixed(1)+"s","frost");
   const dd=d||G._d||0;
@@ -8193,10 +8340,10 @@ function applyFreeze(sec,d){
 }
 const poisonFrac=()=>bv("dionysus1")||(godCount("dionysus")>0?.03:0);
 function applyPoison(frac,d){
-  const e=G.e,dps=Math.max(1,(d||curAtk())*frac*(1+bv("dionysus6")+(hasSolo("solo_dionysus")?1:0))*(hasArt("plague")?2:1));
+  const e=G.e,dps=Math.max(1,(d||curAtk())*frac*(1+bv("dionysus6")+(hasSolo("solo_dionysus")?1:0))*artMul("poison"));
   if(!e.poison||dps>=e.poison.dps)e.poison={t:4,dps};else e.poison.t=4;
 }
-function kbChance(){let c=bv("poseidon2")+bv("poseidon7");if(!bv("poseidon2")&&godCount("poseidon")>0)c+=.15;if(hasArt("trident"))c+=.3;if(hasSolo("solo_poseidon"))c*=2;return Math.min(1,c)}
+function kbChance(){let c=bv("poseidon2")+bv("poseidon7");if(!bv("poseidon2")&&godCount("poseidon")>0)c+=.15;c+=artSum("kb");if(hasSolo("solo_poseidon"))c*=2;return Math.min(1,c)}
 const kbDmgMul=()=>hasSolo("solo_poseidon")?1.5:1;
 function doKnockback(d){
   d=d||G._d||0;
@@ -8223,7 +8370,7 @@ function doExplode(ctx){
   let x=curAtk()*(has("hephaestus2")?2:1.5)*(1+bv("hephaestus7"));
   if(hasLegend("legend_hephaestus"))x*=3;
   if(hasSolo("solo_hephaestus"))x*=2;
-  if(hasArt("forge"))x*=2;
+  x*=artMul("boom");
   fx("e","💥爆炸","duo");xdmg(x,"fire");
   if(has("hephaestus5")&&G.e&&G.e.hp>0)G.e.ember={t:4,dps:Math.max(1,x*bv("hephaestus5"))};
   trig("exp",{d:(ctx&&ctx.d)||G._d});
@@ -8232,11 +8379,11 @@ function doFire(ctx){
   const p=G.p,e=G.e,hs=godCount("hestia")>0,hf=has("hephaestus6");
   if(!hs&&!hf)return;
   let fired=false;
-  const fm=(1+bv("hestia5")+(hasSolo("solo_hestia")?1:0))*(hasArt("eternal")?2:1);
+  const fm=(1+bv("hestia5")+(hasSolo("solo_hestia")?1:0))*artMul("fire");
   if(hf){xdmg(ctx.d*bv("hephaestus6")*fm,"fire");fired=true}
   if(hs&&(has("hestia1")||Math.random()<.4)){
     let dps=Math.max(1,ctx.d*(bv("hestia1")||.15)*fm);
-    if(hasDuo("duo_arthest")&&!hasArt("wrath"))dps*=p.critDmg+.5;
+    if(hasDuo("duo_arthest")&&!artAny("noCritDmg"))dps*=p.critDmg+.5;
     if(!e.fire||dps>=e.fire.dps)e.fire={t:4,dps};else e.fire.t=4;
     if(has("hestia8"))xdmg(ctx.d*bv("hestia8"),"fire");
     if(hasLegend("legend_hestia"))xdmg(ctx.d*2,"fire");
@@ -8244,7 +8391,7 @@ function doFire(ctx){
   }
   if(fired)trig("fire",ctx);
 }
-function onDodge(){if(hasArt("boots"))G.p.bootX=true;if(has("hermes5"))addHaste(.5,3);{const p=G.p;if(mirLv("speed_R")&&G.time>=(p.gustCd||0)){p.gustT=1.5;p.gustCd=G.time+3;fx("p","狂風","duo")}}trig("dodge",{d:G._d})}
+function onDodge(){artEach("onDodge",G.p);if(has("hermes5"))addHaste(.5,3);{const p=G.p;if(mirLv("speed_R")&&G.time>=(p.gustCd||0)){p.gustT=1.5;p.gustCd=G.time+3;fx("p","狂風","duo")}}trig("dodge",{d:G._d})}
 function skillCast(){
   const p=G.p;
   if(has("hermes8")&&G.time>=p.noCdT){p.skillCd=0;p.noCdT=G.time+5;fx("p","不進CD","combo")}
@@ -8330,25 +8477,21 @@ function step(dt){
   if(p.critBufT>0){p.critBufT-=dt;if(p.critBufT<=0)p.critBufV=0}
   if(p.divineBufT>0)p.divineBufT-=dt;
   p.hp=Math.min(p.maxHp,p.hp+p.maxHp*(p.regenPct+p.regenB)*dt*survivalMul());
-  if(hasArt("eternal")&&p.hp>p.maxHp*.1)p.hp=Math.max(p.maxHp*.1,p.hp-p.maxHp*.005*dt);
+  artEach("tickAll",p,dt);
   if(ksIs("death_mark")&&p.hp>1)p.hp=Math.max(1,p.hp-p.maxHp*.005*dt);
   if(p.veilT>0){p.veilT-=dt;p.skillCd=Math.max(0,p.skillCd-dt);p.ougiCd=Math.max(0,p.ougiCd-dt)}
   if(p.summerT>0)p.summerT-=dt;
   if(G.trans<=0){
-    if(hasArt("twheel")){p.twT=(p.twT||0)+dt;if(p.twT>=45){p.twT=0;p.skillCd=0;p.ougiCd=0;log("🕰️ 時光之輪：技能、奧義冷卻歸零","legend");fx("p","🕰️ 冷卻歸零","combo")}}
-    if(hasArt("scythe")&&G.e&&G.e.hp>0&&p.hp/p.maxHp<.3){p.scyT=(p.scyT||0)+dt;if(p.scyT>=5){p.scyT=0;fx("p","🌒 死神","legend");xdmg(G.e.hp*.1,"crit");if(G.trans>0||G.over)return}}
-    if(hasArt("hourglass")){p.hgT=(p.hgT||0)+dt;if(p.hgT>=10){p.hgT=0;p.skillCd=Math.max(0,p.skillCd-3);p.ougiCd=Math.max(0,p.ougiCd-3);fx("p","⏳ 冷卻 -3s","combo")}}
-    if(hasArt("nyx_veil")){p.veilCd=(p.veilCd||0)+dt;if(p.veilCd>=10){p.veilCd=0;p.veilT=4;p.ddInvT=Math.max(p.ddInvT||0,4);log("🌑 倪克斯的面紗：進入夜幕 4 秒","legend");fx("p","夜幕","legend")}}
-    if(hasArt("frieren_book")&&G.e&&G.e.hp>0){p.fbT=(p.fbT||0)+dt;if(p.fbT>=10){p.fbT=0;const x=G.e.maxHp*.3*(G.e.myth||G.e.boss?.5:1);log("📕 殺人魔法！","legend");banner("📕 殺人魔法","legend");xdmg(x,"ougi",true);if(G.trans>0||G.over)return}}
+    if(artOrdered("tick","to",p,dt))return;
   }
-  if(p.combo>0){p.comboTime-=dt;if(p.comboTime<=0&&!noReset()){p.combo=0;p.comboTime=0;if(hasArt("csoul"))p.comboLock=G.time+5}}
+  if(p.combo>0){p.comboTime-=dt;if(p.comboTime<=0&&!noReset()){p.combo=0;p.comboTime=0;artEach("onComboBreak",p)}}
   if(G.trans>0){G.trans-=dt;if(G.trans<=0)nextFloor();return}
   rhythmTick(dt);if(G.trans>0||G.over)return;
   if(e.abilities.includes("成長"))e.growT=(e.growT||0)+dt;
-  if(p.pbleed){p.pbleed.t-=dt;p.pAcc=(p.pAcc||0)+p.maxHp*p.pbleed.v*p.pbleed.n*dt*(hasArt("godfoe")?.5:1)*(ksIs("antibody")?.6:1);if(p.pbleed.t<=0)p.pbleed=null;if(p.pAcc>=1){const x=Math.floor(p.pAcc);p.pAcc-=x;G.lastHitBy="毒牙流血";hurtP(x,false);if(G.over)return}}
+  if(p.pbleed){p.pbleed.t-=dt;p.pAcc=(p.pAcc||0)+p.maxHp*p.pbleed.v*p.pbleed.n*dt*artMul("bleed")*(ksIs("antibody")?.6:1);if(p.pbleed.t<=0)p.pbleed=null;if(p.pAcc>=1){const x=Math.floor(p.pAcc);p.pAcc-=x;G.lastHitBy="毒牙流血";hurtP(x,false);if(G.over)return}}
   if(e.abilities.includes("再生")&&e.hp>0){e.hp=Math.min(e.maxHp,e.hp+e.maxHp*getAbVal("再生",e.abMul)*dt)}
   if(e.poison&&e.poison.t>0){e.poison.t-=dt;if(!(e.immT>0))e.hp-=e.poison.dps*dt*eDmgMul()*dotMul();if(e.hp<=0){kill("dot");return}}
-  if(e.fire&&e.fire.t>0){if(!hasArt("eternal"))e.fire.t-=dt;if(!(e.immT>0))e.hp-=e.fire.dps*dt*eDmgMul()*dotMul();if(e.fire.t<=0)e.fire=null;if(e.hp<=0){kill("dot");return}}
+  if(e.fire&&e.fire.t>0){if(!artAny("fireEternal"))e.fire.t-=dt;if(!(e.immT>0))e.hp-=e.fire.dps*dt*eDmgMul()*dotMul();if(e.fire.t<=0)e.fire=null;if(e.hp<=0){kill("dot");return}}
   if(e.ember&&e.ember.t>0){e.ember.t-=dt;if(!(e.immT>0))e.hp-=e.ember.dps*dt*eDmgMul()*dotMul();if(e.ember.t<=0)e.ember=null;if(e.hp<=0){kill("dot");return}}
   if(e.drunkT>0)e.drunkT-=dt;
   if(e.myth){mythStep(dt);if(G.over)return;if(e.mb&&e.mb.twoPhase){tabbyStep(dt);if(G.over||G.paused)return}}
@@ -8393,16 +8536,16 @@ function hit(kind,proc){
   if(e.myth&&e.mb&&e.mb.twoPhase&&e.ss&&e.ss.ballsLive){const _ball=e.ss.balls.find(b=>!b.picked);if(_ball){tabbyPickBall(_ball);anim(R.P,"atk");sHit();return}}
   if(e.myth&&e.mab==="永夜"&&kind!=="ougi"&&Math.random()<(mt("fullDark",false)?.35:.2)){if(kind==="skill")p.skillCd=p.skillBase;log("🌑 夜幕遮蔽，攻擊落空","e");fx("e","落空","heal");return}
   let mult=1,rg=10,force=false,isOugi=false;
-  if(kind==="skill"){mult=3*(mirLv("soul_R")?mirV2("soul_R"):1);rg=18;p.skillCd=p.skillBase*(1-mirV("soul_R"))*(hasSolo("solo_hermes")?.7:1)*(hasArt("loop")?.3:1)*(ksIs("death_mark")?.5:1);p.skFull=p.skillCd;G.st.skills++;if(G.st.skills===300)unlockKs("shard");if(G.st.skills===500)unlockKs("death_mark");if(hasArt("loop"))p.hp=Math.max(1,p.hp-Math.round(p.hp*.04));skillCast();
+  if(kind==="skill"){mult=3*(mirLv("soul_R")?mirV2("soul_R"):1);rg=18;p.skillCd=p.skillBase*(1-mirV("soul_R"))*(hasSolo("solo_hermes")?.7:1)*artMul("skillCd")*(ksIs("death_mark")?.5:1);p.skFull=p.skillCd;G.st.skills++;if(G.st.skills===300)unlockKs("shard");if(G.st.skills===500)unlockKs("death_mark");artEach("onSkill",p);skillCast();
     if(mirLv("soul_L")&&!proc){const g=G;setTimeout(()=>{if(G===g&&!g.over&&!g.paused&&!g.closed&&g.trans<=0)hit("skill2",true)},180)}}
   if(kind==="skill2"){mult=3*mirV("soul_L");rg=6}
   if(kind==="ougi"){
-    mult=8*(p.ougiMul/4)*(hasSolo("solo_ares")?1.5:1)*(hasArt("ring")?2:1)*(hasArt("ares_spear")?2:1);force=true;isOugi=true;
+    mult=8*(p.ougiMul/4)*(hasSolo("solo_ares")?1.5:1)*artMul("ougi");force=true;isOugi=true;
     const dbl=has("ares1")?-bv("ares1"):0;
     if(dbl&&p.ougiSecond){mult*=(1-dbl);p.ougiSecond=false}
     else p.ougiSecond=!!(dbl&&p.divine>=200);
     if(!has("ares2"))p.divine=Math.max(0,p.divine-100);
-    p.ougiCd=p.ougiBase*(1+(has("ares2")?bv("ares2"):0))*(hasArt("ring")?.7:1);
+    p.ougiCd=p.ougiBase*(1+(has("ares2")?bv("ares2"):0))*artMul("ougiCd");
     G.st.ougis++;
     if(has("hestia3")&&p.hp/p.maxHp>=.5)p.hp=Math.max(1,p.hp-p.maxHp*.01);
   }
@@ -8413,8 +8556,8 @@ function hit(kind,proc){
   const crit=force||p.nextCrit||useQ||Math.random()<critCh;
   if(useQ)p.critQ--;
   p.nextCrit=false;p.critBonusNext=0;
-  if(p.drumX&&crit){p.drumX=false;mult*=2}
-  if(p.bootX&&kind==="basic"){p.bootX=false;mult*=2;fx("e","🪶 風神","combo")}
+  if(p.drumX&&crit){mult*=p.drumX===true?2:p.drumX;p.drumX=false}
+  if(p.bootX&&kind==="basic"){mult*=p.bootX===true?2:p.bootX;p.bootX=false;fx("e","🪶 風神","combo")}
 
   let atk=curAtk();
   
@@ -8422,7 +8565,7 @@ function hit(kind,proc){
   if(crit)pierce=Math.min(0.85,pierce+bv("artemis3"));
   if(p.thunderRdy&&has("zeus3")){p.thunderRdy=false;pierce=Math.min(0.95,pierce+bv("zeus3"));fx("e","⚡雷霆","zap")}
   const defEff=e.def*(1-pierce)*(1-(e.defDown||0));
-  let d=Math.max(1,Math.round(softDmg(atk*mult*directMul()*(crit&&!hasArt("wrath")?eCritMul(e,critDmgEff()):1)*defFac(defEff))));
+  let d=Math.max(1,Math.round(softDmg(atk*mult*directMul()*(crit&&!artAny("noCritDmg")?eCritMul(e,critDmgEff()):1)*defFac(defEff))));
 
   if(e.abilities.includes("閃避")&&Math.random()<getAbVal("閃避",e.abMul)){log("💨 "+e.name+" 閃避了攻擊","e");return}
   if(e.abilities.includes("格擋")&&Math.random()<getAbVal("格擋",e.abMul))d=Math.round(d*.5);
@@ -8431,7 +8574,7 @@ function hit(kind,proc){
   d=Math.max(1,Math.round(d*eDmgMul()));
   let heel=false;if(isMyth("英雄突刺")&&!proc&&Math.random()<mt("weakChance",.1)){heel=true;d=Math.round(d*mt("weakMul",3));fx("e","🦶阿基里斯之踵","crit");log("🦶 命中阿基里斯之踵！×"+mt("weakMul",3),"legend")}
   if(e.immT>0&&!heel){log("🌀 攻擊無效（無敵中）","e");fx("e","免疫","heal");return}
-  let _ab=0;if(e.shield>0&&hasArt("fern_bullet")){e.shield=0;d=Math.round(d*3);fx("e","破盾","crit");const _g=G,_ft=Math.round(e.hp*.2);setTimeout(()=>{if(G===_g&&_g.e===e&&e.hp>0)xdmg(_ft,"crit",true)},80)}else if(e.shield>0){const ab=Math.min(e.shield,d);e.shield-=ab;d-=ab;_ab=ab}
+  let _ab=0;if(e.shield>0&&artAny("pierceShield")){const fv=ARTMAP.fern_bullet.v;e.shield=0;d=Math.round(d*fv.mul);fx("e","破盾","crit");const _g=G,_ft=Math.round(e.hp*fv.cur);setTimeout(()=>{if(G===_g&&_g.e===e&&e.hp>0)xdmg(_ft,"crit",true)},80)}else if(e.shield>0){const ab=Math.min(e.shield,d);e.shield-=ab;d-=ab;_ab=ab}
   if(e.myth)d=Math.min(d,Math.max(1,Math.ceil(e.maxHp*.4)));
   d=Math.min(d,Math.max(1,Math.ceil(e.maxHp*hitCap(e))));
   if(e.ss&&e.ss.rock)d=Math.min(d,Math.max(1,Math.ceil(e.maxHp*.25)));
@@ -8439,7 +8582,7 @@ function hit(kind,proc){
   if(d>0&&e.abilities.includes("復仇"))e.revS=Math.min(10,(e.revS||0)+1);
   if(e.sk&&e.sk.length)skStage();
   G.st.dealt+=d;if(crit)G.st.crits++;noteHit(d);
-  if(crit&&hasArt("wrath"))p.wrathAtk=Math.min(2,(p.wrathAtk||1)+.01);
+  if(crit)artEach("onCrit",p);
   G._d=d;
   if(isMyth("詠唱・殺人魔法")&&e.ch&&e.ch.stun<=0&&d>0)e.ch.v+=d/e.maxHp*100+(crit?5:0)+(kind==="skill"?3:0)+(isOugi?8:0);
 
@@ -8501,18 +8644,18 @@ function hit(kind,proc){
 
   if(!proc){
     p.divine=Math.min(divineCap(),p.divine+(isOugi?0:rg*(1+bv("ares3")+(p.divineBufT>0?.5:0))+(crit?5:0)));
-    if(!(hasArt("csoul")&&G.time<(p.comboLock||0)))p.combo++;p.comboTime=noReset()?1e9:(hasArt("drum")?2.5:3)+(ksIs("heart")?1:0);p.season=(p.season+1)%2;if(p.combo>G.maxCombo)G.maxCombo=p.combo;
+    if(!(G.time<(p.comboLock||0)))p.combo++;p.comboTime=noReset()?1e9:artVal("comboTime",3)+(ksIs("heart")?1:0);p.season=(p.season+1)%2;if(p.combo>G.maxCombo)G.maxCombo=p.combo;
     if(p.combo===500)unlockKs("heart");
     if(p.combo===100||p.combo===500||(p.combo>=1000&&p.combo%1000===0)){banner("⚡ "+p.combo+" 連擊！","legend");sLegend()}
     if(p.combo%10===0){
-      if(hasArt("drum")){p.nextCrit=true;p.drumX=true;fx("e","🔨 雷霆","combo")}
+      artEach("onCombo10",p);
       if(has("zeus7"))addDivine(bv("zeus7")*100);
       trig("c10",ctx);
     }
     if(has("zeus8")&&p.combo%20===0){p.nextCrit=true;fx("e","必暴","combo")}
     if(has("zeus3")&&(p.thunderN=(p.thunderN||0)+1)>=50){p.thunderN=0;p.thunderRdy=true}
     if(has("apollo2")&&(p.holyN=(p.holyN||0)+1)>=20){p.holyN=0;xdmg(p.hp*.2,"light");fx("p","✨聖癒","heal")}
-    if(hasArt("chariot")&&(p.chariotN=(p.chariotN||0)+1)>=10){p.chariotN=0;xdmg(G.e.maxHp*.03,"light")}
+    artEach("onAttack",p);
     if(has("demeter5")&&(p.seasonN=(p.seasonN||0)+1)>=20){p.seasonN=0;seasonTick()}
     if(has("aphrodite6")){const ce=G.e;ce.charmS=Math.min(3,(ce.charmS||0)+1);if(ce.charmS>=3)setWeak("a6",.15)}
     if(has("hestia2")&&G.time>=(p.purCd||0)){let n=0;if(p.bleed){p.bleed=null;n++}if(p.pbleed){p.pbleed=null;n++}if(p.curseT>0){p.curseT=0;n++}if(p.bindT>0){p.bindT=0;n++}if(p.debt>0){p.debt=0;n++}if(p.hangT>0){p.hangT=0;n++}if(n){p.purCd=G.time+2;fx("p","✨淨化 ×"+n,"heal");xdmg(curAtk()*bv("hestia2")*n,"fire")}}
@@ -8604,9 +8747,7 @@ function kill(by){
   if(e.ss&&e.ss.rebirth>0){e.ss.rebirth=0;e.hp=Math.round(e.maxHp*.4);e.immT=1.2;log("♾️ 無限輪迴！"+e.name+"復活了","legend");fx("e","輪迴","legend");screenFx("boss");return}
   if(e.myth&&mythRevive())return;
   const wasFrozen=e.frozen&&e.stopT>0,wasPoison=!!(e.poison&&e.poison.t>0);
-  if(hasArt("proof")&&(e.elite||e.boss||e.myth))p.proofAtk=Math.min(1,(p.proofAtk||0)+.01);
-  if(hasArt("ares_spear")&&G.lastKind==="ougi")p.spearAtk=Math.min(1,(p.spearAtk||0)+.03);
-  if(hasArt("scythe"))p.hp=Math.min(p.maxHp,p.hp+p.maxHp*.1*survivalMul());
+  artEach("onKill",p,e);
   if(e.boss&&!e.myth&&pactLv("king")){p.kingAtk=Math.min(1.5,(p.kingAtk||0)+pv("king","r"));log("📜 王者之誓：攻擊永久 +"+Math.round(pv("king","r")*100)+"%（目前 +"+Math.round(p.kingAtk*100)+"%）","d")}
   e.hp=0;e.poison=null;G.trans=.9;R.E.classList.add("dead");
   /* 冥晶掉落：一般怪 30%（深厚積蓄可提高），菁英／BOSS／神話必掉 */
@@ -8615,13 +8756,13 @@ function kill(by){
   let ming=0;
   if(didDrop){
     ming=Math.round((8+G.floor*4)*(1+G.floor/50));if(e.elite)ming*=2;if(e.boss)ming*=4;if(e.myth)ming*=20;
-    ming=Math.round(ming*(1+p.mingUp+p.mingB+pactMing())*p.mingMul*(hasArt("greed")?1.5:1)*(hasArt("styx")?.75:1)*(1-pv("greedp","e"))*(oracleIs("harvest")?1.5:1));
+    ming=Math.round(ming*(1+p.mingUp+p.mingB+pactMing())*p.mingMul*artMul("ming")*(1-pv("greedp","e"))*(oracleIs("harvest")?1.5:1));
     if(has("poseidon5"))ming+=Math.round(bv("poseidon5"));
-    if(hasArt("coin")&&ming>0){if(Math.random()<.7){ming*=2;fx("e","🌗 正面","ming")}else{const lose=Math.round(runMing()*.05);G.ming-=lose;ming=0;fx("e","🌗 反面","heal");if(lose>0)fx("p","💠-"+fmt(lose),"ming")}}
+    for(const x of artList())if(x.mingDrop)ming=x.mingDrop(ming);
   }
   if(ming>0&&p.autumn){ming=Math.round(ming*1.3);p.autumn=false}
   if(wasFrozen&&hasLegend("legend_demeter")){ming+=50;healP(.2);log("🌍 大地之母：回復 20% 生命","legend")}
-  const heal=Math.round(p.maxHp*Math.max(0,.15+(p.ksHeal||0)-.05*pactLv("heal")));
+  const heal=Math.round(p.maxHp*Math.max(0,.15+(p.ksHeal||0)));
   G.ming+=ming;G.totalMing+=ming;p.hp=Math.min(p.maxHp,p.hp+heal);
   if(ming>0&&G.floor>=2)showTips([{k:"mirror",ic:"🌑",t:"用冥晶變強",d:"打怪掉的冥晶，可以在下方「魔鏡」強化攻擊、生命等能力，<b>死掉也會保留</b>。"+(G.autoBuy?"目前已開啟「自動升級」，會自動幫你買核心能力，可以在魔鏡裡關掉。":"魔鏡裡可以開啟「自動升級」。")}]);
   if(wasPoison&&has("dionysus8"))healP(bv("dionysus8"));
@@ -8652,7 +8793,6 @@ function kill(by){
   }
   if(!e.myth&&!e.ghost)chestDrop();
   if(e.boss&&pactLv("hp")){G.dice=(G.dice||0)+pv("hp","r");log("📜 鋼鐵之誓：🎲 +"+pv("hp","r"),"d")}
-  if(hasArt("sacrifice"))p.sacAtk=Math.min(3,(p.sacAtk||1)*1.003);
   if(e.myth){const first=!getMythCount(e.mb.n);addMythEncounter(e.mb.n);cxMyth(e.mb.n,"k");Cloud.enc(e.mb.n,"擊敗");unlockKs("horn");if(first)log("📖 神話圖鑑新收錄："+e.mb.n+"（"+codexCount()+" / "+MYTHS.length+"）"+(codexBonusOf(codexCount())>codexBonusOf(codexCount()-1)?"，下一場起攻擊、生命 +"+Math.round(codexBonusOf(codexCount())*100)+"%":""),"legend");G.mythKills++;if(e.mb.n==="菲倫")G.fernKills++;if(e.mb.n==="芙莉蓮"){G.frierenKills++;G.chainWin=true}mythReward()}
   if(e.boss)screenFx("boss");
   if(G.autoBuy)autoMirrorAll();
@@ -8677,20 +8817,12 @@ function nextFloor(){
   {const v=mirV("vigor_L");if(v>0){const h=Math.round(p.maxHp*v*survivalMul());p.hp=Math.min(p.maxHp,p.hp+h);fx("p",h,"heal")}}
   {const v=mirV("wealth_R");if(v>0&&G.ming>0){const add=Math.min(Math.round(G.ming*v),Math.round((8+G.floor*4)*(1+G.floor/50))*3);if(add>0){G.ming+=add;G.totalMing+=add;fx("p","💠+"+fmt(add),"ming")}}}
   if(mirLv("death_R")&&p.ddR<1&&G.floor-(p.ddRLast||0)>=mirV("death_R")){p.ddR=1;log("🛡️ 頑強抵抗：恢復 1 次免死","h")}
-  p.forge=hasArt("forge")?5:0;
+  p.forge=artSum("forgeStart");
   if(ksIs("shard")){p.skillCd=0;p.ougiCd=0}
-  if(hasArt("warp"))G.pT=2.5;
-  if(hasArt("plague"))p.hp=Math.max(1,p.hp-Math.round(p.maxHp*.05));
-  if(hasArt("forge"))p.hp=Math.max(1,p.hp-Math.round(p.maxHp*.05));
-  if(hasArt("tabby_curse")){const te=G.e;te.hp=Math.max(1,te.hp-Math.round(te.maxHp*(te.myth||te.boss?.15:.25)));p.hp=Math.max(1,p.hp-Math.round(p.maxHp*.03))}
   if(ksIs("void_pact")){p.hp=Math.max(1,p.hp-Math.round(p.maxHp*.03));if(G.floor%10===0){G.pomQueue=(G.pomQueue||0)+pomGain(1);G._pomCheck=true;log("🌑 虛空契約：獲得 1 顆 Pom","legend")}}
-  if(hasArt("wheel")&&G.floor%50===0&&(p.wheelN||0)<3){p.wheelN=(p.wheelN||0)+1;grantFreeBless(null,"命運之輪")}
-  if(hasArt("hades_key")&&G.floor%10===0&&(p.keyN||0)<10){p.keyN=(p.keyN||0)+1;grantFreeBless("rare+","黑帝斯的鑰匙")}
-  if(hasArt("sacrifice"))p.hp=Math.max(1,p.hp-Math.round(p.maxHp*.1));
-  if(hasArt("berserk")||hasArt("thorn"))p.shield=0;
-  else if(hasArt("belt"))p.shield=Math.max(p.shield,Math.round(p.maxHp*.2));
-  if(hasArt("doom")&&G.floor%100===0){G.doomN=(G.doomN||0)+1;p.atk=Math.round(p.atk*1.1);const o=p.maxHp;p.maxHp=Math.round(p.maxHp*1.1);p.hp+=p.maxHp-o;log("🔔 終焉之鐘第 "+G.doomN+" 響：攻擊、生命 +10%，怪物攻擊 +15%","legend");banner("🔔 終焉之鐘","legend")}
-  if(hasArt("wish")){const e=G.e,cut=Math.round(e.maxHp*(e.myth||e.boss?.05:.1));e.hp=Math.max(1,e.hp-cut);p.hp=Math.max(1,p.hp-Math.round(p.maxHp*.03))}
+  artOrdered("onFloor","fo",p,G.e);
+  if(artAny("noShield"))p.shield=0;
+  else{const fs=artSum("floorShield");if(fs)p.shield=Math.max(p.shield,Math.round(p.maxHp*fs))}
   setEnemyDom();
   log("══ 第 "+G.floor+" 層 · "+G.e.name+" ══","s");
   if(G.floor>1&&G.floor%50===1){log("🏰 進入「"+zoneName(G.floor)+"」區域","d");banner("🏰 "+zoneName(G.floor),"elite");sLegend()}
@@ -8729,7 +8861,7 @@ function setEnemyDom(){setMap();if(R.El)R.El.style.color="";
   if(e.sk&&e.sk.length)R.Ab.insertAdjacentHTML("beforeend",e.sk.map(n=>'<span class="sk" data-sk="'+n+'">'+n+'</span>').join(""));
   ov.classList.toggle("myth-nyx",e.sk.includes("黑暗降臨"));
   setCls(R.Fl,"bt-fl"+(e.boss?" boss":e.elite?" elite":""));
-  setT(R.Fl,"第 "+G.floor+" 層");if(R.Goal)setT(R.Goal,nextGoal());
+  setT(R.Fl,"第 "+G.floor+" 層");if(R.Goal){const ng=nextGoal();setT(R.Goal,goalShort(ng));R.Goal.title=ng}
   R.Eh._w=R.Eg._w=null;
   if(e.boss)banner("⚠ BOSS ⚠","boss");else if(e.elite)banner("★ 菁英 ★","elite");
 }
@@ -9032,7 +9164,7 @@ function defeat(){
     (cause.length?'<div class="bt-cause"><div class="bt-cause-t">💀 死因分析</div>'+cause.map(x=>'<div>'+x+'</div>').join("")+'</div>':'')+
     '<div class="bt-rb">'+row("📊 本次戰績","")+row("最高層數",best+" 層")+row("挑戰時間",tm)+row("總傷害",fmt(g.st.dealt))+row("暴擊次數",g.st.crits)+row("💥 最高單擊",fmt(g.st.maxHit||0)+(g._hitNew?"　🎉 新紀錄":"")+"<br><small>歷史最高 "+fmt(Math.max(g._hitBest||0,g.st.maxHit||0))+"</small>")+row("🗿 禁忌神器",g.arts&&g.arts.length?g.arts.map(k=>ARTMAP[k].ic+ARTMAP[k].n).join("、"):"無")+row("📜 懲罰契約",pactTotal()?PACTS.filter(x=>pactLv(x.k)).map(x=>x.n+"×"+pactLv(x.k)).join("、"):"無")+row("技能 / 奧義",g.st.skills+" / "+g.st.ougis)+row("獲得冥晶",fmt(g.totalMing))+row("花費冥晶",fmt(g.spentMing))+'</div>'+
     '<div class="bt-rb">'+row("🎁 本場取得","")+row("祝福",nb+" / "+blessCap())+row("雙重祝福",p.duos.length+" / "+DUOS.length)+row("傳奇祝福",p.legends.length+" / "+LEGENDS.length)+row("最高連擊","×"+g.maxCombo)+row("擊敗神話",g.mythKills)+row("擊敗菲倫 / 芙莉蓮",g.fernKills+" / "+g.frierenKills)+'</div>'+
-    '<div class="bt-rb">'+row("🧭 本場 Build","")+row("開場信物",ksName(g))+row("核心流派",bld.core)+row("主力祝福",bld.main)+row("關鍵雙重",bld.duos)+row("關鍵傳奇",bld.legs)+(bld.lgd?row("傳說祝福",bld.lgd):"")+row("最高連擊","×"+g.maxCombo)+row("最終攻擊力",fmt(atkF))+row("最終生命",fmt(p.maxHp))+'</div>'+
+    '<div class="bt-rb">'+row("🧭 本場 Build","")+row("開場信物",ksName(g))+row("核心流派",bld.core)+row("主力祝福",bld.main)+row("關鍵雙重",bld.duos)+row("關鍵傳奇",bld.legs)+(bld.lgd?row("至高祝福",bld.lgd):"")+row("最高連擊","×"+g.maxCombo)+row("最終攻擊力",fmt(atkF))+row("最終生命",fmt(p.maxHp))+'</div>'+
     (tres?'<div class="bt-chain"><span class="bt-myth-quote">👵「'+tres+'」</span></div>':'')+
     (ch?'<div class="bt-chain">'+ch+'</div>':'')+
     '<div class="bt-rfire">🌑 冥晶 <b>💠 '+fmt(g.ming)+'</b> 和魔鏡等級都會保留，下一場繼續變強</div>'+
