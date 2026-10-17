@@ -3909,7 +3909,7 @@ loadData();
 @keyframes btUpCrit{0%{opacity:0;transform:translate(-50%,10px) scale(.5)}20%{opacity:1;transform:translate(-50%,-6px) scale(1.4)}40%{transform:translate(-50%,-20px) scale(1)}100%{opacity:0;transform:translate(-50%,-60px) scale(.9)}}
 @keyframes btUpCombo{0%{opacity:0;transform:translate(-50%,10px) scale(.5) rotate(0)}20%{opacity:1;transform:translate(-50%,-6px) scale(1.5) rotate(-5deg)}40%{transform:translate(-50%,-20px) scale(1.1) rotate(5deg)}100%{opacity:0;transform:translate(-50%,-60px) scale(.9) rotate(0)}}
 @keyframes btUpOugi{0%{opacity:0;transform:translate(-50%,10px) scale(.5)}20%{opacity:1;transform:translate(-50%,-6px) scale(2)}40%{transform:translate(-50%,-30px) scale(1.2)}100%{opacity:0;transform:translate(-50%,-80px) scale(1)}}
-.bt-bn{position:absolute;left:0;right:0;top:28%;text-align:center;font:900 28px "Cinzel","Noto Serif TC",serif;letter-spacing:.2em;pointer-events:none;z-index:5;animation:btBn 1.5s ease-out forwards}
+.bt-bn{position:absolute;left:0;right:0;top:44%;text-align:center;font:900 28px "Cinzel","Noto Serif TC",serif;letter-spacing:.2em;pointer-events:none;z-index:5;animation:btBn 1.5s ease-out forwards}
 .bt-bn.boss{color:#ff7b72;text-shadow:0 0 20px rgba(248,81,73,.9),0 2px 0 #000}
 .bt-bn.elite{color:#c4a8f5;text-shadow:0 0 20px rgba(163,113,247,.9),0 2px 0 #000}
 @keyframes btBn{0%{opacity:0;transform:scale(2.2)}20%{opacity:1;transform:scale(1)}75%{opacity:1}100%{opacity:0;transform:scale(1.1)}}
@@ -4073,6 +4073,10 @@ body.bt-open *{-webkit-backdrop-filter:none!important;backdrop-filter:none!impor
 .bt-myth-name{font:900 16px "Noto Serif TC",serif;color:#ffd54a;letter-spacing:.1em;margin-bottom:10px;text-shadow:0 0 10px rgba(255,213,74,.6)}
 .bt-myth-ab{font:11px/1.6 "Noto Sans TC",sans-serif;color:#e8f2ff;background:rgba(163,113,247,.14);border:1px solid rgba(163,113,247,.45);border-radius:8px;padding:8px 10px;margin-bottom:10px;text-align:left}
 .bt-myth-ab b{color:#c4a8f5}
+.bt-myth-dif{display:flex;flex-direction:column;gap:3px;margin-bottom:10px;padding:8px 10px;border-radius:8px;border:1px solid var(--c);background:rgba(0,0,0,.35);text-align:left}
+.bt-myth-dif b{font:900 15px "Noto Sans TC",sans-serif;color:var(--c)}
+.bt-myth-dif span{font:11px/1.6 "Noto Sans TC",sans-serif;color:#d8e2f0}
+.bt-myth-dif small{display:block;color:#8ba0bd;font-size:10px}
 .bt-myth-lose{font:12px/1.7 "Noto Sans TC",sans-serif;color:#ff9b94;text-align:left;margin-bottom:14px}
 .bt-myth-btns{display:flex;gap:10px}
 .bt-myth-btns .bt-modal-btn{flex:1;letter-spacing:.1em}
@@ -4568,6 +4572,7 @@ body.bt-lite.bt-flag-c2 .bt-bn{animation-duration:.6s!important}
 .mr-gh{display:flex;align-items:baseline;gap:8px;margin:0 2px 8px;flex-wrap:wrap}
 .mr-gh b{font:700 14px "Noto Serif TC",serif;color:#e8d18f;letter-spacing:.1em}
 .mr-gh span{flex:1;font:11px "Noto Sans TC",sans-serif;color:#8a78a8}
+.mr-rs.sure,.mr-rsall.sure{background:rgba(248,81,73,.25);border-color:#ff7b72;color:#ffd0cc}
 .mr-rs{padding:3px 8px;border-radius:7px;cursor:pointer;background:rgba(248,81,73,.1);border:1px solid rgba(248,81,73,.45);color:#ff9b94;font:700 10px "Noto Sans TC",sans-serif}
 .mr-opts{display:grid;grid-template-columns:1fr 1fr;gap:8px}
 .mr-opt{display:flex;flex-direction:column;gap:6px;padding:10px;border-radius:10px;background:rgba(10,14,26,.7);border:1px solid rgba(163,113,247,.25)}
@@ -4577,6 +4582,9 @@ body.bt-lite.bt-flag-c2 .bt-bn{animation-duration:.6s!important}
 .mr-on i{display:block;width:26px;height:26px;flex-shrink:0;border-radius:50%;background-repeat:no-repeat;image-rendering:pixelated;transform:scale(.72);transform-origin:left center;margin-right:-7px}
 .mr-od{flex:1;font:11px/1.5 "Noto Sans TC",sans-serif;color:#b8c5d8}
 .mr-od .nx{display:block;color:#7ee787;margin-top:3px}
+.mr-od .pl{display:block;margin-top:4px;padding:4px 6px;border-radius:6px;background:rgba(163,113,247,.08);color:#c9b8e8;font-size:10.5px}
+.mr-od .pl b{color:#d9c4ff}
+.mr-od .pl i{display:block;font-style:normal;color:#8a78a8;font-size:10px}
 .mr-opt .mr-buy{width:100%;min-width:0}
 .mr-lock{display:block;text-align:center;padding:8px 0;font:700 11px "Noto Sans TC",sans-serif;color:#6f819b}
 .mr-foot{margin:4px 2px 8px;text-align:center;font:11px "Noto Sans TC",sans-serif;color:#8ba0bd}
@@ -4621,13 +4629,51 @@ body.bt-lite.bt-flag-c2 .bt-bn{animation-duration:.6s!important}
 .bt-duo-desc{font:12px/1.5 "Noto Sans TC",sans-serif;color:#e8f2ff;margin-bottom:4px}
 .bt-duo-why{font:italic 10px/1.5 "Noto Serif TC",serif;color:#8a78a8}
 @media (prefers-reduced-motion:reduce){.bt-duo-item,.bt-pick-item:has(.rar.hero){animation:none!important}}
+.gh-rule{margin:8px 0 4px;padding:8px 10px;border-radius:10px;background:rgba(248,81,73,.08);border:1px solid rgba(248,81,73,.35);text-align:left;font:12px/1.7 "Noto Sans TC",sans-serif;color:#ffd0cc}
+.gh-rule b{color:#ffe9b0}
+.gh-rw{line-height:1.7}
+
+/* ===== 戰鬥畫面精簡、連擊大字、神力分段、頭像 ===== */
+.bt-topinfo[hidden],#btBest[hidden]{display:none!important}
+.bt-b .mgc{display:flex;align-items:center;gap:2px;font:700 10px "JetBrains Mono",monospace;color:#c4a8f5;line-height:1}
+.bt-goal{cursor:pointer}
+.bt-ab.compact{gap:3px;max-width:150px;margin:2px auto}
+.bt-ab.compact span:not(.mb):not(.gh){font-size:0;gap:0;padding:2px 3px;line-height:0}
+.bt-ab.compact span g-i.gi{margin:0}
+.bt-fighter.p .bt-av{border-radius:18px;background:#fdf6e3;border-color:rgba(63,185,80,.8)}
+.bt-fighter.p .bt-pav{inset:-4px}
+.cbrow{display:none!important}
+.bt-field:has(.bt-combo:not([hidden])) .bt-vs{visibility:hidden}
+.bt-combo{position:absolute;left:50%;top:6px;transform:translateX(-50%);z-index:3;width:64px;height:64px;border-radius:50%;display:flex;flex-direction:column;align-items:center;justify-content:center;pointer-events:none;
+  background:radial-gradient(circle,rgba(3,6,13,.85) 58%,transparent 60%),conic-gradient(var(--cc,#e8f2ff) calc(var(--p,100)*1%),rgba(255,255,255,.08) 0);--cc:#e8f2ff}
+.bt-combo[hidden]{display:none}
+.bt-combo b{font:900 22px/1 "JetBrains Mono",monospace;color:var(--cc);text-shadow:0 0 10px var(--cc),0 2px 0 #000}
+.bt-combo span{font:900 8px "JetBrains Mono",monospace;letter-spacing:.2em;color:var(--cc);opacity:.85}
+.bt-combo small{position:absolute;top:100%;margin-top:2px;white-space:nowrap;font:700 9px "Noto Sans TC",sans-serif;color:#ffe9b0;text-shadow:0 1px 2px #000}
+.bt-combo.t2{--cc:#79c0ff}.bt-combo.t3{--cc:#c4a8f5}.bt-combo.t4{--cc:#ffd54a}
+.bt-combo.t5 b{background:linear-gradient(90deg,#ff7b72,#ffd54a,#7ee787,#79c0ff,#c4a8f5);-webkit-background-clip:text;background-clip:text;color:transparent;text-shadow:none;filter:drop-shadow(0 0 6px rgba(255,213,74,.8))}
+.bt-combo.t5{--cc:#ffd54a}
+.bt-combo.low{--cc:#ff7b72}
+.bt-combo.pop b{animation:cbPop .18s ease-out}
+.bt-combo.burst{animation:cbBurst .6s ease-out}
+@keyframes cbPop{0%{transform:scale(1.35)}100%{transform:scale(1)}}
+@keyframes cbBurst{0%{box-shadow:0 0 0 0 var(--cc)}100%{box-shadow:0 0 0 22px transparent}}
+#btRgRow .bt-bar.sm{height:13px}
+#btRgRow .bt-bar::after{background:linear-gradient(180deg,rgba(255,255,255,.35),transparent 50%),repeating-linear-gradient(90deg,transparent 0 calc(25% - 2px),rgba(0,0,0,.7) calc(25% - 2px) 25%)}
+#btRgRow.segup .bt-bar{animation:dvSeg .35s ease-out}
+@keyframes dvSeg{0%{box-shadow:0 0 0 0 rgba(255,213,74,.9)}100%{box-shadow:0 0 0 8px rgba(255,213,74,0)}}
+#btRgRow.held .bt-bar{box-shadow:0 0 10px rgba(255,213,74,.8),0 0 0 1px #ffd54a;animation:dvHeld 1.2s ease-in-out infinite}
+@keyframes dvHeld{50%{box-shadow:0 0 18px rgba(255,213,74,1),0 0 0 1px #fff3c4}}
+body.bt-lite .bt-combo,body.bt-lite .bt-combo b,body.bt-lite #btRgRow .bt-bar{animation:none!important}
+@media (prefers-reduced-motion:reduce){.bt-combo,.bt-combo b,#btRgRow .bt-bar{animation:none!important}}
+
 /* ===== 狀態列、能力圖示、影山直式頭像 ===== */
 .bt-ab span{display:inline-flex;align-items:center;gap:3px}
 .bt-ab span g-i.gi{margin-left:-3px}
 .bt-sts{display:flex;flex-wrap:wrap;justify-content:center;gap:3px;min-height:18px;margin-top:3px;cursor:pointer}
 .bt-sts:empty{min-height:0;margin:0}
-.bt-st{position:relative;display:inline-flex;align-items:center;gap:1px;padding:1px 4px 1px 1px;border-radius:6px;background:rgba(0,0,0,.45);border:1px solid rgba(201,165,92,.25);font-style:normal}
-.bt-st b{font:700 9px "JetBrains Mono",monospace;color:#ffe9b0;text-shadow:0 1px 2px #000}
+.bt-sti{position:relative;display:inline-flex;align-items:center;gap:1px;padding:1px 4px 1px 1px;border-radius:6px;background:rgba(0,0,0,.45);border:1px solid rgba(201,165,92,.25);font-style:normal}
+.bt-sti b{font:700 9px "JetBrains Mono",monospace;color:#ffe9b0;text-shadow:0 1px 2px #000}
 .st-big{text-align:center;margin-bottom:8px}
 .st-list{display:grid;gap:8px;text-align:left}
 .st-it{display:flex;align-items:center;gap:10px;padding:6px 8px;border-radius:10px;background:rgba(255,255,255,.04);border:1px solid rgba(201,165,92,.2)}
@@ -4753,7 +4799,7 @@ const STS={
  gz:["SK.死亡宣告","死亡宣告","倒數結束時受到 40% 最大生命傷害"],
  gas:["ST.毒霧","毒霧","每秒損失 0.8% 最大生命"]
 };
-function stHtml(list){return list.map(([k,n])=>'<i class="bt-st" data-st="'+k+'">'+gi(STS[k][0],15)+(n!==undefined&&n!==""?'<b>'+n+'</b>':'')+'</i>').join("")}
+function stHtml(list){return list.map(([k,n])=>'<i class="bt-sti" data-st="'+k+'">'+gi(STS[k][0],15)+(n!==undefined&&n!==""?'<b>'+n+'</b>':'')+'</i>').join("")}
 function eStatusList(e){
   const L=[];
   if(e.frozen&&e.stopT>0)L.push(["frz"]);else if(e.stopT>0)L.push(["stop"]);
@@ -5181,6 +5227,7 @@ function renderSettings(){
   if(tab==="game"){
     const n=Object.keys(tipsOff()).length;
     body=cloudSettingsHtml(grp)+
+      grp("🏆 排行榜",'<div class="st-row"><span>無盡挑戰排行榜<small>本週、總排行和大家的配置</small></span><button class="rk-edit" data-set="rank">查看</button></div>')+
       grp("⚔️ 戰鬥",
         sw("ougisave",ougiSaveOn(),"1","0","奧義留給強敵","自動模式只對菁英、BOSS、神話放；神力滿溢時照放")+
         sw("fullpom",fullPomOn(),"1","0","祝福滿了自動改拿 Pom","不跳視窗，直接升級等級最低的祝福")+
@@ -5285,7 +5332,8 @@ function flushLog(force){
 const FXP=[],FXA=[];
 function fx(side,val,type){
   if(!R||!R.Fx)return;
-  if(G&&curSpeed()>1&&(!type||type==="normal")&&FXA.length>=6)return;
+  if(G){const sp=curSpeed(),imp=type==="crit"||type==="ougi"||type==="legend"||type==="duo"||type==="combo";
+    if(sp>1&&!imp){if(typeof val!=="number"||FXA.length>=(sp>=3?2:4))return}}
   const maxFx=isLite()?(pf("C3")?3:6):12;
   if(FXA.length>=maxFx){const o=FXA.shift();clearTimeout(o._to);o.remove();FXP.push(o)}
   const s=FXP.pop()||document.createElement("span");
@@ -5574,13 +5622,17 @@ baseHpPerLv:75,baseAtkPerLv:12.5,baseDefPerLv:5,
   mythCritBase:5,mythCritPer:.08,
   enemyIntervalBase:1.8,enemyIntervalPer:.002,enemyIntervalMin:.75,
   abCapNormal:2,abCapElite:4,abCapBoss:5,abCapMyth:6,
+  selfScale:.15,
   statNormAtk:225,statNormHpBase:1400,statNormDefBase:180
 };
+/* 混合：以 base（看樓層）為主，personal（看你的實力）只佔一點點 */
+function selfMix(base,personal){base=Math.max(1,base);return base*Math.pow(Math.max(.01,personal/base),BAL.selfScale)}
 function eBase(f,m){
   const k=Math.floor(f/BAL.perK);
   const pl=(typeof G!=="undefined"&&G&&G.p&&G.p.atk0)?G.p:null;
-  const sh=pl?Math.pow(pl.atk0/BAL.statNormAtk,.5):1;
-  const sa=pl?Math.pow(pl.hp0*(100+pl.def)/(BAL.statNormHpBase*BAL.statNormDefBase),.5):1;
+  /* 怪物只稍微參考你的「基礎能力」（名冊等級＋回報換算），不看魔鏡、祝福加上去的部分：等級越高越好打 */
+  const sh=pl?Math.pow(pl.atk0/BAL.statNormAtk,BAL.selfScale):1;
+  const sa=pl?Math.pow(pl.hp0*(100+(pl.def0||pl.def))/(BAL.statNormHpBase*BAL.statNormDefBase),BAL.selfScale):1;
   const late=Math.pow(BAL.jLateEBase,Math.max(0,k-BAL.lateStart));
   const lateAtk=Math.pow(BAL.jLateAtk,Math.max(0,k-BAL.lateStart));
   const abyssHp=1+BAL.abyssHpBonus*abyssT(f);
@@ -5847,8 +5899,8 @@ function codexNext(n){const T=MYTHS.length;for(const t of CODEX_TIERS){const nee
 const codexCount=()=>MYTHS.filter(b=>getMythCount(b.n)>0).length;
 function applyCodex(g){const n=codexCount(),v=codexBonusOf(n);if(!v)return;const p=g.p;p.atk=Math.round(p.atk*(1+v));const o=p.maxHp;p.maxHp=Math.round(p.maxHp*(1+v));p.hp+=p.maxHp-o;log("📖 神話圖鑑 "+n+" / "+MYTHS.length+"：攻擊、生命 +"+Math.round(v*100)+"%","legend")}
 function resetMythEncounters(){MYTH_ENCOUNTERS={}}
-function getMythTier(name){const count=getMythCount(name),tier=Math.min(5,count+1);const mul=tier===1?1:tier===2?1.15:tier===3?1.3:tier===4?1.5:1.5+(tier-4)*.15;return{tier,mul,count}}
-function getMythTierTitle(t){return t<=1?"初次降臨":t===2?"強化降臨":t===3?"狂化降臨":t===4?"神話降臨":"無盡降臨 ×"+t}
+function getMythTier(name){const count=getMythCount(name),tier=count+1;const mul=tier===1?1:tier===2?1.15:tier===3?1.3:tier===4?1.5:Math.min(4,1.5*Math.pow(1.25,tier-4));return{tier,mul,count}}
+function getMythTierTitle(t){return t<=1?"初次降臨":t===2?"強化降臨":t===3?"狂化降臨":t===4?"神話降臨":"無盡降臨 Lv."+(t-4)}
 function getMythTierColor(t){return t<=1?"":t===2?"#f5c542":t===3?"#ff7b72":t===4?"#a371f7":"#ffd54a"}
 const CC_IMMUNE={"倪克斯":1,"黑帝斯":1,"阿蒂蜜絲":1,"芙莉蓮":1};
 function ccImmune(){const e=G&&G.e;return!!(e&&e.myth&&CC_IMMUNE[e.mb.n])}
@@ -5988,13 +6040,16 @@ function genMyth(f,b){
   const er=f<BAL.mythEarlyFloor?Math.max(0,f-(BAL.mythEarlyFloor-BAL.mythEarlyFade))/BAL.mythEarlyFade:1;
   const earlyHp=BAL.mythHpFadeMin+(1-BAL.mythHpFadeMin)*er;
   const earlyAtk=BAL.mythAtkFadeMin+(1-BAL.mythAtkFadeMin)*er;
-  let atk=M*pct*(100+G.p.def)/100*BAL.mythAtkK*(1+f*BAL.mythFloorScale)*earlyAtk;
+  let atk=M*pct*(100+(G.p.def0||G.p.def))/100*BAL.mythAtkK*(1+f*BAL.mythFloorScale)*earlyAtk;
   const _bp=MONS.filter(m=>m.b&&m.f<=f),_avg=k=>_bp.length?_bp.reduce((t,m)=>t+m[k],0)/_bp.length:1;
   const _bb=eBase(f,{hp:_avg("hp"),at:_avg("at")});
   const _ef=BAL.mythEarlyBase+BAL.mythEarlySpan*er;
   const hpFloor=_bb.hp*BAL.bossHp*BAL.mythAvgMul*Math.max(1,b.hp/2.6)*_ef;
   atk=Math.max(atk,_bb.atk*BAL.bossAtk*BAL.mythDefScale*_ef);
-  const en={name:"💎 "+(b.title?b.title+"·":"")+b.n,m:{n:b.n,img:MYTH_IMG,r:0,c:0},lv:f,maxHp:Math.round(Math.max(hp*earlyHp,hpFloor)),hp:Math.round(Math.max(hp*earlyHp,hpFloor)),shield:0,atk,def,crit:BAL.mythCritBase+f*BAL.mythCritPer,elite:false,boss:false,myth:true,mb:b,mab:b.ab,interval:Math.max(BAL.mythIntervalMin,BAL.mythIntervalBase-f*BAL.mythFloorScale),abilities:[],abMul:1,burn:null,stopT:0,frozen:false,ccImm:0,ccChain:0,ccChainT:0,poison:null,drunkT:0,weakSrc:{},nextMiss:false,season:0,seaT:5,gz:{cd:8,mark:0},drT:1,used:false,fobs:1,fPierce:false,ch:{t:18,v:0,stun:0},sealCd:10,sk:[],ss:{},immT:0,cnt:0};
+  /* 改成以樓層為主，只保留一點點參考你的實力：等級越高越好打 */
+  const _hpB=hpFloor,_hpP=Math.max(hp*earlyHp,hpFloor),_atB=_bb.atk*BAL.bossAtk*BAL.mythDefScale*_ef*(b.at/1.7);
+  const _hpF=Math.round(selfMix(_hpB,_hpP));atk=selfMix(_atB,atk);
+  const en={name:"💎 "+(b.title?b.title+"·":"")+b.n,m:{n:b.n,img:MYTH_IMG,r:0,c:0},lv:f,maxHp:_hpF,hp:_hpF,shield:0,atk,def,crit:BAL.mythCritBase+f*BAL.mythCritPer,elite:false,boss:false,myth:true,mb:b,mab:b.ab,interval:Math.max(BAL.mythIntervalMin,BAL.mythIntervalBase-f*BAL.mythFloorScale),abilities:[],abMul:1,burn:null,stopT:0,frozen:false,ccImm:0,ccChain:0,ccChainT:0,poison:null,drunkT:0,weakSrc:{},nextMiss:false,season:0,seaT:5,gz:{cd:8,mark:0},drT:1,used:false,fobs:1,fPierce:false,ch:{t:18,v:0,stun:0},sealCd:10,sk:[],ss:{},immT:0,cnt:0};
   if(!b.twoPhase){
     let n=abCount(f,true,false)+1,mul=abilityMul(f);
     if(G.pact&&f>=BAL.abStart)n+=pactLv("ab");
@@ -6036,6 +6091,7 @@ function setMythDom(){
   }
   setT(R.El,"💎 "+getMythTierTitle(e.tier||1));R.El.style.color=getMythTierColor(e.tier||1);
   R.Ab.innerHTML='<span class="mb" data-myth="'+b.ab+'">'+(MYTH_SIG[b.ab]||b.ab)+'</span>'+(e.abilities||[]).map(n=>{const a=AB_MAP[n];return '<span class="'+a.cls+'" data-ab="'+n+'" data-mul="'+e.abMul+'">'+gi("AB."+n,15)+n+(e.abMul>1?'×'+abMulTxt(e.abMul):'')+'</span>'}).join("");
+  R.Ab.classList.toggle("compact",R.Ab.children.length>4);
   setCls(R.Fl,"bt-fl myth");
   setT(R.Fl,"第 "+G.floor+" 層");if(R.Goal){const ng=nextGoal();setT(R.Goal,goalShort(ng));R.Goal.title=ng}
   R.Eh._w=R.Eg._w=null;
@@ -6078,16 +6134,17 @@ function mythChoice(g){
   ensureModals();
   let m=document.querySelector(".bt-myth-modal");if(m)m.remove();
   m=document.createElement("div");m.className="bt-modal myth bt-myth-modal on";
-  const nb=Object.keys(p.blessings).length+p.duos.length+p.legends.length+p.solos.length;
+  const nb=Object.keys(p.blessings).length,nl=escLoseN(p),dif=mythDiff(e);
   const nm=(b.title?b.title+" · ":"")+b.n;
   const noRun=!!b.noRun||artAny("noRun");
   m.innerHTML='<div class="bt-modal-box"><div class="bt-modal-title">💎 神話 BOSS 出現！</div><div class="bt-myth-name">—— '+nm+' ——</div>'+
+   '<div class="bt-myth-dif" style="--c:'+dif.c+'"><b>'+dif.t+'</b><span>第 '+(e.tier||1)+' 次降臨・血量 '+fmt(e.maxHp)+'・每下約 '+fmt(dif.hit)+'（你的生命 '+fmt(p.maxHp)+'）<br>預估 '+dif.ttk+' 秒打倒他，他約 '+dif.tts+' 秒打倒你<small>只算數值，不含招牌技</small></span></div>'+
    '<div class="bt-myth-ab"><b>'+(MYTH_SIG[b.ab]||b.ab)+'</b>　'+(MYTH_DESC[b.ab]||"")+'</div>'+(e.tier>1?'<div class="bt-myth-tier" style="color:'+getMythTierColor(e.tier)+'">💎 第 '+e.tier+' 次降臨・'+getMythTierTitle(e.tier)+'（血量／攻擊 ×'+e.tierMul.toFixed(1)+'）<br>'+tierLines(e).join('<br>')+'</div>':'')+
    (noRun?'<div class="bt-myth-lose">🚫 這次無法逃跑<br><span class="bt-myth-quote">'+(b.noRun?'「我不會讓你走的。」':'🔔 終焉之鐘：不能逃跑')+'</span></div>':
-   '<div class="bt-myth-lose">⚠️ 逃跑將失去：<br>・所有祝福（'+nb+' 個）<br>・連擊層數（×'+p.combo+'）<br>・神力（'+Math.floor(p.divine)+'%）</div>')+
+   '<div class="bt-myth-lose">⚠️ 逃跑將失去：<br>・'+(nb?'隨機一半的祝福（'+nl+' / '+nb+' 個），條件不夠的雙重、傳奇、覺醒也會消失':'（你目前沒有祝福）')+'<br>・連擊層數（×'+p.combo+'）<br>・神力（'+Math.floor(p.divine)+'%）<br><span style="color:#8ba0bd">樓層、冥晶、魔鏡、神器都會保留</span></div>')+
    '<div class="bt-myth-btns"><button class="bt-modal-btn" data-m="fight">⚔️ '+(noRun?'應戰':'戰鬥')+'</button>'+(noRun?'':'<button class="bt-modal-btn run" data-m="run">🏃 逃跑</button>')+'</div></div>';
   ov.appendChild(m);
-  showTips([{k:"myth1",ic:"💎",t:"神話 BOSS",d:"比一般 BOSS 強很多，每位都有招牌能力（點他身上的紫色標籤可以看）。<br>可以<b>逃跑</b>，但會失去所有祝福。<br>擊敗後收錄進圖鑑，給你<b>永久</b>攻擊、生命加成，還能拿禁忌神器。"}]);
+  showTips([{k:"myth1",ic:"💎",t:"神話 BOSS",d:"比一般 BOSS 強很多，每位都有招牌能力（點他身上的紫色標籤可以看）。<br>可以<b>逃跑</b>，但會隨機失去一半的祝福。<br>擊敗後收錄進圖鑑，給你<b>永久</b>攻擊、生命加成，還能拿禁忌神器。"}]);
   m.onclick=ev=>{
     const t=ev.target.closest("[data-m]");if(!t||G!==g||g.closed)return;
     if(noRun&&t.dataset.m==="run")return;
@@ -6098,18 +6155,51 @@ function mythChoice(g){
     }else mythEscape();
   };
 }
-/* 逃跑：失去所有祝福與暫時狀態，保留魔鏡／冥晶／樓層，直接進下一層 */
+/* 預估難度：你打倒他要幾秒 vs 他打倒你要幾秒（只算數值） */
+function mythDiff(e){
+  const p=G.p;let dps=1;try{dps=Math.max(1,estDps(G.floor,e.def))}catch(x){}
+  const hit=Math.max(1,Math.min(dmg(e.atk,p.def,false),p.maxHp*.3)),eps=hit/Math.max(.5,e.interval);
+  const regen=p.maxHp*(p.regenPct+(p.regenB||0));
+  const ttk=Math.ceil(e.maxHp/dps),tts=Math.ceil(p.maxHp/Math.max(1,eps-regen*.5));
+  const r=ttk/tts;
+  const d=r<.5?{t:"🟢 有把握",c:"#3fb950"}:r<1?{t:"🟡 勢均力敵",c:"#d29922"}:{t:"🔴 很危險",c:"#f85149"};
+  return Object.assign(d,{hit:Math.round(hit),ttk:Math.min(999,ttk),tts:Math.min(999,tts)});
+}
+/* 逃跑：隨機失去一半祝福（無條件進位），以及連擊、神力等暫時狀態；保留魔鏡／冥晶／樓層，直接進下一層
+   失去的祝福之後還可能再抽到；條件不夠的雙重、傳奇、神格覺醒會一起消失 */
+function escLoseN(p){return Math.ceil(Object.keys(p.blessings).length/2)}
 function mythEscape(){
-  const g=G,p=g.p,d=p._bd||{};
+  const g=G,p=g.p;
   if(g.e&&g.e.mb)Cloud.enc(g.e.mb.n,"逃跑");
-  let tg=null,tc=0;GOD_KEYS.forEach(x=>{const c=godCount(x);if(c>tc){tc=c;tg=x}});
-  for(const k in d){if(BD_MULT[k]){if(d[k]>0)p[k]=p[k]/d[k]}else p[k]-=d[k]}
-  p._bd={};p.maxHp=Math.round(p.maxHp);p.atk=Math.round(p.atk);p.hp=Math.min(p.hp,p.maxHp);
-  p.blHist={};p.blessingLv={};p.blessings={};p.duos=[];p.legends=[];p.solos=[];p.godCount={};p.duoBonus=0;p.permAtk=1;p._icd={};
+  const lose=shuffle(Object.keys(p.blessings)).slice(0,escLoseN(p));
+  const lostGod={};
+  lose.forEach(k=>{
+    const b=BMAP[k];if(!b)return;
+    const oldB=masteryBonus(b.god);
+    removeBlessingStats(k);delete p.blessings[k];if(p.blessingLv)delete p.blessingLv[k];
+    const newB=masteryBonus(b.god);if(newB!==oldB)applyMasteryDelta(b.god,oldB,newB);
+    lostGod[b.god]=(lostGod[b.god]||0)+1;
+  });
+  const lostSp=[];
+  p.duos=p.duos.filter(k=>{
+    const d=DUOS.find(x=>x.k===k);if(d&&d.gods.every(x=>godCount(x)>=d.minCount))return true;
+    p.maxHp=Math.round(p.maxHp/1.03);p.atk=Math.round(p.atk/1.03);p.duoBonus=Math.max(0,(p.duoBonus||0)-.03);
+    if(d)lostSp.push("雙重「"+d.n+"」");return false;
+  });
+  p.legends=p.legends.filter(k=>{const L=LEGENDS.find(x=>x.k===k);if(L&&godCount(L.god)>=L.minCount)return true;if(L)lostSp.push("傳奇「"+L.n+"」");return false});
+  p.solos=p.solos.filter(k=>{
+    const S=SOLOS.find(x=>x.k===k);if(S&&godCount(S.god)>=S.minCount)return true;
+    if(k==="solo_athena")p.maxHp=Math.round(p.maxHp/1.3);
+    if(S)lostSp.push("覺醒「"+S.n+"」");return false;
+  });
+  p.hp=Math.min(p.hp,p.maxHp);p._icd={};
   p.combo=0;p.comboTime=0;p.divine=0;p.link=0;p.forge=0;p.shield=0;
   p.nextCrit=false;p.critBonusNext=0;p.hasteT=0;p.hasteV=0;p.critBufT=0;p.critBufV=0;p.divineBufT=0;
   p.bleed=null;p.dotAcc=0;p.stunT=0;p.debt=0;p.silT=0;p.curseT=0;p.bindT=0;g.uq=[];g.shatter=0;
-  log("🏃 逃離神話 BOSS：所有祝福消散了…","e");if(tg)godSay(tg);fx("p","逃跑","heal");
+  log("🏃 逃離神話 BOSS：失去 "+lose.length+" 個祝福（"+lose.map(k=>BMAP[k]?BMAP[k].n:k).join("、")+"）"+(lostSp.length?"，"+lostSp.join("、")+" 也消失了":""),"e");
+  let tg=null,tc=0;Object.keys(lostGod).forEach(x=>{if(lostGod[x]>tc){tc=lostGod[x];tg=x}});
+  if(tg)godSay(tg);fx("p","逃跑","heal");
+  updateLegendBar();
   g.paused=false;
   nextFloor();
 }
@@ -7208,20 +7298,21 @@ function mirRarityTip(){return ""}
 /* ============ 畫面骨架 ============ */
 function panelHtml(){return `
 <div class="bt-head"><span class="bt-ttl" title="無盡挑戰" aria-label="無盡挑戰">⚔️</span><span class="bt-fl" id="btFl"></span><span class="bt-goal" id="btGoal"></span><button class="bt-spd" id="btSpd" type="button" aria-label="戰鬥速度">⏩×1</button><span class="bt-chip" id="btBest"></span><button class="bt-x" id="btX">✕</button></div>
-<div class="bt-topinfo"><span>${uiIcon("atk",15)} 攻擊 <b id="btTopAtk">0</b></span><span>${uiIcon("coin",15)} 冥晶 <b id="btTopMing">0</b></span><span>${uiIcon("dice",15)} 重抽 <b id="btTopDice">0</b></span></div>
+<div class="bt-topinfo" hidden><span>${uiIcon("atk",15)} 攻擊 <b id="btTopAtk">0</b></span><span>${uiIcon("coin",15)} 冥晶 <b id="btTopMing">0</b></span><span>${uiIcon("dice",15)} 重抽 <b id="btTopDice">0</b></span></div>
 <div class="bt-legend-bar" id="btLegendBar"></div>
 <div class="bt-mastery" id="btMastery"></div>
 <div class="bt-field">
 <div class="bt-fighter p" id="btP"><div class="bt-av" id="btPavWrap"><div class="bt-pav" id="btPav"></div></div><div class="bt-nm" id="btPn"></div><div class="bt-lv" id="btPl"></div><div class="bt-bar"><i class="g" id="btPg"></i><i class="h" id="btPh"></i></div><div class="bt-tx" id="btPt"></div><div class="bt-sts" id="btPs"></div></div>
 <div class="bt-vs">VS</div>
 <div class="bt-fighter e" id="btE"><div class="bt-mglow"></div><div class="bt-mring"></div><div class="bt-av"><div class="bt-spr" id="btSpr"></div></div><div class="bt-nm" id="btEn"></div><div class="bt-lv" id="btEl"></div><div class="bt-ab" id="btAb"></div><div class="bt-bar"><i class="g" id="btEg"></i><i class="h" id="btEh"></i></div><div class="bt-tx" id="btEt"></div><div class="bt-sts" id="btEs"></div></div>
+<div class="bt-combo" id="btCombo" hidden><b></b><span>HIT</span><small></small></div>
 <div class="bt-fx" id="btFx"></div>
 </div>
 <div class="bt-balls off" id="btBalls"></div>
 <div class="bt-st">
 <div class="bt-sp" id="btSp"><div class="bt-sp-h"><span id="btSpL"></span><span id="btSpT"></span></div><div class="bt-sp-bar"><i id="btSpF"></i><b></b></div></div>
 <div class="bt-row dv" id="btRgRow"><span>${gi("S3.ougi",15)} 神力</span><div class="bt-bar sm"><i class="divine" id="btRg"></i></div><span id="btRgT"></span></div>
-<div class="bt-row"><span>${gi("S3.combo",15)} 連擊</span><div class="bt-bar sm"><i class="combo" id="btCb"></i></div><span id="btCbT"></span></div>
+<div class="bt-row cbrow"><span>${gi("S3.combo",15)} 連擊</span><div class="bt-bar sm"><i class="combo" id="btCb"></i></div><span id="btCbT"></span></div>
 </div>
 <div class="bt-log" id="btLog"></div>
 <div class="bt-ctl">
@@ -7229,7 +7320,7 @@ function panelHtml(){return `
 </div>
 <div class="bt-sheet" id="btSheet"></div>`}
 function bind(){
-  R={};["Fl","Goal","Spd","Best","TopAtk","TopMing","TopDice","LegendBar","Mastery","P","PavWrap","Pav","Pn","Pl","Pg","Ph","Pt","Ps","E","Spr","En","El","Ab","Eg","Eh","Et","Es","Fx","Balls","Sp","SpL","SpT","SpF","Rg","RgRow","RgT","Cb","CbT","Log","Sk","Set","Au","Up","Sheet","X"].forEach(k=>R[k]=$("bt"+k));
+  R={};["Fl","Goal","Spd","Best","TopAtk","TopMing","TopDice","LegendBar","Mastery","P","PavWrap","Pav","Pn","Pl","Pg","Ph","Pt","Ps","E","Spr","En","El","Ab","Eg","Eh","Et","Es","Fx","Combo","Balls","Sp","SpL","SpT","SpF","Rg","RgRow","RgT","Cb","CbT","Log","Sk","Set","Au","Up","Sheet","X"].forEach(k=>R[k]=$("bt"+k));
   R.X.onclick=closeBattle;
   R.Sk.onclick=()=>manual("skill");
   R.RgRow.onclick=()=>manual("ougi");
@@ -7237,6 +7328,7 @@ function bind(){
   R.Au.onclick=()=>{G.auto=!G.auto;R.Au.classList.toggle("on",G.auto);setAuBtn()};
   R.Up.onclick=openUp;
   R.Best.onclick=showRank;
+  R.Goal.setAttribute("role","button");R.Goal.onclick=()=>{try{sfxTap()}catch(x){}cloudToast(nextGoal(),2500)};
   R.Spd.onclick=()=>{spdHintDone();try{sfxTap()}catch(x){}if(bossLock()){G._bossFree=true;spdBtn();fx("p","⏩ 這場 ×"+G.speed,"combo");return}setSpeed(G.speed>=5?1:G.speed+1);fx("p","⏩ ×"+G.speed,"combo")};setSpeed(G.speed);setTimeout(spdHint,1200);R.Best.setAttribute("role","button");R.Best.title="排行榜";
   R.Sheet.onclick=sheetClick;
   R.PavWrap.onclick=showStatModal;
@@ -8200,8 +8292,48 @@ function ghostGods(s){
   if(!Object.keys(by).length)(s.g||[]).forEach(([god,n])=>{by[god]=Array.from({length:n},()=>["",0,1])});
   return by;
 }
+/* ===== 百變怪試煉：限時、評價、獎勵 ===== */
+const GHOST_T=45;
+/* 先抓好「本週前 10 名」裡某位同事的配置，百變怪出現時就變成他 */
+function ghostFetch(g){
+  try{
+    rankCall({action:"rank"},r=>{
+      if(G!==g||g.closed||!r||!r.ok)return;
+      const me=getNick(),top=(r.week||[]).slice(0,10),c=top.filter(x=>x.s!==false&&x.n!==me);
+      if(!c.length)return;
+      const pick=c[Math.floor(Math.random()*c.length)],rank=top.indexOf(pick)+1;
+      rankCall({action:"snap",nick:pick.n,w:"week"},r2=>{
+        if(G!==g||g.closed||!r2||!r2.ok||!r2.snap||typeof r2.snap!=="object")return;
+        g.ghostSrc={n:pick.n,rank,h:pick.h||"",lv:pick.lv||0,f:pick.f||0,snap:r2.snap};
+      });
+    });
+  }catch(e){}
+}
+function ghostGrade(e,res){if(res==="win")return "S";if(res==="lose")return "F";const r=e.hp/e.maxHp;return r<.25?"A":r<.5?"B":"C"}
+function ghostReward(e,grade){
+  const f=G.floor,p=G.p,base=(8+f*4)*(1+f/50),mul=(1+(p.mingB||0))*(p.mingMul||1);
+  const T={S:[40,2,1],A:[25,1,0],B:[15,0,0],C:[8,0,0],F:[3,0,0]}[grade];
+  const m=Math.round(base*T[0]*mul);G.ming+=m;G.totalMing+=m;
+  if(T[1])G.dice=(G.dice||0)+T[1];
+  if(T[2]){G.pomQueue=(G.pomQueue||0)+pomGain(T[2]);G._pomCheck=true}
+  const who=e.ghost.other?e.ghost.n+"的影子":"自己";
+  const txt={S:"🏆 S 評價！打敗了"+who,A:"🥇 A 評價：時間到，"+who+"只剩一點血",B:"🥈 B 評價：時間到",C:"🥉 C 評價：時間到",F:"💫 被"+who+"打倒了"}[grade];
+  log(txt+"　💠 +"+fmt(m)+(T[1]?"、🎲 +"+T[1]:"")+(T[2]?"、⬆️ Pom ×"+T[2]:""),grade==="F"?"e":"legend");
+  banner(txt.split("！")[0].split("：")[0],grade==="F"?"boss":"legend");
+  fx("p","💠+"+fmt(m),"ming");sLegend();
+  if(grade==="S")G.ghostKills=(G.ghostKills||0)+1;
+}
+/* 時間到或你倒下：結束試煉、發獎勵、前往下一層（不會結束這一場） */
+function ghostEnd(res){
+  const e=G.e;if(!e||!e.ghost||e.hp<=0||G.trans>0)return;
+  ghostReward(e,ghostGrade(e,res));
+  e.hp=0;e.poison=null;e.fire=null;e.ember=null;e.doom=null;e.ghMimic=null;
+  const p=G.p;p.bleed=null;p.pbleed=null;p.dotAcc=0;p.stunT=0;
+  G.trans=.9;R.E.classList.add("dead");
+}
 function ghostTick(dt){
   const e=G.e;if(!e||!e.ghost||e.hp<=0||G.trans>0||G.over)return;
+  e.ghT=(e.ghT||0)+dt;if(e.ghT>=GHOST_T){ghostEnd("time");return}
   if(e.ghHaste>0)e.ghHaste-=dt;
   if(!e.ghost.aw.length)return;
   e.ghAwT=(e.ghAwT||0)+dt;if(e.ghAwT<18)return;e.ghAwT=0;
@@ -8224,24 +8356,26 @@ function genGhost(f,gh){
   let q=0,nb=0;gods.forEach(g=>by[g].forEach(([k,r,lv])=>{q+=1+r*.15+(lv-1)*.08;nb++}));
   const qa=nb?q/nb:1;
   const du=(s.du||[]).filter(k=>DUOS.some(d=>d.k===k)),lg=(s.lg||[]).filter(k=>LEGENDS.some(d=>d.k===k)),so=(s.so||[]).filter(k=>SOLOS.some(d=>d.k===k));
-  let hp=b.hp*BAL.bossHp*m*1.1*(1+.04*lg.length),atk=b.atk*BAL.bossAtk*Math.min(1.25,m)*.8*(1+.03*Math.min(5,du.length));
-  const mul=abilityMul(f)*.7*qa;
+  /* 血量＝你大約 18 秒的輸出；攻擊＝每下約你最大生命的 7.5%（扣掉你的防禦後） */
+  /* 以樓層為主（同層 BOSS 的 1.2 倍血量），只保留一點點參考你的實力：等級越高越好打 */
+  const _gb=b.hp*BAL.bossHp*1.2*(1+.04*lg.length);
+  let hp=selfMix(_gb,Math.max(estDps(f,b.def*BAL.bossDef)*18*(1+.04*lg.length),_gb));
+  let atk=selfMix(b.atk*BAL.bossAtk,p.maxHp*.075*(100+(p.def0||p.def))/100)*(1+.03*Math.min(5,du.length));
+  const mul=abilityMul(f)*.9*qa;
   const abs=[];
   gods.forEach(g=>{const mr=GHOST_MIRROR[g]||[];if(mr[0]&&!abs.includes(mr[0]))abs.push(mr[0])});
   gods.forEach(g=>{const mr=GHOST_MIRROR[g]||[];if(by[g].length>=4&&mr[1]&&!abs.includes(mr[1]))abs.push(mr[1])});
   const ab=abs.slice(0,6);
-  /* 能力越多，基礎數值打越多折，避免疊到打不贏 */
-  const nerf=Math.max(.75,1-.04*Math.max(0,ab.length-3));hp*=nerf;atk*=nerf;
   let shield=0;
   if(ab.includes("護盾"))shield=Math.round(hp*getAbVal("護盾",mul));
   if(ab.includes("巨力"))atk*=1+getAbVal("巨力",mul);
-  e.name="🎭 百變怪";e.maxHp=Math.round(hp+shield);e.hp=e.maxHp;e.shield=shield;e.atk=atk;e.def=b.def*BAL.bossDef;
+  e.name=gh.other?"🎭 "+gh.n+"的影子":"🎭 百變怪";e.maxHp=Math.round(hp+shield);e.hp=e.maxHp;e.shield=shield;e.atk=atk;e.def=b.def*BAL.bossDef;
   e.abilities=ab;e.abMul=mul;e.sk=[];e.boss=false;e.elite=true;
   const ac=(by.artemis||[]).length;
   e.crit=Math.min(45,Math.round((s.c||.05)*100*.7)+ac*3);
   e.interval=Math.max(.9,(1.8-f*.002)*(ab.includes("疾行")?(1-getAbVal("疾行",mul)):1));
   const zc=(by.zeus||[]).length;
-  e.ghost={n:gh.n,f:gh.f,rank:gh.rank||0,b:s.b||"",h:gh.h||"",lv:gh.lv||0,m,by,gods,du,lg,so,k:s.k||"",
+  e.ghost={other:!!gh.other,n:gh.n,f:gh.f,rank:gh.rank||0,b:s.b||"",h:gh.h||"",lv:gh.lv||0,m,by,gods,du,lg,so,k:s.k||"",
     zap:zc?Math.min(.3,.05*zc):0,aw:so.map(k=>k.slice(5)).filter(g=>GHOST_AW[g])};
   return e;
 }
@@ -8249,7 +8383,7 @@ function genGhost(f,gh){
 function ghostInfoHtml(e){
   const gh=e.ghost,RN=["普通","稀有","史詩","英雄"];
   let h='<div class="gh-info">';
-  h+='<div class="gh-sub">'+escapeHtml(gh.b||"")+'・第 '+gh.f+' 層的'+escapeHtml(gh.n)+'</div>';
+  h+='<div class="gh-sub">'+(gh.other?'本週第 '+gh.rank+' 名・':'')+escapeHtml(gh.b||"")+'・第 '+gh.f+' 層的'+escapeHtml(gh.n)+'</div>';
   gh.gods.forEach(g=>{
     const list=gh.by[g].filter(x=>x[0]&&BMAP[x[0]]).map(([k,r,lv])=>BMAP[k].n+'<small>（'+RN[r]+(lv>1?' Lv.'+lv:'')+'）</small>').join("、");
     const mr=(GHOST_MIRROR[g]||[]).filter((a,i)=>(i===0||gh.by[g].length>=4)&&e.abilities.includes(a));
@@ -8257,16 +8391,16 @@ function ghostInfoHtml(e){
     h+='<div class="gh-g"><b>'+GODS[g].ic+' '+GODS[g].n+' ×'+gh.by[g].length+'</b>'+(list?'：'+list:'')+
       (mr.length||ex?'<em>→ '+mr.concat(ex?[ex]:[]).join("、")+'</em>':'')+'</div>';
   });
-  if(!gh.gods.length)h+='<div class="gh-g">你還沒有祝福，牠只模仿了數值。</div>';
+  if(!gh.gods.length)h+='<div class="gh-g">'+(gh.other?'他當時沒有祝福':'你還沒有祝福')+'，牠只模仿了數值。</div>';
   if(gh.du.length)h+='<div class="gh-g"><b>🌟 雙重</b>：'+gh.du.map(k=>DUOS.find(d=>d.k===k).n).join("、")+'<em>→ 每個攻擊 +3%</em></div>';
   if(gh.lg.length)h+='<div class="gh-g"><b>💎 傳奇</b>：'+gh.lg.map(k=>LEGENDS.find(d=>d.k===k).n).join("、")+'<em>→ 每個生命 +4%</em></div>';
   if(gh.so.length)h+='<div class="gh-g"><b>✴️ 覺醒</b>：'+gh.so.map(k=>SOLOS.find(d=>d.k===k).n).join("、")+'<em>→ 每 18 秒對你放一次弱化版覺醒技</em></div>';
-  h+='<div class="gh-note">數值換算到你目前的樓層，能力強度約打 7 折，一定打得過。</div></div>';
+  h+='<div class="gh-note">數值依你目前的實力換算，能力照他的祝福強化。</div></div>';
   return h;
 }
 function showGhostModal(){
   const e=G.e;if(!e||!e.ghost)return;ensureModals();
-  modLegend.querySelector(".bt-modal-title").textContent="🎭 百變怪從你身上複製的祝福";
+  modLegend.querySelector(".bt-modal-title").textContent="🎭 百變怪複製的祝福";
   modLegend.querySelector(".bt-modal-desc").innerHTML=ghostInfoHtml(e);modLegend.classList.add("on");
 }
 /* 出場提示：一定要按確定才開始打（每次對手不同，不提供「下次不顯示」） */
@@ -8277,9 +8411,10 @@ function ghostIntro(e){
   el.innerHTML='<div class="bt-tip-box" role="dialog" aria-modal="true">'+
     '<div class="gh-pic" style="background-image:url(\''+GHOST_IMG+'\')"></div>'+
     '<div class="bt-tip-t gh-t">🎭 百變怪出現了！</div>'+
-    '<div class="gh-lead">牠變成了<b>你</b>現在的樣子，從你身上複製了：</div>'+
+    '<div class="gh-lead">'+(e.ghost.other?'牠變成了本週第 '+e.ghost.rank+' 名 <b>'+escapeHtml(e.ghost.n)+'</b> 破紀錄時的樣子，複製了：':'牠變成了<b>你</b>現在的樣子，複製了：')+'</div>'+
     ghostInfoHtml(e)+
-    '<div class="gh-rw">🏆 打贏：大量冥晶、🎲 +1、⬆️ Pom +1</div>'+
+    '<div class="gh-rule">⏳ <b>限時 '+GHOST_T+' 秒的試煉</b><br>・打倒牠：S 評價<br>・時間到：看牠剩多少血評 A／B／C<br>・你倒下：不會結束這一場，回復 30% 生命繼續往下打，只拿參加獎<br>⚠️ 你放技能、奧義，牠會<b>模仿同一招打回來</b>。手動抓時機比自動更安全。</div>'+
+    '<div class="gh-rw">🏆 S：💠 超大量冥晶、🎲 +2、⬆️ Pom +1<br>A：💠 大量冥晶、🎲 +1　B／C：💠 冥晶</div>'+
     '<button class="bt-tip-ok">確定，開打！</button></div>';
   document.body.appendChild(el);
   try{snd(330,660,.2,.07,"triangle")}catch(x){}
@@ -8292,11 +8427,13 @@ function maybeGhost(){
   loadGhost(g);
   const band=Math.floor((g.floor-1)/200);
   if(!g.ghostAt||(g.ghostDone??-1)>=band||g.floor<g.ghostAt||e.boss||e.elite||e.myth||g.floor%10===1)return;
-  const gh={n:g.p.name||"你",f:g.floor,snap:JSON.parse(snapOf(g))};
+  const src=g.ghostSrc;
+  const gh=src?{other:true,n:src.n,f:src.f,rank:src.rank,h:src.h,lv:src.lv,snap:src.snap}:{n:g.p.name||"你",f:g.floor,snap:JSON.parse(snapOf(g))};
   const ge=genGhost(g.floor,gh);if(!ge)return;
+  g.ghostSrc=null;ghostFetch(g);
   g.ghostDone=band;g.ghostAt=0;g.ghostN=(g.ghostN||0)+1;g.e=ge;
-  log("🎭 百變怪出現了！牠變成了<b>你</b>的樣子（"+(gh.snap.b||"")+"）","legend");
-  banner("🎭 百變怪變成了你！","boss");
+  log("🎭 百變怪出現了！牠變成了"+(gh.other?"本週第 "+gh.rank+" 名 <b>"+escapeHtml(gh.n)+"</b>":"<b>你</b>")+"的樣子（"+(gh.snap.b||"")+"）","legend");
+  banner(gh.other?"🎭 百變怪變成了"+gh.n+"！":"🎭 百變怪變成了你！","boss");
   ghostIntro(ge);
 }
 
@@ -8383,7 +8520,7 @@ const oracleText=()=>{const {o}=todayOracle();return o.ic+" "+o.n+"："+o.d};
 
 /* ============ 下一個目標倒數 ============ */
 /* 上方目標的精簡寫法：「🎁 每日獎勵 還 49 層」→「🎁 每日 49 層」 */
-function goalShort(s){s=String(s||"");const m=s.match(/^(\S+)\s.*?(\d+)\s*層/);return m?m[1]+" "+m[2]+" 層":s}
+function goalShort(s){s=String(s||"");const m=s.match(/^(\S+)\s.*?(\d+)\s*層/);return m?m[1]+m[2]:s}
 function nextGoal(){
   if(!G)return "";
   const f=G.floor,bs=BAL.blessStart,be=BAL.blessEvery;
@@ -8850,7 +8987,7 @@ function newRun(u,save){
   G.cx=cxGet(G.uid);
   if(save){restoreRun(save);bankSave()}else{loadBank(G);applyCodex(G);applyOracle(G);G.cx.st.runs++;cxSave()}
   if(G.bankFloor===undefined)G.bankFloor=G.ming;
-  loadGhost(G);
+  loadGhost(G);ghostFetch(G);
   ov.firstChild.innerHTML=panelHtml();bind();
   const a=p.av;
   R.Pav.style.backgroundImage="url('"+a.url+"')";
@@ -8980,6 +9117,7 @@ function hurtP(d,fromEnemy,opt){
   if(!opt.noShield&&p.shield>0&&d>0){const a=Math.min(p.shield,d);p.shield-=a;d-=a;G._abs=a}
   {const ho=artMul("hurtOut");if(ho!==1&&d>0)d=Math.round(d*ho)}
   p.hp-=d;
+  if(p.hp<=0&&G.e&&G.e.ghost&&G.e.hp>0&&G.trans<=0&&!G.over){p.hp=Math.max(1,Math.round(p.maxHp*.3));p.ddInvT=1.5;ghostEnd("lose");return d}
   if(p.hp<=0){
     if(has("athena5")&&p.deathCd<=0){p.deathCd=30;p.hp=Math.max(1,Math.round(p.maxHp*.2));log("✨ 致死免疫發動！","legend");fx("p","免死","legend");screenFx("duo")}
     else if((p.ddUsed||0)<mirV("death_L")){p.ddUsed=(p.ddUsed||0)+1;p.hp=Math.round(p.maxHp*.5);p.ddInvT=1.5;log("🪦 死裡逃生！回復 50% 生命（剩 "+(mirV("death_L")-p.ddUsed)+" 次）","legend");fx("p","死裡逃生","legend");screenFx("duo");banner("🪦 死裡逃生","duo")}
@@ -9266,6 +9404,7 @@ function hit(kind,proc){
     if(has("hestia3")&&p.hp/p.maxHp>=.5)p.hp=Math.max(1,p.hp-p.maxHp*.01);
   }
   if(kind==="basic"&&!proc)G.st.hits++;
+  if(e.ghost&&!proc&&(kind==="skill"||kind==="ougi"))e.ghMimic=e.ghMimic==="ougi"?"ougi":kind;
 
   const critCh=(p.crit+p.critBonusNext+(p.critBufT>0?p.critBufV:0))*(hsk("黑暗降臨")?.6:1);
   const useQ=!force&&!p.nextCrit&&p.critQ>0;
@@ -9388,6 +9527,14 @@ function enemyAct(){
   const p=G.p,e=G.e;
   if(G.trans>0||e.hp<=0||G.over)return;
   if(e.myth&&m9Hold())return;
+  if(e.ghost&&e.ghMimic){
+    const ou=e.ghMimic==="ougi";e.ghMimic=null;
+    const x=Math.round(p.maxHp*(ou?.25:.12)*(1-weakTotal()));
+    log("🎭 "+e.name+" 模仿了你的"+(ou?"奧義":"技能")+"！<b>"+fmt(x)+"</b>","e");
+    fx("e",ou?"🎭 模仿奧義":"🎭 模仿技能","legend");anim(R.E,"atk");screenFx(ou?"boss":"hurt");
+    const dealt=hurtP(x,true,{src:e.name+" 模仿的"+(ou?"奧義":"技能")});fx("p",dealt,"crit");
+    return;
+  }
   if(e.myth&&e.mab==="月神箭"){const fs=mt("firstStrike",0);if(fs&&(e.ms.fs||0)<fs){e.ms.fs=(e.ms.fs||0)+1;if(e.ms.fs<fs)G.eT=.35}}
   const pshot=!!e.fPierce;if(pshot)e.fPierce=false;
   const strong=Math.random()<(e.boss?.35:e.elite?.25:.15);
@@ -9503,12 +9650,7 @@ function kill(by){
   if(ming>0){fx("p","💠+"+fmt(ming),"ming");const vr=mirV("vigor_R");if(vr>0){const h=Math.round(p.maxHp*vr*survivalMul());p.hp=Math.min(p.maxHp,p.hp+h)}}
   p.bleed=null;p.dotAcc=0;p.stunT=0;
   if(e.sk&&e.sk.length)skOnKill(e);
-  if(e.ghost){
-    G.ghostKills=(G.ghostKills||0)+1;
-    const f=G.floor,gb=Math.round((8+f*4)*(1+f/50)*10);G.ming+=gb;G.totalMing+=gb;G.dice=(G.dice||0)+1;
-    G.pomQueue=(G.pomQueue||0)+pomGain(1);G._pomCheck=true;const extra="、⬆️ Pom ×1";
-    log("🎭 擊敗變成你的百變怪！💠 +"+fmt(gb)+"、🎲 +1"+extra,"legend");banner("🎭 戰勝自己！","legend");
-  }
+  if(e.ghost)ghostReward(e,"S");
   if(!e.myth&&!e.ghost)chestDrop();
   if(e.boss&&pactLv("hp")){G.dice=(G.dice||0)+pv("hp","r");log("📜 鋼鐵之誓：🎲 +"+pv("hp","r"),"d")}
   if(e.myth){const first=!getMythCount(e.mb.n);addMythEncounter(e.mb.n);cxMyth(e.mb.n,"k");Cloud.enc(e.mb.n,"擊敗");unlockKs("horn");if(first)log("📖 神話圖鑑新收錄："+e.mb.n+"（"+codexCount()+" / "+MYTHS.length+"）"+(codexBonusOf(codexCount())>codexBonusOf(codexCount()-1)?"，下一場起攻擊、生命 +"+Math.round(codexBonusOf(codexCount())*100)+"%":""),"legend");G.mythKills++;if(e.mb.n==="菲倫")G.fernKills++;if(e.mb.n==="芙莉蓮"){G.frierenKills++;G.chainWin=true}mythReward()}
@@ -9577,6 +9719,7 @@ function setEnemyDom(){setMap();if(R.El)R.El.style.color="";if(R.Spr){R.Spr.inne
   else setT(R.El,e.ghost?"模仿："+e.ghost.n:zoneName(G.floor));
   R.Ab.innerHTML=(e.ghost?'<span class="gh" data-ghost="1">🎭 模仿的祝福</span>':'')+(baseTough(e)<1?'<span class="tg" data-ab="韌性" data-mul="'+e.abMul+'">'+gi("AB.堅韌",15)+'韌性 '+Math.round(hitCap(e)*100)+'%</span>':'')+e.abilities.map(n=>{const a=AB_MAP[n];const x=e.abMul>=4?" x4":e.abMul>=3?" x3":e.abMul>=2?" x2":"";return '<span class="'+a.cls+x+'" data-ab="'+n+'" data-mul="'+e.abMul+'">'+gi("AB."+n,15)+n+(e.abMul>1?'×'+abMulTxt(e.abMul):'')+'</span>'}).join("");
   if(e.sk&&e.sk.length)R.Ab.insertAdjacentHTML("beforeend",e.sk.map(n=>'<span class="sk" data-sk="'+n+'">'+gi("SK."+n,15)+n+'</span>').join(""));
+  R.Ab.classList.toggle("compact",R.Ab.children.length>4);
   ov.classList.toggle("myth-nyx",e.sk.includes("黑暗降臨"));
   setCls(R.Fl,"bt-fl"+(e.boss?" boss":e.elite?" elite":""));
   setT(R.Fl,"第 "+G.floor+" 層");if(R.Goal){const ng=nextGoal();setT(R.Goal,goalShort(ng));R.Goal.title=ng}
@@ -9634,7 +9777,6 @@ function mirV(id){const s=MIRBYID[id];return s&&s.v?s.v(mirLv(id)):0}
 function mirV2(id){const s=MIRBYID[id];return s&&s.v2?s.v2(mirLv(id)):0}
 function mirOpen(row,side){const c=G.mirSide[row.k];return!c||c===side}
 function mirFull(s){return!!(s.full&&s.full(G.p))}
-const MIR_RESET_MAX=3;
 /* 厚實生命：最大生命倍率，升級或重置時重新換算 */
 function mirHpSync(){const p=G.p,want=1+mirV("life_L"),cur=G.mirHpMul||1;if(Math.abs(want-cur)<1e-9)return;const r=want/cur;p.maxHp=Math.round(p.maxHp*r);p.hp=Math.min(p.maxHp,Math.round(p.hp*r));G.mirHpMul=want}
 function mirBuyOne(s){
@@ -9658,34 +9800,26 @@ function mirBuy(k,side){
   return true;
 }
 /* 重置：每場最多 3 次，第一次免費；單組 1000、全部 4000（300 層後 ×1.5），退還一半花費（免費那次不退） */
-function getResetCost(){return G.floor>=300?1500:1000}
-function getResetCostAll(){return G.floor>=300?6000:4000}
-function isFirstReset(){return!(G.resetCount>0)}
+/* 重置黑鏡：不限次數、不收手續費，退還這一邊花掉的 90% 冥晶（魔鏡等級跨場保留，所以讓玩家可以放心換流派） */
+const MIR_REFUND=.9;
 function mirSpent(s){let t=0;for(let i=0;i<mirLv(s.id);i++)t+=mirCost(s,i);return t}
 function mirClear(s){delete G.mir[s.id];if(s.id==="life_L")mirHpSync();if(s.id==="death_R")G.p.ddR=0}
+function mirRefundOf(keys){let t=0;keys.forEach(k=>{const r=MIRMAP[k];if(r&&G.mirSide[k])t+=mirSpent(r[G.mirSide[k]])});return Math.round(t*MIR_REFUND)}
 function resetMirrorRow(rowKey){
-  if(!G||G.over||(G.resetCount||0)>=MIR_RESET_MAX)return false;
+  if(!G||G.over)return false;
   const row=MIRMAP[rowKey];if(!row||!G.mirSide[rowKey])return false;
-  const s=row[G.mirSide[rowKey]],free=isFirstReset(),cost=free?0:getResetCost();
-  if(G.ming<cost)return false;
-  G.ming-=cost;
-  const refund=free?0:Math.round(mirSpent(s)*.5);
-  G.ming+=refund;mirClear(s);delete G.mirSide[rowKey];
-  G.resetCount=(G.resetCount||0)+1;
-  log("🔄 重置「"+row.n+"」（"+(free?"免費":cost+" 冥晶")+"）　退還 "+fmt(refund)+" 冥晶","d");
+  const s=row[G.mirSide[rowKey]],refund=mirRefundOf([rowKey]);
+  G.ming+=refund;G.spentMing=Math.max(0,G.spentMing-refund);mirClear(s);delete G.mirSide[rowKey];
+  log("🔄 重置「"+row.n+"」：退還 💠 "+fmt(refund)+" 冥晶，可以重新選邊","d");
   bankSave();sUpg();return true;
 }
 function resetAllMirrors(){
-  if(!G||G.over||(G.resetCount||0)>=MIR_RESET_MAX||!Object.keys(G.mirSide).length)return false;
-  const free=isFirstReset(),cost=free?0:getResetCostAll();
-  if(G.ming<cost)return false;
-  G.ming-=cost;
-  let spent=0;
-  Object.keys(G.mirSide).forEach(k=>{const s=MIRMAP[k][G.mirSide[k]];spent+=mirSpent(s);mirClear(s)});
-  const refund=free?0:Math.round(spent*.5);
-  G.ming+=refund;G.mirSide={};
-  G.resetCount=(G.resetCount||0)+1;
-  log("🔄 重置全部黑鏡（"+(free?"免費":cost+" 冥晶")+"）　退還 "+fmt(refund)+" 冥晶","d");
+  if(!G||G.over)return false;
+  const keys=Object.keys(G.mirSide);if(!keys.length)return false;
+  const refund=mirRefundOf(keys);
+  keys.forEach(k=>mirClear(MIRMAP[k][G.mirSide[k]]));
+  G.ming+=refund;G.spentMing=Math.max(0,G.spentMing-refund);G.mirSide={};
+  log("🔄 重置全部黑鏡：退還 💠 "+fmt(refund)+" 冥晶","d");
   bankSave();sUpg();return true;
 }
 /* 自動升級：只買「核心」和你已經選過的那一邊，每次挑最便宜的 */
@@ -9715,9 +9849,16 @@ function mirCoreRow(s){
     '<div class="mr-info"><div class="mr-name">'+s.n+' <em>Lv.'+lv+'</em></div><div class="mr-eff">'+now+(full?'':' → <b>'+nx+'</b>')+'</div></div>'+
     (full?'<span class="mr-full">已滿</span>':mrBuyBtn("core:"+s.id,cost))+'</div>';
 }
+/* 長期規劃：顯示升到下兩個 10 級的效果，以及從現在升上去要花多少冥晶 */
+function mirPlan(s,lv){
+  const t1=(Math.floor(lv/10)+1)*10,t2=t1+10;
+  const need=t=>{let c=0;for(let i=lv;i<t;i++)c+=mirCost(s,i);return c};
+  return '<span class="pl"><b>Lv.'+t1+'</b>　'+mirDesc(s,t1)+'<i>還要 💠 '+fmt(need(t1))+'</i></span>'+
+         '<span class="pl"><b>Lv.'+t2+'</b>　'+mirDesc(s,t2)+'<i>還要 💠 '+fmt(need(t2))+'</i></span>';
+}
 function mirOpt(row,sd){
   const s=row[sd],chosen=G.mirSide[row.k],locked=chosen&&chosen!==sd,lv=mirLv(s.id),cost=mirCost(s,lv),key=row.k+":"+sd,pend=G._mirPend===key;
-  const desc=lv?mirDesc(s,lv)+'<span class="nx">下一級：'+mirDesc(s,lv+1)+'</span>':mirDesc(s,1);
+  const desc=(lv?mirDesc(s,lv)+'<span class="nx">下一級：'+mirDesc(s,lv+1)+'</span>':mirDesc(s,1))+mirPlan(s,lv);
   let btn;
   if(locked)btn='<span class="mr-lock">🔒 已選另一邊</span>';
   else if(pend)btn='<button class="mr-buy ok pend" data-mir="'+key+'"><small>確定選這邊？</small>💠 '+fmt(cost)+'</button>';
@@ -9727,7 +9868,7 @@ function mirOpt(row,sd){
     '<div class="mr-od">'+desc+'</div>'+btn+'</div>';
 }
 function renderSheet(){
-  const tab=G._mirTab||"core",rc=G.resetCount||0,canReset=rc<MIR_RESET_MAX,free=isFirstReset(),picked=Object.keys(G.mirSide).length;
+  const tab=G._mirTab||"core",picked=Object.keys(G.mirSide).length,rp=G._rsPend;
   const top='<div class="mr-top">'+
     '<div class="mr-bar"><div class="mr-title">'+gi("S3.mirror",24)+' 黑暗之鏡</div><div class="mr-ming">'+uiIcon("coin",16)+' <b>'+fmt(G.ming)+'</b></div><button class="mr-x" data-close="1" aria-label="關閉，返回戰鬥">✕</button></div>'+
     '<div class="mr-tabs" role="tablist">'+
@@ -9744,10 +9885,10 @@ function renderSheet(){
     body='<div class="mr-note">兩面鏡子映照你的靈魂，每組只能選一邊。選定後才能升級；想換邊要先重置。</div>'+
       MIRROR.map(row=>'<div class="mr-grp'+(G.mirSide[row.k]?' picked':'')+'">'+
         '<div class="mr-gh">'+gi("S6.g_"+row.k,26)+'<b>'+row.n+'</b><span>'+row.hint+'</span>'+
-        (G.mirSide[row.k]&&canReset?'<button class="mr-rs" data-reset="'+row.k+'">🔄 重置'+(free?'（免費）':' 💠'+fmt(getResetCost()))+'</button>':'')+'</div>'+
+        (G.mirSide[row.k]?'<button class="mr-rs'+(rp===row.k?' sure':'')+'" data-reset="'+row.k+'">'+(rp===row.k?'再點一次確認（退 💠'+fmt(mirRefundOf([row.k]))+'）':'🔄 重置')+'</button>':'')+'</div>'+
         '<div class="mr-opts">'+mirOpt(row,"L")+mirOpt(row,"R")+'</div></div>').join("")+
-      '<div class="mr-foot">本場重置次數：'+rc+' / '+MIR_RESET_MAX+(free?'（下一次免費）':'')+
-      (picked&&canReset?'<button class="mr-rsall" data-resetall="1">🔄 重置全部黑鏡（'+(free?'免費':'💠'+fmt(getResetCostAll()))+'）</button>':'')+'</div>';
+      '<div class="mr-foot">重置不限次數、不收手續費，退還該邊花掉的 90% 冥晶'+
+      (picked?'<button class="mr-rsall'+(rp==="__all"?' sure':'')+'" data-resetall="1">'+(rp==="__all"?'再點一次確認（退 💠'+fmt(mirRefundOf(Object.keys(G.mirSide)))+'）':'🔄 重置全部黑鏡')+'</button>':'')+'</div>';
   }
   const st=R.Sheet.scrollTop;
   R.Sheet.innerHTML=top+body;
@@ -9779,8 +9920,8 @@ function closeUp(){
 function sheetClick(e){
   if(!G)return;
   const rbtn=e.target.closest("[data-reset]");
-  if(rbtn){if(resetMirrorRow(rbtn.dataset.reset))renderSheet();return}
-  if(e.target.closest("[data-resetall]")){if(resetAllMirrors())renderSheet();return}
+  if(rbtn){const k=rbtn.dataset.reset;if(G._rsPend===k){G._rsPend=null;resetMirrorRow(k)}else G._rsPend=k;renderSheet();return}
+  if(e.target.closest("[data-resetall]")){if(G._rsPend==="__all"){G._rsPend=null;resetAllMirrors()}else G._rsPend="__all";renderSheet();return}
   if(e.target.closest("[data-close]")){closeUp();return}
   const tb=e.target.closest("[data-tab]");
   if(tb){G._mirTab=tb.dataset.tab;G._mirPend=null;try{sfxTap()}catch(x){}renderSheet();R.Sheet.scrollTop=0;return}
@@ -9942,6 +10083,32 @@ function spUi(){
   setCls(R.Sp,"bt-sp");
 }
 /* ============ 每幀更新畫面 ============ */
+/* 連擊大字：顏色跟著層數升級，下面顯示實際傷害加成，外圈是倒數 */
+function comboUi(){
+  const el=R.Combo;if(!el)return;const p=G.p,c=p.combo;
+  if(c<3||G.trans>0){if(!el.hidden){el.hidden=true;el._c=0}return}
+  el.hidden=false;
+  const tier=c>=100?"t5":c>=50?"t4":c>=30?"t3":c>=10?"t2":"t1";
+  const left=noReset()?1:Math.max(0,Math.min(1,p.comboTime/3));
+  el.style.setProperty("--p",(left*100).toFixed(0));
+  el.className="bt-combo "+tier+(left<.3?" low":"");
+  if(el._c!==c){
+    const prev=el._c||0;el._c=c;
+    el.querySelector("b").textContent=c;
+    el.querySelector("small").textContent="傷害 +"+Math.round(comboBonus()*100)+"%";
+    if(!isLite()){el.classList.remove("pop");void el.offsetWidth;el.classList.add("pop")}
+    if([10,30,50,100].some(t=>prev<t&&c>=t)&&!isLite()){el.classList.add("burst");setTimeout(()=>el.classList.remove("burst"),600)}
+  }
+}
+/* 神力：分 4 格，每填滿一格亮一下；滿了卻一直沒放（手動、留給強敵）才持續發光 */
+function divineUi(){
+  const p=G.p,row=R.RgRow;if(!row)return;
+  const seg=Math.min(4,Math.floor(Math.min(100,p.divine)/25));
+  if(row._seg!==undefined&&seg>row._seg&&!isLite()){row.classList.remove("segup");void row.offsetWidth;row.classList.add("segup")}
+  row._seg=seg;
+  if(p.divine>=100){if(!G._dvT)G._dvT=G.time}else G._dvT=0;
+  row.classList.toggle("held",!!G._dvT&&G.time-G._dvT>1.2);
+}
 function ui(){
   if(!G||!R||!R.Ph)return;
   const p=G.p,e=G.e;
@@ -9951,14 +10118,15 @@ function ui(){
   setT(R.Pt,fmt(Math.max(0,p.hp))+" / "+fmt(p.maxHp)+(p.shield>0?"  🛡️"+fmt(p.shield):""));setH(R.Ps,stHtml(pStatusList()));
   const ep=e.hp/e.maxHp*100;setW(R.Eh,ep);setW(R.Eg,ep);
   const _ms=e.myth?mythStatus(e):"";
-  setT(R.Et,(isMyth("一拳")?"打不動　撐過倒數":fmt(Math.max(0,e.hp))+" / "+fmt(e.maxHp)+(e.shield>0?"  🛡️"+fmt(e.shield):""))+_ms);
+  setT(R.Et,(isMyth("一拳")?"打不動　撐過倒數":fmt(Math.max(0,e.hp))+" / "+fmt(e.maxHp)+(e.shield>0?"  🛡️"+fmt(e.shield):""))+_ms+(e.ghost&&e.hp>0?"  ⏳"+Math.max(0,Math.ceil(GHOST_T-(e.ghT||0)))+"s":""));
   setH(R.Es,stHtml(eStatusList(e)));mobSprite();
   spUi();
   setW(R.Rg,Math.min(100,p.divine));setCls(R.Rg,"divine"+(p.divine>=100?" full":""));
   setW(R.Cb,p.combo>0?(noReset()?100:p.comboTime/3*100):0);setCls(R.Cb,"combo"+(p.combo>=10?" full":""));setT(R.CbT,"×"+p.combo);
+  comboUi();divineUi();
   setT(R.TopAtk,fmt(p.atk*(1+p.baseAtkBonus)*floorAtkBonus(G.floor)));
   setT(R.TopMing,fmt(G.ming));setT(R.TopDice,G.dice||0);
-  setH(R.Best,gi("S9.rank",15)+" "+Math.max(G._best,G.floor-1));
+  R.Best.hidden=true;
   const sk=p.skillCd<=0;
   setH(R.Sk,gi("S1.skill",26)+"<span>技能"+(sk?"":" "+p.skillCd.toFixed(1)+"s")+"</span>");setCls(R.Sk,"bt-b hasic "+(sk?"rdy":"off"));
   const sil=p.silT>0;
@@ -9970,7 +10138,7 @@ function ui(){
   ov.classList.toggle("danger",pp<25&&!G.over);
   if(G._affMing!==G.ming){G._affMing=G.ming;G._aff=mirAffordable()}
   const aff=G._aff;
-  setH(R.Up,gi("S1.mirror",26)+"<span>魔鏡"+(aff?" ●":"")+"</span>");setCls(R.Up,"bt-b hasic"+(aff?" on":""));
+  setH(R.Up,gi("S1.mirror",24)+"<span>魔鏡"+(aff?" ●":"")+"</span><small class=\"mgc\">"+uiIcon("coin",11)+fmt(G.ming)+"</small>");setCls(R.Up,"bt-b hasic"+(aff?" on":""));
   let bc=0;for(const k in p.blessings)bc++;
   const sig=bc*1e6+p.duos.length*1e4+p.legends.length*100+p.solos.length;
   if(G._lsig!==sig){G._lsig=sig;updateLegendBar()}
@@ -10325,7 +10493,7 @@ function buildGuide(u){
       '<li><b>獎勵之門</b>：每 10 層從 3 扇門選一個獎勵；試煉之門比較危險，但獎勵最好。</li>'+
     '</ul>'+
     '<h4>💀 小心</h4><ul>'+
-      '<li>100 層起可能遇到<b>神話 BOSS</b>，可以逃跑，但會失去所有祝福。擊敗後收錄進<b>神話圖鑑</b>，收錄越多，永久攻擊、生命加成越高（最多 +85%）；再遇到會更強。</li>'+
+      '<li>100 層起可能遇到<b>神話 BOSS</b>，可以逃跑，但會隨機失去一半的祝福。擊敗後收錄進<b>神話圖鑑</b>，收錄越多，永久攻擊、生命加成越高（最多 +85%）；再遇到會更強。</li>'+
       '<li>同一層拖超過 2 分鐘，會被深淵吞噬。</li>'+
       '<li>500 層起進入深淵，你的攻擊和回復會在 50 層內逐漸變弱。</li>'+
     '</ul>'+
@@ -10354,8 +10522,4 @@ window.rosterStats=u=>{const p=_bp(u);return{atk:p.atk,hp:p.maxHp,def:p.def,crit
 try{const rp=document.getElementById("page-roster");if(rp&&rp.classList.contains("active")&&typeof usersData!=="undefined"&&usersData.length)renderRoster(false)}catch(e){}
 })();
 </script>
-
-
-
-
 
