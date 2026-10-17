@@ -1903,6 +1903,8 @@ g-i.gi>g-i{display:block;background-repeat:no-repeat}
 .bt-head{position:relative}
 .bt-spd{display:inline-flex;align-items:center;gap:3px;padding:4px 10px 4px 6px;font-size:12px;border-color:#c9a55c;color:#e8d18f;background:linear-gradient(180deg,rgba(201,165,92,.22),rgba(201,165,92,.06))}
 .bt-spd span{font:800 12px "JetBrains Mono","Noto Sans TC",sans-serif;letter-spacing:.02em}
+.bt-spd.lock{border-color:#f85149;color:#ffb3ad;background:rgba(248,81,73,.15);padding:4px 8px}
+.bt-spd.lock span{font-size:11px;letter-spacing:0}
 .bt-spd.hint{animation:spdPulse 1.4s ease-in-out infinite}
 @keyframes spdPulse{0%,100%{box-shadow:0 0 0 0 rgba(255,213,74,.6)}50%{box-shadow:0 0 0 6px rgba(255,213,74,0)}}
 .bt-spdtip{position:absolute;z-index:30;padding:7px 11px;border-radius:10px;background:#ffd54a;color:#1a1206;font:700 12px "Noto Sans TC",sans-serif;white-space:nowrap;box-shadow:0 6px 16px rgba(0,0,0,.5);pointer-events:none;animation:fadeIn .3s ease}
@@ -4333,6 +4335,11 @@ body.bt-lite.bt-flag-b2 .bt-bar i.divine{transition:none!important}
 body.bt-lite.bt-flag-b3 .bt-bar i.combo{transition:none!important}
 body.bt-lite.bt-flag-b4 .bt-sp-bar i{transition:none!important}
 body.bt-lite.bt-flag-c1 .bt-bn.boss{animation:none!important}
+body.bt-lite.bt-flag-d1 .bt-ov{background:#05070c!important}
+body.bt-lite.bt-flag-d2 .bt-panel{background:#0e0a0d!important;box-shadow:none!important}
+body.bt-lite.bt-flag-d3 #btFlash{display:none!important}
+body.bt-lite.bt-flag-d4 .bt-fighter:not(.atk):not(.hit) .bt-av,body.bt-lite.bt-flag-d4 .bt-vs{animation:none!important}
+.bt-log{contain:content}
 body.bt-lite.bt-flag-c2 .bt-bn{animation-duration:.6s!important}
 .bt-pf-note{font:10px "Noto Sans TC",sans-serif;color:#ff9b8f;margin:-2px 0 6px}
 .bt-pf-list{display:grid;gap:4px;margin-top:8px}
@@ -4888,7 +4895,11 @@ const sLegend=()=>[784,1047,1319,1568].forEach((f,i)=>snd(f,f,.22,.1,"triangle",
 const sDuo=()=>[659,880,1174,1568,2093].forEach((f,i)=>snd(f,f,.16,.09,"triangle",i*70));
 const SPD_KEY="meter_battle_speed";
 function loadSpeed(){try{const v=parseInt(localStorage.getItem(SPD_KEY),10);return(v>=1&&v<=5)?v:1}catch(e){return 1}}
-const SPD_HINT_KEY="meter_battle_spd_hint";
+const SPD_HINT_KEY="meter_battle_spd_hint",BOSS1_KEY="meter_battle_boss1";
+function boss1On(){try{return localStorage.getItem(BOSS1_KEY)!=="0"}catch(e){return true}}
+/* BOSS、神話 BOSS 戰鬥中暫時用 ×1（玩家在這場手動切速度就不鎖） */
+function bossLock(){const e=G&&G.e;if(!e||!(e.boss||e.myth)||!boss1On())return false;if(G._lkE!==e){G._lkE=e;G._bossFree=false}return !G._bossFree&&G.speed>1}
+function curSpeed(){return bossLock()?1:G.speed}
 /* 效能設定：full＝華麗（預設）、lite＝高效 */
 const PERF_KEY="meter_battle_perf";
 function loadPerf(){try{return localStorage.getItem(PERF_KEY)==="lite"?"lite":"full"}catch(e){return "full"}}
@@ -4908,9 +4919,13 @@ const PF_LIST=[
  ["C1","BOSS 橫幅不做動畫",""],
  ["C2","橫幅提早消失","1.6 → 0.6 秒"],
  ["C3","飄字同時最多 3 個","原本 6 個"],
- ["C4","一般飄字縮短","0.85 → 0.6 秒"]
+ ["C4","一般飄字縮短","0.85 → 0.6 秒"],
+ ["D1","戰鬥背景改成純色","效果最大：星空背景每一格畫面都要重畫"],
+ ["D2","戰鬥面板改成純色","拿掉漸層和大範圍陰影"],
+ ["D3","關閉全螢幕閃光","暴擊、受傷、BOSS 登場的整片閃光"],
+ ["D4","角色待機與 VS 動畫停止","攻擊、受擊動作照常"]
 ];
-const PF_REC={A1:true,A2:true,A3:true};
+const PF_REC={A1:true,A2:true,A3:true,D1:true,D2:true,D3:true,D4:true};
 function pfDefault(set){const o={};PF_LIST.forEach(([k])=>o[k]=set==="all"?true:set==="none"?false:!!PF_REC[k]);return o}
 function loadPF(){let s=null;try{s=JSON.parse(localStorage.getItem(PF_KEY))}catch(e){}const o=pfDefault("rec");if(s&&typeof s==="object")PF_LIST.forEach(([k])=>{if(typeof s[k]==="boolean")o[k]=s[k]});return o}
 let PF=loadPF();
@@ -4921,7 +4936,13 @@ function pfPreset(){const r=pfDefault("rec"),keys=PF_LIST.map(x=>x[0]);if(keys.e
 let SND_ON=true,VIB_ON=true;
 const SND_KEY="meter_battle_sound",VIB_KEY="meter_battle_vibrate";
 try{SND_ON=localStorage.getItem(SND_KEY)!=="0";VIB_ON=localStorage.getItem(VIB_KEY)!=="0"}catch(e){}
-function setSpeed(v){v=(v>=1&&v<=5)?v:1;if(G)G.speed=v;try{localStorage.setItem(SPD_KEY,v)}catch(e){}if(R&&R.Spd){R.Spd.innerHTML=gi("S9.speed",18)+'<span>'+(v>1?"×"+v:"加速")+'</span>';R.Spd.classList.toggle("on",v>1);R.Spd.setAttribute("aria-label","戰鬥速度 ×"+v+"，點一下切換")}}
+function setSpeed(v){v=(v>=1&&v<=5)?v:1;if(G)G.speed=v;try{localStorage.setItem(SPD_KEY,v)}catch(e){}spdBtn()}
+function spdBtn(){
+  if(!R||!R.Spd||!G)return;const v=G.speed,lk=bossLock();G._lkShown=lk;
+  R.Spd.innerHTML=lk?'<span>BOSS×1</span>':gi("S9.speed",18)+'<span>'+(v>1?"×"+v:"加速")+'</span>';
+  R.Spd.classList.toggle("on",v>1&&!lk);R.Spd.classList.toggle("lock",lk);
+  R.Spd.setAttribute("aria-label",lk?"BOSS 戰暫時 ×1，打完恢復 ×"+v+"；點一下這場改用 ×"+v:"戰鬥速度 ×"+v+"，點一下切換");
+}
 /* 還沒用過加速的人，在按鈕下方顯示提示泡泡 */
 function spdHint(){
   let seen=false;try{seen=!!localStorage.getItem(SPD_HINT_KEY)}catch(e){}
@@ -4948,7 +4969,8 @@ function renderSettings(){
     body=cloudSettingsHtml(grp)+
       grp("⚔️ 戰鬥",
         sw("ougisave",ougiSaveOn(),"1","0","奧義留給強敵","自動模式只對菁英、BOSS、神話放；神力滿溢時照放")+
-        sw("fullpom",fullPomOn(),"1","0","祝福滿了自動改拿 Pom","不跳視窗，直接升級等級最低的祝福"))+
+        sw("fullpom",fullPomOn(),"1","0","祝福滿了自動改拿 Pom","不跳視窗，直接升級等級最低的祝福")+
+        sw("boss1",boss1On(),"1","0","BOSS 戰維持 ×1","遇到 BOSS、神話 BOSS 暫時用正常速度，打完恢復原本的加速"))+
       grp("🔊 聲音與震動",
         sw("snd",SND_ON,"1","0","音效")+
         sw("vib",VIB_ON,"1","0","震動"))+
@@ -5000,6 +5022,7 @@ function openSettings(){
       else if(k==="nick"){askNick(()=>renderSettings(),true);return}
       else if(k==="ougisave"){try{localStorage.setItem(OUGI_KEY,v)}catch(x){}}
       else if(k==="fullpom"){try{localStorage.setItem(FULLPOM_KEY,v)}catch(x){}}
+      else if(k==="boss1"){try{localStorage.setItem(BOSS1_KEY,v)}catch(x){}spdBtn()}
       else if(k==="cloudsync"){const uid=G&&G.uid;if(!uid)return;if(cloudInfo(uid).need){cloudToast("請先輸入轉移碼");setTimeout(()=>cloudToast(null),1800);return}bankSave();cloudToast("☁️ 同步中…");Cloud.sig[uid]="";Cloud.push(uid,(ok,err)=>{cloudToast(ok?"✅ 已同步":"⚠️ 同步失敗："+(err||"未知原因"));setTimeout(()=>cloudToast(null),ok?1800:6000);renderSettings()});return}
       else if(k==="cloudcopy"){const c=fmtCode(cloudInfo(G.uid).code);try{navigator.clipboard.writeText(c).then(()=>{cloudToast("✅ 已複製 "+c);setTimeout(()=>cloudToast(null),1500)},()=>{})}catch(x){}return}
       else if(k==="cloudbind"){const uid=G&&G.uid;if(!uid)return;cloudBind(uid,ok=>{if(!ok)return;G._noBank=true;closeSettings();closeBattle();cloudToast("✅ 已接回進度，請重新開始挑戰");setTimeout(()=>cloudToast(null),2500)});return}
@@ -5051,7 +5074,7 @@ function flushLog(force){
 const FXP=[],FXA=[];
 function fx(side,val,type){
   if(!R||!R.Fx)return;
-  if(G&&G.speed>1&&(!type||type==="normal")&&FXA.length>=6)return;
+  if(G&&curSpeed()>1&&(!type||type==="normal")&&FXA.length>=6)return;
   const maxFx=isLite()?(pf("C3")?3:6):12;
   if(FXA.length>=maxFx){const o=FXA.shift();clearTimeout(o._to);o.remove();FXP.push(o)}
   const s=FXP.pop()||document.createElement("span");
@@ -6665,7 +6688,7 @@ function bind(){
   R.Au.onclick=()=>{G.auto=!G.auto;R.Au.classList.toggle("on",G.auto);setAuBtn()};
   R.Up.onclick=openUp;
   R.Best.onclick=showRank;
-  R.Spd.onclick=()=>{setSpeed(G.speed>=5?1:G.speed+1);spdHintDone();try{sfxTap()}catch(x){}fx("p","⏩ ×"+G.speed,"combo")};setSpeed(G.speed);setTimeout(spdHint,1200);R.Best.setAttribute("role","button");R.Best.title="排行榜";
+  R.Spd.onclick=()=>{spdHintDone();try{sfxTap()}catch(x){}if(bossLock()){G._bossFree=true;spdBtn();fx("p","⏩ 這場 ×"+G.speed,"combo");return}setSpeed(G.speed>=5?1:G.speed+1);fx("p","⏩ ×"+G.speed,"combo")};setSpeed(G.speed);setTimeout(spdHint,1200);R.Best.setAttribute("role","button");R.Best.title="排行榜";
   R.Sheet.onclick=sheetClick;
   R.PavWrap.onclick=showStatModal;
   R.Ab.onclick=e=>{const _s=e.target.closest("[data-sk]");if(_s)showSkModal(_s.dataset.sk);const t=e.target.closest("[data-ab]");if(t)showAbModal(t.dataset.ab,+t.dataset.mul||1);const m=e.target.closest("[data-myth]");if(m)showMythModal(m.dataset.myth);if(e.target.closest("[data-ghost]"))showGhostModal()};
@@ -7004,7 +7027,7 @@ const normCode=c=>String(c||"").toUpperCase().replace(/[^A-Z0-9]/g,"");
 function lsSetObj(key,uid,val){try{const a=JSON.parse(localStorage.getItem(key))||{};a[uid]=val;localStorage.setItem(key,JSON.stringify(a))}catch(e){}}
 function lsGetObj(key,uid){try{return(JSON.parse(localStorage.getItem(key))||{})[uid]}catch(e){return undefined}}
 /* 偏好設定：速度、畫面、聲音、提示、造型、暱稱……（整支手機共用） */
-const PREF_KEYS=["meter_battle_speed","meter_battle_perf","meter_battle_perf_flags","meter_battle_sound","meter_battle_vibrate","meter_battle_tips_off","meter_battle_spd_hint","meter_battle_ougisave","meter_battle_fullpom","meter_battle_autobuy","meter_roster_guide_off","meter_battle_codex_ui","meter_avatar_choice","meter_battle_nick"];
+const PREF_KEYS=["meter_battle_speed","meter_battle_perf","meter_battle_perf_flags","meter_battle_sound","meter_battle_vibrate","meter_battle_tips_off","meter_battle_spd_hint","meter_battle_ougisave","meter_battle_fullpom","meter_battle_boss1","meter_battle_autobuy","meter_roster_guide_off","meter_battle_codex_ui","meter_avatar_choice","meter_battle_nick"];
 function prefsGet(){const o={};PREF_KEYS.forEach(k=>{try{const v=localStorage.getItem(k);if(v!==null)o[k]=v}catch(e){}});return o}
 function prefsSet(o,force){if(!o||typeof o!=="object")return;PREF_KEYS.forEach(k=>{if(!(k in o))return;try{if(force||localStorage.getItem(k)===null)localStorage.setItem(k,String(o[k]))}catch(e){}})}
 /* 接關存檔的時間：存檔時間或清除時間，取比較新的 */
@@ -8005,10 +8028,12 @@ function tick(now){
   if(!G.over&&G.time-(G._bankT||0)>2)bankSave();
   raf=requestAnimationFrame(tick);
   const dt=Math.min((now-last)/1000,.05);last=now;
-  if(!G.paused&&!G.over){for(let i=0;i<G.speed&&!G.paused&&!G.over&&!G.closed;i++)step(dt)}
+  const _sp=curSpeed();
+  if(bossLock()!==!!G._lkShown){spdBtn();if(G._lkShown&&!G._lkLog){G._lkLog=1;log("⏩ BOSS 戰暫時改為 ×1，打完自動恢復 ×"+G.speed+"（點速度按鈕可以這場照常加速）","h")}}
+  if(!G.paused&&!G.over){for(let i=0;i<_sp&&!G.paused&&!G.over&&!G.closed;i++)step(dt)}
   G._fr=(G._fr|0)+1;
   const base=isLite()?6:4;
-  if(G._fr>=(G.speed>=3?base*2:G.speed===2?Math.round(base*1.5):base)){G._fr=0;ui();flushLog()}
+  if(G._fr>=(_sp>=3?base*2:_sp===2?Math.round(base*1.5):base)){G._fr=0;ui();flushLog()}
 }
 
 /* ============ 戰鬥主迴圈 ============ */
