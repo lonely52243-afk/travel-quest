@@ -7957,7 +7957,8 @@ function getDev(){
 }
 /* 本週代號（週一開始），和 Apps Script 一樣的算法 */
 function weekKey(){const d=new Date();const dow=(d.getDay()+6)%7;const m=new Date(d.getFullYear(),d.getMonth(),d.getDate()-dow);return "W"+m.getFullYear()+String(m.getMonth()+1).padStart(2,"0")+String(m.getDate()).padStart(2,"0")}
-function sentGet(){try{return JSON.parse(localStorage.getItem(SENT_KEY))||{}}catch(e){return{}}}
+/* 上傳過的紀錄：跟著暱稱走（換暱稱、從雲端還原暱稱後，會重新上傳） */
+function sentGet(){let o={};try{o=JSON.parse(localStorage.getItem(SENT_KEY))||{}}catch(e){}return o.nick===getNick()?o:{}}
 /* 呼叫 Apps Script（和讀名冊一樣用 JSONP），10 秒沒回應算失敗 */
 function rankCall(params,cb,tmo){
   const name="__rk"+Date.now()+Math.floor(Math.random()*1e4),sc=document.createElement("script");
@@ -7970,26 +7971,50 @@ function rankCall(params,cb,tmo){
   setTimeout(()=>fin({ok:false,error:"連線逾時"}),tmo||10000);
   document.body.appendChild(sc);
 }
-/* 破紀錄才上傳（總紀錄或本週紀錄） */
-function submitScore(g){
+/* 破紀錄才上傳（總紀錄或本週紀錄）；失敗會顯示原因，下次自動再試 */
+function submitScore(g,force){
   if(!g||!g.uid)return;
   const nick=getNick(),cleared=Math.max(0,g.floor-1);
   if(!nick||cleared<1)return;
   const st=sentGet(),wk=weekKey();
   const weekBest=st.wk===wk?(st.week||0):0;
-  if(cleared<=(st.best||0)&&cleared<=weekBest)return;
+  if(!force&&cleared<=(st.best||0)&&cleared<=weekBest)return;
   let snap="";try{snap=snapOf(g)}catch(e){}
-  rankCall({action:"score",nick,dev:getDev(),uid:g.uid,hero:g.p.name||"",lv:g.p.lv||0,floor:cleared,snap},r=>{
+  rankSend({nick,uid:g.uid,hero:g.p.name||"",lv:g.p.lv||0,floor:cleared,snap},g);
+}
+/* 真正送出；g＝目前這場（可以是 null） */
+function rankSend(o,g){
+  const st=sentGet(),wk=weekKey(),weekBest=st.wk===wk?(st.week||0):0;
+  rankCall({action:"score",nick:o.nick,dev:getDev(),uid:o.uid,hero:o.hero,lv:o.lv,floor:o.floor,snap:o.snap||""},r=>{
+    const live=g&&G===g&&!g.closed;
     if(r&&r.ok){
-      const s2={best:Math.max(st.best||0,r.best||cleared),wk,week:Math.max(weekBest,r.week||cleared)};
-      try{localStorage.setItem(SENT_KEY,JSON.stringify(s2))}catch(e){}
-      if(G===g&&!g.closed&&r.newBest){log("🏆 已上傳排行榜：第 "+cleared+" 層","legend");
+      const s2={nick:o.nick,best:Math.max(st.best||0,r.best||o.floor),wk,week:Math.max(weekBest,r.week||o.floor)};
+      try{localStorage.setItem(SENT_KEY,JSON.stringify(s2));localStorage.removeItem(RK_PEND_KEY)}catch(e){}
+      if(g)g._upFail=false;
+      if(live&&r.newBest){log("🏆 已上傳排行榜：第 "+o.floor+" 層","legend");
         showTips([{k:"rankup",ic:gi("S9.rank",30),t:"成績上榜了！",d:"你的層數和這場的配置（流派、祝福、神器、數值）已經上傳排行榜，大家都看得到。<br>名冊上方的「🏆 無盡挑戰排行榜」可以看別人怎麼配。"}])}
+      else if(!g&&r.newBest)cloudToast("🏆 補傳成功：第 "+o.floor+" 層已上排行榜");
     }else if(r&&r.code==="taken"){
-      if(G===g&&!g.closed)log("⚠️ 暱稱「"+nick+"」已經有人使用，請到「設定」改一個暱稱","e");
+      if(live)log("⚠️ 暱稱「"+o.nick+"」已經有人使用，請到「設定」改一個暱稱","e");
+      else if(!g)cloudToast("⚠️ 暱稱「"+o.nick+"」已經有人使用，請到設定改暱稱");
       try{localStorage.setItem("meter_battle_nick_taken","1")}catch(e){}
+    }else{
+      /* 失敗：記下來，之後自動補傳 */
+      try{const p=JSON.parse(localStorage.getItem(RK_PEND_KEY)||"null");if(!p||p.nick!==o.nick||o.floor>=p.floor)localStorage.setItem(RK_PEND_KEY,JSON.stringify(o))}catch(e){}
+      const why=(r&&r.error)||"沒有回應";
+      if(live&&!g._upFail){g._upFail=true;log("⚠️ 成績上傳失敗（"+why+"），之後會自動再試","e")}
     }
-  });
+  },15000);
+}
+/* 補傳：上次失敗的成績，或這支手機的最高紀錄比排行榜上的高 */
+const RK_PEND_KEY="meter_battle_rank_pending";
+function rankCatchup(uid,hero,lv){
+  const nick=getNick();if(!nick||!uid)return;
+  let p=null;try{p=JSON.parse(localStorage.getItem(RK_PEND_KEY)||"null")}catch(e){}
+  const st=sentGet();
+  if(p&&p.nick===nick&&p.uid===uid&&p.floor>(st.best||0)){rankSend(p,null);return}
+  const b=getBest(uid);
+  if(b>(st.best||0))rankSend({nick,uid,hero:hero||"",lv:lv||0,floor:b,snap:""},null);
 }
 /* 輸入暱稱（第一次開戰前、或從設定修改） */
 function askNick(onDone,isChange){
@@ -9422,7 +9447,7 @@ function openBattle(u){
 }
 function startBattle(u,save){
   if(!ov){ov=document.createElement("div");ov.className="bt-ov";ov.innerHTML='<div class="bt-panel"></div>';ov.insertAdjacentHTML("beforeend",'<div class="bt-flash" id="btFlash"></div>');document.body.appendChild(ov)}
-  newRun(u,save);Cloud.start(G.uid);applyPerf();ov.classList.add("show");document.body.style.overflow="hidden";document.body.classList.add("bt-open");freezePage();
+  newRun(u,save);Cloud.start(G.uid);{const _g=G;setTimeout(()=>{if(G===_g)rankCatchup(_g.uid,_g.p.name,_g.p.lv)},4000)}applyPerf();ov.classList.add("show");document.body.style.overflow="hidden";document.body.classList.add("bt-open");freezePage();
   snd(320,880,.2,.06,"triangle");
   cancelAnimationFrame(raf);last=performance.now();raf=requestAnimationFrame(tick);
 }
@@ -10934,6 +10959,3 @@ window.rosterStats=u=>{const p=_bp(u);return{atk:p.atk,hp:p.maxHp,def:p.def,crit
 try{const rp=document.getElementById("page-roster");if(rp&&rp.classList.contains("active")&&typeof usersData!=="undefined"&&usersData.length)renderRoster(false)}catch(e){}
 })();
 </script>
-
-</body>
-</html>
