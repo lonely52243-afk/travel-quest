@@ -4,6 +4,14 @@
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 <title>電表機房</title>
+<meta name="theme-color" content="#03060d">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-status-bar-style" content="black">
+<meta name="apple-mobile-web-app-title" content="電表機房">
+<link rel="apple-touch-icon" href="apple-touch-icon.png">
+<link rel="icon" type="image/png" href="icon-192.png">
+<link rel="manifest" href="manifest.json">
 <link href="https://fonts.googleapis.com/css2?family=Cinzel:wght@400;600;700&family=Noto+Serif+TC:wght@400;600;700&family=JetBrains+Mono:wght@400;600;700&family=Noto+Sans+TC:wght@400;500;700&display=swap" rel="stylesheet">
 <style>
 /* ============================================================
@@ -2001,6 +2009,100 @@ g-i.gi>g-i{display:block;background-repeat:no-repeat}
 .ac-ov button:focus-visible,.ac-link:focus-visible{outline:2px solid #ffd54a;outline-offset:2px}
 @media (prefers-reduced-motion:reduce){.ac-ov.on,.ac-box{animation:none}}
 
+
+/* ============================================================
+   v8：切換按鈕、同步列、提示、小字調亮、加到主畫面
+   ============================================================ */
+/* 切換按鈕：電表永遠是青色、名冊永遠是金色，沒選到的也看得出可以點 */
+.switch-btn{display:flex;flex-direction:column;align-items:center;gap:2px;padding:9px 0 8px;letter-spacing:.3em}
+.switch-btn .sw-t{font-size:13px;font-weight:700}
+.switch-btn .sw-s{font-size:9.5px;font-weight:500;letter-spacing:.12em;opacity:.8;font-family:"Noto Sans TC",sans-serif}
+body.mode-meter .switch-btn[data-mode="meter"],body.mode-roster .switch-btn[data-mode="meter"]{color:rgba(34,211,238,.75);font-family:"Noto Sans TC",sans-serif}
+body.mode-meter .switch-btn[data-mode="roster"],body.mode-roster .switch-btn[data-mode="roster"]{color:rgba(224,190,110,.85);font-family:"Cinzel","Noto Serif TC",serif}
+body.mode-roster .switch-btn[data-mode="meter"]{color:#0e7490}
+body.mode-meter .switch-btn[data-mode="meter"].active{color:var(--cyan);text-shadow:0 0 10px var(--cyan-glow)}
+body.mode-roster .switch-btn[data-mode="roster"].active{color:var(--gold-3)}
+body.mode-meter .switch-btn[data-mode="roster"]{text-shadow:0 0 8px rgba(201,165,92,.35)}
+.switch-btn{position:relative}
+.sw-bubble{position:absolute;top:calc(100% + 8px);right:6px;z-index:30;width:min(240px,62vw);padding:10px 12px;border-radius:10px;
+  background:linear-gradient(180deg,#2b2214,#1a140b);border:1px solid rgba(224,190,110,.7);color:#f3e2b8;
+  font:500 12px/1.55 "Noto Sans TC",sans-serif;letter-spacing:.02em;text-align:left;box-shadow:0 6px 20px rgba(0,0,0,.6);cursor:pointer;animation:swBub .35s ease-out}
+.sw-bubble::before{content:"";position:absolute;top:-7px;right:40px;width:12px;height:12px;transform:rotate(45deg);background:#2b2214;border-left:1px solid rgba(224,190,110,.7);border-top:1px solid rgba(224,190,110,.7)}
+.sw-bubble small{display:block;margin-top:4px;color:#c9a55c;font-size:10.5px}
+@keyframes swBub{from{opacity:0;transform:translateY(-6px)}to{opacity:1;transform:none}}
+
+/* 同步列：最後更新時間／連不到資料 */
+.sync-bar{display:flex;align-items:center;gap:8px;margin:-4px 0 10px;padding:7px 12px;border-radius:8px;
+  border:1px solid var(--border);background:rgba(11,17,28,.6);color:var(--text-1);
+  font:500 11px "Noto Sans TC","JetBrains Mono",sans-serif;letter-spacing:.04em}
+.sync-bar[hidden]{display:none}
+.sync-bar i{flex:none;width:6px;height:6px;border-radius:50%;background:var(--green);box-shadow:0 0 6px var(--green-glow)}
+.sync-bar.wait i{background:var(--cyan);box-shadow:0 0 6px var(--cyan-glow);animation:blink 1s ease-in-out infinite}
+.sync-bar.err{border-color:rgba(248,81,73,.5);color:#ffb4ae}
+.sync-bar.err i{background:var(--red);box-shadow:0 0 6px var(--red-glow)}
+.sync-bar span{flex:1;min-width:0}
+.sync-bar button,.error .retry{flex:none;padding:5px 12px;border-radius:6px;border:1px solid currentColor;background:transparent;color:inherit;font:600 11px "Noto Sans TC",sans-serif;cursor:pointer}
+.error .retry{display:inline-block;margin-top:14px;padding:8px 22px;font-size:13px;color:var(--cyan)}
+
+/* 日期說明、電表區標題 */
+.date-note{grid-column:1 / -1;margin-top:4px;font:500 10.5px/1.5 "Noto Sans TC",sans-serif;color:#9fb2cc;letter-spacing:.03em}
+.date-note b{color:var(--cyan);font-weight:700}
+.grid-title{display:flex;align-items:baseline;justify-content:space-between;gap:8px;margin:14px 2px 8px;color:var(--cyan);
+  font:700 12px "Noto Sans TC",sans-serif;letter-spacing:.15em}
+.grid-title small{font-size:10px;font-weight:500;color:#9fb2cc;letter-spacing:.03em;text-align:right}
+
+
+/* 未回報名單完整顯示（換行） */
+body.mode-meter .stat .sub{white-space:normal;overflow:visible;text-overflow:clip}
+
+/* 今天尚未回報（還不到「已 X 天」）：顏色淡一點 */
+.rack-delta.miss.soft{color:#e3c27a;text-shadow:0 0 4px rgba(3,6,13,.9)}
+
+/* 小字調亮（顏色、版面都不變，只是比較好讀） */
+body.mode-meter .stat .k{font-size:10px;color:#9fb2cc}
+body.mode-meter .stat .v small{color:#9fb2cc}
+body.mode-meter .stat .sub{color:#b4c4da}
+.rack-value small{color:#a9bad3}
+.rack-head .id{opacity:1}
+.rack-delta .lbl{color:#8fa3bf}
+.rack-status{color:#a9bad3}
+.date-quick button{color:#b4c4da}
+
+/* 提示（電表頁：青色科技風） */
+.m-toast{position:fixed;left:50%;bottom:calc(20px + env(safe-area-inset-bottom));transform:translateX(-50%);z-index:900;width:min(460px,calc(100vw - 32px));
+  display:flex;align-items:center;gap:10px;padding:12px 14px;border-radius:12px;
+  background:linear-gradient(180deg,rgba(16,24,38,.97),rgba(6,11,20,.97));border:1px solid rgba(34,211,238,.55);
+  box-shadow:0 0 22px rgba(34,211,238,.25),0 8px 24px rgba(0,0,0,.6);color:#e8f2ff;
+  font:500 12.5px/1.5 "Noto Sans TC",sans-serif;animation:mToast .35s ease-out}
+.m-toast b{color:var(--cyan,#22d3ee)}
+.m-toast span{flex:1;min-width:0}
+.m-toast button{flex:none;padding:6px 10px;border-radius:7px;border:1px solid rgba(34,211,238,.6);background:rgba(34,211,238,.12);color:#22d3ee;font:600 11.5px "Noto Sans TC",sans-serif;cursor:pointer}
+.m-toast button.x{border-color:transparent;background:none;color:#8ba0bd;padding:6px 4px}
+@keyframes mToast{from{opacity:0;transform:translate(-50%,10px)}to{opacity:1;transform:translate(-50%,0)}}
+
+/* 加到主畫面提醒：跟著所在頁面的風格 */
+.a2hs{position:fixed;left:50%;bottom:calc(14px + env(safe-area-inset-bottom));transform:translateX(-50%);z-index:899;width:min(460px,calc(100vw - 24px));
+  padding:12px 14px 10px;border-radius:14px;font:500 12.5px/1.55 "Noto Sans TC",sans-serif;animation:mToast .4s ease-out}
+.a2hs[hidden]{display:none}
+.a2hs .a2-hd{display:flex;align-items:center;gap:10px}
+.a2hs .a2-ic{flex:none;width:40px;height:40px;border-radius:10px;background:#03060d url('apple-touch-icon.png') center/cover;border:1px solid rgba(255,255,255,.15)}
+.a2hs .a2-tx{flex:1;min-width:0}
+.a2hs .a2-tx b{display:block;font-size:13.5px}
+.a2hs .a2-steps{margin:8px 0 2px;padding:8px 10px;border-radius:8px;font-size:12px}
+.a2hs .a2-ft{display:flex;gap:8px;justify-content:flex-end;margin-top:8px}
+.a2hs .a2-ft button{padding:6px 12px;border-radius:7px;font:600 12px "Noto Sans TC",sans-serif;cursor:pointer;background:transparent}
+body.mode-meter .a2hs{background:linear-gradient(180deg,rgba(16,24,38,.98),rgba(6,11,20,.98));border:1px solid rgba(34,211,238,.55);color:#e8f2ff;box-shadow:0 0 22px rgba(34,211,238,.22),0 8px 24px rgba(0,0,0,.6)}
+body.mode-meter .a2hs .a2-tx b{color:#22d3ee}
+body.mode-meter .a2hs .a2-steps{background:rgba(34,211,238,.08);color:#b4c4da}
+body.mode-meter .a2hs .a2-ft button{border:1px solid rgba(139,160,189,.4);color:#b4c4da}
+body.mode-meter .a2hs .a2-ft button.pri{border-color:#22d3ee;color:#22d3ee;background:rgba(34,211,238,.12)}
+body.mode-roster .a2hs{background:linear-gradient(180deg,#fdf6e3,#f3e8cc);border:1px solid #b8944f;color:#3b2f1c;box-shadow:0 8px 24px rgba(60,40,10,.35)}
+body.mode-roster .a2hs .a2-tx b{color:#8b6f3a;font-family:"Noto Serif TC",serif}
+body.mode-roster .a2hs .a2-steps{background:rgba(201,165,92,.15);color:#5a4a2e}
+body.mode-roster .a2hs .a2-ft button{border:1px solid rgba(139,111,58,.45);color:#6b5530}
+body.mode-roster .a2hs .a2-ft button.pri{border-color:#8b6f3a;background:linear-gradient(180deg,#c9a55c,#8b6f3a);color:#fdf6e3}
+body.bt-open .a2hs,body.bt-open .m-toast{display:none}
+@media (prefers-reduced-motion:reduce){.sw-bubble,.m-toast,.a2hs{animation:none}}
 </style>
 </head><body class="mode-meter">
 <div class="app">
@@ -2009,8 +2111,8 @@ g-i.gi>g-i{display:block;background-repeat:no-repeat}
   <div class="hero-roster"></div>
 
   <div class="top-switch">
-    <div class="switch-btn active" data-mode="meter">電 表</div>
-    <div class="switch-btn" data-mode="roster">名 冊</div>
+    <div class="switch-btn active" data-mode="meter"><span class="sw-t">⚡ 電 表</span><span class="sw-s">回報狀況</span></div>
+    <div class="switch-btn" data-mode="roster"><span class="sw-t">🛡️ 名 冊</span><span class="sw-s">勇者・排行・挑戰</span></div>
   </div>
 
   <div class="page active" id="page-meter">
@@ -2018,6 +2120,7 @@ g-i.gi>g-i{display:block;background-repeat:no-repeat}
       <div class="left"><span class="live">LIVE</span><span>電表機房</span></div>
       <div class="right" id="topDate">—</div>
     </div>
+    <div class="sync-bar" id="syncBar" hidden></div>
     <div class="loading" id="loadingText">載入中</div>
     <div class="error" id="errorText" style="display:none"></div>
     <div id="mainContent">
@@ -2027,10 +2130,11 @@ g-i.gi>g-i{display:block;background-repeat:no-repeat}
         <span class="sep">～</span>
         <input type="date" id="dateEnd">
         <div class="date-quick" id="dateQuick">
-          <button type="button" data-q="7">近 7 天</button>
+          <button type="button" data-q="7" class="on">近 7 天</button>
           <button type="button" data-q="30">近 30 天</button>
           <button type="button" data-q="month">本月</button>
         </div>
+        <div class="date-note">日期只影響「01 查詢結果」表格；下方的統計和電表卡片都是<b>今天</b>的狀況</div>
       </div>
 
       <div class="section-head" id="queryHead">
@@ -2046,12 +2150,12 @@ g-i.gi>g-i{display:block;background-repeat:no-repeat}
       <div class="stats-block">
         <div class="stats-col">
           <div class="stat green">
-            <div class="k">已回報</div>
+            <div class="k" id="ovReportedK">今天已回報</div>
             <div class="v" id="ovReported">0<small>台</small></div>
             <div class="sub" id="ovReportedSub">—</div>
           </div>
           <div class="stat yellow tap" id="ovMissingBox">
-            <div class="k">未回報</div>
+            <div class="k">今天未回報</div>
             <div class="v" id="ovMissing">0<small>台</small></div>
             <div class="sub" id="ovMissingSub">—</div>
           </div>
@@ -2068,11 +2172,12 @@ g-i.gi>g-i{display:block;background-repeat:no-repeat}
       </div>
 
       <div class="section-head" id="alertHead">
-        <span class="label"><span class="num">02</span><span>異常</span></span>
+        <span class="label"><span class="num">02</span><span>異常與未回報</span></span>
         <span class="arrow">▶</span>
       </div>
       <div class="panel-body" id="alertWrap"></div>
 
+      <div class="grid-title"><span>◆ 各電表狀況</span><small>大數字＝最新讀數（kWh）・沒回報的排前面</small></div>
       <div class="grid" id="grid"></div>
 
       <div class="section-head" id="detailHead">
@@ -2445,58 +2550,137 @@ function formatNum(v){
 /* ============================================================
    資料載入（含逾時 #6）
    ============================================================ */
+/* ============================================================
+   載入資料
+   1. 手機裡有上次的資料 → 立刻顯示，同時在背景抓新的
+   2. 抓到新的 → 自動換上，記下「最後更新」時間
+   3. 抓不到 → 有舊資料就繼續顯示並提示；完全沒資料才顯示錯誤畫面＋重試
+   ============================================================ */
+const DATA_CACHE_KEY = "meter_data_cache_v1";
+const REPORT_HOUR = 8;                       // 這個時間以前，還不算「今天沒回報」
+let _dataTime = 0;                           // 目前畫面上資料的時間
+let _dateInited = false;
+let _fetching = false;
+
+function readDataCache(){
+  try{
+    const c = JSON.parse(localStorage.getItem(DATA_CACHE_KEY));
+    return c && Array.isArray(c.data) && c.data.length ? c : null;
+  }catch(e){ return null; }
+}
+function saveDataCache(rows, users){
+  try{ localStorage.setItem(DATA_CACHE_KEY, JSON.stringify({t:Date.now(), data:rows, users:users})); }
+  catch(e){ try{ localStorage.removeItem(DATA_CACHE_KEY); }catch(x){} }
+}
+function hhmm(t){ const d = new Date(t); return String(d.getHours()).padStart(2,"0") + ":" + String(d.getMinutes()).padStart(2,"0"); }
+function mdhm(t){ const d = new Date(t); return (d.getMonth()+1) + "/" + d.getDate() + " " + hhmm(t); }
+function isTodayTime(t){ const a = new Date(t), b = new Date(); return a.toDateString() === b.toDateString(); }
+
+/* 畫面上方的同步列 */
+function setSync(state, msg){
+  const bar = document.getElementById("syncBar");
+  if(!bar) return;
+  if(!meterRendered){ bar.hidden = true; return; }
+  bar.hidden = false;
+  bar.className = "sync-bar" + (state === "wait" ? " wait" : state === "err" ? " err" : "");
+  const when = _dataTime ? (isTodayTime(_dataTime) ? hhmm(_dataTime) : mdhm(_dataTime)) : "—";
+  if(state === "wait") bar.innerHTML = '<i></i><span>先顯示上次的資料（' + when + '），正在更新…</span>';
+  else if(state === "err") bar.innerHTML = '<i></i><span>連不到資料，目前顯示 ' + when + ' 的資料</span><button type="button" onclick="retryLoad()">重試</button>';
+  else bar.innerHTML = '<i></i><span>最後更新 ' + when + '</span>';
+}
+
+/* 把資料放上畫面（新資料、手機裡的舊資料都走這裡） */
+function applyData(rows, users){
+  const list = (rows || []).filter(r => {
+    if(!r || !r["日期"]) return false;
+    for(let i=0;i<METERS.length;i++) if(typeof r[METERS[i]] === "number") return true;
+    return false;
+  });
+  if(!list.length) return false;
+  data = list;
+  usersData = users || [];
+  resetCache();
+  els.loadingText.style.display = "none";
+  els.errorText.style.display = "none";
+  els.mainContent.classList.add("show");
+  initDateRange();
+  renderMeterAll();
+  renderYearReport();
+  renderRoster();
+  meterRendered = true;
+  return true;
+}
+
 function loadData(){
-  // 修正 #6：設定 15 秒逾時
+  const c = readDataCache();
+  if(c && !meterRendered && applyData(c.data, c.users)){
+    _dataTime = c.t || 0;
+    log("先顯示手機裡的資料", { t: _dataTime });
+    setSync("wait");
+  }
+  fetchData();
+}
+function fetchData(){
+  if(_fetching) return;
+  _fetching = true;
+  if(meterRendered) setSync("wait");
+  // 修正 #6：設定逾時
+  if(_apiTimer) clearTimeout(_apiTimer);
   _apiTimer = setTimeout(() => {
     _apiTimer = null;
-    if(!data.length){
-      showError("連線逾時，請檢查網路後重試");
-    }
+    _fetching = false;
+    showError("連線逾時，請檢查網路後重試");
   }, CONFIG.API_TIMEOUT);
 
   const cb = "gapi" + Date.now();
   window[cb] = function(json){
     if(_apiTimer){ clearTimeout(_apiTimer); _apiTimer = null; }
+    _fetching = false;
     try { delete window[cb]; } catch(e) {}
     if(!json || !json.ok){ showError((json && json.error) || "API 回傳錯誤"); return; }
-    data = (json.data || []).filter(r => {
-      if(!r["日期"]) return false;
-      for(let i=0;i<METERS.length;i++) if(typeof r[METERS[i]] === "number") return true;
-      return false;
-    });
-    usersData = json.users || [];
-
-    // 修正 #7：空資料防護
-    if(!data.length){
+    const rows = json.data || [], users = json.users || [];
+    if(!applyData(rows, users)){
+      // 修正 #7：空資料防護
+      if(meterRendered){ setSync("err", "沒有收到資料"); return; }
       els.loadingText.style.display = "none";
       els.errorText.style.display = "block";
-      els.errorText.innerHTML = "<b>目前無資料</b>請確認 API 是否回傳資料";
+      els.errorText.innerHTML = '<b>目前無資料</b>請確認 API 是否回傳資料<br><button type="button" class="retry" onclick="retryLoad()">重試</button>';
       return;
     }
-
-    resetCache();
+    saveDataCache(rows, users);
+    _dataTime = Date.now();
     log("資料載入完成", { dataLen: data.length, usersLen: usersData.length });
-    els.loadingText.style.display = "none";
-    els.mainContent.classList.add("show");
-    initDateRange();
-    renderMeterAll();
-    renderYearReport();
-    renderRoster();
-    meterRendered = true;
+    setSync("ok");
   };
   const s = document.createElement("script");
-  s.src = CONFIG.API_URL + "?callback=" + cb;
+  s.src = CONFIG.API_URL + "?callback=" + cb + "&_=" + Date.now();
   s.onerror = () => {
     if(_apiTimer){ clearTimeout(_apiTimer); _apiTimer = null; }
+    _fetching = false;
     showError("無法連線到 API");
   };
   document.body.appendChild(s);
 }
 function showError(msg){
+  // 已經有資料在畫面上：保留舊資料，只在上方提示
+  if(meterRendered){ setSync("err", msg); return; }
   els.loadingText.style.display = "none";
   els.errorText.style.display = "block";
-  els.errorText.innerHTML = "<b>載入失敗</b>" + msg;
+  els.errorText.innerHTML = '<b>目前連不到資料</b>' + escapeHtml(msg) + '，請稍後再試<br><button type="button" class="retry" onclick="retryLoad()">重試</button>';
 }
+function retryLoad(){
+  try{ sfxTap(); }catch(e){}
+  if(!meterRendered){
+    els.errorText.style.display = "none";
+    els.loadingText.style.display = "";
+  }
+  fetchData();
+}
+window.retryLoad = retryLoad;
+/* 從背景回到畫面（例如切回這個 App）：資料超過 10 分鐘就自動更新 */
+document.addEventListener("visibilitychange", () => {
+  if(document.visibilityState === "visible" && meterRendered && Date.now() - _dataTime > 600000) fetchData();
+});
 
 /* ============================================================
    日期範圍
@@ -2507,13 +2691,17 @@ function initDateRange(){
   const last = data[data.length-1]["日期"].replace(/\//g,"-");
   els.dateStart.min = first; els.dateStart.max = last;
   els.dateEnd.min = first; els.dateEnd.max = last;
-  const endIdx = data.length - 1;
-  const startIdx = Math.max(0, endIdx - 6);
-  els.dateStart.value = data[startIdx]["日期"].replace(/\//g,"-");
-  els.dateEnd.value = data[endIdx]["日期"].replace(/\//g,"-");
+  const quick = document.getElementById("dateQuick");
+  if(!_dateInited){
+    const endIdx = data.length - 1;
+    const startIdx = Math.max(0, endIdx - 6);
+    els.dateStart.value = data[startIdx]["日期"].replace(/\//g,"-");
+    els.dateEnd.value = data[endIdx]["日期"].replace(/\//g,"-");
+  }
+  if(_dateInited) return;
+  _dateInited = true;
   els.dateStart.addEventListener("change", onDateChange);
   els.dateEnd.addEventListener("change", onDateChange);
-  const quick = document.getElementById("dateQuick");
   if(quick) quick.onclick = e => {
     const b = e.target.closest("[data-q]");
     if(!b) return;
@@ -2692,6 +2880,36 @@ function daysSinceReport(m){
   }
   return null;
 }
+/* 漏掉幾天（今天不算）：昨天有回報、今天還沒 → 0；從未回報 → null */
+function missDays(m){
+  const d = daysSinceReport(m);
+  return d == null ? null : Math.max(0, d - 1);
+}
+/* 最後一次回報的日期（MM/DD） */
+function lastReportDate(m){
+  for(let j=data.length-1;j>=0;j--) if(typeof data[j][m] === "number") return data[j]["日期"].substring(5);
+  return null;
+}
+/* 還沒到回報時間（早上 8 點前），而且今天一台都還沒回報 */
+function beforeReportTime(reported){
+  return new Date().getHours() < REPORT_HOUR && reported === 0;
+}
+/* 昨天回報了幾台 */
+function yesterdayCount(){
+  const d = new Date(); d.setDate(d.getDate() - 1);
+  const ys = d.getFullYear() + "/" + String(d.getMonth()+1).padStart(2,"0") + "/" + String(d.getDate()).padStart(2,"0");
+  const row = data.find(r => r["日期"] === ys);
+  return row ? METERS.filter(m => typeof row[m] === "number").length : null;
+}
+/* 沒回報的排前面（漏越久越前面），再來是異常，其他照原本順序 */
+function meterOrder(){
+  return METERS.map((m, i) => {
+    const rep = isReportedToday(m);
+    const alert = getRecentAnomalies(m).length > 0 || getRecentReversals(m).length > 0;
+    const md = rep ? -1 : missDays(m);
+    return { m, i, rank: rep ? (alert ? 1 : 2) : 0, md: md == null ? 9999 : md };
+  }).sort((a, b) => a.rank - b.rank || b.md - a.md || a.i - b.i);
+}
 function renderOverview(){
   let reported = 0;
   const missList = [], anomList = [];
@@ -2699,6 +2917,11 @@ function renderOverview(){
     if(isReportedToday(m)) reported++; else missList.push(m);
     if(getRecentAnomalies(m).length > 0 || getRecentReversals(m).length > 0) anomList.push(m);
   });
+  missList.sort((a, b) => {
+    const x = missDays(a), y = missDays(b);
+    return (y == null ? 9999 : y) - (x == null ? 9999 : x);
+  });
+  const early = beforeReportTime(reported);
   const setV = (el, val, tot) => { el.innerHTML = val + "<small>" + (tot ? "/ " + tot + " 台" : "台") + "</small>"; };
   animateNumber("ovReported", 0, reported, 600, 0, v => setV(els.ovReported, v, METERS.length));
   animateNumber("ovMissing",  0, missList.length, 700, 0, v => setV(els.ovMissing, v));
@@ -2706,9 +2929,23 @@ function renderOverview(){
   const subR = document.getElementById("ovReportedSub");
   const subM = document.getElementById("ovMissingSub");
   const subA = document.getElementById("ovAnomalySub");
-  if(subR) subR.textContent = reported === METERS.length ? "今天全部到齊" : "今天還差 " + (METERS.length - reported) + " 台";
-  if(subM) subM.textContent = missList.length ? missList.join("、") : "沒有";
+  const kR = document.getElementById("ovReportedK");
+  if(kR){ const d = new Date(); kR.textContent = "今天（" + (d.getMonth()+1) + "/" + d.getDate() + "）已回報"; }
+  if(subR){
+    if(reported === METERS.length) subR.textContent = "🎉 今天全部到齊";
+    else if(early){
+      const y = yesterdayCount();
+      subR.textContent = "還沒到回報時間" + (y != null ? "・昨天 " + y + " / " + METERS.length + (y === METERS.length ? " ✅" : "") : "");
+    }
+    else subR.textContent = "今天還差 " + (METERS.length - reported) + " 台";
+  }
+  if(subM){
+    if(!missList.length) subM.textContent = "沒有";
+    else if(early) subM.textContent = "還沒到回報時間，先不用急";
+    else subM.textContent = missList.map(m => { const d = missDays(m); return m + (d == null ? "（從未）" : d > 0 ? "（" + d + " 天）" : ""); }).join("、");
+  }
   if(subA) subA.textContent = anomList.length ? anomList.join("、") : "沒有";
+  if(reported === METERS.length && METERS.length) meterAllDone();
 }
 /* 點未回報／異常：打開異常清單並捲過去 */
 function jumpToAlerts(){
@@ -2734,12 +2971,13 @@ function buildHudHtml(i){
 }
 
 function renderGrid(){
-  els.grid.innerHTML = METERS.map((m, i) => {
+  els.grid.innerHTML = meterOrder().map(({m, i}) => {
     const reported = isReportedToday(m);
     const spike = getRecentAnomalies(m).length > 0, back = getRecentReversals(m).length > 0;
     const alert = spike || back;
     const status = (reported ? "running" : "off") + (alert ? " alert" : "");
-    const statusText = back ? "讀數倒退" : spike ? "用量偏高" : reported ? "運轉中" : "未回報";
+    const _lr = reported ? null : lastReportDate(m);
+    const statusText = back ? "讀數倒退" : spike ? "用量偏高" : reported ? "運轉中" : (_lr ? "上次 " + _lr : "未回報");
     let val = getTodayValue(m);
     if(val == null){
       for(let k=data.length-1;k>=0;k--){
@@ -2765,9 +3003,9 @@ function renderGrid(){
     const pct = shown != null && shown > 0 ? Math.min((shown/maxDiff)*100, 100) : 0;
     let deltaCls, deltaHtml;
     if(!reported){
-      const dd = daysSinceReport(m);
-      deltaCls = "miss";
-      deltaHtml = dd == null ? "從未回報" : "已 " + dd + " 天未回報";
+      const md = missDays(m);
+      deltaCls = md == null || md > 0 ? "miss" : "miss soft";
+      deltaHtml = md == null ? "從未回報" : md > 0 ? "已 " + md + " 天未回報" : "今天尚未回報";
     } else if(todayInc == null){
       deltaCls = "zero"; deltaHtml = '<span class="lbl">今日</span>—';
     } else {
@@ -2822,10 +3060,10 @@ function renderAlerts(){
         const rd = new Date(lastReport.replace(/\//g,"-"));
         const today = new Date();
         today.setHours(0,0,0,0); rd.setHours(0,0,0,0);
-        const days = Math.round((today - rd) / 86400000);
-        if(days >= 1){
-          const level = days >= 7 ? "danger" : days >= 3 ? "warn" : "info";
-          alerts.push({type:"missing", meter:m, color:COLORS[i], level, title:"已 "+days+" 天未回報", desc:"最後回報：" + lastReport});
+        const days = Math.round((today - rd) / 86400000), md = Math.max(0, days - 1);
+        if(days >= 1 && !(md === 0 && new Date().getHours() < REPORT_HOUR)){
+          const level = md >= 7 ? "danger" : md >= 2 ? "warn" : "info";
+          alerts.push({type:"missing", meter:m, color:COLORS[i], level, days:md, title:md > 0 ? "已 "+md+" 天未回報" : "今天尚未回報", desc:"最後回報：" + lastReport});
         }
       } else {
         alerts.push({type:"missing", meter:m, color:COLORS[i], level:"danger", title:"從未回報", desc:"此電表從資料開始至今沒有回報紀錄"});
@@ -2842,7 +3080,7 @@ function renderAlerts(){
     }
   });
   const order = {danger:0, warn:1, info:2};
-  alerts.sort((a,b) => (order[a.level]||3) - (order[b.level]||3));
+  alerts.sort((a,b) => (order[a.level]||3) - (order[b.level]||3) || (b.days||0) - (a.days||0));
   const ruleHtml = '<div class="alert-rule">參考：近 30 天均值 + 2σ，且增量 &gt; 1.0 kWh</div>';
   if(!alerts.length){
     els.alertWrap.innerHTML = '<div class="alert-empty">✅ 所有電表正常運作</div>' + ruleHtml;
@@ -3795,6 +4033,99 @@ function rgInit(){
   });
 }
 window.rgShow=rgShow;
+
+/* ============================================================
+   電表頁提示（青色科技風）
+   ============================================================ */
+function mToast(html, btnText, onBtn, ms){
+  const old = document.querySelector(".m-toast"); if(old) old.remove();
+  const t = document.createElement("div");
+  t.className = "m-toast"; t.setAttribute("role","status");
+  t.innerHTML = '<span>' + html + '</span>' + (btnText ? '<button type="button" class="go">' + btnText + '</button>' : '') + '<button type="button" class="x" aria-label="關閉">✕</button>';
+  document.body.appendChild(t);
+  const close = () => { clearTimeout(t._to); t.remove(); };
+  t.querySelector(".x").onclick = close;
+  if(btnText) t.querySelector(".go").onclick = () => { close(); if(onBtn) onBtn(); };
+  t._to = setTimeout(close, ms || 9000);
+}
+function goRoster(){
+  const b = document.querySelector('.switch-btn[data-mode="roster"]');
+  if(b && !document.body.classList.contains("mode-roster")) b.click();
+}
+/* 今天全部回報完成：每天只慶祝一次 */
+function meterAllDone(){
+  const k = "meter_done_" + getTodayStr();
+  let seen = false; try{ seen = !!localStorage.getItem(k); }catch(e){}
+  if(seen || !document.body.classList.contains("mode-meter")) return;
+  try{ localStorage.setItem(k, "1"); }catch(e){}
+  setTimeout(() => {
+    try{ sfxAchievement(); }catch(e){}
+    mToast("🎉 <b>今天 " + METERS.length + " 台全部回報完成！</b><br>去名冊看看你的勇者升級了沒", "看名冊 →", goRoster, 10000);
+  }, 1200);
+}
+
+/* 名冊按鈕：第一次來的人提示「這裡還有名冊」 */
+const SW_TIP_KEY = "meter_tip_roster_tab";
+function rosterTabTip(){
+  let off = false; try{ off = !!localStorage.getItem(SW_TIP_KEY); }catch(e){}
+  if(off) return;
+  const b = document.querySelector('.switch-btn[data-mode="roster"]');
+  if(!b || !document.body.classList.contains("mode-meter")) return;
+  const tip = document.createElement("div");
+  tip.className = "sw-bubble";
+  tip.innerHTML = "👉 這裡還有<b>勇者名冊</b>：看等級、排行榜，還能玩無盡挑戰<small>點一下關閉</small>";
+  b.appendChild(tip);
+  const done = ev => { if(ev) ev.stopPropagation(); tip.remove(); try{ localStorage.setItem(SW_TIP_KEY, "1"); }catch(e){} };
+  tip.onclick = done;
+  b.addEventListener("click", () => done(), { once:true });
+}
+setTimeout(rosterTabTip, 1500);
+
+/* ============================================================
+   加到主畫面提醒
+   - 已經從主畫面打開的人不會看到
+   - 「稍後」：之後打開還會提醒，最多 3 次；「不要再提醒」：不再出現
+   ============================================================ */
+const A2HS_KEY = "meter_a2hs";
+let _a2hsEvt = null;
+window.addEventListener("beforeinstallprompt", e => { e.preventDefault(); _a2hsEvt = e; const b = document.querySelector(".a2hs .a2-install"); if(b) b.hidden = false; });
+window.addEventListener("appinstalled", () => { try{ localStorage.setItem(A2HS_KEY, JSON.stringify({off:1})); }catch(e){} const el = document.querySelector(".a2hs"); if(el) el.remove(); });
+function a2hsState(){ try{ return JSON.parse(localStorage.getItem(A2HS_KEY)) || {}; }catch(e){ return {}; } }
+function a2hsSave(o){ try{ localStorage.setItem(A2HS_KEY, JSON.stringify(o)); }catch(e){} }
+function isStandalone(){ return (window.matchMedia && matchMedia("(display-mode: standalone)").matches) || window.navigator.standalone === true; }
+function a2hsInit(){
+  if(isStandalone()) return;
+  const ua = navigator.userAgent || "";
+  const ios = /iPhone|iPad|iPod/i.test(ua) || (/Macintosh/.test(ua) && navigator.maxTouchPoints > 1);
+  const android = /Android/i.test(ua);
+  if(!ios && !android) return;
+  const st = a2hsState();
+  if(st.off || (st.later || 0) >= 3) return;
+  const el = document.createElement("div");
+  el.className = "a2hs"; el.setAttribute("role","dialog"); el.setAttribute("aria-label","加到主畫面");
+  const steps = ios
+    ? "點瀏覽器下方的「<b>分享</b>」按鈕 <span aria-hidden=\"true\">⬆️</span>，往下找「<b>加入主畫面</b>」，再按「新增」。"
+    : "點瀏覽器右上角「<b>⋮</b>」，選「<b>加到主畫面</b>」或「<b>安裝應用程式</b>」。";
+  el.innerHTML =
+    '<div class="a2-hd"><div class="a2-ic"></div><div class="a2-tx"><b>📲 加到主畫面，下次一點就開</b>像 App 一樣全螢幕，不用再找網址。</div></div>' +
+    '<div class="a2-steps">' + steps + '</div>' +
+    '<div class="a2-ft"><button type="button" data-a2="off">不要再提醒</button><button type="button" data-a2="later">稍後</button>' +
+    '<button type="button" class="pri a2-install" data-a2="install"' + (_a2hsEvt ? '' : ' hidden') + '>安裝</button></div>';
+  document.body.appendChild(el);
+  el.addEventListener("click", ev => {
+    const b = ev.target.closest("[data-a2]"); if(!b) return;
+    try{ sfxTap(); }catch(e){}
+    const k = b.dataset.a2, s2 = a2hsState();
+    if(k === "off"){ s2.off = 1; a2hsSave(s2); el.remove(); }
+    else if(k === "later"){ s2.later = (s2.later || 0) + 1; a2hsSave(s2); el.remove(); }
+    else if(k === "install" && _a2hsEvt){
+      _a2hsEvt.prompt();
+      _a2hsEvt.userChoice.then(r => { if(r && r.outcome === "accepted"){ s2.off = 1; a2hsSave(s2); } el.remove(); }).catch(() => el.remove());
+      _a2hsEvt = null;
+    }
+  });
+}
+setTimeout(a2hsInit, 6000);
 {const rt=document.querySelector(".roster-title");if(rt)rt.insertAdjacentHTML("afterbegin",gi("S1.roster",28));}
 rgInit();
 initAudioOnFirstGesture();
@@ -4467,6 +4798,7 @@ body.bt-lite.bt-flag-c2 .bt-bn{animation-duration:.6s!important}
 .bt-legend-bar .lbc.art{color:#ffb3ad;border-color:#ff7b72;background:rgba(248,81,73,.14)}
 .art-ic{display:inline-flex;align-items:center;justify-content:center;vertical-align:middle;flex:none;font-style:normal}
 .art-ic>i,.art-ic>g-i{display:block;background-repeat:no-repeat;filter:drop-shadow(0 1px 2px rgba(0,0,0,.6))}
+.rk-ht{display:block;font-style:normal;font-size:11px;color:#ff9d5c;font-weight:700;text-align:right}
 .bt-legend-bar .lbc.pact{color:#d9c4ff;border-color:#a371f7;background:rgba(163,113,247,.14)}
 .bt-art .bt-ch-item.warn{border-color:rgba(255,123,114,.6)}
 .bt-pact .bt-ch-item.warn{border-color:rgba(163,113,247,.6);background:linear-gradient(90deg,rgba(163,113,247,.16),rgba(201,165,92,.03))}
@@ -4647,6 +4979,21 @@ body.bt-lite.bt-flag-c2 .bt-bn{animation-duration:.6s!important}
 .bt-combo{position:absolute;left:50%;top:6px;transform:translateX(-50%);z-index:3;width:64px;height:64px;border-radius:50%;display:flex;flex-direction:column;align-items:center;justify-content:center;pointer-events:none;
   background:radial-gradient(circle,rgba(3,6,13,.85) 58%,transparent 60%),conic-gradient(var(--cc,#e8f2ff) calc(var(--p,100)*1%),rgba(255,255,255,.08) 0);--cc:#e8f2ff}
 .bt-combo[hidden]{display:none}
+/* v7 畫面整理：連擊圈縮小放在橫幅下方；橫幅改成上緣細條；傷害數字縮小 */
+.bt-combo{top:30px;width:54px;height:54px;left:47%}
+.bt-combo b{font-size:18px}
+.bt-bn{top:0;padding:4px 0;font-size:18px;letter-spacing:.12em;background:linear-gradient(90deg,transparent,rgba(0,0,0,.72) 18%,rgba(0,0,0,.72) 82%,transparent)}
+.bt-bn.tline{top:0;font-size:13px}
+.bt-f{font-size:17px;top:70px}
+.bt-f.crit,.bt-f.legend{font-size:22px}
+.bt-f.combo,.bt-f.duo{font-size:20px}
+.bt-f.ougi{font-size:28px}
+.bt-f.zap,.bt-f.fire,.bt-f.frost,.bt-f.wave,.bt-f.light{font-size:16px}
+.bt-f.poison,.bt-f.shield{font-size:15px}
+.bt-bar.snap i{transition:none!important}
+.bt-head .bt-goal{flex:0 1 auto!important;max-width:34%!important}
+.bt-head .bt-spd{margin-left:auto}
+.bt-legend-bar.ovf:not(.end){-webkit-mask-image:linear-gradient(90deg,#000 82%,transparent);mask-image:linear-gradient(90deg,#000 82%,transparent)}
 .bt-combo b{font:900 22px/1 "JetBrains Mono",monospace;color:var(--cc);text-shadow:0 0 10px var(--cc),0 2px 0 #000}
 .bt-combo span{font:900 8px "JetBrains Mono",monospace;letter-spacing:.2em;color:var(--cc);opacity:.85}
 .bt-combo small{position:absolute;top:100%;margin-top:2px;white-space:nowrap;font:700 9px "Noto Sans TC",sans-serif;color:#ffe9b0;text-shadow:0 1px 2px #000}
@@ -5299,6 +5646,13 @@ function openSettings(){
 const fmt=n=>{n=Math.round(n);const a=Math.abs(n);if(a>=1e15)return(n/1e15).toFixed(2)+"P";if(a>=1e12)return(n/1e12).toFixed(2)+"T";if(a>=1e9)return(n/1e9).toFixed(2)+"B";if(a>=1e6)return(n/1e6).toFixed(2)+"M";if(a>=1e3)return(n/1e3).toFixed(1)+"K";return String(n)};
 function setH(el,h){if(el&&el._h!==h){el.innerHTML=h;el._h=h}}
 function setAuBtn(){if(!R||!R.Au)return;R.Au.innerHTML=gi("S1.auto",26)+"<span>"+(G.auto?"自動":"手動")+"</span>";R.Au.classList.toggle("manual",!G.auto)}
+/* 換新怪物：血條直接跳到正確長度，不播放「從空慢慢補滿」的動畫（不然會看起來血條和數字對不起來） */
+function barSnap(){
+  const b=R&&R.Eh&&R.Eh.parentNode,e=G&&G.e;if(!b||!e)return;
+  b.classList.add("snap");const ep=Math.max(0,Math.min(100,e.hp/e.maxHp*100)).toFixed(1)+"%";
+  R.Eh.style.width=R.Eg.style.width=ep;R.Eh._w=R.Eg._w=ep;void b.offsetWidth;
+  requestAnimationFrame(()=>requestAnimationFrame(()=>b.classList.remove("snap")));
+}
 function setT(el,t){if(el&&el._t!==t){el.textContent=t;el._t=t}}
 function setCls(el,c){if(el&&el._c!==c){el.className=c;el._c=c}}
 function setW(el,pct){if(!el)return;const w=Math.max(0,Math.min(100,pct)).toFixed(1)+"%";if(el._w!==w){el.style.width=w;el._w=w}}
@@ -5336,7 +5690,10 @@ function fx(side,val,type){
     if(sp>1&&!imp){if(typeof val!=="number"||FXA.length>=(sp>=3?2:4))return}}
   const maxFx=isLite()?(pf("C3")?3:6):12;
   if(FXA.length>=maxFx){const o=FXA.shift();clearTimeout(o._to);o.remove();FXP.push(o)}
-  const s=FXP.pop()||document.createElement("span");
+  /* 同一邊最多 3 個數字，超過就先收掉最舊的，避免蓋住怪物 */
+  const same=FXA.filter(o=>o._side===side);
+  if(same.length>=3){const o=same[0],i=FXA.indexOf(o);FXA.splice(i,1);clearTimeout(o._to);o.remove();FXP.push(o)}
+  const s=FXP.pop()||document.createElement("span");s._side=side;
   s.className="bt-f "+(type||"normal");s.textContent=(type==="heal"?"+":"")+(typeof val==="number"?fmt(val):val);
   s.style.left=((side==="e"?73:27)+(Math.random()*12-6))+"%";
   const _big=type==="ougi"||type==="legend",_mid=type==="crit"||type==="combo"||type==="duo",_short=!_big&&!_mid&&pf("C4");
@@ -5424,6 +5781,8 @@ function abCount(f,boss,elite){
   return 0;
 }
 const abMulTxt=m=>(Math.round(m*10)/10).toString();
+/* 標籤上的強度：2 以上顯示整數（×5.5 → ×6），點開說明才看小數 */
+const abTagTxt=m=>m>=2?String(Math.round(m)):(Math.round(m*10)/10).toString();
 /* 堅韌：單次傷害上限（怪物最大生命的百分比），樓層越高上限越低 */
 function toughCap(e){return Math.max(.06,AB_BASE["堅韌"].v/Math.pow(e.abMul,.8))}
 /* 韌性：50 層起每隻一般怪／菁英／BOSS 都有，單次傷害上限隨樓層下降（神話 BOSS 另有自己的 30% 上限；持續傷害不受限） */
@@ -5485,7 +5844,11 @@ function floorAtkBonus(f){return f<=50?1+f*.025:1+50*.025+(f-50)*BAL.floorAtkRat
 function floorPierce(f){return Math.min(0.4,f*0.0008)}
 const divineCap=()=>has("ares1")?200:100;
 const noReset=()=>has("zeus5");
-function comboBonus(){const p=G.p;return Math.min(p.comboMax*artMul("comboCap"),p.combo*p.comboUp*artMul("comboUp"))*(hasLegend("legend4")?2:1)*(hasSolo("solo_zeus")?1.5:1)}
+/* 連擊加成：超過 +200% 的部分只算一半，最多 +400%（避免後期無限膨脹） */
+const COMBO_SOFT=2,COMBO_HARD=4;
+function comboRaw(){const p=G.p;return Math.min(p.comboMax*artMul("comboCap"),p.combo*p.comboUp*artMul("comboUp"))*(hasLegend("legend4")?2:1)*(hasSolo("solo_zeus")?1.5:1)}
+function comboSoft(x){return Math.min(COMBO_HARD,x<=COMBO_SOFT?x:COMBO_SOFT+(x-COMBO_SOFT)*.5)}
+function comboBonus(){return comboSoft(comboRaw())}
 const comboSteps=()=>Math.min(10,Math.floor(G.p.combo/10));
 /* 會直接改數值的祝福（其餘都在戰鬥時即時讀取 bv，專精加成自動生效） */
 const STAT_FX={
@@ -6090,11 +6453,11 @@ function setMythDom(){
     setT(R.En,e.name);
   }
   setT(R.El,"💎 "+getMythTierTitle(e.tier||1));R.El.style.color=getMythTierColor(e.tier||1);
-  R.Ab.innerHTML='<span class="mb" data-myth="'+b.ab+'">'+(MYTH_SIG[b.ab]||b.ab)+'</span>'+(e.abilities||[]).map(n=>{const a=AB_MAP[n];return '<span class="'+a.cls+'" data-ab="'+n+'" data-mul="'+e.abMul+'">'+gi("AB."+n,15)+n+(e.abMul>1?'×'+abMulTxt(e.abMul):'')+'</span>'}).join("");
+  R.Ab.innerHTML='<span class="mb" data-myth="'+b.ab+'">'+(MYTH_SIG[b.ab]||b.ab)+'</span>'+(e.abilities||[]).map(n=>{const a=AB_MAP[n];return '<span class="'+a.cls+'" data-ab="'+n+'" data-mul="'+e.abMul+'">'+gi("AB."+n,15)+n+(e.abMul>1?'×'+abTagTxt(e.abMul):'')+'</span>'}).join("");
   R.Ab.classList.toggle("compact",R.Ab.children.length>4);
   setCls(R.Fl,"bt-fl myth");
   setT(R.Fl,"第 "+G.floor+" 層");if(R.Goal){const ng=nextGoal();setT(R.Goal,goalShort(ng));R.Goal.title=ng}
-  R.Eh._w=R.Eg._w=null;
+  R.Eh._w=R.Eg._w=null;barSnap();
 }
 function showMythModal(name){
   ensureModals();
@@ -7251,9 +7614,16 @@ function grantFreeBless(rar,src){
   if(!G._pending&&(G._duoQueue||G.uq.length)){G.paused=true;G._pending=true;const g=G;setTimeout(()=>{if(G!==g)return;g._pending=false;if(!g.closed&&!g.over)nextUnlock()},500)}
   updateLegendBar();
 }
+/* Pom 用不到（祝福都升滿）：每顆自動換成冥晶 */
+function pomOverflow(){
+  if(!G||!(G.pomQueue>0)||getUpgradableBlessings().length)return;
+  const n=G.pomQueue,m=keepGift()*n;G.pomQueue=0;G.ming+=m;G.totalMing+=m;
+  log("⬆️ 祝福都已升滿，"+n+" 顆 Pom 自動換成 💠 "+fmt(m)+" 冥晶","legend");fx("p","💠+"+fmt(m),"ming");updateLegendBar();
+}
 function afterPicks(){
   if(G&&!G.closed&&!G.over&&((G.uq&&G.uq.length)||(G._duoQueue&&G._duoQueue.length))){nextUnlock();return}
   if(!G||G.closed||G.over)return;
+  pomOverflow();
   if(G.pomQueue>0&&getUpgradableBlessings().length){G.pomQueue--;showPomPick(false);return}
   G._pomOpen=false;
   if(uiBlocked())return;
@@ -7381,7 +7751,8 @@ function showLegendModal(k){
   if(k==="cat:solo"){show("✨ 神格覺醒（"+G.p.solos.length+" / "+SOLOS.length+"）",G.p.solos.map(x=>{const o=SOLOS.find(y=>y.k===x);return"<b>"+o.n+"</b>　"+o.d}).join("<br>"),1);return}
   if(k==="oracle"){const o=ORACLES.find(x=>x.k===G.oracle);if(o)show(o.ic+" 今日神諭：「"+o.n+"」",o.d+"\n\n每天全公司都是同一個神諭，明天會換。今天第一次打到第 50 層有每日獎勵。");return}
   if(k==="art"){show("🗿 禁忌神器（"+G.arts.length+" / "+ART_MAX+"）",G.arts.map(a=>{const x=ARTMAP[a];return artImg(a,32)+" <b>"+x.n+"</b><br>✅ "+x.d+"<br>⚠️ "+x.c}).join("<br><br>"),1);return}
-  if(k==="pact"){show("📜 懲罰契約",PACTS.filter(x=>pactLv(x.k)).map(x=>pactImg(x.k,32)+" <b>"+x.n+" ×"+pactLv(x.k)+"</b><br>⚠️ "+x.d+"（×"+pactLv(x.k)+"）<br>🎁 "+x.r+"（×"+pactLv(x.k)+"）").join("<br><br>"),1);return}
+  if(k==="heat"){show("🔥 熱度","這場接下誓約累積的熱度："+(G.heat||0)+"<br>排行榜上同樣層數時，熱度高的排前面。",1);return}
+  if(k==="pact"){const nx=Math.floor((G.floor-1)/50)*50+50;show("📜 懲罰契約",PACTS.filter(x=>pactLv(x.k)).map(x=>{const l=pactLv(x.k);return pactImg(x.k,32)+" <b>"+x.n+" 第 "+l+" 級</b><br>⚠️ "+x.ld[l-1]+"<br>🎁 "+x.lr[l-1]+"<br>⚔️ 攻擊 +"+Math.round((G.pactAtk||0)*100)+"%"}).join("<br><br>")+"<br><br>⏳ 到第 "+nx+" 層後解除　🔥熱度 "+(G.heat||0),1);return}
   if(k==="ks"){const x=KSMAP[G.keepsake];if(x)show(x.ic+" 信物：「"+x.n+"」",x.d+"\n\n開場選的信物，整場戰鬥都有效。");return}
   if(k.indexOf("god:")===0){
     const g=k.slice(4),c=godCount(g),t=masteryTier(g),mb=masteryBonus(g);
@@ -7525,7 +7896,7 @@ function updateLegendBar(){
   Object.keys(p.blessings).forEach(k=>{const b=BMAP[k];if(!b)return;out.push('<div class="lb'+(isSealed(k)?' seal':'')+'" data-lk="'+k+'" style="border-color:'+col[p.blessings[k]]+'">'+getGodIcon(b.god,22)+(bLv(k)>1?'<i class="lv">'+bLv(k)+'</i>':'')+'</div>')});
   const nbl=Object.keys(p.blessings).length;if(nbl)out.unshift('<div class="lbc cap" data-lk="__tog">'+uiIcon("scroll",14)+' '+nbl+'/'+blessCap()+'</div>');
   if(G.oracle){const o=ORACLES.find(x=>x.k===G.oracle);if(o)out.unshift('<div class="lbc oracle" data-lk="oracle">'+oracleIc(o,14)+' '+o.n+'</div>')}
-  if(pactTotal())out.unshift('<div class="lbc pact" data-lk="pact">'+PACTS.filter(x=>pactLv(x.k)).map(x=>pactImg(x.k,14)+(pactLv(x.k)>1?pactLv(x.k):"")).join(" ")+'</div>');
+  if(pactTotal()||G.heat)out.unshift('<div class="lbc pact" data-lk="'+(pactTotal()?"pact":"heat")+'">'+PACTS.filter(x=>pactLv(x.k)).map(x=>pactImg(x.k,14)+pactLv(x.k)).join(" ")+(G.heat?" 🔥"+G.heat:"")+'</div>');
   if(G.arts&&G.arts.length)out.unshift('<div class="lbc art" data-lk="art">'+uiIcon("art",14)+' '+G.arts.map(k=>artImg(k,14)).join("")+'</div>');
   if(G.keepsake&&KSMAP[G.keepsake])out.unshift('<div class="lbc ks" data-lk="ks">'+ksImg(G.keepsake,14)+' '+KSMAP[G.keepsake].n+'</div>');
   if(G.pomQueue>0)out.push('<div class="lbc pom">'+uiIcon("pom",14)+' Pom ×'+G.pomQueue+'</div>');
@@ -7540,7 +7911,14 @@ function updateLegendBar(){
   R.LegendBar.innerHTML=chips.length?chips.join(""):'<span class="lb-empty">第 50 層起每 15 層獲得祝福・本場眾神：'+godsText()+'</span>';
   const ms=[];
   GOD_KEYS.forEach(g=>{const c=godCount(g);if(c<=0)return;const t=masteryTier(g);ms.push('<span class="m'+(t>=2?' max':t>=1?' on':'')+'" data-lk="god:'+g+'">'+getGodIcon(g,16)+'<b>'+c+'</b>'+(t>=1?'<i>'+MASTERY[t].n+'</i>':'')+'</span>')});
+  legendOvf();
   if(R.Mastery)R.Mastery.innerHTML=open&&nb?'<div class="bt-drawer-bl">'+lbs.join("")+'</div><div class="bt-drawer-m">'+ms.join("")+'</div>':"";
+}
+/* 上方標籤列放不下時，右邊淡出，提示可以往右滑 */
+function legendOvf(){
+  const b=R&&R.LegendBar;if(!b)return;
+  if(!b._ovfBind){b._ovfBind=1;b.addEventListener("scroll",()=>b.classList.toggle("end",b.scrollLeft+b.clientWidth>=b.scrollWidth-4),{passive:true})}
+  requestAnimationFrame(()=>{b.classList.toggle("ovf",b.scrollWidth>b.clientWidth+2);b.classList.toggle("end",b.scrollLeft+b.clientWidth>=b.scrollWidth-4)});
 }
 function statRow(k,v){return '<div class="bt-stat"><span>'+k+'</span><b>'+v+'</b></div>'}
 function showStatModal(){
@@ -7554,7 +7932,7 @@ function showStatModal(){
     statRow(uiIcon("glass",15)+" 攻擊間隔",p.atkInt.toFixed(2)+"s")+
     statRow("🌀 技能 CD",p.skillBase.toFixed(1)+"s")+
     statRow("🗡️ 穿透",Math.round(Math.min(0.8,p.pierceBase+floorPierce(G.floor))*100)+"%")+
-    statRow("⚡ 連擊加成","+"+Math.round(comboBonus()*100)+"%（上限 "+Math.round(p.comboMax*100*(hasLegend("legend4")?2:1))+"%）")+
+    statRow("⚡ 連擊加成","+"+Math.round(comboBonus()*100)+"%（超過 +"+COMBO_SOFT*100+"% 的部分減半，最多 +"+COMBO_HARD*100+"%）")+
     statRow("💢 奧義傷害","×"+p.ougiMul.toFixed(1))+
     statRow("🛡️ 護盾",fmt(p.shield))+statRow("🎁 信物",ksName(G))+statRow("🏛️ 本場眾神",godsText())+statRow("💥 最高單擊",fmt(G.st.maxHit||0)+"（歷史 "+fmt(Math.max(G._hitBest||0,G.st.maxHit||0))+"）")+statRow("🧭 目前流派",buildIcon(G,18)+" "+buildName(G))+statRow("🌟 祝福",Object.keys(p.blessings).length+" / "+blessCap())+statRow("⬆️ Pom 待用",G.pomQueue||0)+
     statRow("🌟 雙重祝福",p.duos.length+" / "+DUOS.length)+
@@ -7769,7 +8147,8 @@ function rkDetail(s){
   const eq=[];
   if(s.k&&KSMAP[s.k])eq.push(tag("ks",s.k,ksImg(s.k,20),"信物・"+KSMAP[s.k].n));
   (s.ar||[]).forEach(k=>{if(ARTMAP[k])eq.push(tag("ar",k,artImg(k,20),ARTMAP[k].n))});
-  Object.keys(s.pa||{}).forEach(k=>{if(PACTMAP[k]&&s.pa[k])eq.push(tag("pa",k,pactImg(k,20),PACTMAP[k].n+" ×"+s.pa[k]))});
+  Object.keys(s.pa||{}).forEach(k=>{if(PACTMAP[k]&&s.pa[k])eq.push(tag("pa",k,pactImg(k,20),PACTMAP[k].n+" 第"+s.pa[k]+"級"))});
+  if(s.ht)eq.push('<span class="rk-tag">🔥 熱度 '+s.ht+'</span>');
   h+=sec("信物・神器・誓約",eq.length?'<div class="rk-tags">'+eq.join("")+'</div>':'<div class="rk-none">沒有</div>');
   const mir=[];
   MIR_CORE.forEach(x=>{const l=s.mc&&s.mc[x.id];if(l)mir.push('<span class="rk-tag">'+mirIcon(x,18)+'<span>'+x.n+' Lv.'+l+'</span></span>')});
@@ -7789,7 +8168,7 @@ function rkRender(top){
     body+=rkHot(d.hot);
     body+=list.length?'<div class="rk-list">'+list.map((x,i)=>{
       const key=tab+":"+x.n,open=rkOv._open===key;
-      return '<button type="button" class="rk-row'+(x.n===me?' me':'')+(open?' open':'')+'" data-rkr="'+escapeHtml(x.n)+'" aria-expanded="'+open+'"><span class="rk-no">'+rkMedal(i)+'</span><span class="rk-n">'+escapeHtml(x.n)+'<small>'+escapeHtml(x.h||"")+(x.lv?' Lv.'+x.lv:'')+(x.s===false?'・舊紀錄':'')+'</small></span><b class="rk-f">'+x.f+' 層</b><i class="rk-chev">'+(open?'▴':'▾')+'</i></button>'+(open?rkDetail(rkOv._snap[key]):"");
+      return '<button type="button" class="rk-row'+(x.n===me?' me':'')+(open?' open':'')+'" data-rkr="'+escapeHtml(x.n)+'" aria-expanded="'+open+'"><span class="rk-no">'+rkMedal(i)+'</span><span class="rk-n">'+escapeHtml(x.n)+'<small>'+escapeHtml(x.h||"")+(x.lv?' Lv.'+x.lv:'')+(x.s===false?'・舊紀錄':'')+'</small></span><b class="rk-f">'+x.f+' 層'+(x.ht?'<em class="rk-ht">🔥'+x.ht+'</em>':'')+'</b><i class="rk-chev">'+(open?'▴':'▾')+'</i></button>'+(open?rkDetail(rkOv._snap[key]):"");
     }).join("")+'</div>':'<div class="rk-empty">'+(tab==="week"?'本週還沒有人上榜，快去搶第一！':'還沒有人上榜')+'</div>';
   }
   body+='<div class="rk-note">只要破自己的紀錄就會自動上傳成績和當下的配置。本週排行每週一重新開始。</div>';
@@ -8245,7 +8624,7 @@ function snapOf(g){
   const ms={};Object.keys(g.mirSide||{}).forEach(k=>{const sd=g.mirSide[k],row=MIRMAP[k];if(row)ms[k]=sd+((g.mir&&g.mir[row[sd].id])||0)});
   const d=new Date();
   return JSON.stringify({a:Math.round(p.atk*(1+p.baseAtkBonus)*p.permAtk*(p.wrathAtk||1)),h:Math.round(p.maxHp),d:Math.round(p.def),c:+(p.crit||0).toFixed(3),cd:+(p.critDmg||0).toFixed(2),i:+(p.atkInt||1).toFixed(2),
-    b:buildName(g),bi:buildInfo(g).i,g:gods,k:g.keepsake||"",ar:(g.arts||[]).slice(),pa:Object.assign({},g.pact||{}),f:Math.max(0,g.floor-1),
+    b:buildName(g),bi:buildInfo(g).i,g:gods,k:g.keepsake||"",ar:(g.arts||[]).slice(),pa:Object.assign({},g.pact||{}),ht:g.heat||0,f:Math.max(0,g.floor-1),
     bl:Object.keys(p.blessings).map(k=>k+"."+Math.max(0,RARITY_KEYS.indexOf(p.blessings[k]))+"."+bLv(k)),du:p.duos.slice(),lg:p.legends.slice(),so:p.solos.slice(),
     lgd:(p.legendaries||[]).map(x=>x.n),mc,ms,hit:Math.round((g.st&&g.st.maxHit)||0),mx:g.maxCombo||0,
     hero:p.name||"",lv:p.lv||0,t:Math.round(g.time||0),dt:(d.getMonth()+1)+"/"+d.getDate()});
@@ -8294,12 +8673,12 @@ function ghostGods(s){
 }
 /* ===== 百變怪試煉：限時、評價、獎勵 ===== */
 const GHOST_T=45;
-/* 先抓好「本週前 10 名」裡某位同事的配置，百變怪出現時就變成他 */
+/* 先抓好「本週前 5 名」裡某位同事的配置，百變怪出現時就變成他 */
 function ghostFetch(g){
   try{
     rankCall({action:"rank"},r=>{
       if(G!==g||g.closed||!r||!r.ok)return;
-      const me=getNick(),top=(r.week||[]).slice(0,10),c=top.filter(x=>x.s!==false&&x.n!==me);
+      const me=getNick(),top=(r.week||[]).slice(0,5),c=top.filter(x=>x.s!==false&&x.n!==me);
       if(!c.length)return;
       const pick=c[Math.floor(Math.random()*c.length)],rank=top.indexOf(pick)+1;
       rankCall({action:"snap",nick:pick.n,w:"week"},r2=>{
@@ -8344,6 +8723,7 @@ function ghostOnHit(e,d){
   if(z>0&&Math.random()<z&&!G.over){const n=1+Math.floor(Math.random()*3),zd=Math.round(d*.3*n);if(zd>0){hurtP(zd,false,{src:e.name+" 的連鎖閃電"});log("⚡ 連鎖閃電 ×"+n+" "+fmt(zd),"e")}}
 }
 /* 用同事的快照做出幽靈：數值換算到你目前的樓層，祝福照他當時的配置鏡像成能力，整體再弱化 */
+const GHOST_RANK_UP=[0,.2,.15,.1,.05,0];
 function genGhost(f,gh){
   const s=gh.snap,p=G.p;
   G._noSpecial=true;let e;try{e=genEnemy(f)}finally{G._noSpecial=false}
@@ -8361,6 +8741,9 @@ function genGhost(f,gh){
   const _gb=b.hp*BAL.bossHp*1.2*(1+.04*lg.length);
   let hp=selfMix(_gb,Math.max(estDps(f,b.def*BAL.bossDef)*18*(1+.04*lg.length),_gb));
   let atk=selfMix(b.atk*BAL.bossAtk,p.maxHp*.075*(100+(p.def0||p.def))/100)*(1+.03*Math.min(5,du.length));
+  /* 名次加成：本週第 1 名 +20%、第 2 名 +15%、第 3 名 +10%、第 4 名 +5%、第 5 名 +0% */
+  const rb=gh.other?(GHOST_RANK_UP[gh.rank]||0):0;
+  hp*=1+rb;atk*=1+rb;
   const mul=abilityMul(f)*.9*qa;
   const abs=[];
   gods.forEach(g=>{const mr=GHOST_MIRROR[g]||[];if(mr[0]&&!abs.includes(mr[0]))abs.push(mr[0])});
@@ -8383,7 +8766,7 @@ function genGhost(f,gh){
 function ghostInfoHtml(e){
   const gh=e.ghost,RN=["普通","稀有","史詩","英雄"];
   let h='<div class="gh-info">';
-  h+='<div class="gh-sub">'+(gh.other?'本週第 '+gh.rank+' 名・':'')+escapeHtml(gh.b||"")+'・第 '+gh.f+' 層的'+escapeHtml(gh.n)+'</div>';
+  h+='<div class="gh-sub">'+(gh.other?'本週第 '+gh.rank+' 名'+(GHOST_RANK_UP[gh.rank]?'（強度 +'+Math.round(GHOST_RANK_UP[gh.rank]*100)+'%）':'')+'・':'')+escapeHtml(gh.b||"")+'・第 '+gh.f+' 層的'+escapeHtml(gh.n)+'</div>';
   gh.gods.forEach(g=>{
     const list=gh.by[g].filter(x=>x[0]&&BMAP[x[0]]).map(([k,r,lv])=>BMAP[k].n+'<small>（'+RN[r]+(lv>1?' Lv.'+lv:'')+'）</small>').join("、");
     const mr=(GHOST_MIRROR[g]||[]).filter((a,i)=>(i===0||gh.by[g].length>=4)&&e.abilities.includes(a));
@@ -8566,6 +8949,9 @@ const ART_MAX=3;
    ============================================================ */
 const _hp=(p,m)=>{const o=p.maxHp;p.maxHp=Math.round(p.maxHp*m);if(m>1)p.hp+=p.maxHp-o;else p.hp=Math.min(p.hp,p.maxHp)};
 const _pc=x=>Math.round(x*100)+"%";
+/* 照敵人血量 % 算的神器傷害：每次最多等於你攻擊力的 8 倍（怪物血量會隨樓層暴增，不設上限後期會一招通殺） */
+const ART_PCT_CAP=8;
+function pctCap(x){let a=0;try{a=curAtk()}catch(e){return x}return Math.min(x,Math.max(1,a)*ART_PCT_CAP)}
 const ARTS=[
  {k:"glass",ic:"🗡️",n:"玻璃大砲",v:{atk:1.7,hp:.6},d:v=>"攻擊 ×"+v.atk,c:v=>"最大生命 ×"+v.hp,
   f(p){p.atk=Math.round(p.atk*this.v.atk);_hp(p,this.v.hp)}},
@@ -8581,8 +8967,8 @@ const ARTS=[
   hurtOut(){return 1-this.v.dr},ming(){return this.v.ming}},
  {k:"berserk",ic:"🩸",n:"狂戰士之心",v:{max:2.5},d:v=>"生命越低攻擊越高（空血時 ×"+v.max+"）",c:()=>"無法獲得護盾",need:6,
   noShield:true,atk(p,e,hpr){return 1+(this.v.max-1)*Math.max(0,1-hpr)}},
- {k:"wish",ic:"💀",n:"亡者之願",v:{cut:.1,cutB:.05,cost:.03},d:v=>"每層開場，敵人直接損失 "+_pc(v.cut)+" 血量（BOSS／神話 "+_pc(v.cutB)+"）",c:v=>"每層開場失去 "+_pc(v.cost)+" 最大生命（不會致死）",
-  fo:90,onFloor(p,e){const cut=Math.round(e.maxHp*(e.myth||e.boss?this.v.cutB:this.v.cut));e.hp=Math.max(1,e.hp-cut);p.hp=Math.max(1,p.hp-Math.round(p.maxHp*this.v.cost))}},
+ {k:"wish",ic:"💀",n:"亡者之願",v:{cut:.1,cutB:.05,cost:.03},d:v=>"每層開場，敵人直接損失 "+_pc(v.cut)+" 血量（BOSS／神話 "+_pc(v.cutB)+"；最多攻擊 ×"+ART_PCT_CAP+"）",c:v=>"每層開場失去 "+_pc(v.cost)+" 最大生命（不會致死）",
+  fo:90,onFloor(p,e){const cut=Math.round(pctCap(e.maxHp*(e.myth||e.boss?this.v.cutB:this.v.cut)));e.hp=Math.max(1,e.hp-cut);p.hp=Math.max(1,p.hp-Math.round(p.maxHp*this.v.cost))}},
  {k:"slayer",ic:"🔱",n:"弒神之刃",v:{myth:1.6},d:v=>"對神話 BOSS 傷害 ×"+v.myth,c:()=>"無（對菁英、BOSS 不再減傷）",
   atk(p,e){return e.myth?this.v.myth:1}},
  {k:"coin",ic:"🌗",n:"命運硬幣",v:{p:.7,lose:.05},d:v=>"打怪掉冥晶時，"+_pc(v.p)+" 機率變 2 倍",c:v=>"另外 "+_pc(1-v.p)+" 這次沒掉，還失去這場撿到冥晶的 "+_pc(v.lose)+"；不再出現神秘寶箱",need:1,
@@ -8610,8 +8996,8 @@ const ARTS=[
   forgeStart(){return this.v.start},boom(){return this.v.boom},fo:30,onFloor(p){p.hp=Math.max(1,p.hp-Math.round(p.maxHp*this.v.cost))}},
  {k:"eternal",ic:"🔥",n:"永恆之火",v:{fire:2,drain:.005,min:.1},d:v=>"火焰傷害 ×"+v.fire+"，火焰不會熄滅",c:v=>"每秒失去 "+(v.drain*100)+"% 生命（不會低於 "+_pc(v.min)+"）",need:4,
   fire(){return this.v.fire},fireEternal:true,tickAll(p,dt){if(p.hp>p.maxHp*this.v.min)p.hp=Math.max(p.maxHp*this.v.min,p.hp-p.maxHp*this.v.drain*dt)}},
- {k:"chariot",ic:"☀️",n:"太陽神車",v:{light:2,every:10,pct:.03,heal:.75},d:v=>"光明傷害 ×"+v.light+"，每 "+v.every+" 次攻擊造成敵人 "+_pc(v.pct)+" 最大生命傷害",c:v=>"治療效果 -"+_pc(1-v.heal),need:5,
-  heal(){return this.v.heal},light(){return this.v.light},onAttack(p){if((p.chariotN=(p.chariotN||0)+1)>=this.v.every){p.chariotN=0;xdmg(G.e.maxHp*this.v.pct,"light")}}},
+ {k:"chariot",ic:"☀️",n:"太陽神車",v:{light:2,every:10,pct:.03,heal:.75},d:v=>"光明傷害 ×"+v.light+"，每 "+v.every+" 次攻擊造成敵人 "+_pc(v.pct)+" 最大生命傷害（最多攻擊 ×"+ART_PCT_CAP+"）",c:v=>"治療效果 -"+_pc(1-v.heal),need:5,
+  heal(){return this.v.heal},light(){return this.v.light},onAttack(p){if((p.chariotN=(p.chariotN||0)+1)>=this.v.every){p.chariotN=0;xdmg(pctCap(G.e.maxHp*this.v.pct),"light")}}},
  {k:"chain",ic:"🔗",n:"天后之鏈",v:{link:20,atk:.03},d:v=>"連結上限 +"+v.link+"，每層連結攻擊再 +"+_pc(v.atk),c:()=>"連結不再提供減傷",need:6,
   link(){return this.v.link},linkAtk(){return this.v.atk},noLinkDr:true},
  {k:"voideye",ic:"👁️",n:"深淵之瞳",v:{tru:.2,hp:.8},d:v=>_pc(v.tru)+" 的傷害無視防禦",c:v=>"最大生命 ×"+v.hp,need:5,
@@ -8642,21 +9028,21 @@ const ARTS=[
   f(p){_hp(p,this.v.hpMax)},onDeath(p){if(p.phoenixUsed)return false;p.phoenixUsed=true;p.hp=Math.round(p.maxHp*this.v.hp);p.ddInvT=this.v.inv;log("🪽 鳳凰之羽：浴火重生！回復 "+_pc(this.v.hp)+" 生命，無敵 "+this.v.inv+" 秒","legend");fx("p","重生","legend");screenFx("duo");banner("🪽 鳳凰重生","duo");return true}},
  {k:"twheel",ic:"🕰️",n:"時光之輪",v:{every:45,spd:1.3,hp:.9},d:v=>"每 "+v.every+" 秒，技能與奧義冷卻直接歸零",c:v=>"攻擊間隔 +"+_pc(v.spd-1)+"，最大生命 ×"+v.hp,need:10,
   f(p){p.atkInt*=this.v.spd;_hp(p,this.v.hp)},to:1,tick(p,dt){p.twT=(p.twT||0)+dt;if(p.twT>=this.v.every){p.twT=0;p.skillCd=0;p.ougiCd=0;log("🕰️ 時光之輪：技能、奧義冷卻歸零","legend");fx("p","🕰️ 冷卻歸零","combo")}}},
- {k:"hades_key",ic:"🗝️",n:"黑帝斯的鑰匙",v:{every:10,max:10},d:v=>"每 "+v.every+" 層獲得 1 個稀有以上的祝福（不佔上限，本場最多 "+v.max+" 個）",c:()=>"無",boss:"黑帝斯",
+ {k:"hades_key",ic:"🗝️",n:"黑帝斯的鑰匙",v:{every:10,max:10,cap:2},d:v=>"每 "+v.every+" 層獲得 1 個稀有以上的祝福（不佔上限，本場最多 "+v.max+" 個）",c:v=>"祝福上限 12 → "+(12-v.cap),boss:"黑帝斯",cap(){return -this.v.cap},
   fo:65,onFloor(p){if(G.floor%this.v.every===0&&(p.keyN||0)<this.v.max){p.keyN=(p.keyN||0)+1;grantFreeBless("rare+","黑帝斯的鑰匙")}}},
- {k:"nyx_veil",ic:"🌑",n:"倪克斯的面紗",v:{every:10,dur:4,atk:2},d:v=>"每 "+v.every+" 秒進入夜幕 "+v.dur+" 秒：無敵、攻擊 ×"+v.atk+"、技能與奧義冷卻加倍快",c:()=>"無",boss:"倪克斯",
+ {k:"nyx_veil",ic:"🌑",n:"倪克斯的面紗",v:{every:10,dur:4,atk:2,hurt:1.25},d:v=>"每 "+v.every+" 秒進入夜幕 "+v.dur+" 秒：無敵、攻擊 ×"+v.atk+"、技能與奧義冷卻加倍快",c:v=>"夜幕以外，受到敵人的傷害 +"+_pc(v.hurt-1),boss:"倪克斯",hurtIn(){return G.p&&G.p.veilT>0?1:this.v.hurt},
   atk(p){return p.veilT>0?this.v.atk:1},to:4,tick(p,dt){p.veilCd=(p.veilCd||0)+dt;if(p.veilCd>=this.v.every){p.veilCd=0;p.veilT=this.v.dur;p.ddInvT=Math.max(p.ddInvT||0,this.v.dur);log("🌑 倪克斯的面紗：進入夜幕 "+this.v.dur+" 秒","legend");fx("p","夜幕","legend")}}},
- {k:"frieren_book",ic:"📕",n:"芙莉蓮的魔法書",v:{every:10,pct:.3,boss:.5,hp:.9},d:v=>"每 "+v.every+" 秒施放殺人魔法：敵人 "+_pc(v.pct)+" 最大生命傷害（無視防禦與韌性上限；BOSS、神話 "+_pc(v.pct*v.boss)+"）",c:v=>"最大生命 ×"+v.hp,boss:"芙莉蓮",
-  f(p){_hp(p,this.v.hp)},to:5,tick(p,dt){if(!(G.e&&G.e.hp>0))return;p.fbT=(p.fbT||0)+dt;if(p.fbT>=this.v.every){p.fbT=0;const x=G.e.maxHp*this.v.pct*(G.e.myth||G.e.boss?this.v.boss:1);log("📕 殺人魔法！","legend");banner("📕 殺人魔法","legend");xdmg(x,"ougi",true);if(G.trans>0||G.over)return true}}},
- {k:"tabby_curse",ic:"😾",n:"高速婆婆的詛咒",v:{cut:.25,cutB:.15,cost:.03},d:v=>"每層開場，敵人失去 "+_pc(v.cut)+" 生命（BOSS、神話 "+_pc(v.cutB)+"）",c:v=>"每層開場失去 "+_pc(v.cost)+" 最大生命（不會致死）",boss:"高速婆婆",
-  fo:40,onFloor(p,e){e.hp=Math.max(1,e.hp-Math.round(e.maxHp*(e.myth||e.boss?this.v.cutB:this.v.cut)));p.hp=Math.max(1,p.hp-Math.round(p.maxHp*this.v.cost))}},
- {k:"fern_bullet",ic:"🎯",n:"菲倫的破盾彈",v:{mul:3,cur:.2,spd:1.05},d:v=>"攻擊無視敵人護盾；打破護盾的那一擊傷害 ×"+v.mul+"，再造成敵人當前生命 "+_pc(v.cur)+" 的傷害",c:v=>"攻擊間隔 +"+_pc(v.spd-1),boss:"菲倫",
+ {k:"frieren_book",ic:"📕",n:"芙莉蓮的魔法書",v:{every:10,pct:.3,boss:.5,hp:.9},d:v=>"每 "+v.every+" 秒施放殺人魔法：敵人 "+_pc(v.pct)+" 最大生命傷害（無視防禦；BOSS、神話 "+_pc(v.pct*v.boss)+"；最多攻擊 ×"+ART_PCT_CAP+"）",c:v=>"最大生命 ×"+v.hp,boss:"芙莉蓮",
+  f(p){_hp(p,this.v.hp)},to:5,tick(p,dt){if(!(G.e&&G.e.hp>0))return;p.fbT=(p.fbT||0)+dt;if(p.fbT>=this.v.every){p.fbT=0;const x=pctCap(G.e.maxHp*this.v.pct*(G.e.myth||G.e.boss?this.v.boss:1));log("📕 殺人魔法！","legend");banner("📕 殺人魔法","legend");xdmg(x,"ougi",true);if(G.trans>0||G.over)return true}}},
+ {k:"tabby_curse",ic:"😾",n:"高速婆婆的詛咒",v:{cut:.25,cutB:.15,cost:.08},d:v=>"每層開場，敵人失去 "+_pc(v.cut)+" 生命（BOSS、神話 "+_pc(v.cutB)+"；最多攻擊 ×"+ART_PCT_CAP+"）",c:v=>"每層開場失去 "+_pc(v.cost)+" 最大生命（不會致死）",boss:"高速婆婆",
+  fo:40,onFloor(p,e){e.hp=Math.max(1,e.hp-Math.round(pctCap(e.maxHp*(e.myth||e.boss?this.v.cutB:this.v.cut))));p.hp=Math.max(1,p.hp-Math.round(p.maxHp*this.v.cost))}},
+ {k:"fern_bullet",ic:"🎯",n:"菲倫的破盾彈",v:{mul:3,cur:.2,spd:1.05},d:v=>"攻擊無視敵人護盾；打破護盾的那一擊傷害 ×"+v.mul+"，再造成敵人當前生命 "+_pc(v.cur)+" 的傷害（最多攻擊 ×"+ART_PCT_CAP+"）",c:v=>"攻擊間隔 +"+_pc(v.spd-1),boss:"菲倫",
   f(p){p.atkInt*=this.v.spd},pierceShield:true},
  {k:"ares_spear",ic:"🗡️",n:"戰神之矛",v:{atk:1.4,ougi:2,per:.03,max:1,hp:.85},d:v=>"攻擊 ×"+v.atk+"，奧義傷害 ×"+v.ougi+"；用奧義擊殺敵人，本場攻擊永久 +"+_pc(v.per)+"（最多 +"+_pc(v.max)+"）",c:v=>"最大生命 ×"+v.hp,boss:"阿瑞斯",
   f(p){_hp(p,this.v.hp)},atk(p){return this.v.atk*(1+(p.spearAtk||0))},ougi(){return this.v.ougi},onKill(p){if(G.lastKind==="ougi")p.spearAtk=Math.min(this.v.max,(p.spearAtk||0)+this.v.per)}},
- {k:"scythe",ic:"🌒",n:"死神之鐮",v:{low:.3,atk:2,every:5,pct:.1,heal:.1,healIn:.85},d:v=>"生命低於 "+_pc(v.low)+" 時攻擊 ×"+v.atk+"，且每 "+v.every+" 秒造成敵人當前生命 "+_pc(v.pct)+" 的傷害；擊殺回復 "+_pc(v.heal)+" 生命",c:v=>"治療量 -"+_pc(1-v.healIn),boss:"塔納托斯",
+ {k:"scythe",ic:"🌒",n:"死神之鐮",v:{low:.3,atk:2,every:5,pct:.1,heal:.1,healIn:.85},d:v=>"生命低於 "+_pc(v.low)+" 時攻擊 ×"+v.atk+"，且每 "+v.every+" 秒造成敵人當前生命 "+_pc(v.pct)+" 的傷害（最多攻擊 ×"+ART_PCT_CAP+"）；擊殺回復 "+_pc(v.heal)+" 生命",c:v=>"治療量 -"+_pc(1-v.healIn),boss:"塔納托斯",
   atk(p,e,hpr){return hpr<this.v.low?this.v.atk:1},heal(){return this.v.healIn},onKill(p){p.hp=Math.min(p.maxHp,p.hp+p.maxHp*this.v.heal*survivalMul())},
-  to:2,tick(p,dt){if(!(G.e&&G.e.hp>0&&p.hp/p.maxHp<this.v.low))return;p.scyT=(p.scyT||0)+dt;if(p.scyT>=this.v.every){p.scyT=0;fx("p","🌒 死神","legend");xdmg(G.e.hp*this.v.pct,"crit");if(G.trans>0||G.over)return true}}},
+  to:2,tick(p,dt){if(!(G.e&&G.e.hp>0&&p.hp/p.maxHp<this.v.low))return;p.scyT=(p.scyT||0)+dt;if(p.scyT>=this.v.every){p.scyT=0;fx("p","🌒 死神","legend");xdmg(pctCap(G.e.hp*this.v.pct),"crit");if(G.trans>0||G.over)return true}}},
  {k:"aizen_hogyoku",ic:"🔮",n:"幻覺主宰的崩玉碎片",v:{every:10,per:.08,max:5,ch:.15,mul:2.5,hp:.8},d:v=>"同一層每戰鬥 "+v.every+" 秒，攻擊 +"+_pc(v.per)+"（最多 "+v.max+" 層，換層重置）；技能 "+_pc(v.ch)+" 機率降下黑棺：追加攻擊 "+_pc(v.mul)+" 的無視防禦傷害，並定住敵人 1 秒",c:v=>"最大生命 ×"+v.hp,boss:"藍染惣右介",
   f(p){_hp(p,this.v.hp)},atk(){return 1+this.v.per*Math.min(this.v.max,Math.floor((G.floorTime||0)/this.v.every))},
   onSkill(){if(Math.random()>=this.v.ch)return;const g=G,mul=this.v.mul;setTimeout(()=>{if(G!==g||g.over||g.closed||g.trans>0||!g.e||g.e.hp<=0)return;log("🕳️ 黑棺！","legend");fx("e","🕳️ 黑棺","legend");xdmg(curAtk()*mul,"crit");if(G.e&&G.e.hp>0&&G.trans<=0)tryStop(1,false)},150)}},
@@ -8669,10 +9055,10 @@ const ARTS=[
  {k:"saitama_flyer",ic:"🛍️",n:"超市特賣傳單",v:{atk:1.3,cd:.1,ko:.01,koB:.05,after:15,per:.1,min:.5},d:v=>"攻擊 ×"+v.atk+"；擊殺非 BOSS 時 "+_pc(v.cd)+" 機率技能冷卻歸零；普攻 "+_pc(v.ko)+" 機率「一拳」：一般怪直接擊倒（菁英、BOSS、神話改為 "+_pc(v.koB)+" 最大生命）",c:v=>"暴擊不再有額外傷害；同一層超過 "+v.after+" 秒後，攻擊每秒 -"+_pc(v.per)+"（最多 -"+_pc(v.min)+"）",boss:"埼玉",
   noCritDmg:true,atk(){const t=Math.max(0,(G.floorTime||0)-this.v.after);return this.v.atk*(1-Math.min(this.v.min,t*this.v.per))},
   onKill(p,e){if(!e.boss&&!e.myth&&Math.random()<this.v.cd){p.skillCd=0;fx("p","🛍️ 冷卻歸零","combo")}},
-  onAttack(){const e=G.e;if(G.lastKind!=="basic"||!e||e.hp<=0||Math.random()>=this.v.ko)return;log("👊 一拳！","legend");fx("e","👊 一拳","ougi");if(!e.boss&&!e.elite&&!e.myth)xdmg(e.hp*10+1,"ougi",true);else xdmg(e.maxHp*this.v.koB,"ougi",true)}},
- {k:"zero_mask",ic:"🎭",n:"支配皇帝的 Zero 黑色面具",v:{every:15,sil:2,pct:.06,pctB:.02,inv:2,cd:.4,heal:.7},d:v=>"每 "+v.every+" 秒對敵人下達 Geass：定住 "+v.sil+" 秒並自殘 "+_pc(v.pct)+" 最大生命（BOSS、神話 "+_pc(v.pctB)+"）；施放奧義時無敵 "+v.inv+" 秒；暴擊傷害倍率 +"+v.cd,c:v=>"治療量 -"+_pc(1-v.heal),boss:"魯路修",
+  onAttack(){const e=G.e;if(G.lastKind!=="basic"||!e||e.hp<=0||Math.random()>=this.v.ko)return;log("👊 一拳！","legend");fx("e","👊 一拳","ougi");if(!e.boss&&!e.elite&&!e.myth)xdmg(e.hp*10+1,"ougi",true);else xdmg(pctCap(e.maxHp*this.v.koB),"ougi",true)}},
+ {k:"zero_mask",ic:"🎭",n:"支配皇帝的 Zero 黑色面具",v:{every:15,sil:2,pct:.06,pctB:.02,inv:2,cd:.4,heal:.7},d:v=>"每 "+v.every+" 秒對敵人下達 Geass：定住 "+v.sil+" 秒並自殘 "+_pc(v.pct)+" 最大生命（BOSS、神話 "+_pc(v.pctB)+"；最多攻擊 ×"+ART_PCT_CAP+"）；施放奧義時無敵 "+v.inv+" 秒；暴擊傷害倍率 +"+v.cd,c:v=>"治療量 -"+_pc(1-v.heal),boss:"魯路修",
   heal(){return this.v.heal},critDmg(c){return c+this.v.cd},onOugi(p){p.ddInvT=Math.max(p.ddInvT||0,this.v.inv);fx("p","🛡️ 絕對守護","legend")},
-  to:6,tick(p,dt){if(!(G.e&&G.e.hp>0))return;p.zmT=(p.zmT||0)+dt;if(p.zmT>=this.v.every){p.zmT=0;const e=G.e;log("👁️ Geass：「給我自殘！」","legend");fx("e","👁️ Geass","legend");tryStop(this.v.sil,false);xdmg(e.maxHp*(e.boss||e.myth?this.v.pctB:this.v.pct),"legend",true);if(G.trans>0||G.over)return true}}},
+  to:6,tick(p,dt){if(!(G.e&&G.e.hp>0))return;p.zmT=(p.zmT||0)+dt;if(p.zmT>=this.v.every){p.zmT=0;const e=G.e;log("👁️ Geass：「給我自殘！」","legend");fx("e","👁️ Geass","legend");tryStop(this.v.sil,false);xdmg(pctCap(e.maxHp*(e.boss||e.myth?this.v.pctB:this.v.pct)),"legend",true);if(G.trans>0||G.over)return true}}},
  {k:"mob_uniform",ic:"🧥",n:"超能少年的鹽中學黑色制服",v:{hit:10,sk:15,inv:3,mul:2,every:20,imm:2,def:.85,spd:1.1},d:v=>"超能 100%：被打 +"+v.hit+"%、放技能 +"+v.sk+"%，滿了自動無敵 "+v.inv+" 秒、攻擊 ×"+v.mul+"；每 "+v.every+" 秒清除流血、詛咒、束縛等異常，並免疫控場 "+v.imm+" 秒",c:v=>"防禦 -"+_pc(1-v.def)+"、攻擊間隔 +"+_pc(v.spd-1),boss:"影山茂夫",
   f(p){p.def=Math.round(p.def*this.v.def);p.atkInt*=this.v.spd},atk(p){return p.psyT>0?this.v.mul:1},
   psy(p,n){if(p.psyT>0)return;p.psy=(p.psy||0)+n;if(p.psy>=100){p.psy=0;p.psyT=this.v.inv;p.ddInvT=Math.max(p.ddInvT||0,this.v.inv);log("🌀 超能 100%！無敵 "+this.v.inv+" 秒、攻擊 ×"+this.v.mul,"legend");banner("🌀 超能 100%","legend")}},
@@ -8734,17 +9120,21 @@ function showArtifacts(){
   });
 }
 
-/* ============ 懲罰契約：每 50 層可以接一個詛咒換獎勵，可疊加（每種最多 3 層） ============ */
+/* ============ 懲罰契約：每 50 層從 3 張隨機誓約選 1 張，效果只維持 50 層 ============
+   等級看樓層：150 層前第 1 級、150～299 層第 2 級、300 層起第 3 級（越深越重、獎勵越好）
+   接下時立刻：1 顆 Pom（祝福都升滿就自動換冥晶）＋這 50 層攻擊 +10%／+20%／+30%
+   每接 1 次，熱度 +等級（顯示在排行榜，同層數時熱度高的排前面）                    */
 const PACTS=[
- {k:"atk",ic:"💢",n:"狂暴之誓",d:"怪物攻擊 +12%／+20%／+25%",r:"冥晶 +40%／+70%／+90%",ld:["怪物攻擊 +12%","怪物攻擊 +20%（累計）","怪物攻擊 +25%（累計）"],lr:["冥晶 +40%","冥晶 +70%（累計）","冥晶 +90%（累計）"]},
- {k:"hp",ic:"🛡️",n:"鋼鐵之誓",d:"怪物血量 +15%／+25%／+30%",r:"每擊敗一隻 BOSS，🎲 +2／+3／+4",ld:["怪物血量 +15%","怪物血量 +25%（累計）","怪物血量 +30%（累計）"],lr:["每擊敗一隻 BOSS，🎲 +2","每擊敗一隻 BOSS，🎲 +3","每擊敗一隻 BOSS，🎲 +4"]},
- {k:"spd",ic:"⚡",n:"迅捷之誓",d:"怪物攻擊速度 +20%／+30%／+35%",r:"選祝福時多 1／2／3 個選項",ld:["怪物攻擊速度 +20%","怪物攻擊速度 +30%（累計）","怪物攻擊速度 +35%（累計）"],lr:["選祝福時多 1 個選項","選祝福時多 2 個選項","選祝福時多 3 個選項"]},
- {k:"ab",ic:"🌀",n:"混沌之誓",d:"50 層起，每隻怪物多 1／2／3 個能力",r:"每 50 層多拿 1／2／3 顆 Pom",ld:["50 層起，每隻怪物多 1 個能力","每隻怪物多 2 個能力","每隻怪物多 3 個能力"],lr:["每 50 層多拿 1 顆 Pom","每 50 層多拿 2 顆 Pom","每 50 層多拿 3 顆 Pom"]},
- {k:"greedp",ic:"💰",n:"貪婪之誓",d:"打怪冥晶 -30%／-50%／-60%",r:"神秘寶箱出現率 +100%／+200%／+300%，寶箱獎勵 ×2／×2／×3",ld:["打怪冥晶 -30%","打怪冥晶 -50%（累計）","打怪冥晶 -60%（累計）"],lr:["寶箱出現率 +100%，獎勵 ×2","寶箱出現率 +200%，獎勵 ×2","寶箱出現率 +300%，獎勵 ×3"]},
- {k:"king",ic:"👑",n:"王者之誓",d:"BOSS 血量 +40%／+60%／+70%",r:"每擊敗一隻 BOSS，本場攻擊永久 +2%／+4%／+6%（最多 +150%）",ld:["BOSS 血量 +40%","BOSS 血量 +60%（累計）","BOSS 血量 +70%（累計）"],lr:["每擊敗 BOSS，攻擊永久 +2%","每擊敗 BOSS，攻擊永久 +4%","每擊敗 BOSS，攻擊永久 +6%"]}
+ {k:"atk",ic:"💢",n:"狂暴之誓",d:"怪物攻擊 +12%／+20%／+25%",r:"冥晶 +40%／+70%／+90%（冥晶跨場保留，可升級魔鏡）",ld:["怪物攻擊 +12%","怪物攻擊 +20%","怪物攻擊 +25%"],lr:["冥晶 +40%（冥晶跨場保留）","冥晶 +70%（冥晶跨場保留）","冥晶 +90%（冥晶跨場保留）"]},
+ {k:"hp",ic:"🛡️",n:"鋼鐵之誓",d:"怪物血量 +15%／+25%／+30%",r:"每擊敗一隻 BOSS，🎲 +2／+3／+4",ld:["怪物血量 +15%","怪物血量 +25%","怪物血量 +30%"],lr:["每擊敗一隻 BOSS，🎲 +2","每擊敗一隻 BOSS，🎲 +3","每擊敗一隻 BOSS，🎲 +4"]},
+ {k:"spd",ic:"⚡",n:"迅捷之誓",d:"怪物攻擊速度 +20%／+30%／+35%",r:"選祝福時多 1／2／3 個選項",ld:["怪物攻擊速度 +20%","怪物攻擊速度 +30%","怪物攻擊速度 +35%"],lr:["選祝福時多 1 個選項","選祝福時多 2 個選項","選祝福時多 3 個選項"]},
+ {k:"ab",ic:"🌀",n:"混沌之誓",d:"每隻怪物多 1／2／3 個能力",r:"到期時拿 1／2／3 顆 Pom",ld:["每隻怪物多 1 個能力","每隻怪物多 2 個能力","每隻怪物多 3 個能力"],lr:["撐過這 50 層，再拿 1 顆 Pom","撐過這 50 層，再拿 2 顆 Pom","撐過這 50 層，再拿 3 顆 Pom"]},
+ {k:"greedp",ic:"💰",n:"貪婪之誓",d:"打怪冥晶 -30%／-50%／-60%",r:"神秘寶箱出現率 +100%／+200%／+300%，寶箱獎勵 ×2／×2／×3",ld:["打怪冥晶 -30%","打怪冥晶 -50%","打怪冥晶 -60%"],lr:["寶箱出現率 +100%，獎勵 ×2","寶箱出現率 +200%，獎勵 ×2","寶箱出現率 +300%，獎勵 ×3"]},
+ {k:"king",ic:"👑",n:"王者之誓",d:"BOSS 血量 +40%／+60%／+70%",r:"每擊敗一隻 BOSS，本場攻擊永久 +2%／+4%／+6%（最多 +150%）",ld:["BOSS 血量 +40%","BOSS 血量 +60%","BOSS 血量 +70%"],lr:["每擊敗 BOSS，攻擊永久 +2%","每擊敗 BOSS，攻擊永久 +4%","每擊敗 BOSS，攻擊永久 +6%"]}
 ];
-/* 契約每一層的數值（第 1／2／3 層，累計值） */
+/* 誓約每一級的數值（第 1／2／3 級） */
 const PACT_LV={atk:{e:[.12,.2,.25],r:[.4,.7,.9]},hp:{e:[.15,.25,.3],r:[2,3,4]},spd:{e:[.2,.3,.35],r:[1,2,3]},ab:{e:[1,2,3],r:[1,2,3]},greedp:{e:[.3,.5,.6],r:[1,2,3],x:[2,2,3]},king:{e:[.4,.6,.7],r:[.02,.04,.06]}};
+const PACT_ATK=.1;   /* 接下時，這 50 層攻擊 +10% × 等級 */
 function pv(k,f){const l=pactLv(k);return l&&PACT_LV[k]?PACT_LV[k][f][Math.min(l,3)-1]:0}
 const PACTMAP={};PACTS.forEach(x=>PACTMAP[x.k]=x);
 /* 懲罰契約圖示（圖上 5、6、8、10、11、12 目前沒用到） */
@@ -8755,15 +9145,37 @@ function pactImg(k,sz){return iconPick(["S10.p_"+k,"PACT."+k],PACTMAP[k]&&PACTMA
 const pactLv=k=>(G&&G.pact&&G.pact[k])||0;
 const pactTotal=()=>G&&G.pact?Object.values(G.pact).reduce((a,b)=>a+b,0):0;
 const pactMing=()=>pv("atk","r");
+/* 這次誓約點的等級：看剛打完的層數 */
+function pactTier(f){return f<150?1:f<300?2:3}
+/* 誓約的攻擊加成（只在誓約有效的 50 層內） */
+function pactAtkMul(){return G&&G.pactAtk?1+G.pactAtk:1}
+/* 誓約到期：混沌之誓發 Pom、記錄圖鑑、清掉效果 */
+function pactExpire(g){
+  const ks=Object.keys(g.pact||{});if(!ks.length){g.pactAtk=0;return}
+  const fl=Math.max(0,g.floor-1);
+  if(g.pact.ab){const n=PACT_LV.ab.r[Math.min(g.pact.ab,3)-1];grantPom(n,"混沌之誓到期");g._pomCheck=true}
+  const c=g.cx;if(c)ks.forEach(k=>{const o=cxObj(c.p,k,{t:1,lv:0,b:0});o.b=Math.max(o.b,fl)});
+  log("📜 誓約「"+ks.map(k=>PACTMAP[k].n).join("、")+"」到期，怪物恢復正常","d");
+  g.pact={};g.pactAtk=0;updateLegendBar();
+}
 function showPact(next){
   const g=G;g.paused=true;
-  const list=PACTS.filter(x=>pactLv(x.k)<3).map(x=>{const l=pactLv(x.k);return{k:x.k,ic:pactImg(x.k,38),n:x.n+"　第 "+(l+1)+" 層",warn:1,d:"⚠️ "+x.ld[l]+"<br>🎁 "+x.lr[l]}});
+  pactExpire(g);
+  const L=pactTier(g.floor-1),until=g.floor+48;
+  const pick=shuffle(PACTS.slice()).slice(0,3);
+  const list=pick.map(x=>({k:x.k,ic:pactImg(x.k,38),n:x.n+"　第 "+L+" 級",warn:1,d:"⚠️ "+x.ld[L-1]+"<br>🎁 "+x.lr[L-1]}));
   list.push({k:"none",ic:uiIcon("none",32),n:"不接受",d:"維持現在的難度"});
-  showTips([{k:"pact1",ic:gi("S3.pact",30),t:"懲罰契約",d:"每 50 層可以接一個詛咒：怪物變強，但你拿到更多獎勵。<br>效果會一直持續到這場結束，同一種最多疊 3 層。覺得撐不住就選「不接受」。"}]);
-  choiceModal("bt-pact",gi("S3.pact",22)+" 懲罰契約","第 "+(g.floor-1)+" 層。接下詛咒讓怪物變強，換取更好的獎勵。效果會疊加到這場結束。",list,k=>{
+  showTips([{k:"pact2",ic:gi("S3.pact",30),t:"懲罰契約",d:"每 50 層可以從 3 張誓約選 1 張：怪物變強，但你拿到更多獎勵。<br>接下時<b>立刻</b>得到 1 顆 Pom 和這 50 層的攻擊加成。<br>效果只維持 <b>50 層</b>，到下一個誓約點就解除。<br>每接一次會累積 🔥熱度，排行榜看得到。"}]);
+  choiceModal("bt-pact",gi("S3.pact",22)+" 懲罰契約","第 "+(g.floor-1)+" 層。效果維持到第 "+until+" 層。<br>接下立刻得到：⬆️ 1 顆 Pom＋這 50 層攻擊 +"+Math.round(PACT_ATK*L*100)+"%　🔥熱度 +"+L+"（目前 🔥"+(g.heat||0)+"）",list,k=>{
     if(G!==g||g.closed)return;
-    if(k!=="none"){g.pact=g.pact||{};g.pact[k]=(g.pact[k]||0)+1;cxPact(k,g.pact[k]);const x=PACTMAP[k];log("📜 接下契約「"+x.n+"」第 "+g.pact[k]+" 層：⚠️ "+x.ld[g.pact[k]-1]+"　🎁 "+x.lr[g.pact[k]-1],"legend");banner("📜 "+x.n,"boss")}
-    else log("🙅 沒有接下契約","d");
+    if(k!=="none"){
+      g.pact={};g.pact[k]=L;g.pactAtk=PACT_ATK*L;g.heat=(g.heat||0)+L;cxPact(k,L);
+      const x=PACTMAP[k];
+      log("📜 接下誓約「"+x.n+"」第 "+L+" 級（到第 "+until+" 層）：⚠️ "+x.ld[L-1]+"　🎁 "+x.lr[L-1]+"　⚔️ 攻擊 +"+Math.round(g.pactAtk*100)+"%　🔥熱度 "+g.heat,"legend");
+      banner("📜 "+x.n,"boss");
+      g.pomQueue=(g.pomQueue||0)+pomGain(1);g._pomCheck=true;
+    }
+    else log("🙅 沒有接下誓約","d");
     updateLegendBar();saveRun();next();
   });
 }
@@ -8920,7 +9332,7 @@ function showDoors(){
     else if(k==="trial"){
       const e=g.e;e.maxHp=Math.round(e.maxHp*1.8);e.hp=e.maxHp;e.atk*=1.3;e.name="⚔️ "+e.name;
       g.trial={bless:canBless,ming:trialMing};
-      setT(R.En,e.name);R.E.classList.add("elite");R.Eh._w=R.Eg._w=null;
+      setT(R.En,e.name);R.E.classList.add("elite");R.Eh._w=R.Eg._w=null;barSnap();
       log("⚔️ 進入試煉：敵人變強了！","e");banner("⚔️ 試 煉","elite");
     }
     updateLegendBar();
@@ -8931,7 +9343,7 @@ function showDoors(){
 }
 /* ============ 存檔接關：每 10 層選完獎勵門後自動存一次 ============ */
 const RUN_KEY="meter_battle_run_v2"; /* v2：祝福精簡後，舊存檔不相容 */
-const RUN_G_KEYS=["bankFloor","ghostKills","doomN","ghostN","ghostAt","ghostDone","luckyPick","oracle","oracleGod","gods","arts","pact","floor","ming","mir","mirSide","dice","totalMing","spentMing","st","maxCombo","mythKills","fernKills","frierenKills","chainSeen","chainFloor","chainAt","chainDone","chainWin","killSpells","fernPierce","resetCount","mirHpMul","rrBless","rrPom","fatePom","tabbyKills","pomQueue","time","abyssShown","seen","keepsake","auto"];
+const RUN_G_KEYS=["bankFloor","ghostKills","doomN","ghostN","ghostAt","ghostDone","luckyPick","oracle","oracleGod","gods","arts","pact","pactAtk","heat","floor","ming","mir","mirSide","dice","totalMing","spentMing","st","maxCombo","mythKills","fernKills","frierenKills","chainSeen","chainFloor","chainAt","chainDone","chainWin","killSpells","fernPierce","resetCount","mirHpMul","rrBless","rrPom","fatePom","tabbyKills","pomQueue","time","abyssShown","seen","keepsake","auto"];
 const RUN_P_RESET={shield:0,combo:0,comboTime:0,skillCd:0,ougiCd:0,hasteT:0,hasteV:0,critBufT:0,critBufV:0,divineBufT:0,nextCrit:false,drumX:false,critQ:0,critBonusNext:0,bleed:null,pbleed:null,dotAcc:0,pAcc:0,stunT:0,debt:0,debtT:0,silT:0,curseT:0,bindT:0,barr:0,seal:null,guardT:0,gustT:0,ccImm:0,ccChain:0,aegisT:0,ddInvT:0,hangT:0,link:0,forge:0};
 function loadRuns(){try{return JSON.parse(localStorage.getItem(RUN_KEY))||{}}catch(e){return{}}}
 function getRun(uid){const r=loadRuns()[uid];return r&&r.floor&&r.p?r:null}
@@ -9095,6 +9507,7 @@ function atkMul(){
   if(ksIs("medal")&&(e.myth||e.elite||e.boss))m*=1.15;
   m*=artMul("atk",p,e,hpr);
   if(p.kingAtk)m*=1+p.kingAtk;
+  m*=pactAtkMul();
   return softMul(m);
 }
 function curAtk(){const p=G.p;return p.atk*(1+p.baseAtkBonus)*floorAtkBonus(G.floor)*atkMul()*(isMyth("傾國傾城")?1-mt("atkDown",.25):1)*(1-((G.e.ss&&G.e.ss.decay)||0))*(p.curseT>0?.8:1)*atkMulFloor()}
@@ -9429,7 +9842,7 @@ function hit(kind,proc){
   d=Math.max(1,Math.round(d*eDmgMul()));
   let heel=false;if(isMyth("英雄突刺")&&!proc&&Math.random()<mt("weakChance",.1)){heel=true;d=Math.round(d*mt("weakMul",3));fx("e","🦶阿基里斯之踵","crit");log("🦶 命中阿基里斯之踵！×"+mt("weakMul",3),"legend")}
   if(e.immT>0&&!heel){log("🌀 攻擊無效（無敵中）","e");fx("e","免疫","heal");return}
-  let _ab=0;if(e.shield>0&&artAny("pierceShield")){const fv=ARTMAP.fern_bullet.v;e.shield=0;d=Math.round(d*fv.mul);fx("e","破盾","crit");const _g=G,_ft=Math.round(e.hp*fv.cur);setTimeout(()=>{if(G===_g&&_g.e===e&&e.hp>0)xdmg(_ft,"crit",true)},80)}else if(e.shield>0){const ab=Math.min(e.shield,d);e.shield-=ab;d-=ab;_ab=ab}
+  let _ab=0;if(e.shield>0&&artAny("pierceShield")){const fv=ARTMAP.fern_bullet.v;e.shield=0;d=Math.round(d*fv.mul);fx("e","破盾","crit");const _g=G,_ft=Math.round(pctCap(e.hp*fv.cur));setTimeout(()=>{if(G===_g&&_g.e===e&&e.hp>0)xdmg(_ft,"crit",true)},80)}else if(e.shield>0){const ab=Math.min(e.shield,d);e.shield-=ab;d-=ab;_ab=ab}
   if(e.myth)d=Math.min(d,Math.max(1,Math.ceil(e.maxHp*.4)));
   d=Math.min(d,Math.max(1,Math.ceil(e.maxHp*hitCap(e))));
   if(e.ss&&e.ss.rock)d=Math.min(d,Math.max(1,Math.ceil(e.maxHp*.25)));
@@ -9666,7 +10079,6 @@ function nextFloor(){
   if(G.floor===50&&!dailyClaimed(G.uid)){dailyClaim(G.uid);const m=Math.round((8+50*4)*2*15);G.ming+=m;G.totalMing+=m;G.dice=(G.dice||0)+2;log(gi("S9.daily",14)+" 每日獎勵：今天第一次抵達第 50 層！💠 +"+fmt(m)+"、🎲 +2","legend");banner("🎁 每日獎勵","legend")}
   if(G.floor===100)unlockKs("shield");if(G.floor===200)unlockKs("glass");
   if(G.floor%50===0){G.dice=(G.dice||0)+1;log("🎲 獲得 1 次重抽！","d")}
-  if(G.floor%50===0&&pactLv("ab")){grantPom(pactLv("ab"),"混沌之誓");G._pomCheck=true}
   if(G.floor>=BAL.blessStart&&(G.floor-BAL.blessStart)%BAL.blessEvery===0&&blessFull()&&fullPomOn())autoKeepPom();
   else if(G.floor>=BAL.blessStart&&(G.floor-BAL.blessStart)%BAL.blessEvery===0&&BLESSINGS.some(b=>godOn(b.god)&&!p.blessings[b.k]&&!(p.discarded&&p.discarded[b.k]))){G.paused=true;G._pending=true;const g0=G;setTimeout(()=>{if(G===g0)G._pending=false;if(G&&!G.closed)showBlessingPick()},400)}
   else if(G.pomQueue>0)G._pomCheck=true;
@@ -9689,7 +10101,7 @@ function nextFloor(){
   if(G.e.myth)mythIntro();
   const doorFloor=G.floor>1&&G.floor%10===1&&!G.e.myth;
   if(doorFloor){G.paused=true;G._pending=true;const g0=G;setTimeout(()=>{if(G===g0)G._pending=false;if(G&&!G.closed&&!G.over){if(G.floor%100===1)showTriumph(showDoors);else showDoors()}},450)}
-  if(G._pomCheck&&!doorFloor){G._pomCheck=false;if(!G.e.myth&&getUpgradableBlessings().length){G.paused=true;setTimeout(()=>{if(G&&!G.closed&&!G.over)afterPicks()},400)}}
+  if(G._pomCheck&&!doorFloor){G._pomCheck=false;pomOverflow();if(!G.e.myth&&getUpgradableBlessings().length){G.paused=true;setTimeout(()=>{if(G&&!G.closed&&!G.over)afterPicks()},400)}}
   if(G.shatter){const x=Math.round(curAtk()*G.shatter);G.shatter=0;if(x>0){G.e.hp=Math.max(1,G.e.hp-x);log("🧊 碎冰！開場損失 "+fmt(x)+" 生命","legend");fx("e",x,"frost")}}
 }
 /* ============ 敵人 / 祝福列顯示 ============ */
@@ -9717,13 +10129,13 @@ function setEnemyDom(){setMap();if(R.El)R.El.style.color="";if(R.Spr){R.Spr.inne
   setT(R.En,e.name);
   if(!e.ghost&&(e.boss||e.elite)){R.El.innerHTML=gi(e.boss?"S9.boss":"S9.elite",15)+" "+(e.boss?"BOSS":"菁英");R.El._t=null}
   else setT(R.El,e.ghost?"模仿："+e.ghost.n:zoneName(G.floor));
-  R.Ab.innerHTML=(e.ghost?'<span class="gh" data-ghost="1">🎭 模仿的祝福</span>':'')+(baseTough(e)<1?'<span class="tg" data-ab="韌性" data-mul="'+e.abMul+'">'+gi("AB.堅韌",15)+'韌性 '+Math.round(hitCap(e)*100)+'%</span>':'')+e.abilities.map(n=>{const a=AB_MAP[n];const x=e.abMul>=4?" x4":e.abMul>=3?" x3":e.abMul>=2?" x2":"";return '<span class="'+a.cls+x+'" data-ab="'+n+'" data-mul="'+e.abMul+'">'+gi("AB."+n,15)+n+(e.abMul>1?'×'+abMulTxt(e.abMul):'')+'</span>'}).join("");
+  R.Ab.innerHTML=(e.ghost?'<span class="gh" data-ghost="1">🎭 模仿的祝福</span>':'')+(baseTough(e)<1?'<span class="tg" data-ab="韌性" data-mul="'+e.abMul+'">'+gi("AB.堅韌",15)+'韌性 '+Math.round(hitCap(e)*100)+'%</span>':'')+e.abilities.map(n=>{const a=AB_MAP[n];const x=e.abMul>=4?" x4":e.abMul>=3?" x3":e.abMul>=2?" x2":"";return '<span class="'+a.cls+x+'" data-ab="'+n+'" data-mul="'+e.abMul+'">'+gi("AB."+n,15)+n+(e.abMul>1?'×'+abTagTxt(e.abMul):'')+'</span>'}).join("");
   if(e.sk&&e.sk.length)R.Ab.insertAdjacentHTML("beforeend",e.sk.map(n=>'<span class="sk" data-sk="'+n+'">'+gi("SK."+n,15)+n+'</span>').join(""));
   R.Ab.classList.toggle("compact",R.Ab.children.length>4);
   ov.classList.toggle("myth-nyx",e.sk.includes("黑暗降臨"));
   setCls(R.Fl,"bt-fl"+(e.boss?" boss":e.elite?" elite":""));
   setT(R.Fl,"第 "+G.floor+" 層");if(R.Goal){const ng=nextGoal();setT(R.Goal,goalShort(ng));R.Goal.title=ng}
-  R.Eh._w=R.Eg._w=null;
+  R.Eh._w=R.Eg._w=null;barSnap();
   if(e.boss)banner("⚠ BOSS ⚠","boss");else if(e.elite)banner("★ 菁英 ★","elite");
 }
 /* ============ 黑暗之鏡 ============
@@ -10021,7 +10433,7 @@ function defeat(){
     (!isNew&&!g.victory&&best-cleared>0&&best-cleared<=Math.max(10,best*.15)?'<div class="bt-near">😤 只差 <b>'+(best-cleared)+'</b> 層就破個人紀錄（'+best+' 層）！</div>':'')+
     '<div class="bt-near rk" id="btNearRank"></div>'+
     (cause.length?'<div class="bt-cause"><div class="bt-cause-t">💀 死因分析</div>'+cause.map(x=>'<div>'+x+'</div>').join("")+'</div>':'')+
-    '<div class="bt-rb">'+row("📊 本次戰績","")+row("最高層數",best+" 層")+row("挑戰時間",tm)+row("總傷害",fmt(g.st.dealt))+row("暴擊次數",g.st.crits)+row("💥 最高單擊",fmt(g.st.maxHit||0)+(g._hitNew?"　🎉 新紀錄":"")+"<br><small>歷史最高 "+fmt(Math.max(g._hitBest||0,g.st.maxHit||0))+"</small>")+row("🗿 禁忌神器",g.arts&&g.arts.length?g.arts.map(k=>ARTMAP[k].ic+ARTMAP[k].n).join("、"):"無")+row("📜 懲罰契約",pactTotal()?PACTS.filter(x=>pactLv(x.k)).map(x=>x.n+"×"+pactLv(x.k)).join("、"):"無")+row("技能 / 奧義",g.st.skills+" / "+g.st.ougis)+row("獲得冥晶",fmt(g.totalMing))+row("花費冥晶",fmt(g.spentMing))+'</div>'+
+    '<div class="bt-rb">'+row("📊 本次戰績","")+row("最高層數",best+" 層")+row("挑戰時間",tm)+row("總傷害",fmt(g.st.dealt))+row("暴擊次數",g.st.crits)+row("💥 最高單擊",fmt(g.st.maxHit||0)+(g._hitNew?"　🎉 新紀錄":"")+"<br><small>歷史最高 "+fmt(Math.max(g._hitBest||0,g.st.maxHit||0))+"</small>")+row("🗿 禁忌神器",g.arts&&g.arts.length?g.arts.map(k=>ARTMAP[k].ic+ARTMAP[k].n).join("、"):"無")+row("🔥 誓約熱度",g.heat||0)+row("技能 / 奧義",g.st.skills+" / "+g.st.ougis)+row("獲得冥晶",fmt(g.totalMing))+row("花費冥晶",fmt(g.spentMing))+'</div>'+
     '<div class="bt-rb">'+row("🎁 本場取得","")+row("祝福",nb+" / "+blessCap())+row("雙重祝福",p.duos.length+" / "+DUOS.length)+row("傳奇祝福",p.legends.length+" / "+LEGENDS.length)+row("最高連擊","×"+g.maxCombo)+row("擊敗神話",g.mythKills)+row("擊敗菲倫 / 芙莉蓮",g.fernKills+" / "+g.frierenKills)+'</div>'+
     '<div class="bt-rb">'+row("🧭 本場 Build","")+row("開場信物",ksName(g))+row("核心流派",bld.core)+row("主力祝福",bld.main)+row("關鍵雙重",bld.duos)+row("關鍵傳奇",bld.legs)+(bld.lgd?row("至高祝福",bld.lgd):"")+row("最高連擊","×"+g.maxCombo)+row("最終攻擊力",fmt(atkF))+row("最終生命",fmt(p.maxHp))+'</div>'+
     (tres?'<div class="bt-chain"><span class="bt-myth-quote">👵「'+tres+'」</span></div>':'')+
@@ -10317,7 +10729,7 @@ function cxTile(i,tab){
   if(tab==="myth"){ic='<div class="cx-mav'+(i.seen?'':' sil')+'" style="'+mythAvCss(i.b,56)+'"></div>';nm=i.seen?(i.b.displayName||i.b.n):"？？？";sub=i.got?"擊敗 "+i.kills:i.seen?"已遭遇":"第 "+i.b.f+" 層～"}
   else if(tab==="art"){ic=i.un?artImg(i.x.k,44):'<span class="cx-gray">'+artImg(i.x.k,44)+'</span>';nm=i.x.n;sub=i.got?"取得 "+i.o.g:i.un?"可出現":"🔒 未解鎖"}
   else if(tab==="ks"){ic=i.got?ksImg(i.x.k,44):'<span class="cx-gray">'+ksImg(i.x.k,44)+'</span>';nm=i.x.n;sub=i.got?(i.o.u?"使用 "+i.o.u:"已解鎖"):"🔒 未解鎖"}
-  else if(tab==="pact"){ic=i.got?pactImg(i.x.k,44):'<span class="cx-gray">'+pactImg(i.x.k,44)+'</span>';nm=i.x.n;sub=i.got?"最多 "+i.o.lv+" 層":"未接受"}
+  else if(tab==="pact"){ic=i.got?pactImg(i.x.k,44):'<span class="cx-gray">'+pactImg(i.x.k,44)+'</span>';nm=i.x.n;sub=i.got?"最高第 "+i.o.lv+" 級":"未接受"}
   else{ic=i.got?gi("S9."+i.m.k,48):'<span class="cx-gray">'+gi("S9."+i.m.k,48)+'</span>';nm=i.m.n;sub=i.got?i.d:"🔒"}
   return '<button type="button" class="'+cls+'" data-cxi="'+escapeHtml(i.k)+'" aria-label="'+escapeHtml(nm)+'">'+(nk?'<i class="cx-new">NEW</i>':'')+'<span class="cx-tic">'+ic+'</span><b>'+nm+'</b><small>'+sub+'</small></button>';
 }
@@ -10369,8 +10781,8 @@ function cxSheetRender(){
     body=sec("效果",'<p>'+x.d+'</p>')+(it.got?stat([["使用次數",o.u||0],["最佳樓層",o.b?o.b+" 層":"—"]]):sec("🔒 解鎖條件",'<p>'+(KS_COND[x.k]||"")+'</p>'));
   }else if(tab==="pact"){
     const x=it.x,o=it.o;ic=pactImg(x.k,88);nm=x.n;tag="懲罰契約";
-    body=sec("每一層的效果",'<div class="cx-lv">'+[0,1,2].map(l=>'<div'+(o.lv>l?' class="on"':'')+'><b>第 '+(l+1)+' 層</b><span class="cx-bad">⚠️ '+x.ld[l]+'</span><span class="cx-good">🎁 '+x.lr[l]+'</span></div>').join("")+'</div>')+
-      stat([["接受次數",o.t||0],["最多疊到",(o.lv||0)+" 層"],["最佳樓層",o.b?o.b+" 層":"—"]]);
+    body=sec("每一級的效果",'<div class="cx-lv">'+[0,1,2].map(l=>'<div'+(o.lv>l?' class="on"':'')+'><b>第 '+(l+1)+' 級</b><span class="cx-bad">⚠️ '+x.ld[l]+'</span><span class="cx-good">🎁 '+x.lr[l]+'</span></div>').join("")+'</div>')+
+      stat([["接受次數",o.t||0],["最高等級",(o.lv||0)?"第 "+o.lv+" 級":"—"],["最佳樓層",o.b?o.b+" 層":"—"]]);
   }else{
     ic=gi("S9."+it.m.k,96,it.got?"":"cx-gray");nm=it.m.n;tag="里程碑";
     body=sec(it.got?"已達成":"🔒 尚未達成",'<p>'+(it.got?"達成日期："+it.d:"在無盡挑戰中達成這個目標就會點亮。")+'</p>');
@@ -10413,7 +10825,7 @@ function cxRender(top){
   }else if(tab==="ks"){
     h+=cxGridTab("ks",'<div class="cx-sub">開場三選一，整場有效。</div>');
   }else if(tab==="pact"){
-    h+=cxGridTab("pact",'<div class="cx-sub">每 50 層可以接下，最多疊 3 層。點圖示看每一層的效果。</div>');
+    h+=cxGridTab("pact",'<div class="cx-sub">每 50 層從 3 張選 1 張，效果維持 50 層。150 層前第 1 級、150 層起第 2 級、300 層起第 3 級。</div>');
   }else if(tab==="gods"){
     const nd=DUOS.filter(d=>c.du[d.k]).length,nl=LEGENDS.filter(d=>c.lg[d.k]).length,ns=SOLOS.filter(d=>c.so[d.k]).length,nb=BLESSINGS.filter(b=>b.k in c.bl).length;
     h+='<div class="cx-gsum"><span>祝福 <b>'+nb+'</b>/'+BLESSINGS.length+'</span><span>'+gi("S8.tag_duo",14)+' 雙重 <b>'+nd+'</b>/'+DUOS.length+'</span><span>'+gi("S8.tag_legend",14)+' 傳奇 <b>'+nl+'</b>/'+LEGENDS.length+'</span><span>'+gi("S8.tag_solo",14)+' 覺醒 <b>'+ns+'</b>/'+SOLOS.length+'</span></div><div class="cx-sub">點神的名字展開祝福清單。邊框顏色是拿過的最高稀有度。</div>';
@@ -10487,7 +10899,7 @@ function buildGuide(u){
       '<li><b>今日神諭</b>：每天全公司同一個特殊規則，明天就換；每天第一次打到第 50 層有每日獎勵。</li>'+
       '<li><b>本場眾神</b>：每場隨機只有 5 位神會賜福，每場能組的流派都不一樣。</li>'+
       '<li><b>禁忌神器</b>：擊敗神話 BOSS 可以選一件，會改變規則但都有代價，每場最多 3 件。神話圖鑑收錄越多，能出現的神器越多。</li>'+
-      '<li><b>懲罰契約</b>：每 50 層可以接下詛咒讓怪物變強，換取更多冥晶等獎勵，可以不接。</li>'+
+      '<li><b>懲罰契約</b>：每 50 層從 3 張誓約選 1 張，怪物變強 50 層，換取 Pom、攻擊加成和其他獎勵，還會累積排行榜上的 🔥熱度。可以不接。</li>'+
       '<li><b>凱旋門</b>：每 100 層可以選擇「凱旋離開」，結束這場並多拿一半冥晶；繼續打就要撐到下一道凱旋門。</li>'+
       '<li><b>信物</b>：開場從已解鎖的信物挑 1 個。一開始有 4 種，共 16 種；抵達 100～500 層、擊敗神話 BOSS、組出雙重或傳奇祝福等條件會解鎖新的（神話圖鑑裡看得到解鎖條件）。</li>'+
       '<li><b>獎勵之門</b>：每 10 層從 3 扇門選一個獎勵；試煉之門比較危險，但獎勵最好。</li>'+
@@ -10523,3 +10935,5 @@ try{const rp=document.getElementById("page-roster");if(rp&&rp.classList.contains
 })();
 </script>
 
+</body>
+</html>
