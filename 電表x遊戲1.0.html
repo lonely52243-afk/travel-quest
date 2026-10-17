@@ -4621,6 +4621,23 @@ body.bt-lite.bt-flag-c2 .bt-bn{animation-duration:.6s!important}
 .bt-duo-desc{font:12px/1.5 "Noto Sans TC",sans-serif;color:#e8f2ff;margin-bottom:4px}
 .bt-duo-why{font:italic 10px/1.5 "Noto Serif TC",serif;color:#8a78a8}
 @media (prefers-reduced-motion:reduce){.bt-duo-item,.bt-pick-item:has(.rar.hero){animation:none!important}}
+/* ===== 狀態列、能力圖示、影山直式頭像 ===== */
+.bt-ab span{display:inline-flex;align-items:center;gap:3px}
+.bt-ab span g-i.gi{margin-left:-3px}
+.bt-sts{display:flex;flex-wrap:wrap;justify-content:center;gap:3px;min-height:18px;margin-top:3px;cursor:pointer}
+.bt-sts:empty{min-height:0;margin:0}
+.bt-st{position:relative;display:inline-flex;align-items:center;gap:1px;padding:1px 4px 1px 1px;border-radius:6px;background:rgba(0,0,0,.45);border:1px solid rgba(201,165,92,.25);font-style:normal}
+.bt-st b{font:700 9px "JetBrains Mono",monospace;color:#ffe9b0;text-shadow:0 1px 2px #000}
+.st-big{text-align:center;margin-bottom:8px}
+.st-list{display:grid;gap:8px;text-align:left}
+.st-it{display:flex;align-items:center;gap:10px;padding:6px 8px;border-radius:10px;background:rgba(255,255,255,.04);border:1px solid rgba(201,165,92,.2)}
+.st-it span{flex:1;min-width:0}
+.st-it b{display:block;font:700 13px "Noto Serif TC",serif;color:#ffe9b0}
+.st-it small{font:12px/1.5 "Noto Sans TC",sans-serif;color:#b8c5d8}
+.bt-fighter.e.myth.mob .bt-av{width:100px;height:116px;border-radius:14px;border-color:#a371f7;box-shadow:0 0 22px rgba(163,113,247,.8);background:radial-gradient(circle at 50% 40%,rgba(163,113,247,.25),rgba(10,15,24,.92))}
+.bt-fighter.e.mob .bt-mring,.bt-fighter.e.mob .bt-mglow{display:none!important}
+.bt-fighter.e.mob .bt-spr{display:flex;align-items:center;justify-content:center;background-image:none}
+
 /* ===== 排行榜（名冊入口＋配置詳情＋本週熱門） ===== */
 .rk-ov{z-index:465}
 .rk-ov .rk-tabs{margin:10px 0 0}
@@ -4686,6 +4703,109 @@ span.rk-tag{cursor:default}
 const SAVE_KEY="meter_battle_v11";
 const SPRITE={1:"https://lonely52243.neocities.org/圖庫/IMG_3396.png",2:"https://lonely52243.neocities.org/圖庫/EF8216A0-EDFB-4094-BE5C-01D36BD9EA46.png",3:"https://lonely52243.neocities.org/圖庫/IMG_3421.png",4:"https://lonely52243.neocities.org/圖庫/IMG_3422.png",5:"https://lonely52243.neocities.org/圖庫/IMG_3423.png",6:"https://lonely52243.neocities.org/圖庫/IMG_3425.png",7:"https://lonely52243.neocities.org/圖庫/IMG_3417.png",8:"https://lonely52243.neocities.org/圖庫/IMG_3418.png"};
 const ICON_SPRITE=SPRITE[6];
+
+/* ============ 新圖集：狀態、菁英機制、怪物能力、裝備徽章、影山變身 ============ */
+const PIC="https://lonely52243.neocities.org/圖庫/人物圖庫/";
+GI_SHEETS.ST={u:PIC+"IMG_3854.png",W:1536,H:1024,b:{"冰凍":[67,56,174,160],"定身":[308,56,176,160],"控場免疫":[552,56,176,160],"控場抗性":[804,56,174,160],"中毒":[1049,56,174,160],"醉酒":[1295,56,174,160],"虛弱":[67,294,174,160],"相位無敵":[308,294,176,160],"厄運":[552,294,176,160],"霜凍":[804,294,174,160],"弱點標記":[1049,294,174,160],"魅惑":[1295,294,174,160],"破防":[67,525,174,160],"燃燒":[308,525,176,160],"復仇":[552,525,176,160],"蓄力":[804,525,174,160],"死裡逃生":[1049,525,174,160],"疾影":[1295,525,174,160],"流血":[67,759,174,160],"沉默":[308,759,176,160],"暈眩":[552,759,176,160],"亡語詛咒":[804,759,174,160],"靈魂綁定":[1049,759,174,160],"毒霧":[1295,759,174,160]}};
+GI_SHEETS.SK={u:PIC+"IMG_3856.png",W:1536,H:1024,b:{"血債":[65,49,179,160],"傷口撕裂":[306,49,181,160],"腐朽光環":[553,49,180,160],"反傷鏡像":[803,49,179,160],"生命連結":[1045,49,183,160],"沉默領域":[1293,49,179,160],"靈魂竊取":[65,291,179,160],"狂暴化":[306,291,181,160],"時間加速":[553,291,180,160],"相位轉移":[803,291,179,160],"死亡爆炸":[1045,291,183,160],"亡語詛咒":[1293,291,179,160],"靈魂綁定":[65,530,179,160],"毒霧領域":[306,530,181,160],"重力場":[553,530,180,160],"黑暗降臨":[803,530,179,160],"死亡宣告":[1045,530,183,160],"眾神黃昏":[1293,530,179,160],"無限輪迴":[65,770,179,160],"命運審判":[306,770,181,160],"磐石之軀":[553,770,180,160],"階段護體":[803,770,179,160]}};
+GI_SHEETS.AB={u:PIC+"IMG_3858.png",W:1536,H:1024,b:{"狂暴":[84,47,194,160],"吸血":[357,47,196,160],"荊棘":[663,47,202,160],"閃避":[976,47,199,160],"格擋":[1258,47,193,160],"再生":[84,287,194,160],"冰凍":[357,287,196,160],"燃燒":[663,287,202,160],"詛咒":[976,287,199,160],"護盾":[1258,287,193,160],"疾行":[84,523,194,160],"巨力":[357,523,196,160],"鐵甲":[663,523,202,160],"抗暴":[976,523,199,160],"堅韌":[1258,523,193,160],"反制":[84,765,194,160],"成長":[357,765,196,160],"復仇":[663,765,202,160],"毒牙":[976,765,199,160],"蓄力":[1258,765,193,160]}};
+GI_SHEETS.EQ={u:PIC+"IMG_3860.png",W:2172,H:724,b:{armor:[135,82,450,420],trophy:[820,82,470,420],holiday10:[1540,82,455,420]}};
+GI_SHEETS.MOB={u:PIC+"IMG_3852.png",W:1536,H:375,b:{normal:[66,64,115,258],awake:[248,32,218,290],full:[487,19,266,303],spirit:[769,8,236,314],dimple:[1046,75,219,247],psychic:[1276,43,233,279]}};
+/* 個人頁：假日達人徽章換成自己的圖；裝備欄的鎧甲、戰利品換成新圖示 */
+try{BADGE_GI.holiday10="EQ.holiday10"}catch(e){}
+try{
+  if(typeof buildEquip==="function"&&!buildEquip._eq){
+    const _be=buildEquip;
+    buildEquip=function(u,st){const r=_be(u,st);r.forEach(x=>{if(x.k==="armor")x.ic=gi("EQ.armor",36);if(x.k==="trophy")x.ic=gi("EQ.trophy",36)});return r};
+    buildEquip._eq=1;
+  }
+}catch(e){}
+/* 狀態：圖示、名稱、說明 */
+const STS={
+ frz:["ST.冰凍","冰凍","被冰凍，暫時無法出手"],
+ stop:["ST.定身","定身","被定住，暫時無法出手"],
+ imm:["ST.控場免疫","控場免疫","剛被控場過，這段時間內冰凍、定身、魅惑都無效"],
+ res:["ST.控場抗性","控場抗性","連續被控場，效果越來越短，3 秒沒被控場就會重置"],
+ poi:["ST.中毒","中毒","每秒受到傷害，持續 4 秒"],
+ drk:["ST.醉酒","醉酒","醉了，攻擊時有機率打到自己"],
+ weak:["ST.虛弱","虛弱","攻擊力下降"],
+ phase:["ST.相位無敵","無敵","這段時間內不會受到傷害"],
+ doom:["ST.厄運","厄運","累積的傷害會在 1 秒後一次爆發"],
+ chill:["ST.霜凍","霜凍","疊滿 10 層會凍爆，造成大量傷害並冰凍"],
+ mark:["ST.弱點標記","弱點標記","受到的傷害提高，最多 5 層"],
+ charm:["ST.魅惑","魅惑","被魅惑，改攻擊自己"],
+ def:["ST.破防","破防","防禦下降"],
+ fire:["ST.燃燒","燃燒","每秒受到火焰傷害"],
+ rev:["ST.復仇","復仇","每被打一下攻擊就提升，最多 10 層"],
+ chg:["ST.蓄力","蓄力","下一次攻擊是蓄力重擊，傷害很高"],
+ dd:["ST.死裡逃生","死裡逃生","生命歸零時不會死，回復 50% 生命（剩下的次數）"],
+ ddr:["ST.控場免疫","頑強抵抗","生命歸零時不會死，回復 30% 生命；用掉後隔幾層恢復"],
+ dodge:["ST.疾影","疾影","這層還能自動閃避的次數"],
+ bleed:["ST.流血","流血","每秒損失最大生命的一部分，持續幾秒"],
+ fang:["ST.流血","毒牙流血","被毒牙咬傷，每秒損失生命"],
+ sil:["ST.沉默","沉默","無法施放技能與奧義，普通攻擊不受影響"],
+ debt:["SK.血債","血債","每層每秒損失 0.6% 最大生命，擊敗敵人後結算"],
+ stun:["ST.暈眩","暈眩","暫時無法出手"],
+ curse:["ST.亡語詛咒","亡語詛咒","攻擊力 -20%，持續 8 秒"],
+ bind:["ST.靈魂綁定","靈魂綁定","攻擊速度 -25%，持續 3 秒"],
+ barr:["ST.弱點標記","彈幕","每層閃避 -5%"],
+ tabby:["ST.亡語詛咒","婆婆的詛咒","每層每秒損失 1% 最大生命"],
+ gz:["SK.死亡宣告","死亡宣告","倒數結束時受到 40% 最大生命傷害"],
+ gas:["ST.毒霧","毒霧","每秒損失 0.8% 最大生命"]
+};
+function stHtml(list){return list.map(([k,n])=>'<i class="bt-st" data-st="'+k+'">'+gi(STS[k][0],15)+(n!==undefined&&n!==""?'<b>'+n+'</b>':'')+'</i>').join("")}
+function eStatusList(e){
+  const L=[];
+  if(e.frozen&&e.stopT>0)L.push(["frz"]);else if(e.stopT>0)L.push(["stop"]);
+  if(e.ccImm>0&&!ccImmune())L.push(["imm",Math.ceil(e.ccImm)]);
+  if(e.ccChain>=3)L.push(["res",e.ccChain]);
+  if(e.poison&&e.poison.t>0)L.push(["poi"]);
+  if(isDrunk())L.push(["drk"]);
+  if(weakTotal()>0)L.push(["weak","-"+Math.round(weakTotal()*100)+"%"]);
+  if(e.immT>0)L.push(["phase"]);
+  if(e.doom)L.push(["doom"]);
+  if(e.chill)L.push(["chill",e.chill]);
+  if(e.marked)L.push(["mark",e.marked]);
+  if(e.charmT>0)L.push(["charm"]);
+  if(e.defDown)L.push(["def","-"+Math.round(e.defDown*100)+"%"]);
+  if(e.fire)L.push(["fire"]);
+  if(e.revS)L.push(["rev",e.revS]);
+  if(e.chg===3)L.push(["chg"]);
+  return L;
+}
+function pStatusList(){
+  const p=G.p,e=G.e,L=[];
+  const ddl=mirV("death_L")-(p.ddUsed||0);if(ddl>0)L.push(["dd",ddl]);
+  if(p.ddR>0)L.push(["ddr"]);
+  if(p.dodgeLeft>0)L.push(["dodge",p.dodgeLeft]);
+  if(p.pbleed)L.push(["fang",p.pbleed.n]);
+  if(p.silT>0)L.push(["sil"]);
+  if(p.bleed)L.push(["bleed",p.bleed.n]);
+  if(p.debt>0)L.push(["debt",p.debt]);
+  if(p.stunT>0)L.push(["stun"]);
+  if(p.curseT>0)L.push(["curse"]);
+  if(p.bindT>0)L.push(["bind"]);
+  if(p.barr>0)L.push(["barr",p.barr]);
+  if(e&&e.ss&&e.ss.curse>0)L.push(["tabby",e.ss.curse]);
+  if(e&&e.ss&&e.ss.gzMark>0)L.push(["gz",Math.ceil(e.ss.gzMark)]);
+  if(e&&e.ss&&e.ss.gasT>0)L.push(["gas"]);
+  return L;
+}
+/* 點狀態列：列出這一邊目前所有狀態的說明 */
+function showStatusModal(side){
+  if(!G)return;ensureModals();
+  const L=side==="p"?pStatusList():eStatusList(G.e);
+  modAb.querySelector(".bt-modal-title").textContent=side==="p"?"你身上的狀態":G.e.name+" 的狀態";
+  modAb.querySelector(".bt-modal-desc").innerHTML=L.length?'<div class="st-list">'+L.map(([k,n])=>'<div class="st-it">'+gi(STS[k][0],30)+'<span><b>'+STS[k][1]+(n!==undefined&&n!==""?'　'+n:'')+'</b><small>'+STS[k][2]+'</small></span></div>').join("")+'</div>':'目前沒有任何狀態';
+  modAb.classList.add("on");
+}
+/* 影山茂夫：依戰鬥狀態換圖 */
+function mobState(e){const ms=e.ms||{};if(ms.hole>0)return "spirit";if(ms.rageT>0)return "full";if(ms.tw>0||G.p.gravT>0)return "psychic";if(ms.dim&&e.shield>0)return "dimple";if((ms.emo||0)>=50)return "awake";return "normal"}
+function mobSprite(){
+  const e=G&&G.e;if(!e||!e.myth||!e.mb||e.mb.n!=="影山茂夫"||!R||!R.Spr)return;
+  const st=mobState(e);if(R.Spr._mob===st)return;R.Spr._mob=st;
+  R.Spr.style.backgroundImage="none";R.Spr.innerHTML=gi("MOB."+st,104);
+}
 /* 眾神圖示：新圖集 1536×1024（只裁上方方框，不含名牌） */
 GI_SHEETS.GOD={u:"https://lonely52243.neocities.org/圖庫/人物圖庫/IMG_3840.png",W:1536,H:1024,b:{
  dionysus:[70,62,224,214],demeter:[366,62,218,214],hestia:[659,62,215,214],hephaestus:[949,62,215,214],hera:[1240,62,222,214],
@@ -5656,7 +5776,7 @@ function pStatus(){
 function showSkModal(name){
   ensureModals();const s=SKD[name];if(!s)return;
   modAb.querySelector(".bt-modal-title").textContent="【"+name+"】"+s.t;
-  modAb.querySelector(".bt-modal-desc").textContent=s.d+"\n\n（"+s.f+" 層起出現）";
+  modAb.querySelector(".bt-modal-desc").innerHTML='<div class="st-big">'+gi("SK."+name,56)+'</div>'+escapeHtml(s.d)+"<br><br>（"+s.f+" 層起出現）";
   modAb.classList.add("on");
 }
 
@@ -5915,7 +6035,7 @@ function setMythDom(){
     setT(R.En,e.name);
   }
   setT(R.El,"💎 "+getMythTierTitle(e.tier||1));R.El.style.color=getMythTierColor(e.tier||1);
-  R.Ab.innerHTML='<span class="mb" data-myth="'+b.ab+'">'+(MYTH_SIG[b.ab]||b.ab)+'</span>'+(e.abilities||[]).map(n=>{const a=AB_MAP[n];return '<span class="'+a.cls+'" data-ab="'+n+'" data-mul="'+e.abMul+'">'+n+(e.abMul>1?'×'+abMulTxt(e.abMul):'')+'</span>'}).join("");
+  R.Ab.innerHTML='<span class="mb" data-myth="'+b.ab+'">'+(MYTH_SIG[b.ab]||b.ab)+'</span>'+(e.abilities||[]).map(n=>{const a=AB_MAP[n];return '<span class="'+a.cls+'" data-ab="'+n+'" data-mul="'+e.abMul+'">'+gi("AB."+n,15)+n+(e.abMul>1?'×'+abMulTxt(e.abMul):'')+'</span>'}).join("");
   setCls(R.Fl,"bt-fl myth");
   setT(R.Fl,"第 "+G.floor+" 層");if(R.Goal){const ng=nextGoal();setT(R.Goal,goalShort(ng));R.Goal.title=ng}
   R.Eh._w=R.Eg._w=null;
@@ -7092,9 +7212,9 @@ function panelHtml(){return `
 <div class="bt-legend-bar" id="btLegendBar"></div>
 <div class="bt-mastery" id="btMastery"></div>
 <div class="bt-field">
-<div class="bt-fighter p" id="btP"><div class="bt-av" id="btPavWrap"><div class="bt-pav" id="btPav"></div></div><div class="bt-nm" id="btPn"></div><div class="bt-lv" id="btPl"></div><div class="bt-bar"><i class="g" id="btPg"></i><i class="h" id="btPh"></i></div><div class="bt-tx" id="btPt"></div></div>
+<div class="bt-fighter p" id="btP"><div class="bt-av" id="btPavWrap"><div class="bt-pav" id="btPav"></div></div><div class="bt-nm" id="btPn"></div><div class="bt-lv" id="btPl"></div><div class="bt-bar"><i class="g" id="btPg"></i><i class="h" id="btPh"></i></div><div class="bt-tx" id="btPt"></div><div class="bt-sts" id="btPs"></div></div>
 <div class="bt-vs">VS</div>
-<div class="bt-fighter e" id="btE"><div class="bt-mglow"></div><div class="bt-mring"></div><div class="bt-av"><div class="bt-spr" id="btSpr"></div></div><div class="bt-nm" id="btEn"></div><div class="bt-lv" id="btEl"></div><div class="bt-ab" id="btAb"></div><div class="bt-bar"><i class="g" id="btEg"></i><i class="h" id="btEh"></i></div><div class="bt-tx" id="btEt"></div></div>
+<div class="bt-fighter e" id="btE"><div class="bt-mglow"></div><div class="bt-mring"></div><div class="bt-av"><div class="bt-spr" id="btSpr"></div></div><div class="bt-nm" id="btEn"></div><div class="bt-lv" id="btEl"></div><div class="bt-ab" id="btAb"></div><div class="bt-bar"><i class="g" id="btEg"></i><i class="h" id="btEh"></i></div><div class="bt-tx" id="btEt"></div><div class="bt-sts" id="btEs"></div></div>
 <div class="bt-fx" id="btFx"></div>
 </div>
 <div class="bt-balls off" id="btBalls"></div>
@@ -7109,7 +7229,7 @@ function panelHtml(){return `
 </div>
 <div class="bt-sheet" id="btSheet"></div>`}
 function bind(){
-  R={};["Fl","Goal","Spd","Best","TopAtk","TopMing","TopDice","LegendBar","Mastery","P","PavWrap","Pav","Pn","Pl","Pg","Ph","Pt","E","Spr","En","El","Ab","Eg","Eh","Et","Fx","Balls","Sp","SpL","SpT","SpF","Rg","RgRow","RgT","Cb","CbT","Log","Sk","Set","Au","Up","Sheet","X"].forEach(k=>R[k]=$("bt"+k));
+  R={};["Fl","Goal","Spd","Best","TopAtk","TopMing","TopDice","LegendBar","Mastery","P","PavWrap","Pav","Pn","Pl","Pg","Ph","Pt","Ps","E","Spr","En","El","Ab","Eg","Eh","Et","Es","Fx","Balls","Sp","SpL","SpT","SpF","Rg","RgRow","RgT","Cb","CbT","Log","Sk","Set","Au","Up","Sheet","X"].forEach(k=>R[k]=$("bt"+k));
   R.X.onclick=closeBattle;
   R.Sk.onclick=()=>manual("skill");
   R.RgRow.onclick=()=>manual("ougi");
@@ -7120,6 +7240,7 @@ function bind(){
   R.Spd.onclick=()=>{spdHintDone();try{sfxTap()}catch(x){}if(bossLock()){G._bossFree=true;spdBtn();fx("p","⏩ 這場 ×"+G.speed,"combo");return}setSpeed(G.speed>=5?1:G.speed+1);fx("p","⏩ ×"+G.speed,"combo")};setSpeed(G.speed);setTimeout(spdHint,1200);R.Best.setAttribute("role","button");R.Best.title="排行榜";
   R.Sheet.onclick=sheetClick;
   R.PavWrap.onclick=showStatModal;
+  R.Ps.onclick=()=>showStatusModal("p");R.Es.onclick=()=>showStatusModal("e");
   R.Ab.onclick=e=>{const _s=e.target.closest("[data-sk]");if(_s)showSkModal(_s.dataset.sk);const t=e.target.closest("[data-ab]");if(t)showAbModal(t.dataset.ab,+t.dataset.mul||1);const m=e.target.closest("[data-myth]");if(m)showMythModal(m.dataset.myth);if(e.target.closest("[data-ghost]"))showGhostModal()};
   const lkClick=e=>{const t=e.target.closest("[data-lk]");if(!t)return;if(t.dataset.lk==="__tog"){try{localStorage.setItem(BAR_KEY,barOpen()?"0":"1")}catch(x){}try{sfxTap()}catch(x){}updateLegendBar();return}showLegendModal(t.dataset.lk)};
   R.LegendBar.onclick=lkClick;R.Mastery.onclick=lkClick;
@@ -7156,7 +7277,7 @@ function showAbModal(name,mul){
   else if(name==="復仇")desc="每被打一下攻擊 +"+Math.round(v*100)+"%（最多 10 層）";
   else if(name==="毒牙")desc="攻擊讓你流血，每層每秒 "+(v*100).toFixed(1)+"% 最大生命（最多 5 層，淨化可擋）";
   else if(name==="蓄力")desc="每 4 次攻擊一次重擊，傷害 ×"+(1.5+v).toFixed(1);
-  modAb.querySelector(".bt-modal-title").textContent="【"+name+" ×"+abMulTxt(mul)+"】";modAb.querySelector(".bt-modal-desc").textContent=desc;modAb.classList.add("on");
+  modAb.querySelector(".bt-modal-title").textContent="【"+name+" ×"+abMulTxt(mul)+"】";modAb.querySelector(".bt-modal-desc").innerHTML='<div class="st-big">'+gi("AB."+name,56)+'</div>'+escapeHtml(desc);modAb.classList.add("on");
 }
 function showLegendModal(k){
   ensureModals();
@@ -9430,7 +9551,7 @@ function nextFloor(){
   if(G.shatter){const x=Math.round(curAtk()*G.shatter);G.shatter=0;if(x>0){G.e.hp=Math.max(1,G.e.hp-x);log("🧊 碎冰！開場損失 "+fmt(x)+" 生命","legend");fx("e",x,"frost")}}
 }
 /* ============ 敵人 / 祝福列顯示 ============ */
-function setEnemyDom(){setMap();if(R.El)R.El.style.color="";
+function setEnemyDom(){setMap();if(R.El)R.El.style.color="";if(R.Spr){R.Spr.innerHTML="";R.Spr._mob=null}
   if(G&&G.floor){
     if(G.floor===1)showTips([{k:"start",ic:"⚔️",t:"純粹的戰鬥",d:"戰鬥會自動進行，打倒怪物就前進下一層。前 30 層只有一般怪，先熟悉節奏。"}]);
     if(G.floor===35)showTips([{k:"elite",ic:"★",t:"菁英登場",d:"血量和攻擊都比一般怪高，之後每 5 層出現一次。"}]);
@@ -9441,7 +9562,7 @@ function setEnemyDom(){setMap();if(R.El)R.El.style.color="";
     ]);
   }
   const e=G.e,m=e.m;
-  R.E.className="bt-fighter e"+(e.boss?" boss":"")+(e.elite&&!e.ghost?" elite":"")+(e.myth?" myth":"")+(e.ghost?" ghost":"");
+  R.E.className="bt-fighter e"+(e.boss?" boss":"")+(e.elite&&!e.ghost?" elite":"")+(e.myth?" myth":"")+(e.ghost?" ghost":"")+(e.myth&&e.mb&&e.mb.n==="影山茂夫"?" mob":"");
   if(e.myth){setMythDom();return}
   const rows=ROWS[m.img]||3;
   const prm=MON_PARAMS[m.img+"-"+m.r+"-"+m.c]||{scale:100,posX:0,posY:0};
@@ -9454,8 +9575,8 @@ function setEnemyDom(){setMap();if(R.El)R.El.style.color="";
   setT(R.En,e.name);
   if(!e.ghost&&(e.boss||e.elite)){R.El.innerHTML=gi(e.boss?"S9.boss":"S9.elite",15)+" "+(e.boss?"BOSS":"菁英");R.El._t=null}
   else setT(R.El,e.ghost?"模仿："+e.ghost.n:zoneName(G.floor));
-  R.Ab.innerHTML=(e.ghost?'<span class="gh" data-ghost="1">🎭 模仿的祝福</span>':'')+(baseTough(e)<1?'<span class="tg" data-ab="韌性" data-mul="'+e.abMul+'">韌性 '+Math.round(hitCap(e)*100)+'%</span>':'')+e.abilities.map(n=>{const a=AB_MAP[n];const x=e.abMul>=4?" x4":e.abMul>=3?" x3":e.abMul>=2?" x2":"";return '<span class="'+a.cls+x+'" data-ab="'+n+'" data-mul="'+e.abMul+'">'+n+(e.abMul>1?'×'+abMulTxt(e.abMul):'')+'</span>'}).join("");
-  if(e.sk&&e.sk.length)R.Ab.insertAdjacentHTML("beforeend",e.sk.map(n=>'<span class="sk" data-sk="'+n+'">'+n+'</span>').join(""));
+  R.Ab.innerHTML=(e.ghost?'<span class="gh" data-ghost="1">🎭 模仿的祝福</span>':'')+(baseTough(e)<1?'<span class="tg" data-ab="韌性" data-mul="'+e.abMul+'">'+gi("AB.堅韌",15)+'韌性 '+Math.round(hitCap(e)*100)+'%</span>':'')+e.abilities.map(n=>{const a=AB_MAP[n];const x=e.abMul>=4?" x4":e.abMul>=3?" x3":e.abMul>=2?" x2":"";return '<span class="'+a.cls+x+'" data-ab="'+n+'" data-mul="'+e.abMul+'">'+gi("AB."+n,15)+n+(e.abMul>1?'×'+abMulTxt(e.abMul):'')+'</span>'}).join("");
+  if(e.sk&&e.sk.length)R.Ab.insertAdjacentHTML("beforeend",e.sk.map(n=>'<span class="sk" data-sk="'+n+'">'+gi("SK."+n,15)+n+'</span>').join(""));
   ov.classList.toggle("myth-nyx",e.sk.includes("黑暗降臨"));
   setCls(R.Fl,"bt-fl"+(e.boss?" boss":e.elite?" elite":""));
   setT(R.Fl,"第 "+G.floor+" 層");if(R.Goal){const ng=nextGoal();setT(R.Goal,goalShort(ng));R.Goal.title=ng}
@@ -9827,10 +9948,11 @@ function ui(){
   if(G._b0===undefined){G._b0=getBest(G.uid);G._best=G._b0}
   if(G.trans>0)G._best=Math.max(G._best,G.floor);
   const pp=p.hp/p.maxHp*100;setW(R.Ph,pp);setW(R.Pg,pp);
-  setT(R.Pt,fmt(Math.max(0,p.hp))+" / "+fmt(p.maxHp)+(p.shield>0?"  🛡️"+fmt(p.shield):"")+pStatus());
+  setT(R.Pt,fmt(Math.max(0,p.hp))+" / "+fmt(p.maxHp)+(p.shield>0?"  🛡️"+fmt(p.shield):""));setH(R.Ps,stHtml(pStatusList()));
   const ep=e.hp/e.maxHp*100;setW(R.Eh,ep);setW(R.Eg,ep);
-  setT(R.Et,fmt(Math.max(0,e.hp))+" / "+fmt(e.maxHp)+(e.shield>0?"  🛡️"+fmt(e.shield):"")+statusStr(e));
-  if(isMyth("一拳"))setT(R.Et,"打不動　撐過倒數"+statusStr(e));
+  const _ms=e.myth?mythStatus(e):"";
+  setT(R.Et,(isMyth("一拳")?"打不動　撐過倒數":fmt(Math.max(0,e.hp))+" / "+fmt(e.maxHp)+(e.shield>0?"  🛡️"+fmt(e.shield):""))+_ms);
+  setH(R.Es,stHtml(eStatusList(e)));mobSprite();
   spUi();
   setW(R.Rg,Math.min(100,p.divine));setCls(R.Rg,"divine"+(p.divine>=100?" full":""));
   setW(R.Cb,p.combo>0?(noReset()?100:p.comboTime/3*100):0);setCls(R.Cb,"combo"+(p.combo>=10?" full":""));setT(R.CbT,"×"+p.combo);
@@ -10232,6 +10354,8 @@ window.rosterStats=u=>{const p=_bp(u);return{atk:p.atk,hp:p.maxHp,def:p.def,crit
 try{const rp=document.getElementById("page-roster");if(rp&&rp.classList.contains("active")&&typeof usersData!=="undefined"&&usersData.length)renderRoster(false)}catch(e){}
 })();
 </script>
+
+
 
 
 
