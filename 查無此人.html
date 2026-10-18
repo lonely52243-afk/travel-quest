@@ -162,6 +162,7 @@ body{
 .p-desc{font-size:15px;color:#d0d4de;line-height:1.5;margin-top:6px}
 .p-desc b{color:#fff}
 .p-desc b.gold{color:var(--gold)}
+.p-desc em.diff{font-style:normal;font-weight:900;color:#fff;background:var(--red);border-radius:4px;padding:0 3px;margin:0 1px}
 .p-hint{font-size:12px;color:var(--sub);margin-top:6px}
 .c-green{color:var(--green)}.c-red{color:var(--red)}
 
@@ -196,6 +197,58 @@ body{
 .big-btn.ghost{background:transparent;border:2px solid rgba(255,255,255,.25);box-shadow:none;font-size:17px;padding:11px 0}
 .best{color:var(--gold);font-weight:700;font-size:14px;margin-top:6px}
 .data-date{color:var(--sub);font-size:12px;margin-top:10px}
+.start-screen{justify-content:flex-start;overflow-y:auto;-webkit-overflow-scrolling:touch;
+  padding:calc(24px + env(safe-area-inset-top)) 18px calc(20px + env(safe-area-inset-bottom));
+  background:
+    radial-gradient(ellipse at 50% 0%,rgba(255,198,26,.10) 0%,transparent 55%),
+    linear-gradient(rgba(255,255,255,.035) 1px,transparent 1px) 0 0/100% 28px,
+    linear-gradient(90deg,rgba(255,255,255,.035) 1px,transparent 1px) 0 0/28px 100%,
+    #0b0d14}
+.start-inner{margin:auto 0;width:100%;max-width:360px;display:flex;flex-direction:column;align-items:center}
+.st-code{font-family:monospace;font-size:12px;letter-spacing:5px;color:var(--gold);border:1px solid rgba(255,198,26,.45);
+  border-radius:6px;padding:3px 10px 3px 14px;margin-bottom:14px}
+.st-stamp{position:relative;padding:6px 22px 10px;border:5px double var(--red);border-radius:10px;transform:rotate(-4deg);
+  box-shadow:0 0 30px rgba(224,65,59,.25)}
+.st-stamp h1{margin:0;font-size:52px;font-weight:900;letter-spacing:8px;color:#fff;line-height:1.15;
+  text-shadow:0 3px 0 rgba(224,65,59,.55)}
+.st-stamp span{position:absolute;right:-12px;top:-12px;background:var(--red);color:#fff;font-size:11px;font-weight:900;
+  padding:2px 7px;border-radius:5px;transform:rotate(8deg);letter-spacing:1px}
+.st-sub{color:#b9bfcd;font-size:14px;margin:18px 0 10px;line-height:1.6}
+.st-tags{display:flex;gap:6px;flex-wrap:wrap;justify-content:center;margin-bottom:22px}
+.st-tags span{font-size:12px;font-weight:700;color:#ff8a85;border:1px solid rgba(224,65,59,.5);background:rgba(224,65,59,.1);
+  padding:3px 9px;border-radius:20px}
+.st-label{align-self:flex-start;font-size:12px;font-weight:700;color:var(--sub);letter-spacing:3px;margin:0 0 8px 4px}
+.modes{width:100%;display:flex;flex-direction:column;gap:10px;margin-bottom:16px}
+.mode-btn{--mc:#2fa865;position:relative;display:flex;align-items:center;gap:12px;width:100%;border:1px solid rgba(255,255,255,.08);
+  border-radius:16px;padding:12px 12px 12px 16px;font-family:inherit;color:#fff;text-align:left;cursor:pointer;overflow:hidden;
+  background:#161a26;
+  background:linear-gradient(90deg,color-mix(in srgb,var(--mc) 16%,#161a26) 0%,#161a26 55%);
+  box-shadow:0 6px 0 #07080c,0 10px 24px rgba(0,0,0,.4);transition:transform .08s,box-shadow .08s}
+.mode-btn::before{content:'';position:absolute;left:0;top:0;bottom:0;width:5px;background:var(--mc)}
+.mode-btn:active{transform:translateY(4px);box-shadow:0 2px 0 #07080c}
+.m-normal{--mc:#2fa865}
+.m-hard{--mc:#ffc61a}
+.m-extreme{--mc:#e0413b;border-color:rgba(224,65,59,.45);animation:hotGlow 1.6s ease-in-out infinite alternate}
+@keyframes hotGlow{to{box-shadow:0 6px 0 #07080c,0 0 22px rgba(224,65,59,.45)}}
+.mode-btn .clock{flex-shrink:0;width:56px;height:56px;border-radius:14px;display:flex;flex-direction:column;align-items:center;justify-content:center;
+  background:#0b0d14;border:2px solid var(--mc);color:var(--mc);font-weight:900;line-height:1}
+.mode-btn .clock b{font-size:24px;font-family:monospace}
+.mode-btn .clock small{font-size:10px;margin-top:3px;opacity:.85}
+.mode-btn .mt{flex:1;display:flex;flex-direction:column;min-width:0;gap:3px}
+.mode-btn .mt .row1{display:flex;align-items:center;gap:8px}
+.mode-btn .mt b{font-size:21px;font-weight:900;letter-spacing:2px}
+.mode-btn .pips{display:flex;gap:3px}
+.mode-btn .pips i{width:8px;height:8px;border-radius:2px;background:rgba(255,255,255,.15)}
+.mode-btn .pips i.on{background:var(--mc)}
+.mode-btn .mt small{font-size:12px;color:#9ba1b0;line-height:1.4}
+.mode-btn .mb{flex-shrink:0;text-align:right;line-height:1.3;min-width:62px}
+.mode-btn .mb .sc{display:block;font-family:monospace;font-weight:900;font-size:16px;color:var(--led);text-shadow:0 0 8px rgba(255,160,0,.5)}
+.mode-btn .mb .rk{display:block;font-size:11px;color:#9ba1b0}
+.mode-btn .mb .none{font-size:12px;color:#5d6375;font-weight:700}
+.mode-btn .go{flex-shrink:0;color:var(--mc);font-size:18px;font-weight:900}
+.st-tut{border:none;background:transparent;color:#b9bfcd;font-family:inherit;font-size:15px;font-weight:700;padding:8px 16px;
+  border-radius:20px;cursor:pointer}
+.st-tut:active{background:rgba(255,255,255,.06)}
 .rules{text-align:left;width:min(340px,100%);margin:6px 0 22px}
 .rule{display:flex;gap:12px;align-items:center;background:#1b1f2b;border-radius:14px;padding:11px 14px;margin-bottom:9px;font-size:15px;line-height:1.4}
 .rule .ic{font-size:24px;width:30px;text-align:center}
@@ -317,7 +370,7 @@ body{
     <div class="panel" id="panel">
       <div class="p-top"><div class="p-pts" id="pPts">+100</div><div class="p-combo" id="pCombo"></div></div>
       <div class="p-desc" id="pDesc"></div>
-      <div class="p-hint">點一下繼續</div>
+      <div class="p-hint">點畫面或按 真／假 直接下一張</div>
     </div>
 
     <div class="countdown" id="countdown"></div>
@@ -331,31 +384,27 @@ body{
   </div>
 
   <!-- 開始畫面 -->
-  <div class="overlay" id="startScreen">
-    <div class="logo-card">🪪</div>
-    <div class="code-name">代號</div>
-    <div class="title">查無此人</div>
-    <div class="intro">
-      識別證一張一張飛過來，<br>
-      快速判斷【姓名】和【單位】是不是真的！<br>
-      <span class="r">張冠李戴、拼裝人名、幽靈單位都是假的</span>
-    </div>
-    <button class="big-btn" id="startBtn">開始審查</button>
-    <button class="big-btn ghost" id="tutBtn">新手教學</button>
-    <div class="best" id="bestText"></div>
+  <div class="overlay start-screen" id="startScreen"><div class="start-inner">
+    <div class="st-code">CODE NAME・代號</div>
+    <div class="st-stamp"><h1>查無此人</h1><span>機密</span></div>
+    <div class="st-sub">識別證一張張飛來，快速判斷<b style="color:#fff">姓名＋單位</b>是真是假</div>
+    <div class="st-tags"><span>張冠李戴</span><span>拼裝人名</span><span>錯字陷阱</span><span>幽靈單位</span></div>
+    <div class="st-label">選擇審查等級</div>
+    <div class="modes" id="modeList"></div>
+    <button class="st-tut" id="tutBtn">📖 新手教學</button>
     <div class="data-date">名冊資料擷取日期：<span id="dataDate2"></span></div>
-  </div>
+  </div></div>
 
   <!-- 規則畫面 -->
   <div class="overlay hidden rules-screen" id="rulesScreen">
     <div class="title" style="font-size:32px;margin-bottom:2px" id="rulesTitle">教學完成！</div>
     <div class="rules-date">名冊資料擷取日期：<b id="dataDate1"></b></div>
     <div class="rules">
-      <div class="rule"><div class="ic">⏱️</div><div>只有 <b>30 秒</b>！答對 <b>+1 秒</b>（1.2 秒內 <b>+1.5</b>），答錯 <b>−3 秒</b></div></div>
+      <div class="rule"><div class="ic">⏱️</div><div id="ruleTime"></div></div>
       <div class="rule"><div class="ic">⚡</div><div>越快答分越高，最多 <b>200 分</b>；連對 5 張倍率 <b>+0.5</b>（最高 ×3）</div></div>
       <div class="rule"><div class="ic">🏷️</div><div>寫他的<b>股</b>或所屬的<b>課</b>都算對<br><span class="ex">例：蔡同咨是軍械股 →「軍械」✔「武系課」✔「武系」✔「飛彈」✘</span></div></div>
       <div class="rule"><div class="ic">👋</div><div>已經<b>調離、退伍</b>的人也會混進來，要選假的</div></div>
-      <div class="rule"><div class="ic">📈</div><div>越後面越難：拼裝人名 → <b>錯一個字</b> → 同部門互換 → <b>連姓都改</b></div></div>
+      <div class="rule"><div class="ic">📈</div><div>越後面越難：拼裝人名 → <b>錯一個字</b> → 同部門互換 → <b>連姓都改</b>；極速還有<b>部首陷阱</b>（均／鈞、茵／菌）</div></div>
       <div class="rule"><div class="ic">🔀</div><div>每局題目都不同，全公司的人會<b>輪流出完</b>才重來</div></div>
     </div>
     <div class="rules-go"><button class="big-btn green" id="goBtn">開始審查！</button></div>
@@ -364,7 +413,7 @@ body{
   <!-- 結算畫面 -->
   <div class="overlay end hidden" id="endScreen">
     <div class="board">
-      <div class="b-top"><div><span class="lamp"></span>審查結束了</div><div class="clock" id="eClock">00:00</div></div>
+      <div class="b-top"><div><span class="lamp"></span>【<span id="eMode">一般</span>】審查結束了</div><div class="clock" id="eClock">00:00</div></div>
       <div class="b-rank led" id="eRank">活體資料庫</div>
       <div class="b-mid"><span>這局分數</span><div class="b-score led" id="eScore">0</div></div>
       <div class="b-cmt led" id="eCmt"></div>
@@ -666,6 +715,15 @@ const LOOK_GROUPS = ['偉瑋煒暐韋維唯惟', '宇羽禹語雨', '豪濠皓�
   '嵐蘭瀾', '芸雲昀韻', '宸辰晨', '亦奕逸易', '妤予', '堯瑤', '彰璋章', '賢弦嫻', '達逵', '裕育', '盛聖', '穎潁', '任仁', '謙騫',
   '澤擇', '陵凌', '靜靖', '瑛英', '穗歲', '杉珊衫', '金錦', '乃迺', '叢聰', '依伊', '煥渙換', '于余', '彥顏', '姿咨孜', '鋌挺',
   '旭煦', '修秀', '啟啓', '泰太', '景璟', '廣光', '維惟', '惠蕙'];
+// 部首陷阱（極速模式專用）：右半邊一樣、只換偏旁，最機車
+const RAD_GROUPS = ['均鈞筠昀', '茵菌', '茵姻', '瑋偉煒暐韋緯', '銘鳴洺茗', '婷渟葶停', '晴清倩菁情睛', '靖靜', '瑄暄萱煊喧渲',
+  '珮佩', '琪祺淇棋麒騏', '榕溶蓉熔鎔', '澤擇鐸譯', '凱鎧愷剴', '楷諧偕', '駿俊峻竣浚', '豪濠壕', '翰瀚', '維唯惟濰',
+  '暉輝煇揮', '勳燻薰', '祐佑', '廷庭霆蜓挺鋌', '昱煜', '彰璋樟漳', '翊翌', '惠蕙憓', '哲浙晢', '穎潁', '綺琦錡崎倚',
+  '瑜渝愉諭喻榆', '凌陵菱綾', '儒孺濡', '芸紜耘', '娟涓絹鵑', '姿資咨諮', '柏伯泊珀', '淳醇諄', '澄橙證鄧', '旺汪枉',
+  '華驊樺嘩', '崡涵菡', '錕琨焜崑', '佳桂珪', '裕峪浴', '昌倡菖', '筌銓詮荃佺', '泳詠', '榛蓁臻', '禎楨偵', '龍瓏朧',
+  '峯峰鋒', '列烈洌', '迪笛', '賓濱檳繽', '讓壤釀', '幟織職熾', '婕捷睫', '渙換煥喚', '燃然', '珊姍', '桓垣', '倫綸崙',
+  '堯曉嶢', '宜誼', '瀚翰', '雯紋汶', '涵菡', '慈磁', '穗繐', '欣昕忻', '蓉溶', '瓊璚', '萲諼', '芃凡'];
+
 // 姓氏形近／音近（最高難度才會改姓）
 const SUR_GROUPS = ['陳程', '張章', '王汪', '許徐', '劉柳', '李黎', '吳伍巫', '鄭曾', '林凌', '楊陽', '黃王', '蕭肖', '余俞', '周鄒', '洪紅', '邱丘', '蔡賴', '郭國', '江姜'];
 
@@ -688,18 +746,62 @@ const LV_MIX = [
 ];
 const LV_SIBLING = [0, 0.3, 0.6, 0.8, 0.9];
 
-// 稱號
-const RANKS = [
-  { min: 0, title: '新來的吧？', cmt: '連隔壁座位都還不認得' },
-  { min: 800, title: '茶水間路人', cmt: '只認得常去裝水的那幾位' },
-  { min: 2000, title: '辦公室熟面孔', cmt: '自己單位的人很熟' },
-  { min: 4000, title: '人事小百科', cmt: '各單位都叫得出幾個名字' },
-  { min: 7000, title: '行動名冊', cmt: '人事都要來問你' },
-  { min: 11000, title: '活體資料庫', cmt: '全公司的人都在你腦子裡' }
-];
+// 稱號（每個模式各一套）
+const RANK_SETS = {
+  normal: [
+    { min: 0, title: '新來的吧？', cmt: '連隔壁座位都還不認得' },
+    { min: 800, title: '茶水間路人', cmt: '只認得常去裝水的那幾位' },
+    { min: 2000, title: '辦公室熟面孔', cmt: '自己單位的人很熟' },
+    { min: 4000, title: '人事小百科', cmt: '各單位都叫得出幾個名字' },
+    { min: 7000, title: '行動名冊', cmt: '人事都要來問你' },
+    { min: 10000, title: '人事室分身', cmt: '人事室的資料都沒你齊' },
+    { min: 15000, title: '全廠點名王', cmt: '點名完全不用看名冊' },
+    { min: 20000, title: '識別證掃描器', cmt: '看一眼就知道是誰' },
+    { min: 30000, title: '行走的人事系統', cmt: '你就是名冊本人' },
+    { min: 45000, title: '活體資料庫', cmt: '全公司的人都在你腦子裡' },
+    { min: 60000, title: '傳說中的人事神', cmt: '這分數只能膜拜' }
+  ],
+  hard: [
+    { min: 0, title: '實習稽核員', cmt: '名冊還在翻第一頁' },
+    { min: 800, title: '菜鳥稽核', cmt: '抽查常常抽到自己' },
+    { min: 2000, title: '小組長', cmt: '自己組的人一個不漏' },
+    { min: 4000, title: '代理課長', cmt: '隔壁課也開始認得' },
+    { min: 7000, title: '鐵面課長', cmt: '張冠李戴騙不了你' },
+    { min: 10000, title: '稽核組長', cmt: '錯一個字都抓得到' },
+    { min: 15000, title: '廠務督導', cmt: '巡一圈就知道誰沒來' },
+    { min: 20000, title: '人事總稽核', cmt: '名冊是你校對的' },
+    { min: 30000, title: '廠長特助', cmt: '長官點名都靠你' },
+    { min: 45000, title: '鐵血稽核王', cmt: '假證件看一眼就識破' },
+    { min: 60000, title: '稽核界的傳說', cmt: '這分數連人事都怕' }
+  ],
+  extreme: [
+    { min: 0, title: '手忙腳亂', cmt: '卡片還沒看清楚就沒了' },
+    { min: 800, title: '反應慢半拍', cmt: '想到名字時已經下一張' },
+    { min: 2000, title: '小跑步', cmt: '終於跟上節奏了' },
+    { min: 4000, title: '快手點名', cmt: '手指比腦袋還快' },
+    { min: 7000, title: '閃電判官', cmt: '0.8 秒內定生死' },
+    { min: 10000, title: '音速審查', cmt: '部首陷阱也難不倒你' },
+    { min: 15000, title: '殘影點名', cmt: '大家只看到你的殘影' },
+    { min: 20000, title: '光速掃描', cmt: '識別證還在飛就判完了' },
+    { min: 30000, title: '時間暫停者', cmt: '計時器跟不上你' },
+    { min: 45000, title: '極速之神', cmt: '鈞和均你一眼就分得出' },
+    { min: 60000, title: '超越光速', cmt: '這已經不是人類的反應' }
+  ]
+};
 
-const START_TIME = 30;
-const MAX_TIME = 40;
+// 三種模式
+const MODES = {
+  normal: { key: 'normal', name: '一般', icon: '🪪', desc: '新手友善・答錯 −3 秒',
+    start: 30, max: 40, bonus: 1, fastBonus: 1.5, fastAt: 1.2, wrong: 3, mult: 1,
+    startLv: 0, silly: true, pause: true, radical: false, okDelay: 550, badDelay: 1600 },
+  hard: { key: 'hard', name: '高階', icon: '🔍', desc: '沒有送分題・×1.5',
+    start: 25, max: 34, bonus: 0.7, fastBonus: 1, fastAt: 1.0, wrong: 4, mult: 1.5,
+    startLv: 1, silly: false, pause: true, radical: false, okDelay: 500, badDelay: 1400 },
+  extreme: { key: 'extreme', name: '極速', icon: '⚡', desc: '部首陷阱・計時不停・×2.5',
+    start: 20, max: 28, bonus: 0.5, fastBonus: 0.7, fastAt: 0.8, wrong: 6, mult: 2.5,
+    startLv: 2, silly: false, pause: false, radical: true, okDelay: 450, badDelay: 1400 }
+};
+let MODE = MODES.normal;
 
 // ==========================================
 // 🧮 資料整理
@@ -744,6 +846,7 @@ function buildLookMap(groups) {
 }
 const LOOK_MAP = buildLookMap(LOOK_GROUPS);
 const SUR_MAP = buildLookMap(SUR_GROUPS);
+const RAD_MAP = buildLookMap(RAD_GROUPS);
 // 名冊裡出現過的名字用字（讓改字後的名字看起來很自然）
 const MID_CHARS = [...new Set(THREE.map(p => p.name[1]))];
 const LAST_CHARS = [...new Set(REAL.filter(p => p.name.length <= 3).map(p => p.name[p.name.length - 1]))];
@@ -754,7 +857,7 @@ function unitColor(u) { const g = groupOf(u); return g ? g.color : (SILLY_COLOR[
 function siblings(u) { const g = groupOf(u); return g ? g.units.filter(x => x !== u && UNITS.includes(x)) : []; }
 function esc(s) { return String(s).replace(/[&<>"']/g, c => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;' }[c])); }
 function fmt(n) { return n.toLocaleString('en-US'); }
-function getRank(s) { let r = RANKS[0]; for (const x of RANKS) if (s >= x.min) r = x; return r; }
+function getRank(s, key) { const set = RANK_SETS[key || MODE.key]; let r = set[0]; for (const x of set) if (s >= x.min) r = x; return r; }
 
 // ==========================================
 // 🎲 出題
@@ -795,6 +898,8 @@ function pickPerson(filter) {
   }
   return p;
 }
+// 目前難度：高階、極速從較高的等級起跳
+function curLevel() { return levelOf(correct + LV_STEPS[MODE.startLv]); }
 function levelOf(c) {
   let l = 0;
   LV_STEPS.forEach((s, i) => { if (c >= s) l = i; });
@@ -836,13 +941,23 @@ function makeTypo(lv) {
     const positions = [];
     for (let k = 1; k < chars.length; k++) positions.push(k);
     if (lv >= 4 && SUR_MAP[chars[0]]) positions.push(0);
-    const pos = pick(positions);
+    let posPool = positions;
+    let wantRad = MODE.radical && Math.random() < 0.8;
+    if (wantRad) {
+      const rp = positions.filter(k => k > 0 && RAD_MAP[chars[k]]);
+      if (rp.length) posPool = rp; else wantRad = false;
+    }
+    const pos = pick(posPool);
     let cands = [];
+    let rad = false;
     if (pos === 0) {
       cands = SUR_MAP[chars[0]] || [];
     } else {
-      const useLook = lv >= 3 ? Math.random() < 0.85 : Math.random() < 0.5;
-      if (useLook) cands = LOOK_MAP[chars[pos]] || [];
+      if (wantRad) { cands = RAD_MAP[chars[pos]] || []; rad = cands.length > 0; }
+      if (!cands.length) {
+        const useLook = lv >= 3 ? Math.random() < 0.85 : Math.random() < 0.5;
+        if (useLook) cands = LOOK_MAP[chars[pos]] || [];
+      }
       if (!cands.length) cands = (pos === chars.length - 1) ? LAST_CHARS : MID_CHARS;
     }
     if (!cands.length) continue;
@@ -852,7 +967,7 @@ function makeTypo(lv) {
     nc[pos] = c;
     const n = nc.join('');
     if (ALL_NAMES.has(n) || recent.includes(n)) continue;
-    return { name: n, orig: p.name, unit: displayUnit(p) };
+    return { name: n, orig: p.name, unit: displayUnit(p), rad: rad };
   }
   return null;
 }
@@ -870,8 +985,11 @@ function makeFormer() {
   return { name: f.name, unit: unit, real: false, type: 'former', why: f.why };
 }
 function genQuestion() {
-  const lv = levelOf(correct);
-  const t = weightedIndex(LV_MIX[lv]);
+  const lv = curLevel();
+  const w = LV_MIX[lv].slice();
+  if (!MODE.silly) w[2] = 0;
+  if (MODE.radical) w[6] += 8;
+  const t = weightedIndex(w);
   let q = null;
   if (t === 0) {
     const p = pickPerson();
@@ -894,7 +1012,7 @@ function genQuestion() {
     q = { name: p.name, unit: pick(GHOST_UNITS), real: false, type: 'ghost', trueUnit: unitText(p) };
   } else if (t === 6) {
     const m = makeTypo(lv);
-    if (m) q = { name: m.name, unit: m.unit, real: false, type: 'typo', orig: m.orig };
+    if (m) q = { name: m.name, unit: m.unit, real: false, type: 'typo', orig: m.orig, rad: m.rad };
   } else if (t === 7) {
     q = makeFormer();
   }
@@ -908,6 +1026,11 @@ function genQuestion() {
   while (recent.length > 16) recent.shift();
   return q;
 }
+// 把兩個名字不一樣的字標成紅色
+function markDiff(a, b) {
+  const x = [...a], y = [...b];
+  return x.map((c, i) => c !== y[i] ? `<em class="diff">${esc(c)}</em>` : esc(c)).join('');
+}
 function explain(q) {
   const p = NAME_MAP.get(q.type === 'typo' ? q.orig : q.name);
   switch (q.type) {
@@ -916,13 +1039,13 @@ function explain(q) {
     case 'silly': return `幽靈單位！公司根本沒有「${esc(q.unit)}」`;
     case 'ghost': return `幽靈單位！沒有「${esc(q.unit)}」，<b>${esc(q.name)}</b> 在 <b class="gold">${esc(q.trueUnit)}</b>`;
     case 'mixed': return `拼裝人名！「${esc(q.from[0])}」的姓＋「${esc(q.from[1])}」的名`;
-    case 'typo': return `錯一個字！應該是 <b class="gold">${esc(q.orig)}</b>（${esc(p ? unitText(p) : q.unit)}）`;
+    case 'typo': return `${q.rad ? '部首陷阱' : '錯一個字'}！應該是 <b class="gold">${markDiff(q.orig, q.name)}</b><br>不是 <b>${markDiff(q.name, q.orig)}</b>（${esc(p ? unitText(p) : q.unit)}）`;
     case 'former': return `老面孔陷阱！<b>${esc(q.name)}</b> <b class="gold">${esc(q.why)}</b>，名冊上已經沒有了`;
     default: return `查無此人！名冊上沒有「${esc(q.name)}」`;
   }
 }
 function tapeText(q) {
-  const t = { mismatch: '張冠李戴', silly: '幽靈單位', ghost: '幽靈單位', mixed: '拼裝人名', typo: '錯字陷阱', former: q.why, fake: '查無此人' }[q.type] || '查無此人';
+  const t = { mismatch: '張冠李戴', silly: '幽靈單位', ghost: '幽靈單位', mixed: '拼裝人名', typo: q.rad ? '部首陷阱' : '錯字陷阱', former: q.why, fake: '查無此人' }[q.type] || '查無此人';
   return `${t}・${t}・${t}・${t}`;
 }
 function tagInfo(q) {
@@ -977,7 +1100,12 @@ function buzz(ms) { try { if (navigator.vibrate) navigator.vibrate(ms); } catch 
 // 💾 紀錄
 // ==========================================
 function store(k, v) { try { if (v === undefined) return localStorage.getItem(k); localStorage.setItem(k, v); } catch (e) { return null; } return null; }
-function getBest() { return parseInt(store('nobody_best') || '0', 10) || 0; }
+function getBest(key) {
+  const k = key || MODE.key;
+  let v = store('nobody_best_' + k);
+  if (v === null && k === 'normal') v = store('nobody_best'); // 舊版紀錄算一般模式
+  return parseInt(v || '0', 10) || 0;
+}
 
 // ==========================================
 // 🎮 狀態
@@ -987,23 +1115,44 @@ let state = 'wait';     // wait / ask / feedback
 let q = null;
 let qNo = 0, qStart = 0;
 let score = 0, combo = 0, maxCombo = 0, correct = 0, fastest = null;
-let timeLeft = START_TIME, lastT = 0, lastTick = 99, raf = null;
+let timeLeft = 30, lastT = 0, lastTick = 99, raf = null;
 let history = [];
 let fbTimer = null, lastSay = true;
 let tutIdx = 0;
+let fbStart = 0;
+let fbOk = true;
+// 看解析時再按一次真／假（或點畫面）＝直接下一張；0.25 秒內的連點不算，避免誤按
+function skipFeedback() {
+  if (state !== 'feedback') return false;
+  if (performance.now() - fbStart < 250) return true;
+  if (mode === 'tutorial') tutNext(); else nextOrEnd();
+  return true;
+}
+function pressAnswer(v) {
+  ac();
+  if (skipFeedback()) return;
+  answer(v);
+}
 let drag = null;
 let listFilter = 'all';
-let currentRank = RANKS[0].title;
+let currentRank = '';
 let level = 0;
 function renderLevel() {
   const chip = $('lvChip');
   if (!chip) return;
-  chip.textContent = mode === 'tutorial' ? '練習' : (level >= LV_STEPS.length - 1 ? 'MAX' : 'Lv.' + (level + 1));
+  chip.textContent = mode === 'tutorial' ? '練習' : MODE.name + ' ' + (level >= LV_STEPS.length - 1 ? 'MAX' : 'Lv.' + (level + 1));
   chip.classList.toggle('max', level >= LV_STEPS.length - 1 && mode !== 'tutorial');
 }
-function showLevelUp(lv) {
+// 加速：每答 SPEED_EVERY 張，答對加的秒數乘上的比例就降一級，最低 SPEED_MIN
+const SPEED_EVERY = 20;
+const SPEED_STEP = 0.15;
+const SPEED_MIN = 0.3;
+function speedFactor(answeredCount) {
+  return Math.max(SPEED_MIN, 1 - Math.floor(answeredCount / SPEED_EVERY) * SPEED_STEP);
+}
+function showLevelUp(lv, text) {
   const el = $('lvlUp');
-  el.textContent = LV_MSG[lv] || '難度 UP！';
+  el.textContent = text || LV_MSG[lv] || '難度 UP！';
   el.classList.remove('show');
   void el.offsetWidth;
   el.classList.add('show');
@@ -1034,7 +1183,7 @@ function cardEnter() {
   card.style.transform = 'translateY(-130%) rotate(-8deg)';
   card.style.opacity = '0';
   void card.offsetWidth;
-  card.style.transition = 'transform .32s cubic-bezier(.2,1.3,.4,1), opacity .15s';
+  card.style.transition = 'transform .25s cubic-bezier(.2,1.3,.4,1), opacity .12s';
   card.style.transform = 'none';
   card.style.opacity = '1';
 }
@@ -1109,7 +1258,7 @@ function renderTimer() {
     return;
   }
   $('timeText').textContent = timeLeft.toFixed(1);
-  $('timeFill').style.width = Math.min(100, timeLeft / START_TIME * 100) + '%';
+  $('timeFill').style.width = Math.min(100, timeLeft / MODE.start * 100) + '%';
   $('timer').classList.toggle('danger', timeLeft <= 5 && mode === 'game');
 }
 function showTimeDelta(d) {
@@ -1169,6 +1318,7 @@ function tutCard() {
 function tutAnswer(ok) {
   if (ok) {
     state = 'feedback';
+    fbStart = performance.now();
     cardCenter();
     showStamp(q, true);
     sfx('stamp'); sfx('ok');
@@ -1195,12 +1345,20 @@ function tutNext() {
     }
   }, 230);
 }
+function renderRules() {
+  const m = MODE;
+  $('ruleTime').innerHTML = `【${m.name}】開局 <b>${m.start} 秒</b>！答對 <b>+${m.bonus} 秒</b>（${m.fastAt} 秒內 <b>+${m.fastBonus}</b>），答錯 <b>−${m.wrong} 秒</b>，分數 <b>×${m.mult}</b>`
+    + (m.pause ? '' : '<br><span class="ex">答對看解析時<b>計時器不會停</b>（答錯會暫停讓你看清楚）</span>')
+    + '<br><span class="ex">每答 20 張會<b>加速</b>，答對加的秒數越來越少，高手也撐不久</span>';
+  $('goBtn').textContent = `開始【${m.name}】！`;
+}
 function endTutorial(done) {
   $('coach').classList.remove('show');
   hidePanel();
   mode = 'idle';
   state = 'wait';
   $('rulesTitle').textContent = done ? '教學完成！' : '遊戲規則';
+  renderRules();
   showOnly('rulesScreen');
 }
 
@@ -1209,9 +1367,9 @@ function endTutorial(done) {
 // ==========================================
 function resetStats() {
   score = 0; combo = 0; maxCombo = 0; correct = 0; fastest = null;
-  timeLeft = START_TIME; lastTick = 99; history = []; recent = []; qNo = 0;
-  currentRank = RANKS[0].title;
-  level = 0;
+  timeLeft = MODE.start; lastTick = 99; history = []; recent = []; qNo = 0;
+  currentRank = RANK_SETS[MODE.key][0].title;
+  level = MODE.startLv;
   usedFormer = [];
   clearTimeout(fbTimer);
 }
@@ -1267,7 +1425,9 @@ function loop(t) {
   if (mode !== 'game') { raf = null; return; }
   const dt = Math.min(0.1, (t - lastT) / 1000);
   lastT = t;
-  if (state === 'ask') {
+  // 一般、高階：看解析時暫停；極速：計時器繼續跑
+  // 極速答錯時也暫停，讓玩家看清楚錯在哪
+  if (state === 'ask' || (state === 'feedback' && !MODE.pause && fbOk)) {
     timeLeft -= dt;
     if (timeLeft <= 0) {
       timeLeft = 0;
@@ -1288,9 +1448,12 @@ function answer(sayReal) {
   if (mode === 'tutorial') { tutAnswer(ok); return; }
   if (mode !== 'game') return;
   state = 'feedback';
+  fbStart = performance.now();
+  fbOk = ok;
   lastSay = sayReal;
   const rt = Math.max(0.05, (performance.now() - qStart) / 1000);
   let dTime;
+  let leveledNow = false;
   cardCenter();
   showStamp(q, ok);
   sfx('stamp');
@@ -1299,32 +1462,36 @@ function answer(sayReal) {
     correct++;
     maxCombo = Math.max(maxCombo, combo);
     if (fastest === null || rt < fastest) fastest = rt;
-    const nl = levelOf(correct);
-    if (nl > level) { level = nl; renderLevel(); setTimeout(() => showLevelUp(nl), 250); }
+    const nl = curLevel();
+    if (nl > level) { level = nl; leveledNow = true; renderLevel(); setTimeout(() => showLevelUp(nl), 250); }
     const mult = multFor(combo - 1);
     const speed = Math.max(0, 1 - rt / 3);
-    const pts = Math.round((100 + 100 * speed) * mult / 10) * 10;
+    const pts = Math.round((100 + 100 * speed) * mult * MODE.mult / 10) * 10;
     score += pts;
-    dTime = rt < 1.2 ? 1.5 : 1;
+    dTime = Math.round((rt < MODE.fastAt ? MODE.fastBonus : MODE.bonus) * speedFactor(history.length) * 10) / 10;
     sfx('ok');
     burst(unitColor(q.unit));
     showPanel(`+${pts}`, 'c-green', `${combo} 連對${mult > 1 ? ' ×' + mult : ''}`, explain(q));
   } else {
     combo = 0;
-    dTime = -3;
+    dTime = -MODE.wrong;
     shake();
     sfx('bad'); buzz(150);
-    showPanel('−3 秒', 'c-red', '', explain(q));
+    showPanel(`−${MODE.wrong} 秒`, 'c-red', '', explain(q));
   }
-  timeLeft = Math.min(MAX_TIME, Math.max(0, timeLeft + dTime));
+  timeLeft = Math.min(MODE.max, Math.max(0, timeLeft + dTime));
   lastTick = 99;
   showTimeDelta(dTime);
   history.push({ q: q, ok: ok, rt: rt });
+  if (history.length % SPEED_EVERY === 0 && speedFactor(history.length) < speedFactor(history.length - 1)) {
+    const pctLeft = Math.round(speedFactor(history.length) * 100);
+    setTimeout(() => { if (mode === 'game') showLevelUp(0, `⚡ 加速！答對加時剩 ${pctLeft}%`); }, leveledNow ? 1700 : 250);
+  }
   renderHud();
   renderTimer();
   renderLevel();
   clearTimeout(fbTimer);
-  fbTimer = setTimeout(nextOrEnd, ok ? 750 : 1600);
+  fbTimer = setTimeout(nextOrEnd, ok ? MODE.okDelay : MODE.badDelay);
 }
 function nextOrEnd() {
   clearTimeout(fbTimer);
@@ -1356,13 +1523,14 @@ function showEnd() {
   const rank = getRank(score);
   const best = getBest();
   const isNew = score > best && score > 0;
-  if (isNew) store('nobody_best', String(score));
+  if (isNew) store('nobody_best_' + MODE.key, String(score));
   const now = new Date();
   const clock = String(now.getHours()).padStart(2, '0') + ':' + String(now.getMinutes()).padStart(2, '0');
   const avg = answered ? history.reduce((a, h) => a + h.rt, 0) / answered : null;
-  lastResult = { score, rank, pct, correct, maxCombo, fastest, avg, answered, clock, isNew };
+  lastResult = { modeName: MODE.name, score, rank, pct, correct, maxCombo, fastest, avg, answered, clock, isNew };
 
   $('eClock').textContent = clock;
+  $('eMode').textContent = MODE.name;
   $('eRank').textContent = rank.title;
   $('eScore').textContent = fmt(score);
   $('eCmt').innerHTML = esc(rank.cmt) + (isNew ? '<span class="b-new">新紀錄</span>' : '');
@@ -1406,7 +1574,7 @@ function renderList() {
 function shareText() {
   const r = lastResult; if (!r) return '';
   const line = history.slice(0, 20).map(h => h.ok ? '🟢' : '❌').join('');
-  let txt = `🪪 代號：查無此人\n`;
+  let txt = `🪪 代號：查無此人【${r.modeName}模式】\n`;
   txt += `我拿到「${r.rank.title}」稱號，${fmt(r.score)} 分！\n`;
   txt += `答對 ${r.correct} 張｜正確率 ${r.pct}%｜最多連對 ${r.maxCombo}`;
   if (r.fastest !== null) txt += `｜最快 ${r.fastest.toFixed(2)}s`;
@@ -1469,7 +1637,7 @@ function drawShareImage() {
   ctx.restore();
   ctx.fillStyle = '#2fa865'; ctx.beginPath(); ctx.arc(130, 140, 12, 0, Math.PI * 2); ctx.fill();
   ctx.fillStyle = '#9ba1b0'; ctx.font = `700 40px ${F}`; ctx.textBaseline = 'middle'; ctx.textAlign = 'left';
-  ctx.fillText('審查結束了', 160, 140);
+  ctx.fillText(`【${r.modeName}】審查結束了`, 160, 140);
   ctx.textAlign = 'right'; ctx.fillStyle = '#ffae1a'; ctx.font = `700 44px monospace`;
   ctx.fillText(r.clock, 950, 140);
   ctx.fillStyle = '#2a2e38'; ctx.fillRect(110, 190, 860, 3);
@@ -1560,14 +1728,14 @@ function doShareImage() {
 // ==========================================
 // 🕹️ 操作綁定
 // ==========================================
-$('btnF').addEventListener('click', () => { ac(); answer(false); });
-$('btnT').addEventListener('click', () => { ac(); answer(true); });
-panel.addEventListener('click', () => {
-  if (mode === 'tutorial') tutNext();
-  else nextOrEnd();
-});
+$('btnF').addEventListener('click', () => pressAnswer(false));
+$('btnT').addEventListener('click', () => pressAnswer(true));
+panel.addEventListener('click', () => { skipFeedback(); });
 $('skipTut').addEventListener('click', e => { e.stopPropagation(); store('nobody_tut', '1'); endTutorial(false); });
-$('startBtn').addEventListener('click', () => {
+$('modeList').addEventListener('click', e => {
+  const b = e.target.closest('.mode-btn');
+  if (!b) return;
+  MODE = MODES[b.dataset.mode] || MODES.normal;
   if (store('nobody_tut') === '1') startGame();
   else startTutorial();
 });
@@ -1588,6 +1756,7 @@ $('soundBtn').addEventListener('click', () => {
 
 // 滑動
 scene.addEventListener('pointerdown', e => {
+  if (state === 'feedback' && !e.target.closest('#coach')) { skipFeedback(); return; }
   if (state !== 'ask') return;
   if (e.target.closest('#panel') || e.target.closest('#coach')) return;
   drag = { x: e.clientX, dx: 0 };
@@ -1621,8 +1790,8 @@ scene.addEventListener('pointercancel', endDrag);
 // 鍵盤
 document.addEventListener('keydown', e => {
   const k = e.key;
-  if (k === 'f' || k === 'F' || k === 'ArrowLeft') { ac(); answer(false); }
-  else if (k === 'j' || k === 'J' || k === 'ArrowRight') { ac(); answer(true); }
+  if (k === 'f' || k === 'F' || k === 'ArrowLeft') pressAnswer(false);
+  else if (k === 'j' || k === 'J' || k === 'ArrowRight') pressAnswer(true);
   else if (k === ' ' || k === 'Enter') {
     if (state === 'feedback') { e.preventDefault(); if (mode === 'tutorial') tutNext(); else nextOrEnd(); }
   }
@@ -1634,9 +1803,22 @@ function goHome() {
   clearTimeout(fbTimer);
   hidePanel();
   $('coach').classList.remove('show');
-  const best = getBest();
-  $('bestText').textContent = best > 0 ? `🏆 最高紀錄 ${fmt(best)} 分（${getRank(best).title}）` : '';
-  $('tutBtn').textContent = store('nobody_tut') === '1' ? '再看一次教學' : '新手教學';
+  $('modeList').innerHTML = Object.values(MODES).map(m => {
+    const best = getBest(m.key);
+    const bestHtml = best > 0
+      ? `<span class="sc">${fmt(best)}</span><span class="rk">${esc(getRank(best, m.key).title)}</span>`
+      : '<span class="none">未挑戰</span>';
+    const lvl = { normal: 1, hard: 2, extreme: 3 }[m.key] || 1;
+    let pips = '';
+    for (let i = 1; i <= 3; i++) pips += `<i class="${i <= lvl ? 'on' : ''}"></i>`;
+    return `<button class="mode-btn m-${m.key}" data-mode="${m.key}">
+      <span class="clock"><b>${m.start}</b><small>秒</small></span>
+      <span class="mt"><span class="row1"><b>${m.name}</b><span class="pips">${pips}</span></span><small>${m.desc}</small></span>
+      <span class="mb">${bestHtml}</span>
+      <span class="go">▶</span>
+    </button>`;
+  }).join('');
+  $('tutBtn').textContent = store('nobody_tut') === '1' ? '📖 再看一次教學' : '📖 新手教學';
   showOnly('startScreen');
 }
 
