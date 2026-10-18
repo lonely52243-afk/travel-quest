@@ -104,7 +104,7 @@ body{
 .lanyard{width:16px;height:26px;border-radius:4px;background:#aab0c0;margin-bottom:-8px;z-index:6;
   box-shadow:inset 0 -6px 0 #7b8194}
 .card{
-  width:min(290px,76vw);height:clamp(290px,46dvh,380px);
+  width:min(290px,76vw);height:auto;min-height:clamp(270px,44dvh,370px);
   border-radius:16px;position:relative;overflow:hidden;
   background:linear-gradient(140deg,#fafafa 0%,#e1e3e8 100%);
   box-shadow:0 24px 50px rgba(0,0,0,.65),inset 0 0 0 2px #fff;
@@ -119,11 +119,11 @@ body{
   font-size:clamp(32px,6dvh,46px);font-weight:900;color:#fff;background:#9aa3b5;flex-shrink:0}
 .name{color:#1d1f25;font-size:clamp(30px,6dvh,40px);font-weight:900;margin:clamp(8px,2dvh,14px) 0 8px;letter-spacing:3px;white-space:nowrap}
 .name.long{font-size:clamp(26px,5dvh,32px);letter-spacing:1px}
-.unit-box{background:#fff;padding:7px 22px;border-radius:22px;border:1px solid #d6d8de;
-  box-shadow:0 2px 6px rgba(0,0,0,.08);display:flex;align-items:center;gap:8px}
+.unit-box{background:#fff;padding:7px 22px;border-radius:22px;border:1px solid #d6d8de;position:relative;z-index:2;
+  box-shadow:0 2px 6px rgba(0,0,0,.08);display:flex;align-items:center;gap:8px;margin-bottom:14px;flex-shrink:0}
 .unit-box span:first-child{font-size:12px;color:#8b92a5;font-weight:700}
 .unit{color:#c9302b;font-size:21px;font-weight:900;letter-spacing:1px}
-.barcode{position:absolute;bottom:16px;width:74%;height:26px;opacity:.65;
+.barcode{position:relative;margin-top:auto;margin-bottom:16px;flex-shrink:0;width:74%;height:24px;opacity:.65;
   background:repeating-linear-gradient(90deg,#222 0 2px,transparent 2px 4px,#222 4px 7px,transparent 7px 10px,#222 10px 11px,transparent 11px 14px)}
 .tape{position:absolute;left:-10%;right:-10%;bottom:30%;background:var(--gold);color:#222;font-weight:900;
   font-size:16px;padding:6px 0;text-align:center;transform:rotate(-8deg) scaleX(0);transform-origin:left;
@@ -195,9 +195,20 @@ body{
 .big-btn.green{background:var(--green);box-shadow:0 7px 0 #1d6d40}
 .big-btn.ghost{background:transparent;border:2px solid rgba(255,255,255,.25);box-shadow:none;font-size:17px;padding:11px 0}
 .best{color:var(--gold);font-weight:700;font-size:14px;margin-top:6px}
+.data-date{color:var(--sub);font-size:12px;margin-top:10px}
 .rules{text-align:left;width:min(340px,100%);margin:6px 0 22px}
 .rule{display:flex;gap:12px;align-items:center;background:#1b1f2b;border-radius:14px;padding:11px 14px;margin-bottom:9px;font-size:15px;line-height:1.4}
 .rule .ic{font-size:24px;width:30px;text-align:center}
+.rules-screen{justify-content:flex-start;overflow-y:auto;-webkit-overflow-scrolling:touch;padding:calc(20px + env(safe-area-inset-top)) 18px 0}
+.rules-screen .rules{margin:12px 0 0}
+.rules-screen .rule{padding:9px 12px;margin-bottom:7px;font-size:14px}
+.rules-screen .rule .ic{font-size:20px;width:26px;flex-shrink:0}
+.rule .ex{color:#8b92a5;font-size:12px}
+.rules-date{color:var(--sub);font-size:13px}
+.rules-date b{color:var(--gold)}
+.rules-go{position:sticky;bottom:0;width:100%;display:flex;justify-content:center;
+  padding:14px 0 calc(16px + env(safe-area-inset-bottom));background:linear-gradient(to top,rgba(9,10,16,1) 70%,rgba(9,10,16,0));margin-top:auto}
+.rules-go .big-btn{margin-bottom:0}
 .rule b{color:var(--gold)}
 
 /* ===== 結算畫面 ===== */
@@ -331,21 +342,22 @@ body{
     <button class="big-btn" id="startBtn">開始審查</button>
     <button class="big-btn ghost" id="tutBtn">新手教學</button>
     <div class="best" id="bestText"></div>
+    <div class="data-date">名冊資料擷取日期：<span id="dataDate2"></span></div>
   </div>
 
   <!-- 規則畫面 -->
-  <div class="overlay hidden" id="rulesScreen">
-    <div class="title" style="font-size:36px" id="rulesTitle">教學完成！</div>
+  <div class="overlay hidden rules-screen" id="rulesScreen">
+    <div class="title" style="font-size:32px;margin-bottom:2px" id="rulesTitle">教學完成！</div>
+    <div class="rules-date">名冊資料擷取日期：<b id="dataDate1"></b></div>
     <div class="rules">
-      <div class="rule"><div class="ic">⏱️</div><div>一開始只有 <b>30 秒</b>，時間到就結束</div></div>
-      <div class="rule"><div class="ic">✅</div><div>答對 <b>+1 秒</b>，1.2 秒內秒答 <b>+1.5 秒</b></div></div>
-      <div class="rule"><div class="ic">❌</div><div>答錯直接 <b>−3 秒</b></div></div>
-      <div class="rule"><div class="ic">⚡</div><div>越快答分數越高，最多 <b>200 分</b>一張</div></div>
-      <div class="rule"><div class="ic">🔥</div><div>每連對 5 張，倍率 <b>+0.5</b>（最高 ×3）</div></div>
-      <div class="rule"><div class="ic">📈</div><div>答越多越難：拼裝人名 → <b>錯一個字</b> → 同部門互換 → <b>連姓都改</b></div></div>
+      <div class="rule"><div class="ic">⏱️</div><div>只有 <b>30 秒</b>！答對 <b>+1 秒</b>（1.2 秒內 <b>+1.5</b>），答錯 <b>−3 秒</b></div></div>
+      <div class="rule"><div class="ic">⚡</div><div>越快答分越高，最多 <b>200 分</b>；連對 5 張倍率 <b>+0.5</b>（最高 ×3）</div></div>
+      <div class="rule"><div class="ic">🏷️</div><div>寫他的<b>股</b>或所屬的<b>課</b>都算對<br><span class="ex">例：蔡同咨是軍械股 →「軍械」✔「武系課」✔「飛彈」✘</span></div></div>
+      <div class="rule"><div class="ic">👋</div><div>已經<b>調離、退伍</b>的人也會混進來，要選假的</div></div>
+      <div class="rule"><div class="ic">📈</div><div>越後面越難：拼裝人名 → <b>錯一個字</b> → 同部門互換 → <b>連姓都改</b></div></div>
       <div class="rule"><div class="ic">🔀</div><div>每局題目都不同，全公司的人會<b>輪流出完</b>才重來</div></div>
     </div>
-    <button class="big-btn green" id="goBtn">開始審查！</button>
+    <div class="rules-go"><button class="big-btn green" id="goBtn">開始審查！</button></div>
   </div>
 
   <!-- 結算畫面 -->
@@ -380,250 +392,259 @@ body{
 
 <script>
 // ==========================================
-// 📋 名冊（一行一個：姓名 空白或Tab 單位）
+// 📋 名冊
 // ==========================================
+// 名冊資料擷取日期（更新名冊時記得一起改）
+const DATA_DATE = '10/15';
+
+// 一行一個：姓名　課　股（用空白或 Tab 隔開；課和股一樣就寫兩次）
 const ROSTER_TEXT = `
-蘇建彰	廠辦
-鄭宏廷	廠辦
-賴昱辰	廠辦
-李彥廣	廠辦
-林雅穗	廠辦
-吳彥賢	生品
-張珮甄	生品
-齊伯軒	生品
-李律衡	生品
-廖綜彬	生品
-林裕盛	生品
-曾愉婷	生品
-江常銘	生品
-蘇筠喬	生品
-王莉凱	生品
-黃奕達	生品
-彭琪菌	生品
-蕭亞瑄	生品
-盧俊成	生品
-郭庭吟	生品
-潘聖昌	生品
-方維廉	生品
-王姿璇	生品
-蔡雯晴	生品
-林承昱	生品
-曾詣勛	生品
-陳怡杉	生品
-張麗玲	生品
-陳怡怡	生品
-劉原彰	航儀課
-郭晉瑋	航儀課
-王尚淳	通導
-楊志漬	通導
-李家榮	通導
-鄭文瑋	通導
-李偉銘	通導
-張棣鈞	通導
-曲彥蓉	通導
-許天寶	通導
-馬筠茹	通導
-洪靖濰	通導
-李名哲	通導
-鄭涵文	通導
-廖彥筌	通導
-邱立勳	通導
-李珮瑄	通導
-邱子銘	通導
-宋泳緯	通導
-李奕萱	通導
-王為勝	通導
-翁有德	通導
-吳鎮宇	感測
-鄞姿宇	感測
-許振達	感測
-巫顯浩	感測
-張吉誠	感測
-陳楷元	感測
-蔡忠豪	感測
-許為凱	感測
-余紹榛	感測
-許佳群	感測
-江長昱	感測
-林欣蓉	感測
-林含蓉	感測
-林靜慈	感測
-許宏銘	感測
-許子祐	感測
-洪運	感測
-楊雅瓊	感測
-鍾侑儒	感測
-鍾惠美	感測
-林坤展	感測
-洪淑姻	感測
-張詒俊	感測
-劉韋宏	儀電
-黃昱嘉	儀電
-張皓凱	儀電
-林孝文	儀電
-童旨駿	儀電
-邱羚	儀電
-李柏諭	儀電
-蔡承澤	儀電
-黃嘉宏	儀電
-黃士禎	儀電
-黃羿龍	儀電
-陳婠綺	儀電
-楊子萲	儀電
-王佳慧	儀電
-林韋聿	儀電
-周靖宜	儀電
-吳韋翰	儀電
-閻芃諭	儀電
-黃暐舜	儀電
-董姿青	儀電
-陳渝鈞	儀電
-洪逞謙	儀電
-陳振愷	武系課
-張哲豪	武系課
-賴孝任	快砲
-柯彥丞	快砲
-余佳濠	快砲
-陳慶佑	快砲
-胡晉胤	快砲
-施雨宏	快砲
-陳奕丞	快砲
-李汝駿	快砲
-洪溶彬	快砲
-石家豪	快砲
-李明聰	快砲
-陳彥峯	快砲
-任冠霖	快砲
-王智揚	快砲
-李建霖	快砲
-吳俊德	快砲
-李叢列	快砲
-徐冠勳	快砲
-袁孟輝	快砲
-劉玠迪	快砲
-柯上紹軒	快砲
-蕭雅芸	快砲
-陳柏旺	快砲
-陳彩茹	快砲
-朱晉寬	快砲
-王先瀚	快砲
-張少華	快砲
-蔡敦越	飛彈
-林莞晴	飛彈
-李玟澄	飛彈
-王上賓	飛彈
-夏文裕	飛彈
-陳啟泰	軍械
-洪榕澤	飛彈
-劉協均	飛彈
-王泓元	飛彈
-林孟德	飛彈
-劉冠廷	飛彈
-劉季讓	飛彈
-蘇慶輝	飛彈
-詹妤君	飛彈
-徐唯量	飛彈
-袁依帆	飛彈
-陳怡娟	飛彈
-鄭乃綺	飛彈
-張銘修	飛彈
-陳明雄	飛彈
-黃金娟	飛彈
-余季華	飛彈
-許宸儒	飛彈
-張旭毅	飛彈
-王政欽	飛彈
-李宗穎	軍械
-林謙丞	軍械
-劉庭妤	軍械
-李威幟	軍械
-蔡同咨	軍械
-洪晨光	軍械
-何謙	軍械
-鄭于玲	軍械
-林韋辰	軍械
-黃少瑋	軍械
-王志鵬	軍械
-劉蔡融	軍械
-蔡竣丞	軍械
-郭蕙芳	軍械
-鍾鴻運	軍械
-鄭亦宸	軍械
-郭宗瑋	軍械
-陳冠瑜	軍械
-郭瓊嵐	軍械
-周芯羽	軍械
-張煥鈞	軍械
-褚靜婕	軍械
-張渙威	空電課
-李紹民	空電課
-陳昱廷	顯控
-周靖智	顯控
-沈蕙雯	顯控
-洪玉敏	顯控
-陳欣儀	顯控
-葉怡均	顯控
-李坤錕	顯控
-陳志維	顯控
-王暄然	顯控
-蔡柏群	顯控
-蔡承城	顯控
-何冠達	顯控
-留翊芳	顯控
-潘新宇	顯控
-曾順雍	顯控
-鄭宏鈞	顯控
-謝芸庭	顯控
-胡治賢	火控
-余鈺鋌	火控
-章硯宇	火控
-洪智強	火控
-賴志軒	火控
-許家榮	火控
-陳柏翰	火控
-黃頌文	火控
-許鈺崡	火控
-賴俊佑	火控
-曾薇陵	火控
-尤儀靜	火控
-康翔宇	火控
-張振國	火控
-林佳勳	火控
-阮仲乾	火控
-陳宇軒	火控
-許家茵	火控
-宋鎧丞	火控
-張嘉珊	火控
-蔡秉桓	火控
-黃榮輝	火控
-李宗諭	火控
-趙翊惠	主件
-蕭宇杰	主件
-吳冠賢	主件
-林建宏	主件
-王致淵	主件
-鄭智遠	主件
-郭俊瑋	主件
-王哲倫	主件
-陳彥璋	主件
-鄭名佑	主件
-莊程堯	主件
-陳亭亘	主件
-李家華	主件
-盧欣儀	主件
-陳佳蓉	主件
-鄭景鴻	主件
-鄭圳廷	主件
-方玉亭	主件
-葉國豪	主件
+蘇建彰	廠辦	廠辦
+鄭宏廷	廠辦	廠辦
+賴昱辰	廠辦	廠辦
+李彥廣	廠辦	廠辦
+林雅穗	廠辦	廠辦
+吳彥賢	生品	生品
+張珮甄	生品	生品
+齊伯軒	生品	生品
+李律衡	生品	生品
+廖綜彬	生品	生品
+林裕盛	生品	生品
+曾愉婷	生品	生品
+江常銘	生品	生品
+蘇筠喬	生品	生品
+王莉凱	生品	生品
+黃奕達	生品	生品
+彭琪菌	生品	生品
+蕭亞瑄	生品	生品
+盧俊成	生品	生品
+郭庭吟	生品	生品
+潘聖昌	生品	生品
+方維廉	生品	生品
+王姿璇	生品	生品
+蔡雯晴	生品	生品
+林承昱	生品	生品
+曾詣勛	生品	生品
+陳怡杉	生品	生品
+張麗玲	生品	生品
+陳怡怡	生品	生品
+劉原彰	航儀課	航儀
+郭晉瑋	航儀課	航儀
+王尚淳	航儀課	通導
+楊志漬	航儀課	通導
+李家榮	航儀課	通導
+鄭文瑋	航儀課	通導
+李偉銘	航儀課	通導
+張棣鈞	航儀課	通導
+曲彥蓉	航儀課	通導
+許天寶	航儀課	通導
+馬筠茹	航儀課	通導
+洪靖濰	航儀課	通導
+李名哲	航儀課	通導
+鄭涵文	航儀課	通導
+廖彥筌	航儀課	通導
+邱立勳	航儀課	通導
+李珮瑄	航儀課	通導
+邱子銘	航儀課	通導
+宋泳緯	航儀課	通導
+李奕萱	航儀課	通導
+王為勝	航儀課	通導
+翁有德	航儀課	通導
+吳鎮宇	航儀課	感測
+鄞姿宇	航儀課	感測
+許振達	航儀課	感測
+巫顯浩	航儀課	感測
+張吉誠	航儀課	感測
+陳楷元	航儀課	感測
+蔡忠豪	航儀課	感測
+許為凱	航儀課	感測
+余紹榛	航儀課	感測
+許佳群	航儀課	感測
+江長昱	航儀課	感測
+林欣蓉	航儀課	感測
+林含蓉	航儀課	感測
+林靜慈	航儀課	感測
+許宏銘	航儀課	感測
+許子祐	航儀課	感測
+洪運	航儀課	感測
+楊雅瓊	航儀課	感測
+鍾侑儒	航儀課	感測
+鍾惠美	航儀課	感測
+林坤展	航儀課	感測
+洪淑姻	航儀課	感測
+張詒俊	航儀課	感測
+劉韋宏	航儀課	儀電
+黃昱嘉	航儀課	儀電
+張皓凱	航儀課	儀電
+林孝文	航儀課	儀電
+童旨駿	航儀課	儀電
+邱羚	航儀課	儀電
+李柏諭	航儀課	儀電
+蔡承澤	航儀課	儀電
+黃嘉宏	航儀課	儀電
+黃士禎	航儀課	儀電
+黃羿龍	航儀課	儀電
+陳婠綺	航儀課	儀電
+楊子萲	航儀課	儀電
+王佳慧	航儀課	儀電
+林韋聿	航儀課	儀電
+周靖宜	航儀課	儀電
+吳韋翰	航儀課	儀電
+閻芃諭	航儀課	儀電
+黃暐舜	航儀課	儀電
+董姿青	航儀課	儀電
+陳渝鈞	航儀課	儀電
+洪逞謙	航儀課	儀電
+陳振愷	武系課	武系
+張哲豪	武系課	武系
+賴孝任	武系課	快砲
+余佳濠	武系課	快砲
+陳慶佑	武系課	快砲
+胡晉胤	武系課	快砲
+施雨宏	武系課	快砲
+陳奕丞	武系課	快砲
+李汝駿	武系課	快砲
+洪溶彬	武系課	快砲
+石家豪	武系課	快砲
+李明聰	武系課	快砲
+陳彥峯	武系課	快砲
+任冠霖	武系課	快砲
+王智揚	武系課	快砲
+李建霖	武系課	快砲
+吳俊德	武系課	快砲
+李叢列	武系課	快砲
+徐冠勳	武系課	快砲
+袁孟輝	武系課	快砲
+劉玠迪	武系課	快砲
+柯上紹軒	武系課	快砲
+蕭雅芸	武系課	快砲
+陳柏旺	武系課	快砲
+陳彩茹	武系課	快砲
+朱晉寬	武系課	快砲
+王先瀚	武系課	快砲
+張少華	武系課	快砲
+蔡敦越	武系課	飛彈
+林莞晴	武系課	飛彈
+李玟澄	武系課	飛彈
+王上賓	武系課	飛彈
+夏文裕	武系課	飛彈
+陳啟泰	武系課	軍械
+洪榕澤	武系課	飛彈
+劉協均	武系課	飛彈
+王泓元	武系課	飛彈
+林孟德	武系課	飛彈
+劉冠廷	武系課	飛彈
+劉季讓	武系課	飛彈
+蘇慶輝	武系課	飛彈
+詹妤君	武系課	飛彈
+徐唯量	武系課	飛彈
+袁依帆	武系課	飛彈
+陳怡娟	武系課	飛彈
+鄭乃綺	武系課	飛彈
+張銘修	武系課	飛彈
+陳明雄	武系課	飛彈
+黃金娟	武系課	飛彈
+余季華	武系課	飛彈
+許宸儒	武系課	飛彈
+張旭毅	武系課	飛彈
+王政欽	武系課	飛彈
+李宗穎	武系課	軍械
+林謙丞	武系課	軍械
+劉庭妤	武系課	軍械
+李威幟	武系課	軍械
+蔡同咨	武系課	軍械
+洪晨光	武系課	軍械
+何謙	武系課	軍械
+鄭于玲	武系課	軍械
+林韋辰	武系課	軍械
+黃少瑋	武系課	軍械
+王志鵬	武系課	軍械
+劉蔡融	武系課	軍械
+郭蕙芳	武系課	軍械
+鍾鴻運	武系課	軍械
+鄭亦宸	武系課	軍械
+郭宗瑋	武系課	軍械
+陳冠瑜	武系課	軍械
+郭瓊嵐	武系課	軍械
+周芯羽	武系課	軍械
+張煥鈞	武系課	軍械
+褚靜婕	武系課	軍械
+張渙威	空電課	空電
+李紹民	空電課	空電
+陳昱廷	空電課	顯控
+周靖智	空電課	顯控
+沈蕙雯	空電課	顯控
+洪玉敏	空電課	顯控
+陳欣儀	空電課	顯控
+葉怡均	空電課	顯控
+李坤錕	空電課	顯控
+陳志維	空電課	顯控
+王暄然	空電課	顯控
+蔡柏群	空電課	顯控
+蔡承城	空電課	顯控
+何冠達	空電課	顯控
+留翊芳	空電課	顯控
+潘新宇	空電課	顯控
+曾順雍	空電課	顯控
+鄭宏鈞	空電課	顯控
+謝芸庭	空電課	顯控
+胡治賢	空電課	火控
+余鈺鋌	空電課	火控
+洪智強	空電課	火控
+賴志軒	空電課	火控
+許家榮	空電課	火控
+陳柏翰	空電課	火控
+黃頌文	空電課	火控
+許鈺崡	空電課	火控
+賴俊佑	空電課	火控
+曾薇陵	空電課	火控
+尤儀靜	空電課	火控
+康翔宇	空電課	火控
+張振國	空電課	火控
+林佳勳	空電課	火控
+阮仲乾	空電課	火控
+陳宇軒	空電課	火控
+許家茵	空電課	火控
+宋鎧丞	空電課	火控
+張嘉珊	空電課	火控
+蔡秉桓	空電課	火控
+黃榮輝	空電課	火控
+李宗諭	空電課	火控
+趙翊惠	空電課	主件
+蕭宇杰	空電課	主件
+吳冠賢	空電課	主件
+林建宏	空電課	主件
+王致淵	空電課	主件
+鄭智遠	空電課	主件
+郭俊瑋	空電課	主件
+王哲倫	空電課	主件
+陳彥璋	空電課	主件
+鄭名佑	空電課	主件
+莊程堯	空電課	主件
+陳亭亘	空電課	主件
+李家華	空電課	主件
+盧欣儀	空電課	主件
+陳佳蓉	空電課	主件
+鄭景鴻	空電課	主件
+鄭圳廷	空電課	主件
+方玉亭	空電課	主件
+葉國豪	空電課	主件
+`;
+
+// 已經不在的人（調離、退伍）：會拿來當陷阱題，正確答案是「假的」
+// 一行一個：姓名　原本的股　原因
+const FORMER_TEXT = `
+柯彥丞	快砲	已調離
+章硯宇	火控	已調離
+蔡竣丞	軍械	已退伍
 `;
 
 // 部門分組（同組 = 容易搞混的陷阱）＋代表色
 const GROUPS = [
   { units: ['廠辦', '生品'], color: '#4a90e2' },
-  { units: ['航儀課', '通導', '感測', '儀電'], color: '#19a58f' },
-  { units: ['武系課', '快砲', '飛彈', '軍械'], color: '#e2683c' },
-  { units: ['空電課', '顯控', '火控', '主件'], color: '#8d6ce2' }
+  { units: ['航儀課', '航儀', '通導', '感測', '儀電'], color: '#19a58f' },
+  { units: ['武系課', '武系', '快砲', '飛彈', '軍械'], color: '#e2683c' },
+  { units: ['空電課', '空電', '顯控', '火控', '主件'], color: '#8d6ce2' }
 ];
 
 // 隨機產生假名字用的姓氏與名字用字（每次組合都不一樣，背不起來）
@@ -657,11 +678,11 @@ const LV_MSG = [
 ];
 // 各難度出題比例：真的、張冠李戴、搞笑單位、陌生人名、像真的幽靈單位、拼裝人名、錯一個字
 const LV_MIX = [
-  [50, 20, 15, 15, 0, 0, 0],
-  [50, 18, 5, 8, 7, 12, 0],
-  [48, 16, 0, 4, 6, 10, 16],
-  [46, 16, 0, 0, 4, 8, 26],
-  [44, 16, 0, 0, 3, 6, 31]
+  [50, 20, 15, 15, 0, 0, 0, 0],
+  [50, 18, 5, 8, 7, 12, 0, 4],
+  [48, 16, 0, 4, 6, 10, 16, 4],
+  [46, 16, 0, 0, 4, 8, 26, 4],
+  [44, 16, 0, 0, 3, 6, 31, 4]
 ];
 const LV_SIBLING = [0, 0.3, 0.6, 0.8, 0.9];
 
@@ -681,12 +702,25 @@ const MAX_TIME = 40;
 // ==========================================
 // 🧮 資料整理
 // ==========================================
+// 每個人：ke = 課、gu = 股、units = 寫哪個都算對
 const REAL = ROSTER_TEXT.trim().split('\n')
   .map(l => l.trim().split(/\s+/))
   .filter(a => a.length >= 2)
-  .map(a => ({ name: a[0], unit: a[1] }));
-const NAME_MAP = new Map(REAL.map(p => [p.name, p.unit]));
-const UNITS = [...new Set(REAL.map(p => p.unit))];
+  .map(a => {
+    const ke = a[1], gu = a[2] || a[1];
+    return { name: a[0], ke: ke, gu: gu, units: ke === gu ? [gu] : [gu, ke] };
+  });
+const FORMER = FORMER_TEXT.trim().split('\n')
+  .map(l => l.trim().split(/\s+/))
+  .filter(a => a.length >= 2)
+  .map(a => ({ name: a[0], unit: a[1], why: a[2] || '已不在名冊' }));
+const NAME_MAP = new Map(REAL.map(p => [p.name, p]));
+const ALL_NAMES = new Set(REAL.map(p => p.name).concat(FORMER.map(f => f.name)));
+const UNITS = [...new Set(REAL.flatMap(p => p.units))];
+function isRealPair(name, unit) { const p = NAME_MAP.get(name); return !!p && p.units.includes(unit); }
+// 卡片上要寫課還是股：大多寫股，偶爾寫課
+function displayUnit(p) { return (p.ke !== p.gu && Math.random() < 0.3) ? p.ke : p.gu; }
+function unitText(p) { return p.ke === p.gu ? p.gu : `${p.ke}・${p.gu}`; }
 const THREE = REAL.filter(p => p.name.length === 3);
 const GHOST_UNITS = GHOST_UNITS_RAW.filter(u => !UNITS.includes(u));
 const SILLY_COLOR = {};
@@ -774,7 +808,7 @@ function genName() {
     const a = pick(FAKE_GIVEN), b = pick(FAKE_GIVEN);
     if (a === b) continue;
     const n = pick(FAKE_SURNAMES) + a + b;
-    if (NAME_MAP.has(n) || recent.includes(n)) continue;
+    if (ALL_NAMES.has(n) || recent.includes(n)) continue;
     return n;
   }
   return '王小明';
@@ -785,8 +819,8 @@ function makeMixed() {
     const a = pick(THREE), b = pick(THREE);
     if (a.name[0] === b.name[0]) continue;
     const n = a.name[0] + b.name.slice(1);
-    if (NAME_MAP.has(n) || recent.includes(n)) continue;
-    return { name: n, from: [a.name, b.name], unit: b.unit };
+    if (ALL_NAMES.has(n) || recent.includes(n)) continue;
+    return { name: n, from: [a.name, b.name], unit: displayUnit(b) };
   }
   return null;
 }
@@ -813,10 +847,23 @@ function makeTypo(lv) {
     const nc = chars.slice();
     nc[pos] = c;
     const n = nc.join('');
-    if (NAME_MAP.has(n) || recent.includes(n)) continue;
-    return { name: n, orig: p.name, unit: p.unit };
+    if (ALL_NAMES.has(n) || recent.includes(n)) continue;
+    return { name: n, orig: p.name, unit: displayUnit(p) };
   }
   return null;
+}
+// 已調離／退伍的人（每局每人最多出一次）
+let usedFormer = [];
+function makeFormer() {
+  const pool = FORMER.filter(f => !usedFormer.includes(f.name));
+  if (!pool.length) return null;
+  const f = pick(pool);
+  usedFormer.push(f.name);
+  const g = groupOf(f.unit);
+  // 有時候寫「課」
+  const ke = g ? g.units[0] : null;
+  const unit = (ke && ke !== f.unit && Math.random() < 0.3) ? ke : f.unit;
+  return { name: f.name, unit: unit, real: false, type: 'former', why: f.why };
 }
 function genQuestion() {
   const lv = levelOf(correct);
@@ -824,22 +871,28 @@ function genQuestion() {
   let q = null;
   if (t === 0) {
     const p = pickPerson();
-    q = { name: p.name, unit: p.unit, real: true, type: 'real' };
+    q = { name: p.name, unit: displayUnit(p), real: true, type: 'real' };
   } else if (t === 1) {
     const p = pickPerson();
-    let pool = (Math.random() < LV_SIBLING[lv]) ? siblings(p.unit) : [];
-    if (!pool.length) pool = UNITS.filter(u => u !== p.unit);
-    q = { name: p.name, unit: pick(pool), real: false, type: 'mismatch', trueUnit: p.unit };
+    let pool = [];
+    if (Math.random() < LV_SIBLING[lv]) {
+      const g = groupOf(p.gu);
+      if (g) pool = g.units.filter(u => !p.units.includes(u) && UNITS.includes(u));
+    }
+    if (!pool.length) pool = UNITS.filter(u => !p.units.includes(u));
+    q = { name: p.name, unit: pick(pool), real: false, type: 'mismatch', trueUnit: unitText(p) };
   } else if (t === 2) {
     q = { name: genName(), unit: pick(SILLY_UNITS), real: false, type: 'silly' };
   } else if (t === 3) {
     q = { name: genName(), unit: pick(UNITS), real: false, type: 'fake' };
   } else if (t === 4 && GHOST_UNITS.length) {
     const p = pickPerson();
-    q = { name: p.name, unit: pick(GHOST_UNITS), real: false, type: 'ghost', trueUnit: p.unit };
+    q = { name: p.name, unit: pick(GHOST_UNITS), real: false, type: 'ghost', trueUnit: unitText(p) };
   } else if (t === 6) {
     const m = makeTypo(lv);
     if (m) q = { name: m.name, unit: m.unit, real: false, type: 'typo', orig: m.orig };
+  } else if (t === 7) {
+    q = makeFormer();
   }
   if (!q) {
     const m = makeMixed();
@@ -852,18 +905,20 @@ function genQuestion() {
   return q;
 }
 function explain(q) {
+  const p = NAME_MAP.get(q.type === 'typo' ? q.orig : q.name);
   switch (q.type) {
-    case 'real': return `<b>${esc(q.name)}</b> 確實是 <b>${esc(q.unit)}</b> 的人`;
+    case 'real': return `<b>${esc(q.name)}</b> 確實在 <b>${esc(p ? unitText(p) : q.unit)}</b>`;
     case 'mismatch': return `張冠李戴！<b>${esc(q.name)}</b> 其實在 <b class="gold">${esc(q.trueUnit)}</b>`;
     case 'silly': return `幽靈單位！公司根本沒有「${esc(q.unit)}」`;
     case 'ghost': return `幽靈單位！沒有「${esc(q.unit)}」，<b>${esc(q.name)}</b> 在 <b class="gold">${esc(q.trueUnit)}</b>`;
     case 'mixed': return `拼裝人名！「${esc(q.from[0])}」的姓＋「${esc(q.from[1])}」的名`;
-    case 'typo': return `錯一個字！應該是 <b class="gold">${esc(q.orig)}</b>（${esc(q.unit)}）`;
+    case 'typo': return `錯一個字！應該是 <b class="gold">${esc(q.orig)}</b>（${esc(p ? unitText(p) : q.unit)}）`;
+    case 'former': return `老面孔陷阱！<b>${esc(q.name)}</b> <b class="gold">${esc(q.why)}</b>，名冊上已經沒有了`;
     default: return `查無此人！名冊上沒有「${esc(q.name)}」`;
   }
 }
 function tapeText(q) {
-  const t = { mismatch: '張冠李戴', silly: '幽靈單位', ghost: '幽靈單位', mixed: '拼裝人名', typo: '錯字陷阱', fake: '查無此人' }[q.type] || '查無此人';
+  const t = { mismatch: '張冠李戴', silly: '幽靈單位', ghost: '幽靈單位', mixed: '拼裝人名', typo: '錯字陷阱', former: q.why, fake: '查無此人' }[q.type] || '查無此人';
   return `${t}・${t}・${t}・${t}`;
 }
 function tagInfo(q) {
@@ -874,6 +929,7 @@ function tagInfo(q) {
     case 'ghost': return { cls: 't-fake', text: '幽靈單位' };
     case 'mixed': return { cls: 't-fake', text: '拼裝人名' };
     case 'typo': return { cls: 't-mis', text: '應為' + q.orig };
+    case 'former': return { cls: 't-fake', text: q.why };
     default: return { cls: 't-fake', text: '查無此人' };
   }
 }
@@ -1076,12 +1132,14 @@ function showOnly(id) {
 const TUT = [
   { q: { name: '蘇建彰', unit: '廠辦', real: true, type: 'real' },
     tip: '① 名字和單位都對得上名冊 → 按「真的」或<b>往右滑</b> 👉' },
+  { q: { name: '蔡同咨', unit: '武系課', real: true, type: 'real' },
+    tip: '② 單位寫「課」或「股」都算對！蔡同咨是軍械股，軍械屬於武系課 → 「真的」👉' },
   { q: { name: '吳彥賢', unit: '通導', real: false, type: 'mismatch', trueUnit: '生品' },
-    tip: '② 人是真的，但單位被換掉了（張冠李戴）→ 這也算「假的」，<b>往左滑</b> 👈' },
+    tip: '③ 人是真的，但單位被換掉了（張冠李戴）→ 這也算「假的」，<b>往左滑</b> 👈' },
   { q: { name: '鄭珮甄', unit: '生品', real: false, type: 'mixed', from: ['鄭宏廷', '張珮甄'] },
-    tip: '③ 這個名字是把兩個同事的姓和名拼起來的，名冊上查無此人 → 「假的」👈' },
+    tip: '④ 這個名字是把兩個同事的姓和名拼起來的，名冊上查無此人 → 「假的」👈' },
   { q: { name: '蘇建璋', unit: '廠辦', real: false, type: 'typo', orig: '蘇建彰' },
-    tip: '④ 越後面越難，會偷改一個字！「彰」變成「璋」→ 也是「假的」👈' }
+    tip: '⑤ 越後面越難，會偷改一個字！「彰」變成「璋」→ 也是「假的」👈' }
 ];
 function startTutorial() {
   ac();
@@ -1150,6 +1208,7 @@ function resetStats() {
   timeLeft = START_TIME; lastTick = 99; history = []; recent = []; qNo = 0;
   currentRank = RANKS[0].title;
   level = 0;
+  usedFormer = [];
   clearTimeout(fbTimer);
 }
 function startGame() {
@@ -1575,6 +1634,8 @@ function goHome() {
 
 // 初始化
 (function init() {
+  $('dataDate1').textContent = DATA_DATE;
+  $('dataDate2').textContent = DATA_DATE;
   soundOn = store('nobody_sound') !== '0';
   $('soundBtn').textContent = soundOn ? '🔊' : '🔇';
   renderHud();
