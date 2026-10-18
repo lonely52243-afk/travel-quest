@@ -4981,6 +4981,8 @@ body.bt-lite.bt-flag-c2 .bt-bn{animation-duration:.6s!important}
 .bt-combo{position:absolute;left:50%;top:6px;transform:translateX(-50%);z-index:3;width:64px;height:64px;border-radius:50%;display:flex;flex-direction:column;align-items:center;justify-content:center;pointer-events:none;
   background:radial-gradient(circle,rgba(3,6,13,.85) 58%,transparent 60%),conic-gradient(var(--cc,#e8f2ff) calc(var(--p,100)*1%),rgba(255,255,255,.08) 0);--cc:#e8f2ff}
 .bt-combo[hidden]{display:none}
+/* 裝備欄新圖示：框放大一點 */
+.eq-ic{width:48px!important;height:48px!important}
 /* v7 畫面整理：連擊圈縮小放在橫幅下方；橫幅改成上緣細條；傷害數字縮小 */
 .bt-combo{top:30px;width:54px;height:54px;left:47%}
 .bt-combo b{font-size:18px}
@@ -5105,13 +5107,15 @@ GI_SHEETS.ST={u:PIC+"IMG_3854.png",W:1536,H:1024,b:{"冰凍":[67,56,174,160],"�
 GI_SHEETS.SK={u:PIC+"IMG_3856.png",W:1536,H:1024,b:{"血債":[65,49,179,160],"傷口撕裂":[306,49,181,160],"腐朽光環":[553,49,180,160],"反傷鏡像":[803,49,179,160],"生命連結":[1045,49,183,160],"沉默領域":[1293,49,179,160],"靈魂竊取":[65,291,179,160],"狂暴化":[306,291,181,160],"時間加速":[553,291,180,160],"相位轉移":[803,291,179,160],"死亡爆炸":[1045,291,183,160],"亡語詛咒":[1293,291,179,160],"靈魂綁定":[65,530,179,160],"毒霧領域":[306,530,181,160],"重力場":[553,530,180,160],"黑暗降臨":[803,530,179,160],"死亡宣告":[1045,530,183,160],"眾神黃昏":[1293,530,179,160],"無限輪迴":[65,770,179,160],"命運審判":[306,770,181,160],"磐石之軀":[553,770,180,160],"階段護體":[803,770,179,160]}};
 GI_SHEETS.AB={u:PIC+"IMG_3858.png",W:1536,H:1024,b:{"狂暴":[84,47,194,160],"吸血":[357,47,196,160],"荊棘":[663,47,202,160],"閃避":[976,47,199,160],"格擋":[1258,47,193,160],"再生":[84,287,194,160],"冰凍":[357,287,196,160],"燃燒":[663,287,202,160],"詛咒":[976,287,199,160],"護盾":[1258,287,193,160],"疾行":[84,523,194,160],"巨力":[357,523,196,160],"鐵甲":[663,523,202,160],"抗暴":[976,523,199,160],"堅韌":[1258,523,193,160],"反制":[84,765,194,160],"成長":[357,765,196,160],"復仇":[663,765,202,160],"毒牙":[976,765,199,160],"蓄力":[1258,765,193,160]}};
 GI_SHEETS.EQ={u:PIC+"IMG_3860.png",W:2172,H:724,b:{armor:[135,82,450,420],trophy:[820,82,470,420],holiday10:[1540,82,455,420]}};
+GI_SHEETS.EQ2={u:PIC+"IMG_3891.png",W:1536,H:1024,b:{"冒險者徽記":[186,39,172,204],"百層之證":[432,39,152,206],"深淵勳章":[666,40,191,208],"冥王之冠":[912,38,189,208],"幸運草":[1205,42,117,201],"四葉之環":[184,269,161,155],"命運指環":[426,258,164,156],"女神之眼":[667,263,183,155],"晨光護符":[950,257,123,183],"曙光護符":[1195,257,131,183],"旭日護符":[199,437,127,204],"永晝護符":[432,436,152,195],"旅行斗篷":[673,433,172,205],"夜行披風":[925,444,169,197],"月影披風":[1177,444,170,197],"星辰披風":[175,649,178,187],"皮革護甲":[422,649,171,179],"鎖子甲":[666,650,186,183],"騎士鎧":[918,650,183,188],"聖騎士鎧":[1165,650,188,186],"見習短劍":[964,841,91,160],"騎士之劍":[445,843,108,164],"王國聖劍":[1214,842,109,165],"大師之劍":[703,843,113,163],"紫光之劍":[211,844,104,162],"旅人長劍":[964,841,91,160]}};
 GI_SHEETS.MOB={u:PIC+"IMG_3852.png",W:1536,H:375,b:{normal:[66,64,115,258],awake:[248,32,218,290],full:[487,19,266,303],spirit:[769,8,236,314],dimple:[1046,75,219,247],psychic:[1276,43,233,279]}};
 /* 個人頁：假日達人徽章換成自己的圖；裝備欄的鎧甲、戰利品換成新圖示 */
 try{BADGE_GI.holiday10="EQ.holiday10"}catch(e){}
 try{
   if(typeof buildEquip==="function"&&!buildEquip._eq){
     const _be=buildEquip;
-    buildEquip=function(u,st){const r=_be(u,st);r.forEach(x=>{if(x.k==="armor")x.ic=gi("EQ.armor",36);if(x.k==="trophy")x.ic=gi("EQ.trophy",36)});return r};
+    /* 裝備欄：每一階都有自己的圖（IMG_3891，名稱對應圖示）；找不到才用舊圖 */
+    buildEquip=function(u,st){const r=_be(u,st);r.forEach(x=>{if(x.locked)return;if(GI_SHEETS.EQ2.b[x.n])x.ic=gi("EQ2."+x.n,40);else if(x.k==="armor")x.ic=gi("EQ.armor",36);else if(x.k==="trophy")x.ic=gi("EQ.trophy",36)});return r};
     buildEquip._eq=1;
   }
 }catch(e){}
@@ -10961,6 +10965,3 @@ window.rosterStats=u=>{const p=_bp(u);return{atk:p.atk,hp:p.maxHp,def:p.def,crit
 try{const rp=document.getElementById("page-roster");if(rp&&rp.classList.contains("active")&&typeof usersData!=="undefined"&&usersData.length)renderRoster(false)}catch(e){}
 })();
 </script>
-
-</body>
-</html>
