@@ -106,14 +106,16 @@
     .word-block {
         position: absolute; top: 0; left: 0;
         background-color: var(--bg-block);
-        border-radius: 14px; padding: 10px 18px; text-align: center;
-        border: 2px solid currentColor; min-width: 110px;
+        border-radius: 11px; padding: 6px 12px; text-align: center;
+        border: 2px solid currentColor; min-width: 80px;
         box-shadow: 0 8px 20px rgba(0,0,0,0.5), inset 0 1px 0 rgba(255,255,255,0.1);
         transform: translate(-50%, var(--y, 0px)) scale(var(--s, 1));
         will-change: transform;
-        transition: box-shadow 0.15s;
+        transition: box-shadow 0.15s, filter 0.08s;
         z-index: 5;
+        animation: spawnIn 0.35s ease-out;
     }
+    @keyframes spawnIn { from { opacity: 0; filter: brightness(3); } to { opacity: 1; filter: none; } }
     .word-block.active {
         --s: 1.06;
         box-shadow: 0 0 22px currentColor, inset 0 0 6px currentColor;
@@ -144,12 +146,12 @@
     }
 
     .word-block.boss {
-        padding: 12px 22px; border-width: 3px; min-width: 170px;
+        padding: 8px 16px; border-width: 3px; min-width: 130px;
         background: linear-gradient(180deg, #3d2d0c, #262630);
         box-shadow: 0 0 28px rgba(255,211,42,0.55), 0 8px 20px rgba(0,0,0,0.6);
         z-index: 8;
     }
-    .word-block.boss .word-text { font-size: 1.8rem; }
+    .word-block.boss .word-text { font-size: 1.4rem; }
     .boss-tag {
         position: absolute; top: -12px; left: 50%; transform: translateX(-50%);
         background: linear-gradient(90deg, #ff4757, #ff9f43); color: #fff;
@@ -158,22 +160,59 @@
     .boss-hp { height: 6px; background: #000; border-radius: 3px; margin-top: 6px; overflow: hidden; }
     .boss-hp i { display: block; height: 100%; width: 100%; background: linear-gradient(90deg, #ff4757, #ffd32a); transition: width 0.2s; }
 
-    .word-text { font-size: 1.5rem; font-weight: 900; letter-spacing: 2px; }
-    .pinyin-text { font-size: 0.95rem; color: #888; margin-top: 4px; font-family: monospace; letter-spacing: 2px; font-weight: bold; white-space: nowrap; }
+    .word-text { font-size: 1.15rem; font-weight: 900; letter-spacing: 2px; }
+    .pinyin-text { font-size: 0.78rem; color: #888; margin-top: 2px; font-family: monospace; letter-spacing: 2px; font-weight: bold; white-space: nowrap; }
     .pinyin-text .hit { color: var(--c-green); text-shadow: 0 0 8px rgba(46,213,115,0.6); }
 
     /* ===== 特效 ===== */
+    /* 雷射：從底部砲口斜射到字塊 */
     .laser-beam {
-        position: absolute; bottom: 0; width: 4px; margin-left: -2px;
-        transform-origin: bottom center;
-        animation: shootUp 0.22s forwards ease-out;
-        pointer-events: none; z-index: 4; border-radius: 2px;
+        position: absolute; left: 0; top: 0; height: 4px; margin-top: -2px; border-radius: 2px;
+        transform-origin: 0 50%; transform: rotate(var(--a)) scaleX(0);
+        animation: beamShoot 0.24s ease-out forwards;
+        pointer-events: none; z-index: 4;
     }
-    .laser-beam.wide { width: 10px; margin-left: -5px; }
-    @keyframes shootUp {
-        0% { transform: scaleY(0); opacity: 1; }
-        60% { transform: scaleY(1); opacity: 1; }
-        100% { transform: scaleY(1); opacity: 0; }
+    .laser-beam.wide { height: 9px; margin-top: -4.5px; }
+    @keyframes beamShoot {
+        0% { transform: rotate(var(--a)) scaleX(0); opacity: 1; }
+        55% { transform: rotate(var(--a)) scaleX(1); opacity: 1; }
+        100% { transform: rotate(var(--a)) scaleX(1); opacity: 0; }
+    }
+    #muzzle {
+        position: absolute; left: 50%; bottom: -22px; width: 90px; height: 44px; margin-left: -45px;
+        border-radius: 50% 50% 0 0; pointer-events: none; z-index: 6;
+        background: radial-gradient(ellipse at bottom, rgba(255,255,255,0.95), var(--mc, #2ed573) 40%, transparent 70%);
+        opacity: 0.3; transition: opacity 0.25s, transform 0.25s;
+    }
+    #muzzle.fire { opacity: 1; transform: scale(1.3); transition: none; }
+    /* 擴散光環 */
+    .ring {
+        position: absolute; left: 0; top: 0; border: 3px solid var(--c); border-radius: 50%;
+        box-shadow: 0 0 14px var(--c), inset 0 0 10px var(--c);
+        pointer-events: none; z-index: 12;
+        animation: ring 0.45s ease-out forwards;
+    }
+    @keyframes ring {
+        0% { transform: translate(calc(var(--x) - 50%), calc(var(--y) - 50%)) scale(0.1); opacity: 1; }
+        100% { transform: translate(calc(var(--x) - 50%), calc(var(--y) - 50%)) scale(1); opacity: 0; }
+    }
+    /* 連鎖電光線 */
+    .link {
+        position: absolute; left: 0; top: 0; height: 2px; margin-top: -1px;
+        transform-origin: 0 50%; transform: rotate(var(--a));
+        animation: linkFade 0.32s ease-out forwards;
+        pointer-events: none; z-index: 13;
+    }
+    @keyframes linkFade { 0% { opacity: 1; filter: brightness(2); } 100% { opacity: 0; } }
+    /* 字碎片 */
+    .shard {
+        position: absolute; left: 0; top: 0; font-weight: 900; font-size: 1.1rem;
+        pointer-events: none; z-index: 16;
+        animation: shard 0.6s ease-out forwards;
+    }
+    @keyframes shard {
+        0% { transform: translate(var(--x0), var(--y0)) rotate(0); opacity: 1; }
+        100% { transform: translate(calc(var(--x0) + var(--dx)), calc(var(--y0) + var(--dy))) rotate(var(--r)) scale(0.6); opacity: 0; }
     }
     .particle {
         position: absolute; left: 0; top: 0; border-radius: 50%;
@@ -195,7 +234,7 @@
         100% { opacity: 0; transform: translate(-50%, -170%) scale(1); }
     }
     .combo-text {
-        position: absolute; color: #fff; font-size: 2rem; font-weight: 900;
+        position: absolute; color: #fff; font-size: var(--fs, 2rem); font-weight: 900;
         text-shadow: 0 0 15px currentColor; pointer-events: none; z-index: 25;
         animation: comboPop 0.8s ease-out forwards;
         font-style: italic; white-space: nowrap;
@@ -248,66 +287,81 @@
     @keyframes itemPulse { from { transform: scale(0.9); } to { transform: scale(1.08); } }
     @keyframes itemBlink { from { opacity: 1; } to { opacity: 0.2; } }
 
-    /* ===== 底部資訊列 ===== */
+    /* ===== 底部資訊列（精簡版，讓上方遊戲區更大） ===== */
     #hud {
         flex-shrink: 0; z-index: 10;
         background: linear-gradient(0deg, #16161c 0%, #1f1f28 100%);
-        border-top: 1px solid rgba(255,255,255,0.08);
+        border-top: 2px solid rgba(255,255,255,0.08);
         box-shadow: 0 -5px 20px rgba(0,0,0,0.5);
-        padding: 10px 14px calc(10px + env(safe-area-inset-bottom));
-        display: flex; flex-direction: column; gap: 8px;
+        padding: 6px 12px calc(6px + env(safe-area-inset-bottom));
+        display: flex; flex-direction: column; gap: 5px;
+        transition: border-color 0.3s;
     }
-    .hud-row { display: flex; align-items: center; gap: 12px; }
-    .hud-score { font-weight: 900; color: #888; font-size: 0.75rem; min-width: 80px; line-height: 1.2; }
-    .hud-score b { display: block; color: var(--text-main); font-size: 1.35rem; transition: transform 0.15s; transform-origin: left center; }
+    #hud.h1 { border-top-color: rgba(30,144,255,0.7); }
+    #hud.h2 { border-top-color: rgba(224,86,253,0.8); }
+    #hud.h3 { border-top-color: rgba(255,71,87,0.9); }
+    .hud-row { display: flex; align-items: center; gap: 10px; }
+    .hud-score { display: flex; align-items: baseline; gap: 4px; font-weight: 900; color: #888; font-size: 0.7rem; min-width: 76px; }
+    .hud-score b { color: var(--text-main); font-size: 1.15rem; transition: transform 0.15s; transform-origin: left center; display: inline-block; }
     .hud-hp { flex: 1; min-width: 0; }
-    .hud-hp-label { display: flex; justify-content: space-between; font-size: 0.75rem; font-weight: 900; color: #aaa; margin-bottom: 5px; gap: 6px; }
-    #diff-text { white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
-    #shield-text { color: #7fd8ff; }
     .hp-bar {
-        height: 10px; background-color: #000; border-radius: 6px;
+        position: relative; height: 16px; background-color: #000; border-radius: 8px;
         overflow: hidden; border: 1px solid #333;
         box-shadow: inset 0 2px 4px rgba(0,0,0,0.5);
     }
     #hp-fill { width: 100%; height: 100%; background-color: var(--c-green); transition: width 0.3s, background-color 0.3s; }
+    .hp-label {
+        position: absolute; top: 0; left: 0; right: 0; bottom: 0;
+        display: flex; align-items: center; justify-content: center; gap: 6px;
+        font-size: 0.7rem; font-weight: 900; color: #fff; text-shadow: 0 1px 2px #000, 0 0 4px #000;
+    }
+    #shield-text { color: #bfe9ff; }
 
     #pause-btn {
         background: linear-gradient(180deg, #3a3a48, #262630);
-        color: #fff; border: 1px solid #555; padding: 4px 8px 4px 4px; border-radius: 10px;
-        font-weight: 900; cursor: pointer; box-shadow: 0 3px 0 #111;
-        font-size: 0.8rem; display: flex; align-items: center; gap: 6px; letter-spacing: 0;
+        color: #fff; border: 1px solid #555; padding: 3px 7px 3px 3px; border-radius: 9px;
+        font-weight: 900; cursor: pointer; box-shadow: 0 2px 0 #111;
+        font-size: 0.75rem; display: flex; align-items: center; gap: 4px; letter-spacing: 0;
     }
-    #pause-btn:active { transform: translateY(3px); box-shadow: none; }
-    #pause-btn .sprite { width: 34px; height: 34px; border-radius: 7px; background-color: #000; }
+    #pause-btn:active { transform: translateY(2px); box-shadow: none; }
+    #pause-btn .sprite { width: 26px; height: 26px; border-radius: 6px; background-color: #000; }
 
-    .streak-row { display: flex; flex-direction: column; gap: 4px; }
-    .streak-info { display: flex; justify-content: space-between; font-size: 0.78rem; font-weight: 900; color: #777; gap: 8px; }
+    .streak-row { display: flex; flex-direction: column; gap: 3px; }
+    .streak-info { display: flex; justify-content: space-between; align-items: center; font-size: 0.7rem; font-weight: 900; color: #777; gap: 8px; line-height: 1.2; }
     #streak-text.hot { color: var(--c-yellow); }
     #streak-text.fire { color: var(--c-red); text-shadow: 0 0 8px rgba(255,71,87,0.6); }
-    #buff-text { color: #ccc; white-space: nowrap; }
-    .streak-bar { height: 5px; background: #000; border-radius: 3px; overflow: hidden; }
+    #buff-text { color: #ccc; white-space: nowrap; flex: 1; text-align: center; }
+    #diff-text { white-space: nowrap; }
+    .streak-bar { height: 3px; background: #000; border-radius: 2px; overflow: hidden; }
     #streak-fill { height: 100%; width: 0; background: var(--c-blue); }
 
-    #input-row { display: flex; gap: 10px; }
+    #input-row { display: flex; gap: 8px; }
     #type-input {
-        flex: 1; min-width: 0; padding: 12px; font-size: 1.3rem;
+        flex: 1; min-width: 0; padding: 9px 10px; font-size: 1.15rem;
         background-color: #0b0b0f; border: 2px solid #333;
         border-radius: 12px; color: var(--c-green); outline: none;
         text-align: center; font-family: monospace; letter-spacing: 2px;
         box-shadow: inset 0 4px 10px rgba(0,0,0,0.5); transition: border-color 0.2s, box-shadow 0.2s;
     }
-    #type-input::placeholder { color: #555; letter-spacing: 1px; font-size: 1rem; }
+    #type-input::placeholder { color: #555; letter-spacing: 1px; font-size: 0.95rem; }
     #type-input:focus:not(.error) { border-color: var(--c-green); box-shadow: inset 0 4px 10px rgba(0,0,0,0.5), 0 0 15px rgba(46,213,115,0.2); }
+    #hud.h1 #type-input:focus:not(.error) { border-color: var(--c-blue); box-shadow: inset 0 4px 10px rgba(0,0,0,0.5), 0 0 15px rgba(30,144,255,0.35); }
+    #hud.h2 #type-input:focus:not(.error) { border-color: #e056fd; box-shadow: inset 0 4px 10px rgba(0,0,0,0.5), 0 0 18px rgba(224,86,253,0.45); }
+    #hud.h3 #type-input:focus:not(.error) { border-color: var(--c-red); box-shadow: inset 0 4px 10px rgba(0,0,0,0.5), 0 0 22px rgba(255,71,87,0.55); }
     #type-input.error { border-color: var(--c-red); color: var(--c-red); animation: errorFlash 0.3s; }
     @keyframes errorFlash { 0%, 100% { background-color: #0b0b0f; } 50% { background-color: rgba(255,71,87,0.2); } }
 
-    #fire-btn {
-        padding: 0 20px; font-size: 1.1rem; font-weight: 900;
-        background: linear-gradient(180deg, var(--c-green) 0%, #1a9c53 100%);
-        color: #000; border: none; border-radius: 12px; cursor: pointer;
-        box-shadow: 0 4px 0 #116b38; transition: all 0.1s;
+    /* 訊息推播（原本的發射按鈕位置） */
+    #feed {
+        width: 38%; max-width: 170px; min-width: 110px;
+        display: flex; flex-direction: column; justify-content: center; gap: 2px;
+        padding: 4px 8px; background: #0b0b0f; border: 1px solid #2a2a33; border-radius: 12px; overflow: hidden;
     }
-    #fire-btn:active { transform: translateY(4px); box-shadow: none; }
+    #feed:empty::before { content: '訊息'; color: #444; font-size: 0.72rem; text-align: center; }
+    .feed-line { font-size: 0.72rem; font-weight: 900; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; line-height: 1.35; }
+    .feed-line.old { opacity: 0.45; font-weight: 700; }
+    .feed-line.new { animation: feedIn 0.25s ease-out; }
+    @keyframes feedIn { from { opacity: 0; transform: translateY(6px); } to { opacity: 1; transform: none; } }
 
     /* ===== 共用按鈕 ===== */
     button {
@@ -530,6 +584,7 @@
     <!-- 上方：純遊戲畫面 -->
     <div id="play-area">
         <div class="danger-zone"></div>
+        <div id="muzzle"></div>
         <div id="screen-flash"></div>
         <div id="damage-flash"></div>
     </div>
@@ -539,24 +594,20 @@
         <div class="hud-row">
             <div class="hud-score">分數<b id="score">0</b></div>
             <div class="hud-hp">
-                <div class="hud-hp-label">
-                    <span>HP <span id="hp-text">100</span> <span id="shield-text"></span></span>
-                    <span id="diff-text" style="color:var(--c-yellow)">-</span>
-                </div>
-                <div class="hp-bar"><div id="hp-fill"></div></div>
+                <div class="hp-bar"><div id="hp-fill"></div><div class="hp-label">HP <span id="hp-text">100</span><span id="shield-text"></span></div></div>
             </div>
             <button id="pause-btn" onclick="openPause()">
                 <div class="sprite blend" id="hud-weapon-icon"></div>
-                <span>暫停</span>
+                <span>⏸</span>
             </button>
         </div>
         <div class="streak-row">
-            <div class="streak-info"><span id="streak-text">連擊 0</span><span id="buff-text"></span></div>
+            <div class="streak-info"><span id="streak-text">連擊 0</span><span id="buff-text"></span><span id="diff-text">-</span></div>
             <div class="streak-bar"><div id="streak-fill"></div></div>
         </div>
         <div id="input-row">
             <input type="text" id="type-input" placeholder="打拼音或中文，自動發射" autocomplete="off" autocorrect="off" autocapitalize="off" spellcheck="false" enterkeyhint="send" disabled>
-            <button id="fire-btn" disabled>發射</button>
+            <div id="feed"></div>
         </div>
     </div>
 
@@ -821,8 +872,8 @@
     // ==========================================
     const COLORS = ['#ff4757', '#1e90ff', '#2ed573', '#9b59b6', '#f1c40f'];
     const CONFIG = {
-        easy: { name: '簡單', baseFallSpeed: 0.012, showFullPinyin: true, maxHp: 100, damage: 10, wrongDamage: 5, fakeDamage: 10, bossDamage: 40, baseSpawnRate: 2200, streakWindow: 3000, fakeBase: 0.06, shieldBase: 0.06 },
-        hard: { name: '地獄', baseFallSpeed: 0.04, showFullPinyin: false, maxHp: 100, damage: 20, wrongDamage: 10, fakeDamage: 15, bossDamage: 50, baseSpawnRate: 1500, streakWindow: 2000, fakeBase: 0.10, shieldBase: 0.10 }
+        easy: { name: '簡單', baseFallSpeed: 0.008, showFullPinyin: true, maxHp: 100, damage: 10, wrongDamage: 5, fakeDamage: 10, bossDamage: 40, baseSpawnRate: 2500, streakWindow: 3000, fakeBase: 0.06, shieldBase: 0.06 },
+        hard: { name: '地獄', baseFallSpeed: 0.026, showFullPinyin: false, maxHp: 100, damage: 20, wrongDamage: 10, fakeDamage: 15, bossDamage: 50, baseSpawnRate: 1800, streakWindow: 2000, fakeBase: 0.10, shieldBase: 0.10 }
     };
     const BALANCE = {
         bossEvery: 60,          // 每幾秒出一次 BOSS
@@ -1079,7 +1130,7 @@
     const RAINBOW_NOTES = [523, 587, 659, 784, 880, 1047, 1175];
     function playSound(type, p) {
         p = p || 0;
-        if (type === 'type') tone('sine', 1000, 1000, 0.05, 0.03);
+        if (type === 'type') { const f = Math.min(700 + p * 70, 1800); tone('sine', f, f, 0.05, 0.035); }
         else if (type === 'laser') tone('sawtooth', 800, 150, 0.25, 0.07);
         else if (type === 'explode') { const f = 200 + Math.min(p, 12) * 100; tone('square', f, f * 0.5, 0.3, 0.07); }
         else if (type === 'error') tone('triangle', 150, 80, 0.2, 0.1);
@@ -1091,6 +1142,9 @@
         else if (type === 'vortex') tone('sine', 300, 60, 0.6, 0.12);
         else if (type === 'bomb') { tone('square', 120, 30, 0.6, 0.15); tone('sawtooth', 60, 20, 0.6, 0.1); }
         else if (type === 'freeze') tone('sine', 1800, 600, 0.4, 0.06);
+        else if (type === 'thump') { tone('sine', 150, 45, 0.18, 0.16); tone('triangle', 900, 300, 0.12, 0.05); }
+        else if (type === 'shatter') { tone('square', 320, 60, 0.25, 0.08); tone('sawtooth', 180, 40, 0.3, 0.06); }
+        else if (type === 'bigchain') { tone('triangle', 523, 523, 0.3, 0.07); tone('triangle', 659, 659, 0.3, 0.07, 0.04); tone('triangle', 784, 784, 0.35, 0.07, 0.08); tone('triangle', 1047, 1047, 0.45, 0.07, 0.12); }
     }
 
     // ==========================================
@@ -1121,7 +1175,7 @@
     const damageFlash = document.getElementById('damage-flash');
     const screenFlash = document.getElementById('screen-flash');
     const inputField = document.getElementById('type-input');
-    const fireBtn = document.getElementById('fire-btn');
+    const feedEl = document.getElementById('feed');
     const scoreEl = document.getElementById('score');
     const hpFill = document.getElementById('hp-fill');
     const hpText = document.getElementById('hp-text');
@@ -1293,8 +1347,10 @@
                 (eq ? '<button class="btn-grey btn-sm" disabled>使用中</button>' : '<button class="btn-easy btn-sm" onclick="equipWeapon(\'' + w.id + '\')">換上</button>') + '</div>';
         }).join('');
     }
+    const MUZZLE_COLOR = { basic: '#2ed573', pierce: '#1e90ff', rainbow: '#ffffff', blackhole: '#e056fd' };
     function updateHudWeapon() {
         document.getElementById('hud-weapon-icon').setAttribute('style', weaponIcon(save.equipped));
+        document.getElementById('muzzle').style.setProperty('--mc', MUZZLE_COLOR[save.equipped]);
     }
     function pauseGame() {
         if (!isPlaying) return false;
@@ -1369,7 +1425,8 @@
         playArea.classList.remove('heat-1', 'heat-2', 'heat-3', 'frozen', 'shake', 'shake-big');
         fitViewport();
 
-        inputField.disabled = false; fireBtn.disabled = false;
+        inputField.disabled = false;
+        feedItems = []; renderFeed(false);
         inputField.value = ''; inputField.classList.remove('error');
         inputField.focus();
 
@@ -1381,7 +1438,7 @@
         lastTime = now;
         lastSpawnTime = c.baseSpawnRate;
         animationId = requestAnimationFrame(gameLoop);
-        if (used.length) floatText(areaW / 2, areaH * 0.4, '使用：' + used.join('、'), '#f1c40f', 1.1);
+        if (used.length) notify('使用：' + used.join('、'), '#f1c40f');
     }
 
     function updateStage(level) {
@@ -1409,6 +1466,25 @@
     }
 
     // ==========================================
+    // 📣 訊息推播（輸入框右邊小框，最多顯示 2 則，4 秒後消失）
+    // ==========================================
+    let feedItems = [];
+    function notify(text, color) {
+        feedItems.unshift({ text: text, color: color || '#ddd', t: performance.now() });
+        feedItems = feedItems.slice(0, 2);
+        renderFeed(true);
+    }
+    function renderFeed(isNew) {
+        feedEl.innerHTML = feedItems.map((f, i) =>
+            '<div class="feed-line' + (i === 0 && isNew ? ' new' : '') + (i > 0 ? ' old' : '') + '" style="color:' + f.color + '">' + f.text + '</div>').join('');
+    }
+    function pruneFeed(now) {
+        const n = feedItems.length;
+        feedItems = feedItems.filter(f => now - f.t < 4000);
+        if (feedItems.length !== n) renderFeed(false);
+    }
+
+    // ==========================================
     // 🔥 連擊
     // ==========================================
     function streakMult() {
@@ -1421,6 +1497,10 @@
         playArea.classList.toggle('heat-1', streak >= 5 && streak < 10);
         playArea.classList.toggle('heat-2', streak >= 10 && streak < 20);
         playArea.classList.toggle('heat-3', streak >= 20);
+        const hud = document.getElementById('hud');
+        hud.classList.toggle('h1', streak >= 5 && streak < 10);
+        hud.classList.toggle('h2', streak >= 10 && streak < 20);
+        hud.classList.toggle('h3', streak >= 20);
     }
     // 回傳 true 代表要觸發「基礎雷射覺醒：自動清除」
     function registerHit() {
@@ -1433,14 +1513,14 @@
         streakDeadline = now + win;
         if (streak === 5 || streak === 10 || streak === 20 || (streak > 20 && streak % 10 === 0)) {
             const col = streak >= 20 ? '#ff4757' : streak >= 10 ? '#e056fd' : '#1e90ff';
-            floatText(areaW / 2, areaH * 0.45, streak + ' 連擊！×' + streakMult(), col, 1.3);
+            notify('🔥 ' + streak + ' 連擊！×' + streakMult(), col);
             playSound('pickup');
         }
         updateHeat();
         return save.equipped === 'basic' && eqLv() >= 5 && streak % 10 === 0;
     }
     function breakStreak(reason) {
-        if (streak >= 3 && reason) floatText(areaW / 2, areaH * 0.6, reason + '（' + streak + ' 連擊）', '#aaa', 0.9);
+        if (streak >= 3 && reason) notify(reason + '（' + streak + ' 連擊）', '#aaa');
         streak = 0;
         updateHeat();
     }
@@ -1456,6 +1536,7 @@
         const parts = [];
         if (now < freezeUntil) parts.push('❄ ' + ((freezeUntil - now) / 1000).toFixed(1));
         if (now < doubleUntil) parts.push('💰×2 ' + Math.ceil((doubleUntil - now) / 1000));
+        pruneFeed(now);
         const txt = parts.join('　');
         if (txt !== lastBuffText) { buffText.innerText = txt; lastBuffText = txt; }
     }
@@ -1567,7 +1648,7 @@
         const w = pickWord(BOSS_WORDS);
         createBlock(w.text, w.pinyin, { boss: true, hp: BALANCE.bossHp + Math.floor(level / 4) });
         playSound('boss');
-        floatText(areaW / 2, areaH * 0.3, '⚠ BOSS 來襲！', '#ff4757', 1.4);
+        notify('⚠ BOSS 來襲！', '#ff4757');
     }
     function removeBlock(b) {
         if (b.el.parentNode) b.el.remove();
@@ -1590,7 +1671,7 @@
 
         const frozen = ts < freezeUntil;
         playArea.classList.toggle('frozen', frozen);
-        const fallSpeed = c.baseFallSpeed * (1 + level * 0.15);
+        const fallSpeed = c.baseFallSpeed * (1 + level * 0.10);
         const spawnRate = Math.max(600, c.baseSpawnRate - level * 150);
 
         if (!frozen) {
@@ -1638,21 +1719,30 @@
 
     function onLeak(b) {
         const c = CONFIG[currentDifficulty];
+        const by = areaH - 8;
         if (b.fake) {
+            ring(b.x, by, '#2ed573', 90);
+            spawnParticles(b.x, by, 8, ['#2ed573', '#ffffff'], 50);
             stats.fakesDodged++;
             const pts = addScore(20, false);
-            floatText(b.x, areaH - 40, '識破錯字 +' + pts, '#2ed573');
+            notify('識破錯字 +' + pts, '#2ed573');
             return;
         }
         if (shieldCharges > 0) {
             shieldCharges--;
             updateHP();
             playSound('shield');
-            floatText(b.x, areaH - 40, '🛡 護盾抵擋', '#7fd8ff');
+            ring(b.x, by, '#7fd8ff', 130);
+            spawnParticles(b.x, by, 12, ['#7fd8ff', '#ffffff'], 70);
+            notify('🛡 護盾抵擋', '#7fd8ff');
             return;
         }
         breakStreak('漏字');
-        if (b.boss) floatText(b.x, areaH - 60, 'BOSS 突破防線！', '#ff4757', 1.3);
+        ring(b.x, by, '#ff4757', b.boss ? 220 : 140);
+        spawnParticles(b.x, by, b.boss ? 26 : 14, ['#ff4757', '#ff9f43', '#ffffff'], b.boss ? 120 : 80);
+        shatterText(b, '#ff4757');
+        playSound('shatter');
+        if (b.boss) notify('BOSS 突破防線！', '#ff4757');
         takeDamage(b.boss ? c.bossDamage : c.damage);
     }
 
@@ -1691,15 +1781,23 @@
         if (!isPlaying) return;
         inputField.classList.remove('error');
         const raw = inputField.value;
-        if (raw.length > 0) playSound('type');
         clearActive();
 
         const t = findTarget(raw, false);
-        if (!t) return;
+        if (!t) { if (raw.length > 0) playSound('type', 0); return; }
         t.b.active = true;
         t.b.el.classList.add('active');
         const en = normalizeEn(raw);
-        renderPinyin(t.b, en && t.b.pinyin.startsWith(en) ? en.length : 0);
+        const typed = en && t.b.pinyin.startsWith(en) ? en.length : 0;
+        renderPinyin(t.b, typed);
+        // 每打對一個字母：字塊閃一下＋音調往上爬
+        playSound('type', typed);
+        if (typed > 0) {
+            const el = t.b.el;
+            el.style.filter = 'brightness(1.7)';
+            setTimeout(() => { el.style.filter = ''; }, 80);
+            spawnParticles(t.b.x - t.b.w / 2 + Math.min(typed, t.b.pinyin.length) / t.b.pinyin.length * t.b.w, t.b.y + t.b.h, 2, [t.b.color, '#ffffff'], 18);
+        }
 
         if (t.exact && !composing) {
             clearTimeout(inputDebounceTimer);
@@ -1730,12 +1828,11 @@
             playSound('error');
             inputField.classList.add('error');
             setTimeout(() => inputField.classList.remove('error'), 500);
-            floatText(areaW / 2, areaH - 30, '打錯了！-' + c.wrongDamage + ' HP', '#ff4757');
+            notify('打錯了！-' + c.wrongDamage + ' HP', '#ff4757');
             breakStreak('打錯');
             takeDamage(c.wrongDamage);
         }
     }
-    fireBtn.addEventListener('click', () => { triggerFire(); inputField.focus(); });
     inputField.addEventListener('keydown', (e) => {
         if (e.key === 'Enter' && !e.isComposing) { e.preventDefault(); triggerFire(); }
     });
@@ -1752,7 +1849,7 @@
             b.isFiring = true;
             playSound('error');
             breakStreak('打到錯字');
-            floatText(b.x, b.y + b.h / 2, '✖ 錯字！-' + c.fakeDamage + ' HP', '#ff4757', 1.2);
+            notify('✖ 打到錯字 -' + c.fakeDamage + ' HP', '#ff4757');
             b.el.classList.add('fake-hit', 'boom');
             setTimeout(() => removeBlock(b), 300);
             takeDamage(c.fakeDamage);
@@ -1771,6 +1868,7 @@
             b.el.classList.remove('hit'); void b.el.offsetWidth; b.el.classList.add('hit');
             fireBeam(b, '#7fd8ff', false);
             spawnParticles(b.x, b.y + b.h / 2, 10, ['#ffffff', '#7fd8ff', '#1e90ff'], 60);
+            ring(b.x, b.y + b.h / 2, '#7fd8ff', 110);
             const pts = addScore(10, true);
             floatText(b.x, b.y, '護盾破！+' + pts, '#7fd8ff');
             playSound('shield');
@@ -1785,13 +1883,16 @@
         if (b.isFiring) return;
         b.bossHp--;
         spawnParticles(b.x, b.y + b.h / 2, 12, ['#ffd32a', '#ffffff', '#ff9f43'], 70);
+        ring(b.x, b.y + b.h / 2, '#ffd32a', 150);
         if (b.bossHp <= 0) {
+            ring(b.x, b.y + b.h / 2, '#ff9f43', 280);
+            shatterText(b, '#ffd32a');
             b.isFiring = true;
             stats.bossKills++;
             stats.kills++;
             addWeaponKill(1);
             const pts = addScore(500, true);
-            floatText(b.x, b.y + b.h / 2, 'BOSS 擊破！+' + pts, '#ffd32a', 1.5);
+            notify('BOSS 擊破！+' + fmt(pts), '#ffd32a');
             flashScreen('radial-gradient(circle at ' + b.x + 'px ' + (b.y + b.h / 2) + 'px, rgba(255,211,42,0.9), transparent 65%)');
             shake(true);
             if (navigator.vibrate) navigator.vibrate([40, 40, 80]);
@@ -1911,7 +2012,7 @@
         if (!isPlaying) return;
         const targets = blocks.filter(b => !b.isFiring && !b.boss && b.y + b.h > areaH * 0.6);
         if (!targets.length) return;
-        floatText(areaW / 2, areaH * 0.7, '覺醒・自動清除！', '#2ed573', 1.3);
+        notify('覺醒・自動清除！', '#2ed573');
         flashScreen('linear-gradient(0deg, rgba(46,213,115,0.8), transparent 60%)');
         resolveExplosion(targets, { x: areaW / 2, y: areaH * 0.8, h: 0, color: '#2ed573' }, 'basic', 5, false, true);
     }
@@ -1998,30 +2099,31 @@
         it.taken = true;
         const def = ITEMS[it.type];
         const now = performance.now();
-        spawnParticles(it.x, it.y, 12, [def.color, '#ffffff'], 60);
+        spawnParticles(it.x, it.y, 16, [def.color, '#ffffff'], 70);
+        ring(it.x, it.y, def.color, 110);
         removeItem(it);
         playSound('pickup');
 
         if (it.type === 'freeze') {
             freezeUntil = Math.max(freezeUntil, now) + BALANCE.freezeMs;
             playSound('freeze');
-            floatText(it.x, it.y, '❄ 時間凍結！', def.color, 1.2);
+            notify('❄ 時間凍結！', def.color);
         } else if (it.type === 'heal') {
             healHp(20, true);
         } else if (it.type === 'bomb') {
-            floatText(it.x, it.y, '💣 全清！', def.color, 1.3);
+            notify('💣 全清！', def.color);
             useBomb();
         } else if (it.type === 'shield') {
             shieldCharges = Math.min(3, shieldCharges + 1);
             updateHP();
-            floatText(it.x, it.y, '🛡 護盾 +1', def.color, 1.1);
+            notify('🛡 護盾 +1', def.color);
         } else if (it.type === 'double') {
             doubleUntil = Math.max(doubleUntil, now) + BALANCE.doubleMs;
-            floatText(it.x, it.y, '💰 金幣 ×2！', def.color, 1.2);
+            notify('💰 金幣 ×2！', def.color);
         } else if (it.type === 'frag') {
             wState(save.equipped).frag++;
             persist();
-            floatText(it.x, it.y, W(save.equipped).name + ' 碎片 +1', def.color, 1.1);
+            notify(W(save.equipped).name + ' 碎片 +1', def.color);
         }
         inputField.focus();
     }
@@ -2038,7 +2140,7 @@
     function healHp(n, showText) {
         hp = Math.min(gameMaxHp, hp + n);
         updateHP();
-        if (showText) floatText(areaW / 2, areaH - 50, '❤ +' + n + ' HP', '#ff6b81', 1.1);
+        if (showText) notify('❤ +' + n + ' HP', '#ff6b81');
     }
 
     // ==========================================
@@ -2066,15 +2168,67 @@
             setTimeout(() => { p.remove(); liveParticles--; }, 650);
         }
     }
+    let muzzleTimer = null;
+    function muzzleFlash() {
+        const m = document.getElementById('muzzle');
+        m.classList.add('fire');
+        clearTimeout(muzzleTimer);
+        muzzleTimer = setTimeout(() => m.classList.remove('fire'), 90);
+    }
     function fireBeam(b, color, wide) {
+        const sx = areaW / 2, sy = areaH;
+        const tx = b.x, ty = Math.max(0, b.y + b.h);
+        const len = Math.hypot(tx - sx, ty - sy);
+        if (len < 4) return;
+        const ang = Math.atan2(ty - sy, tx - sx) * 180 / Math.PI;
         const beam = document.createElement('div');
         beam.className = 'laser-beam dyn' + (wide ? ' wide' : '');
-        beam.style.backgroundColor = color;
-        beam.style.boxShadow = '0 0 20px ' + color;
-        beam.style.left = b.x + 'px';
-        beam.style.height = Math.max(0, areaH - (b.y + b.h)) + 'px';
+        beam.style.left = sx + 'px';
+        beam.style.top = sy + 'px';
+        beam.style.width = len + 'px';
+        beam.style.setProperty('--a', ang + 'deg');
+        beam.style.background = 'linear-gradient(90deg, #ffffff, ' + color + ')';
+        beam.style.boxShadow = '0 0 16px ' + color;
         playArea.appendChild(beam);
-        setTimeout(() => beam.remove(), 260);
+        muzzleFlash();
+        setTimeout(() => beam.remove(), 270);
+    }
+    function ring(x, y, color, size) {
+        const el = document.createElement('div');
+        el.className = 'ring dyn';
+        el.style.cssText = '--x:' + x + 'px;--y:' + y + 'px;--c:' + color + ';width:' + size + 'px;height:' + size + 'px;';
+        playArea.appendChild(el);
+        setTimeout(() => el.remove(), 480);
+    }
+    function chainLink(x1, y1, x2, y2, color) {
+        const len = Math.hypot(x2 - x1, y2 - y1);
+        if (len < 6) return;
+        const el = document.createElement('div');
+        el.className = 'link dyn';
+        el.style.left = x1 + 'px';
+        el.style.top = y1 + 'px';
+        el.style.width = len + 'px';
+        el.style.setProperty('--a', (Math.atan2(y2 - y1, x2 - x1) * 180 / Math.PI) + 'deg');
+        el.style.background = 'linear-gradient(90deg, #ffffff, ' + color + ')';
+        el.style.boxShadow = '0 0 10px ' + color;
+        playArea.appendChild(el);
+        setTimeout(() => el.remove(), 330);
+    }
+    function shatterText(b, color) {
+        const chars = b.text.split('');
+        chars.forEach((ch, i) => {
+            if (liveParticles > 140) return;
+            const el = document.createElement('div');
+            el.className = 'shard dyn';
+            el.innerText = ch;
+            const cx = b.x + (i - (chars.length - 1) / 2) * 18;
+            const cy = b.y + b.h * 0.4;
+            el.style.cssText = 'color:' + color + ';text-shadow:0 0 10px ' + color + ';--x0:' + (cx - 9) + 'px;--y0:' + (cy - 12) + 'px;--dx:' +
+                rand(-70, 70) + 'px;--dy:' + rand(-100, -20) + 'px;--r:' + rand(-220, 220) + 'deg;';
+            playArea.appendChild(el);
+            liveParticles++;
+            setTimeout(() => { el.remove(); liveParticles--; }, 620);
+        });
     }
     function floatText(x, y, text, color, scale) {
         const el = document.createElement('div');
@@ -2090,8 +2244,9 @@
     function showComboText(x, y, count, color) {
         const el = document.createElement('div');
         el.className = 'combo-text dyn';
-        el.innerText = count + ' 連鎖！';
-        el.style.left = clamp(x, 70, Math.max(70, areaW - 70)) + 'px';
+        el.innerText = count >= 8 ? '💥 ' + count + ' 連鎖・超新星！' : count >= 5 ? count + ' 連鎖・大爆發！' : count + ' 連鎖！';
+        el.style.setProperty('--fs', (count >= 8 ? 2.4 : count >= 5 ? 2.1 : 1.8) + 'rem');
+        el.style.left = clamp(x, 90, Math.max(90, areaW - 90)) + 'px';
         el.style.top = y + 'px';
         el.style.color = color;
         playArea.appendChild(el);
@@ -2110,6 +2265,8 @@
     }
     function shotEffect(origin, w, lv, kills) {
         const cy = origin.y + origin.h / 2;
+        playSound('thump');
+        if (kills >= 5) playSound('bigchain');
         if (w === 'pierce') {
             const band = PIERCE_BAND[lv - 1];
             if (isFinite(band)) {
@@ -2145,6 +2302,9 @@
         const beamColor = w === 'pierce' ? '#7fd8ff' : w === 'blackhole' ? '#e056fd' : w === 'rainbow' ? COLORS[i % COLORS.length] : b.color;
         fireBeam(b, beamColor, w === 'pierce' && lv >= 3);
         spawnParticles(cx, cy, 4 + lv * 2, WEAPON_FX[w](b), 50 + lv * 12);
+        ring(cx, cy, beamColor === '#ffffff' ? b.color : beamColor, 70 + lv * 14);
+        if (origin && b !== origin) chainLink(origin.x, origin.y + origin.h / 2, cx, cy, beamColor);
+        if (w !== 'blackhole') shatterText(b, b.color);
         if (w === 'blackhole' && origin) {
             const oy = origin.y + origin.h / 2;
             b.el.style.setProperty('--tx', (origin.x - b.x) + 'px');
@@ -2176,7 +2336,7 @@
         isPlaying = false;
         cancelAnimationFrame(animationId);
         clearTimeout(inputDebounceTimer);
-        inputField.disabled = true; fireBtn.disabled = true;
+        inputField.disabled = true;
         inputField.value = '';
         inputField.blur();
         items.forEach(it => { if (it.el.parentNode) it.el.remove(); });
