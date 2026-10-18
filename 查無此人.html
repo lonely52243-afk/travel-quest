@@ -374,6 +374,7 @@ body{
       <div class="stat"><span>答對比例</span><span class="lead"></span><span class="v" id="sPct">0%</span></div>
       <div class="stat"><span>最多連對</span><span class="lead"></span><span class="v" id="sCombo">0</span></div>
       <div class="stat"><span>最快答對</span><span class="lead"></span><span class="v" id="sFast">-</span></div>
+      <div class="stat"><span>平均秒速</span><span class="lead"></span><span class="v" id="sAvg">-</span></div>
       <div class="track" id="eTrack"></div>
       <div class="filter"><button class="on" id="fAll">全部</button><button id="fBad">只看答錯</button></div>
       <div id="eList"></div>
@@ -594,7 +595,7 @@ const ROSTER_TEXT = `
 洪智強	空電課	火控
 賴志軒	空電課	火控
 許家榮	空電課	火控
-陳柏翰	空電課	火控
+黃柏翰	空電課	火控
 黃頌文	空電課	火控
 許鈺崡	空電課	火控
 賴俊佑	空電課	火控
@@ -1358,7 +1359,8 @@ function showEnd() {
   if (isNew) store('nobody_best', String(score));
   const now = new Date();
   const clock = String(now.getHours()).padStart(2, '0') + ':' + String(now.getMinutes()).padStart(2, '0');
-  lastResult = { score, rank, pct, correct, maxCombo, fastest, answered, clock, isNew };
+  const avg = answered ? history.reduce((a, h) => a + h.rt, 0) / answered : null;
+  lastResult = { score, rank, pct, correct, maxCombo, fastest, avg, answered, clock, isNew };
 
   $('eClock').textContent = clock;
   $('eRank').textContent = rank.title;
@@ -1368,6 +1370,7 @@ function showEnd() {
   $('sPct').textContent = pct + '%';
   $('sCombo').textContent = maxCombo;
   $('sFast').textContent = fastest === null ? '-' : fastest.toFixed(2) + 's';
+  $('sAvg').textContent = avg === null ? '-' : avg.toFixed(2) + 's';
 
   let tr = '';
   history.forEach(h => {
@@ -1407,6 +1410,7 @@ function shareText() {
   txt += `我拿到「${r.rank.title}」稱號，${fmt(r.score)} 分！\n`;
   txt += `答對 ${r.correct} 張｜正確率 ${r.pct}%｜最多連對 ${r.maxCombo}`;
   if (r.fastest !== null) txt += `｜最快 ${r.fastest.toFixed(2)}s`;
+  if (r.avg !== null) txt += `｜平均 ${r.avg.toFixed(2)}s`;
   txt += `\n${line}\n你認得幾個同事？來挑戰看看 👇`;
   if (/^https?:/.test(location.href)) txt += `\n${location.href}`;
   return txt;
@@ -1487,10 +1491,11 @@ function drawShareImage() {
     ['答對張數', String(r.correct)],
     ['答對比例', r.pct + '%'],
     ['最多連對', String(r.maxCombo)],
-    ['最快答對', r.fastest === null ? '-' : r.fastest.toFixed(2) + 's']
+    ['最快答對', r.fastest === null ? '-' : r.fastest.toFixed(2) + 's'],
+    ['平均秒速', r.avg === null ? '-' : r.avg.toFixed(2) + 's']
   ];
   stats.forEach((s, i) => {
-    const y = 730 + i * 100;
+    const y = 720 + i * 84;
     ctx.fillStyle = '#1d1f25'; ctx.textAlign = 'left'; ctx.font = `900 48px ${F}`;
     ctx.fillText(s[0], 140, y);
     ctx.textAlign = 'right'; ctx.font = `900 64px ${F}`;
