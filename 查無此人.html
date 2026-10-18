@@ -241,11 +241,12 @@ body{
 .filter button.on{background:#232733;color:#fff}
 .row{display:flex;align-items:center;gap:8px;background:#232733;color:#fff;border-radius:14px;padding:12px 12px 12px 16px;margin-bottom:9px;
   border-left:7px solid var(--c);font-weight:900;font-size:16px}
-.row .who{flex:1;min-width:0;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.row{flex-wrap:wrap;row-gap:8px}
+.row .who{flex:1 0 auto;white-space:nowrap}
 .row .arrow{color:#8b92a5;margin:0 4px}
 .row .mark{width:22px;height:22px;border-radius:50%;flex-shrink:0;display:flex;align-items:center;justify-content:center;font-size:13px}
 .row .mark.ok{background:var(--green)}.row .mark.bad{background:var(--red)}
-.tag{flex-shrink:0;border-radius:9px;padding:5px 10px;font-size:13px;white-space:nowrap}
+.tag{flex-shrink:0;margin-left:auto;border-radius:9px;padding:5px 10px;font-size:13px;white-space:nowrap}
 .tag.t-real{background:var(--green)}
 .tag.t-mis{background:#c98a1e}
 .tag.t-fake{background:var(--red)}
@@ -352,7 +353,7 @@ body{
     <div class="rules">
       <div class="rule"><div class="ic">⏱️</div><div>只有 <b>30 秒</b>！答對 <b>+1 秒</b>（1.2 秒內 <b>+1.5</b>），答錯 <b>−3 秒</b></div></div>
       <div class="rule"><div class="ic">⚡</div><div>越快答分越高，最多 <b>200 分</b>；連對 5 張倍率 <b>+0.5</b>（最高 ×3）</div></div>
-      <div class="rule"><div class="ic">🏷️</div><div>寫他的<b>股</b>或所屬的<b>課</b>都算對<br><span class="ex">例：蔡同咨是軍械股 →「軍械」✔「武系課」✔「飛彈」✘</span></div></div>
+      <div class="rule"><div class="ic">🏷️</div><div>寫他的<b>股</b>或所屬的<b>課</b>都算對<br><span class="ex">例：蔡同咨是軍械股 →「軍械」✔「武系課」✔「武系」✔「飛彈」✘</span></div></div>
       <div class="rule"><div class="ic">👋</div><div>已經<b>調離、退伍</b>的人也會混進來，要選假的</div></div>
       <div class="rule"><div class="ic">📈</div><div>越後面越難：拼裝人名 → <b>錯一個字</b> → 同部門互換 → <b>連姓都改</b></div></div>
       <div class="rule"><div class="ic">🔀</div><div>每局題目都不同，全公司的人會<b>輪流出完</b>才重來</div></div>
@@ -415,7 +416,7 @@ const ROSTER_TEXT = `
 蘇筠喬	生品	生品
 王莉凱	生品	生品
 黃奕達	生品	生品
-彭琪菌	生品	生品
+彭琪茵	生品	生品
 蕭亞瑄	生品	生品
 盧俊成	生品	生品
 郭庭吟	生品	生品
@@ -431,7 +432,7 @@ const ROSTER_TEXT = `
 劉原彰	航儀課	航儀
 郭晉瑋	航儀課	航儀
 王尚淳	航儀課	通導
-楊志漬	航儀課	通導
+楊志清	航儀課	通導
 李家榮	航儀課	通導
 鄭文瑋	航儀課	通導
 李偉銘	航儀課	通導
@@ -708,7 +709,9 @@ const REAL = ROSTER_TEXT.trim().split('\n')
   .filter(a => a.length >= 2)
   .map(a => {
     const ke = a[1], gu = a[2] || a[1];
-    return { name: a[0], ke: ke, gu: gu, units: ke === gu ? [gu] : [gu, ke] };
+    // 「武系課」也可以只寫「武系」→ 股、課、課去掉「課」字，三種寫法都算對
+    const units = [...new Set([gu, ke, ke.replace(/課$/, '')])];
+    return { name: a[0], ke: ke, gu: gu, units: units };
   });
 const FORMER = FORMER_TEXT.trim().split('\n')
   .map(l => l.trim().split(/\s+/))
@@ -924,7 +927,7 @@ function tapeText(q) {
 function tagInfo(q) {
   switch (q.type) {
     case 'real': return { cls: 't-real', text: '真的' };
-    case 'mismatch': return { cls: 't-mis', text: '其實在' + q.trueUnit };
+    case 'mismatch': { const p = NAME_MAP.get(q.name); return { cls: 't-mis', text: '其實在' + (p ? p.gu : q.trueUnit) }; }
     case 'silly': return { cls: 't-fake', text: '幽靈單位' };
     case 'ghost': return { cls: 't-fake', text: '幽靈單位' };
     case 'mixed': return { cls: 't-fake', text: '拼裝人名' };
