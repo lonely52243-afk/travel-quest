@@ -2103,6 +2103,8 @@ body.mode-roster .a2hs .a2-ft button{border:1px solid rgba(139,111,58,.45);color
 body.mode-roster .a2hs .a2-ft button.pri{border-color:#8b6f3a;background:linear-gradient(180deg,#c9a55c,#8b6f3a);color:#fdf6e3}
 body.bt-open .a2hs,body.bt-open .m-toast{display:none}
 @media (prefers-reduced-motion:reduce){.sw-bubble,.m-toast,.a2hs{animation:none}}
+/* 名冊：人數不多，拿掉搜尋列和等級篩選，只留排序 */
+#rosterToolbar .rt-row1,#rosterToolbar .rt-find,#rosterToolbar .roster-tools{display:none!important}
 </style>
 </head><body class="mode-meter">
 <div class="app">
@@ -4002,7 +4004,7 @@ document.querySelectorAll(".sort-btn").forEach(btn => {
 const RG_KEY="meter_roster_guide_off";
 const RG_STEPS=[
   ["S1.roster","歡迎來到勇者名冊","這裡列出所有回報電表的勇者。等級越高，卡片越亮：灰 → 藍 → 紫 → 金。"],
-  ["","🔍","找人與排序","上方可以搜尋名字，或依「等級、加入、回報、漏報」排序；點顏色按鈕只看某個等級區間。"],
+  ["","📊","排序","上方可以依「等級、加入、回報、漏報」排序，找出誰最認真、誰最常漏報。"],
   ["S1.triforce","點卡片看個人頁","等級、經驗、裝備、徽章和成就技能樹都在裡面。"],
   ["S1.dawn","怎麼變強","每天回報電表累積經驗；破曉、假日回報還能解鎖特別的徽章和成就。"],
   ["S1.challenge","無盡挑戰與圖鑑","個人頁下方可以進入無盡挑戰打怪，旁邊的「圖鑑」記錄你收集到的神話、神器和里程碑。"]
@@ -10959,3 +10961,6 @@ window.rosterStats=u=>{const p=_bp(u);return{atk:p.atk,hp:p.maxHp,def:p.def,crit
 try{const rp=document.getElementById("page-roster");if(rp&&rp.classList.contains("active")&&typeof usersData!=="undefined"&&usersData.length)renderRoster(false)}catch(e){}
 })();
 </script>
+
+</body>
+</html>
