@@ -73,6 +73,13 @@ body{
 .timer.danger .time-text{color:var(--red);animation:pulse .5s infinite alternate}
 .timer.danger .bar-fill{background:var(--red)}
 @keyframes pulse{to{transform:scale(1.08)}}
+.lv-chip{flex-shrink:0;font-size:12px;font-weight:900;color:#222;background:var(--gold);border-radius:8px;padding:3px 8px}
+.lv-chip.max{background:var(--red);color:#fff}
+.lvl-up{position:absolute;left:12px;right:12px;top:38%;z-index:45;text-align:center;pointer-events:none;
+  font-size:22px;font-weight:900;color:#222;background:var(--gold);border-radius:14px;padding:10px 8px;
+  box-shadow:0 10px 30px rgba(0,0,0,.5);opacity:0;transform:scale(.6)}
+.lvl-up.show{animation:lvl 1.6s ease-out forwards}
+@keyframes lvl{0%{opacity:0;transform:scale(.6)}12%{opacity:1;transform:scale(1.08)}20%{transform:scale(1)}80%{opacity:1}100%{opacity:0;transform:translateY(-20px)}}
 .time-delta{position:absolute;left:18px;top:-6px;font-weight:900;font-size:18px;opacity:0;pointer-events:none}
 .time-delta.up{color:var(--green);animation:floatUp .9s ease-out}
 .time-delta.down{color:var(--red);animation:floatUp .9s ease-out}
@@ -271,6 +278,7 @@ body{
   <div class="timer" id="timer">
     <div class="time-text" id="timeText">30.0</div>
     <div class="bar"><div class="bar-fill" id="timeFill"></div></div>
+    <div class="lv-chip" id="lvChip">Lv.1</div>
     <div class="time-delta" id="timeDelta"></div>
   </div>
 
@@ -301,6 +309,7 @@ body{
     </div>
 
     <div class="countdown" id="countdown"></div>
+    <div class="lvl-up" id="lvlUp"></div>
   </div>
 
   <!-- 按鈕 -->
@@ -333,7 +342,8 @@ body{
       <div class="rule"><div class="ic">❌</div><div>答錯直接 <b>−3 秒</b></div></div>
       <div class="rule"><div class="ic">⚡</div><div>越快答分數越高，最多 <b>200 分</b>一張</div></div>
       <div class="rule"><div class="ic">🔥</div><div>每連對 5 張，倍率 <b>+0.5</b>（最高 ×3）</div></div>
-      <div class="rule"><div class="ic">📈</div><div>答越多題目越難，會出現<b>同部門的陷阱</b></div></div>
+      <div class="rule"><div class="ic">📈</div><div>答越多越難：拼裝人名 → <b>錯一個字</b> → 同部門互換 → <b>連姓都改</b></div></div>
+      <div class="rule"><div class="ic">🔀</div><div>每局題目都不同，全公司的人會<b>輪流出完</b>才重來</div></div>
     </div>
     <button class="big-btn green" id="goBtn">開始審查！</button>
   </div>
@@ -616,9 +626,44 @@ const GROUPS = [
   { units: ['空電課', '顯控', '火控', '主件'], color: '#8d6ce2' }
 ];
 
-// 假名字（一看就陌生的）與幽靈單位
-const GENERIC_NAMES_RAW = ['林志明', '陳雅婷', '王俊傑', '張淑芬', '李建宏', '黃美玲', '劉家豪', '蔡佳蓉', '楊博文', '許巧薇', '謝明哲', '曾雅琪', '鄭志偉', '林怡君', '吳承恩', '高嘉琪'];
-const SILLY_UNITS = ['摸魚課', '茶水間', '訂飲料組', '福利社', '掃地大隊', '八卦組', '午睡課', '打卡部'];
+// 隨機產生假名字用的姓氏與名字用字（每次組合都不一樣，背不起來）
+const FAKE_SURNAMES = '陳林黃張李王吳劉蔡楊許鄭謝郭洪曾邱廖賴周徐蘇葉莊呂江何蕭羅高潘簡朱鍾彭游詹胡施沈余趙盧梁顏柯孫魏翁戴范宋方'.split('');
+const FAKE_GIVEN = '志明家豪俊宏建文冠宇承翰柏凱哲彥嘉佳怡雅婷淑芬美玲惠慧欣心瑜琪君雯佩珊詩涵思妤品萱子晴宜庭郁昱信安平國祥誠偉傑銘德耀仁勇華順福育綺穎軒睿恩宥'.split('');
+
+// 搞笑幽靈單位（前期）
+const SILLY_UNITS = ['摸魚課', '茶水間', '訂飲料組', '福利社', '掃地大隊', '八卦組', '午睡課', '打卡部', '加班課', '請假組', '零食部', '團購組', '滑手機課', '下午茶組', '冷氣管理課', '遲到課', '發呆組', '便當課', '抽獎組', '聊天室', '咖啡課', '健身組', '追劇課', '開會組'];
+// 聽起來很像真的幽靈單位（中後期）
+const GHOST_UNITS_RAW = ['採購課', '品保', '測試', '雷達', '電戰', '後勤', '維修課', '補給', '通訊', '航電', '電源', '光電', '機工', '結構', '電裝', '導控'];
+
+// 形近字／音近字（錯字陷阱用）
+const LOOK_GROUPS = ['偉瑋煒暐韋維唯惟', '宇羽禹語雨', '豪濠皓浩昊', '傑杰捷', '霖琳林麟', '翰瀚涵漢', '銘明鳴名', '德得', '華樺驊',
+  '婷庭亭廷霆', '琪祺淇綺棋', '慧惠蕙', '瑄萱宣暄璇軒', '均鈞君筠', '晴情青菁', '蓉容榕溶融', '凱愷楷鎧', '承丞成城程', '嘉佳家',
+  '昱煜郁育', '俊駿峻竣', '志智致治', '文汶紋雯', '宗琮綜', '振震', '勳勛', '佑祐友侑', '冠觀', '柏伯博', '欣新心馨', '怡宜儀頤',
+  '芳方舫', '玲伶鈴', '茹如儒', '輝暉', '鴻宏弘泓', '哲喆', '民敏閔', '翔祥', '毅義藝', '雄熊', '群郡', '元原源沅', '忠仲中',
+  '嵐蘭瀾', '芸雲昀韻', '宸辰晨', '亦奕逸易', '妤予', '堯瑤', '彰璋章', '賢弦嫻', '達逵', '裕育', '盛聖', '穎潁', '任仁', '謙騫',
+  '澤擇', '陵凌', '靜靖', '瑛英', '穗歲', '杉珊衫', '金錦', '乃迺', '叢聰', '依伊', '煥渙換', '于余', '彥顏', '姿咨孜', '鋌挺',
+  '旭煦', '修秀', '啟啓', '泰太', '景璟', '廣光', '維惟', '惠蕙'];
+// 姓氏形近／音近（最高難度才會改姓）
+const SUR_GROUPS = ['陳程', '張章', '王汪', '許徐', '劉柳', '李黎', '吳伍巫', '鄭曾', '林凌', '楊陽', '黃王', '蕭肖', '余俞', '周鄒', '洪紅', '邱丘', '蔡賴', '郭國', '江姜'];
+
+// 難度門檻（答對幾張升一級）與升級提示
+const LV_STEPS = [0, 4, 9, 15, 22];
+const LV_MSG = [
+  '',
+  '難度 UP！開始出現拼裝人名',
+  '難度 UP！錯一個字的陷阱來了',
+  '難度 UP！同部門互換＋形近字',
+  '最高難度！連姓氏都會偷改'
+];
+// 各難度出題比例：真的、張冠李戴、搞笑單位、陌生人名、像真的幽靈單位、拼裝人名、錯一個字
+const LV_MIX = [
+  [50, 20, 15, 15, 0, 0, 0],
+  [50, 18, 5, 8, 7, 12, 0],
+  [48, 16, 0, 4, 6, 10, 16],
+  [46, 16, 0, 0, 4, 8, 26],
+  [44, 16, 0, 0, 3, 6, 31]
+];
+const LV_SIBLING = [0, 0.3, 0.6, 0.8, 0.9];
 
 // 稱號
 const RANKS = [
@@ -643,9 +688,27 @@ const REAL = ROSTER_TEXT.trim().split('\n')
 const NAME_MAP = new Map(REAL.map(p => [p.name, p.unit]));
 const UNITS = [...new Set(REAL.map(p => p.unit))];
 const THREE = REAL.filter(p => p.name.length === 3);
-const GENERIC_NAMES = GENERIC_NAMES_RAW.filter(n => !NAME_MAP.has(n));
+const GHOST_UNITS = GHOST_UNITS_RAW.filter(u => !UNITS.includes(u));
 const SILLY_COLOR = {};
-SILLY_UNITS.forEach((u, i) => { SILLY_COLOR[u] = GROUPS[i % GROUPS.length].color; });
+SILLY_UNITS.concat(GHOST_UNITS).forEach((u, i) => { SILLY_COLOR[u] = GROUPS[i % GROUPS.length].color; });
+function buildLookMap(groups) {
+  const m = {};
+  groups.forEach(g => {
+    const cs = [...g];
+    cs.forEach(c => {
+      if (!m[c]) m[c] = new Set();
+      cs.forEach(o => { if (o !== c) m[c].add(o); });
+    });
+  });
+  const out = {};
+  Object.keys(m).forEach(k => { out[k] = [...m[k]]; });
+  return out;
+}
+const LOOK_MAP = buildLookMap(LOOK_GROUPS);
+const SUR_MAP = buildLookMap(SUR_GROUPS);
+// 名冊裡出現過的名字用字（讓改字後的名字看起來很自然）
+const MID_CHARS = [...new Set(THREE.map(p => p.name[1]))];
+const LAST_CHARS = [...new Set(REAL.filter(p => p.name.length <= 3).map(p => p.name[p.name.length - 1]))];
 
 function pick(arr) { return arr[Math.floor(Math.random() * arr.length)]; }
 function groupOf(u) { return GROUPS.find(g => g.units.includes(u)); }
@@ -659,11 +722,64 @@ function getRank(s) { let r = RANKS[0]; for (const x of RANKS) if (s >= x.min) r
 // 🎲 出題
 // ==========================================
 let recent = [];
-function pickPerson() {
-  let p;
-  for (let i = 0; i < 30; i++) { p = pick(REAL); if (!recent.includes(p.name)) break; }
+function shuffle(arr) {
+  for (let i = arr.length - 1; i > 0; i--) {
+    const j = Math.floor(Math.random() * (i + 1));
+    const t = arr[i]; arr[i] = arr[j]; arr[j] = t;
+  }
+  return arr;
+}
+// 人員「牌庫」：全部同事洗牌後依序出，出完才重洗，而且跨局記住進度
+// → 玩很多局也會輪流看到每一個人，不會一直是同一批
+let deck = null;
+function loadDeck() {
+  if (deck) return deck;
+  try { deck = JSON.parse(localStorage.getItem('nobody_deck') || 'null'); } catch (e) { deck = null; }
+  if (!deck || !Array.isArray(deck.order) || deck.n !== REAL.length) deck = null;
+  return deck;
+}
+function deckDraw() {
+  let d = loadDeck();
+  if (!d || d.pos >= d.order.length) {
+    d = { n: REAL.length, order: shuffle(REAL.map((_, i) => i)), pos: 0 };
+    deck = d;
+  }
+  const p = REAL[d.order[d.pos]];
+  d.pos++;
+  try { localStorage.setItem('nobody_deck', JSON.stringify(d)); } catch (e) {}
   return p;
 }
+function pickPerson(filter) {
+  let p = null;
+  for (let i = 0; i < 40; i++) {
+    p = deckDraw();
+    if (!recent.includes(p.name) && (!filter || filter(p))) return p;
+  }
+  return p;
+}
+function levelOf(c) {
+  let l = 0;
+  LV_STEPS.forEach((s, i) => { if (c >= s) l = i; });
+  return l;
+}
+function weightedIndex(ws) {
+  const total = ws.reduce((a, b) => a + b, 0);
+  let r = Math.random() * total;
+  for (let i = 0; i < ws.length; i++) { r -= ws[i]; if (r < 0) return i; }
+  return 0;
+}
+// 隨機陌生人名（組合非常多，不會重複）
+function genName() {
+  for (let i = 0; i < 50; i++) {
+    const a = pick(FAKE_GIVEN), b = pick(FAKE_GIVEN);
+    if (a === b) continue;
+    const n = pick(FAKE_SURNAMES) + a + b;
+    if (NAME_MAP.has(n) || recent.includes(n)) continue;
+    return n;
+  }
+  return '王小明';
+}
+// 拼裝人名：A 的姓 + B 的名
 function makeMixed() {
   for (let i = 0; i < 80; i++) {
     const a = pick(THREE), b = pick(THREE);
@@ -674,29 +790,65 @@ function makeMixed() {
   }
   return null;
 }
+// 錯一個字：真同事的名字偷改一個字，單位保持正確
+function makeTypo(lv) {
+  for (let i = 0; i < 60; i++) {
+    const p = pickPerson(x => x.name.length >= 2 && x.name.length <= 3);
+    const chars = [...p.name];
+    const positions = [];
+    for (let k = 1; k < chars.length; k++) positions.push(k);
+    if (lv >= 4 && SUR_MAP[chars[0]]) positions.push(0);
+    const pos = pick(positions);
+    let cands = [];
+    if (pos === 0) {
+      cands = SUR_MAP[chars[0]] || [];
+    } else {
+      const useLook = lv >= 3 ? Math.random() < 0.85 : Math.random() < 0.5;
+      if (useLook) cands = LOOK_MAP[chars[pos]] || [];
+      if (!cands.length) cands = (pos === chars.length - 1) ? LAST_CHARS : MID_CHARS;
+    }
+    if (!cands.length) continue;
+    const c = pick(cands);
+    if (c === chars[pos]) continue;
+    const nc = chars.slice();
+    nc[pos] = c;
+    const n = nc.join('');
+    if (NAME_MAP.has(n) || recent.includes(n)) continue;
+    return { name: n, orig: p.name, unit: p.unit };
+  }
+  return null;
+}
 function genQuestion() {
-  const lv = Math.min(4, Math.floor(correct / 5));
-  const r = Math.random();
-  let q;
-  if (r < 0.5) {
+  const lv = levelOf(correct);
+  const t = weightedIndex(LV_MIX[lv]);
+  let q = null;
+  if (t === 0) {
     const p = pickPerson();
     q = { name: p.name, unit: p.unit, real: true, type: 'real' };
-  } else if (r < 0.76) {
+  } else if (t === 1) {
     const p = pickPerson();
-    let pool = (lv >= 2 && Math.random() < 0.7) ? siblings(p.unit) : [];
+    let pool = (Math.random() < LV_SIBLING[lv]) ? siblings(p.unit) : [];
     if (!pool.length) pool = UNITS.filter(u => u !== p.unit);
     q = { name: p.name, unit: pick(pool), real: false, type: 'mismatch', trueUnit: p.unit };
-  } else if (lv < 1 && Math.random() < 0.5) {
-    q = { name: pick(GENERIC_NAMES), unit: pick(SILLY_UNITS), real: false, type: 'silly' };
-  } else if (lv < 2 && Math.random() < 0.5) {
-    q = { name: pick(GENERIC_NAMES), unit: pick(UNITS), real: false, type: 'fake' };
-  } else {
+  } else if (t === 2) {
+    q = { name: genName(), unit: pick(SILLY_UNITS), real: false, type: 'silly' };
+  } else if (t === 3) {
+    q = { name: genName(), unit: pick(UNITS), real: false, type: 'fake' };
+  } else if (t === 4 && GHOST_UNITS.length) {
+    const p = pickPerson();
+    q = { name: p.name, unit: pick(GHOST_UNITS), real: false, type: 'ghost', trueUnit: p.unit };
+  } else if (t === 6) {
+    const m = makeTypo(lv);
+    if (m) q = { name: m.name, unit: m.unit, real: false, type: 'typo', orig: m.orig };
+  }
+  if (!q) {
     const m = makeMixed();
     if (m) q = { name: m.name, unit: m.unit, real: false, type: 'mixed', from: m.from };
-    else q = { name: pick(GENERIC_NAMES), unit: pick(UNITS), real: false, type: 'fake' };
+    else q = { name: genName(), unit: pick(UNITS), real: false, type: 'fake' };
   }
   recent.push(q.name);
-  if (recent.length > 12) recent.shift();
+  if (q.orig) recent.push(q.orig);
+  while (recent.length > 16) recent.shift();
   return q;
 }
 function explain(q) {
@@ -704,12 +856,14 @@ function explain(q) {
     case 'real': return `<b>${esc(q.name)}</b> 確實是 <b>${esc(q.unit)}</b> 的人`;
     case 'mismatch': return `張冠李戴！<b>${esc(q.name)}</b> 其實在 <b class="gold">${esc(q.trueUnit)}</b>`;
     case 'silly': return `幽靈單位！公司根本沒有「${esc(q.unit)}」`;
+    case 'ghost': return `幽靈單位！沒有「${esc(q.unit)}」，<b>${esc(q.name)}</b> 在 <b class="gold">${esc(q.trueUnit)}</b>`;
     case 'mixed': return `拼裝人名！「${esc(q.from[0])}」的姓＋「${esc(q.from[1])}」的名`;
+    case 'typo': return `錯一個字！應該是 <b class="gold">${esc(q.orig)}</b>（${esc(q.unit)}）`;
     default: return `查無此人！名冊上沒有「${esc(q.name)}」`;
   }
 }
 function tapeText(q) {
-  const t = { mismatch: '張冠李戴', silly: '幽靈單位', mixed: '拼裝人名', fake: '查無此人' }[q.type] || '查無此人';
+  const t = { mismatch: '張冠李戴', silly: '幽靈單位', ghost: '幽靈單位', mixed: '拼裝人名', typo: '錯字陷阱', fake: '查無此人' }[q.type] || '查無此人';
   return `${t}・${t}・${t}・${t}`;
 }
 function tagInfo(q) {
@@ -717,7 +871,9 @@ function tagInfo(q) {
     case 'real': return { cls: 't-real', text: '真的' };
     case 'mismatch': return { cls: 't-mis', text: '其實在' + q.trueUnit };
     case 'silly': return { cls: 't-fake', text: '幽靈單位' };
+    case 'ghost': return { cls: 't-fake', text: '幽靈單位' };
     case 'mixed': return { cls: 't-fake', text: '拼裝人名' };
+    case 'typo': return { cls: 't-mis', text: '應為' + q.orig };
     default: return { cls: 't-fake', text: '查無此人' };
   }
 }
@@ -778,6 +934,21 @@ let tutIdx = 0;
 let drag = null;
 let listFilter = 'all';
 let currentRank = RANKS[0].title;
+let level = 0;
+function renderLevel() {
+  const chip = $('lvChip');
+  if (!chip) return;
+  chip.textContent = mode === 'tutorial' ? '練習' : (level >= LV_STEPS.length - 1 ? 'MAX' : 'Lv.' + (level + 1));
+  chip.classList.toggle('max', level >= LV_STEPS.length - 1 && mode !== 'tutorial');
+}
+function showLevelUp(lv) {
+  const el = $('lvlUp');
+  el.textContent = LV_MSG[lv] || '難度 UP！';
+  el.classList.remove('show');
+  void el.offsetWidth;
+  el.classList.add('show');
+  tone(700, .1, 'square', .1); tone(1050, .18, 'square', .1, .1);
+}
 
 const $ = id => document.getElementById(id);
 const card = $('card'), cardWrap = $('cardWrap'), stamp = $('stamp'), tape = $('tape'), panel = $('panel');
@@ -908,7 +1079,9 @@ const TUT = [
   { q: { name: '吳彥賢', unit: '通導', real: false, type: 'mismatch', trueUnit: '生品' },
     tip: '② 人是真的，但單位被換掉了（張冠李戴）→ 這也算「假的」，<b>往左滑</b> 👈' },
   { q: { name: '鄭珮甄', unit: '生品', real: false, type: 'mixed', from: ['鄭宏廷', '張珮甄'] },
-    tip: '③ 這個名字是把兩個同事的姓和名拼起來的，名冊上查無此人 → 「假的」👈' }
+    tip: '③ 這個名字是把兩個同事的姓和名拼起來的，名冊上查無此人 → 「假的」👈' },
+  { q: { name: '蘇建璋', unit: '廠辦', real: false, type: 'typo', orig: '蘇建彰' },
+    tip: '④ 越後面越難，會偷改一個字！「彰」變成「璋」→ 也是「假的」👈' }
 ];
 function startTutorial() {
   ac();
@@ -918,6 +1091,7 @@ function startTutorial() {
   showOnly(null);
   renderHud();
   renderTimer();
+  renderLevel();
   $('coach').classList.add('show');
   tutCard();
 }
@@ -975,6 +1149,7 @@ function resetStats() {
   score = 0; combo = 0; maxCombo = 0; correct = 0; fastest = null;
   timeLeft = START_TIME; lastTick = 99; history = []; recent = []; qNo = 0;
   currentRank = RANKS[0].title;
+  level = 0;
   clearTimeout(fbTimer);
 }
 function startGame() {
@@ -987,6 +1162,7 @@ function startGame() {
   hidePanel();
   renderHud();
   renderTimer();
+  renderLevel();
   $('uiName').textContent = '準備中';
   $('uiUnit').textContent = '－－';
   $('avatar').textContent = '？';
@@ -1060,6 +1236,8 @@ function answer(sayReal) {
     correct++;
     maxCombo = Math.max(maxCombo, combo);
     if (fastest === null || rt < fastest) fastest = rt;
+    const nl = levelOf(correct);
+    if (nl > level) { level = nl; renderLevel(); setTimeout(() => showLevelUp(nl), 250); }
     const mult = multFor(combo - 1);
     const speed = Math.max(0, 1 - rt / 3);
     const pts = Math.round((100 + 100 * speed) * mult / 10) * 10;
@@ -1081,6 +1259,7 @@ function answer(sayReal) {
   history.push({ q: q, ok: ok, rt: rt });
   renderHud();
   renderTimer();
+  renderLevel();
   clearTimeout(fbTimer);
   fbTimer = setTimeout(nextOrEnd, ok ? 750 : 1600);
 }
@@ -1400,6 +1579,7 @@ function goHome() {
   $('soundBtn').textContent = soundOn ? '🔊' : '🔇';
   renderHud();
   renderTimer();
+  renderLevel();
   goHome();
 })();
 </script>
