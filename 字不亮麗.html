@@ -330,20 +330,24 @@
     .streak-info { display: flex; justify-content: space-between; align-items: center; font-size: 0.7rem; font-weight: 900; color: #777; gap: 8px; line-height: 1.2; }
     #streak-text.hot { color: var(--c-yellow); }
     #streak-text.fire { color: var(--c-red); text-shadow: 0 0 8px rgba(255,71,87,0.6); }
-    #buff-text { color: #ccc; white-space: nowrap; flex: 1; text-align: center; }
+    #buff-text { color: #ccc; white-space: nowrap; }
     #diff-text { white-space: nowrap; }
+    .hp-sep { opacity: 0.5; }
+    /* 訊息：連擊旁邊一行小字，3 秒後消失 */
+    #msg { flex: 1; min-width: 0; text-align: center; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+    #msg span { display: inline-block; animation: feedIn 0.25s ease-out; }
     .streak-bar { height: 3px; background: #000; border-radius: 2px; overflow: hidden; }
     #streak-fill { height: 100%; width: 0; background: var(--c-blue); }
 
-    #input-row { display: flex; gap: 8px; }
+    #input-row { display: flex; gap: 8px; align-items: stretch; }
     #type-input {
-        flex: 1; min-width: 0; padding: 9px 10px; font-size: 1.15rem;
+        flex: 0 0 34%; max-width: 170px; min-width: 0; padding: 8px 6px; font-size: 1rem;
         background-color: #0b0b0f; border: 2px solid #333;
         border-radius: 12px; color: var(--c-green); outline: none;
         text-align: center; font-family: monospace; letter-spacing: 2px;
         box-shadow: inset 0 4px 10px rgba(0,0,0,0.5); transition: border-color 0.2s, box-shadow 0.2s;
     }
-    #type-input::placeholder { color: #555; letter-spacing: 1px; font-size: 0.95rem; }
+    #type-input::placeholder { color: #555; letter-spacing: 0; font-size: 0.85rem; }
     #type-input:focus:not(.error) { border-color: var(--c-green); box-shadow: inset 0 4px 10px rgba(0,0,0,0.5), 0 0 15px rgba(46,213,115,0.2); }
     #hud.h1 #type-input:focus:not(.error) { border-color: var(--c-blue); box-shadow: inset 0 4px 10px rgba(0,0,0,0.5), 0 0 15px rgba(30,144,255,0.35); }
     #hud.h2 #type-input:focus:not(.error) { border-color: #e056fd; box-shadow: inset 0 4px 10px rgba(0,0,0,0.5), 0 0 18px rgba(224,86,253,0.45); }
@@ -351,16 +355,21 @@
     #type-input.error { border-color: var(--c-red); color: var(--c-red); animation: errorFlash 0.3s; }
     @keyframes errorFlash { 0%, 100% { background-color: #0b0b0f; } 50% { background-color: rgba(255,71,87,0.2); } }
 
-    /* 訊息推播（原本的發射按鈕位置） */
-    #feed {
-        width: 38%; max-width: 170px; min-width: 110px;
-        display: flex; flex-direction: column; justify-content: center; gap: 2px;
-        padding: 4px 8px; background: #0b0b0f; border: 1px solid #2a2a33; border-radius: 12px; overflow: hidden;
+    /* 目標列：場上所有字，最危險的排最左邊 */
+    #targets {
+        flex: 1; min-width: 0; max-height: 54px;
+        display: flex; flex-wrap: wrap; align-content: center; gap: 3px;
+        padding: 4px 6px; background: #0b0b0f; border: 1px solid #2a2a33; border-radius: 12px; overflow: hidden;
     }
-    #feed:empty::before { content: '訊息'; color: #444; font-size: 0.72rem; text-align: center; }
-    .feed-line { font-size: 0.72rem; font-weight: 900; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; line-height: 1.35; }
-    .feed-line.old { opacity: 0.45; font-weight: 700; }
-    .feed-line.new { animation: feedIn 0.25s ease-out; }
+    #targets:empty::before { content: '目標列'; color: #444; font-size: 0.72rem; margin: auto; }
+    .chip {
+        font-size: 0.74rem; font-weight: 900; color: var(--c); border: 1px solid var(--c);
+        border-radius: 6px; padding: 0 4px; line-height: 1.45; white-space: nowrap; background: rgba(0,0,0,0.4);
+    }
+    .chip.boss { border-width: 2px; }
+    .chip.danger { background: rgba(255,71,87,0.35); animation: chipBlink 0.35s infinite alternate; }
+    .chip.on { background: var(--c); color: #000; animation: none; }
+    @keyframes chipBlink { from { opacity: 1; } to { opacity: 0.45; } }
     @keyframes feedIn { from { opacity: 0; transform: translateY(6px); } to { opacity: 1; transform: none; } }
 
     /* ===== 共用按鈕 ===== */
@@ -594,7 +603,7 @@
         <div class="hud-row">
             <div class="hud-score">分數<b id="score">0</b></div>
             <div class="hud-hp">
-                <div class="hp-bar"><div id="hp-fill"></div><div class="hp-label">HP <span id="hp-text">100</span><span id="shield-text"></span></div></div>
+                <div class="hp-bar"><div id="hp-fill"></div><div class="hp-label">HP <span id="hp-text">100</span><span id="shield-text"></span><span class="hp-sep">｜</span><span id="diff-text">-</span></div></div>
             </div>
             <button id="pause-btn" onclick="openPause()">
                 <div class="sprite blend" id="hud-weapon-icon"></div>
@@ -602,12 +611,12 @@
             </button>
         </div>
         <div class="streak-row">
-            <div class="streak-info"><span id="streak-text">連擊 0</span><span id="buff-text"></span><span id="diff-text">-</span></div>
+            <div class="streak-info"><span id="streak-text">連擊 0</span><span id="msg"></span><span id="buff-text"></span></div>
             <div class="streak-bar"><div id="streak-fill"></div></div>
         </div>
         <div id="input-row">
-            <input type="text" id="type-input" placeholder="打拼音或中文，自動發射" autocomplete="off" autocorrect="off" autocapitalize="off" spellcheck="false" enterkeyhint="send" disabled>
-            <div id="feed"></div>
+            <input type="text" id="type-input" placeholder="拼音／中文" autocomplete="off" autocorrect="off" autocapitalize="off" spellcheck="false" enterkeyhint="send" disabled>
+            <div id="targets"></div>
         </div>
     </div>
 
@@ -877,7 +886,7 @@
     };
     const BALANCE = {
         bossEvery: 60,          // 每幾秒出一次 BOSS
-        bossHp: 3,              // BOSS 要打幾次
+        bossHp: 6,              // BOSS 要打幾次（每 60 秒再 +1）
         itemDropChance: 0.06,   // 每次發射掉道具的機率
         itemDropChanceL5: 0.15, // 彩虹稜鏡覺醒後的掉寶率
         freezeMs: 3000,
@@ -970,13 +979,13 @@
         { text: "蛋膏", pinyin: "dangao" }, { text: "宇宙", pinyin: "yuzou" }
     ].filter(f => !WORDS.some(w => w.text === f.text)); // 保險：萬一跟真字重複就自動排除
 
-    // BOSS 長詞
+    // BOSS：字短（兩個字），但血很厚，要連打很多次
     const BOSS_WORDS = [
-        { text: "交響樂團", pinyin: "jiaoxiangyuetuan" }, { text: "宇宙戰艦", pinyin: "yuzhouzhanjian" },
-        { text: "黑洞吞噬", pinyin: "heidongtunshi" }, { text: "彩虹稜鏡", pinyin: "caihonglengjing" },
-        { text: "光速打字", pinyin: "guangsudazi" }, { text: "傳說英雄", pinyin: "chuanshuoyingxiong" },
-        { text: "混沌魔法", pinyin: "hundunmofa" }, { text: "銀河帝國", pinyin: "yinhediguo" },
-        { text: "永恆榮耀", pinyin: "yonghengrongyao" }, { text: "閃電風暴", pinyin: "shandianfengbao" }
+        { text: "魔王", pinyin: "mowang" }, { text: "巨龍", pinyin: "julong" },
+        { text: "帝王", pinyin: "diwang" }, { text: "黑龍", pinyin: "heilong" },
+        { text: "霸主", pinyin: "bazhu" }, { text: "雷神", pinyin: "leishen" },
+        { text: "冥王", pinyin: "mingwang" }, { text: "戰神", pinyin: "zhanshen" },
+        { text: "天魔", pinyin: "tianmo" }, { text: "劍聖", pinyin: "jiansheng" }
     ];
 
     // ==========================================
@@ -1175,7 +1184,8 @@
     const damageFlash = document.getElementById('damage-flash');
     const screenFlash = document.getElementById('screen-flash');
     const inputField = document.getElementById('type-input');
-    const feedEl = document.getElementById('feed');
+    const msgEl = document.getElementById('msg');
+    const targetsEl = document.getElementById('targets');
     const scoreEl = document.getElementById('score');
     const hpFill = document.getElementById('hp-fill');
     const hpText = document.getElementById('hp-text');
@@ -1427,6 +1437,7 @@
 
         inputField.disabled = false;
         feedItems = []; renderFeed(false);
+        lastTargetsHTML = ''; targetsEl.innerHTML = '';
         inputField.value = ''; inputField.classList.remove('error');
         inputField.focus();
 
@@ -1466,7 +1477,7 @@
     }
 
     // ==========================================
-    // 📣 訊息推播（輸入框右邊小框，最多顯示 2 則，4 秒後消失）
+    // 📣 訊息（連擊旁邊一行小字，只顯示最新一則，3 秒後消失）
     // ==========================================
     let feedItems = [];
     function notify(text, color) {
@@ -1475,12 +1486,12 @@
         renderFeed(true);
     }
     function renderFeed(isNew) {
-        feedEl.innerHTML = feedItems.map((f, i) =>
-            '<div class="feed-line' + (i === 0 && isNew ? ' new' : '') + (i > 0 ? ' old' : '') + '" style="color:' + f.color + '">' + f.text + '</div>').join('');
+        const f = feedItems[0];
+        msgEl.innerHTML = f ? '<span style="color:' + f.color + '">' + f.text + '</span>' : '';
     }
     function pruneFeed(now) {
         const n = feedItems.length;
-        feedItems = feedItems.filter(f => now - f.t < 4000);
+        feedItems = feedItems.filter(f => now - f.t < 3000);
         if (feedItems.length !== n) renderFeed(false);
     }
 
@@ -1710,11 +1721,26 @@
 
         updateVortices(ts);
         updateItems(ts, dt);
+        renderTargets(ts);
 
         if (streak > 0 && ts > streakDeadline) breakStreak('連擊中斷');
         updateStreakUI(ts);
 
         animationId = requestAnimationFrame(gameLoop);
+    }
+
+    // 目標列：只放中文字，不放拼音；錯字照樣顯示
+    let lastTargetsAt = 0, lastTargetsHTML = '';
+    function renderTargets(now, force) {
+        if (!force && now - lastTargetsAt < 100) return;
+        lastTargetsAt = now;
+        const list = blocks.filter(b => !b.isFiring).sort((a, b) => (b.y + b.h) - (a.y + a.h));
+        const html = list.map(b => {
+            const cls = 'chip' + (b.boss ? ' boss' : '') + (b.active ? ' on' : (b.y + b.h > areaH * 0.75 ? ' danger' : ''));
+            const label = (b.boss ? '👑' : b.shield > 0 ? '🛡' : '') + b.text + (b.boss ? '×' + b.bossHp : '');
+            return '<span class="' + cls + '" style="--c:' + b.color + '">' + label + '</span>';
+        }).join('');
+        if (html !== lastTargetsHTML) { targetsEl.innerHTML = html; lastTargetsHTML = html; }
     }
 
     function onLeak(b) {
@@ -1790,6 +1816,7 @@
         const en = normalizeEn(raw);
         const typed = en && t.b.pinyin.startsWith(en) ? en.length : 0;
         renderPinyin(t.b, typed);
+        renderTargets(performance.now(), true);
         // 每打對一個字母：字塊閃一下＋音調往上爬
         playSound('type', typed);
         if (typed > 0) {
@@ -2339,6 +2366,7 @@
         inputField.disabled = true;
         inputField.value = '';
         inputField.blur();
+        targetsEl.innerHTML = ''; lastTargetsHTML = '';
         items.forEach(it => { if (it.el.parentNode) it.el.remove(); });
         items = [];
         vortices.forEach(v => { if (v.el.parentNode) v.el.remove(); });
