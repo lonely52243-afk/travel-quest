@@ -861,9 +861,9 @@
         frag:   { idx: 5, name: '武器碎片', desc: '目前武器的升級材料', color: '#e056fd', weight: 25 }
     };
     const CONSUMABLES = [
-        { id: 'hp', item: 'heal', name: '強化裝甲', desc: '下一局 HP 上限 +30', price: 250 },
-        { id: 'shield', item: 'shield', name: '開局護盾', desc: '下一局開局帶 1 層護盾', price: 150 },
-        { id: 'double', item: 'double', name: '金幣加倍卡', desc: '下一局前 30 秒金幣 ×2', price: 400 }
+        { id: 'hp', item: 'heal', name: '強化裝甲', desc: '下一局 HP 上限 +30', price: 120 },
+        { id: 'shield', item: 'shield', name: '開局護盾', desc: '下一局開局帶 1 層護盾', price: 80 },
+        { id: 'double', item: 'double', name: '金幣加倍卡', desc: '下一局前 30 秒金幣 ×2', price: 200 }
     ];
     const STOCK_MAX = 5;
 
@@ -885,8 +885,11 @@
     const BALANCE = {
         bossEvery: 60,
         bossHp: 2,
-        itemDropChance: 0.06,
-        itemDropChanceL5: 0.15,
+        bossKnock: 45,       // 被打中往上彈的距離（px）
+        bossSlowMs: 1500,    // 被打中後減速多久
+        bossSlowRate: 0.25,  // 減速時的下降速度比例
+        itemDropChance: 0.12,
+        itemDropChanceL5: 0.25,
         freezeMs: 3000,
         doubleMs: 10000,
         startDoubleMs: 30000,
@@ -902,7 +905,7 @@
     // ==========================================
     // 📚 題庫
     // ==========================================
-    const WORDS = [
+    const BASE_WORDS = [
         { text: "商店", pinyin: "shangdian" }, { text: "希望", pinyin: "xiwang" },
         { text: "忘記", pinyin: "wangji" }, { text: "蘋果", pinyin: "pingguo" },
         { text: "電腦", pinyin: "diannao" }, { text: "學校", pinyin: "xuexiao" },
@@ -958,7 +961,296 @@
         { text: "巧克力", pinyin: "qiaokeli" }
     ];
 
+    // 📚 追加題庫（全部兩個字）
+    const MORE_WORDS = [
+        { text: "城市", pinyin: "chengshi" },
+        { text: "鄉村", pinyin: "xiangcun" },
+        { text: "河流", pinyin: "heliu" },
+        { text: "山脈", pinyin: "shanmai" },
+        { text: "草原", pinyin: "caoyuan" },
+        { text: "花園", pinyin: "huayuan" },
+        { text: "公園", pinyin: "gongyuan" },
+        { text: "車站", pinyin: "chezhan" },
+        { text: "機場", pinyin: "jichang" },
+        { text: "碼頭", pinyin: "matou" },
+        { text: "港口", pinyin: "gangkou" },
+        { text: "橋梁", pinyin: "qiaoliang" },
+        { text: "道路", pinyin: "daolu" },
+        { text: "隧道", pinyin: "suidao" },
+        { text: "燈塔", pinyin: "dengta" },
+        { text: "城堡", pinyin: "chengbao" },
+        { text: "宮殿", pinyin: "gongdian" },
+        { text: "寺廟", pinyin: "simiao" },
+        { text: "市場", pinyin: "shichang" },
+        { text: "銀行", pinyin: "yinhang" },
+        { text: "醫院", pinyin: "yiyuan" },
+        { text: "郵局", pinyin: "youju" },
+        { text: "書店", pinyin: "shudian" },
+        { text: "餐廳", pinyin: "canting" },
+        { text: "廚房", pinyin: "chufang" },
+        { text: "客廳", pinyin: "keting" },
+        { text: "臥室", pinyin: "woshi" },
+        { text: "浴室", pinyin: "yushi" },
+        { text: "窗戶", pinyin: "chuanghu" },
+        { text: "樓梯", pinyin: "louti" },
+        { text: "屋頂", pinyin: "wuding" },
+        { text: "花瓶", pinyin: "huaping" },
+        { text: "枕頭", pinyin: "zhentou" },
+        { text: "毛巾", pinyin: "maojin" },
+        { text: "牙刷", pinyin: "yashua" },
+        { text: "雨傘", pinyin: "yusan" },
+        { text: "鑰匙", pinyin: "yaoshi" },
+        { text: "錢包", pinyin: "qianbao" },
+        { text: "帽子", pinyin: "maozi" },
+        { text: "襪子", pinyin: "wazi" },
+        { text: "圍巾", pinyin: "weijin" },
+        { text: "手套", pinyin: "shoutao" },
+        { text: "褲子", pinyin: "kuzi" },
+        { text: "裙子", pinyin: "qunzi" },
+        { text: "老虎", pinyin: "laohu" },
+        { text: "獅子", pinyin: "shizi" },
+        { text: "大象", pinyin: "daxiang" },
+        { text: "熊貓", pinyin: "xiongmao" },
+        { text: "猴子", pinyin: "houzi" },
+        { text: "兔子", pinyin: "tuzi" },
+        { text: "烏龜", pinyin: "wugui" },
+        { text: "海豚", pinyin: "haitun" },
+        { text: "鯨魚", pinyin: "jingyu" },
+        { text: "企鵝", pinyin: "qie" },
+        { text: "狐狸", pinyin: "huli" },
+        { text: "松鼠", pinyin: "songshu" },
+        { text: "蝴蝶", pinyin: "hudie" },
+        { text: "蜜蜂", pinyin: "mifeng" },
+        { text: "螞蟻", pinyin: "mayi" },
+        { text: "老鷹", pinyin: "laoying" },
+        { text: "孔雀", pinyin: "kongque" },
+        { text: "駱駝", pinyin: "luotuo" },
+        { text: "恐龍", pinyin: "konglong" },
+        { text: "鳳凰", pinyin: "fenghuang" },
+        { text: "西瓜", pinyin: "xigua" },
+        { text: "香蕉", pinyin: "xiangjiao" },
+        { text: "葡萄", pinyin: "putao" },
+        { text: "草莓", pinyin: "caomei" },
+        { text: "檸檬", pinyin: "ningmeng" },
+        { text: "芒果", pinyin: "mangguo" },
+        { text: "鳳梨", pinyin: "fengli" },
+        { text: "櫻桃", pinyin: "yingtao" },
+        { text: "橘子", pinyin: "juzi" },
+        { text: "番茄", pinyin: "fanqie" },
+        { text: "南瓜", pinyin: "nangua" },
+        { text: "玉米", pinyin: "yumi" },
+        { text: "土豆", pinyin: "tudou" },
+        { text: "白菜", pinyin: "baicai" },
+        { text: "豆腐", pinyin: "doufu" },
+        { text: "米飯", pinyin: "mifan" },
+        { text: "麵條", pinyin: "miantiao" },
+        { text: "餃子", pinyin: "jiaozi" },
+        { text: "包子", pinyin: "baozi" },
+        { text: "火鍋", pinyin: "huoguo" },
+        { text: "壽司", pinyin: "shousi" },
+        { text: "披薩", pinyin: "pisa" },
+        { text: "漢堡", pinyin: "hanbao" },
+        { text: "薯條", pinyin: "shutiao" },
+        { text: "牛奶", pinyin: "niunai" },
+        { text: "可樂", pinyin: "kele" },
+        { text: "冰塊", pinyin: "bingkuai" },
+        { text: "甜點", pinyin: "tiandian" },
+        { text: "布丁", pinyin: "buding" },
+        { text: "糖果", pinyin: "tangguo" },
+        { text: "醫生", pinyin: "yisheng" },
+        { text: "老師", pinyin: "laoshi" },
+        { text: "學生", pinyin: "xuesheng" },
+        { text: "警察", pinyin: "jingcha" },
+        { text: "廚師", pinyin: "chushi" },
+        { text: "司機", pinyin: "siji" },
+        { text: "農夫", pinyin: "nongfu" },
+        { text: "畫家", pinyin: "huajia" },
+        { text: "歌手", pinyin: "geshou" },
+        { text: "作家", pinyin: "zuojia" },
+        { text: "騎士", pinyin: "qishi" },
+        { text: "忍者", pinyin: "renzhe" },
+        { text: "海盜", pinyin: "haidao" },
+        { text: "公主", pinyin: "gongzhu" },
+        { text: "國王", pinyin: "guowang" },
+        { text: "巫師", pinyin: "wushi" },
+        { text: "精靈", pinyin: "jingling" },
+        { text: "天使", pinyin: "tianshi" },
+        { text: "惡魔", pinyin: "emo" },
+        { text: "機器", pinyin: "jiqi" },
+        { text: "火箭", pinyin: "huojian" },
+        { text: "飛機", pinyin: "feiji" },
+        { text: "輪船", pinyin: "lunchuan" },
+        { text: "汽車", pinyin: "qiche" },
+        { text: "單車", pinyin: "danche" },
+        { text: "地鐵", pinyin: "ditie" },
+        { text: "火車", pinyin: "huoche" },
+        { text: "衛星", pinyin: "weixing" },
+        { text: "雷達", pinyin: "leida" },
+        { text: "引擎", pinyin: "yinqing" },
+        { text: "齒輪", pinyin: "chilun" },
+        { text: "電池", pinyin: "dianchi" },
+        { text: "燈泡", pinyin: "dengpao" },
+        { text: "耳機", pinyin: "erji" },
+        { text: "喇叭", pinyin: "laba" },
+        { text: "螢幕", pinyin: "yingmu" },
+        { text: "滑鼠", pinyin: "huashu" },
+        { text: "網路", pinyin: "wanglu" },
+        { text: "密碼", pinyin: "mima" },
+        { text: "訊號", pinyin: "xunhao" },
+        { text: "春天", pinyin: "chuntian" },
+        { text: "夏天", pinyin: "xiatian" },
+        { text: "秋天", pinyin: "qiutian" },
+        { text: "冬天", pinyin: "dongtian" },
+        { text: "早晨", pinyin: "zaochen" },
+        { text: "黃昏", pinyin: "huanghun" },
+        { text: "午夜", pinyin: "wuye" },
+        { text: "彩虹", pinyin: "caihong" },
+        { text: "雲朵", pinyin: "yunduo" },
+        { text: "露水", pinyin: "lushui" },
+        { text: "雷聲", pinyin: "leisheng" },
+        { text: "颱風", pinyin: "taifeng" },
+        { text: "地震", pinyin: "dizhen" },
+        { text: "潮汐", pinyin: "chaoxi" },
+        { text: "極光", pinyin: "jiguang" },
+        { text: "流星", pinyin: "liuxing" },
+        { text: "彗星", pinyin: "huixing" },
+        { text: "行星", pinyin: "xingxing" },
+        { text: "勇氣", pinyin: "yongqi" },
+        { text: "智慧", pinyin: "zhihui" },
+        { text: "自由", pinyin: "ziyou" },
+        { text: "友情", pinyin: "youqing" },
+        { text: "快樂", pinyin: "kuaile" },
+        { text: "溫暖", pinyin: "wennuan" },
+        { text: "安靜", pinyin: "anjing" },
+        { text: "熱鬧", pinyin: "renao" },
+        { text: "冒險", pinyin: "maoxian" },
+        { text: "挑戰", pinyin: "tiaozhan" },
+        { text: "奇蹟", pinyin: "qiji" },
+        { text: "秘密", pinyin: "mimi" },
+        { text: "寶藏", pinyin: "baozang" },
+        { text: "地圖", pinyin: "ditu" },
+        { text: "羅盤", pinyin: "luopan" },
+        { text: "旗幟", pinyin: "qizhi" },
+        { text: "盾牌", pinyin: "dunpai" },
+        { text: "弓箭", pinyin: "gongjian" },
+        { text: "長劍", pinyin: "changjian" },
+        { text: "鎧甲", pinyin: "kaijia" },
+        { text: "頭盔", pinyin: "toukui" },
+        { text: "魔杖", pinyin: "mozhang" },
+        { text: "卷軸", pinyin: "juanzhou" },
+        { text: "符文", pinyin: "fuwen" },
+        { text: "足球", pinyin: "zuqiu" },
+        { text: "籃球", pinyin: "lanqiu" },
+        { text: "棒球", pinyin: "bangqiu" },
+        { text: "網球", pinyin: "wangqiu" },
+        { text: "游泳", pinyin: "youyong" },
+        { text: "跑步", pinyin: "paobu" },
+        { text: "跳舞", pinyin: "tiaowu" },
+        { text: "唱歌", pinyin: "changge" },
+        { text: "旅行", pinyin: "lvxing" },
+        { text: "露營", pinyin: "luying" },
+        { text: "釣魚", pinyin: "diaoyu" },
+        { text: "拼圖", pinyin: "pintu" },
+        { text: "積木", pinyin: "jimu" },
+        { text: "風箏", pinyin: "fengzheng" },
+        { text: "氣球", pinyin: "qiqiu" },
+        { text: "煙火", pinyin: "yanhuo" },
+        { text: "音樂", pinyin: "yinyue" },
+        { text: "電影", pinyin: "dianying" },
+        { text: "小說", pinyin: "xiaoshuo" },
+        { text: "漫畫", pinyin: "manhua" },
+        { text: "照片", pinyin: "zhaopian" },
+        { text: "故事", pinyin: "gushi" },
+        { text: "歷史", pinyin: "lishi" },
+        { text: "數學", pinyin: "shuxue" },
+        { text: "科學", pinyin: "kexue" },
+        { text: "地理", pinyin: "dili" },
+        { text: "化學", pinyin: "huaxue" },
+        { text: "物理", pinyin: "wuli" },
+        { text: "語言", pinyin: "yuyan" },
+        { text: "文字", pinyin: "wenzi" },
+        { text: "鉛筆", pinyin: "qianbi" },
+        { text: "橡皮", pinyin: "xiangpi" },
+        { text: "書包", pinyin: "shubao" },
+        { text: "黑板", pinyin: "heiban" },
+        { text: "課本", pinyin: "keben" },
+        { text: "筆記", pinyin: "biji" },
+        { text: "考試", pinyin: "kaoshi" },
+        { text: "假期", pinyin: "jiaqi" },
+        { text: "週末", pinyin: "zhoumo" },
+        { text: "生日", pinyin: "shengri" },
+        { text: "禮物", pinyin: "liwu" },
+        { text: "蠟燭", pinyin: "lazhu" },
+        { text: "提琴", pinyin: "tiqin" },
+        { text: "球鞋", pinyin: "qiuxie" },
+        { text: "可可", pinyin: "keke" },
+        { text: "樂團", pinyin: "yuetuan" }
+    ];
+    // 合併、只留兩個字、拼音和文字都不重複
+    const WORDS = (() => {
+        const seenT = new Set(), seenP = new Set(), out = [];
+        BASE_WORDS.concat(MORE_WORDS).forEach(w => {
+            if (w.text.length !== 2 || seenT.has(w.text) || seenP.has(w.pinyin)) return;
+            seenT.add(w.text); seenP.add(w.pinyin); out.push(w);
+        });
+        return out;
+    })();
+
     const FAKE_WORDS = [
+        { text: "籃求", pinyin: "lanqiu" },
+        { text: "蝴碟", pinyin: "hudie" },
+        { text: "葡桃", pinyin: "putao" },
+        { text: "草梅", pinyin: "caomei" },
+        { text: "檸蒙", pinyin: "ningmeng" },
+        { text: "鉛比", pinyin: "qianbi" },
+        { text: "冒顯", pinyin: "maoxian" },
+        { text: "旅形", pinyin: "lvxing" },
+        { text: "音越", pinyin: "yinyue" },
+        { text: "電映", pinyin: "dianying" },
+        { text: "照騙", pinyin: "zhaopian" },
+        { text: "秘蜜", pinyin: "mimi" },
+        { text: "禮務", pinyin: "liwu" },
+        { text: "生曰", pinyin: "shengri" },
+        { text: "熊錨", pinyin: "xiongmao" },
+        { text: "恐籠", pinyin: "konglong" },
+        { text: "西爪", pinyin: "xigua" },
+        { text: "火劍", pinyin: "huojian" },
+        { text: "彩紅", pinyin: "caihong" },
+        { text: "城保", pinyin: "chengbao" },
+        { text: "醫圓", pinyin: "yiyuan" },
+        { text: "餐聽", pinyin: "canting" },
+        { text: "鑰是", pinyin: "yaoshi" },
+        { text: "錢胞", pinyin: "qianbao" },
+        { text: "海啄", pinyin: "haitun" },
+        { text: "狐貍", pinyin: "huli" },
+        { text: "松樹", pinyin: "songshu" },
+        { text: "香焦", pinyin: "xiangjiao" },
+        { text: "番茄", pinyin: "fanjia" },
+        { text: "豆府", pinyin: "doufu" },
+        { text: "餃仔", pinyin: "jiaozi" },
+        { text: "火鍋", pinyin: "huoguou" },
+        { text: "警查", pinyin: "jingcha" },
+        { text: "騎土", pinyin: "qishi" },
+        { text: "衛猩", pinyin: "weixing" },
+        { text: "電地", pinyin: "dianchi" },
+        { text: "耳肌", pinyin: "erji" },
+        { text: "密馬", pinyin: "mima" },
+        { text: "颱楓", pinyin: "taifeng" },
+        { text: "地振", pinyin: "dizhen" },
+        { text: "勇器", pinyin: "yongqi" },
+        { text: "智彗", pinyin: "zhihui" },
+        { text: "快落", pinyin: "kuaile" },
+        { text: "安淨", pinyin: "anjing" },
+        { text: "寶臟", pinyin: "baozang" },
+        { text: "盾排", pinyin: "dunpai" },
+        { text: "足毬", pinyin: "zuqiu" },
+        { text: "釣漁", pinyin: "diaoyu" },
+        { text: "氣毬", pinyin: "qiqiu" },
+        { text: "故是", pinyin: "gushi" },
+        { text: "歷吏", pinyin: "lishi" },
+        { text: "數字", pinyin: "shuxue" },
+        { text: "考誠", pinyin: "kaoshi" },
+        { text: "蠟濁", pinyin: "lazhu" },
         { text: "稀望", pinyin: "xiwang" }, { text: "平果", pinyin: "pingguo" },
         { text: "電惱", pinyin: "diannao" }, { text: "鍵槃", pinyin: "jianpan" },
         { text: "時閒", pinyin: "shijian" }, { text: "力糧", pinyin: "liliang" },
@@ -974,7 +1266,7 @@
         { text: "火燕", pinyin: "huoyan" }, { text: "朋有", pinyin: "pengyou" },
         { text: "勝力", pinyin: "shengli" }, { text: "咖非", pinyin: "kafei" },
         { text: "蛋膏", pinyin: "dangao" }, { text: "宇宙", pinyin: "yuzou" }
-    ].filter(f => !WORDS.some(w => w.text === f.text));
+    ].filter(f => f.text.length === 2 && !WORDS.some(w => w.text === f.text));
 
     const BOSS_WORDS = [
         { text: "魔王", pinyin: "mowang" }, { text: "巨龍", pinyin: "julong" },
@@ -1394,6 +1686,7 @@
     function resumeGame() {
         const d = performance.now() - pausedAt;
         gameStartTime += d; streakDeadline += d; freezeUntil += d; doubleUntil += d; slowUntil += d;
+        blocks.forEach(b => { if (b.slowUntil) b.slowUntil += d; if (b.turnAt) b.turnAt += d; });
         vortices.forEach(v => { v.until += d; });
         items.forEach(it => { it.expire += d; });
         nextBeatTime += d;
@@ -1442,7 +1735,7 @@
         blocks = []; items = []; vortices = [];
         streak = 0; streakDeadline = 0; streakWindow = c.streakWindow;
         freezeUntil = 0; slowUntil = 0;
-        nextBossAt = BALANCE.bossEvery; nextItemAt = rand(15, 25);
+        nextBossAt = BALANCE.bossEvery; nextItemAt = rand(8, 12);
         coinsEarned = 0; liveParticles = 0; lastBuffText = '';
         stats = { kills: 0, maxChain: 0, maxStreak: 0, fakesDodged: 0, bossKills: 0, weaponKills: {} };
         currentLevel = -1;
@@ -1638,7 +1931,8 @@
             speedMult: opts.boss ? 0.55 : rand(0.85, 1.15),
             active: false, isFiring: false,
             emphasis: !!opts.emphasis,
-            vx: 0, turnAt: 0
+            vx: 0, turnAt: 0,
+            knock: 0, slowUntil: 0
         };
         renderPinyin(block, 0);
 
@@ -1788,14 +2082,22 @@
         }
         if (elapsed >= nextItemAt) {
             spawnItem(pickItemType(), rand(40, areaW - 40), rand(areaH * 0.2, areaH * 0.55));
-            nextItemAt = elapsed + rand(15, 25);
+            nextItemAt = elapsed + rand(8, 14);
         }
 
         for (let i = blocks.length - 1; i >= 0; i--) {
             const b = blocks[i];
             if (b.isFiring) continue;
             if (!frozen) {
-                b.y += fallSpeed * dt * b.speedMult;
+                if (b.knock > 0) {
+                    // 🔙 回彈中：往上推
+                    const m = Math.min(b.knock, 0.4 * dt);
+                    b.y = Math.max(Math.min(b.y, -b.h * 0.5), b.y - m);
+                    b.knock -= m;
+                } else {
+                    const slow = ts < b.slowUntil ? BALANCE.bossSlowRate : 1;
+                    b.y += fallSpeed * dt * b.speedMult * slow;
+                }
                 b.el.style.setProperty('--y', b.y + 'px');
                 wander(b, dt, ts);
             }
@@ -2018,6 +2320,8 @@
         } else {
             const bar = b.el.querySelector('.boss-hp i');
             if (bar) bar.style.width = (b.bossHp / b.bossMax * 100) + '%';
+            b.knock = BALANCE.bossKnock;
+            b.slowUntil = performance.now() + BALANCE.bossSlowMs;
             b.el.classList.remove('hit'); void b.el.offsetWidth; b.el.classList.add('hit');
             const pts = addScore(50, true);
             floatText(b.x, b.y, '+' + pts + '　剩 ' + b.bossHp, '#ffd32a');
