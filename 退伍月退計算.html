@@ -700,25 +700,30 @@ function compute(inp, noScenario) {
     else maxN = 10;
     const picks = [1, 2, 3, 5, 10, 15, 20].filter(n => n < maxN).slice(0, 6);
     if (maxN > 0) picks.push(maxN);
-    // 以「最後一次晉級」為基準，之後每年晉一級（到本階最高）；已修改的月份保留
-    let baseRecs, baseYM;
-    if (inp.records && inp.records.length) {
-      baseRecs = inp.records.map(x => ({ ym: recYM(x.date), rank: x.rank, lv: x.lv }));
-      baseYM = Math.max.apply(null, baseRecs.map(x => x.ym));
-    } else {
-      baseYM = inp.levelDate ? recYM(inp.levelDate) : retireYM - 12;
-      baseRecs = [{ ym: baseYM, rank: inp.rank, lv: inp.level, syn: true }];
-    }
-    const firstYM = Math.max(baseYM + 12, retireYM);
-    const ml = maxLv(inp.rank);
+    // 多做的年份：原本平均本俸期間的每個月照舊保留（含紀錄與修改），
+    // 退伍後新增的月份，從「最後一個月的實際官階俸級」開始每年晉一級（到本階最高）
+    const last = track[track.length - 1];
+    const sRank = last.rank, sLv = last.lv, sMax = maxLv(sRank);
+    let j = track.length - 1;
+    while (j > 0 && track[j - 1].rank === sRank && track[j - 1].lv === sLv) j--;
+    const heldSince = (j === 0 && inp.levelDate) ? recYM(inp.levelDate) : track[j].ym;
+    const firstYM = Math.max(heldSince + 12, retireYM);
+    const fixed = {};
+    track.forEach(m => { fixed[m.ym] = [m.rank, m.lv]; });
+    const userRecs = (inp.records && inp.records.length)
+      ? inp.records.map(x => ({ ym: recYM(x.date), rank: x.rank, lv: x.lv }))
+      : [{ ym: inp.levelDate ? recYM(inp.levelDate) : retireYM - 12, rank: inp.rank, lv: inp.level, syn: true }];
     picks.forEach(n => {
-      const nl = Math.min(inp.level + n, ml);
+      const nl = Math.min(sLv + n, sMax);
       const future = [];
-      for (let k = 1; k <= nl - inp.level; k++) future.push({ ym: firstYM + 12 * (k - 1), rank: inp.rank, lv: inp.level + k, syn: true });
+      for (let k = 1; k <= nl - sLv; k++) future.push({ ym: firstYM + 12 * (k - 1), rank: sRank, lv: sLv + k, syn: true });
+      future.unshift({ ym: retireYM, rank: sRank, lv: sLv, syn: true });
+      future.sort((x, y) => x.ym - y.ym);
       const nr = addMonths(inp.retire, 12 * n);
-      const s = compute(Object.assign({}, inp, { retire: nr, level: nl, records: baseRecs.concat(future), levelDate: null }), true);
-      sc.push({ n, level: nl, retire: nr, monthly: s.monthly, lump: s.lump, insPay: s.insPay, rate: s.rate, avg: s.avg, T: s.T, insUnits: s.ins.units, isMax: !!latest && n === maxN });
+      const s = compute(Object.assign({}, inp, { retire: nr, rank: sRank, level: nl, records: userRecs.concat(future), overrides: fixed, levelDate: null }), true);
+      sc.push({ n, rank: sRank, level: nl, retire: nr, monthly: s.monthly, lump: s.lump, insPay: s.insPay, rate: s.rate, avg: s.avg, N: s.N, T: s.T, insUnits: s.ins.units, isMax: !!latest && n === maxN });
     });
+    res.lastMonth = { rank: sRank, lv: sLv };
     res.scenarios = sc;
     res.maxN = maxN;
   }
@@ -980,6 +985,8 @@ if (typeof document !== 'undefined') {
     if (cnt.edited) parts.push('已修改 ' + cnt.edited);
     if (cnt.est) parts.push('推算 ' + cnt.est);
     h += '<div class="srcsum num">' + parts.join(' · ') + ' 個月</div>';
+    const lm = tr[tr.length - 1];
+    if (lm.rank !== inp.rank || lm.lv !== inp.level) h += '<div class="alert bad" style="margin-top:8px">平均本俸期間最後一個月是「' + lm.rank + ' ' + lm.lv + ' 級」，但退伍俸級填的是「' + inp.rank + ' ' + inp.level + ' 級」，兩者對不上，結果會失真。請修正晉升紀錄、逐月修改，或第 2 區的退伍官階俸級。</div>';
     if (cnt.est) h += '<div class="alert warn" style="margin-top:8px">有 ' + cnt.est + ' 個月是用「每年晉一級」推算的，不一定準。請在第 2 區填「實際晉升紀錄」，或打開下方「逐月明細」直接修改。</div>';
 
     h += '<div class="bars' + (anim ? ' grow' : '') + '" aria-hidden="true">';
@@ -1032,7 +1039,7 @@ if (typeof document !== 'undefined') {
   }
 
   function scenarioCard(inp, r, anim) {
-    const rows = [{ n: 0, level: inp.level, retire: inp.retire, monthly: r.monthly, lump: r.lump, insPay: r.insPay, rate: r.rate, T: r.T, cur: true }].concat(r.scenarios);
+    const rows = [{ n: 0, rank: inp.rank, avg: r.avg, N: r.N, level: inp.level, retire: inp.retire, monthly: r.monthly, lump: r.lump, insPay: r.insPay, rate: r.rate, T: r.T, cur: true }].concat(r.scenarios);
     const key = rows.some(x => x.monthly > 0) ? 'monthly' : 'lump';
     const mx2 = Math.max.apply(null, rows.map(x => x[key] + (key === 'lump' ? x.insPay : 0))) || 1;
     let h = '<section class="card' + anim + '"><div class="card-h"><h2>晚幾年退會差多少</h2></div>';
@@ -1041,7 +1048,7 @@ if (typeof document !== 'undefined') {
       const diff = (v, b) => (x.cur || !v) ? '' : '<em>' + (v - b >= 0 ? '+' : '−') + money(Math.abs(v - b)) + '</em>';
       const val = x[key] + (key === 'lump' ? x.insPay : 0);
       h += '<div class="sc2' + (x.cur ? ' cur' : '') + (x.isMax ? ' max' : '') + '">';
-      h += '<div class="sc2-h"><b>' + (x.cur ? '照原定退伍' : '多做 ' + x.n + ' 年') + '</b>' + (x.cur ? '<span class="badge">目前</span>' : '') + (x.isMax ? '<span class="badge">最晚</span>' : '') + '<span class="num">' + rocShort(x.retire) + ' · ' + inp.rank + ' ' + x.level + ' 級 · 年資 ' + ym2str(x.T) + '</span></div>';
+      h += '<div class="sc2-h"><b>' + (x.cur ? '照原定退伍' : '多做 ' + x.n + ' 年') + '</b>' + (x.cur ? '<span class="badge">目前</span>' : '') + (x.isMax ? '<span class="badge">最晚</span>' : '') + '<span class="num">' + rocShort(x.retire) + ' · ' + x.rank + ' ' + x.level + ' 級 · 年資 ' + ym2str(x.T) + (x.monthly ? ' · 平均本俸 ' + money(x.avg) + '（' + x.N + '個月）' : '') + '</span></div>';
       const w = (val / mx2 * 100).toFixed(1), pk = 'sc' + x.n;
       h += '<div class="sc-bar"><i data-w="' + w + '" data-pk="' + pk + '" style="width:' + (state.prev[pk] != null ? state.prev[pk] : 0) + '%"></i></div>';
       h += '<div class="sc2-g num">';
@@ -1050,7 +1057,7 @@ if (typeof document !== 'undefined') {
       h += '<div><span>軍保</span><b>' + (x.insPay ? money(x.insPay) : '—') + '</b>' + diff(x.insPay, r.insPay) + '</div>';
       h += '</div></div>';
     });
-    h += '<div class="note">多出來的年份假設官階不變、從最後一次晉級起每年晉一級（到本階最高為止），已填的晉升紀錄與修改都會保留。軍保基數隨保險年資增加，最高 45 個基數。' + (r.latest ? '最晚可服役到 <b class="num">' + roc(r.latest.d) + '</b>（' + r.latest.why + '）。' : '') + '</div>';
+    h += '<div class="note">原本平均本俸期間的每個月照舊（含紀錄與修改）；多做的月份從退伍前最後一個月的官階俸級，每年晉一級（到本階最高為止）。平均本俸期間是年資的五分之一，多做一年期間也會跟著拉長約 2.4 個月。軍保基數隨保險年資增加，最高 45 個基數。' + (r.latest ? '最晚可服役到 <b class="num">' + roc(r.latest.d) + '</b>（' + r.latest.why + '）。' : '') + '</div>';
     h += '</section>';
     return h;
   }
@@ -1310,7 +1317,7 @@ if (typeof document !== 'undefined') {
   }));
 
   /* ---------- 事件 ---------- */
-  document.querySelectorAll('#typeSeg button').forEach(b => b.onclick = () => { setType(b.dataset.type); changed(); });
+  document.querySelectorAll('#typeSeg button').forEach(b => b.onclick = () => { if (b.dataset.type !== state.type && Object.keys(state.overrides).length) { state.overrides = {}; toast('已切換身分，逐月修改已清除'); } setType(b.dataset.type); changed(); });
   $('f_hadSgt').onchange = () => { syncSgt(); changed(); };
   $('f_rank').onchange = () => { fillLevel($('f_level'), $('f_rank').value); levelHint(); changed(); };
   $('f_level').onchange = () => { levelHint(); changed(); };
