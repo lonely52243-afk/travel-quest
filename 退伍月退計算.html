@@ -56,7 +56,8 @@ button{-webkit-tap-highlight-color:transparent}
 .brand-kicker{font-family:var(--num);font-size:11.5px;letter-spacing:.28em;font-weight:600;color:#9FCBFF}
 .brand h1{font-size:27px;font-weight:900;letter-spacing:.06em;line-height:1.2;margin-top:2px}
 .mh-sub{position:relative;font-size:12.5px;color:#BCD3F2;margin-top:12px}
-.theme-btn{margin-left:auto;align-self:flex-start;width:38px;height:38px;border-radius:12px;border:1px solid rgba(255,255,255,.2);background:rgba(255,255,255,.08);color:#fff;font-size:19px;line-height:1;cursor:pointer;backdrop-filter:blur(6px);transition:background .2s}
+.mh-acts{margin-left:auto;align-self:flex-start;display:flex;gap:8px}
+.theme-btn{width:38px;height:38px;border-radius:12px;border:1px solid rgba(255,255,255,.2);background:rgba(255,255,255,.08);color:#fff;font-size:19px;line-height:1;cursor:pointer;backdrop-filter:blur(6px);transition:background .2s}
 .theme-btn:hover{background:rgba(255,255,255,.16)}
 
 /* ===== cards ===== */
@@ -295,6 +296,32 @@ details.law-d[open] summary::after{transform:rotate(-135deg) translateY(-1px)}
 details.law-d .body{font-size:13.5px;color:var(--muted);margin-top:8px;line-height:1.8;animation:drop .3s var(--ease)}
 details.law-d .body ul{padding-left:18px}
 .foot{text-align:center;font-size:12px;color:var(--faint);margin-top:22px;line-height:1.8}
+/* tour */
+.tour{position:fixed;inset:0;z-index:100}
+.tour-catch{position:fixed;inset:0}
+.tour-hole{position:fixed;border-radius:18px;box-shadow:0 0 0 3px var(--accent-2),0 0 0 9999px rgba(4,10,22,.66);transition:top .45s var(--ease),left .45s var(--ease),width .45s var(--ease),height .45s var(--ease);pointer-events:none}
+.tour-hole::after{content:"";position:absolute;inset:-3px;border-radius:20px;box-shadow:0 0 0 0 rgba(91,155,255,.6);animation:halo 1.8s infinite}
+@keyframes halo{70%{box-shadow:0 0 0 12px rgba(91,155,255,0)}100%{box-shadow:0 0 0 0 rgba(91,155,255,0)}}
+.tour-card{position:fixed;left:16px;right:16px;max-width:420px;margin:0 auto;background:var(--card);color:var(--ink);border:1px solid var(--line);border-radius:20px;padding:16px 16px 14px;box-shadow:0 24px 50px -18px rgba(0,0,0,.55);transition:top .45s var(--ease),opacity .25s}
+.tour-card.swap .tour-body{animation:drop .35s var(--ease)}
+.tour-top{display:flex;align-items:center;gap:10px}
+.tour-step{font-family:var(--num);font-size:12px;font-weight:700;color:var(--accent);background:var(--accent-soft);padding:2px 9px;border-radius:9px}
+.tour-dots{display:flex;gap:4px;flex:1}
+.tour-dots i{width:6px;height:6px;border-radius:3px;background:var(--line);transition:all .3s var(--ease)}
+.tour-dots i.on{width:18px;background:var(--accent)}
+.tour-x{width:32px;height:32px;border-radius:10px;border:0;background:var(--field);color:var(--muted);font-size:18px;line-height:1;cursor:pointer}
+.tour-body h3{font-size:17px;font-weight:700;margin-top:12px}
+.tour-body p{font-size:14px;color:var(--muted);margin-top:6px;line-height:1.75}
+.tour-body p b{color:var(--ink)}
+.tour-acts{display:flex;align-items:center;gap:8px;margin-top:14px}
+.tour-acts .skip{margin-right:auto;background:none;border:0;color:var(--faint);font-family:inherit;font-size:13.5px;cursor:pointer;padding:6px 2px}
+.tour-acts .prev,.tour-acts .next{height:40px;padding:0 16px;border-radius:12px;font-family:inherit;font-size:14.5px;font-weight:700;cursor:pointer}
+.tour-acts .prev{border:1.5px solid var(--line);background:var(--card);color:var(--ink)}
+.tour-acts .next{border:0;background:linear-gradient(135deg,var(--accent),var(--accent-2));color:var(--accent-ink)}
+.tour-acts button:focus{outline:none}
+.tour-acts button:focus-visible{outline:2px solid var(--accent-2);outline-offset:2px}
+.tour-hint{margin-top:10px;font-size:12px;color:var(--faint);display:flex;align-items:center;gap:6px}
+.tour-hint input{width:16px;height:16px;accent-color:var(--accent)}
 .hidden{display:none !important}
 .toast{position:fixed;left:50%;bottom:calc(96px + env(safe-area-inset-bottom));transform:translateX(-50%) translateY(16px) scale(.96);background:var(--ink);color:var(--bg);padding:10px 18px;border-radius:14px;font-size:14px;opacity:0;transition:all .3s var(--ease);z-index:60;pointer-events:none;max-width:90vw;text-align:center;box-shadow:0 12px 30px -10px rgba(0,0,0,.4)}
 .toast.show{opacity:1;transform:translateX(-50%) translateY(0) scale(1)}
@@ -320,7 +347,10 @@ details.law-d .body ul{padding-left:18px}
         <div class="brand-kicker">ROC AIR FORCE</div>
         <h1>退伍金試算</h1>
       </div>
-      <button class="theme-btn" id="themeBtn" type="button" aria-label="切換深淺色" title="切換深淺色">◐</button>
+      <div class="mh-acts">
+        <button class="theme-btn" id="helpBtn" type="button" aria-label="使用教學" title="使用教學">?</button>
+        <button class="theme-btn" id="themeBtn" type="button" aria-label="切換深淺色" title="切換深淺色">◐</button>
+      </div>
     </div>
     <p class="mh-sub">依服役條例第26條附表三 · 115年俸額標準</p>
   </header>
@@ -345,7 +375,7 @@ details.law-d .body ul{padding-left:18px}
       </label>
     </div>
 
-    <div class="row2 stack">
+    <div class="row2 stack" id="dateRow">
       <div class="field" data-f="start">
         <label for="f_start" id="l_start">任官日</label>
         <input type="text" id="f_start" inputmode="numeric" placeholder="例 950701">
@@ -372,7 +402,7 @@ details.law-d .body ul{padding-left:18px}
   <!-- 2 官階俸級 -->
   <section class="card">
     <div class="card-h"><span class="no" id="no2">2</span><h2>退伍時官階俸級</h2></div>
-    <div class="row2">
+    <div class="row2" id="rankRow">
       <div class="field" data-f="rank">
         <label for="f_rank">官階</label>
         <select id="f_rank"></select>
@@ -411,7 +441,7 @@ details.law-d .body ul{padding-left:18px}
   </section>
 
   <!-- 3 其他 -->
-  <section class="card">
+  <section class="card" id="otherCard">
     <div class="card-h"><span class="no" id="no3">3</span><h2>其他條件</h2><span class="aside">沒有可略過</span></div>
     <div class="field" data-f="buyback">
       <label for="f_buyback">已補繳的軍校年資（月）</label>
@@ -1316,6 +1346,107 @@ if (typeof document !== 'undefined') {
     if (nx) $(nx).focus(); else $(id).blur();
   }));
 
+
+  /* ---------- 使用教學（導覽） ---------- */
+  const TOUR = [
+    { sel: '#typeSeg', title: '① 先選退伍身分', text: '選<b>軍官</b>或<b>士官</b>，下面的官階清單會跟著換。' },
+    { sel: '#sgtSwitchWrap', title: '② 士官轉軍官？', text: '當過士官再轉軍官就打開，要多填<b>少尉任官日</b>和轉官前的士官俸級。年資從士官任官日起算，服役最大年限從少尉任官日起算。' },
+    { sel: '#dateRow', title: '③ 填日期', text: '直接打數字就好：民國 <b>950701</b>、<b>1150701</b>，或西元 <b>20260701</b> 都可以。填好按 <b>Enter</b> 會跳到下一格，下方出現綠色 ✓ 就是讀對了。' },
+    { sel: '#rankRow', title: '④ 退伍時官階俸級', text: '選<b>退伍那天</b>的官階和俸級。一次退伍金和軍保都是用這個本俸算的。' },
+    { sel: '.rec-box', title: '⑤ 實際晉升紀錄（最準）', text: '月退俸用的是<b>最後五分之一年資的平均本俸</b>。照人令填每次晉級的生效日，算出來才準；沒填的話會用「每年晉一級」往前推算。' },
+    { sel: '#otherCard', title: '⑥ 其他條件', text: '有補繳軍校年資就填月數；想預估 116 年調薪 4% 可以打開開關。沒有就略過。' },
+    { sel: '#dock .dock-in', title: '⑦ 開始試算', text: '必填日期都填好就能按。試算後這裡會一直顯示<b>月退金額</b>，之後改任何資料都會即時重算。' },
+    { sel: '#heroCard', title: '⑧ 看結果', text: '<b>月退俸</b>和<b>一次退伍金</b>只能二擇一；<b>軍保退伍給付</b>不論選哪個都另外領。右邊圓圈是俸率。' },
+    { sel: '#monthsToggle', title: '⑨ 檢查平均本俸', text: '標「推算」的月份不一定準。可以按<b>整段修改</b>，或打開<b>逐月明細</b>一個月一個月直接改，月退會立刻重算。' },
+    { sel: '.sc2.cur', title: '⑩ 晚幾年退差多少', text: '比較多做 1、2、3 年…月退、退伍金、軍保各多多少，最晚可以做到哪一天也會標出來。' }
+  ];
+  const tour = { on: false, list: [], i: 0, el: null };
+  function visibleEl(sel) {
+    const el = document.querySelector(sel);
+    if (!el || !el.getClientRects().length) return null;
+    const r = el.getBoundingClientRect();
+    return (r.width && r.height) ? el : null;
+  }
+  function tourDone() { try { return localStorage.getItem('retire_tour_done') === '1'; } catch (e) { return false; } }
+  function setTourDone(v) { try { if (v) localStorage.setItem('retire_tour_done', '1'); else localStorage.removeItem('retire_tour_done'); } catch (e) { } }
+  function startTour() {
+    if (tour.on) return;
+    $('dock').classList.remove('away');
+    tour.list = TOUR.filter(st => visibleEl(st.sel));
+    if (!tour.list.length) return;
+    if (!state.computed) {
+      const last = tour.list[tour.list.length - 1];
+      tour.list[tour.list.length - 1] = Object.assign({}, last, { text: last.text + '<br><br>試算完成後，再按右上角 <b>?</b> 可以看結果頁怎麼用。' });
+    }
+    tour.on = true; tour.i = 0;
+    const wrap = document.createElement('div');
+    wrap.className = 'tour'; wrap.id = 'tour';
+    wrap.innerHTML = '<div class="tour-catch"></div><div class="tour-hole" id="tourHole"></div>' +
+      '<div class="tour-card" id="tourCard" role="dialog" aria-modal="true" aria-labelledby="tourTitle">' +
+      '<div class="tour-top"><span class="tour-step num" id="tourStep"></span><span class="tour-dots" id="tourDots"></span><button type="button" class="tour-x" id="tourX" aria-label="關閉教學">×</button></div>' +
+      '<div class="tour-body" id="tourBody"></div>' +
+      '<div class="tour-acts"><button type="button" class="skip" id="tourSkip">跳過教學</button><button type="button" class="prev" id="tourPrev">上一步</button><button type="button" class="next" id="tourNext">下一步</button></div>' +
+      '<div class="tour-hint">只會自動出現一次，之後按右上角 ? 可以再看</div></div>';
+    document.body.appendChild(wrap);
+    $('tourX').onclick = () => endTour();
+    $('tourSkip').onclick = () => endTour();
+    $('tourPrev').onclick = () => tourGo(tour.i - 1);
+    $('tourNext').onclick = () => tour.i >= tour.list.length - 1 ? endTour(true) : tourGo(tour.i + 1);
+    $('tourDots').innerHTML = tour.list.map(() => '<i></i>').join('');
+    tourGo(0);
+    window.addEventListener('scroll', tourPlace, { passive: true });
+    window.addEventListener('resize', tourPlace);
+    document.addEventListener('keydown', tourKey);
+  }
+  function tourGo(i) {
+    if (i < 0 || i >= tour.list.length) return;
+    tour.i = i;
+    const st = tour.list[i];
+    tour.el = document.querySelector(st.sel);
+    $('tourStep').textContent = (i + 1) + ' / ' + tour.list.length;
+    $('tourDots').querySelectorAll('i').forEach((d, k) => d.classList.toggle('on', k === i));
+    $('tourBody').innerHTML = '<h3 id="tourTitle">' + st.title + '</h3><p>' + st.text + '</p>';
+    const card = $('tourCard');
+    card.classList.remove('swap'); void card.offsetWidth; card.classList.add('swap');
+    $('tourPrev').style.visibility = i === 0 ? 'hidden' : 'visible';
+    $('tourNext').textContent = i === tour.list.length - 1 ? '完成' : '下一步';
+    const fixed = getComputedStyle(tour.el.closest('.dock') || tour.el).position === 'fixed';
+    if (!fixed) tour.el.scrollIntoView({ behavior: reduceMotion ? 'auto' : 'smooth', block: 'center' });
+    tourPlace();
+    setTimeout(tourPlace, 380);
+    setTimeout(tourPlace, 700);
+    $('tourNext').focus({ preventScroll: true });
+  }
+  function tourPlace() {
+    if (!tour.on || !tour.el) return;
+    const r = tour.el.getBoundingClientRect(), pad = 8, hole = $('tourHole'), card = $('tourCard');
+    hole.style.top = (r.top - pad) + 'px'; hole.style.left = (r.left - pad) + 'px';
+    hole.style.width = (r.width + pad * 2) + 'px'; hole.style.height = (r.height + pad * 2) + 'px';
+    const vh = window.innerHeight, ch = card.offsetHeight, gap = 16;
+    let top;
+    if (r.bottom + pad + gap + ch < vh - 8) top = r.bottom + pad + gap;
+    else if (r.top - pad - gap - ch > 8) top = r.top - pad - gap - ch;
+    else top = Math.max(8, vh - ch - 12);
+    card.style.top = top + 'px';
+  }
+  function tourKey(e) {
+    if (!tour.on) return;
+    if (e.key === 'Escape') endTour();
+    else if (e.key === 'ArrowRight') $('tourNext').click();
+    else if (e.key === 'ArrowLeft') tourGo(tour.i - 1);
+  }
+  function endTour(finished) {
+    if (!tour.on) return;
+    tour.on = false;
+    setTourDone(true);
+    window.removeEventListener('scroll', tourPlace);
+    window.removeEventListener('resize', tourPlace);
+    document.removeEventListener('keydown', tourKey);
+    const t = $('tour'); if (t) t.remove();
+    toast(finished ? '教學完成，隨時可按右上角 ? 再看一次' : '已關閉教學，按右上角 ? 可再看一次');
+  }
+  $('helpBtn').onclick = startTour;
+
   /* ---------- 事件 ---------- */
   document.querySelectorAll('#typeSeg button').forEach(b => b.onclick = () => { if (b.dataset.type !== state.type && Object.keys(state.overrides).length) { state.overrides = {}; toast('已切換身分，逐月修改已清除'); } setType(b.dataset.type); changed(); });
   $('f_hadSgt').onchange = () => { syncSgt(); changed(); };
@@ -1353,6 +1484,7 @@ if (typeof document !== 'undefined') {
   DATE_FIELDS.forEach(markField);
   updateProgress();
   if (m && loaded) run(false);
+  if (!m && !tourDone()) setTimeout(startTour, 700);
 }
 
 if (typeof module !== 'undefined') module.exports = { compute, ptToSal, salary, parseDate, monthsBetween, insuranceUnits, latestRetire, PT };
