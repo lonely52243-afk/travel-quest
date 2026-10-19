@@ -1,0 +1,1354 @@
+<!DOCTYPE html>
+<html lang="zh-Hant">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>退伍金試算</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Noto+Sans+TC:wght@400;500;700;900&family=Barlow:wght@500;600;700;800&display=swap" rel="stylesheet">
+<style>
+:root{
+  --bg:#EDF2F8; --bg2:#E3EBF5; --card:#FFFFFF; --ink:#0E1A2C; --muted:#56667D; --faint:#8C99AD; --line:#DDE5EF; --field:#F5F8FC;
+  --accent:#1D5BD6; --accent-2:#3B8BFF; --accent-soft:#E4EDFD; --accent-ink:#FFFFFF;
+  --brass:#0B8DB5; --brass-soft:#DFF3F9;
+  --danger:#D0443A; --danger-soft:#FCE9E7; --ok:#16936A; --ok-soft:#E0F4EC;
+  --hero-ink:#F2F7FF; --hero-muted:#A9BCD8; --hero-gold:#FFFFFF; --hero-line:rgba(255,255,255,.14);
+  --shadow:0 1px 2px rgba(14,26,44,.05),0 10px 30px -12px rgba(14,26,44,.16);
+  --shadow-lg:0 24px 48px -20px rgba(10,30,70,.45);
+  --ease:cubic-bezier(.22,.9,.24,1);
+  --num:"Barlow","Noto Sans TC",sans-serif;
+}
+@media (prefers-color-scheme: dark){
+  :root:not([data-theme="light"]){
+    --bg:#08101C; --bg2:#0B1524; --card:#101A2A; --ink:#E6EDF8; --muted:#93A4BC; --faint:#64748B; --line:#1E2A3E; --field:#0C1522;
+    --accent:#5B9BFF; --accent-2:#8AB8FF; --accent-soft:#15243F; --accent-ink:#06101E;
+    --brass:#47C6EA; --brass-soft:#0E2A36;
+    --danger:#F07D72; --danger-soft:#33191A; --ok:#4FD1A0; --ok-soft:#0F2A22;
+    --shadow:0 1px 2px rgba(0,0,0,.4),0 10px 30px -12px rgba(0,0,0,.6);
+  }
+}
+:root[data-theme="dark"]{
+  --bg:#08101C; --bg2:#0B1524; --card:#101A2A; --ink:#E6EDF8; --muted:#93A4BC; --faint:#64748B; --line:#1E2A3E; --field:#0C1522;
+  --accent:#5B9BFF; --accent-2:#8AB8FF; --accent-soft:#15243F; --accent-ink:#06101E;
+  --brass:#47C6EA; --brass-soft:#0E2A36;
+  --danger:#F07D72; --danger-soft:#33191A; --ok:#4FD1A0; --ok-soft:#0F2A22;
+  --shadow:0 1px 2px rgba(0,0,0,.4),0 10px 30px -12px rgba(0,0,0,.6);
+}
+*{box-sizing:border-box;margin:0;padding:0}
+html{-webkit-text-size-adjust:100%;scroll-behavior:smooth}
+body{background:radial-gradient(1200px 500px at 50% -120px,var(--bg2),transparent 70%),var(--bg);background-attachment:fixed;color:var(--ink);font-family:"Noto Sans TC",-apple-system,"PingFang TC","Microsoft JhengHei",sans-serif;font-size:15px;line-height:1.6;min-height:100vh;-webkit-tap-highlight-color:transparent}
+.num{font-family:var(--num);font-variant-numeric:tabular-nums;font-feature-settings:"tnum";letter-spacing:.01em}
+.wrap{max-width:580px;margin:0 auto;padding:0 16px 130px}
+button{-webkit-tap-highlight-color:transparent}
+
+/* ===== header ===== */
+.masthead{position:relative;margin:0 -16px 18px;padding:28px 20px 26px;color:#fff;overflow:hidden;border-radius:0 0 28px 28px;background:linear-gradient(165deg,#0A1830 0%,#123A78 58%,#2A6FD6 100%);box-shadow:var(--shadow-lg)}
+@media (min-width:612px){.masthead{margin:16px 0 18px;border-radius:28px}}
+.masthead::before{content:"";position:absolute;inset:0;background:radial-gradient(420px 180px at 85% 0%,rgba(140,200,255,.35),transparent 70%),radial-gradient(300px 160px at 0% 100%,rgba(80,160,255,.25),transparent 70%);pointer-events:none}
+.contrail{position:absolute;height:2px;border-radius:2px;background:linear-gradient(90deg,transparent,rgba(255,255,255,.75));pointer-events:none;opacity:0}
+.contrail.c1{top:30%;width:180px;animation:fly 7s linear infinite 0.6s}
+.contrail.c2{top:62%;width:120px;animation:fly 9s linear infinite 3.4s}
+.contrail::after{content:"";position:absolute;right:-3px;top:-2px;width:6px;height:6px;border-radius:50%;background:#fff;box-shadow:0 0 10px 2px rgba(180,220,255,.9)}
+@keyframes fly{0%{left:-200px;opacity:0;transform:translateY(8px) rotate(-6deg)}10%{opacity:1}90%{opacity:1}100%{left:110%;opacity:0;transform:translateY(-22px) rotate(-6deg)}}
+.mh-row{position:relative;display:flex;align-items:center;gap:14px}
+.wings{width:54px;height:54px;flex:none;filter:drop-shadow(0 4px 10px rgba(0,0,0,.25))}
+.brand-kicker{font-family:var(--num);font-size:11.5px;letter-spacing:.28em;font-weight:600;color:#9FCBFF}
+.brand h1{font-size:27px;font-weight:900;letter-spacing:.06em;line-height:1.2;margin-top:2px}
+.mh-sub{position:relative;font-size:12.5px;color:#BCD3F2;margin-top:12px}
+.theme-btn{margin-left:auto;align-self:flex-start;width:38px;height:38px;border-radius:12px;border:1px solid rgba(255,255,255,.2);background:rgba(255,255,255,.08);color:#fff;font-size:19px;line-height:1;cursor:pointer;backdrop-filter:blur(6px);transition:background .2s}
+.theme-btn:hover{background:rgba(255,255,255,.16)}
+
+/* ===== cards ===== */
+.card{background:var(--card);border:1px solid var(--line);border-radius:20px;padding:20px;margin-bottom:14px;box-shadow:var(--shadow)}
+.card-h{display:flex;align-items:center;gap:10px;margin-bottom:16px}
+.card-h .no{width:26px;height:26px;border-radius:9px;background:var(--accent-soft);color:var(--accent);font-family:var(--num);font-size:13px;font-weight:700;display:flex;align-items:center;justify-content:center;flex:none;transition:background .3s var(--ease),color .3s,transform .3s var(--ease)}
+.card-h .no.done{background:var(--accent);color:var(--accent-ink);transform:rotate(-8deg)}
+.card-h h2{font-size:16.5px;font-weight:700;letter-spacing:.02em}
+.card-h .aside{margin-left:auto;font-size:12px;color:var(--muted)}
+
+/* ===== form ===== */
+.field{margin-top:14px}
+.field:first-child{margin-top:0}
+.field label,.lbl{display:block;font-size:13px;font-weight:500;color:var(--muted);margin-bottom:6px}
+.field label .opt,.opt{font-weight:400;color:var(--faint)}
+input[type=text],input[type=number],select{width:100%;height:50px;border:1.5px solid var(--line);background:var(--field);color:var(--ink);border-radius:13px;padding:0 14px;font-size:16px;font-family:inherit;transition:border-color .18s,box-shadow .18s,background .18s;-webkit-appearance:none;appearance:none}
+input[type=text]::placeholder,input[type=number]::placeholder{color:var(--faint)}
+select{background-image:url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='12' height='8' viewBox='0 0 12 8'%3E%3Cpath d='M1 1l5 5 5-5' stroke='%2384a0c4' stroke-width='1.8' fill='none' stroke-linecap='round'/%3E%3C/svg%3E");background-repeat:no-repeat;background-position:right 14px center;padding-right:36px;cursor:pointer}
+input:hover,select:hover{border-color:color-mix(in srgb,var(--accent) 35%,var(--line))}
+input:focus,select:focus{outline:none;border-color:var(--accent);background:var(--card);box-shadow:0 0 0 4px var(--accent-soft)}
+.field.ok-f input{border-color:color-mix(in srgb,var(--ok) 45%,var(--line))}
+.field.err input,.field.err select{border-color:var(--danger);box-shadow:0 0 0 4px var(--danger-soft);animation:shake .35s}
+@keyframes shake{25%{transform:translateX(-4px)}75%{transform:translateX(4px)}}
+.hint{font-size:12px;color:var(--faint);margin-top:6px;min-height:18px;transition:color .2s}
+.hint.ok{color:var(--ok)}
+.hint.bad{color:var(--danger)}
+.row2{display:grid;grid-template-columns:1fr 1fr;gap:14px 10px;margin-top:14px}
+.row2 > .field{margin-top:0}
+.card-h + .row2,.sub-box .row2,.editor .row2{margin-top:0}
+.seg{position:relative;display:grid;grid-template-columns:1fr 1fr;background:var(--field);border:1.5px solid var(--line);border-radius:14px;padding:4px}
+.seg::before{content:"";position:absolute;top:4px;bottom:4px;left:4px;width:calc(50% - 4px);border-radius:10px;background:var(--card);box-shadow:0 2px 8px -2px rgba(14,40,90,.25);transition:transform .35s var(--ease)}
+.seg[data-pos="1"]::before{transform:translateX(100%)}
+.seg button{position:relative;height:42px;border:0;border-radius:10px;background:transparent;color:var(--muted);font-family:inherit;font-size:15px;font-weight:500;cursor:pointer;transition:color .25s}
+.seg button.on{color:var(--accent);font-weight:700}
+.switch{display:flex;align-items:center;justify-content:space-between;gap:12px;padding:12px 14px;border:1.5px solid var(--line);border-radius:14px;background:var(--field);cursor:pointer;user-select:none;transition:border-color .2s}
+.switch:hover{border-color:color-mix(in srgb,var(--accent) 35%,var(--line))}
+.field label.switch{display:flex;margin-bottom:0;font-size:inherit;font-weight:inherit;color:inherit}
+.switch .t{font-size:14.5px;color:var(--ink)}
+.switch .t small{display:block;font-size:12px;color:var(--faint)}
+.switch input{position:absolute;opacity:0;pointer-events:none}
+.knob{width:46px;height:28px;border-radius:14px;background:var(--line);position:relative;flex:none;transition:background .25s}
+.knob::after{content:"";position:absolute;top:3px;left:3px;width:22px;height:22px;border-radius:50%;background:#fff;box-shadow:0 2px 4px rgba(0,0,0,.25);transition:transform .3s var(--ease)}
+.switch input:checked + .knob{background:var(--accent)}
+.switch input:checked + .knob::after{transform:translateX(18px)}
+.switch input:focus-visible + .knob{box-shadow:0 0 0 4px var(--accent-soft)}
+.sub-box{margin-top:14px;padding:14px;border-radius:14px;background:var(--accent-soft);animation:drop .35s var(--ease)}
+.sub-box .lbl{color:var(--accent);font-weight:700}
+.sub-box select{background-color:var(--card)}
+.collapse{display:grid;grid-template-rows:1fr;transition:grid-template-rows .35s var(--ease),opacity .3s}
+.collapse > div{overflow:hidden;min-height:0}
+.collapse.shut{grid-template-rows:0fr;opacity:0}
+@keyframes drop{from{opacity:0;transform:translateY(-6px)}}
+
+.btn{position:relative;overflow:hidden;display:flex;align-items:center;justify-content:center;gap:8px;width:100%;height:52px;border:0;border-radius:15px;background:linear-gradient(135deg,var(--accent),var(--accent-2));color:var(--accent-ink);font-family:inherit;font-size:16px;font-weight:700;letter-spacing:.08em;cursor:pointer;box-shadow:0 10px 22px -10px color-mix(in srgb,var(--accent) 70%,transparent);transition:transform .15s var(--ease),box-shadow .2s,filter .2s}
+.btn:hover{filter:brightness(1.05)}
+.btn:active{transform:scale(.98)}
+.btn .ar{transition:transform .25s var(--ease)}
+.btn:hover .ar{transform:translateX(3px)}
+.btn.ghost{background:var(--card);color:var(--ink);border:1.5px solid var(--line);font-weight:500;letter-spacing:0;height:46px;font-size:15px;box-shadow:none}
+.btn.ghost:hover{border-color:var(--accent);color:var(--accent);filter:none}
+.btn-row{display:grid;grid-template-columns:1fr 1fr;gap:10px;margin-top:6px}
+.alert{border-radius:13px;padding:12px 14px;font-size:13.5px;margin-top:12px;line-height:1.65;animation:drop .3s var(--ease)}
+.alert.warn{background:var(--brass-soft);color:var(--brass)}
+.alert.bad{background:var(--danger-soft);color:var(--danger)}
+.alert ul{padding-left:18px}
+
+/* ===== dock ===== */
+.dock{position:fixed;left:0;right:0;bottom:0;z-index:40;padding:10px 12px calc(10px + env(safe-area-inset-bottom));pointer-events:none;transition:transform .4s var(--ease),opacity .3s}
+.dock.away{transform:translateY(120%);opacity:0}
+.dock-in{pointer-events:auto;max-width:556px;margin:0 auto;display:flex;align-items:center;gap:10px;padding:8px 8px 8px 16px;border-radius:20px;background:color-mix(in srgb,var(--card) 82%,transparent);border:1px solid var(--line);box-shadow:0 18px 40px -16px rgba(10,30,70,.45);backdrop-filter:blur(16px) saturate(1.4);-webkit-backdrop-filter:blur(16px) saturate(1.4)}
+.dock-info{flex:1;min-width:0;line-height:1.25}
+.dock-info .k{font-size:11.5px;color:var(--muted)}
+.dock-info .v{font-size:19px;font-weight:700;color:var(--ink);white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.dock-info .v small{font-size:12px;color:var(--muted);font-weight:500;margin-left:3px;font-family:"Noto Sans TC",sans-serif}
+.prog{display:flex;gap:4px;margin-top:6px}
+.prog i{flex:1;height:4px;border-radius:2px;background:var(--line);transition:background .3s}
+.prog i.on{background:var(--accent)}
+.dock .btn{width:auto;flex:none;height:46px;padding:0 20px;border-radius:14px;font-size:15px;letter-spacing:.04em}
+
+/* ===== hero ===== */
+.hero{position:relative;overflow:hidden;color:var(--hero-ink);border-radius:26px;padding:22px 20px 18px;margin-bottom:14px;background:linear-gradient(160deg,#0A1830 0%,#11346C 55%,#1E5BC2 100%);box-shadow:var(--shadow-lg)}
+.hero::before{content:"";position:absolute;inset:0;background:radial-gradient(380px 200px at 100% 0%,rgba(120,190,255,.35),transparent 70%),repeating-linear-gradient(0deg,rgba(255,255,255,.035) 0 1px,transparent 1px 22px),repeating-linear-gradient(90deg,rgba(255,255,255,.035) 0 1px,transparent 1px 22px);pointer-events:none}
+.hero > *{position:relative}
+.hero.pop{animation:pop .6s var(--ease)}
+@keyframes pop{from{opacity:0;transform:translateY(14px) scale(.98)}}
+.hero-meta{display:flex;flex-wrap:wrap;align-items:center;gap:8px;font-size:12.5px;color:var(--hero-muted)}
+.pill{display:inline-flex;align-items:center;gap:5px;height:24px;padding:0 10px;border-radius:12px;background:rgba(255,255,255,.12);color:#DDEBFF;font-weight:700;font-size:11.5px;letter-spacing:.08em}
+.pill::before{content:"";width:6px;height:6px;border-radius:50%;background:#5CF0B5;box-shadow:0 0 0 0 rgba(92,240,181,.7);animation:ping 2s infinite}
+@keyframes ping{70%{box-shadow:0 0 0 6px rgba(92,240,181,0)}100%{box-shadow:0 0 0 0 rgba(92,240,181,0)}}
+.hero-main{display:flex;align-items:center;gap:14px;margin-top:16px}
+.hero-main > div:first-child{flex:1;min-width:0}
+.hero-label{font-size:13px;color:var(--hero-muted);letter-spacing:.14em}
+.hero-num{font-family:var(--num);font-weight:800;font-size:50px;line-height:1.05;letter-spacing:.005em;background:linear-gradient(180deg,#FFFFFF 30%,#A9D4FF);-webkit-background-clip:text;background-clip:text;color:transparent}
+.hero-num small{font-family:"Noto Sans TC",sans-serif;font-size:14px;font-weight:500;color:var(--hero-muted);-webkit-text-fill-color:var(--hero-muted);margin-left:6px}
+.hero-num.na{font-family:"Noto Sans TC",sans-serif;font-size:28px;font-weight:700}
+.hero-formula{font-size:12.5px;color:var(--hero-muted);margin-top:6px}
+.ring{width:78px;height:78px;flex:none;position:relative}
+.ring svg{width:100%;height:100%;transform:rotate(-90deg)}
+.ring .tr{stroke:rgba(255,255,255,.14)}
+.ring .fg{stroke:url(#rg);stroke-linecap:round;transition:stroke-dashoffset 1.1s var(--ease)}
+.ring-t{position:absolute;inset:0;display:flex;flex-direction:column;align-items:center;justify-content:center;line-height:1.05}
+.ring-t b{font-family:var(--num);font-size:20px;font-weight:700}
+.ring-t span{font-size:10.5px;color:var(--hero-muted);margin-top:2px}
+.tiles{display:grid;grid-template-columns:1fr 1fr;gap:10px;margin-top:18px}
+.tile{border:1px solid var(--hero-line);border-radius:16px;padding:12px 12px 10px;background:rgba(255,255,255,.06);backdrop-filter:blur(4px)}
+.tile .k{font-size:12px;color:var(--hero-muted)}
+.tile .v{font-family:var(--num);font-size:22px;font-weight:700;margin-top:2px;color:#fff}
+.tile .n{font-size:11.5px;color:var(--hero-muted);margin-top:1px}
+.chips{display:flex;flex-wrap:wrap;gap:6px 14px;margin-top:14px;padding-top:14px;border-top:1px solid var(--hero-line)}
+.chip{font-size:12px;color:var(--hero-muted)}
+.chip b{color:#fff;font-weight:700;margin-left:5px;font-family:var(--num);font-size:13px}
+
+/* ===== reveal ===== */
+.reveal{opacity:0;transform:translateY(18px)}
+.reveal.in{opacity:1;transform:none;transition:opacity .6s var(--ease),transform .6s var(--ease)}
+
+/* ===== calc steps ===== */
+.steps{list-style:none;counter-reset:s;position:relative}
+.steps li{position:relative;padding:12px 0 12px 38px}
+.steps li + li{border-top:1px dashed var(--line)}
+.steps li:first-child{padding-top:2px}
+.steps li::before{counter-increment:s;content:counter(s);position:absolute;left:0;top:12px;width:26px;height:26px;border-radius:8px;background:var(--accent-soft);color:var(--accent);font-family:var(--num);font-size:13px;font-weight:700;display:flex;align-items:center;justify-content:center}
+.steps li:first-child::before{top:2px}
+.st-t{font-size:13px;color:var(--muted)}
+.st-v{font-size:15px;font-weight:500;margin-top:2px;word-break:break-word}
+.st-v b{font-weight:700;color:var(--ink)}
+.st-v .eq{color:var(--accent);font-weight:700}
+.law{font-size:11.5px;color:var(--faint);margin-top:4px}
+
+/* ===== track ===== */
+.srcsum{font-size:12.5px;color:var(--muted);margin:-8px 0 6px}
+.bars{display:flex;align-items:flex-end;gap:2px;height:110px;padding:8px 0 0;border-bottom:1px solid var(--line);position:relative}
+.bar{flex:1;min-width:2px;border-radius:3px 3px 1px 1px;background:linear-gradient(180deg,var(--accent-2),var(--accent));transform-origin:bottom;transition:height .5s var(--ease)}
+.bar.alt{background:linear-gradient(180deg,#6FD6F2,var(--brass))}
+.bar.est{opacity:.38}
+.bar.ed{background:var(--danger)}
+.bars.grow .bar{animation:grow .7s var(--ease) both;animation-delay:calc(var(--i) * 9ms)}
+@keyframes grow{from{transform:scaleY(0)}}
+.avgline{position:absolute;left:0;right:0;border-top:1.5px dashed color-mix(in srgb,var(--ink) 45%,transparent);pointer-events:none}
+.avgline span{position:absolute;right:0;top:-20px;font-size:11px;font-weight:700;color:var(--ink);background:var(--card);padding:0 4px;border-radius:4px}
+.bars-axis{display:flex;justify-content:space-between;font-size:11px;color:var(--faint);margin-top:4px}
+.seglist{margin-top:14px}
+.segrow{display:grid;grid-template-columns:1fr auto;gap:2px 10px;align-items:center;padding:11px 0;border-top:1px solid var(--line)}
+.segrow:first-child{border-top:0}
+.seg-main{font-size:14.5px;font-weight:700;display:flex;align-items:center;gap:8px;flex-wrap:wrap}
+.seg-dot{width:9px;height:9px;border-radius:3px;background:var(--accent);flex:none}
+.seg-dot.alt{background:var(--brass)}
+.seg-dot.ed{background:var(--danger)}
+.seg-sub{grid-column:1;font-size:12.5px;color:var(--muted)}
+.seg-edit{grid-row:1 / span 2;grid-column:2;height:34px;padding:0 12px;border-radius:10px;border:1.5px solid var(--line);background:transparent;color:var(--ink);font-family:inherit;font-size:13px;cursor:pointer;transition:border-color .2s,color .2s}
+.seg-edit:hover{border-color:var(--accent);color:var(--accent)}
+.tag-s{font-size:11px;font-weight:500;padding:1px 7px;border-radius:6px;background:var(--brass-soft);color:var(--brass)}
+.tag-s.ed{background:var(--danger-soft);color:var(--danger)}
+.tag-s.rec{background:var(--ok-soft);color:var(--ok)}
+.editor{grid-column:1 / -1;margin-top:10px;padding:12px;border-radius:14px;background:var(--field);border:1.5px solid var(--accent);animation:drop .3s var(--ease)}
+.editor .lbl{margin-bottom:8px}
+.editor .row2{margin-bottom:10px}
+.editor select{background-color:var(--card)}
+.editor .acts{display:flex;gap:8px}
+.editor .acts button{flex:1;height:40px;border-radius:11px;font-family:inherit;font-size:14px;cursor:pointer;border:1.5px solid var(--line);background:var(--card);color:var(--ink)}
+.editor .acts button.pri{background:var(--accent);border-color:var(--accent);color:var(--accent-ink);font-weight:700}
+
+/* months */
+.mtools{margin-top:12px;font-size:13px;color:var(--muted)}
+.mtools label{display:flex;align-items:center;gap:8px;cursor:pointer}
+.mtools input{width:18px;height:18px;accent-color:var(--accent)}
+.mlegend{display:flex;gap:14px;margin-top:8px;font-size:12px;color:var(--muted)}
+.lg::before{content:"";display:inline-block;width:10px;height:10px;border-radius:3px;margin-right:5px;vertical-align:-1px}
+.lg.rec::before{background:var(--ok)}.lg.est::before{background:var(--brass)}.lg.edited::before{background:var(--danger)}
+.mbox{max-height:460px;overflow:auto;margin-top:8px;border:1.5px solid var(--line);border-radius:14px;-webkit-overflow-scrolling:touch;overscroll-behavior:contain}
+.mbox.open{animation:drop .35s var(--ease)}
+.mrow{display:grid;grid-template-columns:50px 1.35fr .8fr 60px;gap:6px;align-items:center;padding:6px 8px 6px 6px;border-top:1px solid var(--line);border-left:4px solid transparent;transition:background .3s}
+.mrow:first-child{border-top:0}
+.mrow.rec{border-left-color:var(--ok)}.mrow.est{border-left-color:var(--brass)}.mrow.edited{border-left-color:var(--danger);background:var(--danger-soft)}
+.mrow select{height:38px;padding:0 22px 0 8px;background-position:right 8px center;border-radius:9px;background-color:var(--card)}
+.m-ym{font-size:13px;color:var(--muted)}
+.m-sal{font-size:14px;text-align:right;font-weight:700}
+
+/* records */
+.rec-box{margin-top:18px;padding-top:16px;border-top:1px dashed var(--line)}
+.rec-top{display:flex;justify-content:space-between;align-items:center;gap:8px}
+.rec-title{font-size:14.5px;font-weight:700}
+.rec-title .opt{font-weight:400;font-size:12.5px}
+.rec-count{font-size:12px;color:var(--accent);font-weight:700;background:var(--accent-soft);padding:1px 8px;border-radius:8px}
+.rec-count:empty{display:none}
+.rec-row{display:grid;grid-template-columns:1fr 1fr 46px;grid-template-areas:"d d x" "r l l" "h h h";gap:8px;padding:10px;border:1.5px solid var(--line);border-radius:14px;margin-top:10px;background:var(--field);animation:drop .3s var(--ease)}
+.rec-row input,.rec-row select{height:46px;background-color:var(--card)}
+.rec-row .rec-d{grid-area:d}.rec-row .rec-x{grid-area:x}.rec-row .rec-r{grid-area:r}.rec-row .rec-l{grid-area:l}
+.rec-row .rec-hint{grid-area:h;margin-top:-4px;min-height:0}
+@media (min-width:540px){.rec-row{grid-template-columns:1.15fr 1fr 1fr 46px;grid-template-areas:"d r l x" "h h h h"}}
+.rec-x{height:46px;border:1.5px solid var(--line);border-radius:12px;background:var(--card);color:var(--danger);font-size:20px;line-height:1;cursor:pointer;transition:background .2s}
+.rec-x:hover{background:var(--danger-soft)}
+.rec-acts{display:flex;flex-wrap:wrap;gap:8px;margin-top:10px}
+.mini{height:36px;padding:0 13px;border-radius:11px;border:1.5px solid var(--line);background:var(--card);color:var(--accent);font-family:inherit;font-size:13.5px;font-weight:500;cursor:pointer;transition:border-color .2s,background .2s}
+.mini:hover{border-color:var(--accent);background:var(--accent-soft)}
+.mini.danger{color:var(--danger)}
+.mini.danger:hover{border-color:var(--danger);background:var(--danger-soft)}
+.rec-empty{font-size:13px;color:var(--faint);margin-top:10px;padding:14px;border:1.5px dashed var(--line);border-radius:14px;text-align:center}
+
+/* scenarios */
+.sc-legend{font-size:12.5px;color:var(--muted);margin:-6px 0 6px;line-height:1.6}
+.sc2{padding:14px 0;border-top:1px solid var(--line)}
+.sc2:first-of-type{border-top:0}
+.sc2-h{display:flex;flex-wrap:wrap;align-items:center;gap:4px 8px;margin-bottom:8px}
+.sc2-h b{font-size:15px}
+.sc2-h > span.num{flex-basis:100%;font-size:12.5px;color:var(--muted)}
+.sc-bar{height:8px;border-radius:4px;background:var(--line);overflow:hidden}
+.sc-bar i{display:block;height:100%;border-radius:4px;background:linear-gradient(90deg,var(--accent),var(--accent-2));transition:width .9s var(--ease)}
+.sc2.cur .sc-bar i{background:linear-gradient(90deg,var(--brass),#6FD6F2)}
+.sc2.max .sc-bar i{background:linear-gradient(90deg,var(--ok),#62E3B4)}
+.sc2-g{display:grid;grid-template-columns:repeat(3,1fr);gap:8px;margin-top:10px}
+.sc2-g > div{background:var(--field);border:1px solid var(--line);border-radius:12px;padding:8px 9px;min-width:0}
+.sc2-g span{display:block;font-size:11.5px;color:var(--muted);font-family:"Noto Sans TC",sans-serif}
+.sc2-g b{display:block;font-size:15px;font-weight:700;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.sc2-g em{display:block;font-style:normal;font-size:12px;color:var(--ok);font-weight:700;white-space:nowrap}
+.badge{display:inline-block;font-size:10.5px;padding:0 7px;border-radius:6px;background:var(--ok-soft);color:var(--ok);font-weight:700}
+.sc2.cur .badge{background:var(--brass-soft);color:var(--brass)}
+
+/* misc */
+.kv{display:flex;justify-content:space-between;gap:12px;padding:9px 0;font-size:14px;border-top:1px solid var(--line)}
+.kv:first-child{border-top:0}
+.kv span:first-child{color:var(--muted)}
+.kv b{font-weight:700;text-align:right}
+.taxgrid{display:grid;grid-template-columns:1fr 1fr;gap:10px}
+.taxbox{border:1.5px solid var(--line);border-radius:16px;padding:13px}
+.taxbox h3{font-size:13px;color:var(--muted);font-weight:500;margin-bottom:4px}
+.taxbox .big{font-size:21px;font-weight:700}
+.taxbox .s{font-size:12px;color:var(--faint);margin-top:4px;line-height:1.55}
+.note{font-size:12.5px;color:var(--muted);margin-top:12px;line-height:1.75}
+details.law-d{border-top:1px solid var(--line);padding:13px 0}
+details.law-d:first-of-type{border-top:0;padding-top:0}
+details.law-d summary{cursor:pointer;font-weight:700;font-size:14.5px;list-style:none;display:flex;justify-content:space-between;align-items:center;gap:8px}
+details.law-d summary::-webkit-details-marker{display:none}
+details.law-d summary::after{content:"";width:9px;height:9px;border-right:2px solid var(--faint);border-bottom:2px solid var(--faint);transform:rotate(45deg) translateY(-3px);transition:transform .3s var(--ease);flex:none}
+details.law-d[open] summary::after{transform:rotate(-135deg) translateY(-1px)}
+details.law-d .body{font-size:13.5px;color:var(--muted);margin-top:8px;line-height:1.8;animation:drop .3s var(--ease)}
+details.law-d .body ul{padding-left:18px}
+.foot{text-align:center;font-size:12px;color:var(--faint);margin-top:22px;line-height:1.8}
+.hidden{display:none !important}
+.toast{position:fixed;left:50%;bottom:calc(96px + env(safe-area-inset-bottom));transform:translateX(-50%) translateY(16px) scale(.96);background:var(--ink);color:var(--bg);padding:10px 18px;border-radius:14px;font-size:14px;opacity:0;transition:all .3s var(--ease);z-index:60;pointer-events:none;max-width:90vw;text-align:center;box-shadow:0 12px 30px -10px rgba(0,0,0,.4)}
+.toast.show{opacity:1;transform:translateX(-50%) translateY(0) scale(1)}
+.fade-in{animation:drop .4s var(--ease)}
+@media (max-width:380px){.hero-num{font-size:42px}.ring{width:66px;height:66px}.tile .v{font-size:19px}.row2.stack{grid-template-columns:1fr}}
+@media (prefers-reduced-motion: reduce){*,*::before,*::after{animation:none !important;transition:none !important}.reveal{opacity:1;transform:none}}
+</style>
+</head>
+<body>
+<div class="wrap">
+
+  <header class="masthead">
+    <span class="contrail c1"></span><span class="contrail c2"></span>
+    <div class="mh-row">
+      <svg class="wings" viewBox="0 0 64 64" aria-hidden="true">
+        <defs><linearGradient id="wg" x1="0" y1="0" x2="0" y2="1"><stop offset="0" stop-color="#FFFFFF"/><stop offset="1" stop-color="#9CC8FF"/></linearGradient></defs>
+        <path fill="url(#wg)" d="M32 26C24 22 14 20 3 21c4 3 8 4 13 5-4 1-7 2-10 4 6 1 12 1 17 0-3 2-6 3-8 5 6 0 11-1 15-3z"/>
+        <path fill="url(#wg)" transform="translate(64 0) scale(-1 1)" d="M32 26C24 22 14 20 3 21c4 3 8 4 13 5-4 1-7 2-10 4 6 1 12 1 17 0-3 2-6 3-8 5 6 0 11-1 15-3z"/>
+        <circle cx="32" cy="30" r="8" fill="#0E2A5A" stroke="url(#wg)" stroke-width="2"/>
+        <polygon fill="#FFFFFF" points="32,25 33.4,28.2 36.8,28.5 34.2,30.8 35,34.1 32,32.4 29,34.1 29.8,30.8 27.2,28.5 30.6,28.2"/>
+      </svg>
+      <div class="brand">
+        <div class="brand-kicker">ROC AIR FORCE</div>
+        <h1>退伍金試算</h1>
+      </div>
+      <button class="theme-btn" id="themeBtn" type="button" aria-label="切換深淺色" title="切換深淺色">◐</button>
+    </div>
+    <p class="mh-sub">依服役條例第26條附表三 · 115年俸額標準</p>
+  </header>
+
+  <!-- 1 身分與日期 -->
+  <section class="card" id="formCard">
+    <div class="card-h"><span class="no" id="no1">1</span><h2>身分與日期</h2></div>
+
+    <div class="field">
+      <span class="lbl">退伍身分</span>
+      <div class="seg" id="typeSeg" data-pos="0">
+        <button type="button" data-type="officer" class="on">軍官</button>
+        <button type="button" data-type="nco">士官</button>
+      </div>
+    </div>
+
+    <div class="field" id="sgtSwitchWrap">
+      <label class="switch">
+        <span class="t">曾任士官，後轉任軍官<small>年資從士官任官日起算</small></span>
+        <input type="checkbox" id="f_hadSgt">
+        <span class="knob"></span>
+      </label>
+    </div>
+
+    <div class="row2 stack">
+      <div class="field" data-f="start">
+        <label for="f_start" id="l_start">任官日</label>
+        <input type="text" id="f_start" inputmode="numeric" placeholder="例 950701">
+        <div class="hint" id="h_start">民國或西元皆可</div>
+      </div>
+      <div class="field hidden" data-f="off" id="offWrap">
+        <label for="f_off">少尉任官日</label>
+        <input type="text" id="f_off" inputmode="numeric" placeholder="例 1000701">
+        <div class="hint" id="h_off">服現役最大年限從這天起算</div>
+      </div>
+      <div class="field" data-f="retire">
+        <label for="f_retire">預計退伍日</label>
+        <input type="text" id="f_retire" inputmode="numeric" placeholder="例 1150701">
+        <div class="hint" id="h_retire"></div>
+      </div>
+      <div class="field" data-f="birth">
+        <label for="f_birth">出生日</label>
+        <input type="text" id="f_birth" inputmode="numeric" placeholder="例 750315">
+        <div class="hint" id="h_birth"></div>
+      </div>
+    </div>
+  </section>
+
+  <!-- 2 官階俸級 -->
+  <section class="card">
+    <div class="card-h"><span class="no" id="no2">2</span><h2>退伍時官階俸級</h2></div>
+    <div class="row2">
+      <div class="field" data-f="rank">
+        <label for="f_rank">官階</label>
+        <select id="f_rank"></select>
+      </div>
+      <div class="field" data-f="level">
+        <label for="f_level">俸級</label>
+        <select id="f_level"></select>
+      </div>
+    </div>
+    <div class="hint" id="h_level"></div>
+    <div class="field" data-f="levelDate">
+      <label for="f_levelDate">晉升到這個俸級的日期 <span class="opt">（選填）</span></label>
+      <input type="text" id="f_levelDate" inputmode="numeric" placeholder="不填＝假設退伍前一年晉級">
+      <div class="hint" id="h_levelDate">已填下方晉升紀錄時不用這欄</div>
+    </div>
+
+    <div class="rec-box">
+      <div class="rec-top"><span class="rec-title">實際晉升紀錄 <span class="opt">（選填，填了最準）</span></span><span class="rec-count num" id="recCount"></span></div>
+      <div class="hint" style="min-height:0">照人令填「生效日＋晉升後的官階俸級」，晉級、晉階都算一筆。平均本俸期間會照紀錄逐月計算，最早一筆以前才用推算。</div>
+      <div id="recList"></div>
+      <div class="rec-acts">
+        <button type="button" class="mini" id="recAdd">＋ 新增一筆</button>
+        <button type="button" class="mini" id="recFill">用推算結果帶入</button>
+        <button type="button" class="mini danger hidden" id="recClear">清空</button>
+      </div>
+    </div>
+
+    <div class="sub-box hidden" id="sgtBox">
+      <span class="lbl">轉任軍官前的士官官階俸級</span>
+      <div class="row2">
+        <select id="f_sgtRank" aria-label="士官官階"></select>
+        <select id="f_sgtLevel" aria-label="士官俸級"></select>
+      </div>
+      <div class="hint">平均本俸期間若涵蓋士官時期才會用到</div>
+    </div>
+  </section>
+
+  <!-- 3 其他 -->
+  <section class="card">
+    <div class="card-h"><span class="no" id="no3">3</span><h2>其他條件</h2><span class="aside">沒有可略過</span></div>
+    <div class="field" data-f="buyback">
+      <label for="f_buyback">已補繳的軍校年資（月）</label>
+      <input type="number" id="f_buyback" inputmode="numeric" min="0" max="120" value="0">
+    </div>
+    <div class="field">
+      <label class="switch">
+        <span class="t">套用 116 年起本俸調升 4%<small>行政院 115/7/2 方案，尚待預算通過，僅供預估</small></span>
+        <input type="checkbox" id="f_raise">
+        <span class="knob"></span>
+      </label>
+    </div>
+  </section>
+
+  <div id="formAlert"></div>
+
+  <!-- 結果 -->
+  <div id="results" class="hidden" style="margin-top:22px"></div>
+
+  <div class="foot">本試算僅供參考，實際金額以國防部審定為準<br>法規資料查證日期：115年10月</div>
+</div>
+<div class="dock" id="dock"><div class="dock-in"><div class="dock-info" id="dockInfo"></div><button class="btn" id="calcBtn" type="button">開始試算 <span class="ar">→</span></button></div></div>
+<div class="toast" id="toast"></div>
+
+<script>
+'use strict';
+/* =========================================================
+   一、法規參數（查證：115年10月）
+   ========================================================= */
+// 俸點折算率（114.1.1 起實施；115年軍公教未調薪，沿用）
+const RATES = [[160, 83.6], [220, 54.1], [790, 76.6], [800, 327.7], [Infinity, 459.59]];
+const RAISE_YM = 2027 * 12;          // 116年1月起（選擇套用4%時）
+const RAISE_FACTOR = 1.04;
+
+// 退職所得定額免稅（所得稅法第14條第1項第9類；財政部公告）
+const TAX_TABLE = {
+  2024: { a: 198000, b: 398000, m: 859000, label: '113年' },
+  2025: { a: 198000, b: 398000, m: 859000, label: '114年' },
+  2026: { a: 206000, b: 414000, m: 894000, label: '115年' }
+};
+
+function range(start, step, n) { const a = []; for (let i = 0; i < n; i++) a.push(start + step * i); return a; }
+// 各官階俸點（陸海空軍軍官士官任官條例附表二俸表）
+const PT = {
+  '一級上將': [900], '二級上將': [900],
+  '中將': [700, 720, 740, 760, 780, 800],
+  '少將': range(610, 20, 10),
+  '上校': range(550, 20, 12),
+  '中校': range(490, 15, 12),
+  '少校': range(430, 15, 12),
+  '上尉': range(380, 15, 12),
+  '中尉': range(330, 10, 10),
+  '少尉': range(300, 10, 10),
+  '一等士官長': range(380, 10, 20),
+  '二等士官長': range(330, 10, 20),
+  '三等士官長': range(300, 10, 20),
+  '上士': range(280, 10, 12),
+  '中士': range(230, 10, 12),
+  '下士': [160, 170, 180, 190, 200, 210, 220, 230, 240, 250, 260, 270]
+};
+const OFFICER = ['少尉', '中尉', '上尉', '少校', '中校', '上校', '少將', '中將', '二級上將', '一級上將'];
+const NCO = ['下士', '中士', '上士', '三等士官長', '二等士官長', '一等士官長'];
+const PREV = { '中尉': '少尉', '上尉': '中尉', '少校': '上尉', '中校': '少校', '上校': '中校', '少將': '上校', '中將': '少將', '二級上將': '中將', '一級上將': '二級上將', '中士': '下士', '上士': '中士', '三等士官長': '上士', '二等士官長': '三等士官長', '一等士官長': '二等士官長' };
+
+function maxLv(rank) { return PT[rank].length; }
+function ptOf(rank, lv) { return PT[rank][Math.min(Math.max(lv, 1), maxLv(rank)) - 1]; }
+function ptToSal(pt, factor) {
+  factor = factor || 1;
+  let total = 0, prev = 0;
+  for (let i = 0; i < RATES.length; i++) {
+    const cap = RATES[i][0], rate = RATES[i][1];
+    if (pt <= prev) break;
+    total += (Math.min(pt, cap) - prev) * rate * factor;
+    prev = cap;
+  }
+  const t = Math.round(total * 100) / 100;
+  return Math.ceil(t / 10) * 10;              // 不足10元以10元計
+}
+function salary(rank, lv, ym, raise) { return ptToSal(ptOf(rank, lv), (raise && ym >= RAISE_YM) ? RAISE_FACTOR : 1); }
+
+// 除役年齡（第5條）、服現役最大年限或年齡（第6條）
+function rankLimits(rank) {
+  const isOff = OFFICER.indexOf(rank) >= 0;
+  if (!isOff) { const age = rank.indexOf('士官長') >= 0 ? 58 : 50; return { isOff, ageLimit: age, activeAge: age, svcYears: null }; }
+  if (rank === '少尉' || rank === '中尉') return { isOff, ageLimit: 50, activeAge: null, svcYears: 12 };
+  if (rank === '上尉') return { isOff, ageLimit: 50, activeAge: null, svcYears: 17 };
+  if (rank === '少校') return { isOff, ageLimit: 58, activeAge: null, svcYears: 22 };
+  if (rank === '中校') return { isOff, ageLimit: 58, activeAge: null, svcYears: 26 };
+  if (rank === '上校') return { isOff, ageLimit: 58, activeAge: null, svcYears: 30 };
+  if (rank === '少將') return { isOff, ageLimit: 60, activeAge: 57, svcYears: null };
+  if (rank === '中將') return { isOff, ageLimit: 65, activeAge: 60, svcYears: null };
+  if (rank === '二級上將') return { isOff, ageLimit: 70, activeAge: 64, svcYears: null };
+  return { isOff, ageLimit: null, activeAge: null, svcYears: null };   // 一級上將不受限
+}
+
+/* =========================================================
+   二、日期工具
+   ========================================================= */
+function mkDate(y, m, d) { const dt = new Date(y, m - 1, d); return (dt.getFullYear() === y && dt.getMonth() === m - 1 && dt.getDate() === d) ? dt : null; }
+function parseDate(raw) {
+  if (!raw) return { empty: true };
+  let s = String(raw).trim().replace(/[年月\.\-]/g, '/').replace(/日/g, '').replace(/\s+/g, '');
+  let y, m, d;
+  if (/^\d+$/.test(s)) {
+    if (s.length === 6) { y = +s.slice(0, 2); m = +s.slice(2, 4); d = +s.slice(4, 6); }
+    else if (s.length === 7) { y = +s.slice(0, 3); m = +s.slice(3, 5); d = +s.slice(5, 7); }
+    else if (s.length === 8) { y = +s.slice(0, 4); m = +s.slice(4, 6); d = +s.slice(6, 8); }
+    else return { error: '請輸入 6~8 位數字' };
+  } else {
+    const p = s.split('/').filter(Boolean);
+    if (p.length !== 3 || p.some(x => !/^\d+$/.test(x))) return { error: '格式看不懂，請輸入如 1150701' };
+    y = +p[0]; m = +p[1]; d = +p[2];
+  }
+  if (y < 1000) y += 1911;
+  if (y < 1930 || y > 2090) return { error: '年份超出範圍' };
+  const dt = mkDate(y, m, d);
+  if (!dt) return { error: '這個日期不存在' };
+  return { date: dt };
+}
+function roc(dt) { return '民國' + (dt.getFullYear() - 1911) + '年' + (dt.getMonth() + 1) + '月' + dt.getDate() + '日'; }
+function rocShort(dt) { return (dt.getFullYear() - 1911) + '/' + String(dt.getMonth() + 1).padStart(2, '0') + '/' + String(dt.getDate()).padStart(2, '0'); }
+function ymIndex(dt) { return dt.getFullYear() * 12 + dt.getMonth(); }
+function ymLabel(idx) { const y = Math.floor(idx / 12), m = idx % 12 + 1; return (y - 1911) + '/' + String(m).padStart(2, '0'); }
+function addMonths(dt, n) {
+  const y = dt.getFullYear(), m = dt.getMonth() + n, d = dt.getDate();
+  const last = new Date(y, m + 1, 0).getDate();
+  return new Date(y, m, Math.min(d, last));
+}
+function monthsBetween(a, b) {
+  if (!(b > a)) return { floor: 0, ceil: 0 };
+  let m = (b.getFullYear() - a.getFullYear()) * 12 + (b.getMonth() - a.getMonth());
+  let t = addMonths(a, m);
+  while (t > b) { m--; t = addMonths(a, m); }
+  return { floor: m, ceil: t < b ? m + 1 : m };
+}
+function ageAt(birth, dt) {
+  let a = dt.getFullYear() - birth.getFullYear();
+  if (dt.getMonth() < birth.getMonth() || (dt.getMonth() === birth.getMonth() && dt.getDate() < birth.getDate())) a--;
+  return a;
+}
+function ym2str(months) {
+  months = Math.max(0, Math.round(months));
+  const y = Math.floor(months / 12), m = months % 12;
+  if (y && m) return y + '年' + m + '個月';
+  if (y) return y + '年';
+  return m + '個月';
+}
+function money(n) { return Math.round(n).toLocaleString('zh-TW'); }
+function pct(r) { return (Math.round(r * 10000) / 100).toString(); }
+
+/* =========================================================
+   三、核心計算
+   ========================================================= */
+function stepBack(rank, lv, steps) {
+  while (steps > 0) {
+    if (lv > 1) { lv--; }
+    else {
+      const p = PREV[rank];
+      if (!p) break;
+      const p1 = ptOf(rank, 1);
+      let x = 1;
+      for (let i = 1; i <= maxLv(p); i++) { if (ptOf(p, i) <= p1) x = i; }   // 晉任換敘不低於原俸點
+      rank = p; lv = x;
+    }
+    steps--;
+  }
+  return { rank, lv };
+}
+
+function latestRetire(inp) {
+  const L = rankLimits(inp.rank);
+  const c = [];
+  if (L.activeAge) c.push({ d: new Date(inp.birth.getFullYear() + L.activeAge, inp.birth.getMonth() + 1, 1), why: '服現役最大年齡 ' + L.activeAge + ' 歲' });
+  else if (L.ageLimit) c.push({ d: new Date(inp.birth.getFullYear() + L.ageLimit + 1, 0, 1), why: '除役年齡 ' + L.ageLimit + ' 歲' });
+  if (L.svcYears) {
+    const base = (inp.hadSgt && inp.off) ? inp.off : inp.start;
+    c.push({ d: addMonths(base, L.svcYears * 12), why: inp.rank + '服現役最大年限 ' + L.svcYears + ' 年，自' + ((inp.hadSgt && inp.off) ? '少尉任官日 ' : '任官日 ') + rocShort(base) + ' 起算' });
+  }
+  if (!c.length) return null;
+  c.sort((x, y) => x.d - y.d);
+  return c[0];
+}
+
+function recYM(dt) { return ymIndex(dt) + (dt.getDate() > 15 ? 1 : 0); }
+// 每月俸級：已修改 > 晉升紀錄 > 退伍俸級 > 往前推算
+function buildTrack(inp, N) {
+  const retireYM = ymIndex(inp.retire);
+  const levelYM = inp.levelDate ? recYM(inp.levelDate) : retireYM - 12;
+  const offYM = (inp.hadSgt && inp.off) ? ymIndex(inp.off) : null;
+  const ov = inp.overrides || {};
+  const recs = (inp.records || []).map(x => ({ ym: x.ym != null ? x.ym : recYM(x.date), rank: x.rank, lv: x.lv })).sort((a, b) => a.ym - b.ym);
+  const out = [];
+  for (let k = N; k >= 1; k--) {
+    const ym = retireYM - k;
+    let r, lv, src = 'input';
+    if (ov[ym]) { r = ov[ym][0]; lv = ov[ym][1]; src = 'edited'; }
+    else if (recs.length) {
+      let hit = null;
+      for (let i = 0; i < recs.length; i++) { if (recs[i].ym <= ym) hit = recs[i]; }
+      if (hit) { r = hit.rank; lv = hit.lv; src = hit.syn ? 'input' : 'rec'; }
+      else if (offYM !== null && ym < offYM && recs[0].ym >= offYM) {
+        const s = stepBack(inp.sgtRank, inp.sgtLevel, Math.floor((offYM - 1 - ym) / 12)); r = s.rank; lv = s.lv; src = 'est';
+      } else {
+        const s = stepBack(recs[0].rank, recs[0].lv, Math.ceil((recs[0].ym - ym) / 12)); r = s.rank; lv = s.lv; src = 'est';
+      }
+    } else if (offYM !== null && ym < offYM) {
+      const s = stepBack(inp.sgtRank, inp.sgtLevel, Math.floor((offYM - 1 - ym) / 12)); r = s.rank; lv = s.lv; src = 'est';
+    } else if (ym >= levelYM) { r = inp.rank; lv = inp.level; }
+    else {
+      const s = stepBack(inp.rank, inp.level, Math.ceil((levelYM - ym) / 12)); r = s.rank; lv = s.lv; src = 'est';
+    }
+    lv = Math.min(Math.max(lv, 1), maxLv(r));
+    out.push({ ym, rank: r, lv, pt: ptOf(r, lv), sal: salary(r, lv, ym, inp.raise), src });
+  }
+  return out;
+}
+
+function insuranceUnits(months) {
+  if (months < 60) return { units: 0, full: Math.floor(months / 12), odd: months % 12 };
+  const full = Math.floor(months / 12), odd = months % 12;
+  function inc(y) { if (y <= 5) return 0; if (y <= 10) return 1; if (y <= 15) return 2; if (y <= 20) return 3; return 1; }
+  let u = 5;
+  for (let y = 6; y <= full; y++) u += inc(y);
+  u = Math.min(u, 45);
+  const oddU = full >= 5 ? inc(full + 1) * odd / 12 : 0;
+  return { units: Math.min(u + oddU, 45), base: u, full, odd, oddU };
+}
+
+function taxParams(year) {
+  if (TAX_TABLE[year]) return TAX_TABLE[year];
+  if (year > 2026) return Object.assign({}, TAX_TABLE[2026], { label: '115年（' + (year - 1911) + '年度尚未公告）' });
+  return TAX_TABLE[2024];
+}
+function taxYears(months) { const y = Math.floor(months / 12), r = months % 12; return y + (r === 0 ? 0 : (r < 6 ? 0.5 : 1)); }
+
+function compute(inp, noScenario) {
+  const svc = monthsBetween(inp.start, inp.retire);
+  const T = svc.ceil + inp.buyback;             // 未滿一個月以一個月計
+  const Tfloor = svc.floor + inp.buyback;       // 畸零日數不予採計
+  const retireYM = ymIndex(inp.retire);
+  const age = ageAt(inp.birth, inp.retire);
+  const L = rankLimits(inp.rank);
+  const salR = salary(inp.rank, inp.level, retireYM, inp.raise);
+
+  // 退伍金
+  const lumpOK = T >= 36;
+  const lumpUnits = lumpOK ? Math.min(T * 1.5 / 12, 60) : 0;
+  const lump = Math.round(salR * 2 * lumpUnits);
+
+  // 退休俸
+  const monthlyOK = T >= 240 || (T >= 180 && age >= 60);
+  const special = monthlyOK && T < 240;
+  const N = Math.max(1, Math.round(Tfloor / 5));
+  const track = buildTrack(inp, N);
+  const avg = Math.round(track.reduce((s, m) => s + m.sal, 0) / N);
+  const cap = L.isOff ? 0.90 : 0.95;
+  let rate = T >= 240 ? 0.55 + 0.02 * (T - 240) / 12 : 0.55;
+  const capped = rate > cap;
+  rate = Math.min(rate, cap);
+  const monthly = monthlyOK ? Math.round(avg * 2 * rate) : 0;
+
+  // 軍保
+  const ins = insuranceUnits(svc.ceil);
+  const insPay = Math.floor(salR * ins.units);
+
+  // 稅
+  const tp = taxParams(inp.retire.getFullYear());
+  const ty = taxYears(T);
+  const A = tp.a * ty, B = tp.b * ty;
+  let lumpTaxable = 0;
+  if (lump > B) lumpTaxable = (B - A) / 2 + (lump - B);
+  else if (lump > A) lumpTaxable = (lump - A) / 2;
+  const yearMonthly = monthly * 12;
+  const monthlyTaxable = Math.max(0, yearMonthly - tp.m);
+
+  const latest = latestRetire(inp);
+  const res = {
+    T, Tfloor, svc, age, L, salR, lumpOK, lumpUnits, lump, monthlyOK, special, N, track, avg, cap, capped, rate, monthly,
+    ins, insPay, tp, ty, A, B, lumpTaxable: Math.floor(lumpTaxable), yearMonthly, monthlyTaxable, latest
+  };
+
+  if (!noScenario) {
+    const sc = [];
+    let maxN = 0;
+    if (latest) { maxN = Math.floor(monthsBetween(inp.retire, latest.d).floor / 12); }
+    else maxN = 10;
+    const picks = [1, 2, 3, 5, 10, 15, 20].filter(n => n < maxN).slice(0, 6);
+    if (maxN > 0) picks.push(maxN);
+    // 以「最後一次晉級」為基準，之後每年晉一級（到本階最高）；已修改的月份保留
+    let baseRecs, baseYM;
+    if (inp.records && inp.records.length) {
+      baseRecs = inp.records.map(x => ({ ym: recYM(x.date), rank: x.rank, lv: x.lv }));
+      baseYM = Math.max.apply(null, baseRecs.map(x => x.ym));
+    } else {
+      baseYM = inp.levelDate ? recYM(inp.levelDate) : retireYM - 12;
+      baseRecs = [{ ym: baseYM, rank: inp.rank, lv: inp.level, syn: true }];
+    }
+    const firstYM = Math.max(baseYM + 12, retireYM);
+    const ml = maxLv(inp.rank);
+    picks.forEach(n => {
+      const nl = Math.min(inp.level + n, ml);
+      const future = [];
+      for (let k = 1; k <= nl - inp.level; k++) future.push({ ym: firstYM + 12 * (k - 1), rank: inp.rank, lv: inp.level + k, syn: true });
+      const nr = addMonths(inp.retire, 12 * n);
+      const s = compute(Object.assign({}, inp, { retire: nr, level: nl, records: baseRecs.concat(future), levelDate: null }), true);
+      sc.push({ n, level: nl, retire: nr, monthly: s.monthly, lump: s.lump, insPay: s.insPay, rate: s.rate, avg: s.avg, T: s.T, insUnits: s.ins.units, isMax: !!latest && n === maxN });
+    });
+    res.scenarios = sc;
+    res.maxN = maxN;
+  }
+  return res;
+}
+
+/* =========================================================
+   四、介面
+   ========================================================= */
+if (typeof document !== 'undefined') {
+  const $ = id => document.getElementById(id);
+  const state = { type: 'officer', overrides: {}, records: [], computed: false, editing: null, showMonths: false, cascade: true, lastTrack: null, prev: {}, monthsAnim: false };
+  const DATE_FIELDS = ['start', 'off', 'retire', 'birth', 'levelDate'];
+  const ALL_RANKS = OFFICER.concat(NCO);
+
+  function toast(msg) { const t = $('toast'); t.textContent = msg; t.classList.add('show'); clearTimeout(toast._t); toast._t = setTimeout(() => t.classList.remove('show'), 2400); }
+
+  function fillRank(sel, list, keep) {
+    const cur = keep || sel.value;
+    sel.innerHTML = list.map(r => '<option value="' + r + '">' + r + '</option>').join('');
+    sel.value = list.indexOf(cur) >= 0 ? cur : list[Math.min(3, list.length - 1)];
+  }
+  function levelLabel(rank, i, mode) {
+    if (mode === 'tiny') return i + '級';
+    if (mode === 'short') return i + '級 · ' + ptOf(rank, i) + '點';
+    return i + ' 級 · ' + ptOf(rank, i) + '點 · $' + money(ptToSal(ptOf(rank, i)));
+  }
+  function fillLevel(sel, rank, keep, mode) {
+    const cur = parseInt(keep || sel.value, 10) || 1;
+    let h = '';
+    for (let i = 1; i <= maxLv(rank); i++) h += '<option value="' + i + '">' + levelLabel(rank, i, mode) + '</option>';
+    sel.innerHTML = h;
+    sel.value = String(Math.min(cur, maxLv(rank)));
+  }
+  function rankOptions(selected) {
+    const g = (label, list) => '<optgroup label="' + label + '">' + list.map(x => '<option' + (x === selected ? ' selected' : '') + '>' + x + '</option>').join('') + '</optgroup>';
+    return g('軍官', OFFICER) + g('士官', NCO);
+  }
+  function levelOptions(rank, selected, mode) {
+    let h = '';
+    for (let i = 1; i <= maxLv(rank); i++) h += '<option value="' + i + '"' + (i === selected ? ' selected' : '') + '>' + levelLabel(rank, i, mode) + '</option>';
+    return h;
+  }
+  function levelHint() {
+    const r = $('f_rank').value, lv = +$('f_level').value;
+    $('h_level').textContent = '本俸 $' + money(ptToSal(ptOf(r, lv))) + '（' + ptOf(r, lv) + ' 俸點）' + (lv === maxLv(r) ? ' · 已是本階最高俸級' : '');
+  }
+
+  function setType(t) {
+    state.type = t;
+    document.querySelectorAll('#typeSeg button').forEach(b => b.classList.toggle('on', b.dataset.type === t));
+    $('typeSeg').dataset.pos = t === 'officer' ? '0' : '1';
+    $('sgtSwitchWrap').classList.toggle('hidden', t !== 'officer');
+    if (t !== 'officer') $('f_hadSgt').checked = false;
+    fillRank($('f_rank'), t === 'officer' ? OFFICER : NCO);
+    fillLevel($('f_level'), $('f_rank').value);
+    syncSgt();
+    levelHint();
+  }
+  function syncSgt() {
+    const on = state.type === 'officer' && $('f_hadSgt').checked;
+    $('offWrap').classList.toggle('hidden', !on);
+    $('sgtBox').classList.toggle('hidden', !on);
+    $('l_start').textContent = on ? '士官任官日' : '任官日';
+  }
+
+  const DEFAULT_HINT = { start: '民國或西元皆可', levelDate: '已填下方晉升紀錄時不用這欄', off: '服現役最大年限從這天起算' };
+  function dateHint(f) {
+    const el = $('f_' + f), h = $('h_' + f);
+    if (!el || !h) return;
+    const p = parseDate(el.value);
+    if (p.empty) { h.className = 'hint'; h.textContent = DEFAULT_HINT[f] || ''; return; }
+    if (p.error) { h.className = 'hint bad'; h.textContent = p.error; return; }
+    h.className = 'hint ok'; h.textContent = '✓ ' + roc(p.date);
+  }
+  function markField(f) {
+    const el = $('f_' + f); if (!el) return;
+    const fld = el.closest('.field'); if (!fld) return;
+    fld.classList.toggle('ok-f', !!parseDate(el.value).date);
+  }
+
+  /* ---------- 晉升紀錄 ---------- */
+  function renderRecs() {
+    const box = $('recList');
+    if (!state.records.length) box.innerHTML = '<div class="rec-empty">尚未填寫，平均本俸期間全部用推算</div>';
+    else box.innerHTML = state.records.map((x, i) =>
+      '<div class="rec-row" data-i="' + i + '">' +
+      '<input type="text" class="rec-d" inputmode="numeric" placeholder="生效日 例 1130701" value="' + (x.d || '') + '" aria-label="第' + (i + 1) + '筆生效日">' +
+      '<button type="button" class="rec-x" aria-label="刪除第' + (i + 1) + '筆">×</button>' +
+      '<select class="rec-r" aria-label="官階">' + rankOptions(x.r) + '</select>' +
+      '<select class="rec-l" aria-label="俸級">' + levelOptions(x.r, Math.min(+x.l || 1, maxLv(x.r)), 'short') + '</select>' +
+      '<div class="rec-hint hint"></div></div>').join('');
+    box.querySelectorAll('.rec-row').forEach(recHint);
+    $('recClear').classList.toggle('hidden', !state.records.length);
+    $('recCount').textContent = state.records.length ? state.records.length + ' 筆' : '';
+  }
+  function recHint(row) {
+    const i = +row.dataset.i, x = state.records[i], h = row.querySelector('.rec-hint');
+    const sal = '本俸 $' + money(ptToSal(ptOf(x.r, Math.min(+x.l || 1, maxLv(x.r)))));
+    if (!x.d || !String(x.d).trim()) { h.className = 'rec-hint hint'; h.textContent = '未填日期，這筆不會計算 · ' + sal; return; }
+    const p = parseDate(x.d);
+    if (p.error) { h.className = 'rec-hint hint bad'; h.textContent = p.error; return; }
+    h.className = 'rec-hint hint ok'; h.textContent = '✓ ' + roc(p.date) + ' 起 · ' + sal;
+  }
+  $('recList').addEventListener('input', e => {
+    const row = e.target.closest('.rec-row'); if (!row || !e.target.classList.contains('rec-d')) return;
+    state.records[+row.dataset.i].d = e.target.value; recHint(row); changed();
+  });
+  $('recList').addEventListener('change', e => {
+    const row = e.target.closest('.rec-row'); if (!row) return;
+    const x = state.records[+row.dataset.i];
+    if (e.target.classList.contains('rec-r')) {
+      x.r = e.target.value; x.l = Math.min(+x.l || 1, maxLv(x.r));
+      row.querySelector('.rec-l').innerHTML = levelOptions(x.r, x.l, 'short');
+    } else if (e.target.classList.contains('rec-l')) x.l = +e.target.value;
+    else return;
+    recHint(row); changed();
+  });
+  $('recList').addEventListener('focusout', e => {
+    const row = e.target.closest('.rec-row'); if (!row || !e.target.classList.contains('rec-d')) return;
+    const p = parseDate(e.target.value);
+    if (p.date) { e.target.value = rocShort(p.date); state.records[+row.dataset.i].d = e.target.value; recHint(row); save(); }
+  });
+  $('recList').addEventListener('click', e => {
+    if (!e.target.classList.contains('rec-x')) return;
+    const row = e.target.closest('.rec-row');
+    state.records.splice(+row.dataset.i, 1); renderRecs(); changed();
+  });
+  $('recAdd').onclick = () => {
+    const last = state.records[state.records.length - 1];
+    state.records.push(last ? { d: '', r: last.r, l: Math.min((+last.l || 1) + 1, maxLv(last.r)) } : { d: '', r: $('f_rank').value, l: +$('f_level').value });
+    renderRecs();
+    const ins = $('recList').querySelectorAll('.rec-d'); ins[ins.length - 1].focus();
+  };
+  $('recClear').onclick = () => { if (!confirm('確定清空所有晉升紀錄？')) return; state.records = []; renderRecs(); changed(); };
+  $('recFill').onclick = () => {
+    if (!state.lastTrack) { run(false); }
+    if (!state.lastTrack) { toast('請先把日期填完整，才能推算'); return; }
+    trackToRecords();
+  };
+  function trackToRecords() {
+    const tr = state.lastTrack; if (!tr) return;
+    if (state.records.length && !confirm('會用目前的逐月結果覆蓋原本的晉升紀錄，確定？')) return;
+    const recs = []; let prev = '';
+    tr.forEach(m => {
+      const k = m.rank + '|' + m.lv;
+      if (k !== prev) { recs.push({ d: rocShort(new Date(Math.floor(m.ym / 12), m.ym % 12, 1)), r: m.rank, l: m.lv }); prev = k; }
+    });
+    state.records = recs; state.overrides = {};
+    renderRecs(); run(false);
+    toast('已轉成 ' + recs.length + ' 筆晉升紀錄，可到第 2 區修改日期');
+  }
+
+  /* ---------- 讀表單 ---------- */
+  function readForm() {
+    const errs = {}, warns = [];
+    const v = {};
+    DATE_FIELDS.forEach(f => { v[f] = parseDate($('f_' + f).value); });
+    const hadSgt = state.type === 'officer' && $('f_hadSgt').checked;
+    function need(f, name) { if (v[f].empty) errs[f] = '請填寫' + name; else if (v[f].error) errs[f] = name + '：' + v[f].error; }
+    need('start', hadSgt ? '士官任官日' : '任官日');
+    need('retire', '預計退伍日');
+    need('birth', '出生日');
+    if (hadSgt) need('off', '少尉任官日');
+    if (!v.levelDate.empty && v.levelDate.error) errs.levelDate = '俸級日期：' + v.levelDate.error;
+    const S = v.start.date, R = v.retire.date, Bd = v.birth.date, O = v.off.date, LD = v.levelDate.date;
+    if (S && R && !(R > S)) errs.retire = '退伍日必須晚於任官日';
+    if (S && Bd && !(S > Bd)) errs.birth = '出生日必須早於任官日';
+    if (hadSgt && O && S && R && !(O > S && O < R)) errs.off = '少尉任官日須介於士官任官日與退伍日之間';
+    if (LD && S && R && (LD < S || LD > R)) errs.levelDate = '俸級日期須介於任官日與退伍日之間';
+    if (Bd && S && !errs.birth && ageAt(Bd, S) < 16) warns.push('任官時未滿16歲，請確認出生日或任官日');
+    let bb = parseInt($('f_buyback').value, 10);
+    if (isNaN(bb) || bb < 0) bb = 0;
+    if (bb > 120) { bb = 120; warns.push('補繳年資以 120 個月計'); }
+    const rank = $('f_rank').value, level = +$('f_level').value;
+
+    const recs = [];
+    state.records.forEach((x, i) => {
+      if (!x.d || !String(x.d).trim()) return;
+      const p = parseDate(x.d);
+      if (p.error) { errs['rec' + i] = '晉升紀錄第 ' + (i + 1) + ' 筆：' + p.error; return; }
+      if (R && p.date >= R) { warns.push('晉升紀錄第 ' + (i + 1) + ' 筆在退伍日當天或之後，已略過'); return; }
+      if (S && p.date < S) { warns.push('晉升紀錄第 ' + (i + 1) + ' 筆早於任官日，已略過'); return; }
+      recs.push({ date: p.date, rank: x.r, lv: Math.min(+x.l || 1, maxLv(x.r)) });
+    });
+    recs.sort((a, b) => a.date - b.date);
+    if (recs.length) {
+      const last = recs[recs.length - 1];
+      if (last.rank !== rank || last.lv !== level) warns.push('最後一筆晉升紀錄是「' + last.rank + ' ' + last.lv + ' 級」，與退伍俸級「' + rank + ' ' + level + ' 級」不同。平均本俸照紀錄算，退伍金與軍保照退伍俸級算。');
+      if (LD) warns.push('已填晉升紀錄，「晉升到這個俸級的日期」不會使用');
+    }
+    const inp = {
+      type: state.type, hadSgt, start: S, off: hadSgt ? O : null, retire: R, birth: Bd,
+      rank, level, levelDate: recs.length ? null : (LD || null),
+      sgtRank: $('f_sgtRank').value, sgtLevel: +$('f_sgtLevel').value,
+      buyback: bb, raise: $('f_raise').checked, overrides: state.overrides, records: recs
+    };
+    if (LD && !recs.length && hadSgt && O && LD < O && OFFICER.indexOf(rank) >= 0) warns.push('俸級日期早於少尉任官日，推算可能不準');
+    return { ok: Object.keys(errs).length === 0, errs, warns, inp };
+  }
+
+  function showErrors(errs, warns, focus) {
+    document.querySelectorAll('.field').forEach(f => f.classList.remove('err'));
+    Object.keys(errs).forEach(k => { const f = document.querySelector('.field[data-f="' + k + '"]'); if (f) f.classList.add('err'); const h = $('h_' + k); if (h) { h.className = 'hint bad'; h.textContent = errs[k]; } });
+    let html = '';
+    const ek = Object.keys(errs);
+    if (ek.length) html += '<div class="alert bad"><ul>' + ek.map(k => '<li>' + errs[k] + '</li>').join('') + '</ul></div>';
+    if (warns.length) html += '<div class="alert warn"><ul>' + warns.map(w => '<li>' + w + '</li>').join('') + '</ul></div>';
+    $('formAlert').innerHTML = html;
+    if (focus && ek.length) {
+      const k = ek[0];
+      let el = $('f_' + k);
+      if (!el && k.indexOf('rec') === 0) { const row = document.querySelector('.rec-row[data-i="' + k.slice(3) + '"]'); if (row) el = row.querySelector('.rec-d'); }
+      if (el) { el.focus({ preventScroll: true }); el.scrollIntoView({ behavior: 'smooth', block: 'center' }); }
+    }
+  }
+
+  function run(scrollTo) {
+    const f = readForm();
+    showErrors(f.errs, f.warns, scrollTo);
+    if (!f.ok) { state.lastTrack = null; if (state.computed) { $('results').classList.add('hidden'); state.computed = false; state.prev = {}; } updateProgress(); return; }
+    const r = compute(f.inp);
+    const mb = document.querySelector('.mbox'), mst = mb ? mb.scrollTop : 0;
+    const anim = $('results').classList.contains('hidden');
+    render(f.inp, r, anim);
+    state.lastTrack = r.track;
+    const mb2 = document.querySelector('.mbox'); if (mb2) mb2.scrollTop = mst;
+    state.computed = true;
+    updateDock(r);
+    save();
+    if (scrollTo) setTimeout(() => $('results').scrollIntoView({ behavior: 'smooth', block: 'start' }), 60);
+  }
+
+  /* ---------- 結果繪製 ---------- */
+  function srcTag(src) {
+    if (src === 'edited') return '<span class="tag-s ed">已修改</span>';
+    if (src === 'est') return '<span class="tag-s">推算</span>';
+    if (src === 'rec') return '<span class="tag-s rec">紀錄</span>';
+    return '';
+  }
+
+  function trackCard(inp, r, anim) {
+    const tr = r.track;
+    const sals = tr.map(m => m.sal);
+    const mx = Math.max.apply(null, sals), mn = Math.min.apply(null, sals);
+    const floor = mn * 0.8;
+    const cnt = { rec: 0, est: 0, edited: 0, input: 0 };
+    tr.forEach(m => cnt[m.src]++);
+    const segs = [];
+    tr.forEach(m => {
+      const last = segs[segs.length - 1];
+      if (last && last.rank === m.rank && last.lv === m.lv && last.src === m.src) { last.end = m.ym; last.n++; }
+      else segs.push({ start: m.ym, end: m.ym, rank: m.rank, lv: m.lv, sal: m.sal, n: 1, src: m.src, idx: segs.length });
+    });
+    let h = '<section class="card' + anim + '"><div class="card-h"><h2>平均本俸期間</h2><span class="aside num">最後 ' + r.N + ' 個月</span></div>';
+    const parts = [];
+    if (cnt.rec) parts.push('紀錄 ' + cnt.rec);
+    if (cnt.input) parts.push('退伍俸級 ' + cnt.input);
+    if (cnt.edited) parts.push('已修改 ' + cnt.edited);
+    if (cnt.est) parts.push('推算 ' + cnt.est);
+    h += '<div class="srcsum num">' + parts.join(' · ') + ' 個月</div>';
+    if (cnt.est) h += '<div class="alert warn" style="margin-top:8px">有 ' + cnt.est + ' 個月是用「每年晉一級」推算的，不一定準。請在第 2 區填「實際晉升紀錄」，或打開下方「逐月明細」直接修改。</div>';
+
+    h += '<div class="bars' + (anim ? ' grow' : '') + '" aria-hidden="true">';
+    const avgFrac = mx === floor ? 1 : (r.avg - floor) / (mx - floor);
+    h += '<div class="avgline" style="bottom:calc((100% - 8px) * ' + avgFrac.toFixed(3) + ')"><span class="num">平均 ' + money(r.avg) + '</span></div>';
+    let bi = 0;
+    tr.forEach(m => {
+      const seg = segs.find(s => m.ym >= s.start && m.ym <= s.end);
+      const cls = m.src === 'edited' ? ' ed' : (seg.idx % 2 ? ' alt' : '') + (m.src === 'est' ? ' est' : '');
+      const hgt = mx === floor ? 100 : Math.max(8, (m.sal - floor) / (mx - floor) * 100);
+      h += '<div class="bar' + cls + '" style="--i:' + (bi++) + ';height:' + hgt.toFixed(1) + '%" title="' + ymLabel(m.ym) + ' ' + m.rank + m.lv + '級 $' + money(m.sal) + '"></div>';
+    });
+    h += '</div><div class="bars-axis num"><span>' + ymLabel(tr[0].ym) + '</span><span>' + ymLabel(tr[tr.length - 1].ym) + '</span></div>';
+
+    h += '<div class="seglist">';
+    segs.slice().reverse().forEach(s => {
+      const dotCls = s.src === 'edited' ? ' ed' : (s.idx % 2 ? ' alt' : '');
+      h += '<div class="segrow">';
+      h += '<div class="seg-main"><span class="seg-dot' + dotCls + '"></span>' + s.rank + ' ' + s.lv + ' 級 <span class="num" style="font-weight:500;color:var(--muted)">$' + money(s.sal) + '</span>' + srcTag(s.src) + '</div>';
+      h += '<div class="seg-sub num">' + ymLabel(s.start) + (s.start !== s.end ? ' – ' + ymLabel(s.end) : '') + ' · ' + s.n + ' 個月 · ' + ptOf(s.rank, s.lv) + ' 點</div>';
+      h += '<button class="seg-edit" type="button" data-s="' + s.start + '" data-e="' + s.end + '" data-r="' + s.rank + '" data-l="' + s.lv + '">整段修改</button>';
+      const ed = state.editing;
+      if (ed && ed.s === s.start && ed.e === s.end) {
+        h += '<div class="editor"><div class="lbl">把 ' + ymLabel(s.start) + (s.start !== s.end ? ' – ' + ymLabel(s.end) : '') + ' 改成</div><div class="row2"><select id="ed_rank">' + rankOptions(s.rank) + '</select><select id="ed_level">' + levelOptions(s.rank, s.lv, 'full') + '</select></div>';
+        h += '<div class="acts"><button type="button" id="ed_cancel">取消</button>' + (s.src === 'edited' ? '<button type="button" id="ed_reset">還原</button>' : '') + '<button type="button" class="pri" id="ed_ok">套用</button></div></div>';
+      }
+      h += '</div>';
+    });
+    h += '</div>';
+
+    h += '<button type="button" class="btn ghost" id="monthsToggle" style="margin-top:12px">' + (state.showMonths ? '收起逐月明細' : '逐月明細（每個月都能直接改）') + '</button>';
+    if (state.showMonths) {
+      h += '<div class="mtools"><label><input type="checkbox" id="mCascade"' + (state.cascade ? ' checked' : '') + '> 改某月時，後面同俸級的月份一起改</label></div>';
+      h += '<div class="mlegend"><span class="lg rec">紀錄</span><span class="lg est">推算</span><span class="lg edited">已修改</span></div>';
+      h += '<div class="mbox' + (state.monthsAnim ? ' open' : '') + '">';
+      state.monthsAnim = false;
+      tr.forEach(m => {
+        h += '<div class="mrow ' + m.src + '"><span class="m-ym num">' + ymLabel(m.ym) + '</span>';
+        h += '<select class="m-r" data-ym="' + m.ym + '" aria-label="' + ymLabel(m.ym) + ' 官階">' + rankOptions(m.rank) + '</select>';
+        h += '<select class="m-l" data-ym="' + m.ym + '" aria-label="' + ymLabel(m.ym) + ' 俸級">' + levelOptions(m.rank, m.lv, 'tiny') + '</select>';
+        h += '<span class="m-sal num">' + money(m.sal) + '</span></div>';
+      });
+      h += '</div>';
+    }
+    const anyEd = Object.keys(state.overrides).length > 0;
+    h += '<div class="rec-acts" style="margin-top:12px"><button type="button" class="mini" id="saveRecs">存成晉升紀錄</button>' + (anyEd ? '<button type="button" class="mini danger" id="resetAll">清除所有修改</button>' : '') + '</div>';
+    h += '<div class="note">「存成晉升紀錄」會把目前每段俸級轉成第 2 區的紀錄，之後改退伍日或多做幾年，都會沿用這些實際晉升日期。</div>';
+    h += '</section>';
+    return h;
+  }
+
+  function scenarioCard(inp, r, anim) {
+    const rows = [{ n: 0, level: inp.level, retire: inp.retire, monthly: r.monthly, lump: r.lump, insPay: r.insPay, rate: r.rate, T: r.T, cur: true }].concat(r.scenarios);
+    const key = rows.some(x => x.monthly > 0) ? 'monthly' : 'lump';
+    const mx2 = Math.max.apply(null, rows.map(x => x[key] + (key === 'lump' ? x.insPay : 0))) || 1;
+    let h = '<section class="card' + anim + '"><div class="card-h"><h2>晚幾年退會差多少</h2></div>';
+    h += '<div class="sc-legend">月退俸與退伍金二擇一；軍保退伍給付不論選哪個都另外一次領。綠字是比照原定多出的金額。</div>';
+    rows.forEach(x => {
+      const diff = (v, b) => (x.cur || !v) ? '' : '<em>' + (v - b >= 0 ? '+' : '−') + money(Math.abs(v - b)) + '</em>';
+      const val = x[key] + (key === 'lump' ? x.insPay : 0);
+      h += '<div class="sc2' + (x.cur ? ' cur' : '') + (x.isMax ? ' max' : '') + '">';
+      h += '<div class="sc2-h"><b>' + (x.cur ? '照原定退伍' : '多做 ' + x.n + ' 年') + '</b>' + (x.cur ? '<span class="badge">目前</span>' : '') + (x.isMax ? '<span class="badge">最晚</span>' : '') + '<span class="num">' + rocShort(x.retire) + ' · ' + inp.rank + ' ' + x.level + ' 級 · 年資 ' + ym2str(x.T) + '</span></div>';
+      const w = (val / mx2 * 100).toFixed(1), pk = 'sc' + x.n;
+      h += '<div class="sc-bar"><i data-w="' + w + '" data-pk="' + pk + '" style="width:' + (state.prev[pk] != null ? state.prev[pk] : 0) + '%"></i></div>';
+      h += '<div class="sc2-g num">';
+      h += '<div><span>月退俸' + (x.monthly ? ' ' + pct(x.rate) + '%' : '') + '</span><b>' + (x.monthly ? money(x.monthly) : '未達') + '</b>' + (r.monthly ? diff(x.monthly, r.monthly) : (x.monthly && !x.cur ? '<em>開始可領</em>' : '')) + '</div>';
+      h += '<div><span>退伍金</span><b>' + (x.lump ? money(x.lump) : '—') + '</b>' + diff(x.lump, r.lump) + '</div>';
+      h += '<div><span>軍保</span><b>' + (x.insPay ? money(x.insPay) : '—') + '</b>' + diff(x.insPay, r.insPay) + '</div>';
+      h += '</div></div>';
+    });
+    h += '<div class="note">多出來的年份假設官階不變、從最後一次晉級起每年晉一級（到本階最高為止），已填的晉升紀錄與修改都會保留。軍保基數隨保險年資增加，最高 45 個基數。' + (r.latest ? '最晚可服役到 <b class="num">' + roc(r.latest.d) + '</b>（' + r.latest.why + '）。' : '') + '</div>';
+    h += '</section>';
+    return h;
+  }
+
+  function render(inp, r, animate) {
+    const box = $('results');
+    box.classList.remove('hidden');
+    const anim = animate ? ' first' : '';
+    let h = '';
+
+    // HERO
+    const svcText = ym2str(r.svc.ceil) + (inp.buyback ? ' ＋ 補繳 ' + inp.buyback + ' 個月' : '');
+    h += '<section class="hero' + (animate ? ' pop' : '') + '" id="heroCard">';
+    h += '<div class="hero-meta"><span class="pill">試算結果</span><span>' + inp.rank + ' ' + inp.level + ' 級</span><span>·</span><span class="num">' + rocShort(inp.retire) + '</span><span>退伍</span></div>';
+    h += '<div class="hero-main"><div>';
+    h += '<div class="hero-label">月退休俸</div>';
+    if (r.monthlyOK) {
+      h += '<div class="hero-num"><span class="cnt" data-k="monthly" data-v="' + r.monthly + '">' + money(r.monthly) + '</span><small>元／月</small></div>';
+      h += '<div class="hero-formula num">平均本俸 ' + money(r.avg) + ' × 2 × ' + pct(r.rate) + '%</div>';
+    } else {
+      h += '<div class="hero-num na">未達支領條件</div>';
+      h += '<div class="hero-formula">需服役滿20年（或滿15年且年滿60歲），還差 ' + ym2str(240 - r.T) + '</div>';
+    }
+    h += '</div>';
+    if (r.monthlyOK) {
+      const C = 2 * Math.PI * 33, off = C * (1 - r.rate);
+      const from = state.prev.ringOff != null ? state.prev.ringOff : C;
+      h += '<div class="ring" aria-label="俸率 ' + pct(r.rate) + '%"><svg viewBox="0 0 78 78"><defs><linearGradient id="rg" x1="0" y1="0" x2="1" y2="1"><stop offset="0" stop-color="#7FDBFF"/><stop offset="1" stop-color="#FFFFFF"/></linearGradient></defs><circle class="tr" cx="39" cy="39" r="33" fill="none" stroke-width="7"/><circle class="fg" id="ringFg" cx="39" cy="39" r="33" fill="none" stroke-width="7" stroke-dasharray="' + C.toFixed(2) + '" stroke-dashoffset="' + from.toFixed(2) + '" data-off="' + off.toFixed(2) + '"/></svg><div class="ring-t"><b>' + pct(r.rate) + '%</b><span>俸率</span></div></div>';
+    }
+    h += '</div>';
+    h += '<div class="tiles">';
+    h += '<div class="tile"><div class="k">一次退伍金</div><div class="v">' + (r.lumpOK ? '$<span class="cnt" data-k="lump" data-v="' + r.lump + '">' + money(r.lump) + '</span>' : '—') + '</div><div class="n">' + (!r.lumpOK ? '服役未滿3年不發給' : (r.monthlyOK ? '與月退俸二擇一' : '可支領')) + '</div></div>';
+    h += '<div class="tile"><div class="k">軍保退伍給付</div><div class="v">' + (r.insPay ? '$<span class="cnt" data-k="ins" data-v="' + r.insPay + '">' + money(r.insPay) + '</span>' : '—') + '</div><div class="n">' + (r.insPay ? '另外一次領 · 免稅' : '保險未滿5年，退還自付保費') + '</div></div>';
+    h += '</div>';
+    h += '<div class="chips"><span class="chip">採計年資<b>' + ym2str(r.T) + '</b></span><span class="chip">退伍本俸<b>$' + money(r.salR) + '</b></span><span class="chip">退伍年齡<b>' + r.age + ' 歲</b></span></div>';
+    h += '</section>';
+
+    // 明細
+    h += '<section class="card' + anim + '"><div class="card-h"><h2>怎麼算出來的</h2></div><ol class="steps">';
+    h += '<li><div class="st-t">採計年資</div><div class="st-v num">' + rocShort(inp.start) + ' → ' + rocShort(inp.retire) + '　' + svcText + ' <span class="eq">＝</span> <b>' + r.T + ' 個月</b></div><div class="law">畸零月數未滿一個月以一個月計（附表三說明）</div></li>';
+    if (r.monthlyOK) {
+      h += '<li><div class="st-t">月退基數：最後五分之一年資平均本俸 × 2</div><div class="st-v num">' + r.Tfloor + ' 個月 ÷ 5 ≈ <b>' + r.N + ' 個月</b>，平均本俸 ' + money(r.avg) + ' × 2 <span class="eq">＝</span> <b>' + money(r.avg * 2) + '</b></div><div class="law">第26條附表三二(二)：畸零日數不採計，換算後取整數月</div></li>';
+      h += '<li><div class="st-t">俸率</div><div class="st-v num">' + (r.special ? '服役15年以上且滿60歲 <span class="eq">＝</span> <b>55%</b>（以國防部審定為準）' : '55% ＋ 2% × ' + (Math.round((r.T - 240) / 12 * 100) / 100) + ' 年 <span class="eq">＝</span> <b>' + pct(r.rate) + '%</b>' + (r.capped ? '（已達' + (r.L.isOff ? '軍官 90%' : '士官 95%') + '上限）' : '')) + '</div><div class="law">20年55%、每增1年加2%，畸零月按比率；軍官上限90%、士官上限95%</div></li>';
+      h += '<li><div class="st-t">月退休俸</div><div class="st-v num">' + money(r.avg * 2) + ' × ' + pct(r.rate) + '% <span class="eq">＝</span> <b>' + money(r.monthly) + ' 元／月</b></div></li>';
+    }
+    if (r.lumpOK) {
+      h += '<li><div class="st-t">一次退伍金</div><div class="st-v num">退伍時本俸 ' + money(r.salR) + ' × 2 × ' + (Math.round(r.lumpUnits * 100) / 100) + ' 個基數 <span class="eq">＝</span> <b>' + money(r.lump) + ' 元</b></div><div class="law">每服現役1年給1.5個基數，最高60個基數；以退伍生效日本俸計（非平均本俸）</div></li>';
+    }
+    h += '<li><div class="st-t">軍保退伍給付</div><div class="st-v num">' + (r.ins.units ? '保險 ' + ym2str(r.svc.ceil) + ' → ' + (Math.round(r.ins.units * 100) / 100) + ' 個基數 × 本俸 ' + money(r.salR) + ' <span class="eq">＝</span> <b>' + money(r.insPay) + ' 元</b>' : '保險未滿5年，不發退伍給付') + '</div><div class="law">軍人保險條例第16條：滿5年5個基數，6~10年每年+1、11~15年+2、16~20年+3、滿20年後每年+1，最高45個基數（畸零月按比例為本工具推估）</div></li>';
+    h += '</ol></section>';
+
+    if (r.monthlyOK) h += trackCard(inp, r, anim);
+
+    if (r.scenarios && r.scenarios.length) h += scenarioCard(inp, r, anim);
+    else if (r.latest) {
+      h += '<section class="card' + anim + '"><div class="card-h"><h2>服役期限</h2></div><div class="kv"><span>最晚服役到</span><b class="num">' + roc(r.latest.d) + '</b></div><div class="kv"><span>依據</span><b>' + r.latest.why + '</b></div>' + (inp.retire > r.latest.d ? '<div class="alert warn">預計退伍日已超過法定期限，請確認是否有延役核准。</div>' : '') + '</section>';
+    }
+
+    // 稅務
+    h += '<section class="card' + anim + '"><div class="card-h"><h2>退職所得稅</h2><span class="aside">' + r.tp.label + '標準</span></div>';
+    h += '<div class="taxgrid">';
+    if (r.monthlyOK) {
+      h += '<div class="taxbox"><h3>選月退俸</h3><div class="big num" style="color:' + (r.monthlyTaxable ? 'var(--brass)' : 'var(--ok)') + '">' + (r.monthlyTaxable ? '$' + money(r.monthlyTaxable) : '免稅') + '</div><div class="s num">全年 ' + money(r.yearMonthly) + '，減除 ' + money(r.tp.m) + ' 後' + (r.monthlyTaxable ? '為應稅退職所得' : '為 0') + '</div></div>';
+    }
+    if (r.lumpOK) {
+      h += '<div class="taxbox"' + (r.monthlyOK ? '' : ' style="grid-column:1 / -1"') + '><h3>選一次退伍金</h3><div class="big num" style="color:' + (r.lumpTaxable ? 'var(--brass)' : 'var(--ok)') + '">' + (r.lumpTaxable ? '$' + money(r.lumpTaxable) : '免稅') + '</div><div class="s num">年資 ' + r.ty + ' 年 × ' + money(r.tp.a) + ' ＝ ' + money(r.A) + ' 以內免稅；至 ' + money(r.B) + ' 半數計入</div></div>';
+    }
+    h += '</div>';
+    h += '<div class="note">金額是「應計入綜合所得的退職所得」，不是要繳的稅；實際稅額還要看當年其他所得與扣除額。軍保給付依所得稅法第4條第1項第7款免稅。退撫新制110年後年資的課稅比例另有規定，本工具未細分。</div>';
+    h += '</section>';
+
+    // 法規
+    h += '<section class="card' + anim + '"><div class="card-h"><h2>法規依據與限制</h2></div>';
+    h += '<details class="law-d"><summary>退伍金與退休俸（服役條例第26條附表三）</summary><div class="body"><ul>';
+    h += '<li>退伍金：服現役3年以上；以退伍生效日本俸加一倍為基數，每年1.5個基數，最高60個基數。</li>';
+    h += '<li>退休俸：服現役20年以上，或15年以上且年滿60歲；以退伍前最後五分之一年資的平均本俸加一倍為基數。</li>';
+    h += '<li>俸率：20年55%，每增1年加2%；軍官最高90%、士官最高95%。退伍金與退休俸擇一支領，改支退伍金經審定後不得變更。</li>';
+    h += '<li>107年7月1日前已符合支領退休俸條件者，以退伍時本俸計算，不適用平均本俸，本工具未處理此情形。</li></ul></div></details>';
+    h += '<details class="law-d"><summary>服役期限（服役條例第5、6條）</summary><div class="body"><ul>';
+    h += '<li>除役年齡：下士至上士、尉官50歲；士官長、校官58歲；少將60歲；中將65歲；上將70歲。</li>';
+    h += '<li>服現役最大年限：少尉、中尉12年；上尉17年；少校22年；中校26年；上校30年；士官轉任軍官者自少尉任官日起算，士官年資不計入此年限（但退伍金、退休俸的採計年資仍從士官任官日起算）。</li>';
+    h += '<li>服現役最大年齡：士官同除役年齡；少將57歲、中將60歲、上將64歲。</li></ul></div></details>';
+    h += '<details class="law-d"><summary>本俸計算（俸點折算）</summary><div class="body"><ul>';
+    h += '<li>俸點分段折算：1~160點83.6元、161~220點54.1元、221~790點76.6元、791~800點327.7元、801點以上459.59元，不足10元以10元計（114年1月1日起，115年未調整）。</li>';
+    h += '<li>116年起軍公教通案調薪4%為行政院115年7月2日方案，須待預算通過；勾選後以折算率×1.04 推估。</li>';
+    h += '<li>晉任上階換敘不低於原支俸點（軍人待遇條例第8條），本工具往前推算時據此換算。</li>';
+    h += '<li>晉升紀錄的生效日在 16 日以後者，從次月起算該俸級。</li></ul></div></details>';
+    h += '<details class="law-d"><summary>本工具沒有算進去的</summary><div class="body"><ul>';
+    h += '<li>優惠存款、月補償金、補足差額等年改過渡措施。</li><li>退撫基金個人提撥本息、勳獎章獎金、退伍慰助金等其他給與。</li><li>因公傷殘之贍養金、作戰或因公加成。</li><li>實際俸級晉支會因考績、留職停薪等改變，請以人令填入晉升紀錄。</li></ul></div></details>';
+    h += '</section>';
+
+    h += '<div class="btn-row"><button class="btn ghost" id="shareBtn" type="button">複製分享連結</button><button class="btn ghost" id="editBtn" type="button">修改資料</button></div>';
+    box.innerHTML = h;
+    bindResults();
+    afterRender(animate);
+  }
+
+  function applyMonth(ym, rank, lv) {
+    const tr = state.lastTrack; if (!tr) return;
+    const i = tr.findIndex(m => m.ym === ym); if (i < 0) return;
+    const key = tr[i].rank + '|' + tr[i].lv;
+    state.overrides[ym] = [rank, lv];
+    if (state.cascade) { for (let j = i + 1; j < tr.length && (tr[j].rank + '|' + tr[j].lv) === key; j++) state.overrides[tr[j].ym] = [rank, lv]; }
+    run(false);
+  }
+
+  function bindResults() {
+    const box = $('results');
+    box.querySelectorAll('.seg-edit').forEach(b => b.onclick = () => {
+      const s = +b.dataset.s, e = +b.dataset.e;
+      const ed = state.editing;
+      state.editing = (ed && ed.s === s && ed.e === e) ? null : { s, e };
+      run(false);
+    });
+    if (state.editing && $('ed_rank')) {
+      const ed = state.editing, er = $('ed_rank'), el = $('ed_level');
+      er.onchange = () => { el.innerHTML = levelOptions(er.value, Math.min(+el.value || 1, maxLv(er.value)), 'full'); };
+      $('ed_cancel').onclick = () => { state.editing = null; run(false); };
+      $('ed_ok').onclick = () => { for (let ym = ed.s; ym <= ed.e; ym++) state.overrides[ym] = [er.value, +el.value]; state.editing = null; run(false); toast('已重新計算'); };
+      const rs = $('ed_reset');
+      if (rs) rs.onclick = () => { for (let ym = ed.s; ym <= ed.e; ym++) delete state.overrides[ym]; state.editing = null; run(false); };
+    }
+    const mt = $('monthsToggle'); if (mt) mt.onclick = () => { state.showMonths = !state.showMonths; state.monthsAnim = state.showMonths; run(false); };
+    const cc = $('mCascade'); if (cc) cc.onchange = () => { state.cascade = cc.checked; };
+    box.querySelectorAll('.m-r').forEach(s => s.onchange = () => {
+      const ym = +s.dataset.ym, cur = state.lastTrack.find(m => m.ym === ym);
+      applyMonth(ym, s.value, Math.min(cur ? cur.lv : 1, maxLv(s.value)));
+    });
+    box.querySelectorAll('.m-l').forEach(s => s.onchange = () => {
+      const ym = +s.dataset.ym, rs = box.querySelector('.m-r[data-ym="' + ym + '"]');
+      applyMonth(ym, rs.value, +s.value);
+    });
+    const sr = $('saveRecs'); if (sr) sr.onclick = trackToRecords;
+    const ra = $('resetAll'); if (ra) ra.onclick = () => { state.overrides = {}; state.editing = null; run(false); toast('已清除所有修改'); };
+    $('shareBtn').onclick = share;
+    $('editBtn').onclick = () => $('formCard').scrollIntoView({ behavior: 'smooth', block: 'start' });
+  }
+
+  /* ---------- 儲存 / 分享 ---------- */
+  function snapshot() {
+    const o = { t: state.type, hs: $('f_hadSgt').checked ? 1 : 0, r: $('f_rank').value, l: $('f_level').value, sr: $('f_sgtRank').value, sl: $('f_sgtLevel').value, bb: $('f_buyback').value, rz: $('f_raise').checked ? 1 : 0, ov: state.overrides, rc: state.records };
+    DATE_FIELDS.forEach(f => { o[f] = $('f_' + f).value; });
+    return o;
+  }
+  function restore(o) {
+    if (!o) return false;
+    setType(o.t === 'nco' ? 'nco' : 'officer');
+    $('f_hadSgt').checked = !!o.hs; syncSgt();
+    DATE_FIELDS.forEach(f => { if (o[f] != null) $('f_' + f).value = o[f]; dateHint(f); });
+    if (o.r && PT[o.r]) { $('f_rank').value = o.r; fillLevel($('f_level'), o.r, o.l); }
+    if (o.sr && PT[o.sr]) { $('f_sgtRank').value = o.sr; fillLevel($('f_sgtLevel'), o.sr, o.sl); }
+    $('f_buyback').value = o.bb || 0;
+    $('f_raise').checked = !!o.rz;
+    state.overrides = (o.ov && typeof o.ov === 'object') ? o.ov : {};
+    state.records = Array.isArray(o.rc) ? o.rc.filter(x => x && PT[x.r]) : [];
+    renderRecs();
+    levelHint();
+    return true;
+  }
+  function save() { try { localStorage.setItem('retire_calc_v3', JSON.stringify(snapshot())); } catch (e) { } }
+  function share() {
+    const enc = btoa(unescape(encodeURIComponent(JSON.stringify(snapshot()))));
+    const url = location.origin + location.pathname + '#d=' + enc;
+    if (navigator.clipboard && navigator.clipboard.writeText) navigator.clipboard.writeText(url).then(() => toast('已複製連結')).catch(() => prompt('請複製連結：', url));
+    else prompt('請複製連結：', url);
+  }
+
+
+  /* ---------- 動畫與操作體驗 ---------- */
+  const reduceMotion = window.matchMedia && window.matchMedia('(prefers-reduced-motion: reduce)').matches;
+  function tween(el, from, to, dur) {
+    if (reduceMotion || from === to) { el.textContent = money(to); return; }
+    const t0 = performance.now();
+    function step(t) {
+      const p = Math.min(1, (t - t0) / dur), e = 1 - Math.pow(1 - p, 3);
+      el.textContent = money(from + (to - from) * e);
+      if (p < 1) requestAnimationFrame(step);
+    }
+    requestAnimationFrame(step);
+  }
+  let heroObs = null, revObs = null;
+  function afterRender(animate) {
+    document.querySelectorAll('#results .cnt').forEach(el => {
+      const k = el.dataset.k, v = +el.dataset.v;
+      const from = state.prev[k] != null ? state.prev[k] : 0;
+      tween(el, from, v, animate ? 1100 : 600);
+      state.prev[k] = v;
+    });
+    const fg = $('ringFg');
+    if (fg) { requestAnimationFrame(() => requestAnimationFrame(() => { fg.style.strokeDashoffset = fg.dataset.off; })); state.prev.ringOff = +fg.dataset.off; }
+    else state.prev.ringOff = null;
+    const bars = document.querySelectorAll('#results .sc-bar i[data-w]');
+    requestAnimationFrame(() => requestAnimationFrame(() => bars.forEach(b => { b.style.width = b.dataset.w + '%'; state.prev[b.dataset.pk] = +b.dataset.w; })));
+    if (animate) {
+      const cards = document.querySelectorAll('#results > .card, #results > .btn-row');
+      if ('IntersectionObserver' in window && !reduceMotion) {
+        if (revObs) revObs.disconnect();
+        revObs = new IntersectionObserver(es => es.forEach(e => { if (e.isIntersecting) { e.target.classList.add('in'); revObs.unobserve(e.target); } }), { rootMargin: '0px 0px -8% 0px' });
+        cards.forEach(c => { c.classList.add('reveal'); revObs.observe(c); });
+      }
+    }
+    if (heroObs) heroObs.disconnect();
+    const hero = $('heroCard');
+    if (hero && 'IntersectionObserver' in window) {
+      heroObs = new IntersectionObserver(es => es.forEach(e => $('dock').classList.toggle('away', e.isIntersecting)), { threshold: .35 });
+      heroObs.observe(hero);
+    }
+  }
+
+  function requiredState() {
+    const hadSgt = state.type === 'officer' && $('f_hadSgt').checked;
+    const req = ['start', 'retire', 'birth'].concat(hadSgt ? ['off'] : []);
+    const ok = req.filter(f => parseDate($('f_' + f).value).date);
+    return { req, ok };
+  }
+  function updateProgress() {
+    const st = requiredState();
+    const done = st.ok.length === st.req.length;
+    $('no1').classList.toggle('done', done);
+    $('no2').classList.toggle('done', done);
+    $('no3').classList.toggle('done', done);
+    if (state.computed) return;
+    $('dock').classList.remove('away');
+    $('dockInfo').innerHTML = '<div class="k">' + (done ? '資料齊全，可以試算了' : '必填日期 ' + st.ok.length + ' / ' + st.req.length) + '</div><div class="prog">' + st.req.map((f, i) => '<i class="' + (i < st.ok.length ? 'on' : '') + '"></i>').join('') + '</div>';
+    $('calcBtn').innerHTML = '開始試算 <span class="ar">→</span>';
+  }
+  function updateDock(r) {
+    const main = r.monthlyOK
+      ? '<div class="k">月退休俸 · 俸率 ' + pct(r.rate) + '%</div><div class="v num">' + money(r.monthly) + '<small>元／月</small></div>'
+      : '<div class="k">一次退伍金</div><div class="v num">' + (r.lumpOK ? money(r.lump) : '—') + '<small>元</small></div>';
+    $('dockInfo').innerHTML = main;
+    $('calcBtn').innerHTML = '看結果 <span class="ar">↓</span>';
+    updateProgress();
+  }
+
+  // 主題切換：跟隨系統 → 深色 → 淺色
+  const THEMES = ['', 'dark', 'light'], THEME_ICON = { '': '◐', dark: '☾', light: '☀' };
+  function applyTheme(t) {
+    if (t) document.documentElement.setAttribute('data-theme', t); else document.documentElement.removeAttribute('data-theme');
+    $('themeBtn').textContent = THEME_ICON[t];
+    $('themeBtn').title = t === 'dark' ? '深色' : (t === 'light' ? '淺色' : '跟隨系統');
+  }
+  let theme = '';
+  try { theme = localStorage.getItem('retire_theme') || ''; } catch (e) { }
+  if (THEMES.indexOf(theme) < 0) theme = '';
+  applyTheme(theme);
+  $('themeBtn').onclick = () => { theme = THEMES[(THEMES.indexOf(theme) + 1) % 3]; applyTheme(theme); try { localStorage.setItem('retire_theme', theme); } catch (e) { } toast(theme === 'dark' ? '深色模式' : (theme === 'light' ? '淺色模式' : '跟隨系統')); };
+
+  // 按 Enter 跳到下一格
+  const ORDER = ['f_start', 'f_off', 'f_retire', 'f_birth', 'f_rank'];
+  ORDER.slice(0, 4).forEach(id => $(id).addEventListener('keydown', e => {
+    if (e.key !== 'Enter') return;
+    e.preventDefault();
+    const vis = ORDER.filter(x => { const el = $(x); return el && el.offsetParent !== null; });
+    const nx = vis[vis.indexOf(id) + 1];
+    if (nx) $(nx).focus(); else $(id).blur();
+  }));
+
+  /* ---------- 事件 ---------- */
+  document.querySelectorAll('#typeSeg button').forEach(b => b.onclick = () => { setType(b.dataset.type); changed(); });
+  $('f_hadSgt').onchange = () => { syncSgt(); changed(); };
+  $('f_rank').onchange = () => { fillLevel($('f_level'), $('f_rank').value); levelHint(); changed(); };
+  $('f_level').onchange = () => { levelHint(); changed(); };
+  $('f_sgtRank').onchange = () => { fillLevel($('f_sgtLevel'), $('f_sgtRank').value); changed(); };
+  $('f_sgtLevel').onchange = changed;
+  $('f_buyback').oninput = changed;
+  $('f_raise').onchange = changed;
+  DATE_FIELDS.forEach(f => {
+    const el = $('f_' + f);
+    el.addEventListener('input', () => { const fld = el.closest('.field'); if (fld) fld.classList.remove('err'); dateHint(f); changed(); });
+    el.addEventListener('blur', () => { const p = parseDate(el.value); if (p.date) el.value = rocShort(p.date); dateHint(f); markField(f); });
+  });
+  let tmr = null;
+  function changed() {
+    state.editing = null;
+    updateProgress();
+    if (!state.computed) { save(); return; }
+    clearTimeout(tmr);
+    tmr = setTimeout(() => run(false), 400);
+  }
+  $('calcBtn').onclick = () => { const b = $('calcBtn'); b.animate && !reduceMotion && b.animate([{ transform: 'scale(1)' }, { transform: 'scale(.94)' }, { transform: 'scale(1)' }], { duration: 260, easing: 'ease-out' }); run(true); };
+
+  /* ---------- 初始化 ---------- */
+  fillRank($('f_sgtRank'), NCO, '上士');
+  fillLevel($('f_sgtLevel'), $('f_sgtRank').value, 6);
+  setType('officer');
+  $('f_rank').value = '少校'; fillLevel($('f_level'), '少校', 6); levelHint();
+  renderRecs();
+  let loaded = false;
+  const m = location.hash.match(/d=([^&]+)/);
+  if (m) { try { loaded = restore(JSON.parse(decodeURIComponent(escape(atob(m[1]))))); } catch (e) { loaded = false; } }
+  if (!loaded) { try { const s = localStorage.getItem('retire_calc_v3') || localStorage.getItem('retire_calc_v2'); if (s) { restore(JSON.parse(s)); } } catch (e) { } }
+  DATE_FIELDS.forEach(markField);
+  updateProgress();
+  if (m && loaded) run(false);
+}
+
+if (typeof module !== 'undefined') module.exports = { compute, ptToSal, salary, parseDate, monthsBetween, insuranceUnits, latestRetire, PT };
+</script>
+</body>
+</html>
