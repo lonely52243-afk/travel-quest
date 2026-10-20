@@ -397,6 +397,14 @@
 
   .quick-go { background: var(--accent); color: #fff; }
   .quick-clear { background: var(--card2); color: var(--text); }
+  .quick-paste { background: #fff5f7; color: var(--accent); border: 2px solid #ffd0d8 !important; }
+
+  /* 輸入框一定要能選字、長按出現「貼上」 */
+  input, textarea {
+    -webkit-user-select: text;
+    user-select: text;
+    -webkit-touch-callout: default;
+  }
 
   .calendar {
     background: var(--card);
@@ -819,6 +827,7 @@
     <div class="quick-preview" id="quickPreview"></div>
     <div class="quick-btns">
       <button class="quick-clear" onclick="closeQuick()">取消</button>
+      <button class="quick-paste" onclick="pasteQuick()">📋 貼上</button>
       <button class="quick-go" onclick="applyQuick()">標記到本月</button>
     </div>
   </div>
@@ -1481,9 +1490,27 @@
     const open = !panel.classList.contains('open');
     panel.classList.toggle('open', open);
     btn.classList.toggle('on', open);
-    if (open) {
+    if (open) updateQuickPreview();
+  }
+
+  async function pasteQuick() {
+    const input = document.getElementById('quickInput');
+    try {
+      const text = await navigator.clipboard.readText();
+      if (!text || !text.trim()) {
+        showToast('剪貼簿是空的，先去複製文字');
+        return;
+      }
+      input.value = text;
       updateQuickPreview();
-      setTimeout(() => document.getElementById('quickInput').focus(), 50);
+      showToast('已貼上');
+    } catch {
+      // 讀不到剪貼簿時，改用手機原生輸入框（桌面 App 模式也能長按貼上）
+      const text = prompt('長按下方輸入框，選「貼上」');
+      if (text && text.trim()) {
+        input.value = text;
+        updateQuickPreview();
+      }
     }
   }
 
