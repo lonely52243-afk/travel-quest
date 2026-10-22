@@ -11632,6 +11632,9 @@ window.__BT={G:()=>G};/* idle-addon bridge */
   8. 歡迎回來：離線結算、簽到、成就一次看完、一次領取
   9. 營地奇遇：掛機時隨機遇到寶箱、泉水、流星，記在營地日誌
   10. 新手引導、自動選勇者、帳號備份匯出／匯入
+  11. 營地收藏：30 種怪物（掛機擊殺累積階數）、14 個區域（通關才解鎖），收集越多冥晶加成越高
+  13. 圖示：區域／寶箱／泉水用 neocities 的 IMG_4077.png，分頁圖示用 IMG_4078.png
+  12. 節奏：天賦每個節點的等級上限一開始只有 8 級，每轉生一次 +3 級（最多 20），升級價格成長放緩
 
   接入方式（完全不改原有函式）
   - 覆寫 Storage.prototype.getItem / setItem：只攔截 6 個「帳號層」key，其餘照舊
@@ -11666,6 +11669,9 @@ const $=id=>document.getElementById(id);
 /* esc：HTML 跳脫，所有塞進 innerHTML 的文字都先過這個 */
 const esc=s=>String(s).replace(/[&<>"']/g,c=>({"&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;","'":"&#39;"}[c]));
 const rawGet=Storage.prototype.getItem,rawSet=Storage.prototype.setItem;
+/* 營地用圖示：CA＝區域與奇遇，CB＝分頁圖示（兩張都放在 neocities） */
+GI_SHEETS.CA={u:'https://lonely52243.neocities.org/圖庫/人物圖庫/IMG_4077.png',W:1254,H:1254,b:{"z0": [48, 62, 238, 233], "z1": [355, 62, 236, 233], "z2": [662, 62, 235, 232], "z3": [968, 62, 234, 233], "z4": [49, 335, 237, 232], "z5": [355, 335, 234, 233], "z6": [662, 336, 235, 231], "z7": [967, 335, 235, 232], "z8": [49, 611, 236, 232], "z9": [356, 610, 232, 233], "z10": [662, 611, 235, 232], "z11": [967, 611, 235, 232], "z12": [48, 885, 236, 234], "z13": [356, 884, 232, 235], "chest": [663, 928, 235, 210], "spring": [964, 885, 235, 262]}};
+GI_SHEETS.CB={u:'https://lonely52243.neocities.org/圖庫/人物圖庫/IMG_4078.png',W:1536,H:1024,b:{"book": [39, 149, 321, 322], "trophy": [418, 147, 314, 311], "tree": [796, 135, 308, 340], "robot": [1177, 170, 312, 297], "tent": [40, 562, 321, 322], "scroll": [428, 561, 305, 327], "hourglass": [805, 570, 293, 310], "coin": [1185, 605, 301, 273]}};
 const U0=window.uval;                    /* 原版 uval（Add-on 內部一律用這個讀名冊欄位） */
 /* lsGet / lsSet：繞過我們自己的 hook，直接讀寫真正的 localStorage */
 function lsGet(k){try{return rawGet.call(window.localStorage,k)}catch(e){return null}}
@@ -11702,7 +11708,12 @@ const CFG={
   KPF:30,            /* 自動推進：每層要擊敗幾隻才前進 */
   EFF_OK:.9,         /* 安全度達到這個值才算「穩定」，可自動推進 */
   TAL_MAX:20,        /* 天賦每個節點最高等級 */
-  TAL_G:1.38,        /* 天賦升級價格成長倍率 */
+  TAL_G:1.27,        /* 天賦升級價格成長倍率（越小越平緩） */
+  TAL_CAP0:8,        /* 天賦等級上限：還沒轉生時 */
+  TAL_CAPN:3,        /* 每轉生一次，上限增加幾級（最高到 TAL_MAX） */
+  DEX_TIERS:[10,100,800,4000], /* 怪物圖鑑：每一階需要擊敗幾隻 */
+  DEX_BONUS:.0025,   /* 圖鑑每升一階，掛機冥晶收益 +0.25% */
+  ZONE_BONUS:.005,   /* 每領取一個區域獎勵，掛機冥晶收益 +0.5% */
   MIG_MING:"sum",    /* 舊資料遷移時冥晶的合併方式："sum" 加總、"max" 取最大值 */
   RB_DIV:2500,       /* 轉生印記 ＝ floor(sqrt(本輪累計冥晶 ÷ 這個數字)) */
   RB_MIN_FLOOR:20,   /* 轉生前，至少要有一位勇者通關這麼多層 */
@@ -11777,6 +11788,13 @@ const ACH=[
   {id:"s2",n:"兩週常駐",d:"累計簽到 14 天",g:()=>A.streak.tot,t:14,m:3},
   {id:"s3",n:"營地老鳥",d:"累計簽到 60 天",g:()=>A.streak.tot,t:60,m:6},
   {id:"q1",n:"勤奮的人",d:"完成 10 個每日挑戰",g:()=>A.stat.quests,t:10,m:2},
+  {id:"d1",n:"初識怪物",d:"圖鑑發現 5 種怪物",g:()=>dexSeen(),t:5,m:1},
+  {id:"d2",n:"圖鑑達人",d:"圖鑑累積 40 階",g:()=>dexTiers(),t:40,m:3},
+  {id:"d3",n:"博物學家",d:"圖鑑累積 100 階",g:()=>dexTiers(),t:100,m:6},
+  {id:"d4",n:"圖鑑大師",d:"圖鑑全部 120 階集滿",g:()=>dexTiers(),t:120,m:10},
+  {id:"z1",n:"旅行者",d:"領取 5 個區域獎勵",g:()=>zoneCount(),t:5,m:2},
+  {id:"z2",n:"環遊世界",d:"領取 10 個區域獎勵",g:()=>zoneCount(),t:10,m:5},
+  {id:"z3",n:"走遍天下",d:"領取全部 14 個區域獎勵",g:()=>zoneCount(),t:14,m:8},
   {id:"v1",n:"奇遇不斷",d:"遇到 10 次營地奇遇",g:()=>A.stat.events,t:10,m:1},
   {id:"v2",n:"福星高照",d:"遇到 100 次營地奇遇",g:()=>A.stat.events,t:100,m:4},
   {id:"a1",n:"交給系統",d:"自動決策累計 100 次",g:()=>A.stat.decisions,t:100,m:2},
@@ -11808,6 +11826,8 @@ function defA(){return{v:1,bank:null,ks:[],myth:{},codex:null,daily:0,ghostS:0,u
   auto:{on:false,bless:"smart",full:"pom",door:"growth",ks:"smart",myth:"smart",triumph:"go",other:true,tips:false},
   stat:{offlineN:0,offlineMing:0,decisions:0,offMax:0,quests:0,events:0},
   ev:{next:0,buffUntil:0,log:[]},
+  dex:{},
+  zone:{c:{}},
   seen:{guide:0},
   ach:{u:{},c:{}},
   rb:{n:0,pts:0,tot:0,run:0,perk:{ming:0,disc:0,off:0}},
@@ -11824,6 +11844,8 @@ function normA(o){
   if(!d.ach.u||!d.ach.c)d.ach={u:{},c:{}};
   if(!d.rb.perk)d.rb.perk={ming:0,disc:0,off:0};
   if(!Array.isArray(d.ev.log))d.ev.log=[];
+  if(!d.zone||!d.zone.c)d.zone={c:{}};
+  if(!d.dex||typeof d.dex!=="object")d.dex={};
   d.rb.run=d.rb.run||0;
   return d;
 }
@@ -12116,7 +12138,37 @@ function simulate(H,f0,sec,auto,cap,k0){
   return{ming,kills,floor:f,fk:k,left:stuck?0:Math.max(0,t)};
 }
 /* gm：永久加成倍率（轉生「永恆財運」＋已領取的成就），套用在掛機冥晶收益上 */
-function gm(){return(1+RBP[0].per*A.rb.perk.ming)*(1+CFG.ACH_BONUS*achClaimed())}
+function gm(){return(1+RBP[0].per*A.rb.perk.ming)*(1+CFG.ACH_BONUS*achClaimed())*(1+CFG.DEX_BONUS*dexTiers()+CFG.ZONE_BONUS*zoneCount())}
+/* talCap：目前天賦每個節點的等級上限（沒轉生 8 級，每轉生一次 +3，最高 TAL_MAX） */
+function talCap(){return Math.min(CFG.TAL_MAX,CFG.TAL_CAP0+CFG.TAL_CAPN*A.rb.n)}
+/* ============================================================
+   營地收藏：30 種怪物（原頁現成的怪物圖）＋14 個區域
+   ============================================================ */
+const MONS=SHEET1.map((m,i)=>({k:"a"+i,n:m[0],sheet:1,c:m[1],r:m[2]})).concat(SHEET3.map((m,i)=>({k:"b"+i,n:m[0],sheet:3,c:m[1],r:m[2]})));
+/* dexTier：某隻怪物目前的階數（0~4） */
+function dexTier(n){let t=0;CFG.DEX_TIERS.forEach(x=>{if(n>=x)t++});return t}
+function dexSeen(){return MONS.filter(m=>(A.dex[m.k]||0)>0).length}
+function dexTiers(){return MONS.reduce((s,m)=>s+dexTier(A.dex[m.k]||0),0)}
+function zoneCount(){return Object.keys(A.zone.c).length}
+/* dexAdd：掛機擊敗怪物時，把擊殺數平均分給這個樓層會出現的怪物（60 層以下是草原系，60 層以上是遠方系） */
+function dexAdd(floor,kills){
+  kills=Math.floor(kills);if(!(kills>0))return;
+  const pool=MONS.filter(m=>m.sheet===(floor>=60?3:1)),per=Math.floor(kills/pool.length);
+  let rem=kills-per*pool.length;
+  pool.forEach(m=>{A.dex[m.k]=(A.dex[m.k]||0)+per});
+  while(rem-->0){const m=pool[Math.floor(Math.random()*pool.length)];A.dex[m.k]=(A.dex[m.k]||0)+1}
+  touchA(true);
+}
+/* zoneReady：已經到達、還沒領獎的區域（第 i 個區域要通關 i×50 層才算到達） */
+const zoneReady=()=>ZONES.map((z,i)=>i).filter(i=>!A.zone.c[i]&&maxBest()>=i*50);
+const zoneReward=i=>Math.max(500,Math.round(baseReward()*(1+i*.35)));
+/* claimZone：領區域獎勵（冥晶＋永久小幅加成） */
+function claimZone(i){
+  if(battleOpen()||A.zone.c[i]||maxBest()<i*50)return;
+  A.zone.c[i]=1;const r=zoneReward(i);addMing(r);touchA();checkAch();sOk();
+  toast("🗺️ 抵達「"+ZONES[i]+"」：💠 "+fm(r)+"（收益永久 +"+pc(CFG.ZONE_BONUS)+"）",2400);
+  refreshEntry();renderCamp(false);
+}
 /* offMul：離線倍率（含轉生「淺眠營火」） */
 function offMul(){return CFG.OFF_MUL*(1+RBP[2].per*A.rb.perk.off)}
 /* talCost：天賦升級價格（含轉生「精打細算」折扣） */
@@ -12129,8 +12181,8 @@ function maxBest(){const n=Date.now();if(n-_mbT>1000){_mbT=n;_mb=0;allUsers().fo
 /* nextGoal：一句話告訴玩家「接下來可以做什麼」（最便宜的未滿天賦；extra＝還沒入帳的冥晶） */
 function nextGoal(extra){
   const have=bankMing()+(extra||0);let best=null;
-  TAL.forEach(t=>{const lv=A.tal[t.k];if(lv>=CFG.TAL_MAX)return;const c=talCost(t,lv);if(!best||c<best.c)best={t:t,c:c}});
-  if(!best)return"天賦全部滿級，可以考慮轉生";
+  TAL.forEach(t=>{const lv=A.tal[t.k];if(lv>=talCap())return;const c=talCost(t,lv);if(!best||c<best.c)best={t:t,c:c}});
+  if(!best)return A.rb.n>=4?"天賦全部滿級":"天賦已達目前上限，可以考慮轉生";
   return have>=best.c?"可以升級「"+best.t.n+"」（💠 "+fm(best.c)+"）":"「"+best.t.n+"」還差 💠 "+fm(best.c-have)+" 可以升級";
 }
 /* 營地稱號與等級（用累計掛機冥晶決定） */
@@ -12187,7 +12239,7 @@ function onlineSettle(hero,dt){
   const f0=I.floor,r=simulate(H,I.floor,Math.min(dt,CFG.OFF_MIN)+I.prog,I.auto,cap,I.fk);
   I.prog=r.left;I.floor=r.floor;I.fk=r.fk;
   const w=gain(r.ming*buffMul(),r.kills);
-  if(r.kills>0)rollEvent(calcFloor(H,r.floor));
+  if(r.kills>0){rollEvent(calcFloor(H,r.floor));dexAdd(r.floor,r.kills)}
   if(UI.open&&UI.tab==="camp")scenePulse(w,r.kills,r.floor!==f0);
 }
 /* buffMul：泉水加成倍率（沒有加成時是 1） */
@@ -12218,8 +12270,8 @@ function rollEvent(c){
 function evHtml(){
   const left=Math.max(0,Math.ceil((A.ev.buffUntil-Date.now())/1000));
   return'<div class="cx-sec">營地日誌<small>掛機時會隨機遇到奇遇</small></div>'+
-    (left?'<div class="mr-note">⛲ 泉水加成中：收益 ×'+CFG.EV_BUFF_MUL+'，還剩 <b>'+Math.floor(left/60)+':'+String(left%60).padStart(2,"0")+'</b></div>':'')+
-    (A.ev.log.length?'<div class="mr-list">'+A.ev.log.map(t=>'<div class="mr-row"><div class="mr-info"><div class="mr-eff">'+esc(t)+'</div></div></div>').join("")+'</div>':'<div class="cx-empty">還沒有奇遇，繼續掛機看看</div>');
+    (left?'<div class="mr-note">'+gi("CA.spring",22)+' 泉水加成中：收益 ×'+CFG.EV_BUFF_MUL+'，還剩 <b>'+Math.floor(left/60)+':'+String(left%60).padStart(2,"0")+'</b></div>':'')+
+    (A.ev.log.length?'<div class="mr-list">'+A.ev.log.map(t=>'<div class="mr-row">'+(t.indexOf("🎁")===0?'<div class="mr-ic">'+gi("CA.chest",34)+'</div>':t.indexOf("⛲")===0?'<div class="mr-ic">'+gi("CA.spring",34)+'</div>':'')+'<div class="mr-info"><div class="mr-eff">'+esc(t)+'</div></div></div>').join("")+'</div>':'<div class="cx-empty">還沒有奇遇，繼續掛機看看</div>');
 }
 /* offlineSettle：離線結算（至少 5 分鐘、最多 12 小時，收益打折，只給冥晶與樓層推進）。
    結果先放進待領取（A.off），玩家按「領取」才入帳。 */
@@ -12229,7 +12281,7 @@ function offlineSettle(hero,dt){
   I.floor=Math.min(Math.max(1,I.floor),cap);
   const f0=I.floor,r=simulate(H,I.floor,sec,I.auto,cap,I.fk);
   const o=A.off||{sec:0,ming:0,kills:0,f0:f0,f1:f0};
-  o.sec+=sec;o.ming+=r.ming*offMul();o.kills+=r.kills;o.f1=r.floor;
+  o.sec+=sec;o.ming+=r.ming*offMul();o.kills+=r.kills;o.f1=r.floor;dexAdd(r.floor,Math.round(r.kills*offMul()));
   A.off=o;I.floor=r.floor;I.fk=r.fk;I.prog=0;UI.offShown=false;touchA();
 }
 /* claimOffline：領取離線收益 */
@@ -12302,7 +12354,7 @@ function loginInfo(){
 const hasClaim=()=>{
   if(A.off)return true;
   if(loginInfo().can)return true;
-  if(achReady().length)return true;
+  if(achReady().length||zoneReady().length)return true;
   return questList().some(q=>q.cur>=q.max&&!A.day.claimed[q.id]);
 };
 function claimQuest(id){
@@ -12610,7 +12662,7 @@ const GUIDE=[
   ["🏕️ 歡迎來到放置營地","勇者會自動在「已通關的樓層」打怪賺冥晶 💠，不會遇到神話 BOSS。你離開時也會繼續，離線最多算 12 小時。"],
   ["⚔️ 掛機層與挑戰層","掛機層只能選已通關的樓層，賺的是穩定的冥晶。要突破歷史最高層，請按「前往挑戰層」手動去打。"],
   ["🌟 天賦與轉生","用冥晶升級天賦，掛機會更快。累積夠多之後可以轉生，天賦歸零換成永久加成。"],
-  ["🏆 成就、每日與奇遇","每天簽到、完成每日挑戰、解鎖成就都能領冥晶，成就還會永久提升收益。掛機時也會隨機遇到寶箱和泉水。"]
+  ["🏆 成就、每日與奇遇","每天簽到、完成每日挑戰、解鎖成就都能領冥晶，成就還會永久提升收益。掛機時也會隨機遇到寶箱和泉水，擊敗的怪物會記進收藏。"]
 ];
 function showGuide(step){
   step=step||0;const old=$("icGuide");if(old)old.remove();
@@ -12636,18 +12688,19 @@ function closeCamp(){
 /* tabsHtml：營地上方的分頁列 */
 /* tabOpen：分頁是否已解鎖（新手先只看到營地、天賦、每日、資料，其他達到條件才出現） */
 function tabOpen(k){
+  if(k==="dex")return A.idle.kills>=20||dexSeen()>0;
   if(k==="ach")return A.idle.kills>=30||Object.keys(A.ach.u).length>0;
   if(k==="auto")return maxBest()>=5||A.auto.on||A.stat.decisions>0;
   return true;
 }
 /* checkTabs：新分頁解鎖時提示一次 */
 function checkTabs(){
-  [["ach","成就"],["auto","自動決策"]].forEach(t=>{
+  [["dex","收藏"],["ach","成就"],["auto","自動決策"]].forEach(t=>{
     if(tabOpen(t[0])&&!A.seen["t_"+t[0]]){A.seen["t_"+t[0]]=1;touchA();if(A.seen.guide)toast("🔓 解鎖新分頁：「"+t[1]+"」",2600)}
   });
 }
 function tabsHtml(){
-  const T=[["camp","營地","S1.challenge",!!A.off],["tal","天賦","S7.core",false],["auto","自動","S1.auto",false],["ach","成就","S9.rank",achReady().length>0],["daily","每日","S9.daily",loginInfo().can||questList().some(q=>q.cur>=q.max&&!A.day.claimed[q.id])],["info","資料","S1.settings",false]];
+  const T=[["camp","營地","CB.tent",!!A.off],["tal","天賦","CB.tree",false],["auto","自動","CB.robot",false],["dex","收藏","CB.book",zoneReady().length>0],["ach","成就","CB.trophy",achReady().length>0],["daily","每日","CB.scroll",loginInfo().can||questList().some(q=>q.cur>=q.max&&!A.day.claimed[q.id])],["info","資料","S1.settings",false]];
   return T.filter(t=>tabOpen(t[0])).map(t=>'<button role="tab" type="button" data-ict="'+t[0]+'" aria-selected="'+(t[0]===UI.tab)+'" class="'+(t[0]===UI.tab?'on':'')+'">'+(t[3]?'<i class="cx-tdot"></i>':'')+gi(t[2],22)+'<span>'+t[1]+'</span></button>').join("");
 }
 /* renderCamp：重畫整個營地（top＝捲回頂端） */
@@ -12656,9 +12709,9 @@ function renderCamp(top){
   if(!tabOpen(UI.tab))UI.tab="camp";
   const box=ov.querySelector(".cx-box"),old=box.querySelector(".cx-body"),st=(!top&&old)?old.scrollTop:0;
   let body="";
-  try{body=UI.tab==="tal"?talTab():UI.tab==="ach"?achTab():UI.tab==="auto"?autoTab():UI.tab==="daily"?dailyTab():UI.tab==="info"?infoTab():campTab()}
+  try{body=UI.tab==="tal"?talTab():UI.tab==="dex"?dexTab():UI.tab==="ach"?achTab():UI.tab==="auto"?autoTab():UI.tab==="daily"?dailyTab():UI.tab==="info"?infoTab():campTab()}
   catch(e){body='<div class="cx-empty">畫面載入失敗：'+esc(e.message)+'</div>';console.warn("[idle-addon]",e)}
-  box.innerHTML='<div class="cx-head"><div class="cx-hb">'+gi("S1.challenge",30)+'<b>放 置 營 地</b><span id="icBank">💠 '+fm(bankMing())+'</span><button class="mr-x" data-ic="close" aria-label="關閉營地">✕</button></div><div class="cx-tabs" role="tablist">'+tabsHtml()+'</div></div><div class="cx-body" role="tabpanel">'+body+'</div>';
+  box.innerHTML='<div class="cx-head"><div class="cx-hb">'+gi("CB.tent",32)+'<b>放 置 營 地</b><span id="icBank">💠 '+fm(bankMing())+'</span><button class="mr-x" data-ic="close" aria-label="關閉營地">✕</button></div><div class="cx-tabs" role="tablist">'+tabsHtml()+'</div></div><div class="cx-body" role="tabpanel">'+body+'</div>';
   box.querySelector(".cx-body").scrollTop=st;
   if(UI.tab==="camp")sceneInit();
 }
@@ -12683,7 +12736,7 @@ function campTab(){
   const c=calcFloor(H,I.floor),ti=campTitle(I.earned),lv=campLevel(I.earned),ofs=A.off;
   let h='<div class="cx-top"><div class="cx-ring" style="--p:'+(lv.p*100).toFixed(1)+'"><div><b>Lv.'+lv.lv+'</b><small>營地</small></div></div>'+
     '<div class="cx-ti">'+gi(ti[2],56)+'<b style="color:'+ti[3]+'">'+ti[1]+'</b><small>累計掛機 💠 '+fm(I.earned)+'・擊敗 '+fm(I.kills)+' 隻</small></div></div>';
-  if(ofs)h+='<button type="button" class="cx-bonus" data-ic="off-open" style="margin-top:10px">'+gi("S9.daily",34)+'<span><b>離線收益可以領取</b><small>💠 '+fm(ofs.ming)+'（離線 '+Math.floor(ofs.sec/3600)+' 小時 '+Math.floor(ofs.sec%3600/60)+' 分）</small></span><i>›</i></button>';
+  if(ofs)h+='<button type="button" class="cx-bonus" data-ic="off-open" style="margin-top:10px">'+gi("CB.hourglass",34)+'<span><b>離線收益可以領取</b><small>💠 '+fm(ofs.ming)+'（離線 '+Math.floor(ofs.sec/3600)+' 小時 '+Math.floor(ofs.sec%3600/60)+' 分）</small></span><i>›</i></button>';
   const av=avatarFor(hero),m0=monStyle(I.floor,0);
   h+='<div class="cx-sec">掛機中<small>'+esc(H.name)+'　Lv.'+H.lv+'</small></div>'+
     '<div class="bt-field" id="icField"><div class="bt-fighter p" id="icP"><div class="bt-av"><div class="bt-pav" style="background-image:url(\''+av.url+'\');transform:translate('+av.offX+'%,'+av.offY+'%) scale('+av.scale+')"></div></div>'+
@@ -12709,11 +12762,12 @@ function talTab(){
   let h='<div class="mr-note"><b>輪迴天賦</b>：用冥晶升級 5 個節點，每級效果很小，但會一直累積。加成對「掛機營地」全額生效，對「無盡挑戰」見每個節點的說明。</div>'+
     '<div class="bt-set-row">'+[[1,"×1"],[5,"×5"],[99,"MAX"]].map(x=>'<button type="button" class="bt-set-opt'+(n===x[0]?' on':'')+'" data-ic="buyn" data-v="'+x[0]+'">'+x[1]+'</button>').join("")+'</div>'+
     '<div class="mr-list" style="margin-top:10px">'+TAL.map(t=>{
-      const lv=A.tal[t.k],full=lv>=CFG.TAL_MAX,cost=talCost(t,lv),ok=bankMing()>=cost;
-      return'<div class="mr-row"><div class="mr-ic">'+gi(t.ic,34)+'</div><div class="mr-info"><div class="mr-name">'+t.n+' <em>Lv.'+lv+' / '+CFG.TAL_MAX+'</em></div>'+
+      const lv=A.tal[t.k],full=lv>=CFG.TAL_MAX,capped=!full&&lv>=talCap(),cost=talCost(t,lv),ok=bankMing()>=cost;
+      return'<div class="mr-row"><div class="mr-ic">'+gi(t.ic,34)+'</div><div class="mr-info"><div class="mr-name">'+t.n+' <em>Lv.'+lv+' / '+talCap()+'</em></div>'+
         '<div class="mr-eff">'+t.d+' <b>+'+pc(t.per*lv)+'</b>'+(full?'':' → +'+pc(t.per*(lv+1)))+'</div><div class="mr-eff" style="color:#8ba0bd">'+t.b+'</div></div>'+
-        (full?'<span class="mr-full">已滿</span>':'<button type="button" class="mr-buy'+(ok?' ok':'')+'" data-ic="tal" data-v="'+t.k+'">💠 '+fm(cost)+'</button>')+'</div>';
+        (full?'<span class="mr-full">已滿</span>':capped?'<span class="mr-full">需轉生</span>':'<button type="button" class="mr-buy'+(ok?' ok':'')+'" data-ic="tal" data-v="'+t.k+'">💠 '+fm(cost)+'</button>')+'</div>';
     }).join("")+'</div>'+
+    '<div class="ic-note">目前每個節點上限 <b>'+talCap()+'</b> 級，每轉生一次提高 '+CFG.TAL_CAPN+' 級（最高 '+CFG.TAL_MAX+'）。</div>'+
     '<div class="ic-note">'+(bridge?'✅ 已偵測到橋接：「力量／體魄」也會套用在無盡挑戰。':'「力量／體魄」在無盡挑戰裡需要橋接才會生效（見說明）；「迅捷／幸運／財運」已透過假日、幸運欄位自動生效。')+'</div>';
   return h+rbSection();
 }
@@ -12734,16 +12788,47 @@ function rbSection(){
     '<div class="ic-note">'+(can?'轉生會讓天賦歸零，建議等印記夠買下一級永久加成再轉。':'條件：本輪累計掛機 💠 '+fm(CFG.RB_DIV)+' 以上（至少 1 個印記），且有勇者通關 '+CFG.RB_MIN_FLOOR+' 層。')+'</div>';
   return h;
 }
+/* monCss：某隻怪物在圖集裡的圖片樣式（和營地場景同一套位置修正） */
+function monCss(m){
+  const pr=MONP[m.sheet+"-"+m.r+"-"+m.c]||[100,0,0];
+  return"background-image:url('"+SPR[m.sheet]+"');background-size:500% 300%;background-position:"+(m.c*25)+"% "+(m.r*50)+"%;transform:translate("+pr[1]+"%,"+pr[2]+"%) scale("+(pr[0]/100)+")";
+}
+/* dexTile：圖鑑裡的一格（沒擊敗過是黑影，顯示擊殺數與目前階數） */
+function dexTile(m){
+  const n=A.dex[m.k]||0,t=dexTier(n),T=CFG.DEX_TIERS,nx=T[t];
+  return'<div style="padding:8px 4px;border:1px solid rgba(201,165,92,.35);border-radius:10px;background:rgba(255,255,255,.03);text-align:center">'+
+    '<div style="width:60px;height:60px;margin:0 auto;overflow:hidden;position:relative"><div style="position:absolute;inset:0;'+monCss(m)+(n?'':';filter:brightness(0) opacity(.45)')+'"></div></div>'+
+    '<div style="font:700 11px \'Noto Sans TC\',sans-serif;margin-top:4px;color:'+(n?'#e8d18f':'#4a5a72')+'">'+(n?esc(m.n):'？？？')+'</div>'+
+    '<div style="font:10px \'JetBrains Mono\',monospace;color:#8ba0bd">'+fm(n)+(nx?' / '+fm(nx):' ✓')+'</div>'+
+    '<div style="font-size:10px;color:#ffd54a;letter-spacing:2px">'+T.map((x,i)=>i<t?"●":"○").join("")+'</div></div>';
+}
+/* dexTab：圖鑑分頁（怪物圖鑑＋區域探索） */
+function dexTab(){
+  const total=MONS.length*CFG.DEX_TIERS.length,tiers=dexTiers(),zr=zoneReady();
+  const grid=sheet=>'<div style="display:grid;grid-template-columns:repeat(3,1fr);gap:8px">'+MONS.filter(m=>m.sheet===sheet).map(dexTile).join("")+'</div>';
+  let h='<div class="cx-top"><div class="cx-ring" style="--p:'+(tiers/total*100).toFixed(1)+'"><div><b>'+tiers+'</b><small>/ '+total+'</small></div></div>'+
+    '<div class="cx-ti">'+gi("CB.book",56)+'<b style="color:#ffd54a">營地收藏</b><small>發現 '+dexSeen()+' / '+MONS.length+' 種・區域 '+zoneCount()+' / '+ZONES.length+'</small><small>收益永久 +'+pc(CFG.DEX_BONUS*tiers+CFG.ZONE_BONUS*zoneCount())+'</small></div></div>'+
+    '<div class="ic-note">掛機時擊敗怪物，會依樓層記進圖鑑：<b>60 層以下</b>是草原系，<b>60 層以上</b>是遠方系。每隻擊敗 '+CFG.DEX_TIERS.map(fm).join(" / ")+' 隻各升一階，每階收益 +'+pc(CFG.DEX_BONUS)+'。要收集另一系，就要把掛機層調到對應的樓層。</div>'+
+    '<div class="cx-sec">草原系<small>60 層以下</small></div>'+grid(1)+
+    '<div class="cx-sec">遠方系<small>60 層以上</small></div>'+grid(3)+
+    '<div class="cx-sec">區域探索<small>通關該區的樓層才會解鎖，每區一次獎勵</small></div><div class="mr-list">'+
+    ZONES.map((z,i)=>{
+      const got=A.zone.c[i],ok=maxBest()>=i*50;
+      return'<div class="mr-row"><div class="mr-ic">'+(got||ok?gi("CA.z"+i,40):'<span style="filter:grayscale(1) brightness(.45);display:inline-block">'+gi("CA.z"+i,40)+'</span>')+'</div><div class="mr-info"><div class="mr-name">'+esc(z)+' <em>'+(i*50)+'~'+(i*50+49)+' 層</em></div><div class="mr-eff">'+(got?'已到達':ok?'獎勵 <b>💠 '+fm(zoneReward(i))+'</b>':'通關 '+(i*50)+' 層解鎖')+'</div></div>'+
+        (got?'<span class="mr-full">已領取</span>':ok?'<button type="button" class="mr-buy ok" data-ic="zone" data-v="'+i+'">領取</button>':'<button type="button" class="mr-buy" disabled>未到達</button>')+'</div>';
+    }).join("")+'</div>';
+  return h;
+}
 /* achTab：成就清單 */
 function achTab(){
   const total=ACH.length,got=Object.keys(A.ach.u).length,cl=achClaimed(),rd=achReady();
   let h='<div class="cx-top"><div class="cx-ring" style="--p:'+(cl/total*100).toFixed(1)+'"><div><b>'+cl+'</b><small>/ '+total+'</small></div></div>'+
-    '<div class="cx-ti">'+gi("S9.rank",56)+'<b style="color:#ffd54a">成就</b><small>已達成 '+got+'・已領取 '+cl+'・收益永久 +'+pc(CFG.ACH_BONUS*cl)+'</small></div></div>';
-  if(rd.length)h+='<button type="button" class="cx-bonus" data-ic="achall" style="margin-top:10px">'+gi("S9.daily",34)+'<span><b>有 '+rd.length+' 個成就可以領取</b><small>💠 '+fm(rd.reduce((s,a)=>s+achReward(a),0))+'</small></span><i>›</i></button>';
+    '<div class="cx-ti">'+gi("CB.trophy",56)+'<b style="color:#ffd54a">成就</b><small>已達成 '+got+'・已領取 '+cl+'・收益永久 +'+pc(CFG.ACH_BONUS*cl)+'</small></div></div>';
+  if(rd.length)h+='<button type="button" class="cx-bonus" data-ic="achall" style="margin-top:10px">'+gi("CB.coin",34)+'<span><b>有 '+rd.length+' 個成就可以領取</b><small>💠 '+fm(rd.reduce((s,a)=>s+achReward(a),0))+'</small></span><i>›</i></button>';
   const ord=ACH.slice().sort((x,y)=>{const r=a=>A.ach.c[a.id]?2:A.ach.u[a.id]?0:1;return r(x)-r(y)});
   h+='<div class="mr-list" style="margin-top:10px">'+ord.map(a=>{
     const u=A.ach.u[a.id],c=A.ach.c[a.id],p=achProg(a);
-    return'<div class="mr-row"'+(c?' style="opacity:.6"':'')+'><div class="mr-ic">'+gi("S9.rank",34)+'</div><div class="mr-info"><div class="mr-name">'+esc(a.n)+'</div><div class="mr-eff">'+esc(a.d)+(u?'':'　<em>'+fm(p[0])+' / '+fm(p[1])+'</em>')+'</div></div>'+
+    return'<div class="mr-row"'+(c?' style="opacity:.6"':'')+'><div class="mr-ic">'+gi("CB.trophy",34)+'</div><div class="mr-info"><div class="mr-name">'+esc(a.n)+'</div><div class="mr-eff">'+esc(a.d)+(u?'':'　<em>'+fm(p[0])+' / '+fm(p[1])+'</em>')+'</div></div>'+
       (c?'<span class="mr-full">已領取</span>':u?'<button type="button" class="mr-buy ok" data-ic="ach" data-v="'+a.id+'">💠 '+fm(achReward(a))+'</button>':'<button type="button" class="mr-buy" disabled>未達成</button>')+'</div>';
   }).join("")+'</div><div class="ic-note">每領取一個成就，掛機冥晶收益永久 <b>+'+pc(CFG.ACH_BONUS)+'</b>。</div>';
   return h;
@@ -12768,12 +12853,12 @@ function autoTab(){
 function dailyTab(){
   const L=loginInfo(),Q=questList(),S=A.streak;
   let h='<div class="cx-sub">每天都有新的簽到與三個挑戰，獎勵會跟著你目前的掛機實力成長。</div>'+
-    '<div class="mr-list"><div class="mr-row"><div class="mr-ic">'+gi("S9.daily",34)+'</div><div class="mr-info"><div class="mr-name">每日簽到 <em>連續 '+(L.can?L.n-1:S.n)+' 天</em></div><div class="mr-eff">'+(L.can?'今天的獎勵 💠 '+fm(L.rw)+'（連續越久越多，最多 7 天）':'今天已簽到，明天再來')+'</div></div>'+
+    '<div class="mr-list"><div class="mr-row"><div class="mr-ic">'+gi("CB.scroll",34)+'</div><div class="mr-info"><div class="mr-name">每日簽到 <em>連續 '+(L.can?L.n-1:S.n)+' 天</em></div><div class="mr-eff">'+(L.can?'今天的獎勵 💠 '+fm(L.rw)+'（連續越久越多，最多 7 天）':'今天已簽到，明天再來')+'</div></div>'+
     (L.can?'<button type="button" class="mr-buy ok" data-ic="login">簽到</button>':'<span class="mr-full">已簽到</span>')+'</div></div>'+
     '<div class="cx-sec">今日挑戰<small>每天 0 點重置</small></div><div class="mr-list">'+
     Q.map(q=>{
       const done=q.cur>=q.max,cl=A.day.claimed[q.id];
-      return'<div class="mr-row"><div class="mr-ic">'+gi("S9.rank",34)+'</div><div class="mr-info"><div class="mr-name">'+q.n+'</div><div class="mr-eff">進度 '+fm(Math.min(q.cur,q.max))+' / '+fm(q.max)+'　獎勵 <b>💠 '+fm(q.rw)+'</b></div></div>'+
+      return'<div class="mr-row"><div class="mr-ic">'+gi("CB.scroll",34)+'</div><div class="mr-info"><div class="mr-name">'+q.n+'</div><div class="mr-eff">進度 '+fm(Math.min(q.cur,q.max))+' / '+fm(q.max)+'　獎勵 <b>💠 '+fm(q.rw)+'</b></div></div>'+
         (cl?'<span class="mr-full">已領取</span>':done?'<button type="button" class="mr-buy ok" data-ic="claim" data-v="'+q.id+'">領取</button>':'<button type="button" class="mr-buy" disabled>未完成</button>')+'</div>';
     }).join("")+'</div>'+
     '<div class="ic-note">原版「每天第一次抵達第 50 層」的獎勵，現在整支手機每天共用一次。</div>';
@@ -12783,7 +12868,7 @@ function dailyTab(){
 function infoTab(){
   const myth=Object.keys(A.myth).filter(k=>A.myth[k]>0).length,cx=A.codex,mir=A.bank?Object.keys(A.bank.mir||{}).reduce((s,k)=>s+(A.bank.mir[k]||0),0):0;
   const cxn=cx?["m","a","bl","du","lg","so"].reduce((s,k)=>s+Object.keys(cx[k]||{}).length,0):0;
-  const rows=[["冥晶",fm(bankMing())],["魔鏡等級合計",mir],["解鎖信物",A.ks.length+" 種"],["收錄神話 BOSS",myth+" 位"],["圖鑑項目",cxn],["離線領取",A.stat.offlineN+" 次"],["營地奇遇",A.stat.events+" 次"],["轉生次數",A.rb.n+" 次"],["成就",achClaimed()+" / "+ACH.length]];
+  const rows=[["冥晶",fm(bankMing())],["魔鏡等級合計",mir],["解鎖信物",A.ks.length+" 種"],["收錄神話 BOSS",myth+" 位"],["圖鑑項目",cxn],["離線領取",A.stat.offlineN+" 次"],["營地奇遇",A.stat.events+" 次"],["收藏階數",dexTiers()+" / "+(MONS.length*CFG.DEX_TIERS.length)],["區域",zoneCount()+" / "+ZONES.length],["轉生次數",A.rb.n+" 次"],["成就",achClaimed()+" / "+ACH.length]];
   return'<div class="cx-sub">這些資料現在整支手機共用一份，換勇者也不會歸零。勇者各自的資料（最高樓層、最高單擊、接關存檔）維持不變。</div>'+
     '<div class="cx-grid">'+rows.map(x=>'<div><small>'+x[0]+'</small><b>'+x[1]+'</b></div>').join("")+'</div>'+
     grp("🗂️ 資料遷移",'<div class="st-row"><span>合併時間<small>'+(A.mig?new Date(A.mig.t).toLocaleString("zh-TW",{hour12:false})+'・合併 '+A.mig.n+' 位勇者的資料':'尚未遷移')+'</small></span></div><div class="st-row"><span>舊資料備援<small>舊的各勇者資料原封不動留在手機裡，不會被改寫</small></span></div>')+
@@ -12820,6 +12905,7 @@ function campClick(e){
   if(k==="bk-out"){exportBackup();return}
   if(k==="bk-in"){importBackup();return}
   if(k==="guide"){showGuide(0);return}
+  if(k==="zone"){claimZone(+v);return}
   if(k==="claim"){claimQuest(v);return}
   if(k==="ach"){claimAch(v);return}
   if(k==="achall"){claimAllAch();return}
@@ -12871,12 +12957,12 @@ function buyTal(k){
   if(battleOpen()){toast("先離開無盡挑戰再升級天賦",1800);return}
   const t=TAL.find(x=>x.k===k);if(!t)return;
   let n=UI.buyN||1,bought=0;
-  while(n>0&&A.tal[k]<CFG.TAL_MAX){
+  while(n>0&&A.tal[k]<talCap()){
     const cost=talCost(t,A.tal[k]);
     if(!spendMing(cost))break;
     A.tal[k]++;bought++;n--;
   }
-  if(bought){sOk();touchA();renderCamp(false)}else{toast("冥晶不足",1200);renderCamp(false)}
+  if(bought){sOk();touchA();renderCamp(false)}else{toast(A.tal[k]>=talCap()?"已達目前上限，轉生可提高上限":"冥晶不足",1600);renderCamp(false)}
 }
 /* goChallenge：一鍵前往挑戰層（切到該勇者的個人頁並按下「無盡挑戰」） */
 function goChallenge(uid){
@@ -12894,7 +12980,7 @@ function injectEntry(){
   if($("icEntry"))return;
   const anchor=$("rkEntry")||document.querySelector("#page-roster .roster-head");if(!anchor)return;
   const b=document.createElement("button");b.type="button";b.id="icEntry";b.className="rk-entry ic-entry";
-  b.innerHTML=gi("S1.challenge",36)+'<span><b>放置營地</b><small id="icEntrySub">掛機賺冥晶・天賦・轉生・成就</small></span><em>›</em>';
+  b.innerHTML=gi("CB.tent",38)+'<span><b>放置營地</b><small id="icEntrySub">掛機賺冥晶・天賦・轉生・成就</small></span><em>›</em>';
   b.onclick=()=>{sTap();openCamp()};
   anchor.insertAdjacentElement("afterend",b);
 }
