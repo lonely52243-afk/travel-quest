@@ -4,11 +4,17 @@
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
 <meta name="theme-color" content="#F8FAFC">
+<meta name="mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-status-bar-style" content="default">
+<meta name="apple-mobile-web-app-title" content="一路">
 <title>一路 · 交通查詢</title>
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&family=Noto+Sans+TC:wght@400;500;700;900&display=swap" rel="stylesheet">
 <script src="https://unpkg.com/lucide@0.460.0/dist/umd/lucide.min.js"></script>
+<link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css">
+<script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"></script>
 <style>
 * { box-sizing: border-box; margin: 0; padding: 0; -webkit-tap-highlight-color: transparent; }
 [hidden] { display: none !important; }
@@ -91,6 +97,8 @@ button { cursor: pointer; border: none; background: none; }
 a { color: inherit; }
 svg.lucide { width: 18px; height: 18px; flex-shrink: 0; }
 .num { font-variant-numeric: tabular-nums; font-feature-settings: "tnum"; }
+:focus-visible { outline: 2px solid var(--primary); outline-offset: 2px; }
+.input:focus-visible, .station-select:focus-visible, .county-select:focus-visible, .dt-input:focus-visible { outline: none; }
 
 /* ========== 頂部 ========== */
 .topbar {
@@ -105,6 +113,7 @@ svg.lucide { width: 18px; height: 18px; flex-shrink: 0; }
   padding: 12px 16px; padding-top: max(12px, env(safe-area-inset-top));
   display: flex; align-items: center; justify-content: space-between; gap: 12px;
 }
+.top-actions { display: flex; align-items: center; gap: 8px; }
 .brand { display: flex; align-items: center; gap: 10px; }
 .brand-mark {
   width: 36px; height: 36px; border-radius: 11px;
@@ -126,9 +135,18 @@ svg.lucide { width: 18px; height: 18px; flex-shrink: 0; }
 .icon-btn:active { transform: scale(.94); }
 .icon-btn.on { color: var(--primary-ink); background: var(--primary-soft); border-color: transparent; }
 .icon-btn.on svg { fill: currentColor; }
+.icon-btn.spin svg { animation: spin .8s linear infinite; }
+
+.offline {
+  max-width: 1120px; margin: 10px auto 0; padding: 10px 14px;
+  width: calc(100% - 32px);
+  display: flex; align-items: center; gap: 8px; justify-content: center;
+  border-radius: 14px; background: var(--warn-soft); color: var(--warn);
+  font-size: 14px; font-weight: 600;
+}
 
 /* ========== 版面 ========== */
-.main { max-width: 1120px; margin: 0 auto; padding: 16px 16px 64px; }
+.main { max-width: 1120px; margin: 0 auto; padding: 16px 16px 64px; padding-bottom: max(64px, env(safe-area-inset-bottom)); }
 .layout { display: grid; grid-template-columns: 1fr; gap: 16px; align-items: start; }
 .left, .right { min-width: 0; display: flex; flex-direction: column; gap: 16px; }
 @media (min-width: 1024px) {
@@ -139,12 +157,12 @@ svg.lucide { width: 18px; height: 18px; flex-shrink: 0; }
 
 /* ========== 膠囊 Tab ========== */
 .seg {
-  position: relative; display: grid; grid-template-columns: repeat(3, 1fr);
+  position: relative; display: grid; grid-template-columns: repeat(2, 1fr);
   padding: 4px; background: var(--seg-bg); border-radius: 999px;
 }
 .seg-thumb {
   position: absolute; top: 4px; bottom: 4px; left: 4px;
-  width: calc((100% - 8px) / 3);
+  width: calc((100% - 8px) / 2);
   border-radius: 999px; background: var(--seg-thumb); box-shadow: var(--shadow-sm);
   transform: translateX(calc(var(--i, 0) * 100%));
   transition: transform .35s cubic-bezier(.3,.7,.2,1);
@@ -312,7 +330,7 @@ svg.lucide { width: 18px; height: 18px; flex-shrink: 0; }
 .input-wrap { position: relative; }
 .input-wrap > svg.lucide { position: absolute; left: 14px; top: 50%; transform: translateY(-50%); color: var(--text-3); pointer-events: none; transition: color .2s; }
 .input {
-  width: 100%; height: 52px; padding: 0 16px 0 44px;
+  width: 100%; height: 52px; padding: 0 56px 0 44px;
   border: 1.5px solid var(--border); border-radius: 16px; background: var(--field);
   font-size: 16px; font-weight: 600; color: var(--text); outline: none;
   transition: border-color .2s, box-shadow .2s;
@@ -320,6 +338,15 @@ svg.lucide { width: 18px; height: 18px; flex-shrink: 0; }
 .input::placeholder { color: var(--text-3); font-weight: 500; }
 .input:focus { border-color: var(--primary); box-shadow: 0 0 0 4px var(--primary-ring); }
 .input-wrap:focus-within > svg.lucide { color: var(--primary-ink); }
+.locate-btn {
+  position: absolute; right: 8px; top: 50%; transform: translateY(-50%);
+  width: 38px; height: 38px; border-radius: 11px;
+  display: flex; align-items: center; justify-content: center;
+  color: var(--primary-ink); background: var(--primary-soft);
+  transition: transform .15s ease;
+}
+.locate-btn:active { transform: translateY(-50%) scale(.92); }
+.locate-btn.busy svg { animation: spin .8s linear infinite; }
 
 /* 按鈕 */
 .btn-row { display: grid; grid-template-columns: 1fr auto; gap: 10px; margin-top: 2px; }
@@ -342,6 +369,7 @@ svg.lucide { width: 18px; height: 18px; flex-shrink: 0; }
 
 /* 最近查詢 / 收藏 */
 .recent { padding: 0 4px; }
+.recent + .recent { margin-top: 14px; }
 .recent-head { display: flex; align-items: center; justify-content: space-between; margin-bottom: 8px; }
 .recent-title { display: flex; align-items: center; gap: 6px; font-size: 13px; font-weight: 700; color: var(--text-2); }
 .recent-title svg.lucide { width: 15px; height: 15px; color: var(--text-3); }
@@ -422,7 +450,16 @@ svg.lucide { width: 18px; height: 18px; flex-shrink: 0; }
 .trip-foot { display: flex; align-items: center; flex-wrap: wrap; gap: 6px; margin-top: 10px; }
 .t-no { font-size: 13px; font-weight: 700; color: var(--text-2); margin-right: 2px; }
 .t-type { font-size: 13px; color: var(--text-3); margin-right: 4px; }
-.t-next-label { margin-left: auto; }
+.foot-end { margin-left: auto; display: flex; align-items: center; gap: 6px; }
+.mini-ico {
+  width: 30px; height: 30px; border-radius: 10px;
+  display: inline-flex; align-items: center; justify-content: center;
+  color: var(--text-2); background: var(--surface);
+  transition: transform .15s ease, color .2s, background .2s;
+}
+.mini-ico svg.lucide { width: 16px; height: 16px; }
+.mini-ico:hover { color: var(--primary-ink); background: var(--primary-soft); }
+.mini-ico:active { transform: scale(.9); }
 .now-line { display: flex; align-items: center; gap: 10px; margin: 2px 0; }
 .now-line::before, .now-line::after { content: ''; flex: 1; height: 1.5px; background: var(--primary); opacity: .45; border-radius: 2px; }
 .now-line span { font-size: 12px; font-weight: 700; color: var(--primary-ink); padding: 3px 10px; border-radius: 999px; background: var(--primary-soft); }
@@ -446,11 +483,60 @@ svg.lucide { width: 18px; height: 18px; flex-shrink: 0; }
 .bar { height: 4px; border-radius: 4px; background: var(--surface-2); margin-top: 8px; overflow: hidden; }
 .bar i { display: block; height: 100%; border-radius: 4px; background: var(--primary); }
 .bar i.low { background: var(--warn); }
+.more-row { display: flex; justify-content: center; margin-top: 14px; }
 
+.panel > .card + .card { margin-top: 16px; }
 .map-card { overflow: hidden; }
-.map-frame { display: block; width: 100%; height: 300px; border: 0; background: var(--surface); }
-.map-body { padding: 18px 20px 20px; }
-.map-actions { display: grid; grid-template-columns: 1fr 1fr; gap: 10px; margin-top: 16px; }
+.map-wrap { position: relative; }
+.map-view { position: relative; z-index: 0; isolation: isolate; width: 100%; height: 340px; background: var(--surface); }
+.map-frame { display: block; width: 100%; height: 340px; border: 0; background: var(--surface); }
+.map-here {
+  position: absolute; top: 12px; left: 50%; transform: translateX(-50%); z-index: 5;
+  height: 36px; padding: 0 16px; border-radius: 999px;
+  display: inline-flex; align-items: center; gap: 6px;
+  background: var(--card); color: var(--primary-ink); border: 1px solid var(--border);
+  font-size: 13px; font-weight: 700; box-shadow: var(--shadow); white-space: nowrap;
+}
+.map-body { padding: 18px 20px 20px; display: flex; flex-direction: column; gap: 12px; }
+.map-body .rh-title { margin-top: 0; }
+.map-addr { font-size: 13px; color: var(--text-3); margin-top: -6px; }
+.map-actions { display: grid; grid-template-columns: 1fr 1fr; gap: 10px; }
+.sec-label { font-size: 12px; font-weight: 700; color: var(--text-3); margin-bottom: -4px; }
+
+/* Leaflet 自訂標記 */
+.leaflet-container { font-family: inherit; }
+:root[data-theme="dark"] .leaflet-tile-pane { filter: invert(1) hue-rotate(180deg) brightness(.95) contrast(.9); }
+.mk-center span { display: block; width: 18px; height: 18px; border-radius: 50%; background: #0EA5E9; border: 3px solid #fff; box-shadow: 0 0 0 6px rgba(14,165,233,.25), 0 2px 8px rgba(0,0,0,.35); }
+.mk-park b { display: flex; align-items: center; justify-content: center; min-width: 30px; height: 26px; padding: 0 8px; border-radius: 13px; color: #fff; font-size: 13px; font-weight: 800; border: 2px solid #fff; box-shadow: 0 2px 8px rgba(0,0,0,.35); font-style: normal; }
+.mk-park b.ok { background: #059669; }
+.mk-park b.low { background: #D97706; }
+.mk-park b.na { background: #64748B; }
+.mk-car b { display: flex; align-items: center; justify-content: center; width: 30px; height: 30px; border-radius: 50%; background: #7C3AED; color: #fff; font-size: 15px; font-weight: 800; border: 2px solid #fff; box-shadow: 0 2px 8px rgba(0,0,0,.4); }
+.pop-name { font-weight: 700; font-size: 14px; margin-bottom: 2px; }
+.pop-meta { font-size: 12px; color: #475569; margin-bottom: 6px; line-height: 1.5; }
+.pop-nav { font-size: 13px; font-weight: 700; color: #0284C7; text-decoration: none; }
+
+/* 範圍滑桿 */
+.range-box { padding: 14px 16px 12px; border-radius: 16px; background: var(--field); border: 1.5px solid var(--border); }
+.range-top { display: flex; align-items: baseline; justify-content: space-between; margin-bottom: 12px; }
+.range-top span { font-size: 13px; font-weight: 600; color: var(--text-2); }
+.range-top b { font-size: 20px; font-weight: 800; color: var(--primary-ink); }
+input[type=range].range { -webkit-appearance: none; appearance: none; width: 100%; height: 6px; border-radius: 6px; background: var(--surface-2); outline: none; display: block; }
+input[type=range].range::-webkit-slider-thumb { -webkit-appearance: none; appearance: none; width: 28px; height: 28px; border-radius: 50%; background: var(--primary); border: 3px solid #fff; box-shadow: 0 2px 10px rgba(14,165,233,.6); cursor: pointer; }
+input[type=range].range::-moz-range-thumb { width: 22px; height: 22px; border-radius: 50%; background: var(--primary); border: 3px solid #fff; box-shadow: 0 2px 10px rgba(14,165,233,.6); cursor: pointer; }
+.range-scale { display: flex; justify-content: space-between; font-size: 11px; color: var(--text-3); margin-top: 8px; font-weight: 600; }
+.park-card-body { display: flex; flex-direction: column; gap: 12px; margin-top: 14px; }
+.park-click { cursor: pointer; min-width: 0; }
+.park-fare { font-size: 12px; color: var(--text-3); margin-top: 6px; line-height: 1.4; }
+
+/* 停車記錄 */
+.parked-card { padding: 16px 18px; }
+.parked-row { display: flex; align-items: center; gap: 12px; }
+.parked-ico { width: 44px; height: 44px; border-radius: 14px; background: #7C3AED; color: #fff; font-weight: 800; font-size: 20px; display: flex; align-items: center; justify-content: center; flex-shrink: 0; }
+.parked-txt { flex: 1; min-width: 0; display: flex; flex-direction: column; }
+.parked-txt b { font-size: 15px; font-weight: 700; }
+.parked-txt span { font-size: 13px; color: var(--text-3); word-break: break-word; }
+.parked-actions { display: flex; gap: 8px; flex-wrap: wrap; margin-top: 12px; }
 
 /* 空白 / 載入 / 錯誤 */
 .empty { padding: 40px 24px 36px; text-align: center; display: flex; flex-direction: column; align-items: center; }
@@ -488,6 +574,7 @@ svg.lucide { width: 18px; height: 18px; flex-shrink: 0; }
   background: #0F172A; color: #F8FAFC; font-size: 14px; font-weight: 600;
   box-shadow: 0 12px 30px -10px rgba(15,23,42,.5);
   transition: transform .35s cubic-bezier(.3,.7,.2,1), opacity .25s; z-index: 100;
+  max-width: calc(100% - 32px);
 }
 :root[data-theme="dark"] .toast { background: #F1F5F9; color: #0F172A; }
 .toast.show { transform: translate(-50%, 0); opacity: 1; }
@@ -499,6 +586,7 @@ svg.lucide { width: 18px; height: 18px; flex-shrink: 0; }
   .rh-title { font-size: 21px; }
   .dt-part { padding: 10px 10px; gap: 8px; }
   .btn { padding: 0 16px; }
+  .rh-actions .icon-btn { width: 34px; height: 34px; }
 }
 @media (prefers-reduced-motion: reduce) {
   *, *::before, *::after { animation-duration: .01ms !important; transition-duration: .01ms !important; }
@@ -516,9 +604,14 @@ svg.lucide { width: 18px; height: 18px; flex-shrink: 0; }
         <div class="brand-tag">高鐵・台鐵・客運 一次查</div>
       </div>
     </div>
-    <button class="icon-btn" id="theme-toggle" aria-label="切換深色模式" title="切換深色模式"><i data-lucide="moon"></i></button>
+    <div class="top-actions">
+      <button class="icon-btn" id="install-btn" aria-label="安裝到主畫面" title="安裝到主畫面" hidden><i data-lucide="download"></i></button>
+      <button class="icon-btn" id="theme-toggle" aria-label="切換深色模式" title="切換深色模式"><i data-lucide="moon"></i></button>
+    </div>
   </div>
 </header>
+
+<div class="offline" id="offline" role="alert" hidden><i data-lucide="wifi-off"></i><span>目前沒有網路，無法查詢最新資料</span></div>
 
 <main class="main">
   <div class="layout">
@@ -526,9 +619,8 @@ svg.lucide { width: 18px; height: 18px; flex-shrink: 0; }
 
       <nav class="seg" id="seg" role="tablist" style="--i:0">
         <span class="seg-thumb"></span>
-        <button class="seg-btn active" data-tab="trip" role="tab"><i data-lucide="train-front"></i>班次</button>
-        <button class="seg-btn" data-tab="map" role="tab"><i data-lucide="map"></i>地圖</button>
-        <button class="seg-btn" data-tab="park" role="tab"><i data-lucide="square-parking"></i>停車</button>
+        <button class="seg-btn active" data-tab="trip" role="tab" aria-selected="true"><i data-lucide="train-front"></i>班次</button>
+        <button class="seg-btn" data-tab="map" role="tab" aria-selected="false"><i data-lucide="map"></i>地圖</button>
       </nav>
 
       <!-- 班次 -->
@@ -611,49 +703,30 @@ svg.lucide { width: 18px; height: 18px; flex-shrink: 0; }
         </div>
       </div>
 
-      <!-- 地圖 -->
+      <!-- 地圖（主功能）＋ 附近停車（附屬） -->
       <div class="panel" id="panel-map">
         <div class="card form-card">
           <div class="card-head">
-            <h2>地圖查詢</h2>
-            <p>輸入地點，開啟地圖或直接導航</p>
+            <h2>地圖</h2>
+            <p>找地點、導航，附近停車場一次看</p>
           </div>
           <div class="input-wrap">
             <i data-lucide="map-pin"></i>
             <input class="input" type="text" id="mp-kw" placeholder="例：高雄車站、台中歌劇院" enterkeyhint="search">
+            <button class="locate-btn" id="mp-locate" aria-label="使用我的位置" title="使用我的位置"><i data-lucide="locate-fixed"></i></button>
           </div>
           <div class="quick" id="mp-quick">
             <button class="q-chip" data-kw="台北車站">台北車站</button>
             <button class="q-chip" data-kw="高鐵台中站">高鐵台中站</button>
             <button class="q-chip" data-kw="高雄車站">高雄車站</button>
           </div>
+          <div id="mp-recent" hidden></div>
           <div class="btn-row">
-            <button class="btn btn-primary" id="mp-go"><i data-lucide="map-pinned"></i><span>顯示地圖</span></button>
+            <button class="btn btn-primary" id="mp-go"><i data-lucide="map-pinned"></i><span>搜尋地點</span></button>
             <button class="btn btn-outline" id="mp-nav"><i data-lucide="navigation"></i><span>導航</span></button>
           </div>
         </div>
-      </div>
-
-      <!-- 停車 -->
-      <div class="panel" id="panel-park">
-        <div class="card form-card">
-          <div class="card-head">
-            <h2>附近停車場</h2>
-            <p>即時空位，依距離排序</p>
-          </div>
-          <div class="input-wrap">
-            <i data-lucide="map-pin"></i>
-            <input class="input" type="text" id="pk-kw" placeholder="例：高雄車站" enterkeyhint="search">
-          </div>
-          <div class="pills full" id="pk-type">
-            <button class="pill active" data-v="car"><i data-lucide="car"></i>汽車</button>
-            <button class="pill" data-v="motor"><i data-lucide="bike"></i>機車</button>
-          </div>
-          <div class="btn-row">
-            <button class="btn btn-primary" id="pk-go"><i data-lucide="search"></i><span>查停車場</span></button>
-            <button class="btn btn-outline" id="pk-map"><i data-lucide="map"></i><span>看地圖</span></button>
-          </div>
-        </div>
+        <div class="card parked-card" id="parked-card"></div>
       </div>
 
       <div id="recent-wrap">
@@ -665,7 +738,6 @@ svg.lucide { width: 18px; height: 18px; flex-shrink: 0; }
     <section class="right">
       <div class="result active" id="result-trip"></div>
       <div class="result" id="result-map"></div>
-      <div class="result" id="result-park"></div>
     </section>
   </div>
 </main>
@@ -686,6 +758,7 @@ function escapeHtml(s) { return String(s == null ? '' : s).replace(/[&<>"']/g, c
 function lsGet(k, d) { try { const v = localStorage.getItem(k); return v == null ? d : v; } catch (e) { return d; } }
 function lsSet(k, v) { try { localStorage.setItem(k, v); } catch (e) {} }
 function lsDel(k) { try { localStorage.removeItem(k); } catch (e) {} }
+function lsJson(k, d) { try { const v = JSON.parse(lsGet(k, 'null')); return v == null ? d : v; } catch (e) { return d; } }
 
 function showToast(msg, icon) {
   const t = $('toast');
@@ -693,7 +766,7 @@ function showToast(msg, icon) {
   drawIcons();
   t.classList.add('show');
   clearTimeout(t._timer);
-  t._timer = setTimeout(() => t.classList.remove('show'), 1900);
+  t._timer = setTimeout(() => t.classList.remove('show'), 2200);
 }
 async function copyToClipboard(text) {
   try { await navigator.clipboard.writeText(text); showToast('已複製到剪貼簿', 'copy'); tap(); }
@@ -722,6 +795,46 @@ themeBtn.onclick = () => {
   const next = document.documentElement.getAttribute('data-theme') === 'dark' ? 'light' : 'dark';
   applyTheme(next); lsSet('tq_theme', next); tap();
 };
+
+/* ========== App 化：圖示、安裝、離線提示 ========== */
+(function initAppShell() {
+  try {
+    const cv = document.createElement('canvas');
+    cv.width = 512; cv.height = 512;
+    const g = cv.getContext('2d');
+    g.fillStyle = '#0EA5E9';
+    g.fillRect(0, 0, 512, 512);
+    g.fillStyle = '#FFFFFF';
+    g.font = '900 300px "Noto Sans TC", "PingFang TC", sans-serif';
+    g.textAlign = 'center';
+    g.textBaseline = 'middle';
+    g.fillText('路', 256, 275);
+    const png = cv.toDataURL('image/png');
+    const a = document.createElement('link'); a.rel = 'apple-touch-icon'; a.href = png; document.head.appendChild(a);
+    const f = document.createElement('link'); f.rel = 'icon'; f.href = png; document.head.appendChild(f);
+    const manifest = {
+      name: '一路 · 交通查詢', short_name: '一路',
+      start_url: location.href.split('#')[0], scope: location.href.split('#')[0],
+      display: 'standalone', background_color: '#F8FAFC', theme_color: '#0EA5E9',
+      icons: [{ src: png, sizes: '512x512', type: 'image/png', purpose: 'any' }]
+    };
+    const m = document.createElement('link'); m.rel = 'manifest';
+    m.href = URL.createObjectURL(new Blob([JSON.stringify(manifest)], { type: 'application/manifest+json' }));
+    document.head.appendChild(m);
+  } catch (e) {}
+})();
+let deferredInstall = null;
+window.addEventListener('beforeinstallprompt', (e) => { e.preventDefault(); deferredInstall = e; $('install-btn').hidden = false; });
+window.addEventListener('appinstalled', () => { deferredInstall = null; $('install-btn').hidden = true; showToast('已安裝到主畫面', 'check'); });
+$('install-btn').onclick = async () => {
+  if (!deferredInstall) return;
+  deferredInstall.prompt();
+  try { await deferredInstall.userChoice; } catch (e) {}
+  deferredInstall = null; $('install-btn').hidden = true;
+};
+function updateOnline() { $('offline').hidden = navigator.onLine !== false; }
+window.addEventListener('online', () => { updateOnline(); showToast('已恢復連線', 'wifi'); });
+window.addEventListener('offline', updateOnline);
 
 /* ========== 資料 ========== */
 const TYPE_META = {
@@ -787,7 +900,8 @@ const Utils = {
     if (dateStr !== Utils.today()) return null;
     const now = new Date();
     return Utils.timeToMin(timeStr) - (now.getHours() * 60 + now.getMinutes());
-  }
+  },
+  radLabel(km) { return km < 1 ? Math.round(km * 1000) + ' 公尺' : km + ' 公里'; }
 };
 
 /* ========== TDX ========== */
@@ -798,8 +912,17 @@ const TDX = (() => {
     const c = _cache.get(ck);
     if (c && now < c.exp) return c.data;
     const url = TDX_PROXY + encodeURIComponent(path);
-    const res = await fetch(url);
-    if (res.status === 429 && !retry) { await new Promise(r => setTimeout(r, 2000)); return _fetch(path, ck, ttlSec, true); }
+    const ctrl = new AbortController();
+    const to = setTimeout(() => ctrl.abort(), 15000);
+    let res;
+    try {
+      res = await fetch(url, { signal: ctrl.signal });
+    } catch (e) {
+      if (navigator.onLine === false) throw new Error('目前沒有網路，請連線後再試');
+      if (e && e.name === 'AbortError') throw new Error('連線逾時，請稍後再試');
+      throw new Error('網路連線失敗，請稍後再試');
+    } finally { clearTimeout(to); }
+    if ((res.status === 429 || res.status >= 500) && !retry) { await new Promise(r => setTimeout(r, 1500)); return _fetch(path, ck, ttlSec, true); }
     if (!res.ok) throw new Error('資料服務暫時無回應（HTTP ' + res.status + '）');
     const data = await res.json();
     _cache.set(ck, { data, exp: now + ttlSec*1000 });
@@ -809,12 +932,23 @@ const TDX = (() => {
   let _traStationsCache = null;
   async function getTRAStations() {
     if (_traStationsCache) return _traStationsCache;
-    const raw = await _fetch('/api/basic/v2/Rail/TRA/Station?$format=JSON', 'TRA_STATIONS', 86400);
-    if (!Array.isArray(raw)) return [];
-    const list = raw.map(s => ({ id: String(s.StationID || ''), name: (s.StationName && s.StationName.Zh_tw) || '', county: extractCounty(s.StationAddress || '', (s.StationName && s.StationName.Zh_tw) || '', String(s.StationID || '')) })).filter(s => s.id && s.name);
-    list.sort((a, b) => a.id.localeCompare(b.id));
-    _traStationsCache = list;
-    return list;
+    const saved = lsJson('tq_tra_st', null);
+    if (saved && saved.list && saved.list.length && Date.now() - saved.t < 7 * 86400000) {
+      _traStationsCache = saved.list;
+      return saved.list;
+    }
+    try {
+      const raw = await _fetch('/api/basic/v2/Rail/TRA/Station?$format=JSON', 'TRA_STATIONS', 86400);
+      if (!Array.isArray(raw)) return (saved && saved.list) || [];
+      const list = raw.map(s => ({ id: String(s.StationID || ''), name: (s.StationName && s.StationName.Zh_tw) || '', county: extractCounty(s.StationAddress || '', (s.StationName && s.StationName.Zh_tw) || '', String(s.StationID || '')) })).filter(s => s.id && s.name);
+      list.sort((a, b) => a.id.localeCompare(b.id));
+      _traStationsCache = list;
+      lsSet('tq_tra_st', JSON.stringify({ t: Date.now(), list }));
+      return list;
+    } catch (e) {
+      if (saved && saved.list && saved.list.length) { _traStationsCache = saved.list; return saved.list; }
+      throw e;
+    }
   }
 
   function extractCounty(addr, name, id) {
@@ -991,9 +1125,11 @@ const TDX = (() => {
     if (!route) throw new Error('路線錯誤');
     const wk = Utils.weekdayKey(date);
     let times = [];
+    let okCount = 0, lastErr = null;
     for (const rid of route.routeIds) {
       try {
         const sch = await _fetch('/api/basic/v2/Bus/Schedule/InterCity/' + rid + '?$format=JSON', 'BUS_SCH_' + rid, 1800);
+        okCount++;
         if (!Array.isArray(sch)) continue;
         for (const sub of sch) {
           if (sub.Direction !== route.direction) continue;
@@ -1003,8 +1139,9 @@ const TDX = (() => {
             if (tt.StopTimes && tt.StopTimes.length > 0) times.push(tt.StopTimes[0].DepartureTime);
           }
         }
-      } catch (e) {}
+      } catch (e) { lastErr = e; }
     }
+    if (okCount === 0 && lastErr) throw lastErr;
     times = [...new Set(times)].sort();
     if (afterTime) times = times.filter(t => t >= afterTime);
     return { type:'BUS', from:route.from, to:route.to, date, routeIdx, afterTime, totalCount: times.length, times };
@@ -1022,53 +1159,99 @@ const TDX = (() => {
   return { getTRAStations, getTRADelays, queryHSR, queryHSRFare, queryTRA, queryTRAFare, queryBus, queryParkingBasic, queryParkingAvail };
 })();
 
+/* ========== 定位 / 地理編碼 ========== */
 const Geo = {
+  _cache: {},
+  cityOf(components) {
+    for (const c of (components || [])) if ((c.types || []).includes('administrative_area_level_1')) return c.long_name;
+    return '';
+  },
   async geocode(address) {
+    if (this._cache[address]) return this._cache[address];
     const url = 'https://maps.googleapis.com/maps/api/geocode/json?address=' + encodeURIComponent(address) + '&language=zh-TW&region=TW&key=' + GOOGLE_MAPS_API_KEY;
-    const res = await fetch(url);
+    let res;
+    try { res = await fetch(url); } catch (e) { return { error: navigator.onLine === false ? 'OFFLINE' : 'NETWORK' }; }
     if (!res.ok) return { error: 'HTTP_' + res.status };
     const data = await res.json();
     if (data.status !== 'OK') return { error: 'GEO_' + data.status };
     const r = data.results[0];
-    let city = '';
-    for (const c of r.address_components) if ((c.types || []).includes('administrative_area_level_1')) { city = c.long_name; break; }
-    return { lat: r.geometry.location.lat, lng: r.geometry.location.lng, address: r.formatted_address, city };
+    const out = { lat: r.geometry.location.lat, lng: r.geometry.location.lng, address: r.formatted_address, city: this.cityOf(r.address_components) };
+    this._cache[address] = out;
+    return out;
+  },
+  async reverse(lat, lng) {
+    const url = 'https://maps.googleapis.com/maps/api/geocode/json?latlng=' + lat + ',' + lng + '&language=zh-TW&key=' + GOOGLE_MAPS_API_KEY;
+    let res;
+    try { res = await fetch(url); } catch (e) { return { error: navigator.onLine === false ? 'OFFLINE' : 'NETWORK' }; }
+    if (!res.ok) return { error: 'HTTP_' + res.status };
+    const data = await res.json();
+    if (data.status !== 'OK') return { error: 'GEO_' + data.status };
+    const r = data.results[0];
+    return { lat, lng, address: r.formatted_address, city: this.cityOf(r.address_components) };
+  },
+  locate() {
+    return new Promise((resolve, reject) => {
+      if (!navigator.geolocation) { reject(new Error('這個瀏覽器不支援定位')); return; }
+      navigator.geolocation.getCurrentPosition(
+        p => resolve({ lat: p.coords.latitude, lng: p.coords.longitude }),
+        err => reject(new Error(err && err.code === 1 ? '定位權限被拒絕，請到瀏覽器設定開啟' : '無法取得目前位置，請稍後再試')),
+        { enableHighAccuracy: true, timeout: 10000, maximumAge: 60000 }
+      );
+    });
   }
 };
 
-async function parkQuery(keyword, type, radiusKm) {
-  const geo = await Geo.geocode(keyword);
-  if (geo.error) {
-    const em = geo.error;
-    if (em === 'GEO_ZERO_RESULTS') return { error: '找不到「' + keyword + '」，換個關鍵字試試' };
-    if (em === 'GEO_REQUEST_DENIED') return { error: '地圖服務未啟用' };
-    if (em === 'GEO_OVER_QUERY_LIMIT') return { error: '地圖查詢額度已滿，請稍後再試' };
-    return { error: '位置解析失敗（' + em + '）' };
-  }
-  const cityCode = PARK_CITY_MAP[geo.city];
-  if (!cityCode) return { error: '目前不支援這個地區：' + (geo.city || '未知') };
-  const [basic, avails] = await Promise.all([TDX.queryParkingBasic(cityCode), TDX.queryParkingAvail(cityCode)]);
-  if (basic.length === 0) return { error: '該地區沒有停車場資料' };
+function geoErrorMsg(em, keyword) {
+  if (em === 'GEO_ZERO_RESULTS') return '找不到「' + keyword + '」，換個關鍵字試試';
+  if (em === 'GEO_REQUEST_DENIED') return '地圖服務未啟用';
+  if (em === 'GEO_OVER_QUERY_LIMIT') return '地圖查詢額度已滿，請稍後再試';
+  if (em === 'OFFLINE') return '目前沒有網路，請連線後再試';
+  if (em === 'NETWORK') return '網路連線失敗，請稍後再試';
+  return '位置解析失敗（' + em + '）';
+}
+
+/* 依據座標找最近的支援城市（Google 沒回傳城市時備用） */
+const CITY_CENTERS = [
+  ['Taipei', 25.033, 121.565], ['NewTaipei', 25.012, 121.465], ['Taoyuan', 24.994, 121.301],
+  ['Taichung', 24.147, 120.673], ['Tainan', 22.999, 120.227], ['Kaohsiung', 22.627, 120.301],
+  ['Keelung', 25.128, 121.739], ['Hsinchu', 24.804, 120.971], ['HsinchuCounty', 24.839, 121.012],
+  ['MiaoliCounty', 24.560, 120.820], ['ChanghuaCounty', 24.075, 120.543], ['NantouCounty', 23.961, 120.972],
+  ['YunlinCounty', 23.709, 120.431], ['Chiayi', 23.480, 120.449], ['ChiayiCounty', 23.459, 120.325],
+  ['PingtungCounty', 22.668, 120.486], ['YilanCounty', 24.757, 121.753], ['HualienCounty', 23.977, 121.604],
+  ['TaitungCounty', 22.757, 121.144]
+];
+function nearestCityCode(lat, lng) {
+  let best = '', bd = 1e9;
+  for (const c of CITY_CENTERS) { const d = Utils.distance(lat, lng, c[1], c[2]); if (d < bd) { bd = d; best = c[0]; } }
+  return bd <= 30 ? best : '';
+}
+
+/* 一次抓回 maxKm 內的汽車＋機車停車場（之後用滑桿在本機即時篩選，不用重抓） */
+async function fetchNearbyParking(code, geo, maxKm) {
+  const [basic, avails] = await Promise.all([TDX.queryParkingBasic(code), TDX.queryParkingAvail(code)]);
   const idMap = {}, nameMap = {};
   for (const a of avails) {
     if (a.CarParkID) idMap[a.CarParkID] = a;
     const nm = a.CarParkName ? (a.CarParkName.Zh_tw || '') : '';
     if (nm) nameMap[nm] = a;
   }
-  const typeCode = type === 'motor' ? '2' : '1';
-  const nearby = [];
+  const out = [];
   for (const p of basic) {
     const pos = p.CarParkPosition || {};
     if (pos.PositionLat === undefined || pos.PositionLon === undefined) continue;
-    if (String(p.CarParkType || '') !== typeCode) continue;
+    const ptype = String(p.CarParkType || '');
+    if (ptype !== '1' && ptype !== '2') continue;
     const d = Utils.distance(geo.lat, geo.lng, pos.PositionLat, pos.PositionLon);
-    if (d > radiusKm) continue;
+    if (d > maxKm) continue;
     const pName = p.CarParkName ? (p.CarParkName.Zh_tw || '') : '';
     const av = idMap[p.CarParkID] || (pName ? nameMap[pName] : null);
-    nearby.push({ name: pName || '（未命名）', distance: d, total: av && av.TotalSpaces !== undefined ? av.TotalSpaces : null, available: av && av.AvailableSpaces !== undefined ? av.AvailableSpaces : null, lat: pos.PositionLat, lng: pos.PositionLon });
+    const avail = av && av.AvailableSpaces !== undefined && Number(av.AvailableSpaces) >= 0 ? Number(av.AvailableSpaces) : null;
+    const total = av && av.TotalSpaces !== undefined && Number(av.TotalSpaces) >= 0 ? Number(av.TotalSpaces) : null;
+    const fare = p.FareDescription ? String(p.FareDescription).replace(/\s+/g, ' ').trim().slice(0, 70) : '';
+    out.push({ name: pName || '（未命名）', ptype, distance: d, total, available: avail, lat: pos.PositionLat, lng: pos.PositionLon, fare });
   }
-  nearby.sort((a, b) => { const aH = a.available !== null ? 1 : 0, bH = b.available !== null ? 1 : 0; if (aH !== bH) return bH - aH; return a.distance - b.distance; });
-  return { keyword, type, geo, parks: nearby, radiusKm };
+  out.sort((a, b) => a.distance - b.distance);
+  return out;
 }
 
 const Store = {
@@ -1081,7 +1264,19 @@ const Store = {
 };
 
 /* ========== 狀態 ========== */
-const state = { tab: 'trip', type: 'HSR', traCat: '', pkType: 'car', lastQuery: null, share: {} };
+const prefs = lsJson('tq_prefs', {});
+function savePrefs() { lsSet('tq_prefs', JSON.stringify({ traCat: state.traCat, pkType: state.pkType, pkRadius: state.pkRadius, pkSort: state.pkSort, navMode: state.navMode })); }
+const state = {
+  tab: 'trip', type: 'HSR',
+  traCat: ['', 'fast', 'normal'].includes(prefs.traCat) ? prefs.traCat : '',
+  pkType: prefs.pkType === 'motor' ? 'motor' : 'car',
+  pkRadius: (Number(prefs.pkRadius) >= 0.2 && Number(prefs.pkRadius) <= 3) ? Math.round(Number(prefs.pkRadius) * 10) / 10 : 1,
+  pkSort: prefs.pkSort === 'avail' ? 'avail' : 'dist',
+  navMode: ['car', 'moto', 'walk', 'transit'].includes(prefs.navMode) ? prefs.navMode : 'car',
+  lastQuery: null, share: {},
+  view: null, viewStamp: '', showPast: false,
+  map: null, mapData: null, mpGeo: null, routeFrom: null, parkShareText: ''
+};
 
 let _traStationsList = [];
 let _traStationsLoaded = false;
@@ -1092,6 +1287,9 @@ let _traSel = { fromC: '', toC: '', from: '', to: '' };
 
 function traIdToName(id) { const s = _traStationsList.find(x => x.id === id); return s ? s.name : id; }
 function opt(v, label) { return '<option value="' + escapeHtml(v) + '">' + escapeHtml(label) + '</option>'; }
+function syncPills(containerId, value) {
+  document.querySelectorAll('#' + containerId + ' .pill').forEach(p => p.classList.toggle('active', String(p.dataset.v) === String(value)));
+}
 
 /* ========== 空白狀態插圖 ========== */
 const ILLU = {
@@ -1120,7 +1318,7 @@ const ILLU = {
   park: '<svg class="illu" viewBox="0 0 200 150" fill="none" aria-hidden="true">' +
     '<circle class="illu-bg" cx="100" cy="72" r="62"/>' +
     '<circle class="illu-dot" cx="44" cy="40" r="4"/><circle class="illu-dot" cx="160" cy="36" r="3"/>' +
-    '<rect class="illu-line" x="96" y="80" width="8" height="48" rx="3" style="fill:var(--border-strong);stroke:none"/>' +
+    '<rect x="96" y="80" width="8" height="48" rx="3" style="fill:var(--border-strong);stroke:none"/>' +
     '<rect class="illu-primary" x="68" y="18" width="64" height="64" rx="18"/>' +
     '<path class="illu-white" d="M90 34 h14 a12 12 0 0 1 0 24 h-6 v10 h-8 z M98 42 v8 h6 a4 4 0 0 0 0 -8 z" fill-rule="evenodd"/>' +
     '<line class="illu-line" x1="40" y1="128" x2="160" y2="128" stroke-width="3" stroke-linecap="round"/>' +
@@ -1130,7 +1328,7 @@ const ILLU = {
 };
 const EMPTY = {
   trip: { text: '選好起訖站，下一班車馬上告訴你', cta: '查詢下一班車', icon: 'search', action: 'trip-go' },
-  map: { text: '輸入地點，一鍵看地圖或直接導航', cta: '試試「台北車站」', icon: 'map-pinned', action: 'map-demo' },
+  map: { text: '輸入地點，地圖、導航、附近停車一次看', cta: '試試「台北車站」', icon: 'map-pinned', action: 'map-demo' },
   park: { text: '找找目的地附近，還有空位的停車場', cta: '試試「高雄車站」', icon: 'square-parking', action: 'park-demo' }
 };
 function renderEmpty(tab) {
@@ -1158,11 +1356,12 @@ function setBtnLoading(btn, on, text) {
   } else {
     btn.disabled = false;
     if (btn._orig) btn.innerHTML = btn._orig;
+    drawIcons();
   }
 }
 
 /* ========== Tab 切換 ========== */
-const TABS = ['trip', 'map', 'park'];
+const TABS = ['trip', 'map'];
 function setTab(tab) {
   if (state.tab === tab) return;
   state.tab = tab;
@@ -1174,6 +1373,8 @@ function setTab(tab) {
     $('result-' + t).classList.toggle('active', t === tab);
   });
   $('recent-wrap').hidden = tab !== 'trip';
+  if (tab === 'trip') tickTrip();
+  if (tab === 'map') { renderParked(); if (state.map) setTimeout(() => { try { state.map.map.invalidateSize(); } catch (e) {} }, 60); }
 }
 document.querySelectorAll('.seg-btn').forEach(b => { b.onclick = () => { tap(); setTab(b.dataset.tab); }; });
 
@@ -1269,12 +1470,21 @@ async function ensureTRA() {
   if (state.type === 'TRA') restoreTRA();
 }
 
+function updateDateRange() {
+  const d = $('tr-date');
+  d.min = Utils.today();
+  d.max = Utils.addDays(state.type === 'HSR' ? 45 : 60);
+  if (d.value && d.value > d.max) d.value = d.max;
+  updateDateLabel();
+}
+
 function updateTransportUI() {
   const t = state.type;
   $('od').classList.toggle('with-county', t === 'TRA');
   $('tra-cat-row').hidden = t !== 'TRA';
   $('express-wrap').hidden = t !== 'HSR';
   if (t !== 'HSR') $('tr-express-only').checked = false;
+  updateDateRange();
   if (t === 'HSR') { fillHSRStations(); return Promise.resolve(); }
   if (t === 'BUS') { fillBus(); return Promise.resolve(); }
   if (!_traStationsLoaded) {
@@ -1314,15 +1524,16 @@ $('swap-btn').onclick = () => {
 
 /* 台鐵車種 */
 document.querySelectorAll('#tr-cat .pill').forEach(p => {
-  p.onclick = () => { tap(); state.traCat = p.dataset.v; document.querySelectorAll('#tr-cat .pill').forEach(x => x.classList.toggle('active', x === p)); };
+  p.onclick = () => { tap(); state.traCat = p.dataset.v; syncPills('tr-cat', state.traCat); savePrefs(); };
 });
+syncPills('tr-cat', state.traCat);
 
 /* ========== 日期時間 ========== */
 (function initDateTime() {
   const d = $('tr-date');
   d.value = Utils.today();
   d.min = Utils.today();
-  d.max = Utils.addDays(60);
+  d.max = Utils.addDays(45);
   let html = opt('', '全天') + opt('now', '現在起');
   for (let h = 5; h <= 23; h++) { const hh = String(h).padStart(2, '0') + ':00'; html += opt(hh, hh + ' 起'); }
   $('tr-time').innerHTML = html;
@@ -1389,14 +1600,21 @@ function renderHist() {
   el.innerHTML = '<div class="recent-head"><span class="recent-title">' + ic('history') + '最近查詢</span>' + (hist.length ? '<button class="link-btn" id="clear-hist">清除</button>' : '') + '</div>' + body;
   drawIcons();
 }
-async function applyRoute(f) {
+async function applyRouteValues(f) {
   if (state.type !== f.type) await setType(f.type);
   else if (f.type === 'TRA') await ensureTRA();
   if (f.type === 'BUS') fillBus(f.from, f.to);
   else if (f.type === 'TRA') {
-    if (!_traStationsLoaded) { showToast('台鐵站點載入失敗', 'circle-alert'); return; }
-    setTRAStation('from', f.fromId); setTRAStation('to', f.toId); saveTRASel();
-  } else { $('tr-from').value = f.from; $('tr-to').value = f.to; }
+    if (!_traStationsLoaded) return false;
+    if (f.fromId && f.toId) { setTRAStation('from', f.fromId); setTRAStation('to', f.toId); saveTRASel(); }
+  } else if (HSR_STATIONS.includes(f.from) && HSR_STATIONS.includes(f.to)) {
+    $('tr-from').value = f.from; $('tr-to').value = f.to;
+  }
+  return true;
+}
+async function applyRoute(f) {
+  const ok = await applyRouteValues(f);
+  if (!ok) { showToast('台鐵站點載入失敗', 'circle-alert'); return; }
   runTripQuery();
 }
 $('recent-wrap').addEventListener('click', (e) => {
@@ -1423,33 +1641,39 @@ async function runTripQuery() {
     const date = $('tr-date').value;
     if (!date) throw new Error('請選擇日期');
     const afterTime = resolveAfter(date);
+    state.showPast = false;
     if (type === 'BUS') {
       Utils.checkDateRange(date, 'BUS');
       const idx = busRouteIdx();
       if (idx < 0) throw new Error('目前沒有這條路線');
       const r = await TDX.queryBus(idx, date, afterTime);
-      renderBus(r);
       state.lastQuery = { type: 'BUS', from: r.from, to: r.to };
+      state.view = { kind: 'bus', r };
+      renderBus(r);
     } else if (type === 'HSR') {
       Utils.checkDateRange(date, 'HSR');
       const from = $('tr-from').value, to = $('tr-to').value;
       if (from === to) throw new Error('起站和訖站不能相同');
       const expressOnly = $('tr-express-only').checked;
       const [r, f] = await Promise.all([TDX.queryHSR(from, to, date, null, afterTime, expressOnly), TDX.queryHSRFare(from, to)]);
-      renderTrain(r, f, 'HSR');
       state.lastQuery = { type: 'HSR', from, to };
+      state.view = { kind: 'train', r, fare: f, mode: 'HSR' };
+      renderTrain(r, f, 'HSR');
     } else {
       Utils.checkDateRange(date, 'TRA');
       const fromId = $('tr-from').value, toId = $('tr-to').value;
       if (!fromId || !toId) throw new Error('請選擇起訖站');
       if (fromId === toId) throw new Error('起站和訖站不能相同');
       const [r, f] = await Promise.all([TDX.queryTRA(fromId, toId, date, '', state.traCat, afterTime), TDX.queryTRAFare(fromId, toId)]);
-      renderTrain(r, f, 'TRA');
       state.lastQuery = { type: 'TRA', from: traIdToName(fromId), to: traIdToName(toId), fromId, toId };
+      state.view = { kind: 'train', r, fare: f, mode: 'TRA' };
+      renderTrain(r, f, 'TRA');
     }
     Store.addHist(state.lastQuery);
+    lsSet('tq_last', JSON.stringify(state.lastQuery));
     renderHist();
   } catch (e) {
+    state.view = null;
     showError('trip', e.message || '發生未知錯誤');
   } finally {
     setBtnLoading(btn, false);
@@ -1457,11 +1681,26 @@ async function runTripQuery() {
 }
 $('tr-go').onclick = runTripQuery;
 
+function rerenderTrip() {
+  const v = state.view;
+  if (!v) return;
+  if (v.kind === 'bus') renderBus(v.r); else renderTrain(v.r, v.fare, v.mode);
+}
+/* 每分鐘自動更新「幾分後」與已發車狀態 */
+function tickTrip() {
+  if (document.hidden || state.tab !== 'trip' || !state.view) return;
+  if (state.view.r.date !== Utils.today()) return;
+  if (state.viewStamp !== Utils.nowHM()) rerenderTrip();
+}
+setInterval(tickTrip, 20000);
+document.addEventListener('visibilitychange', () => { if (!document.hidden) { updateOnline(); tickTrip(); } });
+
 function resultHeader(o) {
   return '<div class="rh"><div style="min-width:0">' +
     '<div class="rh-kicker">' + ic(o.icon) + '<span>' + escapeHtml(o.kicker) + '</span></div>' +
     '<div class="rh-title">' + o.title + '</div></div>' +
     '<div class="rh-actions">' +
+      (o.refresh ? '<button class="icon-btn" data-act="refresh" aria-label="重新整理" title="重新整理">' + ic('refresh-cw') + '</button>' : '') +
       (o.fav ? '<button class="icon-btn" data-act="fav" aria-label="收藏路線" title="收藏路線">' + ic('star') + '</button>' : '') +
       '<button class="icon-btn" data-act="copy" aria-label="複製" title="複製">' + ic('copy') + '</button>' +
       '<button class="icon-btn" data-act="share" aria-label="分享" title="分享">' + ic('share-2') + '</button>' +
@@ -1469,6 +1708,9 @@ function resultHeader(o) {
 }
 function odTitle(a, b) { return '<span>' + escapeHtml(a) + '</span>' + ic('arrow-right') + '<span>' + escapeHtml(b) + '</span>'; }
 function isFavNow(q) { return !!q && Store.getFavs().some(f => f.type === q.type && f.from === q.from && f.to === q.to); }
+function pastToggleChip(n) {
+  return '<button class="q-chip' + (state.showPast ? ' active' : '') + '" data-past-toggle="1">' + ic(state.showPast ? 'eye-off' : 'eye') + (state.showPast ? '隱藏已發車' : '已發車 ' + n + ' 班') + '</button>';
+}
 
 function renderTrain(r, fare, mode) {
   const out = $('result-trip');
@@ -1476,7 +1718,8 @@ function renderTrain(r, fare, mode) {
   const fromName = mode === 'TRA' ? traIdToName(r.from) : r.from;
   const toName = mode === 'TRA' ? traIdToName(r.to) : r.to;
   const kicker = meta.label + ' · ' + Utils.shortDate(r.date);
-  const header = resultHeader({ icon: meta.icon, kicker, title: odTitle(fromName, toName), fav: true });
+  const header = resultHeader({ icon: meta.icon, kicker, title: odTitle(fromName, toName), fav: true, refresh: true });
+  state.viewStamp = Utils.nowHM();
 
   if (r.filtered.length === 0) {
     out.innerHTML = '<div class="card result-card">' + header +
@@ -1488,7 +1731,13 @@ function renderTrain(r, fare, mode) {
     return;
   }
 
-  const subs = ['<span class="count"><b class="num">' + r.totalCount + '</b>班</span>'];
+  const isToday = r.date === Utils.today();
+  const nowTime = Utils.nowHM();
+  let pastCount = 0;
+  if (isToday) r.filtered.forEach(t => { const m = Utils.minutesUntil(t.time, r.date); if (m !== null && m < 0) pastCount++; });
+  const upcoming = r.filtered.length - pastCount;
+
+  const subs = ['<span class="count"><b class="num">' + (isToday ? upcoming : r.totalCount) + '</b>班' + (isToday ? '可搭' : '') + '</span>'];
   if (fare) {
     const items = [];
     if (mode === 'HSR') { if (fare.standard) items.push(['標準', fare.standard]); if (fare.business) items.push(['商務', fare.business]); }
@@ -1502,13 +1751,15 @@ function renderTrain(r, fare, mode) {
     subs.push('<span class="tag">直達 ' + r.directCount + '</span>');
     if (r.totalCount - r.directCount > 0) subs.push('<span class="tag">需轉乘 ' + (r.totalCount - r.directCount) + '</span>');
   }
+  if (pastCount > 0) subs.push(pastToggleChip(pastCount));
 
-  const isToday = r.date === Utils.today();
-  const nowTime = Utils.nowHM();
+  let minDur = 0;
+  r.filtered.forEach(t => { if (t.isDirect && t.diffMin > 0 && (minDur === 0 || t.diffMin < minDur)) minDur = t.diffMin; });
+
   let rows = '';
   let nowLineInserted = false, nextMarked = false;
   const copyLines = [meta.label + ' ' + fromName + ' → ' + toName, r.date + ' ' + Utils.weekday(r.date)];
-  r.filtered.forEach(t => {
+  r.filtered.forEach((t, i) => {
     if (!nowLineInserted && isToday && t.time > nowTime && !r.afterTime) {
       rows += '<div class="now-line"><span class="num">現在 ' + nowTime + '</span></div>';
       nowLineInserted = true;
@@ -1520,6 +1771,7 @@ function renderTrain(r, fare, mode) {
 
     let tags = '';
     if (t.isExpress) tags += '<span class="tag tag-primary">' + ic('zap') + '直達</span>';
+    if (minDur > 0 && r.filtered.length > 1 && t.isDirect && t.diffMin === minDur) tags += '<span class="tag tag-ok">最快</span>';
     if (t.isFirst) tags += '<span class="tag">首班</span>';
     if (t.isLast) tags += '<span class="tag">末班</span>';
     if (t.delay > 0) tags += '<span class="tag tag-danger">誤點 ' + t.delay + ' 分</span>';
@@ -1530,17 +1782,23 @@ function renderTrain(r, fare, mode) {
     const mid = t.isDirect
       ? '<span class="t-dur">' + Utils.formatDiff(t.diffMin) + '</span><span class="t-track"></span>'
       : '<span class="t-dur">需轉乘</span><span class="t-track" style="opacity:.5"></span>';
-    rows += '<div class="trip' + (isNext ? ' next' : '') + (past ? ' past' : '') + '">' +
+    const hidden = past && !state.showPast ? ' hidden' : '';
+    rows += '<div class="trip' + (isNext ? ' next' : '') + (past ? ' past' : '') + '"' + hidden + '>' +
       '<div class="trip-times">' +
         '<div class="tt"><span class="t-big num">' + t.time + '</span><span class="t-cap">' + escapeHtml(fromName) + '</span></div>' +
         '<div class="t-mid">' + mid + '</div>' +
         '<div class="tt r"><span class="t-big num">' + (t.arrTime || '—') + '</span><span class="t-cap">' + escapeHtml(toName) + '</span></div>' +
       '</div>' +
       '<div class="trip-foot"><span class="t-no num">' + escapeHtml(t.trainNo) + '</span><span class="t-type">' + escapeHtml(typeName) + '</span>' + tags +
-        (isNext ? '<span class="tag tag-primary t-next-label">下一班</span>' : '') + '</div>' +
+        '<span class="foot-end">' + (isNext ? '<span class="tag tag-primary">下一班</span>' : '') +
+        (past ? '' : '<button class="mini-ico" data-ics="' + i + '" aria-label="加入行事曆" title="加入行事曆">' + ic('calendar-plus') + '</button>') + '</span></div>' +
       '</div>';
-    copyLines.push(t.time + ' → ' + (t.arrTime || '?') + '  ' + t.trainNo + ' ' + typeName);
+    if (!past) copyLines.push(t.time + ' → ' + (t.arrTime || '?') + '  ' + t.trainNo + ' ' + typeName);
   });
+
+  if (isToday && upcoming === 0 && !state.showPast) {
+    rows += '<div class="inline-empty"><p>今天已經沒有班次了</p><button class="btn btn-outline btn-sm" data-cta="trip-tomorrow">' + ic('calendar-plus') + '<span>改查明天</span></button></div>';
+  }
 
   out.innerHTML = '<div class="card result-card">' + header + '<div class="rh-sub">' + subs.join('') + '</div><div class="trip-list">' + rows + '</div></div>';
   state.share.trip = { title: meta.label + ' ' + fromName + '→' + toName, text: copyLines.join('\n') };
@@ -1558,7 +1816,8 @@ function busStopsFor(route) {
 function renderBus(r) {
   const out = $('result-trip');
   const route = BUS_ROUTES[r.routeIdx];
-  const header = resultHeader({ icon: 'bus', kicker: '統聯 · ' + Utils.shortDate(r.date), title: odTitle(r.from, r.to), fav: true });
+  const header = resultHeader({ icon: 'bus', kicker: '統聯 · ' + Utils.shortDate(r.date), title: odTitle(r.from, r.to), fav: true, refresh: true });
+  state.viewStamp = Utils.nowHM();
   if (r.times.length === 0) {
     out.innerHTML = '<div class="card result-card">' + header + '<div class="inline-empty"><p>這個時段沒有班次</p>' +
       ($('tr-time').value ? '<button class="btn btn-outline btn-sm" data-cta="trip-all">' + ic('calendar') + '<span>改查全天所有班次</span></button>' : '') + '</div></div>';
@@ -1568,17 +1827,25 @@ function renderBus(r) {
   }
   const stopsHtml = route ? busStopsFor(route).map(x => '<div class="stops"><b>' + x.rid + '</b>' + x.stops.map(escapeHtml).join(' → ') + '</div>').join('') : '';
   const isToday = r.date === Utils.today();
+  let pastCount = 0;
+  if (isToday) r.times.forEach(t => { const m = Utils.minutesUntil(t, r.date); if (m !== null && m < 0) pastCount++; });
   let nextMarked = false;
+  const upcomingTimes = [];
   const cells = r.times.map(t => {
     const mins = Utils.minutesUntil(t, r.date);
     let cls = '';
-    if (isToday && mins !== null && mins < 0) cls = ' past';
+    const past = isToday && mins !== null && mins < 0;
+    if (past) cls = ' past';
     else if (isToday && !nextMarked) { cls = ' next'; nextMarked = true; }
-    return '<div class="bus-time num' + cls + '">' + t + '</div>';
+    if (!past) upcomingTimes.push(t);
+    return '<div class="bus-time num' + cls + '"' + (past && !state.showPast ? ' hidden' : '') + '>' + t + '</div>';
   }).join('');
-  const subs = '<span class="count"><b class="num">' + r.totalCount + '</b>班</span>' + (r.afterTime ? '<span class="tag">' + ic('clock') + r.afterTime + ' 起</span>' : '');
-  out.innerHTML = '<div class="card result-card">' + header + '<div class="rh-sub">' + subs + '</div>' + stopsHtml + '<div class="bus-grid">' + cells + '</div></div>';
-  state.share.trip = { title: '統聯 ' + r.from + '→' + r.to, text: '統聯 ' + r.from + ' → ' + r.to + '\n' + r.date + ' ' + Utils.weekday(r.date) + '\n共 ' + r.totalCount + ' 班\n\n' + r.times.join('  ') };
+  const subs = '<span class="count"><b class="num">' + (isToday ? r.totalCount - pastCount : r.totalCount) + '</b>班' + (isToday ? '可搭' : '') + '</span>' +
+    (r.afterTime ? '<span class="tag">' + ic('clock') + r.afterTime + ' 起</span>' : '') + (pastCount > 0 ? pastToggleChip(pastCount) : '');
+  const tail = (isToday && upcomingTimes.length === 0 && !state.showPast)
+    ? '<div class="inline-empty"><p>今天已經沒有班次了</p><button class="btn btn-outline btn-sm" data-cta="trip-tomorrow">' + ic('calendar-plus') + '<span>改查明天</span></button></div>' : '';
+  out.innerHTML = '<div class="card result-card">' + header + '<div class="rh-sub">' + subs + '</div>' + stopsHtml + '<div class="bus-grid">' + cells + '</div>' + tail + '</div>';
+  state.share.trip = { title: '統聯 ' + r.from + '→' + r.to, text: '統聯 ' + r.from + ' → ' + r.to + '\n' + r.date + ' ' + Utils.weekday(r.date) + '\n共 ' + upcomingTimes.length + ' 班\n\n' + upcomingTimes.join('  ') };
   afterRender(out);
 }
 
@@ -1586,6 +1853,58 @@ function afterRender(out) {
   const favBtn = out.querySelector('[data-act="fav"]');
   if (favBtn && isFavNow(state.lastQuery)) favBtn.classList.add('on');
   drawIcons();
+}
+
+/* ========== 加入行事曆（.ics） ========== */
+function icsText(s) { return String(s).replace(/\\/g, '\\\\').replace(/;/g, '\\;').replace(/,/g, '\\,').replace(/\n/g, '\\n'); }
+function addMinutesToHM(date, hm, add) {
+  const base = new Date(date + 'T00:00:00');
+  base.setMinutes(Utils.timeToMin(hm) + add);
+  return base;
+}
+function icsStamp(d) {
+  return d.getFullYear() + String(d.getMonth() + 1).padStart(2, '0') + String(d.getDate()).padStart(2, '0') + 'T' + String(d.getHours()).padStart(2, '0') + String(d.getMinutes()).padStart(2, '0') + '00';
+}
+function downloadTripICS(idx) {
+  const v = state.view;
+  if (!v || v.kind !== 'train') return;
+  const r = v.r, t = r.filtered[idx];
+  if (!t) return;
+  const meta = TYPE_META[v.mode];
+  const fromName = v.mode === 'TRA' ? traIdToName(r.from) : r.from;
+  const toName = v.mode === 'TRA' ? traIdToName(r.to) : r.to;
+  const start = addMinutesToHM(r.date, t.time, 0);
+  let end;
+  if (t.arrTime) {
+    const dur = Utils.timeDiff(t.time, t.arrTime);
+    end = addMinutesToHM(r.date, t.time, dur);
+  } else end = addMinutesToHM(r.date, t.time, 60);
+  const typeName = t.typeName || meta.label;
+  const now = new Date();
+  const utc = now.getUTCFullYear() + String(now.getUTCMonth() + 1).padStart(2, '0') + String(now.getUTCDate()).padStart(2, '0') + 'T' + String(now.getUTCHours()).padStart(2, '0') + String(now.getUTCMinutes()).padStart(2, '0') + String(now.getUTCSeconds()).padStart(2, '0') + 'Z';
+  const lines = [
+    'BEGIN:VCALENDAR', 'VERSION:2.0', 'PRODID:-//Yilu//Transit//ZH', 'CALSCALE:GREGORIAN',
+    'BEGIN:VEVENT',
+    'UID:' + r.date + '-' + t.trainNo + '-' + Math.random().toString(36).slice(2, 8) + '@yilu',
+    'DTSTAMP:' + utc,
+    'DTSTART;TZID=Asia/Taipei:' + icsStamp(start),
+    'DTEND;TZID=Asia/Taipei:' + icsStamp(end),
+    'SUMMARY:' + icsText(meta.label + ' ' + t.trainNo + ' ' + fromName + '→' + toName),
+    'DESCRIPTION:' + icsText(typeName + '  ' + t.time + ' 發車' + (t.arrTime ? '，' + t.arrTime + ' 抵達' : '')),
+    'LOCATION:' + icsText(fromName + (v.mode === 'HSR' ? '站' : '站')),
+    'BEGIN:VALARM', 'TRIGGER:-PT30M', 'ACTION:DISPLAY', 'DESCRIPTION:發車提醒', 'END:VALARM',
+    'END:VEVENT', 'END:VCALENDAR'
+  ];
+  try {
+    const blob = new Blob([lines.join('\r\n')], { type: 'text/calendar;charset=utf-8' });
+    const a = document.createElement('a');
+    a.href = URL.createObjectURL(blob);
+    a.download = 'trip-' + t.trainNo + '.ics';
+    document.body.appendChild(a);
+    a.click();
+    setTimeout(() => { URL.revokeObjectURL(a.href); a.remove(); }, 1500);
+    showToast('已產生行事曆檔，開啟即可加入', 'calendar-plus');
+  } catch (e) { showToast('無法產生行事曆檔', 'circle-alert'); }
 }
 
 /* ========== 看地圖（班次） ========== */
@@ -1606,137 +1925,559 @@ $('tr-map').onclick = () => {
   if (!a || !b) { showToast('請先選擇起訖站', 'circle-alert'); return; }
   setTab('map');
   $('mp-kw').value = b;
-  renderRouteMap(a, b);
-  revealResult('map');
+  state.mpGeo = null;
+  state.routeFrom = a;
+  runMap();
 };
 
-/* ========== 地圖 ========== */
-function mapEmbed(src) { return '<iframe class="map-frame" loading="lazy" referrerpolicy="no-referrer-when-downgrade" src="' + src + '" title="地圖"></iframe>'; }
-function renderPlaceMap(kw) {
+/* ========== 地圖（主功能）＋ 附近停車（附屬） ========== */
+const COORD_RE = /^-?\d+(\.\d+)?\s*,\s*-?\d+(\.\d+)?$/;
+const NAV_MODES = {
+  car: { label: '開車', gm: 'driving', icon: 'car' },
+  moto: { label: '機車', gm: 'two-wheeler', icon: 'bike' },
+  walk: { label: '步行', gm: 'walking', icon: 'footprints' },
+  transit: { label: '大眾', gm: 'transit', icon: 'bus' }
+};
+const NEARBY = [
+  ['加油站', 'fuel'], ['充電站', 'plug-zap'], ['便利商店', 'store'], ['廁所', 'map-pin'],
+  ['餐廳', 'utensils'], ['咖啡廳', 'coffee'], ['藥局', 'pill'], ['ATM', 'landmark']
+];
+function navUrl(dest, modeKey) {
+  const m = NAV_MODES[modeKey] || NAV_MODES[state.navMode] || NAV_MODES.car;
+  return 'https://www.google.com/maps/dir/?api=1&destination=' + encodeURIComponent(dest) + '&travelmode=' + m.gm;
+}
+function navModesHtml() {
+  return '<div class="field-row"><span class="mini-label">導航方式</span><div class="pills" id="nav-mode">' +
+    Object.keys(NAV_MODES).map(k => '<button class="pill' + (state.navMode === k ? ' active' : '') + '" data-navmode="' + k + '">' + ic(NAV_MODES[k].icon) + NAV_MODES[k].label + '</button>').join('') +
+    '</div></div>';
+}
+function nearHtml() {
+  return '<div class="sec-label">附近找（用 Google 地圖開啟）</div><div class="chip-scroll">' +
+    NEARBY.map(n => '<button class="q-chip" data-near="' + escapeHtml(n[0]) + '">' + ic(n[1]) + n[0] + '</button>').join('') + '</div>';
+}
+
+/* 最近地點 */
+const Places = {
+  get() { return lsJson('tq_places', []); },
+  add(name) {
+    if (!name || name === '我的位置' || name === '愛車位置' || COORD_RE.test(name)) return;
+    let l = this.get().filter(x => x !== name);
+    l.unshift(name);
+    if (l.length > 6) l.length = 6;
+    lsSet('tq_places', JSON.stringify(l));
+  },
+  clear() { lsDel('tq_places'); }
+};
+function renderPlaces() {
+  const el = $('mp-recent');
+  const l = Places.get();
+  if (!l.length) { el.innerHTML = ''; el.hidden = true; return; }
+  el.hidden = false;
+  el.innerHTML = '<div class="recent-head"><span class="recent-title">' + ic('history') + '最近地點</span><button class="link-btn" id="clear-places">清除</button></div>' +
+    '<div class="chip-scroll">' + l.map((p, i) => '<button class="r-chip" data-place-idx="' + i + '">' + ic('map-pin') + '<span>' + escapeHtml(p) + '</span></button>').join('') + '</div>';
+  drawIcons();
+}
+
+/* 停車記錄（記住愛車位置） */
+const Parked = {
+  get() { return lsJson('tq_parked', null); },
+  set(o) { lsSet('tq_parked', JSON.stringify(o)); },
+  clear() { lsDel('tq_parked'); }
+};
+function agoText(t) {
+  const m = Math.max(0, Math.floor((Date.now() - t) / 60000));
+  if (m < 1) return '剛剛';
+  if (m < 60) return m + ' 分鐘';
+  const h = Math.floor(m / 60), r = m % 60;
+  return h + ' 小時' + (r ? r + ' 分' : '');
+}
+function renderParked() {
+  const el = $('parked-card');
+  if (!el) return;
+  const p = Parked.get();
+  if (!p) {
+    el.innerHTML = '<div class="parked-row"><div class="parked-ico">P</div><div class="parked-txt"><b>記住愛車停哪裡</b><span>停好車按一下，回來時一鍵導航找車</span></div></div>' +
+      '<div class="parked-actions"><button class="btn btn-primary btn-sm" data-pk="save">' + ic('map-pin') + '<span>記錄目前位置</span></button></div>';
+  } else {
+    const d = new Date(p.t);
+    const hm = String(d.getHours()).padStart(2, '0') + ':' + String(d.getMinutes()).padStart(2, '0');
+    el.innerHTML = '<div class="parked-row"><div class="parked-ico">P</div><div class="parked-txt"><b>愛車停在這裡 · 已停 ' + escapeHtml(agoText(p.t)) + '</b>' +
+      '<span>' + hm + ' 記錄' + (p.note ? ' · ' + escapeHtml(p.note) : ' · 可加備註（樓層、車位號碼）') + '</span></div></div>' +
+      '<div class="parked-actions">' +
+      '<button class="btn btn-primary btn-sm" data-nav="' + p.lat + ',' + p.lng + '" data-nav-mode="walk">' + ic('navigation') + '<span>步行找車</span></button>' +
+      '<button class="btn btn-outline btn-sm" data-pk="view">' + ic('map') + '<span>地圖上看</span></button>' +
+      '<button class="btn btn-outline btn-sm" data-pk="note">' + ic('pencil') + '<span>備註</span></button>' +
+      '<button class="btn btn-outline btn-sm" data-pk="share">' + ic('share-2') + '<span>分享</span></button>' +
+      '<button class="btn btn-outline btn-sm" data-pk="clear">' + ic('trash-2') + '<span>清除</span></button></div>';
+  }
+  drawIcons();
+}
+async function saveParked() {
+  showToast('定位中…', 'locate-fixed');
+  try {
+    const p = await Geo.locate();
+    let note = '';
+    try { note = prompt('備註（選填，例如 B2 樓、車位 123）', '') || ''; } catch (e) {}
+    Parked.set({ lat: p.lat, lng: p.lng, t: Date.now(), note: note.trim().slice(0, 60) });
+    renderParked();
+    refreshParkedMarker();
+    showToast('已記住停車位置', 'map-pin');
+  } catch (e) { showToast(e.message, 'circle-alert'); }
+}
+setInterval(() => { if (!document.hidden && state.tab === 'map' && Parked.get()) renderParked(); }, 60000);
+
+async function sharePlace(title, lat, lng) {
+  const url = 'https://www.google.com/maps/search/?api=1&query=' + lat + ',' + lng;
+  if (navigator.share) { try { await navigator.share({ title, text: title, url }); } catch (e) {} }
+  else copyToClipboard(title + '\n' + url);
+}
+
+/* ---- Leaflet 地圖 ---- */
+function destroyMap() { if (state.map) { try { state.map.map.remove(); } catch (e) {} state.map = null; } }
+function fitRadius() {
+  if (!state.map) return;
+  try { state.map.map.fitBounds(state.map.circle.getBounds(), { padding: [16, 16], animate: true }); } catch (e) {}
+}
+function refreshParkedMarker() {
+  if (!state.map || !window.L) return;
+  if (state.map.parkedMk) { try { state.map.map.removeLayer(state.map.parkedMk); } catch (e) {} state.map.parkedMk = null; }
+  const p = Parked.get();
+  if (!p) return;
+  const mk = L.marker([p.lat, p.lng], { icon: L.divIcon({ className: 'mk-car', html: '<b>P</b>', iconSize: [30, 30], iconAnchor: [15, 15] }), zIndexOffset: 400 });
+  mk.bindPopup('<div class="pop-name">愛車停在這裡</div>' + (p.note ? '<div class="pop-meta">' + escapeHtml(p.note) + '</div>' : '') + '<a href="#" class="pop-nav" data-nav="' + p.lat + ',' + p.lng + '" data-nav-mode="walk">步行過去</a>');
+  mk.addTo(state.map.map);
+  state.map.parkedMk = mk;
+}
+function initLeaflet() {
+  const md = state.mapData, host = $('map-view');
+  if (!md || !host) return;
+  const g = md.geo;
+  if (!window.L) {
+    host.outerHTML = '<iframe class="map-frame" loading="lazy" referrerpolicy="no-referrer-when-downgrade" src="https://maps.google.com/maps?q=' + g.lat + ',' + g.lng + '&hl=zh-TW&z=15&output=embed" title="地圖"></iframe>';
+    return;
+  }
+  const map = L.map(host, { zoomControl: true });
+  L.tileLayer('https://tile.openstreetmap.org/{z}/{x}/{y}.png', { maxZoom: 19, attribution: '&copy; OpenStreetMap' }).addTo(map);
+  map.setView([g.lat, g.lng], 15);
+  const center = L.marker([g.lat, g.lng], { icon: L.divIcon({ className: 'mk-center', html: '<span></span>', iconSize: [18, 18], iconAnchor: [9, 9] }), keyboard: false, zIndexOffset: 500 }).addTo(map);
+  const circle = L.circle([g.lat, g.lng], { radius: state.pkRadius * 1000, color: '#0EA5E9', weight: 2, fillColor: '#0EA5E9', fillOpacity: 0.08 }).addTo(map);
+  const layer = L.layerGroup().addTo(map);
+  state.map = { map, center, circle, layer, markers: [], parkedMk: null };
+  map.on('dragend', () => {
+    const h = $('map-here');
+    if (!h || !state.mapData) return;
+    const c = map.getCenter();
+    const sg = state.mapData.geo;
+    h.hidden = Utils.distance(c.lat, c.lng, sg.lat, sg.lng) < 0.2;
+  });
+  setTimeout(() => {
+    if (state.map && state.map.map === map) { map.invalidateSize(); fitRadius(); }
+  }, 90);
+  refreshParkedMarker();
+}
+
+async function resolveGeo(kw) {
+  if (state.mpGeo && state.mpGeo.kw === kw) return state.mpGeo.geo;
+  const m = kw.match(/^(-?\d+(?:\.\d+)?)\s*,\s*(-?\d+(?:\.\d+)?)$/);
+  if (m) {
+    const lat = +m[1], lng = +m[2];
+    const g = await Geo.reverse(lat, lng);
+    return g.error ? { lat, lng, address: '', city: '' } : g;
+  }
+  return await Geo.geocode(kw);
+}
+
+function renderMapFallback(kw, note) {
+  destroyMap();
+  state.mapData = null;
   const enc = encodeURIComponent(kw);
   $('result-map').innerHTML = '<div class="card map-card">' +
-    mapEmbed('https://maps.google.com/maps?q=' + enc + '&hl=zh-TW&z=16&output=embed') +
-    '<div class="map-body">' +
-      '<div class="rh-kicker">' + ic('map-pin') + '<span>地點</span></div>' +
-      '<div class="rh-title">' + escapeHtml(kw) + '</div>' +
-      '<div class="map-actions">' +
-        '<a class="btn btn-primary btn-sm" href="https://www.google.com/maps/search/?api=1&query=' + enc + '" target="_blank" rel="noopener">' + ic('external-link') + '<span>開啟地圖</span></a>' +
-        '<a class="btn btn-outline btn-sm" href="https://www.google.com/maps/dir/?api=1&destination=' + enc + '" target="_blank" rel="noopener">' + ic('navigation') + '<span>導航</span></a>' +
-      '</div>' +
-    '</div></div>';
+    '<iframe class="map-frame" loading="lazy" referrerpolicy="no-referrer-when-downgrade" src="https://maps.google.com/maps?q=' + enc + '&hl=zh-TW&z=16&output=embed" title="地圖"></iframe>' +
+    '<div class="map-body"><div class="rh-kicker">' + ic('map-pin') + '<span>地點</span></div>' +
+    '<div class="rh-title">' + escapeHtml(kw) + '</div>' +
+    '<span class="tag tag-warn" style="align-self:flex-start">' + escapeHtml(note) + '，暫時無法顯示附近停車場</span>' +
+    navModesHtml() +
+    '<div class="map-actions">' +
+      '<button class="btn btn-primary btn-sm" data-nav="' + escapeHtml(kw) + '">' + ic('navigation') + '<span>導航</span></button>' +
+      '<a class="btn btn-outline btn-sm" href="https://www.google.com/maps/search/?api=1&query=' + enc + '" target="_blank" rel="noopener">' + ic('external-link') + '<span>開啟地圖</span></a>' +
+    '</div>' + nearHtml() + '</div></div>';
   drawIcons();
 }
-function renderRouteMap(a, b) {
-  const ea = encodeURIComponent(a), eb = encodeURIComponent(b);
-  $('result-map').innerHTML = '<div class="card map-card">' +
-    mapEmbed('https://maps.google.com/maps?saddr=' + ea + '&daddr=' + eb + '&hl=zh-TW&output=embed') +
-    '<div class="map-body">' +
-      '<div class="rh-kicker">' + ic(TYPE_META[state.type].icon) + '<span>' + TYPE_META[state.type].label + ' 路線</span></div>' +
-      '<div class="rh-title">' + odTitle(a, b) + '</div>' +
-      '<div class="map-actions">' +
-        '<a class="btn btn-primary btn-sm" href="https://www.google.com/maps/dir/?api=1&origin=' + ea + '&destination=' + eb + '&travelmode=transit" target="_blank" rel="noopener">' + ic('route') + '<span>查看路線</span></a>' +
-        '<a class="btn btn-outline btn-sm" href="https://www.google.com/maps/dir/?api=1&destination=' + ea + '" target="_blank" rel="noopener">' + ic('navigation') + '<span>導航到起站</span></a>' +
+
+function renderMapResult() {
+  const md = state.mapData, d = md.dest;
+  const isMe = md.kw === '我的位置' || md.kw === '愛車位置' || COORD_RE.test(md.kw);
+  const title = md.kw === '愛車位置' ? '愛車位置' : (isMe ? '我的位置' : md.kw);
+  const kicker = md.kw === '愛車位置' ? '你的愛車' : (isMe ? '目前位置' : '地點');
+  const kIcon = md.kw === '愛車位置' ? 'car' : (isMe ? 'locate-fixed' : 'map-pin');
+  const coord = d.lat.toFixed(6) + ',' + d.lng.toFixed(6);
+  const routeBtn = state.routeFrom
+    ? '<a class="btn btn-outline btn-sm" href="https://www.google.com/maps/dir/?api=1&origin=' + encodeURIComponent(state.routeFrom) + '&destination=' + encodeURIComponent(md.kw) + '&travelmode=transit" target="_blank" rel="noopener">' + ic('route') + '<span>查看路線</span></a>' : '';
+  const isMotor = state.pkType === 'motor';
+  $('result-map').innerHTML =
+    '<div class="card map-card">' +
+      '<div class="map-wrap"><div class="map-view" id="map-view"></div>' +
+      '<button class="map-here" id="map-here" hidden>' + ic('crosshair') + '在此區域找停車</button></div>' +
+      '<div class="map-body">' +
+        '<div class="rh-kicker">' + ic(kIcon) + '<span>' + kicker + '</span></div>' +
+        '<div class="rh-title">' + escapeHtml(title) + '</div>' +
+        (md.geo.address ? '<div class="map-addr">' + escapeHtml(md.geo.address) + '</div>' : '') +
+        navModesHtml() +
+        '<div class="map-actions">' +
+          '<button class="btn btn-primary btn-sm" data-nav="' + coord + '">' + ic('navigation') + '<span>導航</span></button>' +
+          '<a class="btn btn-outline btn-sm" href="https://www.google.com/maps/search/?api=1&query=' + coord + '" target="_blank" rel="noopener">' + ic('external-link') + '<span>開啟地圖</span></a>' +
+          routeBtn +
+          '<button class="btn btn-outline btn-sm" data-act="place-share">' + ic('share-2') + '<span>分享位置</span></button>' +
+        '</div>' +
+        nearHtml() +
       '</div>' +
-    '</div></div>';
+    '</div>' +
+    '<div class="card result-card" id="park-card" style="margin-top:16px">' +
+      '<div class="rh"><div style="min-width:0"><div class="rh-kicker">' + ic('square-parking') + '<span>附近停車場</span></div>' +
+        '<div class="rh-title" id="pk-title" style="font-size:20px">停車資訊</div></div>' +
+        '<div class="rh-actions"><button class="icon-btn" data-act="park-refresh" aria-label="重新整理" title="重新整理">' + ic('refresh-cw') + '</button>' +
+        '<button class="icon-btn" data-act="park-copy" aria-label="複製清單" title="複製清單">' + ic('copy') + '</button></div></div>' +
+      '<div class="park-card-body">' +
+        '<div class="range-box"><div class="range-top"><span>搜尋範圍</span><b id="pk-range-val">' + Utils.radLabel(state.pkRadius) + '</b></div>' +
+          '<input type="range" class="range" id="pk-range" min="0.2" max="3" step="0.1" value="' + state.pkRadius + '" aria-label="搜尋範圍（公里）">' +
+          '<div class="range-scale"><span>200 公尺</span><span>1.5 公里</span><span>3 公里</span></div></div>' +
+        '<div class="pills full" id="pk-type2"><button class="pill' + (isMotor ? '' : ' active') + '" data-pktype="car">' + ic('car') + '汽車</button><button class="pill' + (isMotor ? ' active' : '') + '" data-pktype="motor">' + ic('bike') + '機車</button></div>' +
+        '<div class="field-row"><span class="mini-label">排序</span><div class="pills" id="pk-sort2">' +
+          '<button class="pill' + (state.pkSort === 'dist' ? ' active' : '') + '" data-pksort="dist">距離</button>' +
+          '<button class="pill' + (state.pkSort === 'avail' ? ' active' : '') + '" data-pksort="avail">空位最多</button></div></div>' +
+      '</div>' +
+      '<div class="rh-sub" id="pk-sub"></div>' +
+      '<div class="park-list" id="pk-list"></div>' +
+      '<div id="pk-more"></div>' +
+    '</div>';
+  paintRange($('pk-range'));
   drawIcons();
+  initLeaflet();
+  updateParking();
 }
-function runMap() {
+
+function paintRange(el) {
+  if (!el) return;
+  const pct = (el.value - el.min) / (el.max - el.min) * 100;
+  el.style.background = 'linear-gradient(to right, var(--primary) ' + pct + '%, var(--surface-2) ' + pct + '%)';
+}
+
+async function runMap() {
+  const btn = $('mp-go');
+  if (btn.disabled) return;
   const kw = $('mp-kw').value.trim();
   if (!kw) { showToast('請輸入地點', 'map-pin'); $('mp-kw').focus(); return; }
   tap();
-  renderPlaceMap(kw);
+  setBtnLoading(btn, true, '搜尋中…');
+  destroyMap();
+  showSkeleton('map');
   revealResult('map');
+  try {
+    const geo = await resolveGeo(kw);
+    if (geo.error) {
+      if (geo.error === 'GEO_ZERO_RESULTS' || geo.error === 'OFFLINE') throw new Error(geoErrorMsg(geo.error, kw));
+      Places.add(kw); renderPlaces();
+      renderMapFallback(kw, geoErrorMsg(geo.error, kw));
+      return;
+    }
+    state.mapData = {
+      kw, geo: { lat: geo.lat, lng: geo.lng, address: geo.address || '', city: geo.city || '' },
+      dest: { lat: geo.lat, lng: geo.lng },
+      parks: null, parkErr: '', parkNote: '', token: 0, shown: 20, moved: false
+    };
+    Places.add(kw); renderPlaces();
+    renderMapResult();
+    loadParking();
+  } catch (e) {
+    state.mapData = null;
+    showError('map', e.message || '發生未知錯誤');
+  } finally { setBtnLoading(btn, false); }
 }
 $('mp-go').onclick = runMap;
+$('mp-kw').addEventListener('keydown', e => { if (e.key === 'Enter') runMap(); });
+$('mp-kw').addEventListener('input', () => { state.mpGeo = null; state.routeFrom = null; });
+document.querySelectorAll('#mp-quick .q-chip').forEach(c => { c.onclick = () => { $('mp-kw').value = c.dataset.kw; state.mpGeo = null; state.routeFrom = null; runMap(); }; });
 $('mp-nav').onclick = () => {
   const kw = $('mp-kw').value.trim();
   if (!kw) { showToast('請輸入地點', 'map-pin'); $('mp-kw').focus(); return; }
   tap();
-  window.open('https://www.google.com/maps/dir/?api=1&destination=' + encodeURIComponent(kw), '_blank', 'noopener');
+  let dest = kw;
+  if (state.mpGeo && state.mpGeo.kw === kw) dest = state.mpGeo.geo.lat.toFixed(6) + ',' + state.mpGeo.geo.lng.toFixed(6);
+  window.open(navUrl(dest), '_blank', 'noopener');
 };
-$('mp-kw').addEventListener('keydown', e => { if (e.key === 'Enter') runMap(); });
-document.querySelectorAll('#mp-quick .q-chip').forEach(c => { c.onclick = () => { $('mp-kw').value = c.dataset.kw; runMap(); }; });
-
-/* ========== 停車 ========== */
-document.querySelectorAll('#pk-type .pill').forEach(p => {
-  p.onclick = () => { tap(); state.pkType = p.dataset.v; document.querySelectorAll('#pk-type .pill').forEach(x => x.classList.toggle('active', x === p)); };
-});
-async function runPark() {
-  const btn = $('pk-go');
-  if (btn.disabled) return;
-  const kw = $('pk-kw').value.trim();
-  if (!kw) { showToast('請輸入地點', 'map-pin'); $('pk-kw').focus(); return; }
+$('mp-locate').onclick = async () => {
+  const btn = $('mp-locate');
+  if (btn.classList.contains('busy')) return;
   tap();
-  const type = state.pkType;
-  setBtnLoading(btn, true, '搜尋中…');
-  showSkeleton('park');
-  revealResult('park');
+  btn.classList.add('busy');
+  showToast('定位中…', 'locate-fixed');
   try {
-    let r = await parkQuery(kw, type, 1);
-    if (r.error) throw new Error(r.error);
-    let note = null;
-    if (r.parks.length === 0) {
-      r = await parkQuery(kw, type, 2);
-      if (r.error) throw new Error(r.error);
-      note = '1 公里內沒有，已擴大到 2 公里';
-    }
-    renderPark(r, note);
-  } catch (e) { showError('park', e.message || '發生未知錯誤'); }
-  finally { setBtnLoading(btn, false); }
-}
-$('pk-go').onclick = runPark;
-$('pk-kw').addEventListener('keydown', e => { if (e.key === 'Enter') runPark(); });
-$('pk-map').onclick = () => {
-  const kw = $('pk-kw').value.trim();
-  if (!kw) { showToast('請輸入地點', 'map-pin'); $('pk-kw').focus(); return; }
-  setTab('map');
-  $('mp-kw').value = kw;
-  runMap();
+    const p = await Geo.locate();
+    let g = { lat: p.lat, lng: p.lng, address: '', city: '' };
+    try { const r = await Geo.reverse(p.lat, p.lng); if (!r.error) g = r; } catch (e) {}
+    state.mpGeo = { kw: '我的位置', geo: g };
+    state.routeFrom = null;
+    $('mp-kw').value = '我的位置';
+    runMap();
+  } catch (e) { showToast(e.message, 'circle-alert'); }
+  finally { btn.classList.remove('busy'); }
 };
 
-function renderPark(r, note) {
-  const out = $('result-park');
-  const isMotor = r.type === 'motor';
-  const label = (isMotor ? '機車' : '汽車') + '停車場';
-  const header = resultHeader({ icon: isMotor ? 'bike' : 'car', kicker: label + ' · 半徑 ' + r.radiusKm + ' 公里', title: escapeHtml(r.keyword), fav: false });
-  if (r.parks.length === 0) {
-    out.innerHTML = '<div class="card result-card">' + header + '<div class="inline-empty"><p>2 公里內找不到' + label + '</p></div></div>';
-    state.share.park = { title: label + ' ' + r.keyword, text: label + ' · ' + r.keyword + '\n2 公里內無結果' };
+/* ---- 附近停車（附屬於地圖） ---- */
+async function loadParking() {
+  const md = state.mapData;
+  if (!md) return;
+  const token = md.token = (md.token || 0) + 1;
+  md.parkErr = ''; md.parkNote = ''; md.parks = null; md.shown = 20;
+  updateParking();
+  try {
+    const g = md.geo;
+    let code = PARK_CITY_MAP[g.city] || '';
+    if (!code) code = nearestCityCode(g.lat, g.lng);
+    let parks = [], note = '';
+    if (!code) note = '這個地區目前沒有停車場即時資料';
+    else parks = await fetchNearbyParking(code, g, 3);
+    if (state.mapData !== md || md.token !== token) return;
+    md.parks = parks;
+    md.parkNote = note;
+  } catch (e) {
+    if (state.mapData !== md || md.token !== token) return;
+    md.parks = null;
+    md.parkErr = (e && e.message) || '停車資料暫時無法取得';
+  }
+  updateParking();
+}
+
+function updateParking() {
+  const md = state.mapData;
+  if (!md || !$('pk-list')) return;
+  const km = state.pkRadius;
+  const isMotor = state.pkType === 'motor';
+  const label = isMotor ? '機車' : '汽車';
+  const list = $('pk-list'), sub = $('pk-sub'), more = $('pk-more');
+  $('pk-range-val').textContent = Utils.radLabel(km);
+  $('pk-title').textContent = label + '停車場 · ' + Utils.radLabel(km) + '內';
+  more.innerHTML = '';
+  state.parkShareText = '';
+  if (state.map) { state.map.circle.setRadius(km * 1000); state.map.layer.clearLayers(); state.map.markers = []; }
+  if (md.parkErr) {
+    sub.innerHTML = '';
+    list.innerHTML = '<div class="inline-empty"><p>' + escapeHtml(md.parkErr) + '</p><button class="btn btn-outline btn-sm" data-act="park-retry">' + ic('refresh-cw') + '<span>重新載入</span></button></div>';
     drawIcons();
     return;
   }
-  const copyLines = [label + ' · ' + r.keyword, '半徑 ' + r.radiusKm + ' 公里 · 共 ' + r.parks.length + ' 座'];
-  const items = r.parks.map((p, i) => {
+  if (md.parks === null) {
+    sub.innerHTML = '';
+    list.innerHTML = '<div class="sk" style="height:72px"></div><div class="sk" style="height:72px;opacity:.7"></div>';
+    return;
+  }
+  if (md.parkNote) {
+    sub.innerHTML = '';
+    list.innerHTML = '<div class="inline-empty"><p>' + escapeHtml(md.parkNote) + '</p></div>';
+    return;
+  }
+  const typeCode = isMotor ? '2' : '1';
+  const arr = md.parks.filter(p => p.ptype === typeCode && p.distance <= km);
+  if (state.pkSort === 'avail') {
+    arr.sort((a, b) => {
+      const av = a.available === null ? -1 : a.available, bv = b.available === null ? -1 : b.available;
+      if (av !== bv) return bv - av;
+      return a.distance - b.distance;
+    });
+  } else arr.sort((a, b) => a.distance - b.distance);
+
+  const subs = '<span class="count"><b class="num">' + arr.length + '</b>座</span>' +
+    '<span class="tag">' + (state.pkSort === 'avail' ? '空位最多優先' : '距離最近優先') + '</span>' +
+    (md.moved ? '<span class="tag tag-primary">以地圖中心搜尋</span>' : '');
+  sub.innerHTML = subs;
+
+  if (arr.length === 0) {
+    list.innerHTML = '<div class="inline-empty"><p>' + Utils.radLabel(km) + '內找不到' + label + '停車場</p>' +
+      (km < 3 ? '<button class="btn btn-outline btn-sm" data-act="park-expand">' + ic('maximize-2') + '<span>擴大範圍</span></button>' : '') + '</div>';
+    state.parkShareText = label + '停車場 · ' + md.kw + '\n' + Utils.radLabel(km) + '內無結果';
+    drawIcons();
+    return;
+  }
+
+  if (state.map && window.L) {
+    arr.slice(0, 60).forEach((p, i) => {
+      const hasAv = p.available !== null;
+      const ratio = hasAv && p.total ? p.available / Math.max(p.total, 1) : null;
+      const cls = !hasAv ? 'na' : ((ratio !== null && ratio <= 0.3) || p.available === 0 ? 'low' : 'ok');
+      const mk = L.marker([p.lat, p.lng], { icon: L.divIcon({ className: 'mk-park', html: '<b class="' + cls + '">' + (hasAv ? p.available : 'P') + '</b>', iconSize: [36, 26], iconAnchor: [18, 13] }) });
+      const dist = p.distance < 1 ? Math.round(p.distance * 1000) + ' m' : p.distance.toFixed(1) + ' km';
+      mk.bindPopup('<div class="pop-name">' + escapeHtml(p.name) + '</div><div class="pop-meta">' + dist + ' · ' + (hasAv ? '空位 ' + p.available + (p.total ? ' / ' + p.total : '') : '無即時資料') + (p.fare ? '<br>' + escapeHtml(p.fare) : '') + '</div><a href="#" class="pop-nav" data-nav="' + p.lat + ',' + p.lng + '">導航過去</a>');
+      mk.addTo(state.map.layer);
+      state.map.markers[i] = mk;
+    });
+  }
+
+  const shown = arr.slice(0, md.shown);
+  const copyLines = [label + '停車場 · ' + md.kw, '半徑 ' + Utils.radLabel(km) + ' · 共 ' + arr.length + ' 座'];
+  list.innerHTML = shown.map((p, i) => {
     const dist = p.distance < 1 ? Math.round(p.distance * 1000) + ' m' : p.distance.toFixed(1) + ' km';
-    const mapUrl = (p.lat != null && p.lng != null) ? 'https://www.google.com/maps/search/?api=1&query=' + Number(p.lat).toFixed(6) + ',' + Number(p.lng).toFixed(6) : null;
     let avail, bar = '';
-    if (p.available !== null && p.total !== null) {
+    if (p.available !== null && p.total !== null && p.total > 0) {
       const ratio = p.available / Math.max(p.total, 1);
       avail = '<span class="tag ' + (ratio > 0.3 ? 'tag-ok' : 'tag-warn') + ' num">空位 ' + p.available + ' / ' + p.total + '</span>';
       bar = '<div class="bar"><i class="' + (ratio > 0.3 ? '' : 'low') + '" style="width:' + Math.max(3, Math.min(100, Math.round(ratio * 100))) + '%"></i></div>';
     } else if (p.available !== null) avail = '<span class="tag tag-ok num">空位 ' + p.available + '</span>';
     else avail = '<span class="tag">無即時資料</span>';
-    const nameHtml = mapUrl ? '<a href="' + mapUrl + '" target="_blank" rel="noopener" class="park-name">' + escapeHtml(p.name) + '</a>' : '<span class="park-name">' + escapeHtml(p.name) + '</span>';
-    const mapBtn = mapUrl ? '<a href="https://www.google.com/maps/dir/?api=1&destination=' + Number(p.lat).toFixed(6) + ',' + Number(p.lng).toFixed(6) + '" target="_blank" rel="noopener" class="icon-btn" aria-label="導航" title="導航">' + ic('navigation') + '</a>' : '';
-    copyLines.push((i + 1) + '. ' + p.name + ' · ' + dist + ' · ' + (p.available !== null ? p.available + '/' + (p.total || '?') : '無即時車位') + (mapUrl ? ' · ' + mapUrl : ''));
-    return '<div class="park"><div class="park-rank num">' + (i + 1) + '</div><div style="min-width:0">' + nameHtml +
-      '<div class="park-meta"><span class="dist num">' + ic('ruler') + dist + '</span>' + avail + '</div>' + bar + '</div>' + mapBtn + '</div>';
+    copyLines.push((i + 1) + '. ' + p.name + ' · ' + dist + ' · ' + (p.available !== null ? '空位 ' + p.available + (p.total ? '/' + p.total : '') : '無即時車位') + ' · https://www.google.com/maps/search/?api=1&query=' + Number(p.lat).toFixed(6) + ',' + Number(p.lng).toFixed(6));
+    return '<div class="park"><div class="park-rank num">' + (i + 1) + '</div>' +
+      '<div class="park-click" data-park-focus="' + i + '"><span class="park-name">' + escapeHtml(p.name) + '</span>' +
+      '<div class="park-meta"><span class="dist num">' + ic('ruler') + dist + '</span>' + avail + '</div>' + bar +
+      (p.fare ? '<div class="park-fare">費率：' + escapeHtml(p.fare) + '</div>' : '') + '</div>' +
+      '<button class="icon-btn" data-nav="' + Number(p.lat).toFixed(6) + ',' + Number(p.lng).toFixed(6) + '" aria-label="導航" title="導航">' + ic('navigation') + '</button></div>';
   }).join('');
-  const subs = '<span class="count"><b class="num">' + r.parks.length + '</b>座</span>' + (note ? '<span class="tag tag-warn">' + escapeHtml(note) + '</span>' : '');
-  out.innerHTML = '<div class="card result-card">' + header + '<div class="rh-sub">' + subs + '</div><div class="park-list">' + items + '</div></div>';
-  state.share.park = { title: label + ' ' + r.keyword, text: copyLines.join('\n') };
+  if (arr.length > shown.length) {
+    more.innerHTML = '<div class="more-row"><button class="btn btn-outline btn-sm" data-act="park-more">' + ic('chevrons-down') + '<span>顯示更多（還有 ' + (arr.length - shown.length) + ' 座）</span></button></div>';
+  }
+  state.parkShareText = copyLines.join('\n');
   drawIcons();
 }
 
+let _rangeTimer = null;
+document.addEventListener('input', (e) => {
+  if (e.target && e.target.id === 'pk-range') {
+    const v = Math.round(parseFloat(e.target.value) * 10) / 10;
+    state.pkRadius = v;
+    paintRange(e.target);
+    $('pk-range-val').textContent = Utils.radLabel(v);
+    if (state.map) state.map.circle.setRadius(v * 1000);
+    clearTimeout(_rangeTimer);
+    _rangeTimer = setTimeout(() => { savePrefs(); updateParking(); fitRadius(); }, 130);
+  }
+});
+
 /* ========== 全域事件 ========== */
+function setPillActive(container, btn) {
+  container.querySelectorAll('.pill').forEach(x => x.classList.toggle('active', x === btn));
+}
 document.addEventListener('click', (e) => {
+  const nav = e.target.closest('[data-nav]');
+  if (nav) { e.preventDefault(); tap(); window.open(navUrl(nav.dataset.nav, nav.dataset.navMode), '_blank', 'noopener'); return; }
+  const nm = e.target.closest('[data-navmode]');
+  if (nm) { tap(); state.navMode = nm.dataset.navmode; savePrefs(); document.querySelectorAll('#nav-mode .pill').forEach(x => x.classList.toggle('active', x === nm)); return; }
+  const near = e.target.closest('[data-near]');
+  if (near) {
+    tap();
+    const q = near.dataset.near, md = state.mapData;
+    let url;
+    if (md) url = 'https://www.google.com/maps/search/' + encodeURIComponent(q) + '/@' + md.geo.lat.toFixed(6) + ',' + md.geo.lng.toFixed(6) + ',16z';
+    else {
+      const kw = $('mp-kw').value.trim();
+      if (!kw) { showToast('請先輸入地點', 'map-pin'); return; }
+      url = 'https://www.google.com/maps/search/' + encodeURIComponent(q + ' ' + kw);
+    }
+    window.open(url, '_blank', 'noopener');
+    return;
+  }
+  const pf = e.target.closest('[data-park-focus]');
+  if (pf) {
+    tap();
+    const i = +pf.dataset.parkFocus;
+    if (state.map && state.map.markers[i]) {
+      const mk = state.map.markers[i];
+      $('map-view').scrollIntoView({ behavior: 'smooth', block: 'center' });
+      state.map.map.flyTo(mk.getLatLng(), 17, { duration: 0.6 });
+      setTimeout(() => { try { mk.openPopup(); } catch (err) {} }, 650);
+    }
+    return;
+  }
+  if (e.target.closest('#map-here')) {
+    tap();
+    const md = state.mapData;
+    if (md && state.map) {
+      const c = state.map.map.getCenter();
+      const sameArea = Utils.distance(c.lat, c.lng, md.geo.lat, md.geo.lng) < 15;
+      md.geo = { lat: c.lat, lng: c.lng, address: '', city: sameArea ? md.geo.city : '' };
+      md.moved = true;
+      state.map.center.setLatLng(c);
+      state.map.circle.setLatLng(c);
+      $('map-here').hidden = true;
+      loadParking();
+    }
+    return;
+  }
+  const pk = e.target.closest('[data-pk]');
+  if (pk) {
+    tap();
+    const a = pk.dataset.pk, p = Parked.get();
+    if (a === 'save') saveParked();
+    if (a === 'view' && p) {
+      state.mpGeo = { kw: '愛車位置', geo: { lat: p.lat, lng: p.lng, address: p.note || '', city: '' } };
+      state.routeFrom = null;
+      $('mp-kw').value = '愛車位置';
+      runMap();
+    }
+    if (a === 'share' && p) sharePlace('我的愛車停在這裡' + (p.note ? '（' + p.note + '）' : ''), p.lat, p.lng);
+    if (a === 'note' && p) {
+      let n = null;
+      try { n = prompt('備註（樓層、車位號碼）', p.note || ''); } catch (err) {}
+      if (n !== null) { p.note = String(n).trim().slice(0, 60); Parked.set(p); renderParked(); refreshParkedMarker(); }
+    }
+    if (a === 'clear') { Parked.clear(); renderParked(); refreshParkedMarker(); showToast('已清除停車記錄', 'trash-2'); }
+    return;
+  }
+  const ptype = e.target.closest('[data-pktype]');
+  if (ptype) {
+    tap();
+    state.pkType = ptype.dataset.pktype;
+    savePrefs();
+    setPillActive($('pk-type2'), ptype);
+    if (state.mapData) state.mapData.shown = 20;
+    updateParking();
+    return;
+  }
+  const psort = e.target.closest('[data-pksort]');
+  if (psort) {
+    tap();
+    state.pkSort = psort.dataset.pksort;
+    savePrefs();
+    setPillActive($('pk-sort2'), psort);
+    if (state.mapData) state.mapData.shown = 20;
+    updateParking();
+    return;
+  }
+  const pl = e.target.closest('[data-place-idx]');
+  if (pl) {
+    tap();
+    const name = Places.get()[+pl.dataset.placeIdx];
+    if (name) { $('mp-kw').value = name; state.mpGeo = null; state.routeFrom = null; runMap(); }
+    return;
+  }
+  if (e.target.closest('#clear-places')) { tap(); Places.clear(); renderPlaces(); return; }
+
+  const ics = e.target.closest('[data-ics]');
+  if (ics) { tap(); downloadTripICS(+ics.dataset.ics); return; }
+  const pt = e.target.closest('[data-past-toggle]');
+  if (pt) { tap(); state.showPast = !state.showPast; rerenderTrip(); return; }
   const act = e.target.closest('[data-act]');
   if (act) {
+    const a = act.dataset.act;
+    if (a === 'park-refresh' || a === 'park-retry') { tap(); loadParking(); return; }
+    if (a === 'park-expand') {
+      tap();
+      state.pkRadius = Math.min(3, Math.round((state.pkRadius + 1) * 10) / 10);
+      const r = $('pk-range');
+      if (r) { r.value = state.pkRadius; paintRange(r); }
+      savePrefs(); updateParking(); fitRadius();
+      return;
+    }
+    if (a === 'park-more') { tap(); if (state.mapData) { state.mapData.shown += 20; updateParking(); } return; }
+    if (a === 'park-copy') { if (state.parkShareText) copyToClipboard(state.parkShareText); else showToast('目前沒有可複製的清單', 'circle-alert'); return; }
+    if (a === 'place-share') {
+      const md = state.mapData;
+      if (md) sharePlace((md.kw === '我的位置' || COORD_RE.test(md.kw)) ? '我的位置' : md.kw, md.dest.lat.toFixed(6), md.dest.lng.toFixed(6));
+      return;
+    }
     const tab = act.closest('.result').id.replace('result-', '');
     const sh = state.share[tab];
-    if (act.dataset.act === 'copy' && sh) copyToClipboard(sh.text);
-    if (act.dataset.act === 'share' && sh) shareContent(sh.title, sh.text);
-    if (act.dataset.act === 'fav' && state.lastQuery) {
+    if (a === 'copy' && sh) copyToClipboard(sh.text);
+    if (a === 'share' && sh) shareContent(sh.title, sh.text);
+    if (a === 'refresh' && tab === 'trip') { tap(); runTripQuery(); }
+    if (a === 'fav' && state.lastQuery) {
       tap();
       const added = Store.addFav(Object.assign({}, state.lastQuery));
       act.classList.add('on');
@@ -1750,27 +2491,33 @@ document.addEventListener('click', (e) => {
     const a = cta.dataset.cta;
     if (a === 'trip-go') runTripQuery();
     if (a === 'trip-all') { $('tr-time').value = ''; $('tr-express-only').checked = false; updateDateLabel(); runTripQuery(); }
-    if (a === 'map-demo') { $('mp-kw').value = '台北車站'; runMap(); }
-    if (a === 'park-demo') { $('pk-kw').value = '高雄車站'; runPark(); }
+    if (a === 'trip-tomorrow') { $('tr-date').value = Utils.addDays(1); $('tr-time').value = ''; updateDateLabel(); runTripQuery(); }
+    if (a === 'map-demo') { $('mp-kw').value = '台北車站'; state.mpGeo = null; state.routeFrom = null; runMap(); }
     return;
   }
   const retry = e.target.closest('[data-retry]');
   if (retry) {
     const t = retry.dataset.retry;
     if (t === 'trip') runTripQuery();
-    if (t === 'park') runPark();
     if (t === 'map') runMap();
   }
 });
-document.addEventListener('keydown', (e) => { if (e.key === 'Escape') renderEmpty(state.tab); });
 
 /* ========== 初始化 ========== */
+updateOnline();
 updateTransportUI();
 TABS.forEach(renderEmpty);
+renderPlaces();
+renderParked();
 renderFavs();
 renderHist();
 drawIcons();
 window.addEventListener('load', drawIcons);
+(async function restoreLast() {
+  const last = lsJson('tq_last', null);
+  if (!last || !TYPE_META[last.type] || !last.from || !last.to) return;
+  try { await applyRouteValues(last); } catch (e) {}
+})();
 </script>
 </body>
 </html>
