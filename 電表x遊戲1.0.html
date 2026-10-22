@@ -2127,6 +2127,8 @@ body.bt-open .a2hs,body.bt-open .m-toast{display:none}
     <div class="error" id="errorText" style="display:none"></div>
     <div id="mainContent">
 
+      <div id="ovSummary" role="status" style="display:none"></div>
+
       <div class="date-range">
         <input type="date" id="dateStart">
         <span class="sep">～</span>
@@ -2282,6 +2284,9 @@ const CONFIG = {
 };
 
 const METERS = ["33航電","29飛彈","30飛彈","31軍械","32軍械","13快砲","14快砲","49流量台"];
+/* 每台電表的單位（沒寫的一律 kWh）。例如流量台如果不是度數，在這裡改，例如 {"49流量台":"m³"} */
+const METER_UNITS = {};
+const unitOf = m => METER_UNITS[m] || "kWh";
 const COLORS = ["#58a6ff","#3fb950","#d29922","#f85149","#a371f7","#ff7b72","#79c0ff","#56d364"];
 
 const CATEGORIES = [
@@ -2379,7 +2384,11 @@ function resetCache(){
   _cacheTodayStr = null;
   _cacheTodayIndex = -1;
   _cacheDiffs = {};
+  _cacheAnom = {};          // 優化：異常／倒退判斷每次畫面只算一次
+  _cacheRev = {};
+  _cacheUsage = {};
 }
+let _cacheAnom = {}, _cacheRev = {}, _cacheUsage = {};
 
 /* ============================================================
    DEBUG log
@@ -2743,22 +2752,62 @@ function onDateChange(){
     els.queryBody.classList.add("open");
   }
 }
+let _qMode = "read";                         // 查詢表格顯示：read＝讀數、use＝每天用電量
+let _qRange = null;
+/* 查詢範圍內的資料列（連同它在 data 裡的位置，算用電量要用） */
+function queryRows(s, e){
+  const out = [];
+  data.forEach((r, i) => { if(r["日期"] >= s && r["日期"] <= e) out.push({r, i}); });
+  return out;
+}
+function queryCell(m, row){
+  const v = _qMode === "use" ? getUsage(m)[row.i] : row.r[m];
+  return typeof v === "number" ? v.toFixed(_qMode === "use" ? 2 : 1) : null;
+}
 function renderQuery(s, e){
-  const filtered = data.filter(r => r["日期"] >= s && r["日期"] <= e);
-  if(!filtered.length){
+  _qRange = [s, e];
+  const rowsF = queryRows(s, e);
+  if(!rowsF.length){
     els.queryInner.innerHTML = '<div class="alert-empty">此範圍內無資料</div>';
     return;
   }
   const header = '<tr><th>日期</th>' + METERS.map(m => '<th>' + m.slice(0,2) + '</th>').join("") + '</tr>';
-  const rows = filtered.slice().reverse().map(r => {
-    const cells = METERS.map(m => {
-      const v = r[m];
-      return '<td>' + (typeof v === "number" ? v.toFixed(1) : "—") + '</td>';
-    }).join("");
-    return '<tr><td>' + r["日期"].substring(5) + '</td>' + cells + '</tr>';
+  const rows = rowsF.slice().reverse().map(row => {
+    const cells = METERS.map(m => { const t = queryCell(m, row); return '<td>' + (t == null ? "—" : t) + '</td>'; }).join("");
+    return '<tr><td>' + row.r["日期"].substring(5) + '</td>' + cells + '</tr>';
   }).join("");
-  els.queryInner.innerHTML = '<div class="table-scroll" style="border:1px solid var(--border);border-radius:8px;"><table>' + header + rows + '</table></div>';
+  /* 合計列：用電量模式才有意義 */
+  let sumRow = "";
+  if(_qMode === "use"){
+    sumRow = '<tr><td>合計</td>' + METERS.map(m => { let t = 0; rowsF.forEach(row => { const v = getUsage(m)[row.i]; if(typeof v === "number" && v > 0) t += v; }); return '<td>' + t.toFixed(1) + '</td>'; }).join("") + '</tr>';
+  }
+  const bar = '<div class="date-quick" id="qModeBar" style="margin:0 0 8px">' +
+    '<button type="button" data-qm="read" class="' + (_qMode === "read" ? "on" : "") + '">讀數</button>' +
+    '<button type="button" data-qm="use" class="' + (_qMode === "use" ? "on" : "") + '">每天用電量</button>' +
+    '<button type="button" data-qm="csv">⬇ 匯出 CSV</button></div>';
+  els.queryInner.innerHTML = bar + '<div class="table-scroll" style="border:1px solid var(--border);border-radius:8px;"><table>' + header + sumRow + rows + '</table></div>';
 }
+/* 匯出目前查詢範圍成 CSV（試算表、Excel 都能開；加 BOM 避免中文亂碼） */
+function exportQueryCsv(){
+  if(!_qRange) return;
+  const rowsF = queryRows(_qRange[0], _qRange[1]);
+  const lines = [["日期"].concat(METERS).join(",")];
+  rowsF.forEach(row => lines.push([row.r["日期"]].concat(METERS.map(m => { const t = queryCell(m, row); return t == null ? "" : t; })).join(",")));
+  const blob = new Blob(["\ufeff" + lines.join("\r\n")], {type:"text/csv;charset=utf-8"});
+  const a = document.createElement("a");
+  a.href = URL.createObjectURL(blob);
+  a.download = "電表_" + (_qMode === "use" ? "用電量_" : "讀數_") + _qRange[0].replace(/\//g,"") + "-" + _qRange[1].replace(/\//g,"") + ".csv";
+  document.body.appendChild(a); a.click();
+  setTimeout(() => { URL.revokeObjectURL(a.href); a.remove(); }, 500);
+  try{ sfxTap(); cloudToast("已匯出 " + rowsF.length + " 天", 1800); }catch(e){}
+}
+if(els.queryInner) els.queryInner.addEventListener("click", ev => {
+  const b = ev.target.closest("[data-qm]");
+  if(!b) return;
+  if(b.dataset.qm === "csv"){ exportQueryCsv(); return; }
+  _qMode = b.dataset.qm; try{ sfxTap(); }catch(e){}
+  if(_qRange) renderQuery(_qRange[0], _qRange[1]);
+});
 
 /* ============================================================
    快取與增量計算
@@ -2798,6 +2847,27 @@ function getDiff(m){
   _cacheDiffs[m] = arr;
   return arr;
 }
+/* 兩個日期字串（yyyy/mm/dd）相差幾天 */
+function dayGap(a, b){
+  const x = new Date(a.replace(/\//g,"-")), y = new Date(b.replace(/\//g,"-"));
+  x.setHours(0,0,0,0); y.setHours(0,0,0,0);
+  return Math.max(1, Math.round((y - x) / 86400000));
+}
+/* 每天實際用電量（修正：中間漏報的日子，用電量算在「下一次回報」那天，年度報表才不會少算）。
+   和 getDiff 的差別：getDiff 只比「前一天」，漏一天就空白；這個比「上一次有回報的讀數」。 */
+function getUsage(m){
+  if(_cacheUsage[m]) return _cacheUsage[m];
+  const arr = [];
+  let prev = null;
+  for(let i=0;i<data.length;i++){
+    const c = data[i][m];
+    if(typeof c !== "number"){ arr.push(null); continue; }
+    arr.push(prev != null ? +(c - prev).toFixed(2) : null);
+    prev = c;
+  }
+  _cacheUsage[m] = arr;
+  return arr;
+}
 
 /* ============================================================
    異常偵測
@@ -2817,6 +2887,10 @@ function getAnomalyThreshold(m){
   return { threshold: Math.max(mean + CONFIG.ANOMALY_SIGMA*sigma, 1.0), mean, sigma };
 }
 function getRecentAnomalies(m){
+  if(_cacheAnom[m]) return _cacheAnom[m];
+  return (_cacheAnom[m] = calcRecentAnomalies(m));
+}
+function calcRecentAnomalies(m){
   const idx = getTodayIndex();
   if(idx < 0) return [];
   const startIdx = Math.max(0, idx - 4);
@@ -2827,20 +2901,41 @@ function getRecentAnomalies(m){
     if(i <= 0) continue;
     const todayV = data[i][m];
     if(typeof todayV !== "number") continue;
-    let prevV = null;
+    let prevV = null, prevDate = null;
     for(let j=i-1;j>=0;j--){
-      if(typeof data[j][m] === "number"){ prevV = data[j][m]; break; }
+      if(typeof data[j][m] === "number"){ prevV = data[j][m]; prevDate = data[j]["日期"]; break; }
     }
     if(prevV == null) continue;
     const inc = +(todayV - prevV).toFixed(2);
-    if(inc > t.threshold && inc > CONFIG.ANOMALY_MIN_INC){
-      anomalies.push({date:data[i]["日期"], increment:inc, threshold:t.threshold, prevValue:prevV, currValue:todayV});
+    /* 修正：中間漏報幾天時，累計增量要除以天數再和「單日門檻」比，不然漏報後一定誤報「用量偏高」 */
+    const gap = dayGap(prevDate, data[i]["日期"]);
+    if(inc / gap > t.threshold && inc > CONFIG.ANOMALY_MIN_INC){
+      anomalies.push({date:data[i]["日期"], increment:inc, threshold:t.threshold, prevValue:prevV, currValue:todayV, days:gap});
     }
   }
   anomalies.sort((a,b) => a.date < b.date ? 1 : -1);
   return anomalies;
 }
 function getRecentReversals(m){
+  if(_cacheRev[m]) return _cacheRev[m];
+  return (_cacheRev[m] = calcRecentReversals(m));
+}
+/* 已確認的倒退紀錄（例如換表、歸零）：存在手機裡，確認過就不再當成異常 */
+const ACK_KEY = "meter_ack_v1";
+function ackLoad(){ try{ return JSON.parse(localStorage.getItem(ACK_KEY)) || {}; }catch(e){ return {}; } }
+const ackKey = (m, r) => m + "|" + r.date + "|" + r.currValue;
+function ackReversal(m){
+  const o = ackLoad();
+  calcRecentReversals(m, true).forEach(r => { o[ackKey(m, r)] = Date.now(); });
+  const keys = Object.keys(o);
+  if(keys.length > 300) keys.sort((a,b) => o[a]-o[b]).slice(0, keys.length-300).forEach(k => delete o[k]);
+  try{ localStorage.setItem(ACK_KEY, JSON.stringify(o)); }catch(e){}
+  try{ sfxTap(); }catch(e){}
+  resetCache(); renderMeterAll();
+  try{ cloudToast("已確認 " + m + " 的讀數倒退（視為換表／歸零）", 2200); }catch(e){}
+}
+window.ackReversal = ackReversal;
+function calcRecentReversals(m, all){
   const idx = getTodayIndex();
   if(idx < 0) return [];
   const startIdx = Math.max(1, idx - 4);
@@ -2854,7 +2949,9 @@ function getRecentReversals(m){
     }
     if(prevV == null) continue;
     if(todayV < prevV){
-      reversals.push({date:data[i]["日期"], delta:+(todayV - prevV).toFixed(2), prevValue:prevV, currValue:todayV});
+      const r = {date:data[i]["日期"], delta:+(todayV - prevV).toFixed(2), prevValue:prevV, currValue:todayV};
+      if(!all && ackLoad()[ackKey(m, r)]) continue;
+      reversals.push(r);
     }
   }
   reversals.sort((a,b) => a.date < b.date ? 1 : -1);
@@ -2947,7 +3044,27 @@ function renderOverview(){
     else subM.textContent = missList.map(m => { const d = missDays(m); return m + (d == null ? "（從未）" : d > 0 ? "（" + d + " 天）" : ""); }).join("、");
   }
   if(subA) subA.textContent = anomList.length ? anomList.join("、") : "沒有";
+  renderSummary(reported, missList, anomList, early);
   if(reported === METERS.length && METERS.length) meterAllDone();
+}
+/* 最上面的一行總結：一眼看到今天有沒有事要處理。有問題時點一下直接跳到清單 */
+function renderSummary(reported, missList, anomList, early){
+  const el = document.getElementById("ovSummary");
+  if(!el) return;
+  let txt, color, tap = false;
+  const total = METERS.length;
+  if(early){ txt = "🕗 還沒到回報時間（" + REPORT_HOUR + ":00 以後才算未回報）"; color = "var(--text-1)"; }
+  else if(!missList.length && !anomList.length){ txt = "✅ 今天 " + total + " 台全部到齊，沒有異常"; color = "var(--green)"; }
+  else {
+    const parts = [];
+    if(missList.length) parts.push(missList.length + " 台未回報");
+    if(anomList.length) parts.push(anomList.length + " 台異常");
+    txt = "⚠️ " + parts.join("、") + (missList.length ? "（" + missList.slice(0,3).map(m => m.slice(0,2) + (missDays(m) > 0 ? " " + missDays(m) + " 天" : "")).join("、") + (missList.length > 3 ? "…" : "") + "）" : "") + "　點這裡看清單 ›";
+    color = anomList.length ? "var(--red)" : "var(--yellow)"; tap = true;
+  }
+  el.style.cssText = "display:block;margin:0 0 12px;padding:12px 14px;border-radius:10px;border:1px solid " + color + ";border-left-width:4px;background:var(--panel);color:" + color + ";font:600 13px/1.5 'Noto Sans TC',sans-serif;" + (tap ? "cursor:pointer;" : "");
+  el.textContent = txt;
+  el.onclick = tap ? jumpToAlerts : null;
 }
 /* 點未回報／異常：打開異常清單並捲過去 */
 function jumpToAlerts(){
@@ -3019,7 +3136,7 @@ function renderGrid(){
       buildHudHtml(i)+
       '<div class="content">'+
         '<div class="rack-head"><div class="name">'+m.slice(0,2)+'</div><div class="id">'+m.slice(2)+'</div></div>'+
-        '<div class="rack-value"><span class="rack-num" data-target="'+(val != null ? val : 0)+'">'+(val != null ? "0.0" : "—")+'</span><small>kWh</small></div>'+
+        '<div class="rack-value"><span class="rack-num" data-target="'+(val != null ? val : 0)+'">'+(val != null ? "0.0" : "—")+'</span><small>'+unitOf(m)+'</small></div>'+
         '<div class="rack-delta '+deltaCls+'">'+deltaHtml+'</div>'+
         '<div class="rack-bar"><div class="rack-bar-fill" style="width:'+pct+'%"></div></div>'+
         '<div class="rack-status">'+statusText+'</div>'+
@@ -3028,7 +3145,18 @@ function renderGrid(){
   }).join("");
   els.grid.querySelectorAll(".rack").forEach(el => {
     el.onclick = () => { sfxTap(); openDetail(el.dataset.m); };
+    el.setAttribute("role", "button"); el.tabIndex = 0;       // 優化：鍵盤（Enter／空白鍵）也能開詳情
+    el.onkeydown = ev => { if(ev.key === "Enter" || ev.key === " "){ ev.preventDefault(); sfxTap(); openDetail(el.dataset.m); } };
   });
+  /* 優化：標題右邊顯示「今天合計用了多少度」（只加總單位是 kWh 的電表） */
+  const gtSmall = document.querySelector(".grid-title small");
+  if(gtSmall){
+    if(!gtSmall.dataset.base) gtSmall.dataset.base = gtSmall.textContent;
+    const ti = getTodayIndex();
+    let tot = 0, n = 0;
+    if(ti >= 0) METERS.forEach(m => { const u = getUsage(m)[ti]; if(unitOf(m) === "kWh" && u != null && u > 0){ tot += u; n++; } });
+    gtSmall.textContent = gtSmall.dataset.base + (n ? "・今日合計 +" + tot.toFixed(1) + "（" + n + " 台）" : "");
+  }
   els.grid.querySelectorAll(".rack-num").forEach(el => {
     const target = parseFloat(el.dataset.target);
     if(isNaN(target)) return;
@@ -3083,7 +3211,11 @@ function renderAlerts(){
   });
   const order = {danger:0, warn:1, info:2};
   alerts.sort((a,b) => (order[a.level]||3) - (order[b.level]||3) || (b.days||0) - (a.days||0));
-  const ruleHtml = '<div class="alert-rule">參考：近 30 天均值 + 2σ，且增量 &gt; 1.0 kWh</div>';
+  const missAlerts = alerts.filter(a => a.type === "missing");
+  const copyHtml = missAlerts.length
+    ? '<div style="padding:4px 12px 10px;text-align:center"><button type="button" onclick="copyMissing()" style="min-height:44px;padding:7px 18px;border-radius:8px;border:1px solid var(--border-hi);background:transparent;color:var(--cyan);font:600 12px \'Noto Sans TC\',sans-serif;cursor:pointer">📋 複製未回報名單</button></div>'
+    : '';
+  const ruleHtml = copyHtml + '<div class="alert-rule">參考：近 30 天均值 + 2σ，且增量 &gt; 1.0 kWh（漏報多天時，以平均每天的增量比較）</div>';
   if(!alerts.length){
     els.alertWrap.innerHTML = '<div class="alert-empty">✅ 所有電表正常運作</div>' + ruleHtml;
     return;
@@ -3099,7 +3231,7 @@ function renderAlerts(){
       bodyHtml = a.recent.map(r =>
         '<div style="display:flex;justify-content:space-between;font-size:11px;color:var(--text-1);padding:3px 0;gap:8px;font-family:\'JetBrains Mono\',monospace;">'+
           '<span>'+r.date.substring(5)+'&nbsp;&nbsp;'+r.prevValue.toFixed(1)+' → '+r.currValue.toFixed(1)+'</span>'+
-          '<span style="color:var(--cyan);">+'+r.increment.toFixed(2)+'</span>'+
+          '<span style="color:var(--cyan);">'+(r.days > 1 ? r.days+' 天累計 ' : '')+'+'+r.increment.toFixed(2)+'</span>'+
         '</div>'
       ).join("");
     } else if(a.type === "reverse"){
@@ -3108,7 +3240,7 @@ function renderAlerts(){
           '<span>'+r.date.substring(5)+'&nbsp;&nbsp;'+r.prevValue.toFixed(1)+' → '+r.currValue.toFixed(1)+'</span>'+
           '<span style="color:var(--red);">'+r.delta.toFixed(2)+'</span>'+
         '</div>'
-      ).join("");
+      ).join("") + '<div style="text-align:right;padding-top:6px"><button type="button" onclick="ackReversal(\''+a.meter+'\')" style="min-height:40px;padding:4px 14px;border-radius:8px;border:1px solid var(--border-hi);background:transparent;color:var(--cyan);font:600 11px \'Noto Sans TC\',sans-serif;cursor:pointer">✔ 已確認（換表／歸零）</button></div>';
     }
     return '<div class="alert-item">'+
       '<div class="ic">'+levelIcon+'</div>'+
@@ -3122,42 +3254,74 @@ function renderAlerts(){
   }).join("") + ruleHtml;
 }
 
+let _yearSel = null;                         // 目前選的年份（null＝資料裡最新的一年）
+/* 某一類電表在某年每個月的用電量（沒資料的月份是 null） */
+function monthTotals(cat, year){
+  const months = [];
+  for(let m=1; m<=12; m++){
+    const mm = String(m).padStart(2,"0");
+    const start = year + "/" + mm + "/01", end = year + "/" + mm + "/31";
+    let total = 0, hasData = false;
+    cat.meters.forEach(meter => {
+      const diff = getUsage(meter);
+      for(let i=0; i<data.length; i++){
+        if(data[i]["日期"] >= start && data[i]["日期"] <= end && diff[i] != null && diff[i] > 0){
+          total += diff[i]; hasData = true;
+        }
+      }
+    });
+    months.push(hasData ? +total.toFixed(1) : null);
+  }
+  return months;
+}
+function yearList(){
+  const set = {};
+  data.forEach(r => { set[r["日期"].substring(0,4)] = 1; });
+  return Object.keys(set).sort();
+}
+function setYear(y){
+  _yearSel = y; try{ sfxTap(); }catch(e){}
+  renderYearReport();
+}
+window.setYear = setYear;
 function renderYearReport(){
   if(!data.length) return;
-  const year = data[data.length-1]["日期"].substring(0,4);
+  const years = yearList();
+  const latest = years[years.length-1];
+  const year = (_yearSel && years.includes(_yearSel)) ? _yearSel : latest;
+  const yi = years.indexOf(year), prevYear = String(+year - 1);
   els.yearHead.querySelector(".label span:last-child").textContent = year + " 年度用電報表";
   let html = "";
+  if(years.length > 1){
+    const btn = (y, t, on) => '<button type="button" ' + (on ? 'onclick="setYear(\''+y+'\')"' : 'disabled') + ' style="min-height:44px;padding:6px 16px;border-radius:8px;border:1px solid var(--border-hi);background:transparent;color:var(--cyan);font:600 12px \'Noto Sans TC\',sans-serif;cursor:pointer;opacity:' + (on ? 1 : .35) + '">' + t + '</button>';
+    html += '<div style="display:flex;align-items:center;justify-content:center;gap:12px;margin-bottom:12px">' +
+      btn(years[yi-1], "◀ " + (years[yi-1] || ""), yi > 0) + '<b style="font-family:\'JetBrains Mono\',monospace;color:var(--cyan)">' + year + '</b>' + btn(years[yi+1], (years[yi+1] || "") + " ▶", yi < years.length-1) + '</div>';
+  }
+  let anyPrev = false;
   CATEGORIES.forEach(cat => {
-    const months = [];
-    for(let m=1; m<=12; m++){
-      const mm = String(m).padStart(2,"0");
-      const start = year + "/" + mm + "/01";
-      const end = year + "/" + mm + "/31";
-      let total = 0, hasData = false;
-      cat.meters.forEach(meter => {
-        const diff = getDiff(meter);
-        for(let i=0; i<data.length; i++){
-          if(data[i]["日期"] >= start && data[i]["日期"] <= end && diff[i] != null && diff[i] > 0){
-            total += diff[i]; hasData = true;
-          }
-        }
-      });
-      months.push(hasData ? +total.toFixed(1) : null);
-    }
+    const months = monthTotals(cat, year), pm = monthTotals(cat, prevYear);
+    if(pm.some(v => v != null)) anyPrev = true;
     const yearTotal = months.reduce((s,v) => v != null ? s + v : s, 0);
     const maxV = Math.max(0, ...months.filter(v => v != null));
     const bars = months.map(v => v == null
       ? '<div class="mini-bar empty"></div>'
       : '<div class="mini-bar" style="height:'+Math.max(2, (v/maxV)*30)+'px"></div>'
     ).join("");
+    /* 去年同月對照：比去年多／少幾 %（兩年都有資料才顯示） */
+    const cmp = (v, p) => {
+      if(v == null || p == null || p <= 0) return "";
+      const c = (v - p) / p * 100;
+      return ' <small style="color:' + (c > 15 ? 'var(--red)' : c < -15 ? 'var(--green)' : 'var(--text-2)') + '">' + (c > 0 ? "↑" : c < 0 ? "↓" : "") + Math.abs(c).toFixed(0) + '%</small>';
+    };
     let monthRows = "";
     [[1,2],[3,4],[5,6],[7,8],[9,10],[11,12]].forEach(([mL, mR]) => {
       const vL = months[mL-1], vR = months[mR-1];
-      monthRows += '<div class="month-row"><span class="m">'+mL+'月</span><span class="v">'+(vL==null?'──':vL.toFixed(1))+'</span></div>';
-      monthRows += '<div class="month-row"><span class="m">'+mR+'月</span><span class="v">'+(vR==null?'──':vR.toFixed(1))+'</span></div>';
+      monthRows += '<div class="month-row"><span class="m">'+mL+'月</span><span class="v">'+(vL==null?'──':vL.toFixed(1))+cmp(vL, pm[mL-1])+'</span></div>';
+      monthRows += '<div class="month-row"><span class="m">'+mR+'月</span><span class="v">'+(vR==null?'──':vR.toFixed(1))+cmp(vR, pm[mR-1])+'</span></div>';
     });
     html += '<div class="cat"><div class="cat-head">'+cat.name+'</div><div class="cat-chart-row"><div class="mini-bars">'+bars+'</div><div class="cat-total">'+yearTotal.toFixed(1)+'<small>kWh</small></div></div><div class="divider-line"></div><div class="months-grid">'+monthRows+'</div></div>';
   });
+  if(anyPrev) html += '<div class="alert-rule">箭頭＝和 ' + prevYear + ' 年同月相比（差超過 15% 才上色）</div>';
   els.yearInner.innerHTML = html;
 }
 
@@ -3177,8 +3341,37 @@ function syncAllPanelStates(){
   });
 }
 
+/* 複製「今天未回報」名單（可直接貼到 LINE） */
+function copyMissing(){
+  const d = new Date();
+  const lines = METERS.filter(m => !isReportedToday(m)).map(m => { const n = missDays(m); return m + (n == null ? "（從未回報）" : n > 0 ? "（已 " + n + " 天）" : ""); });
+  const text = (d.getMonth()+1) + "/" + d.getDate() + " 未回報：" + (lines.length ? lines.join("、") : "無");
+  const done = () => { try{ sfxTap(); }catch(e){} try{ cloudToast("已複製：" + text, 2200); }catch(e){} };
+  if(navigator.clipboard && navigator.clipboard.writeText){
+    navigator.clipboard.writeText(text).then(done, () => fallbackCopy(text, done));
+  } else fallbackCopy(text, done);
+}
+function fallbackCopy(text, done){
+  const ta = document.createElement("textarea");
+  ta.value = text; ta.style.cssText = "position:fixed;top:0;left:0;opacity:0";
+  document.body.appendChild(ta); ta.select();
+  try{ document.execCommand("copy"); done(); }catch(e){}
+  ta.remove();
+}
+window.copyMissing = copyMissing;
+/* 畫面狀態代號：日期 + 是否已過回報時間。代號變了（跨日、到 8 點）就要重畫 */
+let _renderKey = "";
+const stateKey = () => { const n = new Date(); return n.toDateString() + "|" + (n.getHours() >= REPORT_HOUR); };
+function refreshIfStale(){
+  if(!meterRendered || !data.length || _renderKey === stateKey()) return;
+  resetCache();
+  renderMeterAll();
+}
+document.addEventListener("visibilitychange", () => { if(document.visibilityState === "visible") refreshIfStale(); });
+setInterval(refreshIfStale, 60000);
 function renderMeterAll(){
   if(!data.length) return;
+  _renderKey = stateKey();
   renderTopDate();
   renderOverview();
   renderGrid();
@@ -3198,7 +3391,20 @@ function openDetail(meter){
   const avg = valid.length ? valid.reduce((s,v) => s+v, 0) / valid.length : 0;
   const maxV = valid.length ? Math.max(...valid) : 0;
   const minV = valid.length ? Math.min(...valid) : 0;
-  const currentVal = data[data.length-1][meter];
+  /* 修正：最後一天沒回報時，「當前讀數」不再顯示 —，改顯示最後一次的讀數與日期 */
+  let currentVal = null, curDate = "";
+  for(let j=data.length-1;j>=0;j--){
+    if(typeof data[j][meter] === "number"){ currentVal = data[j][meter]; curDate = data[j]["日期"]; break; }
+  }
+  const curStale = curDate && curDate !== data[data.length-1]["日期"];
+  /* 趨勢：近 7 天日均 vs 前 7 天日均；本月累計 */
+  const dl = diff.slice(-7).filter(v => v != null && v > 0), dp = diff.slice(-14, -7).filter(v => v != null && v > 0);
+  const a7 = dl.length ? dl.reduce((s,v) => s+v, 0) / dl.length : null;
+  const p7 = dp.length ? dp.reduce((s,v) => s+v, 0) / dp.length : null;
+  const chg = a7 != null && p7 ? (a7 - p7) / p7 * 100 : null;
+  const usage = getUsage(meter), monthKey = data[data.length-1]["日期"].substring(0,7);
+  let monthSum = 0;
+  for(let i=0;i<data.length;i++) if(data[i]["日期"].substring(0,7) === monthKey && usage[i] != null && usage[i] > 0) monthSum += usage[i];
   let lastDiff = null;
   for(let j=data.length-1;j>=0;j--){
     if(diff[j] != null){ lastDiff = diff[j]; break; }
@@ -3206,8 +3412,12 @@ function openDetail(meter){
   els.detailPanel.innerHTML =
     '<button class="detail-close" onclick="closeDetail()">✕</button>'+
     '<div class="detail-title"><span class="dot" style="background:'+COLORS[ci]+';color:'+COLORS[ci]+'"></span><span>'+meter+'</span></div>'+
+    '<div style="display:flex;justify-content:space-between;margin:-4px 0 10px">'+
+      '<button type="button" onclick="stepDetail(-1)" style="min-height:44px;padding:5px 14px;border-radius:8px;border:1px solid var(--border);background:transparent;color:var(--text-1);font:600 11px \'Noto Sans TC\',sans-serif;cursor:pointer">◀ '+METERS[(ci+METERS.length-1)%METERS.length].slice(0,2)+'</button>'+
+      '<button type="button" onclick="stepDetail(1)" style="min-height:44px;padding:5px 14px;border-radius:8px;border:1px solid var(--border);background:transparent;color:var(--text-1);font:600 11px \'Noto Sans TC\',sans-serif;cursor:pointer">'+METERS[(ci+1)%METERS.length].slice(0,2)+' ▶</button>'+
+    '</div>'+
     '<div class="detail-stats">'+
-      '<div class="detail-stat"><div class="k">當前讀數</div><div class="v">'+(typeof currentVal === "number" ? currentVal.toFixed(1) : "—")+'</div></div>'+
+      '<div class="detail-stat"><div class="k">'+(curStale ? "最後讀數 "+curDate.substring(5) : "當前讀數")+'</div><div class="v">'+(typeof currentVal === "number" ? currentVal.toFixed(1) : "—")+'</div></div>'+
       '<div class="detail-stat"><div class="k">最新增量</div><div class="v" style="color:'+(lastDiff > 0 ? 'var(--cyan)' : 'var(--text-1)')+'">'+(lastDiff != null ? (lastDiff > 0 ? "+" : "") + lastDiff.toFixed(2) : "—")+'</div></div>'+
       '<div class="detail-stat"><div class="k">平均增量</div><div class="v">'+avg.toFixed(2)+'</div></div>'+
     '</div>'+
@@ -3216,12 +3426,25 @@ function openDetail(meter){
       '<div class="detail-stat"><div class="k">歷史最小</div><div class="v">'+minV.toFixed(2)+'</div></div>'+
       '<div class="detail-stat"><div class="k">資料天數</div><div class="v">'+data.length+'</div></div>'+
     '</div>'+
-    '<div class="detail-chart-wrap"><div class="detail-chart-title"><span>累計讀數</span><span>'+data[0]["日期"].substring(5)+' ～ '+data[data.length-1]["日期"].substring(5)+'</span></div><canvas id="chartCum" width="800" height="300"></canvas></div>'+
-    '<div class="detail-chart-wrap"><div class="detail-chart-title"><span>每日增量</span><span>近 30 天</span></div><canvas id="chartDaily" width="800" height="300"></canvas></div>';
+    '<div class="detail-stats">'+
+      '<div class="detail-stat"><div class="k">近 7 天日均</div><div class="v">'+(a7 != null ? a7.toFixed(2) : "—")+'</div></div>'+
+      '<div class="detail-stat"><div class="k">較前 7 天</div><div class="v" style="color:'+(chg == null ? 'var(--text-1)' : chg > 20 ? 'var(--red)' : chg < -20 ? 'var(--green)' : 'var(--text-0)')+'">'+(chg != null ? (chg > 0 ? "+" : "") + chg.toFixed(0) + "%" : "—")+'</div></div>'+
+      '<div class="detail-stat"><div class="k">本月累計</div><div class="v">'+monthSum.toFixed(1)+'</div></div>'+
+    '</div>'+
+    '<div class="detail-chart-wrap"><div class="detail-chart-title"><span>累計讀數（點圖看數字）</span><span>'+data[0]["日期"].substring(5)+' ～ '+data[data.length-1]["日期"].substring(5)+'</span></div><canvas id="chartCum" width="800" height="300"></canvas></div>'+
+    '<div class="detail-chart-wrap"><div class="detail-chart-title"><span>每日增量（紅線＝異常門檻）</span><span>近 30 天</span></div><canvas id="chartDaily" width="800" height="300"></canvas></div>';
   els.detailOverlay.classList.add("show");
   sfxOpen();
   setTimeout(() => { drawCumulativeChart(meter, ci); drawDailyChart(meter, ci); }, 50);
 }
+/* 詳情裡切換到上一台／下一台電表（不用先關掉再點） */
+function stepDetail(dir){
+  if(!_lastDetailMeter) return;
+  const i = (METERS.indexOf(_lastDetailMeter) + dir + METERS.length) % METERS.length;
+  try{ sfxTap(); }catch(e){}
+  openDetail(METERS[i]);
+}
+window.stepDetail = stepDetail;
 function closeDetail(){
   els.detailOverlay.classList.remove("show");
   _lastDetailMeter = null;                   // 修正 #8：清除
@@ -3257,9 +3480,33 @@ function drawGrid(ctx, pad, cw, ch, maxV, minV){
     ctx.fillText(formatNum(maxV - (gi/4)*(maxV - minV)), pad.left - 6, gy);
   }
 }
+/* 圖表點選：點一下顯示該天的數字（_sel 記住選到哪一天，重畫時保留） */
+function chartTip(ctx, W, x, lines, pad){
+  ctx.save();
+  ctx.font = "10px JetBrains Mono, monospace";
+  const w = Math.max.apply(null, lines.map(t => ctx.measureText(t).width)) + 14, h = lines.length * 14 + 8;
+  let bx = x + 8; if(bx + w > W - 4) bx = x - 8 - w; if(bx < 4) bx = 4;
+  ctx.fillStyle = "rgba(6,11,20,.92)"; ctx.strokeStyle = "rgba(34,211,238,.55)"; ctx.lineWidth = 1;
+  ctx.beginPath(); ctx.rect(bx, pad.top + 2, w, h); ctx.fill(); ctx.stroke();
+  ctx.fillStyle = "#e8f2ff"; ctx.textAlign = "left"; ctx.textBaseline = "top";
+  lines.forEach((t, i) => ctx.fillText(t, bx + 7, pad.top + 6 + i * 14));
+  ctx.restore();
+}
+function bindChartTap(id, redraw){
+  const cv = document.getElementById(id);
+  if(!cv || cv._tap) return;
+  cv._tap = true;
+  cv.style.cursor = "pointer";
+  cv.addEventListener("click", e => {
+    const r = cv.getBoundingClientRect();
+    cv._selX = e.clientX - r.left;
+    redraw();
+  });
+}
 function drawCumulativeChart(meter, ci){
   const c = setupCanvas("chartCum", 200);
   if(!c) return;
+  bindChartTap("chartCum", () => drawCumulativeChart(meter, ci));
   const { ctx, W, H } = c;
   const pad = {top:12,right:12,bottom:24,left:48};
   const cw = W - pad.left - pad.right, ch = H - pad.top - pad.bottom;
@@ -3310,10 +3557,23 @@ function drawCumulativeChart(meter, ci){
   });
   ctx.stroke();
   ctx.shadowBlur = 0;
+  const cvs = document.getElementById("chartCum");
+  if(cvs && cvs._selX != null){
+    let best = -1, bd = 1e9;
+    data.forEach((r, i) => { if(typeof r[meter] === "number"){ const d = Math.abs(xOf(i) - cvs._selX); if(d < bd){ bd = d; best = i; } } });
+    if(best >= 0){
+      const x = xOf(best), v = data[best][meter];
+      ctx.strokeStyle = "rgba(232,242,255,.5)"; ctx.lineWidth = 1; ctx.setLineDash([3,3]);
+      ctx.beginPath(); ctx.moveTo(x, pad.top); ctx.lineTo(x, pad.top + ch); ctx.stroke(); ctx.setLineDash([]);
+      ctx.fillStyle = COLORS[ci]; ctx.beginPath(); ctx.arc(x, yOf(v), 3.5, 0, 6.2832); ctx.fill();
+      chartTip(ctx, W, x, [data[best]["日期"].substring(5), v.toFixed(1) + " " + unitOf(meter)], pad);
+    }
+  }
 }
 function drawDailyChart(meter, ci){
   const c = setupCanvas("chartDaily", 200);
   if(!c) return;
+  bindChartTap("chartDaily", () => drawDailyChart(meter, ci));
   const { ctx, W, H } = c;
   const diff = getDiff(meter);
   const recent = [];
@@ -3323,7 +3583,8 @@ function drawDailyChart(meter, ci){
   const pad = {top:12,right:12,bottom:24,left:48};
   const cw = W - pad.left - pad.right, ch = H - pad.top - pad.bottom;
   const valid = recent.filter(r => r.val != null && r.val > 0);
-  const maxV = valid.length ? Math.max(...valid.map(r => r.val)) : 1;
+  const thr = getAnomalyThreshold(meter).threshold;     // 異常門檻線（超過會用紅色）
+  const maxV = Math.max(valid.length ? Math.max(...valid.map(r => r.val)) : 1, thr * 1.05);
   const N = recent.length;
   const barW = (cw / N) * 0.7, gap = (cw / N) * 0.3;
   drawGrid(ctx, pad, cw, ch, maxV, 0);
@@ -3334,16 +3595,31 @@ function drawDailyChart(meter, ci){
     const x = pad.left + i * (cw / N) + gap/2;
     const h = (v / maxV) * ch;
     const y = pad.top + ch - h;
-    ctx.fillStyle = COLORS[ci];
+    ctx.fillStyle = thr > 0 && v > thr ? "#f85149" : COLORS[ci];
     ctx.fillRect(x, y, barW, h);
   });
   ctx.shadowBlur = 0;
+  if(thr > 0){
+    const ty = pad.top + ch - (thr / maxV) * ch;
+    ctx.strokeStyle = "rgba(248,81,73,.6)"; ctx.lineWidth = 1; ctx.setLineDash([4,3]);
+    ctx.beginPath(); ctx.moveTo(pad.left, ty); ctx.lineTo(pad.left + cw, ty); ctx.stroke(); ctx.setLineDash([]);
+    ctx.fillStyle = "#f85149"; ctx.font = "9px JetBrains Mono, monospace"; ctx.textAlign = "right"; ctx.textBaseline = "bottom";
+    ctx.fillText("異常門檻 " + thr.toFixed(1), pad.left + cw, ty - 2);
+  }
   ctx.textAlign = "center"; ctx.textBaseline = "top";
   const labelN = Math.min(5, N);
   for(let li=0;li<labelN;li++){
     const idx = Math.floor(li * (N-1) / Math.max(labelN-1, 1));
     const x = pad.left + idx * (cw / N) + cw/N/2;
     ctx.fillText(recent[idx].date.substring(5), x, pad.top + ch + 6);
+  }
+  const cvs = document.getElementById("chartDaily");
+  if(cvs && cvs._selX != null){
+    const si = Math.max(0, Math.min(N-1, Math.floor((cvs._selX - pad.left) / (cw / N))));
+    const x = pad.left + si * (cw / N) + cw / N / 2, rv = recent[si];
+    ctx.strokeStyle = "rgba(232,242,255,.5)"; ctx.lineWidth = 1; ctx.setLineDash([3,3]);
+    ctx.beginPath(); ctx.moveTo(x, pad.top); ctx.lineTo(x, pad.top + ch); ctx.stroke(); ctx.setLineDash([]);
+    chartTip(ctx, W, x, [rv.date.substring(5), rv.val != null ? "+" + rv.val.toFixed(2) + " " + unitOf(meter) : "當天沒有增量"], pad);
   }
 }
 
@@ -11335,5 +11611,1335 @@ if(pcEl)new MutationObserver(injectEntry).observe(pcEl,{childList:true});
 /* 名冊卡片、裝備欄用的戰鬥數值（和無盡挑戰開場能力相同） */
 window.rosterStats=u=>{const p=_bp(u);return{atk:p.atk,hp:p.maxHp,def:p.def,crit:p.crit,atkInt:p.atkInt,ougiMul:p.ougiMul}};
 try{const rp=document.getElementById("page-roster");if(rp&&rp.classList.contains("active")&&typeof usersData!=="undefined"&&usersData.length)renderRoster(false)}catch(e){}
+window.__BT={G:()=>G};/* idle-addon bridge */
 })();
 </script>
+
+<!-- =====================================================================
+  放置營地 Add-on v3（單檔完整版：成就、轉生、歡迎回來、營地奇遇、新手引導、備份）
+  貼法：整段貼在原檔「最後一個 </script> 之後、</body> 之前」，其他一個字都不用改。
+  還原：把這整段刪掉即可。
+    ※ 刪除前建議先到「營地 → 資料」按「寫回舊格式」，這樣之後的進度也不會消失。
+
+  這個 Add-on 做的事
+  1. 帳號層：圖鑑、神話次數、信物、冥晶、魔鏡、每日獎勵整支手機共用一份（舊資料自動合併一次，舊 key 原封不動留作備援）
+  2. 放置營地：已通關樓層可重複掛機賺冥晶（不會遇到神話 BOSS），離線最多 12 小時
+  3. 輪迴天賦：5 個節點，花冥晶升級，每級效果很小
+  4. 自動決策：自動選祝福／門／信物／神話 BOSS 戰或逃（預設關閉），過程寫進戰鬥紀錄
+  5. 每日簽到與每日挑戰
+  6. 成就（26 項，領獎後永久加成掛機收益）
+  7. 轉生：把天賦歸零換「輪迴印記」，印記買永久加成
+  8. 歡迎回來：離線結算、簽到、成就一次看完、一次領取
+  9. 營地奇遇：掛機時隨機遇到寶箱、泉水、流星，記在營地日誌
+  10. 新手引導、自動選勇者、帳號備份匯出／匯入
+
+  接入方式（完全不改原有函式）
+  - 覆寫 Storage.prototype.getItem / setItem：只攔截 6 個「帳號層」key，其餘照舊
+  - 覆寫 window.uval：只在無盡挑戰開打期間，把「假日／幸運」加上天賦的小幅加成
+  - 用 DOM 輪詢處理戰鬥中的選擇視窗；在名冊頁多加一顆「放置營地」入口
+  - 選用：原檔 IIFE 結尾 `})();` 前面加一行 window.__BT={G:()=>G};
+    就能讓「力量／體魄」天賦也套用在無盡挑戰的攻擊與生命（不加也能正常運作）
+
+  不新增任何圖片、字型或外部資源：全部使用原頁的 GI_SHEETS 圖示與 bt-* / cx-* / mr-* / st-* 樣式。
+===================================================================== -->
+<style id="idle-addon-css">
+.ic-ov{z-index:468}
+.ic-entry{position:relative}
+.ic-note{margin:10px 2px 0;font:11.5px/1.7 "Noto Sans TC",sans-serif;color:#8ba0bd}
+.ic-note b{color:#e8d18f}
+.ic-ov .mr-buy,.ic-ov .bt-set-opt,.ic-ov .rk-edit,#icOffModal .bt-modal-btn,#icOffModal .bt-rs-new,#icRbModal .bt-modal-btn,#icRbModal .bt-rs-new,#icGuide .bt-modal-btn,#icGuide .bt-rs-new{min-height:44px}
+@media (prefers-reduced-motion:reduce){.ic-ov *{animation:none!important;transition:none!important}}
+</style>
+<script>
+(function(){
+"use strict";
+if(window.__IDLE_ADDON__)return;
+if(typeof gi!=="function"||typeof uval!=="function"||typeof GI_SHEETS==="undefined"||typeof POKEDEX==="undefined"){
+  console.warn("[idle-addon] 找不到原頁必要函式，Add-on 未啟用");return;
+}
+window.__IDLE_ADDON__=1;
+
+/* ============================================================
+   0. 基礎工具
+   ============================================================ */
+const $=id=>document.getElementById(id);
+/* esc：HTML 跳脫，所有塞進 innerHTML 的文字都先過這個 */
+const esc=s=>String(s).replace(/[&<>"']/g,c=>({"&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;","'":"&#39;"}[c]));
+const rawGet=Storage.prototype.getItem,rawSet=Storage.prototype.setItem;
+const U0=window.uval;                    /* 原版 uval（Add-on 內部一律用這個讀名冊欄位） */
+/* lsGet / lsSet：繞過我們自己的 hook，直接讀寫真正的 localStorage */
+function lsGet(k){try{return rawGet.call(window.localStorage,k)}catch(e){return null}}
+function lsSet(k,v){try{rawSet.call(window.localStorage,k,v);return true}catch(e){return false}}
+/* jp：安全的 JSON.parse，壞掉或空值回傳預設值 */
+function jp(s,d){try{const v=JSON.parse(s);return(v===null||v===undefined)?d:v}catch(e){return d}}
+/* fm：大數字縮寫（1234→1,234、12345→12.3K） */
+function fm(n){n=Math.round(+n||0);const a=Math.abs(n);
+  if(a>=1e12)return(n/1e12).toFixed(2)+"T";if(a>=1e9)return(n/1e9).toFixed(2)+"B";
+  if(a>=1e6)return(n/1e6).toFixed(2)+"M";if(a>=1e4)return(n/1e3).toFixed(1)+"K";
+  return n.toLocaleString("en-US")}
+const pc=v=>(Math.round(v*1000)/10)+"%";
+/* dayKey：用 yyyymmdd 當日期代號（和原版每日獎勵相同格式） */
+function dayKey(d){d=d||new Date();return d.getFullYear()*10000+(d.getMonth()+1)*100+d.getDate()}
+function yesterdayKey(){const d=new Date();d.setDate(d.getDate()-1);return dayKey(d)}
+/* 音效：沿用原頁的 sfx*，原頁沒有就靜音 */
+function sTap(){try{sfxTap()}catch(e){}}
+function sOpen(){try{sfxOpen()}catch(e){}}
+function sClose(){try{sfxClose()}catch(e){}}
+function sOk(){try{sfxAchievement()}catch(e){}}
+const REDUCED=!!(window.matchMedia&&matchMedia("(prefers-reduced-motion: reduce)").matches);
+const battleOpen=()=>document.body.classList.contains("bt-open");
+/* toast：沿用原頁的雲端提示；沒有就用 console */
+function toast(msg,ms){try{cloudToast(msg,ms)}catch(e){console.log("[idle-addon]",msg)}}
+
+/* ============================================================
+   1. 設定與資料表（要調整平衡，改這一區就好）
+   ============================================================ */
+const CFG={
+  IDLE_MUL:.25,      /* 在線掛機收益 ＝ 無盡挑戰實戰同層收益 × 這個倍率 */
+  OFF_MUL:.35,       /* 離線收益 ＝ 在線掛機收益 × 這個倍率 */
+  OFF_MIN:300,       /* 離線至少幾秒才結算（5 分鐘） */
+  OFF_MAX:43200,     /* 離線最多結算幾秒（12 小時） */
+  KPF:30,            /* 自動推進：每層要擊敗幾隻才前進 */
+  EFF_OK:.9,         /* 安全度達到這個值才算「穩定」，可自動推進 */
+  TAL_MAX:20,        /* 天賦每個節點最高等級 */
+  TAL_G:1.38,        /* 天賦升級價格成長倍率 */
+  MIG_MING:"sum",    /* 舊資料遷移時冥晶的合併方式："sum" 加總、"max" 取最大值 */
+  RB_DIV:2500,       /* 轉生印記 ＝ floor(sqrt(本輪累計冥晶 ÷ 這個數字)) */
+  RB_MIN_FLOOR:20,   /* 轉生前，至少要有一位勇者通關這麼多層 */
+  ACH_BONUS:.01,     /* 每領取一個成就，掛機收益永久 +1% */
+  EV_MIN:150,        /* 營地奇遇：兩次之間最短幾秒 */
+  EV_MAX:360,        /* 營地奇遇：兩次之間最長幾秒 */
+  EV_BUFF_SEC:180,   /* 泉水加成持續幾秒 */
+  EV_BUFF_MUL:1.5    /* 泉水加成倍率 */
+};
+const ACCT_KEY="meter_acct_v1";
+/* 帳號層：原版「每位勇者各一份」的 6 個 key → 帳號資料裡的欄位 */
+const ACCT_MAP={
+  "meter_battle_mirror_v1":"bank",   /* 冥晶＋魔鏡等級 */
+  "meter_battle_ks_v1":"ks",         /* 信物解鎖 */
+  "meter_battle_myth_v1":"myth",     /* 神話擊敗次數 */
+  "meter_battle_codex_v1":"codex",   /* 圖鑑 */
+  "meter_battle_daily_v1":"daily",   /* 每日獎勵領取日 */
+  "meter_battle_ghost_s_v1":"ghostS" /* 百變怪 S 評價次數 */
+};
+/* 魔鏡各組的基礎價格（遷移時，落選的一邊要退費用） */
+const MIR_ROWS=[["battle","battle_L","battle_R",400],["vigor","vigor_L","vigor_R",350],["death","death_L","death_R",3000],["speed","speed_L","speed_R",500],["blood","blood_L","blood_R",450],["soul","soul_L","soul_R",500],["wealth","wealth_L","wealth_R",300],["pride","pride_L","pride_R",450]];
+const ZONES=["新手草原","迷霧森林","幽暗礦坑","熔岩深淵","寒霜荒原","機械廢墟","星空迴廊","時光裂隙","虛空邊境","眾神之門","神域殿堂","冥界入口","混沌之海","永劫之巔"];
+const zoneName=f=>ZONES[Math.min(ZONES.length-1,Math.floor(f/50))];
+const MAPS=[
+  {u:"https://lonely52243.neocities.org/圖庫/IMG_3508.jpeg",y:"40%"},{u:"https://lonely52243.neocities.org/圖庫/IMG_3505.jpeg",y:"45%"},
+  {u:"https://lonely52243.neocities.org/圖庫/IMG_3513.jpeg",y:"50%"},{u:"https://lonely52243.neocities.org/圖庫/IMG_3520.jpeg",y:"40%"},
+  {u:"https://lonely52243.neocities.org/圖庫/IMG_3522.jpeg",y:"45%"}];
+const ABYSS=[
+  {u:"https://lonely52243.neocities.org/電表/圖庫/IMG_3560.jpeg",y:"50%"},{u:"https://lonely52243.neocities.org/電表/圖庫/IMG_3562.jpeg",y:"50%"},
+  {u:"https://lonely52243.neocities.org/電表/圖庫/IMG_3563.jpeg",y:"50%"},{u:"https://lonely52243.neocities.org/電表/圖庫/IMG_3564.jpeg",y:"50%"},
+  {u:"https://lonely52243.neocities.org/電表/圖庫/IMG_3566.jpeg",y:"50%"}];
+const SPR={1:"https://lonely52243.neocities.org/圖庫/IMG_3396.png",3:"https://lonely52243.neocities.org/圖庫/IMG_3421.png"};
+/* 怪物圖：[名稱, 欄, 列] */
+const SHEET1=[["綠史萊姆",1,0],["蘑菇怪",2,0],["狂暴兔",2,2],["哥布林",3,0],["鷹頭怪",4,0],["骷髏兵",0,1],["鬼火",1,2],["燈籠魚",4,1],["眼球魔",2,1],["寶箱怪",1,1],["深海章魚",3,2],["野豬王",0,2],["翠翼魔鳥",4,2],["石巨人",3,1],["小紅龍",0,0]];
+const SHEET3=[["牛頭人",0,0],["冰霜之眼",1,0],["蝙蝠",2,0],["食人花",3,0],["精靈",4,0],["石像鬼",0,1],["美杜莎",1,1],["死神",2,1],["黑騎士",3,1],["哥布林王",4,1],["獨眼巨人",0,2],["矮人",1,2],["水精靈",2,2],["獅鷲",3,2],["鳥身女妖",4,2]];
+/* 怪物圖微調：[縮放%, X%, Y%] */
+const MONP={"1-0-0":[100,0,0],"1-0-1":[100,0,0],"1-0-2":[100,0,0],"1-0-3":[110,0,0],"1-0-4":[100,0,0],"1-1-0":[113,0,0],"1-1-1":[114,-10,0],"1-1-2":[102,5,14],"1-1-3":[110,0,0],"1-1-4":[107,0,0],"1-2-0":[100,0,14],"1-2-1":[100,0,21],"1-2-2":[100,14,19],"1-2-3":[100,7,19],"1-2-4":[110,7,21],
+  "3-0-0":[100,0,0],"3-0-1":[100,0,0],"3-0-2":[90,5,0],"3-0-3":[93,0,0],"3-0-4":[100,0,0],"3-1-0":[100,-5,5],"3-1-1":[100,0,7],"3-1-2":[100,0,0],"3-1-3":[100,0,0],"3-1-4":[100,0,7],"3-2-0":[100,0,10],"3-2-1":[100,0,14],"3-2-2":[100,0,12],"3-2-3":[100,0,14],"3-2-4":[100,0,12]};
+/* 輪迴天賦：5 個節點 */
+const TAL=[
+  {k:"atk",n:"力量",ic:"S7.core_atk",per:.03,base:400,d:"掛機攻擊",b:"挑戰層：攻擊 +3%／級（需橋接）"},
+  {k:"hp",n:"體魄",ic:"S7.core_hp",per:.03,base:400,d:"掛機生命",b:"挑戰層：生命 +3%／級（需橋接）"},
+  {k:"spd",n:"迅捷",ic:"S7.core_spd",per:.02,base:600,d:"掛機攻擊速度",b:"挑戰層：假日 +3／級（攻速、冷卻、回血）"},
+  {k:"drop",n:"幸運",ic:"S7.core_crit",per:.02,base:800,d:"掛機冥晶掉落率",b:"挑戰層：幸運 +5／級（暴擊、閃避、冥晶）"},
+  {k:"ming",n:"財運",ic:"UI.mingbag",per:.05,base:1000,d:"掛機冥晶收益",b:"挑戰層：幸運 +2／級"}
+];
+/* 轉生永久加成：花「輪迴印記」購買，轉生後也不會歸零 */
+const RBP=[
+  {k:"ming",n:"永恆財運",ic:"UI.mingbag",per:.08,max:25,d:"掛機冥晶收益"},
+  {k:"disc",n:"精打細算",ic:"S7.core_crit",per:.02,max:15,d:"天賦升級價格 −"},
+  {k:"off",n:"淺眠營火",ic:"S7.core_spd",per:.03,max:20,d:"離線收益倍率（相對）"}
+];
+/* 成就表：g＝目前進度，t＝目標，m＝獎勵倍數（獎勵冥晶 ＝ 每日基礎獎勵 × m × 0.6） */
+const ACH=[
+  {id:"k1",n:"初試身手",d:"掛機擊敗 100 隻怪物",g:()=>A.idle.kills,t:100,m:1},
+  {id:"k2",n:"掃蕩者",d:"掛機擊敗 2,000 隻怪物",g:()=>A.idle.kills,t:2000,m:2},
+  {id:"k3",n:"不眠獵人",d:"掛機擊敗 50,000 隻怪物",g:()=>A.idle.kills,t:50000,m:5},
+  {id:"e1",n:"小有積蓄",d:"掛機累計 💠 10,000",g:()=>A.idle.earned,t:1e4,m:1},
+  {id:"e2",n:"冥晶富豪",d:"掛機累計 💠 500,000",g:()=>A.idle.earned,t:5e5,m:3},
+  {id:"e3",n:"富可敵國",d:"掛機累計 💠 20,000,000",g:()=>A.idle.earned,t:2e7,m:8},
+  {id:"f1",n:"登堂入室",d:"任一勇者通關 30 層",g:()=>maxBest(),t:30,m:1},
+  {id:"f2",n:"百層勇者",d:"任一勇者通關 100 層",g:()=>maxBest(),t:100,m:3},
+  {id:"f3",n:"深淵行者",d:"任一勇者通關 250 層",g:()=>maxBest(),t:250,m:6},
+  {id:"f4",n:"傳說之巔",d:"任一勇者通關 500 層",g:()=>maxBest(),t:500,m:10},
+  {id:"o1",n:"安心睡覺",d:"領取離線收益 1 次",g:()=>A.stat.offlineN,t:1,m:1},
+  {id:"o2",n:"營火常客",d:"領取離線收益 10 次",g:()=>A.stat.offlineN,t:10,m:2},
+  {id:"o3",n:"一夜好眠",d:"單次離線滿 12 小時",g:()=>A.stat.offMax,t:CFG.OFF_MAX,m:3},
+  {id:"t1",n:"初學輪迴",d:"天賦總等級達 10",g:()=>talTotal(),t:10,m:1},
+  {id:"t2",n:"輪迴行者",d:"天賦總等級達 50",g:()=>talTotal(),t:50,m:3},
+  {id:"t3",n:"登峰造極",d:"任一天賦升到滿級",g:()=>Math.max.apply(null,TAL.map(x=>A.tal[x.k])),t:CFG.TAL_MAX,m:4},
+  {id:"s1",n:"三日之約",d:"累計簽到 3 天",g:()=>A.streak.tot,t:3,m:1},
+  {id:"s2",n:"兩週常駐",d:"累計簽到 14 天",g:()=>A.streak.tot,t:14,m:3},
+  {id:"s3",n:"營地老鳥",d:"累計簽到 60 天",g:()=>A.streak.tot,t:60,m:6},
+  {id:"q1",n:"勤奮的人",d:"完成 10 個每日挑戰",g:()=>A.stat.quests,t:10,m:2},
+  {id:"v1",n:"奇遇不斷",d:"遇到 10 次營地奇遇",g:()=>A.stat.events,t:10,m:1},
+  {id:"v2",n:"福星高照",d:"遇到 100 次營地奇遇",g:()=>A.stat.events,t:100,m:4},
+  {id:"a1",n:"交給系統",d:"自動決策累計 100 次",g:()=>A.stat.decisions,t:100,m:2},
+  {id:"r1",n:"第一次輪迴",d:"轉生 1 次",g:()=>A.rb.n,t:1,m:3},
+  {id:"r2",n:"輪迴不止",d:"轉生 5 次",g:()=>A.rb.n,t:5,m:6},
+  {id:"c1",n:"信物收藏家",d:"解鎖 10 種信物",g:()=>A.ks.length,t:10,m:2},
+  {id:"c2",n:"屠神者",d:"擊敗神話 BOSS 至少 1 位",g:()=>Object.keys(A.myth).filter(k=>A.myth[k]>0).length,t:1,m:3},
+  {id:"c3",n:"神話終結者",d:"擊敗 5 位不同的神話 BOSS",g:()=>Object.keys(A.myth).filter(k=>A.myth[k]>0).length,t:5,m:6}
+];
+const CAMP_TITLES=[[0,"流浪新兵","S8.ti_badge","#8ba0bd"],[3000,"營火學徒","S8.ti_1","#7ee787"],[40000,"營地管事","S8.ti_2","#79c0ff"],[400000,"冥界掌櫃","S8.ti_3","#c4a8f5"],[4000000,"萬象營主","S8.ti_4","#ffd54a"]];
+/* 自動決策的優先順序表 */
+const KS_PRI={
+  smart:["dragon","blade","feather","seal","blood","shard","heart","abyss_eye","glass","horn","medal","clover","eye","shield","coin","antibody","triumph","blood_oath","void_pact","death_mark"],
+  atk:["dragon","blood_oath","blade","medal","horn","glass","abyss_eye","eye","heart","blood","shard"],
+  safe:["seal","feather","dragon","shield","clover","antibody","blood","shard","glass","coin"]
+};
+const DOOR_PRI={growth:["pom","ming","dice","heal","trial"],ming:["ming","pom","dice","heal"],safe:["heal","ming","pom","dice"],risk:["trial","pom","ming","dice","heal"]};
+
+/* ============================================================
+   2. 帳號資料（整支手機共用一份，存在 meter_acct_v1）
+   ============================================================ */
+let A=null,dirty=false,saveT=0,lockUntil=0;
+/* defA：帳號資料的預設值 */
+function defA(){return{v:1,bank:null,ks:[],myth:{},codex:null,daily:0,ghostS:0,uids:[],
+  tal:{atk:0,hp:0,spd:0,drop:0,ming:0},
+  idle:{hero:"",floor:1,auto:true,fk:0,prog:0,carry:0,last:Date.now(),kills:0,earned:0},
+  day:{d:0,kills:0,ming:0,best0:0,claimed:{},t2:0},
+  streak:{d:0,n:0,tot:0},
+  auto:{on:false,bless:"smart",full:"pom",door:"growth",ks:"smart",myth:"smart",triumph:"go",other:true,tips:false},
+  stat:{offlineN:0,offlineMing:0,decisions:0,offMax:0,quests:0,events:0},
+  ev:{next:0,buffUntil:0,log:[]},
+  seen:{guide:0},
+  ach:{u:{},c:{}},
+  rb:{n:0,pts:0,tot:0,run:0,perk:{ming:0,disc:0,off:0}},
+  off:null,mig:null}}
+/* normA：把讀到的資料補齊預設欄位（版本升級或欄位缺漏時不會壞） */
+function normA(o){
+  const d=defA();if(!o||typeof o!=="object"||Array.isArray(o))return d;
+  Object.keys(d).forEach(k=>{
+    if(o[k]===undefined)return;
+    if(d[k]&&typeof d[k]==="object"&&!Array.isArray(d[k]))d[k]=Object.assign(d[k],o[k]);else d[k]=o[k];
+  });
+  if(!Array.isArray(d.ks))d.ks=[];if(!Array.isArray(d.uids))d.uids=[];
+  if(!d.myth||typeof d.myth!=="object")d.myth={};
+  if(!d.ach.u||!d.ach.c)d.ach={u:{},c:{}};
+  if(!d.rb.perk)d.rb.perk={ming:0,disc:0,off:0};
+  if(!Array.isArray(d.ev.log))d.ev.log=[];
+  d.rb.run=d.rb.run||0;
+  return d;
+}
+/* touchA：標記有變動，稍後寫回（soft＝低頻變動，晚一點再寫，省電） */
+function touchA(soft){dirty=true;if(!saveT)saveT=setTimeout(flushA,soft?8000:1500)}
+/* flushA：立刻把帳號資料寫進 localStorage */
+const BAK_KEY="meter_acct_v1_bak";let lastBak=0;
+function flushA(){
+  clearTimeout(saveT);saveT=0;if(!dirty||!A)return;dirty=false;
+  const str=JSON.stringify(A);
+  if(!lsSet(ACCT_KEY,str)){dirty=true;return}
+  /* 每 6 小時自動留一份備援（loadA 讀不到主檔時會用它還原） */
+  if(Date.now()-lastBak>6*3600*1000){lastBak=Date.now();lsSet(BAK_KEY,str)}
+}
+
+/* --- 圖鑑合併（和原版 Cloud.mergeCx 同樣的規則） --- */
+function cxNew(){return{m:{},a:{},s:{},p:{},bl:{},du:{},lg:{},so:{},ms:{},nk:{},st:{runs:0,kills:0,time:0,ming:0},rc:[],nw:0}}
+/* cxMerge：把圖鑑 b 合併進 a（次數取大、清單取聯集、統計加總） */
+function cxMerge(a,b){
+  const mx=(x,y)=>Math.max(x||0,y||0);
+  ["m","a","s","p","bl","du","lg","so","ms","nk"].forEach(k=>{if(!a[k]||typeof a[k]!=="object")a[k]={}});
+  Object.keys(b.m||{}).forEach(n=>{const o=a.m[n]||(a.m[n]={e:0,k:0,l:0}),q=b.m[n];o.e=mx(o.e,q.e);o.k=mx(o.k,q.k);o.l=mx(o.l,q.l);if(!o.fd&&q.fd){o.fd=q.fd;o.ff=q.ff}if(q.fast&&(!o.fast||q.fast<o.fast))o.fast=q.fast});
+  Object.keys(b.a||{}).forEach(k=>{const o=a.a[k]||(a.a[k]={g:0,b:0});o.g=mx(o.g,b.a[k].g);o.b=mx(o.b,b.a[k].b)});
+  Object.keys(b.s||{}).forEach(k=>{const o=a.s[k]||(a.s[k]={u:0,b:0});o.u=mx(o.u,b.s[k].u);o.b=mx(o.b,b.s[k].b)});
+  Object.keys(b.p||{}).forEach(k=>{const o=a.p[k]||(a.p[k]={t:0,lv:0,b:0});o.t=mx(o.t,b.p[k].t);o.lv=mx(o.lv,b.p[k].lv);o.b=mx(o.b,b.p[k].b)});
+  Object.keys(b.bl||{}).forEach(k=>{a.bl[k]=k in a.bl?Math.max(a.bl[k],b.bl[k]):b.bl[k]});
+  ["du","lg","so","nk"].forEach(t=>Object.keys(b[t]||{}).forEach(k=>{a[t][k]=1}));
+  Object.keys(b.ms||{}).forEach(k=>{if(!a.ms[k])a.ms[k]=b.ms[k]});
+  a.st=a.st||{runs:0,kills:0,time:0,ming:0};
+  ["runs","kills","time","ming"].forEach(k=>{a.st[k]=(a.st[k]||0)+((b.st&&b.st[k])||0)});
+  if(Array.isArray(b.ksk)){if(!Array.isArray(a.ksk))a.ksk=[];b.ksk.forEach(k=>{if(!a.ksk.includes(k))a.ksk.push(k)})}
+  if(!Array.isArray(a.rc))a.rc=[];
+  if(Array.isArray(b.rc))a.rc=a.rc.concat(b.rc).slice(0,8);
+  a.nw=(a.nw||0)+(b.nw||0);
+  return a;
+}
+const mirCostOf=(c,lv)=>Math.round(c*Math.pow(1.7,Math.floor(lv/10))*(1+(lv%10)*.08));
+
+/* migrateLegacy：第一次啟動時，把分散在各 uid 的帳號層資料合併成一份。
+   舊 key 完全不動（當作備援），之後所有帳號層讀寫都改走 meter_acct_v1。 */
+function migrateLegacy(){
+  const a=defA(),L={};
+  Object.keys(ACCT_MAP).forEach(k=>{const v=jp(lsGet(k),{});L[k]=(v&&typeof v==="object"&&!Array.isArray(v))?v:{}});
+  const uids=new Set();Object.keys(L).forEach(k=>Object.keys(L[k]).forEach(u=>uids.add(u)));
+  /* 冥晶＋魔鏡：冥晶依設定加總或取大；魔鏡每個 id 取最高等級；
+     同一組左右兩邊都有等級時，保留高的一邊，另一邊的花費 100% 退成冥晶 */
+  const banks=Object.keys(L["meter_battle_mirror_v1"]).map(u=>L["meter_battle_mirror_v1"][u]).filter(b=>b&&typeof b==="object");
+  if(banks.length){
+    let ming=0;const mir={},side={};
+    banks.forEach(b=>{
+      const m=Math.max(0,Math.floor(+b.ming||0));ming=CFG.MIG_MING==="max"?Math.max(ming,m):ming+m;
+      const lv=b.mir||{};Object.keys(lv).forEach(id=>{mir[id]=Math.max(mir[id]||0,+lv[id]||0)});
+    });
+    MIR_ROWS.forEach(r=>{
+      const lvL=mir[r[1]]||0,lvR=mir[r[2]]||0;if(!lvL&&!lvR)return;
+      let win;
+      if(lvL&&lvR){win=lvL>=lvR?"L":"R";const lose=win==="L"?r[2]:r[1];let sp=0;for(let i=0;i<mir[lose];i++)sp+=mirCostOf(r[3],i);ming+=sp;delete mir[lose]}
+      else win=lvL?"L":"R";
+      side[r[0]]=win;
+    });
+    a.bank={ming,mir,mirSide:side,t:Date.now()};
+  }
+  /* 信物：聯集 */
+  const ks=new Set();Object.keys(L["meter_battle_ks_v1"]).forEach(u=>{const v=L["meter_battle_ks_v1"][u];if(Array.isArray(v))v.forEach(x=>ks.add(x))});a.ks=[...ks];
+  /* 神話擊敗次數：每位 BOSS 取最大值 */
+  Object.keys(L["meter_battle_myth_v1"]).forEach(u=>{const v=L["meter_battle_myth_v1"][u];if(v&&typeof v==="object")Object.keys(v).forEach(n=>{a.myth[n]=Math.max(a.myth[n]||0,+v[n]||0)})});
+  /* 圖鑑：合併 */
+  let cx=null;Object.keys(L["meter_battle_codex_v1"]).forEach(u=>{const v=L["meter_battle_codex_v1"][u];if(v&&typeof v==="object")cx=cxMerge(cx||cxNew(),v)});a.codex=cx;
+  /* 每日獎勵：取最晚的日期（任何一位今天領過，整支手機今天就算領過） */
+  Object.keys(L["meter_battle_daily_v1"]).forEach(u=>{a.daily=Math.max(a.daily,+L["meter_battle_daily_v1"][u]||0)});
+  /* 百變怪 S 次數：加總 */
+  Object.keys(L["meter_battle_ghost_s_v1"]).forEach(u=>{a.ghostS+=(+L["meter_battle_ghost_s_v1"][u]||0)});
+  a.uids=[...uids];a.mig={t:Date.now(),n:uids.size};
+  return a;
+}
+/* loadA：讀帳號資料；不存在就執行一次遷移並存檔 */
+function loadA(){
+  const raw=lsGet(ACCT_KEY);
+  if(raw){
+    try{A=normA(JSON.parse(raw));return}
+    catch(e){
+      /* 主檔壞掉：先把壞檔留一份，再用自動備援還原。千萬不能直接重新遷移，那會用舊資料蓋掉現有進度 */
+      lsSet(ACCT_KEY+"_corrupt",raw);
+      const b=lsGet(BAK_KEY);
+      if(b){try{A=normA(JSON.parse(b));lsSet(ACCT_KEY,b);console.warn("[idle-addon] 主檔損壞，已用備援還原");return}catch(e2){}}
+    }
+  }
+  A=migrateLegacy();lsSet(ACCT_KEY,JSON.stringify(A));
+}
+/* writeBackLegacy：把帳號資料寫回各勇者的舊 key（移除 Add-on 之前使用，進度才不會消失） */
+function writeBackLegacy(){
+  const ids=knownUids();
+  Object.keys(ACCT_MAP).forEach(key=>{
+    const v=A[ACCT_MAP[key]];if(v===null||v===undefined)return;
+    const o=jp(lsGet(key),{});const obj=(o&&typeof o==="object"&&!Array.isArray(o))?o:{};
+    ids.forEach(id=>{obj[id]=v});lsSet(key,JSON.stringify(obj));
+  });
+}
+
+/* --- 勇者／名冊存取 --- */
+const usersReady=()=>{try{return Array.isArray(usersData)&&usersData.length>0}catch(e){return false}};
+function allUsers(){try{return Array.isArray(usersData)?usersData:[]}catch(e){return[]}}
+const uidOf=u=>String(U0(u,"使用者ID"));
+function curUid(){try{return currentUser?uidOf(currentUser):""}catch(e){return""}}
+/* knownUids：所有已知勇者的 id（讀帳號資料時，要讓每位勇者都看得到同一份） */
+function knownUids(){
+  const s=new Set(A?A.uids:[]);
+  allUsers().forEach(u=>{const id=U0(u,"使用者ID");if(id)s.add(String(id))});
+  const c=curUid();if(c)s.add(c);if(A&&A.idle&&A.idle.hero)s.add(A.idle.hero);
+  return[...s];
+}
+function rememberUid(id){if(A&&id&&!A.uids.includes(id)){A.uids.push(id);touchA()}}
+function heroById(id){return id?(allUsers().find(u=>uidOf(u)===String(id))||null):null}
+function heroList(){
+  return allUsers().filter(u=>U0(u,"使用者ID")&&((+U0(u,"D等級","等級")||0)>=1))
+    .sort((a,b)=>(bestOf(uidOf(b))-bestOf(uidOf(a)))||((+U0(b,"D等級","等級")||0)-(+U0(a,"D等級","等級")||0)));
+}
+/* bestOf：這位勇者的歷史最高通關層（原版 meter_battle_v11，維持每位勇者各一份） */
+function bestOf(uid){const o=jp(lsGet("meter_battle_v11"),{});return Math.max(0,+(o&&o[uid])||0)}
+
+/* ============================================================
+   3. Storage hook：帳號層 6 個 key 改走共用資料
+   ============================================================ */
+/* expand：把帳號資料展開成原版期待的「{勇者id: 資料}」格式 */
+function expand(prop){
+  const v=A[prop];
+  if(v===null||v===undefined)return null;
+  const o={};knownUids().forEach(id=>{o[id]=v});
+  return o;
+}
+/* absorb：原版寫入「{勇者id: 資料}」時，找出被改動的那一份，存成帳號層資料 */
+function absorb(prop,val){
+  if(Date.now()<lockUntil)return;
+  const obj=jp(val,null);if(!obj||typeof obj!=="object"||Array.isArray(obj))return;
+  const cur=curUid(),ids=Object.keys(obj),cand=[];
+  if(cur&&ids.includes(cur))cand.push(cur);
+  ids.forEach(k=>{if(k!==cur)cand.push(k)});
+  const curJ=JSON.stringify(A[prop]===undefined?null:A[prop]);
+  for(const k of cand){
+    if(JSON.stringify(obj[k])!==curJ){A[prop]=obj[k];rememberUid(k);touchA();return}
+  }
+}
+/* installHooks：覆寫 getItem / setItem，只攔截帳號層 key 與 meter_acct_v1 本身 */
+function installHooks(){
+  Storage.prototype.getItem=function(key){
+    try{
+      if(A&&this===window.localStorage){
+        const prop=ACCT_MAP[key];
+        if(prop){const o=expand(prop);if(o)return JSON.stringify(o)}
+      }
+    }catch(e){}
+    return rawGet.apply(this,arguments);
+  };
+  Storage.prototype.setItem=function(key,val){
+    try{
+      if(A&&this===window.localStorage){
+        if(key===ACCT_KEY){
+          /* 外部寫入（例如匯入備份檔）：重新載入，並暫時忽略緊接著的舊格式寫入 */
+          const r=rawSet.apply(this,arguments);
+          try{A=normA(JSON.parse(val));dirty=false;lockUntil=Date.now()+2500}catch(e){}
+          return r;
+        }
+        const prop=ACCT_MAP[key];
+        if(prop){absorb(prop,val);return}
+      }
+    }catch(e){}
+    return rawSet.apply(this,arguments);
+  };
+}
+
+/* ============================================================
+   4. 無盡挑戰加成：uval 覆寫（只在開打期間生效）＋選用橋接
+   ============================================================ */
+const boost={on:false,holiday:0,luck:0};
+/* 覆寫 uval：開打期間，「假日」「幸運」加上天賦的小幅加成；平常（名冊、個人頁）完全不變 */
+try{
+  window.uval=function(u,a,b){
+    const v=U0(u,a,b);
+    if(boost.on){
+      if(a==="假日"&&boost.holiday)return(+v||0)+boost.holiday;
+      if(a==="幸運"&&boost.luck)return(+v||0)+boost.luck;
+    }
+    return v;
+  };
+}catch(e){console.warn("[idle-addon] uval 覆寫失敗",e)}
+/* noBoost：暫時關閉加成後執行（營地試算要用原始數值） */
+function noBoost(fn){const s=boost.on;boost.on=false;try{return fn()}finally{boost.on=s}}
+/* setBoost：開始／結束無盡挑戰時切換加成 */
+function setBoost(on){
+  boost.on=!!on;
+  if(on){boost.holiday=A.tal.spd*3;boost.luck=A.tal.drop*5+A.tal.ming*2}
+  else{boost.holiday=0;boost.luck=0}
+}
+/* 按下「無盡挑戰」按鈕的瞬間（capture 階段，早於原版處理）開啟加成 */
+document.addEventListener("click",e=>{
+  try{if(e.target&&e.target.closest&&e.target.closest("#btEntry"))setBoost(true)}catch(x){}
+},true);
+/* 戰鬥畫面關閉後恢復 */
+let wasOpen=false;
+new MutationObserver(()=>{
+  const o=battleOpen();
+  if(o&&!wasOpen)wasOpen=true;
+  else if(!o&&wasOpen){wasOpen=false;setBoost(false);flushA()}
+}).observe(document.body,{attributes:true,attributeFilter:["class"]});
+
+/* bridgeTick：選用橋接。原檔加上 window.__BT={G:()=>G} 後，每場只套用一次「力量／體魄」天賦 */
+function bridgeTick(){
+  if(!battleOpen())return;
+  const api=window.__BT;if(!api||typeof api.G!=="function")return;
+  let g=null;try{g=api.G()}catch(e){}
+  if(!g||!g.p||g.over||g.closed||g._icTal||g.p._icTal)return;
+  g._icTal=true;g.p._icTal=true;
+  const T=A.tal,p=g.p;
+  if(T.atk>0)p.atk=Math.round(p.atk*(1+.03*T.atk));
+  if(T.hp>0){const o=p.maxHp;p.maxHp=Math.round(p.maxHp*(1+.03*T.hp));p.hp+=p.maxHp-o}
+  if(T.atk>0||T.hp>0)btLog("輪迴天賦生效：攻擊 +"+pc(.03*T.atk)+"、生命 +"+pc(.03*T.hp),true);
+}
+
+/* ============================================================
+   5. 放置模型：用名冊數值＋魔鏡核心＋天賦，估算每層的掛機收益
+   ============================================================ */
+const effSum=lv=>{let s=0;for(let i=0;i<lv;i++)s+=Math.pow(.8,Math.floor(i/10));return s};
+const mEff=i=>Math.pow(.8,Math.floor(i/10));
+const modelCache={};
+/* heroModel：算出這位勇者掛機時的實力（攻擊、生命、防禦、攻速、暴擊、掉寶等） */
+function heroModel(u){
+  if(!u)return null;
+  const uid=uidOf(u),mir=(A.bank&&A.bank.mir)||{},ms=(A.bank&&A.bank.mirSide)||{};
+  const lucky=+U0(u,"幸運")||0,holiday=+U0(u,"假日")||0,dawn=+U0(u,"G破曉次數","破曉次數")||0;
+  const sig=[uid,U0(u,"D等級","等級"),U0(u,"F回報天數","回報天數"),U0(u,"H漏報","漏報"),holiday,lucky,dawn,JSON.stringify(mir),JSON.stringify(ms),JSON.stringify(A.tal),gm()].join("|");
+  const hit=modelCache[uid];if(hit&&hit.sig===sig)return hit.H;
+  if(typeof window.rosterStats!=="function")return null;
+  const st=noBoost(()=>window.rosterStats(u));if(!st)return null;
+  let atk=st.atk,hp=st.hp,def=st.def,int=st.atkInt,crit=st.crit;const a0=atk,h0=hp,d0=def;
+  for(let i=0;i<(mir.core_atk||0);i++)atk+=Math.max(1,Math.round((a0*.03+3)*mEff(i)));
+  for(let i=0;i<(mir.core_hp||0);i++)hp+=Math.max(1,Math.round((h0*.1+10)*mEff(i)));
+  for(let i=0;i<(mir.core_def||0);i++)def+=Math.max(1,Math.round((d0*.1+2)*mEff(i)));
+  for(let i=0;i<(mir.core_spd||0);i++)int=Math.max(.2,int*(1-.01*mEff(i)));
+  for(let i=0;i<(mir.core_crit||0);i++)crit=Math.min(1,crit+.01*mEff(i));
+  const T=A.tal;
+  atk*=1+.03*T.atk;hp*=1+.03*T.hp;int=Math.max(.2,int*(1-.02*T.spd));
+  let wealth=0;if(ms.wealth==="L"&&mir.wealth_L)wealth=Math.min(.7,.2+.015*(effSum(mir.wealth_L)-1));
+  const H={uid,name:String(U0(u,"顯示名稱","名稱")||"無名勇者"),lv:+U0(u,"D等級","等級")||0,atk,hp,def,int,crit,
+    critDmg:Math.min(2.5,1.5+lucky*.005),dodge:.03+lucky/(lucky+300)*.12,mingMul:1+lucky/(lucky+150)*.5,
+    regenPct:.005+holiday*.0005,pierce:dawn/(dawn+200)*.2,wealth,_c:new Map()};
+  modelCache[uid]={sig,H};return H;
+}
+/* calcFloor：算這位勇者在第 f 層掛機的結果（擊殺時間、每隻冥晶、安全度、每秒收益） */
+function calcFloor(H,f){
+  if(H._c.has(f))return H._c.get(f);
+  const k=Math.floor(f/50),ear=f<60?f/60:1;
+  const hpE=1.5*(120+42*f*Math.sqrt(f))*Math.pow(1.05,k)*Math.pow(1.03,Math.max(0,k-8))*(.5+.5*ear)*(1+Math.min(1,f/600)*.6);
+  const atkE=1.7*(24+4.2*f*Math.pow(f,.2))*Math.pow(1.012,k)*(.6+.4*ear)*Math.pow(1.04,Math.max(0,k-8));
+  const defE=(3.6+.6*f*Math.pow(f,.2))*Math.pow(1.03,k);
+  const fab=f<=50?1+f*.025:1+50*.025+(f-50)*.012;
+  const pierce=Math.min(.8,H.pierce+Math.min(.4,f*.0008));
+  const dmgHit=H.atk*fab*(1+H.crit*(H.critDmg-1))*(100/(100+defE*(1-pierce)));
+  const ttk=hpE/Math.max(1e-6,dmgHit/Math.max(.2,H.int));
+  const interval=Math.max(.75,1.8-f*.002);
+  const dpsE=atkE*1.12*(100/(100+H.def))*(1-H.dodge)/interval;
+  const regen=H.hp*H.regenPct;
+  const dmgPerKill=Math.max(0,(dpsE-regen)*ttk);
+  let eff=dmgPerKill<=0?1:Math.min(1,(H.hp*.15)/dmgPerKill);
+  if(dmgPerKill>=H.hp*.9)eff=0;
+  const killT=Math.min(60,Math.max(1.2,ttk)+.9);
+  const base=(8+f*4)*(1+f/50);
+  const drop=Math.min(1,(f<50?.6:.3)+H.wealth+.02*A.tal.drop);
+  const per=base*drop*H.mingMul*(1+.05*A.tal.ming)*gm()*CFG.IDLE_MUL*eff;
+  const r={f,hpE,dmgHit,ttk,killT,eff,per,rate:per/killT,dmgFrac:Math.min(.85,dmgPerKill/Math.max(1,H.hp))};
+  H._c.set(f,r);return r;
+}
+/* recommend：在已通關樓層裡，找最高的「穩定」樓層（智慧推薦） */
+function recommend(H,cap){for(let f=cap;f>=1;f--){if(calcFloor(H,f).eff>=CFG.EFF_OK)return f}return 1}
+/* simulate：模擬一段時間的掛機（線上、離線共用）。auto＝自動推進，cap＝最高可到幾層 */
+function simulate(H,f0,sec,auto,cap,k0){
+  let t=sec,ming=0,kills=0,f=Math.min(Math.max(1,f0),cap),k=k0||0,guard=0,stuck=false;
+  while(t>0&&guard++<600){
+    const c=calcFloor(H,f);
+    if(c.eff<=.0001){stuck=true;break}
+    const adv=auto&&f<cap&&calcFloor(H,f+1).eff>=CFG.EFF_OK;
+    if(adv&&k>=CFG.KPF){f++;k=0;continue}
+    const can=Math.floor(t/c.killT);
+    if(can<=0)break;
+    if(adv){
+      const n=CFG.KPF-k;
+      if(can>=n){ming+=c.per*n;kills+=n;t-=n*c.killT;f++;k=0;continue}
+    }
+    ming+=c.per*can;kills+=can;t-=can*c.killT;k=Math.min(CFG.KPF,k+can);break;
+  }
+  return{ming,kills,floor:f,fk:k,left:stuck?0:Math.max(0,t)};
+}
+/* gm：永久加成倍率（轉生「永恆財運」＋已領取的成就），套用在掛機冥晶收益上 */
+function gm(){return(1+RBP[0].per*A.rb.perk.ming)*(1+CFG.ACH_BONUS*achClaimed())}
+/* offMul：離線倍率（含轉生「淺眠營火」） */
+function offMul(){return CFG.OFF_MUL*(1+RBP[2].per*A.rb.perk.off)}
+/* talCost：天賦升級價格（含轉生「精打細算」折扣） */
+function talCost(t,lv){return Math.max(1,Math.round(t.base*Math.pow(CFG.TAL_G,lv)*(1-RBP[1].per*A.rb.perk.disc)))}
+const talTotal=()=>TAL.reduce((s,t)=>s+A.tal[t.k],0);
+const achClaimed=()=>Object.keys(A.ach.c).length;
+let _mb=0,_mbT=0;
+/* maxBest：所有勇者裡最高的通關層（1 秒快取，成就判定用） */
+function maxBest(){const n=Date.now();if(n-_mbT>1000){_mbT=n;_mb=0;allUsers().forEach(u=>{const id=U0(u,"使用者ID");if(id)_mb=Math.max(_mb,bestOf(String(id)))})}return _mb}
+/* nextGoal：一句話告訴玩家「接下來可以做什麼」（最便宜的未滿天賦；extra＝還沒入帳的冥晶） */
+function nextGoal(extra){
+  const have=bankMing()+(extra||0);let best=null;
+  TAL.forEach(t=>{const lv=A.tal[t.k];if(lv>=CFG.TAL_MAX)return;const c=talCost(t,lv);if(!best||c<best.c)best={t:t,c:c}});
+  if(!best)return"天賦全部滿級，可以考慮轉生";
+  return have>=best.c?"可以升級「"+best.t.n+"」（💠 "+fm(best.c)+"）":"「"+best.t.n+"」還差 💠 "+fm(best.c-have)+" 可以升級";
+}
+/* 營地稱號與等級（用累計掛機冥晶決定） */
+function campTitle(e){let t=CAMP_TITLES[0];CAMP_TITLES.forEach(x=>{if(e>=x[0])t=x});return t}
+function campLevel(e){const lv=Math.floor(Math.sqrt(Math.max(0,e)/120))+1,cur=(lv-1)*(lv-1)*120,nx=lv*lv*120;return{lv,p:Math.min(1,(e-cur)/(nx-cur))}}
+
+/* ============================================================
+   6. 冥晶存取（寫進帳號層的 bank，無盡挑戰開始時會讀到）
+   ============================================================ */
+function ensureBank(){if(!A.bank)A.bank={ming:0,mir:{},mirSide:{},t:Date.now()}}
+const bankMing=()=>A&&A.bank?Math.max(0,Math.floor(A.bank.ming||0)):0;
+/* addMing：加冥晶（無盡挑戰開著時不呼叫，避免和戰鬥中的冥晶互相覆蓋） */
+function addMing(n){n=Math.floor(n);if(!(n>0))return;ensureBank();A.bank.ming=(A.bank.ming||0)+n;A.bank.t=Date.now();touchA()}
+function spendMing(n){if(bankMing()<n)return false;A.bank.ming-=n;A.bank.t=Date.now();touchA();return true}
+
+/* ============================================================
+   7. 掛機結算：在線（每秒）與離線（回到畫面時）
+   ============================================================ */
+const UI={open:false,tab:"camp",buyN:1,offShown:false};
+/* gain：在線掛機的收益入帳（小數先累積，滿 1 才入帳） */
+function gain(m,k){
+  const I=A.idle;I.carry+=m;const w=Math.floor(I.carry);I.carry-=w;
+  if(w>0)addMing(w);
+  I.kills+=k;I.earned+=w;A.rb.run+=w;A.day.kills+=k;A.day.ming+=w;touchA(true);
+  return w;
+}
+/* idleTick：每秒執行一次，判斷要做線上結算還是離線結算 */
+function idleTick(){
+  const now=Date.now(),I=A.idle;
+  if(!usersReady())return;                       /* 名冊還沒載入：保留時間，等一下一起算 */
+  if(!I.hero){
+    /* 新玩家還沒選勇者：自動選通關最高的那位，開了營地就直接在掛機 */
+    const L=heroList();
+    if(L.length){
+      const u=L[0],id=uidOf(u);I.hero=id;I.fk=0;I.prog=0;I.carry=0;I.last=now;
+      const H0=heroModel(u);I.floor=H0?recommend(H0,Math.max(1,bestOf(id))):1;
+      A.day.best0=bestOf(id);rememberUid(id);touchA();
+    }else I.last=now;
+    return;
+  }
+  const hero=heroById(I.hero);if(!hero){I.last=now;return}
+  const dt=Math.max(0,(now-I.last)/1000);I.last=now;touchA(true);
+  if(battleOpen())return;                        /* 挑戰中不掛機 */
+  rollDay();
+  if(dt>=CFG.OFF_MIN){offlineSettle(hero,dt);return}
+  if(dt>0)onlineSettle(hero,dt);
+}
+/* onlineSettle：在線掛機結算 dt 秒 */
+function onlineSettle(hero,dt){
+  const I=A.idle,H=heroModel(hero);if(!H)return;
+  const cap=Math.max(1,bestOf(H.uid));
+  I.floor=Math.min(Math.max(1,I.floor),cap);
+  if(I.auto&&calcFloor(H,I.floor).eff<.5){I.floor=recommend(H,cap);I.fk=0;I.prog=0}
+  const f0=I.floor,r=simulate(H,I.floor,Math.min(dt,CFG.OFF_MIN)+I.prog,I.auto,cap,I.fk);
+  I.prog=r.left;I.floor=r.floor;I.fk=r.fk;
+  const w=gain(r.ming*buffMul(),r.kills);
+  if(r.kills>0)rollEvent(calcFloor(H,r.floor));
+  if(UI.open&&UI.tab==="camp")scenePulse(w,r.kills,r.floor!==f0);
+}
+/* buffMul：泉水加成倍率（沒有加成時是 1） */
+function buffMul(){return A.ev.buffUntil>Date.now()?CFG.EV_BUFF_MUL:1}
+/* evLog：記一行營地日誌（只留最近 8 筆） */
+function evLog(msg){
+  const t=new Date();
+  A.ev.log.unshift(String(t.getHours()).padStart(2,"0")+":"+String(t.getMinutes()).padStart(2,"0")+" "+msg);
+  if(A.ev.log.length>8)A.ev.log.length=8;touchA(true);
+}
+/* rollEvent：營地奇遇。每隔 150~360 秒隨機發生一次：寶箱（60%）、泉水加成（30%）、流星（10%）。
+   獎勵都以「目前掛機層的每秒收益」換算，所以不會因為樓層變高而失去意義。 */
+function rollEvent(c){
+  const now=Date.now();
+  if(!A.ev.next){A.ev.next=now+(CFG.EV_MIN+Math.random()*(CFG.EV_MAX-CFG.EV_MIN))*1000;return}
+  if(now<A.ev.next)return;
+  A.ev.next=now+(CFG.EV_MIN+Math.random()*(CFG.EV_MAX-CFG.EV_MIN))*1000;
+  const r=Math.random(),R=Math.max(.5,c.rate);let msg,m=0;
+  if(r<.6){m=Math.round(R*(30+Math.random()*30));msg="🎁 路邊撿到寶箱：💠 +"+fm(m)}
+  else if(r<.9){A.ev.buffUntil=now+CFG.EV_BUFF_SEC*1000;msg="⛲ 發現神祕泉水：接下來 "+Math.round(CFG.EV_BUFF_SEC/60)+" 分鐘，掛機收益 ×"+CFG.EV_BUFF_MUL}
+  else{m=Math.round(R*180);msg="☄️ 流星墜落，撿到晶塊：💠 +"+fm(m)}
+  if(m>0){addMing(m);A.idle.earned+=m;A.rb.run+=m;A.day.ming+=m}
+  A.stat.events++;evLog(msg);toast(msg,2400);
+  if(UI.open&&UI.tab==="camp"){floatTxt("p",m>0?"+"+fm(m):"×"+CFG.EV_BUFF_MUL,"ming");renderCamp(false)}
+  checkAch();
+}
+/* evHtml：營地分頁下方的「營地日誌」 */
+function evHtml(){
+  const left=Math.max(0,Math.ceil((A.ev.buffUntil-Date.now())/1000));
+  return'<div class="cx-sec">營地日誌<small>掛機時會隨機遇到奇遇</small></div>'+
+    (left?'<div class="mr-note">⛲ 泉水加成中：收益 ×'+CFG.EV_BUFF_MUL+'，還剩 <b>'+Math.floor(left/60)+':'+String(left%60).padStart(2,"0")+'</b></div>':'')+
+    (A.ev.log.length?'<div class="mr-list">'+A.ev.log.map(t=>'<div class="mr-row"><div class="mr-info"><div class="mr-eff">'+esc(t)+'</div></div></div>').join("")+'</div>':'<div class="cx-empty">還沒有奇遇，繼續掛機看看</div>');
+}
+/* offlineSettle：離線結算（至少 5 分鐘、最多 12 小時，收益打折，只給冥晶與樓層推進）。
+   結果先放進待領取（A.off），玩家按「領取」才入帳。 */
+function offlineSettle(hero,dt){
+  const I=A.idle,H=heroModel(hero);if(!H)return;
+  const sec=Math.min(dt,CFG.OFF_MAX),cap=Math.max(1,bestOf(H.uid));
+  I.floor=Math.min(Math.max(1,I.floor),cap);
+  const f0=I.floor,r=simulate(H,I.floor,sec,I.auto,cap,I.fk);
+  const o=A.off||{sec:0,ming:0,kills:0,f0:f0,f1:f0};
+  o.sec+=sec;o.ming+=r.ming*offMul();o.kills+=r.kills;o.f1=r.floor;
+  A.off=o;I.floor=r.floor;I.fk=r.fk;I.prog=0;UI.offShown=false;touchA();
+}
+/* claimOffline：領取離線收益 */
+function claimOffline(){
+  const o=A.off;if(!o)return;
+  if(battleOpen()){toast("先離開無盡挑戰再領取",1800);return}
+  const m=Math.round(o.ming);addMing(m);
+  A.idle.earned+=m;A.rb.run+=m;A.stat.offlineN++;A.stat.offlineMing+=m;A.stat.offMax=Math.max(A.stat.offMax,o.sec);A.off=null;UI.offShown=false;touchA();
+  checkAch();sOk();toast("🎁 離線收益入帳：💠 "+fm(m),2200);refreshEntry();
+  if(UI.open)renderCamp(false);
+}
+/* showOffline：「歡迎回來」視窗（沿用 bt-modal 樣式）。
+   一次看完：離線收益、樓層推進、今日簽到、剛達成的成就，按一顆鈕全部領取。 */
+function showOffline(){
+  const o=A&&A.off;if(!o||battleOpen()||$("icOffModal"))return;
+  checkAch();
+  const el=document.createElement("div");el.id="icOffModal";el.className="bt-modal on";
+  const h=Math.floor(o.sec/3600),mn=Math.floor(o.sec%3600/60),L=loginInfo(),ac=achReady().length;
+  const capped=o.sec>=CFG.OFF_MAX;
+  let rows='<div class="bt-stat"><span>離線收益</span><b>💠 '+fm(o.ming)+'</b></div>'+
+    '<div class="bt-stat"><span>擊敗怪物</span><b>'+fm(o.kills)+' 隻</b></div>'+
+    '<div class="bt-stat"><span>掛機樓層</span><b>'+(o.f1>o.f0?o.f0+' → '+o.f1+' 層':'第 '+o.f1+' 層')+'</b></div>';
+  if(L.can)rows+='<div class="bt-stat"><span>今日簽到（連續 '+L.n+' 天）</span><b>💠 '+fm(L.rw)+'</b></div>';
+  if(ac)rows+='<div class="bt-stat"><span>可領取的成就</span><b>🏆 '+ac+' 個</b></div>';
+  rows+='<div class="bt-stat"><span>下一個目標</span><b>🎯 '+esc(nextGoal(o.ming))+'</b></div>';
+  el.innerHTML='<div class="bt-modal-box" role="dialog" aria-modal="true"><div class="bt-modal-title">🏕️ 歡迎回來</div>'+
+    '<div class="bt-modal-desc">你離開了 '+(h?h+" 小時 ":"")+mn+' 分鐘，營地沒有停下來。'+(capped?'\n已達 12 小時上限，下次記得早點回來。':'')+'\n離線收益約為在線掛機的 '+Math.round(offMul()*100)+'%。</div>'+rows+
+    '<button type="button" class="bt-modal-btn" data-ic="off-claim" style="margin-top:14px">🎁 '+(L.can||ac?'全部領取':'領取')+'</button>'+
+    '<button type="button" class="bt-rs-new" data-ic="off-camp">先去營地看看</button>'+
+    '<button type="button" class="bt-rs-new" data-ic="off-later">稍後再領</button></div>';
+  el.onclick=e=>{
+    const b=e.target.closest("[data-ic]"),k=b&&b.dataset.ic;
+    if(k==="off-claim"){el.remove();claimOffline();if(L.can)claimLogin(true);claimAllAch(true);return}
+    if(k==="off-camp"){el.remove();sClose();openCamp("camp");return}
+    if(k==="off-later"||e.target===el){el.remove();sClose()}
+  };
+  document.body.appendChild(el);sOpen();
+}
+
+/* ============================================================
+   8. 每日簽到與每日挑戰
+   ============================================================ */
+/* rollDay：換日時重置每日挑戰 */
+function rollDay(){
+  const t=dayKey();if(A.day.d===t)return;
+  const u=heroById(A.idle.hero);
+  A.day={d:t,kills:0,ming:0,best0:u?bestOf(uidOf(u)):0,claimed:{},t2:0};touchA();
+}
+/* refRate：用「推薦樓層」估一個參考收益（每秒），每日獎勵的數量依此換算 */
+function refRate(){
+  const u=heroById(A.idle.hero);if(!u)return 1;
+  const H=heroModel(u);if(!H)return 1;
+  const cap=Math.max(1,bestOf(H.uid));return calcFloor(H,recommend(H,cap)).rate||1;
+}
+const baseReward=()=>Math.max(300,Math.round(refRate()*600));
+/* questList：今天的三個每日挑戰 */
+function questList(){
+  rollDay();const D=A.day,R=baseReward(),uid=A.idle.hero,best=uid?bestOf(uid):0;
+  if(!D.t2)D.t2=Math.max(800,Math.round(refRate()*900));
+  return[
+    {id:"q1",n:"掛機擊敗 200 隻怪物",cur:D.kills,max:200,rw:Math.round(R*.8)},
+    {id:"q2",n:"掛機累積 💠 "+fm(D.t2),cur:D.ming,max:D.t2,rw:Math.round(R)},
+    {id:"q3",n:"在挑戰層突破歷史最高層",cur:best>D.best0?1:0,max:1,rw:Math.round(R*2)}
+  ];
+}
+function loginInfo(){
+  const S=A.streak,t=dayKey(),can=S.d!==t,n=can?(S.d===yesterdayKey()?S.n+1:1):S.n;
+  return{can,n,rw:Math.round(baseReward()*(.6+.15*Math.min(n,7)))};
+}
+const hasClaim=()=>{
+  if(A.off)return true;
+  if(loginInfo().can)return true;
+  if(achReady().length)return true;
+  return questList().some(q=>q.cur>=q.max&&!A.day.claimed[q.id]);
+};
+function claimQuest(id){
+  if(battleOpen())return;const q=questList().find(x=>x.id===id);
+  if(!q||q.cur<q.max||A.day.claimed[id])return;
+  A.day.claimed[id]=1;A.stat.quests++;addMing(q.rw);sOk();toast("🎁 每日挑戰完成：💠 "+fm(q.rw),1800);touchA();renderCamp(false);refreshEntry();
+}
+/* claimLogin：領每日簽到（quiet＝由歡迎回來視窗一起領時，不重畫營地） */
+function claimLogin(quiet){
+  if(battleOpen())return;const L=loginInfo();if(!L.can)return;
+  A.streak={d:dayKey(),n:L.n,tot:A.streak.tot+1};addMing(L.rw);sOk();
+  toast("📅 簽到完成（連續 "+L.n+" 天）：💠 "+fm(L.rw),2000);touchA();checkAch();if(!quiet||UI.open)renderCamp(false);refreshEntry();
+}
+
+/* ============================================================
+   8b. 成就
+   ============================================================ */
+/* achProg：某個成就目前的進度 [目前, 目標] */
+function achProg(a){let c=0;try{c=+a.g()||0}catch(e){}return[Math.min(c,a.t),a.t]}
+/* checkAch：檢查有沒有新達成的成就（達成就記下並提示，領獎要到成就頁按領取） */
+function checkAch(){
+  if(!A)return;let n=0;const names=[];
+  ACH.forEach(a=>{
+    if(A.ach.u[a.id])return;
+    const p=achProg(a);
+    if(p[0]>=p[1]){A.ach.u[a.id]=Date.now();n++;names.push(a.n)}
+  });
+  /* 一次解很多個（例如第一次更新、舊進度一次達標）只跳一則提示，不洗版 */
+  if(n)toast(n>2?"🏆 一次達成 "+n+" 個成就，到營地領取":"🏆 成就達成：「"+names.join("」「")+"」",2600);
+  if(n){touchA();sOk();refreshEntry();if(UI.open&&UI.tab==="ach")renderCamp(false)}
+}
+/* achReady：已達成、還沒領獎的成就 */
+const achReady=()=>ACH.filter(a=>A.ach.u[a.id]&&!A.ach.c[a.id]);
+const achReward=a=>Math.max(200,Math.round(baseReward()*a.m*.6));
+/* claimAch：領一個成就獎勵 */
+function claimAch(id,quiet){
+  const a=ACH.find(x=>x.id===id);if(!a||!A.ach.u[id]||A.ach.c[id]||battleOpen())return 0;
+  A.ach.c[id]=1;const r=achReward(a);addMing(r);touchA();
+  if(!quiet){sOk();toast("🏆 「"+a.n+"」獎勵：💠 "+fm(r)+"（收益永久 +"+pc(CFG.ACH_BONUS)+"）",2200);refreshEntry();renderCamp(false)}
+  return r;
+}
+/* claimAllAch：一次領完所有已達成的成就 */
+function claimAllAch(quiet){
+  let t=0,n=0;achReady().forEach(a=>{const r=claimAch(a.id,true);if(r){t+=r;n++}});
+  if(n){sOk();toast("🏆 領取 "+n+" 個成就：💠 "+fm(t),2200);refreshEntry();if(UI.open)renderCamp(false)}
+  return t;
+}
+
+/* ============================================================
+   8c. 轉生
+   ============================================================ */
+/* rbGain：現在轉生可以拿到幾個輪迴印記 */
+const rbGain=()=>Math.floor(Math.sqrt(Math.max(0,A.rb.run)/CFG.RB_DIV));
+/* rbCan：轉生條件（至少拿到 1 個印記，且有勇者通關到門檻層數） */
+const rbCan=()=>rbGain()>=1&&maxBest()>=CFG.RB_MIN_FLOOR;
+const rbCost=lv=>lv+1;
+/* buyPerk：花印記買永久加成 */
+function buyPerk(k){
+  const p=RBP.find(x=>x.k===k);if(!p)return;
+  const lv=A.rb.perk[k];if(lv>=p.max)return;
+  const c=rbCost(lv);if(A.rb.pts<c){toast("輪迴印記不足",1200);return}
+  A.rb.pts-=c;A.rb.perk[k]++;sOk();touchA();renderCamp(false);
+}
+/* askRebirth：轉生確認視窗（沿用 bt-modal 樣式） */
+function askRebirth(){
+  if(battleOpen()){toast("先離開無盡挑戰再轉生",1800);return}
+  if(!rbCan()||$("icRbModal"))return;
+  const g=rbGain(),el=document.createElement("div");el.id="icRbModal";el.className="bt-modal on";
+  el.innerHTML='<div class="bt-modal-box" role="dialog" aria-modal="true"><div class="bt-modal-title">🔄 轉生</div>'+
+    '<div class="bt-modal-desc">天賦等級會全部歸零，不退還冥晶。\n最高樓層、魔鏡、信物、圖鑑、成就都不受影響。</div>'+
+    '<div class="bt-stat"><span>獲得輪迴印記</span><b>✨ '+g+'</b></div>'+
+    '<div class="bt-stat"><span>歸零的天賦等級</span><b>'+talTotal()+'</b></div>'+
+    '<button type="button" class="bt-modal-btn" data-ic="rb-yes" style="margin-top:14px">確定轉生</button>'+
+    '<button type="button" class="bt-rs-new" data-ic="rb-no">再想想</button></div>';
+  el.onclick=e=>{
+    const b=e.target.closest("[data-ic]"),k=b&&b.dataset.ic;
+    if(k==="rb-yes"){el.remove();doRebirth();return}
+    if(k==="rb-no"||e.target===el){el.remove();sClose()}
+  };
+  document.body.appendChild(el);sOpen();
+}
+/* doRebirth：執行轉生（天賦歸零、本輪累計歸零、印記入帳） */
+function doRebirth(){
+  if(!rbCan())return;
+  const g=rbGain();
+  A.rb.pts+=g;A.rb.tot+=g;A.rb.n++;A.rb.run=0;
+  TAL.forEach(t=>{A.tal[t.k]=0});
+  A.idle.fk=0;A.idle.prog=0;
+  touchA();checkAch();sOk();toast("🔄 轉生完成：獲得 ✨ "+g+" 輪迴印記",2600);
+  refreshEntry();renderCamp(false);
+}
+
+/* ============================================================
+   9. 自動決策：用 DOM 輪詢處理戰鬥中的選擇視窗（預設關閉）
+   ============================================================ */
+/* btLog：寫一行到戰鬥紀錄（沿用 #btLog 與 .s 樣式）；quiet＝不計入決策次數 */
+function btLog(msg,quiet){
+  const L=$("btLog");if(!L)return;
+  L.insertAdjacentHTML("beforeend",'<div class="s">🤖 '+esc(msg)+'</div>');
+  while(L.childElementCount>30)L.removeChild(L.firstElementChild);
+  L.scrollTop=L.scrollHeight;
+  if(!quiet){A.stat.decisions++;touchA(true)}
+}
+/* ready：同一個視窗出現 0.7 秒後才動作，之後每 1.1 秒最多動作一次（讓玩家看得到發生了什麼） */
+function ready(el){
+  const now=Date.now();
+  if(!el._icLast||now-el._icLast>1600){el._icSeen=now;el._icAct=0}
+  el._icLast=now;
+  if(now-el._icSeen<700)return false;
+  if(el._icAct&&now-el._icAct<1100)return false;
+  el._icAct=now;return true;
+}
+const nameOf=el=>{const b=el&&el.querySelector("b");return b?b.textContent.trim():"?"};
+const RARITY_RANK={common:1,rare:2,epic:3,legend:4};
+/* decideBless：選祝福。滿了就依設定「改拿 Pom」或「汰換最弱」 */
+function decideBless(box){
+  const drops=[...box.querySelectorAll("[data-drop]")];
+  if(drops.length){                                   /* 汰換畫面：丟掉稀有度最低、等級最低的 */
+    let best=null,bs=1e9;
+    drops.forEach(it=>{
+      const rar=RARITY_RANK[[...it.querySelectorAll(".rar")].map(x=>x.className.replace("rar","").trim())[0]]||1;
+      const lv=+((/Lv\.(\d+)/.exec(it.textContent)||[0,1])[1]);
+      const sc=rar*10+(lv-1)*4;if(sc<bs){bs=sc;best=it}
+    });
+    btLog("汰換祝福：捨棄「"+nameOf(best.querySelector(".pn")||best)+"」");best.click();return;
+  }
+  const keep=box.querySelector("[data-keep]");
+  if(keep&&A.auto.full==="pom"){btLog("祝福已滿：保留組合，改拿 Pom");keep.click();return}
+  const items=[...box.querySelectorAll("[data-pick]")];if(!items.length)return;
+  let pick=null,bs=-1;
+  items.forEach(it=>{
+    const rc=it.querySelector(".rar"),rar=RARITY_RANK[rc?rc.className.replace("rar","").trim():"common"]||1;
+    const pg=(it.querySelector(".pg")||{}).textContent||"",owned=+((/已有\s*(\d+)/.exec(pg)||[0,0])[1]),hint=/解鎖|覺醒/.test(pg)?1:0;
+    let sc;
+    if(A.auto.bless==="rand")sc=Math.random();
+    else if(A.auto.bless==="rare")sc=rar*10+Math.random();
+    else sc=rar*10+owned*6+hint*30+Math.random()*.5;
+    if(sc>bs){bs=sc;pick=it}
+  });
+  const pn=pick.querySelector(".pn");
+  btLog("選祝福：「"+(pn?pn.textContent.trim():"?")+"」（"+(A.auto.bless==="smart"?"智慧":A.auto.bless==="rare"?"稀有度優先":"隨機")+"）");
+  pick.click();
+}
+/* decidePom：Pom 一律升等級最低的祝福（低等級邊際加成最大） */
+function decidePom(m){
+  const items=[...m.querySelectorAll("[data-pom]")];if(!items.length)return;
+  let pick=items[0],lo=1e9;
+  items.forEach(it=>{const lv=+((/Lv\.(\d+)/.exec(it.textContent)||[0,9])[1]);if(lv<lo){lo=lv;pick=it}});
+  btLog("Pom：強化「"+nameOf(pick.querySelector(".pn")||pick)+"」");pick.click();
+}
+/* decideChoice：信物／門／神器／契約／凱旋門共用的「按優先順序挑一個」 */
+function decideChoice(m,label,list,rand){
+  const items=[...m.querySelectorAll("[data-ch]")];if(!items.length)return;
+  let pick=null;
+  if(rand)pick=items[Math.floor(Math.random()*items.length)];
+  else{for(const k of list){pick=items.find(x=>x.dataset.ch===k);if(pick)break}}
+  if(!pick)pick=items.find(x=>x.dataset.ch!=="none")||items[0];
+  btLog(label+"：「"+nameOf(pick)+"」");pick.click();
+}
+/* decideMyth：神話 BOSS 戰或逃（看視窗上的難度評估） */
+function decideMyth(m){
+  const fight=m.querySelector('[data-m="fight"]'),run=m.querySelector('[data-m="run"]');
+  const dif=(m.querySelector(".bt-myth-dif b")||{}).textContent||"";
+  const mode=A.auto.myth;
+  let go="fight";
+  if(run&&(mode==="run"||(mode==="smart"&&/很危險/.test(dif))))go="run";
+  btLog("神話 BOSS（"+(dif.trim()||"未知難度")+"）→ "+(go==="run"?"逃跑":"應戰"));
+  (go==="run"?run:fight).click();
+}
+/* autoPoll：每 0.5 秒掃一次畫面上有沒有等待選擇的視窗，一次只處理一個 */
+function autoPoll(){
+  if(!A||!A.auto.on||!battleOpen())return;
+  const q=s=>document.querySelector(s),oth=A.auto.other;let el;
+  if((el=q(".bt-myth-modal"))){if(ready(el))decideMyth(el);return}
+  if((el=q(".bt-modal.bt-ks"))){if(ready(el))decideChoice(el,"選信物",KS_PRI[A.auto.ks]||KS_PRI.smart,A.auto.ks==="rand");return}
+  if((el=q(".bt-modal.bt-door"))){if(ready(el))decideChoice(el,"選門",DOOR_PRI[A.auto.door]||DOOR_PRI.growth);return}
+  if(oth){
+    if((el=q(".bt-modal.bt-art"))){if(ready(el))decideChoice(el,"選神器",[],false);return}
+    if((el=q(".bt-modal.bt-pact"))){if(ready(el))decideChoice(el,"懲罰契約",["none"]);return}
+    if((el=q(".bt-modal.bt-triumph"))){if(ready(el))decideChoice(el,"凱旋門",[A.auto.triumph]);return}
+    if((el=q(".bt-duo-pick"))){if(ready(el)){const it=el.querySelector("[data-duo]");if(it){btLog("雙重祝福：「"+((it.querySelector(".bt-duo-name")||{}).textContent||"?")+"」");it.click()}}return}
+  }
+  if((el=q(".bt-modal.on .bt-pick"))){if(ready(el))decideBless(el);return}
+  if((el=q(".bt-modal.bt-pom.on"))){if(ready(el))decidePom(el);return}
+  if(oth){
+    if((el=q(".bt-unlock.on"))){if(ready(el)){const b=el.querySelector(".bt-unlock-btn");if(b)b.click()}return}
+    if((el=q(".gh-cer .gh-go"))){if(ready(el)){btLog("百變怪試煉：開始");el.click()}return}
+    if((el=q(".abyss-btn"))){if(ready(el))el.click();return}
+    if((el=q(".tabby-btn"))){if(ready(el))el.click();return}
+  }
+  if(A.auto.tips&&(el=q(".bt-tip .bt-tip-ok"))){if(ready(el))el.click()}
+}
+/* paintAutoBtn：更新戰鬥標題列上的 🤖 開關外觀 */
+function paintAutoBtn(b){
+  b=b||$("icAutoBtn");if(!b)return;
+  b.classList.toggle("on",!!A.auto.on);
+  b.innerHTML='🤖<span>'+(A.auto.on?"ON":"OFF")+'</span>';
+  b.title="自動決策（細項設定在：營地 → 自動）";
+  b.setAttribute("aria-pressed",A.auto.on?"true":"false");
+}
+/* injectAutoBtn：在戰鬥標題列加一顆 🤖 開關（戰鬥畫面每場會重建，所以每秒檢查一次） */
+function injectAutoBtn(){
+  const spd=$("btSpd");if(!spd||$("icAutoBtn")||!spd.parentNode)return;
+  const b=document.createElement("button");b.type="button";b.id="icAutoBtn";b.className="bt-spd";
+  b.setAttribute("aria-label","自動決策");paintAutoBtn(b);
+  b.onclick=()=>{A.auto.on=!A.auto.on;touchA();paintAutoBtn(b);sTap();btLog(A.auto.on?"自動決策已開啟":"自動決策已關閉",true)};
+  spd.parentNode.insertBefore(b,spd);
+}
+
+/* ============================================================
+   10. 營地畫面（沿用 cx-* / mr-* / st-* / bt-* 樣式）
+   ============================================================ */
+const vis={f:0,mi:0,snap:false,lastAtk:0};
+function pulseCls(el,cls,ms){if(!el||REDUCED)return;el.classList.add(cls);setTimeout(()=>el.classList.remove(cls),ms)}
+/* avatarFor：勇者頭像（和無盡挑戰同樣的選法） */
+function avatarFor(u){
+  const lv=+U0(u,"D等級","等級")||0;let mx=0,c=null;
+  try{mx=getCurrentAvatarIndex(lv)}catch(e){}
+  try{c=getPlayerChoice()}catch(e){}
+  return POKEDEX[(c!==null&&!isNaN(c)&&c<=mx)?c:mx]||POKEDEX[0];
+}
+/* monStyle：第 f 層、第 mi 款怪物的圖片樣式 */
+function monStyle(f,mi){
+  const sheet=f>=60?3:1,arr=sheet===3?SHEET3:SHEET1,m=arr[mi%arr.length],c=m[1],r=m[2];
+  const pr=MONP[sheet+"-"+r+"-"+c]||[100,0,0];
+  return{name:m[0],css:"background-image:url('"+SPR[sheet]+"');background-size:500% 300%;background-position:"+(c*25)+"% "+(r*50)+"%;transform:translate("+pr[1]+"%,"+pr[2]+"%) scale("+(pr[0]/100)+")"};
+}
+/* mapFor：依樓層換場景背景 */
+function mapFor(fld,f){
+  const ab=f>=500,m=ab?ABYSS[Math.floor((f-500)/50)%ABYSS.length]:MAPS[Math.floor(f/50)%MAPS.length];
+  fld.classList.toggle("abyss",ab);
+  if(fld._map!==m.u){fld._map=m.u;fld.style.setProperty("--bt-map",'url("'+m.u+'")');fld.style.setProperty("--bt-map-y",m.y)}
+}
+/* setMonster：換一隻怪物 */
+function setMonster(){
+  const I=A.idle,spr=$("icSpr");if(!spr)return;
+  const m=monStyle(I.floor,vis.mi);spr.style.cssText=m.css;
+  const n=$("icEn"),z=$("icEl");if(n)n.textContent=m.name;if(z)z.textContent=zoneName(I.floor)+"・第 "+I.floor+" 層";
+}
+/* floatTxt：在場景上飄一個數字（沿用 bt-f 樣式） */
+function floatTxt(side,txt,cls){
+  const fx=$("icFx");if(!fx||REDUCED)return;
+  while(fx.childElementCount>6)fx.removeChild(fx.firstElementChild);
+  const s=document.createElement("span");s.className="bt-f "+(cls||"normal");s.textContent=txt;
+  s.style.left=((side==="e"?73:27)+(Math.random()*12-6))+"%";s.style.animationDuration=".9s";
+  fx.appendChild(s);setTimeout(()=>s.remove(),1100);
+}
+/* scenePulse：擊敗怪物時的演出（換怪、飄冥晶、血條重置） */
+function scenePulse(w,kills,floorChanged){
+  if(kills>0){vis.mi=(vis.mi+kills)%15;vis.snap=true}
+  if(floorChanged){vis.f=0}
+  if(kills>0){setMonster();pulseCls($("icP"),"atk",400);pulseCls($("icE"),"dead",0);if(w>0)floatTxt("p","+"+fm(w),"ming")}
+}
+/* sceneInit：營地分頁畫出來後，初始化場景 */
+function sceneInit(){
+  const fld=$("icField");if(!fld||!A.idle.hero)return;
+  vis.f=A.idle.floor;vis.mi=Math.floor(Math.random()*15);vis.snap=true;
+  mapFor(fld,A.idle.floor);setMonster();liveUpdate();
+}
+/* liveUpdate：每秒更新營地分頁上會變動的數字與血條 */
+function liveUpdate(){
+  if(!UI.open||UI.tab!=="camp"||!A)return;
+  const I=A.idle,hero=heroById(I.hero),fld=$("icField");if(!hero||!fld)return;
+  const H=heroModel(hero);if(!H)return;
+  const cap=Math.max(1,bestOf(H.uid)),c=calcFloor(H,I.floor);
+  if(vis.f!==I.floor){vis.f=I.floor;mapFor(fld,I.floor);setMonster()}
+  const pct=c.eff>0?Math.min(1,I.prog/c.killT):0;
+  const eh=$("icEh"),eg=$("icEg"),ph=$("icPh"),et=$("icEt");
+  const tr=vis.snap?"none":"width 1s linear";
+  if(eh){eh.style.transition=tr;eh.style.width=((1-pct)*100).toFixed(1)+"%"}
+  if(eg){eg.style.transition=tr;eg.style.width=((1-pct)*100).toFixed(1)+"%"}
+  if(ph){ph.style.transition=tr;ph.style.width=(100-pct*c.dmgFrac*100).toFixed(1)+"%"}
+  vis.snap=false;
+  if(et)et.textContent=c.eff>0?"":"⚠️ 這層頂不住";
+  const g=[fm(c.rate*60),"💠 "+fm(c.per),c.killT.toFixed(1)+"s",Math.round(c.eff*100)+"%",I.floor+" / "+cap,fm(A.day.ming)];
+  g.forEach((t,i)=>{const e=$("icG"+i);if(e&&e.textContent!==t)e.textContent=t});
+  const bm=$("icBank");if(bm)bm.textContent="💠 "+fm(bankMing());
+  /* 勇者出手動畫（約每 0.9 秒一次） */
+  const now=Date.now();
+  if(!REDUCED&&c.eff>0&&now-vis.lastAtk>900){
+    vis.lastAtk=now;pulseCls($("icP"),"atk",400);setTimeout(()=>pulseCls($("icE"),"hit",400),120);
+    floatTxt("e",fm(c.dmgHit*(.9+Math.random()*.2)),Math.random()<H.crit?"crit":"normal");
+  }
+}
+function ensureOv(){
+  if($("icOv"))return;
+  const ov=document.createElement("div");ov.id="icOv";ov.className="cx-ov ic-ov";
+  ov.innerHTML='<div class="cx-box" role="dialog" aria-modal="true" aria-label="放置營地"></div>';
+  document.body.appendChild(ov);
+  ov.addEventListener("click",campClick);
+  document.addEventListener("keydown",e=>{if(e.key==="Escape"&&UI.open&&!document.querySelector("#icOffModal"))closeCamp()});
+}
+/* openCamp：打開營地 */
+function openCamp(tab){
+  if(!A)return;ensureOv();
+  if(tab)UI.tab=tab;
+  UI.open=true;rollDay();renderCamp(true);
+  if(!battleOpen()){UI.ovf=document.body.style.overflow;document.body.style.overflow="hidden"}
+  $("icOv").classList.add("on");sOpen();
+  if(!A.seen.guide)setTimeout(()=>{if(UI.open&&!A.seen.guide)showGuide(0)},300);
+  setTimeout(()=>{const b=$("icOv").querySelector(".cx-tabs .on");if(b)b.focus({preventScroll:true})},60);
+}
+/* showGuide：新手引導（4 頁，沿用 bt-modal 樣式）。step＝第幾頁 */
+const GUIDE=[
+  ["🏕️ 歡迎來到放置營地","勇者會自動在「已通關的樓層」打怪賺冥晶 💠，不會遇到神話 BOSS。你離開時也會繼續，離線最多算 12 小時。"],
+  ["⚔️ 掛機層與挑戰層","掛機層只能選已通關的樓層，賺的是穩定的冥晶。要突破歷史最高層，請按「前往挑戰層」手動去打。"],
+  ["🌟 天賦與轉生","用冥晶升級天賦，掛機會更快。累積夠多之後可以轉生，天賦歸零換成永久加成。"],
+  ["🏆 成就、每日與奇遇","每天簽到、完成每日挑戰、解鎖成就都能領冥晶，成就還會永久提升收益。掛機時也會隨機遇到寶箱和泉水。"]
+];
+function showGuide(step){
+  step=step||0;const old=$("icGuide");if(old)old.remove();
+  const g=GUIDE[step],last=step>=GUIDE.length-1,el=document.createElement("div");
+  el.id="icGuide";el.className="bt-modal on";
+  el.innerHTML='<div class="bt-modal-box" role="dialog" aria-modal="true"><div class="bt-modal-title">'+g[0]+'</div><div class="bt-modal-desc">'+g[1]+'</div>'+
+    '<div class="ic-note" style="text-align:center">'+(step+1)+' / '+GUIDE.length+'</div>'+
+    '<button type="button" class="bt-modal-btn" data-ic="g-next" style="margin-top:12px">'+(last?"開始掛機":"下一步")+'</button>'+
+    (last?'':'<button type="button" class="bt-rs-new" data-ic="g-skip">略過</button>')+'</div>';
+  el.onclick=e=>{
+    const b=e.target.closest("[data-ic]"),k=b&&b.dataset.ic;
+    if(k==="g-next"){sTap();if(last){el.remove();A.seen.guide=1;touchA()}else showGuide(step+1);return}
+    if(k==="g-skip"||e.target===el){el.remove();A.seen.guide=1;touchA();sClose()}
+  };
+  document.body.appendChild(el);
+}
+function closeCamp(){
+  const ov=$("icOv");if(!ov)return;
+  UI.open=false;ov.classList.remove("on");
+  if(!battleOpen())document.body.style.overflow=UI.ovf||"";
+  flushA();sClose();refreshEntry();
+}
+/* tabsHtml：營地上方的分頁列 */
+/* tabOpen：分頁是否已解鎖（新手先只看到營地、天賦、每日、資料，其他達到條件才出現） */
+function tabOpen(k){
+  if(k==="ach")return A.idle.kills>=30||Object.keys(A.ach.u).length>0;
+  if(k==="auto")return maxBest()>=5||A.auto.on||A.stat.decisions>0;
+  return true;
+}
+/* checkTabs：新分頁解鎖時提示一次 */
+function checkTabs(){
+  [["ach","成就"],["auto","自動決策"]].forEach(t=>{
+    if(tabOpen(t[0])&&!A.seen["t_"+t[0]]){A.seen["t_"+t[0]]=1;touchA();if(A.seen.guide)toast("🔓 解鎖新分頁：「"+t[1]+"」",2600)}
+  });
+}
+function tabsHtml(){
+  const T=[["camp","營地","S1.challenge",!!A.off],["tal","天賦","S7.core",false],["auto","自動","S1.auto",false],["ach","成就","S9.rank",achReady().length>0],["daily","每日","S9.daily",loginInfo().can||questList().some(q=>q.cur>=q.max&&!A.day.claimed[q.id])],["info","資料","S1.settings",false]];
+  return T.filter(t=>tabOpen(t[0])).map(t=>'<button role="tab" type="button" data-ict="'+t[0]+'" aria-selected="'+(t[0]===UI.tab)+'" class="'+(t[0]===UI.tab?'on':'')+'">'+(t[3]?'<i class="cx-tdot"></i>':'')+gi(t[2],22)+'<span>'+t[1]+'</span></button>').join("");
+}
+/* renderCamp：重畫整個營地（top＝捲回頂端） */
+function renderCamp(top){
+  const ov=$("icOv");if(!ov)return;
+  if(!tabOpen(UI.tab))UI.tab="camp";
+  const box=ov.querySelector(".cx-box"),old=box.querySelector(".cx-body"),st=(!top&&old)?old.scrollTop:0;
+  let body="";
+  try{body=UI.tab==="tal"?talTab():UI.tab==="ach"?achTab():UI.tab==="auto"?autoTab():UI.tab==="daily"?dailyTab():UI.tab==="info"?infoTab():campTab()}
+  catch(e){body='<div class="cx-empty">畫面載入失敗：'+esc(e.message)+'</div>';console.warn("[idle-addon]",e)}
+  box.innerHTML='<div class="cx-head"><div class="cx-hb">'+gi("S1.challenge",30)+'<b>放 置 營 地</b><span id="icBank">💠 '+fm(bankMing())+'</span><button class="mr-x" data-ic="close" aria-label="關閉營地">✕</button></div><div class="cx-tabs" role="tablist">'+tabsHtml()+'</div></div><div class="cx-body" role="tabpanel">'+body+'</div>';
+  box.querySelector(".cx-body").scrollTop=st;
+  if(UI.tab==="camp")sceneInit();
+}
+/* 小元件：分段選項、開關、群組 */
+function seg(key,cur,opts){return'<div class="bt-set-row">'+opts.map(o=>'<button type="button" class="bt-set-opt'+(String(cur)===String(o[0])?' on':'')+'" data-ic="au" data-v="'+key+'|'+o[0]+'">'+o[1]+(o[2]?'<small>'+o[2]+'</small>':'')+'</button>').join("")+'</div>'}
+function sw(key,on,label,sub){return'<div class="st-row"><span>'+label+(sub?'<small>'+sub+'</small>':'')+'</span><button type="button" class="mr-sw'+(on?' on':'')+'" data-ic="au" data-v="'+key+'|tog" role="switch" aria-checked="'+(!!on)+'" aria-label="'+esc(label)+'"><i></i></button></div>'}
+function grp(t,body){return'<div class="st-grp"><div class="st-gt">'+t+'</div>'+body+'</div>'}
+
+/* campTab：營地主畫面（掛機場景、收益、樓層控制、前往挑戰層） */
+function campTab(){
+  const I=A.idle,hero=heroById(I.hero),list=heroList();
+  const chips='<div class="cx-sec">掛機勇者<small>每位勇者的已通關樓層不同</small></div><div class="cx-chips-f" role="group" aria-label="選擇掛機勇者">'+
+    list.map(u=>{const id=uidOf(u);return'<button type="button" data-ic="hero" data-v="'+esc(id)+'" class="'+(id===I.hero?'on':'')+'" aria-pressed="'+(id===I.hero)+'">'+esc(U0(u,"顯示名稱","名稱")||"—")+' <em>'+bestOf(id)+'</em></button>'}).join("")+'</div>';
+  if(!hero){
+    return'<div class="cx-sub">選一位勇者開始掛機。已通關的樓層可以重複掛機賺冥晶，不會遇到神話 BOSS；離線也會繼續累積。</div>'+
+      (list.length?chips:'<div class="cx-empty">名冊資料還沒載入，或目前沒有等級 1 以上的勇者</div>');
+  }
+  const H=heroModel(hero);
+  if(!H)return'<div class="cx-empty">讀不到勇者數值（名冊功能尚未載入）</div>';
+  const best=bestOf(H.uid),cap=Math.max(1,best);
+  I.floor=Math.min(Math.max(1,I.floor),cap);
+  const c=calcFloor(H,I.floor),ti=campTitle(I.earned),lv=campLevel(I.earned),ofs=A.off;
+  let h='<div class="cx-top"><div class="cx-ring" style="--p:'+(lv.p*100).toFixed(1)+'"><div><b>Lv.'+lv.lv+'</b><small>營地</small></div></div>'+
+    '<div class="cx-ti">'+gi(ti[2],56)+'<b style="color:'+ti[3]+'">'+ti[1]+'</b><small>累計掛機 💠 '+fm(I.earned)+'・擊敗 '+fm(I.kills)+' 隻</small></div></div>';
+  if(ofs)h+='<button type="button" class="cx-bonus" data-ic="off-open" style="margin-top:10px">'+gi("S9.daily",34)+'<span><b>離線收益可以領取</b><small>💠 '+fm(ofs.ming)+'（離線 '+Math.floor(ofs.sec/3600)+' 小時 '+Math.floor(ofs.sec%3600/60)+' 分）</small></span><i>›</i></button>';
+  const av=avatarFor(hero),m0=monStyle(I.floor,0);
+  h+='<div class="cx-sec">掛機中<small>'+esc(H.name)+'　Lv.'+H.lv+'</small></div>'+
+    '<div class="bt-field" id="icField"><div class="bt-fighter p" id="icP"><div class="bt-av"><div class="bt-pav" style="background-image:url(\''+av.url+'\');transform:translate('+av.offX+'%,'+av.offY+'%) scale('+av.scale+')"></div></div>'+
+    '<div class="bt-nm">'+esc(H.name)+'</div><div class="bt-lv">Lv.'+H.lv+'</div><div class="bt-bar"><i class="g"></i><i class="h" id="icPh"></i></div></div>'+
+    '<div class="bt-vs">VS</div><div class="bt-fighter e" id="icE"><div class="bt-av"><div class="bt-spr" id="icSpr" style="'+m0.css+'"></div></div>'+
+    '<div class="bt-nm" id="icEn">'+m0.name+'</div><div class="bt-lv" id="icEl"></div><div class="bt-bar"><i class="g" id="icEg"></i><i class="h" id="icEh"></i></div><div class="bt-tx" id="icEt"></div></div>'+
+    '<div class="bt-fx" id="icFx"></div></div>';
+  const g=[["每分鐘冥晶",fm(c.rate*60)],["每隻怪物","💠 "+fm(c.per)],["擊殺時間",c.killT.toFixed(1)+"s"],["安全度",Math.round(c.eff*100)+"%"],["掛機層",I.floor+" / "+cap],["今日累計",fm(A.day.ming)]];
+  h+='<div class="cx-grid" style="margin-top:10px">'+g.map((x,i)=>'<div><small>'+x[0]+'</small><b id="icG'+i+'">'+x[1]+'</b></div>').join("")+'</div>';
+  h+='<div class="ic-note" style="margin-top:8px">🎯 下一個目標：<b>'+esc(nextGoal(0))+'</b></div>';
+  if(c.eff<.5)h+='<div class="bt-near" style="margin-top:8px">⚠️ 這層對現在的實力太吃力，按「智慧推薦」換到穩定的樓層。</div>';
+  h+='<div class="cx-sec">掛機層<small>只能選已通關的樓層（最高 '+cap+' 層）</small></div>'+
+    '<div class="bt-set-row">'+[[-10,"−10"],[-1,"−1"],[1,"+1"],[10,"+10"]].map(x=>'<button type="button" class="bt-set-opt" data-ic="fl" data-v="'+x[0]+'">'+x[1]+'</button>').join("")+'</div>'+
+    '<div class="bt-set-row" style="margin-top:6px"><button type="button" class="bt-set-opt" data-ic="rec">⭐ 智慧推薦</button><button type="button" class="bt-set-opt" data-ic="max">⬆ 最高通關層</button><button type="button" class="bt-set-opt" data-ic="one">第 1 層</button></div>'+
+    grp("🏕️ 掛機設定",sw("advance",I.auto,"自動推進","每擊敗 "+CFG.KPF+" 隻就往上一層（到穩定的最高通關層為止）；實力不夠時自動退回推薦樓層"));
+  h+='<button type="button" class="bt-modal-btn" data-ic="challenge" style="margin-top:12px">⚔️ 前往挑戰層（歷史最高 '+best+' 層）</button>';
+  h+='<div class="ic-note">掛機收益約為挑戰層實戰的 <b>'+Math.round(CFG.IDLE_MUL*100)+'%</b>，離線再打 <b>'+Math.round(CFG.OFF_MUL*100)+'%</b>。<br>要突破歷史最高層，請從上面的按鈕進入「挑戰層」手動打。</div>';
+  return h+evHtml()+chips;
+}
+/* talTab：輪迴天賦樹 */
+function talTab(){
+  const n=UI.buyN||1,bridge=!!(window.__BT&&window.__BT.G);
+  let h='<div class="mr-note"><b>輪迴天賦</b>：用冥晶升級 5 個節點，每級效果很小，但會一直累積。加成對「掛機營地」全額生效，對「無盡挑戰」見每個節點的說明。</div>'+
+    '<div class="bt-set-row">'+[[1,"×1"],[5,"×5"],[99,"MAX"]].map(x=>'<button type="button" class="bt-set-opt'+(n===x[0]?' on':'')+'" data-ic="buyn" data-v="'+x[0]+'">'+x[1]+'</button>').join("")+'</div>'+
+    '<div class="mr-list" style="margin-top:10px">'+TAL.map(t=>{
+      const lv=A.tal[t.k],full=lv>=CFG.TAL_MAX,cost=talCost(t,lv),ok=bankMing()>=cost;
+      return'<div class="mr-row"><div class="mr-ic">'+gi(t.ic,34)+'</div><div class="mr-info"><div class="mr-name">'+t.n+' <em>Lv.'+lv+' / '+CFG.TAL_MAX+'</em></div>'+
+        '<div class="mr-eff">'+t.d+' <b>+'+pc(t.per*lv)+'</b>'+(full?'':' → +'+pc(t.per*(lv+1)))+'</div><div class="mr-eff" style="color:#8ba0bd">'+t.b+'</div></div>'+
+        (full?'<span class="mr-full">已滿</span>':'<button type="button" class="mr-buy'+(ok?' ok':'')+'" data-ic="tal" data-v="'+t.k+'">💠 '+fm(cost)+'</button>')+'</div>';
+    }).join("")+'</div>'+
+    '<div class="ic-note">'+(bridge?'✅ 已偵測到橋接：「力量／體魄」也會套用在無盡挑戰。':'「力量／體魄」在無盡挑戰裡需要橋接才會生效（見說明）；「迅捷／幸運／財運」已透過假日、幸運欄位自動生效。')+'</div>';
+  return h+rbSection();
+}
+/* rbSection：天賦頁下方的轉生區（印記、永久加成、轉生按鈕） */
+function rbSection(){
+  const R=A.rb,g=rbGain(),can=rbCan();
+  if(!(R.n>0||R.pts>0||can||R.run>=CFG.RB_DIV*.3))
+    return'<div class="cx-sec">🔄 轉生<small>尚未解鎖</small></div><div class="mr-note">本輪累計掛機 💠 達到 <b>'+fm(Math.round(CFG.RB_DIV*.3))+'</b> 就會開放。轉生是把天賦歸零，換成永久加成，先專心升級天賦就好。</div>';
+  let h='<div class="cx-sec">🔄 轉生<small>已轉生 '+R.n+' 次・累計印記 '+R.tot+'</small></div>'+
+    '<div class="mr-note">把天賦歸零，換成<b>輪迴印記</b>。印記拿來買下面的永久加成，轉生後也不會消失。本輪累計掛機 <b>💠 '+fm(R.run)+'</b>。</div>'+
+    '<div class="cx-grid" style="margin-top:8px"><div><small>持有印記</small><b>✨ '+R.pts+'</b></div><div><small>現在轉生可得</small><b>✨ '+g+'</b></div><div><small>目前收益加成</small><b>×'+gm().toFixed(2)+'</b></div></div>'+
+    '<div class="mr-list" style="margin-top:10px">'+RBP.map(p=>{
+      const lv=R.perk[p.k],full=lv>=p.max,c=rbCost(lv),ok=R.pts>=c;
+      return'<div class="mr-row"><div class="mr-ic">'+gi(p.ic,34)+'</div><div class="mr-info"><div class="mr-name">'+p.n+' <em>Lv.'+lv+' / '+p.max+'</em></div><div class="mr-eff">'+p.d+' <b>'+(p.k==="disc"?"−":"+")+pc(p.per*lv)+'</b>'+(full?'':' → '+pc(p.per*(lv+1)))+'</div></div>'+
+        (full?'<span class="mr-full">已滿</span>':'<button type="button" class="mr-buy'+(ok?' ok':'')+'" data-ic="perk" data-v="'+p.k+'">✨ '+c+'</button>')+'</div>';
+    }).join("")+'</div>'+
+    '<button type="button" class="bt-modal-btn" data-ic="rb-go" style="margin-top:12px"'+(can?'':' disabled')+'>🔄 轉生（可得 ✨ '+g+'）</button>'+
+    '<div class="ic-note">'+(can?'轉生會讓天賦歸零，建議等印記夠買下一級永久加成再轉。':'條件：本輪累計掛機 💠 '+fm(CFG.RB_DIV)+' 以上（至少 1 個印記），且有勇者通關 '+CFG.RB_MIN_FLOOR+' 層。')+'</div>';
+  return h;
+}
+/* achTab：成就清單 */
+function achTab(){
+  const total=ACH.length,got=Object.keys(A.ach.u).length,cl=achClaimed(),rd=achReady();
+  let h='<div class="cx-top"><div class="cx-ring" style="--p:'+(cl/total*100).toFixed(1)+'"><div><b>'+cl+'</b><small>/ '+total+'</small></div></div>'+
+    '<div class="cx-ti">'+gi("S9.rank",56)+'<b style="color:#ffd54a">成就</b><small>已達成 '+got+'・已領取 '+cl+'・收益永久 +'+pc(CFG.ACH_BONUS*cl)+'</small></div></div>';
+  if(rd.length)h+='<button type="button" class="cx-bonus" data-ic="achall" style="margin-top:10px">'+gi("S9.daily",34)+'<span><b>有 '+rd.length+' 個成就可以領取</b><small>💠 '+fm(rd.reduce((s,a)=>s+achReward(a),0))+'</small></span><i>›</i></button>';
+  const ord=ACH.slice().sort((x,y)=>{const r=a=>A.ach.c[a.id]?2:A.ach.u[a.id]?0:1;return r(x)-r(y)});
+  h+='<div class="mr-list" style="margin-top:10px">'+ord.map(a=>{
+    const u=A.ach.u[a.id],c=A.ach.c[a.id],p=achProg(a);
+    return'<div class="mr-row"'+(c?' style="opacity:.6"':'')+'><div class="mr-ic">'+gi("S9.rank",34)+'</div><div class="mr-info"><div class="mr-name">'+esc(a.n)+'</div><div class="mr-eff">'+esc(a.d)+(u?'':'　<em>'+fm(p[0])+' / '+fm(p[1])+'</em>')+'</div></div>'+
+      (c?'<span class="mr-full">已領取</span>':u?'<button type="button" class="mr-buy ok" data-ic="ach" data-v="'+a.id+'">💠 '+fm(achReward(a))+'</button>':'<button type="button" class="mr-buy" disabled>未達成</button>')+'</div>';
+  }).join("")+'</div><div class="ic-note">每領取一個成就，掛機冥晶收益永久 <b>+'+pc(CFG.ACH_BONUS)+'</b>。</div>';
+  return h;
+}
+/* autoTab：自動決策設定 */
+function autoTab(){
+  const a=A.auto;
+  return'<div class="mr-note"><b>自動決策</b>：戰鬥中跳出的選擇視窗由系統代選，並把每個決定寫進戰鬥紀錄（🤖 開頭）。預設關閉；戰鬥標題列也有一顆 🤖 可以隨時開關。</div>'+
+    grp("🤖 總開關",sw("on",a.on,"啟用自動決策","只在無盡挑戰進行中生效"))+
+    grp("🌟 選祝福",seg("bless",a.bless,[["smart","智慧","重稀有度與已選的神"],["rare","稀有度","只看稀有度"],["rand","隨機",""]])+
+      '<div class="st-gt" style="margin-top:10px">祝福已滿時</div>'+seg("full",a.full,[["pom","改拿 Pom","保留組合"],["replace","汰換最弱","丟掉最弱的"]]))+
+    grp("🚪 選門",seg("door",a.door,[["growth","成長","Pom→冥晶"],["ming","冥晶","冥晶優先"],["safe","保命","回血優先"],["risk","冒險","試煉之門"]]))+
+    grp("🎁 選信物",seg("ks",a.ks,[["smart","智慧",""],["atk","攻擊系",""],["safe","保命系",""],["rand","隨機",""]]))+
+    grp("💎 神話 BOSS",seg("myth",a.myth,[["smart","智慧","很危險就逃"],["fight","一律應戰",""],["run","能逃就逃",""]]))+
+    grp("🏛️ 其他視窗",sw("other",a.other,"一併處理神器、契約、凱旋門、解鎖畫面","神器選第一個、契約不接受、雙重祝福選第一個")+
+      '<div class="st-gt" style="margin-top:10px">凱旋門</div>'+seg("triumph",a.triumph,[["go","繼續挑戰",""],["leave","凱旋離開","多拿一半冥晶"]])+
+      sw("tips",a.tips,"自動關閉教學提示","預設關閉，方便新手閱讀"))+
+    '<button type="button" class="bt-rs-new" data-ic="au-reset">還原自動決策預設值</button>'+
+    '<div class="ic-note">累計自動決策：<b>'+fm(A.stat.decisions)+'</b> 次</div>';
+}
+/* dailyTab：每日簽到與每日挑戰 */
+function dailyTab(){
+  const L=loginInfo(),Q=questList(),S=A.streak;
+  let h='<div class="cx-sub">每天都有新的簽到與三個挑戰，獎勵會跟著你目前的掛機實力成長。</div>'+
+    '<div class="mr-list"><div class="mr-row"><div class="mr-ic">'+gi("S9.daily",34)+'</div><div class="mr-info"><div class="mr-name">每日簽到 <em>連續 '+(L.can?L.n-1:S.n)+' 天</em></div><div class="mr-eff">'+(L.can?'今天的獎勵 💠 '+fm(L.rw)+'（連續越久越多，最多 7 天）':'今天已簽到，明天再來')+'</div></div>'+
+    (L.can?'<button type="button" class="mr-buy ok" data-ic="login">簽到</button>':'<span class="mr-full">已簽到</span>')+'</div></div>'+
+    '<div class="cx-sec">今日挑戰<small>每天 0 點重置</small></div><div class="mr-list">'+
+    Q.map(q=>{
+      const done=q.cur>=q.max,cl=A.day.claimed[q.id];
+      return'<div class="mr-row"><div class="mr-ic">'+gi("S9.rank",34)+'</div><div class="mr-info"><div class="mr-name">'+q.n+'</div><div class="mr-eff">進度 '+fm(Math.min(q.cur,q.max))+' / '+fm(q.max)+'　獎勵 <b>💠 '+fm(q.rw)+'</b></div></div>'+
+        (cl?'<span class="mr-full">已領取</span>':done?'<button type="button" class="mr-buy ok" data-ic="claim" data-v="'+q.id+'">領取</button>':'<button type="button" class="mr-buy" disabled>未完成</button>')+'</div>';
+    }).join("")+'</div>'+
+    '<div class="ic-note">原版「每天第一次抵達第 50 層」的獎勵，現在整支手機每天共用一次。</div>';
+  return h;
+}
+/* infoTab：帳號資料總覽、舊格式寫回 */
+function infoTab(){
+  const myth=Object.keys(A.myth).filter(k=>A.myth[k]>0).length,cx=A.codex,mir=A.bank?Object.keys(A.bank.mir||{}).reduce((s,k)=>s+(A.bank.mir[k]||0),0):0;
+  const cxn=cx?["m","a","bl","du","lg","so"].reduce((s,k)=>s+Object.keys(cx[k]||{}).length,0):0;
+  const rows=[["冥晶",fm(bankMing())],["魔鏡等級合計",mir],["解鎖信物",A.ks.length+" 種"],["收錄神話 BOSS",myth+" 位"],["圖鑑項目",cxn],["離線領取",A.stat.offlineN+" 次"],["營地奇遇",A.stat.events+" 次"],["轉生次數",A.rb.n+" 次"],["成就",achClaimed()+" / "+ACH.length]];
+  return'<div class="cx-sub">這些資料現在整支手機共用一份，換勇者也不會歸零。勇者各自的資料（最高樓層、最高單擊、接關存檔）維持不變。</div>'+
+    '<div class="cx-grid">'+rows.map(x=>'<div><small>'+x[0]+'</small><b>'+x[1]+'</b></div>').join("")+'</div>'+
+    grp("🗂️ 資料遷移",'<div class="st-row"><span>合併時間<small>'+(A.mig?new Date(A.mig.t).toLocaleString("zh-TW",{hour12:false})+'・合併 '+A.mig.n+' 位勇者的資料':'尚未遷移')+'</small></span></div><div class="st-row"><span>舊資料備援<small>舊的各勇者資料原封不動留在手機裡，不會被改寫</small></span></div>')+
+    grp("💾 備份與引導",'<div class="st-row"><span>匯出備份<small>把共用進度存成檔案，換手機或重灌前先做</small></span><button type="button" class="rk-edit" data-ic="bk-out">匯出</button></div><div class="st-row"><span>匯入備份<small>選擇之前匯出的檔案，會覆蓋目前進度</small></span><button type="button" class="rk-edit" data-ic="bk-in">匯入</button></div><div class="st-row"><span>新手引導<small>重新看一次營地說明</small></span><button type="button" class="rk-edit" data-ic="guide">重看</button></div>')+
+    grp("↩️ 移除 Add-on 之前",'<div class="st-row"><span>寫回舊格式<small>把共用的進度複製回每位勇者的舊資料，之後刪掉 Add-on 也不會遺失</small></span><button type="button" class="rk-edit" data-ic="wb">寫回</button></div>');
+}
+/* campClick：營地內所有按鈕的事件處理（用事件委派） */
+function campClick(e){
+  const ov=$("icOv");if(e.target===ov){closeCamp();return}
+  const tb=e.target.closest("[data-ict]");
+  if(tb){UI.tab=tb.dataset.ict;sTap();renderCamp(true);return}
+  const b=e.target.closest("[data-ic]");if(!b||b.disabled)return;
+  const k=b.dataset.ic,v=b.dataset.v,I=A.idle;
+  sTap();
+  if(k==="close"){closeCamp();return}
+  if(k==="hero"){
+    I.hero=v;I.fk=0;I.prog=0;I.carry=0;I.last=Date.now();
+    const u=heroById(v),H=u&&heroModel(u);if(H)I.floor=recommend(H,Math.max(1,bestOf(H.uid)));
+    A.day.best0=bestOf(v);rememberUid(v);touchA();renderCamp(false);return;
+  }
+  if(k==="fl"||k==="rec"||k==="max"||k==="one"){
+    const u=heroById(I.hero);if(!u)return;const H=heroModel(u),cap=Math.max(1,bestOf(I.hero));
+    if(k==="fl")I.floor=Math.min(cap,Math.max(1,I.floor+(+v)));
+    else if(k==="rec"&&H)I.floor=recommend(H,cap);
+    else if(k==="max")I.floor=cap;else I.floor=1;
+    I.fk=0;I.prog=0;touchA();renderCamp(false);return;
+  }
+  if(k==="challenge"){goChallenge(I.hero);return}
+  if(k==="off-open"){showOffline();return}
+  if(k==="buyn"){UI.buyN=+v;renderCamp(false);return}
+  if(k==="tal"){buyTal(v);return}
+  if(k==="au"){const p=v.split("|");setAuto(p[0],p[1]);return}
+  if(k==="au-reset"){const on=A.auto.on;A.auto=defA().auto;A.auto.on=on;touchA();paintAutoBtn();renderCamp(false);return}
+  if(k==="bk-out"){exportBackup();return}
+  if(k==="bk-in"){importBackup();return}
+  if(k==="guide"){showGuide(0);return}
+  if(k==="claim"){claimQuest(v);return}
+  if(k==="ach"){claimAch(v);return}
+  if(k==="achall"){claimAllAch();return}
+  if(k==="perk"){buyPerk(v);return}
+  if(k==="rb-go"){askRebirth();return}
+  if(k==="login"){claimLogin();return}
+  if(k==="wb"){
+    if(!confirm("要把目前共用的進度寫回每位勇者的舊資料嗎？\n（之後移除 Add-on 也不會遺失進度）"))return;
+    writeBackLegacy();toast("✅ 已寫回舊格式",2000);return;
+  }
+}
+/* exportBackup：把帳號資料存成 .json 檔（換手機、重灌前先備份） */
+function exportBackup(){
+  flushA();
+  const blob=new Blob([JSON.stringify(A)],{type:"application/json"}),a=document.createElement("a");
+  a.href=URL.createObjectURL(blob);a.download="電表機房_營地備份_"+dayKey()+".json";
+  document.body.appendChild(a);a.click();setTimeout(()=>{URL.revokeObjectURL(a.href);a.remove()},500);
+  toast("✅ 已匯出備份檔",2000);
+}
+/* importBackup：選一個備份檔，覆蓋目前的帳號資料（透過 setItem hook 重新載入） */
+function importBackup(){
+  const inp=document.createElement("input");inp.type="file";inp.accept="application/json,.json";
+  inp.onchange=()=>{
+    const f=inp.files&&inp.files[0];if(!f)return;
+    const rd=new FileReader();
+    rd.onload=()=>{
+      try{
+        const o=JSON.parse(rd.result);
+        if(!o||typeof o!=="object"||!o.idle||!o.tal)throw new Error("bad");
+        if(!confirm("匯入會覆蓋目前共用的進度（冥晶、魔鏡、信物、圖鑑、天賦等），確定嗎？"))return;
+        window.localStorage.setItem(ACCT_KEY,JSON.stringify(o));
+        toast("✅ 已匯入備份",2000);renderCamp(false);refreshEntry();
+      }catch(e){toast("備份檔格式不對",2200)}
+    };
+    rd.readAsText(f);
+  };
+  inp.click();
+}
+/* setAuto：改自動決策設定 */
+function setAuto(key,val){
+  const a=A.auto;
+  if(val==="tog")a[key]=!a[key];
+  else if(key==="advance"){/* 不會進來 */}
+  else a[key]=val;
+  touchA();paintAutoBtn();renderCamp(false);
+}
+/* buyTal：購買天賦（依 ×1／×5／MAX） */
+function buyTal(k){
+  if(battleOpen()){toast("先離開無盡挑戰再升級天賦",1800);return}
+  const t=TAL.find(x=>x.k===k);if(!t)return;
+  let n=UI.buyN||1,bought=0;
+  while(n>0&&A.tal[k]<CFG.TAL_MAX){
+    const cost=talCost(t,A.tal[k]);
+    if(!spendMing(cost))break;
+    A.tal[k]++;bought++;n--;
+  }
+  if(bought){sOk();touchA();renderCamp(false)}else{toast("冥晶不足",1200);renderCamp(false)}
+}
+/* goChallenge：一鍵前往挑戰層（切到該勇者的個人頁並按下「無盡挑戰」） */
+function goChallenge(uid){
+  const u=heroById(uid);if(!u)return;
+  closeCamp();
+  try{currentUser=u;showProfile()}catch(e){toast("無法開啟個人頁",1800);return}
+  setTimeout(()=>{const b=$("btEntry");if(b)b.click();else toast("請在個人頁按「無盡挑戰」",2200)},150);
+}
+
+/* ============================================================
+   11. 名冊頁入口按鈕（沿用 rk-entry 樣式，不改動名冊版面）
+   ============================================================ */
+/* injectEntry：在名冊頁的排行榜入口下方加一顆「放置營地」 */
+function injectEntry(){
+  if($("icEntry"))return;
+  const anchor=$("rkEntry")||document.querySelector("#page-roster .roster-head");if(!anchor)return;
+  const b=document.createElement("button");b.type="button";b.id="icEntry";b.className="rk-entry ic-entry";
+  b.innerHTML=gi("S1.challenge",36)+'<span><b>放置營地</b><small id="icEntrySub">掛機賺冥晶・天賦・轉生・成就</small></span><em>›</em>';
+  b.onclick=()=>{sTap();openCamp()};
+  anchor.insertAdjacentElement("afterend",b);
+}
+/* refreshEntry：更新入口按鈕的狀態文字與紅點 */
+function refreshEntry(){
+  const b=$("icEntry"),s=$("icEntrySub");if(!b||!s||!A)return;
+  const u=heroById(A.idle.hero);let t;
+  if(A.off)t="🎁 離線收益可領取 💠 "+fm(A.off.ming);
+  else if(achReady().length)t="🏆 有 "+achReady().length+" 個成就可以領取";
+  else if(u){const H=heroModel(u);t=H?"掛機中・第 "+A.idle.floor+" 層・每分鐘 +"+fm(calcFloor(H,A.idle.floor).rate*60)+" 冥晶":"掛機中・第 "+A.idle.floor+" 層"}
+  else t="選一位勇者開始掛機";
+  if(s.textContent!==t)s.textContent=t;
+  const has=hasClaim(),dot=b.querySelector(".cx-dot");
+  if(has&&!dot){const i=document.createElement("i");i.className="cx-dot";b.appendChild(i)}
+  else if(!has&&dot)dot.remove();
+}
+
+/* ============================================================
+   12. 啟動
+   ============================================================ */
+let tickN=0;
+/* mainTick：每秒一次的主迴圈（掛機結算、畫面更新、橋接、補按鈕） */
+function mainTick(){
+  try{
+    tickN++;
+    idleTick();liveUpdate();injectAutoBtn();bridgeTick();
+    if(tickN%3===0){checkAch();checkTabs()}
+    if(tickN%5===1){injectEntry();refreshEntry()}
+    if(A.off&&!UI.offShown&&!battleOpen()&&!UI.open&&usersReady()){UI.offShown=true;setTimeout(showOffline,500)}
+  }catch(e){console.warn("[idle-addon]",e)}
+}
+loadA();
+installHooks();
+/* 同時開了兩個分頁（例如瀏覽器＋主畫面 App）：另一邊存檔時，這邊重新讀取，避免互相蓋掉 */
+window.addEventListener("storage",e=>{
+  if(e.key!==ACCT_KEY||!e.newValue)return;
+  try{A=normA(JSON.parse(e.newValue));dirty=false;if(UI.open)renderCamp(false)}catch(x){}
+});
+rollDay();
+setInterval(mainTick,1000);
+setInterval(()=>{try{autoPoll()}catch(e){console.warn("[idle-addon]",e)}},500);
+setTimeout(mainTick,600);
+document.addEventListener("visibilitychange",()=>{if(document.hidden)flushA();else setTimeout(mainTick,50)});
+window.addEventListener("pagehide",flushA);
+window.__IDLE_ADDON_API__={openCamp:openCamp,writeBackLegacy:writeBackLegacy};
+})();
+</script>
+
