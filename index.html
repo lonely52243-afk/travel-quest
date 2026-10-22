@@ -189,7 +189,7 @@ svg.lucide { width: 18px; height: 18px; flex-shrink: 0; }
 .form-card { padding: 20px; display: flex; flex-direction: column; gap: 14px; }
 .card-head h2 { font-size: 18px; font-weight: 700; }
 .card-head p { font-size: 13px; color: var(--text-3); margin-top: 2px; }
-.mini-label { font-size: 12px; font-weight: 600; color: var(--text-3); }
+.mini-label { white-space: nowrap; font-size: 12px; font-weight: 600; color: var(--text-3); }
 
 /* 交通工具 chip */
 .mode-chips { display: grid; grid-template-columns: repeat(3, 1fr); gap: 8px; }
@@ -259,6 +259,7 @@ svg.lucide { width: 18px; height: 18px; flex-shrink: 0; }
 .pills { display: inline-flex; padding: 3px; gap: 2px; background: var(--surface); border-radius: 12px; }
 .pills.full { display: grid; grid-template-columns: 1fr 1fr; width: 100%; }
 .pill {
+  white-space: nowrap;
   height: 32px; padding: 0 14px; border-radius: 9px;
   font-size: 13px; font-weight: 600; color: var(--text-2);
   display: inline-flex; align-items: center; justify-content: center; gap: 6px;
@@ -292,6 +293,7 @@ svg.lucide { width: 18px; height: 18px; flex-shrink: 0; }
 /* 快捷 chips */
 .quick { display: flex; gap: 8px; flex-wrap: wrap; }
 .q-chip {
+  flex-shrink: 0; white-space: nowrap;
   height: 32px; padding: 0 12px; border-radius: 999px;
   border: 1px solid var(--border); background: var(--card);
   font-size: 13px; font-weight: 600; color: var(--text-2);
@@ -501,6 +503,10 @@ svg.lucide { width: 18px; height: 18px; flex-shrink: 0; }
 .map-body .rh-title { margin-top: 0; }
 .map-addr { font-size: 13px; color: var(--text-3); margin-top: -6px; }
 .map-actions { display: grid; grid-template-columns: 1fr 1fr; gap: 10px; }
+.nav-row { display: flex; flex-direction: column; gap: 6px; }
+.nav-pills { display: grid; grid-template-columns: repeat(4, 1fr); width: 100%; }
+.nav-pills .pill { padding: 0 4px; gap: 4px; }
+.nav-pills .pill svg.lucide { width: 15px; height: 15px; }
 .sec-label { font-size: 12px; font-weight: 700; color: var(--text-3); margin-bottom: -4px; }
 
 /* Leaflet 自訂標記 */
@@ -580,6 +586,121 @@ input[type=range].range::-moz-range-thumb { width: 22px; height: 22px; border-ra
 .toast.show { transform: translate(-50%, 0); opacity: 1; }
 .toast svg.lucide { color: var(--primary); }
 
+/* ================= 視覺大改版：分區配色＋動畫回饋 ================= */
+@property --primary { syntax: '<color>'; inherits: true; initial-value: #0EA5E9; }
+@property --primary-hover { syntax: '<color>'; inherits: true; initial-value: #0284C7; }
+@property --primary-ink { syntax: '<color>'; inherits: true; initial-value: #0284C7; }
+@property --primary-soft { syntax: '<color>'; inherits: true; initial-value: rgba(14,165,233,.10); }
+@property --primary-ring { syntax: '<color>'; inherits: true; initial-value: rgba(14,165,233,.22); }
+html { transition: background-color .3s, color .3s, --primary .45s ease, --primary-hover .45s ease, --primary-ink .45s ease, --primary-soft .45s ease, --primary-ring .45s ease; }
+body { background: transparent; }
+body::before {
+  content: ''; position: fixed; inset: 0; z-index: -1; pointer-events: none;
+  background:
+    radial-gradient(60% 38% at 92% -8%, var(--primary-soft), transparent 70%),
+    radial-gradient(50% 34% at -10% 36%, var(--primary-soft), transparent 70%),
+    radial-gradient(45% 30% at 100% 95%, var(--primary-soft), transparent 70%);
+}
+
+/* 各區主色：高鐵橘／台鐵靛／統聯綠／地圖青 */
+:root[data-accent="HSR"] { --primary: #F97316; --primary-hover: #EA580C; --primary-ink: #C2410C; --primary-soft: rgba(249,115,22,.12); --primary-ring: rgba(249,115,22,.25); }
+:root[data-accent="TRA"] { --primary: #4F46E5; --primary-hover: #4338CA; --primary-ink: #4338CA; --primary-soft: rgba(79,70,229,.10); --primary-ring: rgba(79,70,229,.24); }
+:root[data-accent="BUS"] { --primary: #16A34A; --primary-hover: #15803D; --primary-ink: #15803D; --primary-soft: rgba(22,163,74,.10); --primary-ring: rgba(22,163,74,.24); }
+:root[data-accent="MAP"] { --primary: #0D9488; --primary-hover: #0F766E; --primary-ink: #0F766E; --primary-soft: rgba(13,148,136,.10); --primary-ring: rgba(13,148,136,.24); }
+:root[data-theme="dark"][data-accent="HSR"] { --primary-ink: #FB923C; --primary-soft: rgba(251,146,60,.14); --primary-ring: rgba(251,146,60,.30); }
+:root[data-theme="dark"][data-accent="TRA"] { --primary: #6366F1; --primary-hover: #818CF8; --primary-ink: #A5B4FC; --primary-soft: rgba(129,140,248,.14); --primary-ring: rgba(129,140,248,.30); }
+:root[data-theme="dark"][data-accent="BUS"] { --primary-ink: #4ADE80; --primary-soft: rgba(74,222,128,.13); --primary-ring: rgba(74,222,128,.28); }
+:root[data-theme="dark"][data-accent="MAP"] { --primary-ink: #2DD4BF; --primary-soft: rgba(45,212,191,.13); --primary-ring: rgba(45,212,191,.28); }
+/* 停車區（天空藍）與停車記錄（紫）各自獨立配色 */
+#park-card { --primary: #0284C7; --primary-hover: #0369A1; --primary-ink: #0369A1; --primary-soft: rgba(2,132,199,.10); --primary-ring: rgba(2,132,199,.24); }
+:root[data-theme="dark"] #park-card { --primary: #0EA5E9; --primary-hover: #38BDF8; --primary-ink: #38BDF8; --primary-soft: rgba(56,189,248,.13); --primary-ring: rgba(56,189,248,.28); }
+.parked-card { --primary: #7C3AED; --primary-hover: #6D28D9; --primary-ink: #7C3AED; --primary-soft: rgba(124,58,237,.10); --primary-ring: rgba(124,58,237,.24); }
+:root[data-theme="dark"] .parked-card { --primary: #8B5CF6; --primary-hover: #A78BFA; --primary-ink: #C4B5FD; --primary-soft: rgba(167,139,250,.14); --primary-ring: rgba(167,139,250,.30); }
+
+/* 卡片頂部色條 */
+.card { box-shadow: var(--shadow), inset 0 3px 0 var(--primary); }
+.card-head h2 { color: var(--primary-ink); }
+
+/* 品牌與按鈕 */
+.brand-mark { background: linear-gradient(135deg, color-mix(in srgb, var(--primary) 70%, white), var(--primary)); box-shadow: 0 6px 16px -6px color-mix(in srgb, var(--primary) 70%, transparent); }
+.btn-primary { background: linear-gradient(135deg, color-mix(in srgb, var(--primary) 78%, white), var(--primary)); box-shadow: 0 10px 24px -10px color-mix(in srgb, var(--primary) 80%, transparent); }
+.btn-primary:hover { background: linear-gradient(135deg, var(--primary), var(--primary-hover)); }
+.mode-chip.active { box-shadow: 0 0 0 4px var(--primary-ring), 0 8px 20px -8px color-mix(in srgb, var(--primary) 65%, transparent); animation: chipPop .35s cubic-bezier(.3,.7,.2,1); }
+.mode-chip.active svg { filter: drop-shadow(0 0 6px color-mix(in srgb, var(--primary) 60%, transparent)); }
+.mode-chip:not(.active)[data-type="HSR"] svg { color: #F97316; }
+.mode-chip:not(.active)[data-type="TRA"] svg { color: #6366F1; }
+.mode-chip:not(.active)[data-type="BUS"] svg { color: #16A34A; }
+.mode-chip[data-type="HSR"].active { background: rgba(249,115,22,.12); }
+.mode-chip[data-type="TRA"].active { background: rgba(99,102,241,.12); }
+.mode-chip[data-type="BUS"].active { background: rgba(22,163,74,.12); }
+
+/* 分頁：選中塊填滿主色 */
+.seg-thumb { background: linear-gradient(135deg, color-mix(in srgb, var(--primary) 82%, white), var(--primary)); box-shadow: 0 6px 16px -6px color-mix(in srgb, var(--primary) 75%, transparent); }
+.seg-btn.active, .seg-btn.active svg { color: #fff; }
+
+/* 班次卡片：左側色條＋下一班呼吸 */
+.trip { border-left: 4px solid var(--border-strong); }
+.trip.next { border-left-color: var(--primary); background: linear-gradient(135deg, var(--primary-soft), var(--card) 65%); animation: nextPulse 2.4s ease-in-out infinite; }
+.bus-time.next { animation: nextPulse 2.4s ease-in-out infinite; }
+.now-line span { background: var(--primary); color: #fff; }
+
+/* 停車場：依空位狀態配色 */
+.park { border-left: 4px solid var(--border-strong); transition: transform .15s ease, border-color .2s; }
+.park.ok { border-left-color: var(--ok); }
+.park.low { border-left-color: var(--warn); }
+.park.na { border-left-color: var(--border-strong); }
+.park:active { transform: scale(.985); }
+.park-rank { background: var(--primary-soft); color: var(--primary-ink); }
+.mk-center span { background: var(--primary); box-shadow: 0 0 0 6px var(--primary-ring), 0 2px 8px rgba(0,0,0,.35); }
+
+/* 附近找：各類別專屬顏色 */
+.q-chip[data-near="加油站"] svg { color: #F97316; }
+.q-chip[data-near="充電站"] svg { color: #16A34A; }
+.q-chip[data-near="便利商店"] svg { color: #2563EB; }
+.q-chip[data-near="廁所"] svg { color: #64748B; }
+.q-chip[data-near="餐廳"] svg { color: #DC2626; }
+.q-chip[data-near="咖啡廳"] svg { color: #92400E; }
+.q-chip[data-near="藥局"] svg { color: #DB2777; }
+.q-chip[data-near="ATM"] svg { color: #4F46E5; }
+
+/* 回饋：漣漪、彈跳、載入條 */
+.btn, .q-chip, .pill, .mode-chip, .icon-btn, .r-chip, .mini-ico { position: relative; overflow: hidden; }
+.ripple { position: absolute; border-radius: 50%; background: currentColor; opacity: .28; transform: scale(0); animation: ripple .6s ease-out forwards; pointer-events: none; }
+@keyframes ripple { to { transform: scale(1); opacity: 0; } }
+@keyframes pop { 0% { transform: scale(.6); } 60% { transform: scale(1.28); } 100% { transform: scale(1); } }
+@keyframes chipPop { 0% { transform: scale(.92); } 60% { transform: scale(1.04); } 100% { transform: scale(1); } }
+@keyframes nextPulse { 0%, 100% { box-shadow: 0 0 0 4px var(--primary-ring); } 50% { box-shadow: 0 0 0 8px transparent; } }
+@keyframes itemIn { from { opacity: 0; transform: translateY(12px) scale(.98); } to { opacity: 1; transform: none; } }
+.icon-btn.pop { animation: pop .45s cubic-bezier(.3,.7,.2,1); }
+.anim-in > * { animation: itemIn .42s cubic-bezier(.3,.7,.2,1) backwards; }
+#loadbar { position: fixed; top: 0; left: 0; width: 100%; height: 3px; z-index: 200; pointer-events: none; opacity: 0; transition: opacity .2s; background: linear-gradient(90deg, transparent, var(--primary), transparent) no-repeat; background-size: 45% 100%; animation: loadmove 1s ease-in-out infinite; }
+#loadbar.on { opacity: 1; }
+@keyframes loadmove { from { background-position: -50% 0; } to { background-position: 150% 0; } }
+.toast { transition: transform .45s cubic-bezier(.2,1.2,.3,1), opacity .25s; }
+
+/* 手機：分頁變成底部導覽列（像原生 App） */
+@media (max-width: 1023px) {
+  .seg { position: fixed; left: 12px; right: 12px; bottom: max(12px, env(safe-area-inset-bottom)); z-index: 60; background: color-mix(in srgb, var(--card) 90%, transparent); backdrop-filter: blur(18px); -webkit-backdrop-filter: blur(18px); border: 1px solid var(--border); box-shadow: 0 14px 34px -10px rgba(15,23,42,.35); }
+  .seg-btn { height: 52px; flex-direction: column; gap: 2px; font-size: 12px; }
+  .seg-btn svg.lucide { width: 20px; height: 20px; }
+  .main { padding-bottom: 130px; }
+  .toast { bottom: calc(96px + env(safe-area-inset-bottom)); }
+}
+.anim-in > *:nth-child(1) { animation-delay: 0ms; }
+.anim-in > *:nth-child(2) { animation-delay: 45ms; }
+.anim-in > *:nth-child(3) { animation-delay: 90ms; }
+.anim-in > *:nth-child(4) { animation-delay: 135ms; }
+.anim-in > *:nth-child(5) { animation-delay: 180ms; }
+.anim-in > *:nth-child(6) { animation-delay: 225ms; }
+.anim-in > *:nth-child(7) { animation-delay: 270ms; }
+.anim-in > *:nth-child(8) { animation-delay: 315ms; }
+.anim-in > *:nth-child(9) { animation-delay: 360ms; }
+.anim-in > *:nth-child(10) { animation-delay: 405ms; }
+.anim-in > *:nth-child(11) { animation-delay: 450ms; }
+.anim-in > *:nth-child(12) { animation-delay: 495ms; }
+.anim-in > *:nth-child(13) { animation-delay: 540ms; }
+.anim-in > *:nth-child(14) { animation-delay: 585ms; }
+
 @media (max-width: 380px) {
   .form-card, .result-card { padding: 16px; }
   .t-big { font-size: 21px; }
@@ -595,6 +716,7 @@ input[type=range].range::-moz-range-thumb { width: 22px; height: 22px; border-ra
 </head>
 <body>
 
+<div id="loadbar"></div>
 <header class="topbar">
   <div class="topbar-inner">
     <div class="brand">
@@ -904,10 +1026,47 @@ const Utils = {
   radLabel(km) { return km < 1 ? Math.round(km * 1000) + ' 公尺' : km + ' 公里'; }
 };
 
+/* ========== 載入條 / 動畫工具 ========== */
+const Loading = {
+  n: 0, timer: null,
+  start() { this.n++; if (!this.timer) this.timer = setTimeout(() => { const b = $('loadbar'); if (b && this.n > 0) b.classList.add('on'); }, 180); },
+  end() { this.n = Math.max(0, this.n - 1); if (this.n === 0) { clearTimeout(this.timer); this.timer = null; const b = $('loadbar'); if (b) b.classList.remove('on'); } }
+};
+function animateCounts(root) {
+  if (!root || (window.matchMedia && matchMedia('(prefers-reduced-motion: reduce)').matches)) return;
+  root.querySelectorAll('.count b').forEach(el => {
+    const to = parseInt(el.textContent, 10);
+    if (!(to > 0)) return;
+    const t0 = performance.now(), dur = 520;
+    (function step(now) {
+      const k = Math.min(1, (now - t0) / dur), e = 1 - Math.pow(1 - k, 3);
+      el.textContent = k < 1 ? Math.round(to * e) : to;
+      if (k < 1) requestAnimationFrame(step);
+    })(t0);
+  });
+}
+function applyAccent() { document.documentElement.setAttribute('data-accent', state.tab === 'map' ? 'MAP' : state.type); }
+document.addEventListener('pointerdown', (e) => {
+  const el = e.target.closest('.btn,.q-chip,.pill,.mode-chip,.icon-btn,.r-chip,.mini-ico');
+  if (!el || el.disabled) return;
+  const r = el.getBoundingClientRect(), size = Math.max(r.width, r.height) * 1.6;
+  const s = document.createElement('span');
+  s.className = 'ripple';
+  s.style.width = s.style.height = size + 'px';
+  s.style.left = (e.clientX - r.left - size / 2) + 'px';
+  s.style.top = (e.clientY - r.top - size / 2) + 'px';
+  el.appendChild(s);
+  setTimeout(() => s.remove(), 650);
+});
+
 /* ========== TDX ========== */
 const TDX = (() => {
   const _cache = new Map();
   async function _fetch(path, ck, ttlSec, retry) {
+    Loading.start();
+    try { return await _fetch0(path, ck, ttlSec, retry); } finally { Loading.end(); }
+  }
+  async function _fetch0(path, ck, ttlSec, retry) {
     const now = Date.now();
     const c = _cache.get(ck);
     if (c && now < c.exp) return c.data;
@@ -1365,6 +1524,7 @@ const TABS = ['trip', 'map'];
 function setTab(tab) {
   if (state.tab === tab) return;
   state.tab = tab;
+  applyAccent();
   const i = TABS.indexOf(tab);
   $('seg').style.setProperty('--i', i);
   document.querySelectorAll('.seg-btn').forEach(b => { const on = b.dataset.tab === tab; b.classList.toggle('active', on); b.setAttribute('aria-selected', on); });
@@ -1381,6 +1541,7 @@ document.querySelectorAll('.seg-btn').forEach(b => { b.onclick = () => { tap(); 
 /* ========== 交通工具 / 站點 ========== */
 function setType(type) {
   state.type = type;
+  applyAccent();
   document.querySelectorAll('.mode-chip').forEach(c => { const on = c.dataset.type === type; c.classList.toggle('active', on); c.setAttribute('aria-checked', on); });
   return updateTransportUI();
 }
@@ -1642,6 +1803,7 @@ async function runTripQuery() {
     if (!date) throw new Error('請選擇日期');
     const afterTime = resolveAfter(date);
     state.showPast = false;
+    state.fresh = true;
     if (type === 'BUS') {
       Utils.checkDateRange(date, 'BUS');
       const idx = busRouteIdx();
@@ -1850,6 +2012,12 @@ function renderBus(r) {
 }
 
 function afterRender(out) {
+  if (state.fresh) {
+    const lst = out.querySelector('.trip-list, .bus-grid');
+    if (lst) lst.classList.add('anim-in');
+    animateCounts(out);
+    state.fresh = false;
+  }
   const favBtn = out.querySelector('[data-act="fav"]');
   if (favBtn && isFavNow(state.lastQuery)) favBtn.classList.add('on');
   drawIcons();
@@ -1947,7 +2115,7 @@ function navUrl(dest, modeKey) {
   return 'https://www.google.com/maps/dir/?api=1&destination=' + encodeURIComponent(dest) + '&travelmode=' + m.gm;
 }
 function navModesHtml() {
-  return '<div class="field-row"><span class="mini-label">導航方式</span><div class="pills" id="nav-mode">' +
+  return '<div class="nav-row"><span class="mini-label">導航方式</span><div class="pills nav-pills" id="nav-mode">' +
     Object.keys(NAV_MODES).map(k => '<button class="pill' + (state.navMode === k ? ' active' : '') + '" data-navmode="' + k + '">' + ic(NAV_MODES[k].icon) + NAV_MODES[k].label + '</button>').join('') +
     '</div></div>';
 }
@@ -2060,7 +2228,7 @@ function initLeaflet() {
   L.tileLayer('https://tile.openstreetmap.org/{z}/{x}/{y}.png', { maxZoom: 19, attribution: '&copy; OpenStreetMap' }).addTo(map);
   map.setView([g.lat, g.lng], 15);
   const center = L.marker([g.lat, g.lng], { icon: L.divIcon({ className: 'mk-center', html: '<span></span>', iconSize: [18, 18], iconAnchor: [9, 9] }), keyboard: false, zIndexOffset: 500 }).addTo(map);
-  const circle = L.circle([g.lat, g.lng], { radius: state.pkRadius * 1000, color: '#0EA5E9', weight: 2, fillColor: '#0EA5E9', fillOpacity: 0.08 }).addTo(map);
+  const circle = L.circle([g.lat, g.lng], { radius: state.pkRadius * 1000, color: '#0284C7', weight: 2, fillColor: '#0284C7', fillOpacity: 0.08 }).addTo(map);
   const layer = L.layerGroup().addTo(map);
   state.map = { map, center, circle, layer, markers: [], parkedMk: null };
   map.on('dragend', () => {
@@ -2245,6 +2413,7 @@ async function loadParking() {
     md.parks = null;
     md.parkErr = (e && e.message) || '停車資料暫時無法取得';
   }
+  md.fresh = true;
   updateParking();
 }
 
@@ -2324,7 +2493,7 @@ function updateParking() {
     } else if (p.available !== null) avail = '<span class="tag tag-ok num">空位 ' + p.available + '</span>';
     else avail = '<span class="tag">無即時資料</span>';
     copyLines.push((i + 1) + '. ' + p.name + ' · ' + dist + ' · ' + (p.available !== null ? '空位 ' + p.available + (p.total ? '/' + p.total : '') : '無即時車位') + ' · https://www.google.com/maps/search/?api=1&query=' + Number(p.lat).toFixed(6) + ',' + Number(p.lng).toFixed(6));
-    return '<div class="park"><div class="park-rank num">' + (i + 1) + '</div>' +
+    return '<div class="park ' + (p.available === null ? 'na' : (((p.total && p.available / p.total <= 0.3) || p.available === 0) ? 'low' : 'ok')) + '"><div class="park-rank num">' + (i + 1) + '</div>' +
       '<div class="park-click" data-park-focus="' + i + '"><span class="park-name">' + escapeHtml(p.name) + '</span>' +
       '<div class="park-meta"><span class="dist num">' + ic('ruler') + dist + '</span>' + avail + '</div>' + bar +
       (p.fare ? '<div class="park-fare">費率：' + escapeHtml(p.fare) + '</div>' : '') + '</div>' +
@@ -2334,6 +2503,8 @@ function updateParking() {
     more.innerHTML = '<div class="more-row"><button class="btn btn-outline btn-sm" data-act="park-more">' + ic('chevrons-down') + '<span>顯示更多（還有 ' + (arr.length - shown.length) + ' 座）</span></button></div>';
   }
   state.parkShareText = copyLines.join('\n');
+  if (md.fresh) { md.fresh = false; list.classList.add('anim-in'); animateCounts(sub); }
+  else list.classList.remove('anim-in');
   drawIcons();
 }
 
@@ -2480,7 +2651,7 @@ document.addEventListener('click', (e) => {
     if (a === 'fav' && state.lastQuery) {
       tap();
       const added = Store.addFav(Object.assign({}, state.lastQuery));
-      act.classList.add('on');
+      act.classList.add('on', 'pop');
       showToast(added ? '已加入收藏' : '這條路線已在收藏中', 'star');
       if (added) renderFavs();
     }
@@ -2507,6 +2678,7 @@ document.addEventListener('click', (e) => {
 updateOnline();
 updateTransportUI();
 TABS.forEach(renderEmpty);
+applyAccent();
 renderPlaces();
 renderParked();
 renderFavs();
