@@ -701,6 +701,15 @@ body::before {
 .anim-in > *:nth-child(13) { animation-delay: 540ms; }
 .anim-in > *:nth-child(14) { animation-delay: 585ms; }
 
+/* 修正：日期欄位文字不換行 */
+.dt { grid-template-columns: 1.4fr 1px 1fr; }
+.dt-part { padding: 10px 12px; gap: 8px; }
+.dt-text { overflow: hidden; }
+.dt-label { white-space: nowrap; }
+input[type=date].dt-input { -webkit-appearance: none; appearance: none; display: block; min-width: 0; height: 26px; line-height: 26px; font-size: 14px; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+input[type=date].dt-input::-webkit-date-and-time-value { text-align: left; white-space: nowrap; min-height: 0; }
+@media (max-width: 1023px) { .seg { background: color-mix(in srgb, var(--card) 96%, transparent); } }
+
 @media (max-width: 380px) {
   .form-card, .result-card { padding: 16px; }
   .t-big { font-size: 21px; }
