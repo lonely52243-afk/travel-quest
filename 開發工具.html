@@ -1,0 +1,305 @@
+<!DOCTYPE html>
+<html lang="zh-Hant">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, viewport-fit=cover">
+    <title>手機開發工具 - 專業版</title>
+    <style>
+        /* 基礎重置與變數設定 */
+        :root {
+            --bg-color: #1e1e1e;
+            --toolbar-bg: #252526;
+            --text-color: #d4d4d4;
+            --border-color: #333;
+            --btn-run: #10b981;
+            --btn-load: #0ea5e9;
+            --btn-save: #f59e0b;
+            --btn-search: #8b5cf6;
+            --btn-clear: #ef4444;
+        }
+
+        * { box-sizing: border-box; margin: 0; padding: 0; -webkit-tap-highlight-color: transparent; }
+        
+        body { 
+            font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
+            display: flex; flex-direction: column; 
+            position: fixed; top: 0; left: 0; width: 100%; height: 100%;
+            background-color: var(--bg-color); color: var(--text-color); 
+            overflow: hidden;
+            padding-bottom: env(safe-area-inset-bottom); /* 支援 iPhone 底部小白條 */
+        }
+
+        /* === 頂部狀態列 === */
+        .status-bar {
+            display: flex; justify-content: space-between; align-items: center;
+            padding: 8px 15px; background-color: #151515; font-size: 12px; color: #888;
+            flex-shrink: 0; border-bottom: 1px solid #000;
+        }
+        .status-bar span { font-family: monospace; }
+
+        /* === 編輯器主體 === */
+        .editor-container { 
+            display: flex; flex-direction: column; 
+            flex: 1; width: 100%; overflow: hidden;
+            position: relative;
+        }
+
+        /* 搜尋列 (整合在頂部) */
+        .search-bar {
+            display: none; padding: 8px 10px; background-color: var(--toolbar-bg);
+            border-bottom: 1px solid var(--border-color); gap: 8px; align-items: center;
+            flex-shrink: 0; position: absolute; top: 0; left: 0; right: 0; z-index: 10;
+        }
+        .search-bar.active { display: flex; }
+        .search-bar input {
+            flex: 1; padding: 8px 12px; border-radius: 6px;
+            border: 1px solid #444; background-color: #1e1e1e;
+            color: white; font-size: 14px; outline: none;
+        }
+        .search-bar button { padding: 8px 12px; background-color: #555; color: #fff; border: none; border-radius: 6px;}
+
+        /* 程式碼輸入框 */
+        textarea { 
+            flex: 1; width: 100%; height: 100%;
+            background-color: var(--bg-color); 
+            color: var(--text-color); 
+            font-family: 'SFMono-Regular', Consolas, 'Liberation Mono', Menlo, monospace; 
+            font-size: 15px; 
+            padding: 15px; border: none; resize: none; outline: none;
+            line-height: 1.6; white-space: pre; overflow: auto;
+            padding-top: 45px; /* 留空間給可能出現的搜尋列 */
+        }
+
+        /* === 底部工具列 === */
+        .toolbar { 
+            display: flex; justify-content: space-around; align-items: center;
+            padding: 10px; background-color: var(--toolbar-bg); 
+            border-top: 1px solid var(--border-color);
+            flex-shrink: 0; 
+        }
+
+        .tool-btn {
+            display: flex; flex-direction: column; align-items: center; justify-content: center;
+            background: none; border: none; color: #aaa; cursor: pointer;
+            padding: 5px; gap: 4px; font-size: 12px; font-weight: bold;
+            transition: transform 0.1s;
+        }
+        .tool-btn:active { transform: scale(0.9); }
+        
+        .tool-btn .icon {
+            display: flex; align-items: center; justify-content: center;
+            width: 42px; height: 42px; border-radius: 50%; font-size: 18px;
+            color: white;
+        }
+
+        /* 為每個按鈕設定顏色 */
+        .btn-run .icon { background-color: var(--btn-run); }
+        .btn-load .icon { background-color: var(--btn-load); }
+        .btn-save .icon { background-color: var(--btn-save); }
+        .btn-search .icon { background-color: var(--btn-search); }
+        .btn-clear .icon { background-color: var(--btn-clear); }
+
+        #fileInput { display: none; }
+
+        /* === 滿版預覽介面 === */
+        .preview-overlay {
+            display: none; position: fixed; top: 0; left: 0; width: 100%; height: 100%;
+            background-color: #fff; z-index: 9999; flex-direction: column;
+        }
+        .preview-overlay.active { display: flex; }
+
+        .preview-header {
+            position: absolute; top: 20px; left: 10px; right: 10px;
+            display: flex; justify-content: space-between;
+            z-index: 10000; pointer-events: none; 
+        }
+        .preview-header button {
+            pointer-events: auto; box-shadow: 0 4px 6px rgba(0,0,0,0.3);
+            padding: 10px 15px; border: none; border-radius: 20px; font-weight: bold;
+        }
+        .btn-close-preview { background-color: rgba(239, 68, 68, 0.9); color: white; backdrop-filter: blur(4px); }
+        .btn-refresh { background-color: rgba(16, 185, 129, 0.9); color: white; backdrop-filter: blur(4px); }
+
+        iframe { width: 100%; height: 100%; border: none; background-color: #fff; }
+    </style>
+</head>
+<body>
+
+    <!-- 頂部狀態列 (顯示行數) -->
+    <div class="status-bar">
+        <div>📝 <span id="lineCount">0</span> 行</div>
+        <div>字元: <span id="charCount">0</span></div>
+    </div>
+
+    <!-- 編輯器主體 -->
+    <div class="editor-container">
+        <!-- 搜尋列 -->
+        <div class="search-bar" id="searchBar">
+            <input type="text" id="searchInput" placeholder="尋找程式碼..." onkeydown="handleSearch(event)">
+            <button onclick="findText()">下一個</button>
+            <button onclick="toggleSearch()" style="background-color: #444;">✕</button>
+        </div>
+
+        <!-- 隱藏的檔案輸入框 -->
+        <input type="file" id="fileInput" accept=".html, .htm, .txt" onchange="loadFile(event)">
+
+        <!-- 程式碼編輯區 -->
+        <textarea id="codeEditor" spellcheck="false" autocapitalize="off" autocorrect="off" wrap="off" oninput="updateStats()">
+<h2 style="text-align: center; margin-top: 40px; color: #3b82f6;">🎮 遊戲開發引擎已就緒</h2>
+<div style="text-align: center; margin-top: 20px;">
+    <button onclick="alert('你成功執行了程式碼！')" style="padding: 10px 20px; font-size: 16px; background: #10b981; color: white; border: none; border-radius: 8px;">
+        點我測試
+    </button>
+</div>
+        </textarea>
+    </div>
+
+    <!-- 底部工具列 (拇指好按) -->
+    <div class="toolbar">
+        <button class="tool-btn btn-run" onclick="openPreview()">
+            <div class="icon">▶</div> 預覽
+        </button>
+        <button class="tool-btn btn-search" onclick="toggleSearch()">
+            <div class="icon">🔍</div> 搜尋
+        </button>
+        <button class="tool-btn btn-load" onclick="triggerLoadFile()">
+            <div class="icon">📂</div> 讀取
+        </button>
+        <button class="tool-btn btn-save" onclick="downloadHTML()">
+            <div class="icon">💾</div> 存檔
+        </button>
+        <button class="tool-btn btn-clear" onclick="clearCode()">
+            <div class="icon">🗑️</div> 清空
+        </button>
+    </div>
+
+    <!-- === 滿版預覽視窗 === -->
+    <div class="preview-overlay" id="previewOverlay">
+        <div class="preview-header">
+            <button class="btn-close-preview" onclick="closePreview()">✕ 關閉</button>
+            <button class="btn-refresh" onclick="runCode()">🔄 重新整理</button>
+        </div>
+        <iframe id="previewFrame"></iframe>
+    </div>
+
+    <script>
+        const codeEditor = document.getElementById('codeEditor');
+        const previewFrame = document.getElementById('previewFrame');
+        const previewOverlay = document.getElementById('previewOverlay');
+        const searchBar = document.getElementById('searchBar');
+        const searchInput = document.getElementById('searchInput');
+        const fileInput = document.getElementById('fileInput');
+        const lineCount = document.getElementById('lineCount');
+        const charCount = document.getElementById('charCount');
+        let lastSearchIndex = 0;
+
+        // 統計行數與字元數
+        function updateStats() {
+            const text = codeEditor.value;
+            lineCount.textContent = text.split('\n').length;
+            charCount.textContent = text.length;
+        }
+
+        // 預覽與執行
+        function openPreview() {
+            runCode();
+            previewOverlay.classList.add('active');
+        }
+
+        function closePreview() {
+            previewOverlay.classList.remove('active');
+            const iframeDoc = previewFrame.contentDocument || previewFrame.contentWindow.document;
+            iframeDoc.open(); iframeDoc.write(''); iframeDoc.close();
+        }
+
+        function runCode() {
+            const code = codeEditor.value;
+            const iframeDoc = previewFrame.contentDocument || previewFrame.contentWindow.document;
+            iframeDoc.open();
+            
+            // 錯誤捕捉器
+            const errorCatcher = `
+                <script>
+                    window.onerror = function(message, source, lineno, colno, error) {
+                        document.body.innerHTML = '<div style="color: #ef4444; padding: 20px; font-family: monospace;">' +
+                            '<h3 style="margin-bottom:10px;">⚠️ 程式碼發生錯誤：</h3><p>' + message + '</p><p style="margin-top:10px; color:#888;">行號: ' + lineno + '</p></div>';
+                        return false;
+                    };
+                <\/script>
+            `;
+            iframeDoc.write(errorCatcher + code);
+            iframeDoc.close();
+        }
+
+        // 存檔與讀取
+        function downloadHTML() {
+            const blob = new Blob([codeEditor.value], { type: 'text/html;charset=utf-8' });
+            const a = document.createElement('a');
+            a.href = URL.createObjectURL(blob);
+            const date = new Date();
+            a.download = `game_${date.getMonth()+1}${date.getDate()}_${date.getHours()}${date.getMinutes()}.html`;
+            a.click();
+            URL.revokeObjectURL(a.href);
+        }
+
+        function triggerLoadFile() { fileInput.click(); }
+
+        function loadFile(event) {
+            const file = event.target.files[0];
+            if (!file) return;
+            const reader = new FileReader();
+            reader.onload = function(e) {
+                codeEditor.value = e.target.result;
+                fileInput.value = '';
+                updateStats();
+                alert('✅ 讀取成功！');
+            };
+            reader.readAsText(file, "UTF-8");
+        }
+
+        // 搜尋功能
+        function toggleSearch() {
+            if (searchBar.classList.contains('active')) {
+                searchBar.classList.remove('active');
+            } else {
+                searchBar.classList.add('active');
+                searchInput.focus();
+            }
+        }
+
+        function findText() {
+            const query = searchInput.value;
+            if (!query) return;
+            const text = codeEditor.value;
+            let index = text.indexOf(query, lastSearchIndex);
+            if (index === -1) index = text.indexOf(query, 0);
+
+            if (index !== -1) {
+                codeEditor.focus();
+                codeEditor.setSelectionRange(index, index + query.length);
+                const linesBefore = text.substring(0, index).split('\n').length;
+                codeEditor.scrollTop = (linesBefore - 3) * 24;
+                lastSearchIndex = index + query.length;
+            } else {
+                alert('找不到「' + query + '」');
+            }
+        }
+
+        function handleSearch(e) { if (e.key === 'Enter') { e.preventDefault(); findText(); } }
+        searchInput.addEventListener('input', () => { lastSearchIndex = 0; });
+
+        // 清空
+        function clearCode() {
+            if (confirm('確定要清空嗎？')) {
+                codeEditor.value = '';
+                updateStats();
+            }
+        }
+
+        // 初始化
+        window.onload = () => {
+            updateStats();
+        };
+    </script>
+</body>
+</html>
