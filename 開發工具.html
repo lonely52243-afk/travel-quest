@@ -1,305 +1,838 @@
 <!DOCTYPE html>
 <html lang="zh-Hant">
 <head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, viewport-fit=cover">
-    <title>手機開發工具 - 專業版</title>
-    <style>
-        /* 基礎重置與變數設定 */
-        :root {
-            --bg-color: #1e1e1e;
-            --toolbar-bg: #252526;
-            --text-color: #d4d4d4;
-            --border-color: #333;
-            --btn-run: #10b981;
-            --btn-load: #0ea5e9;
-            --btn-save: #f59e0b;
-            --btn-search: #8b5cf6;
-            --btn-clear: #ef4444;
-        }
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, viewport-fit=cover">
+<meta name="theme-color" content="#e9e6df">
+<title>手機開發工具 - 日系繪本風</title>
+<style>
+/* === 日系插畫風變數 === */
+:root {
+    /* 背景與畫布色（米白、灰白） */
+    --bg-color: #e9e6df;
+    --surface-color: #f4f2ee;
+    --surface-border: #d1cdc3;
+    
+    /* 文字顏色（深灰藍，取代純黑） */
+    --text-color: #2c3539;
+    --text-muted: #7a807e;
+    
+    /* 圖片中的主題色 */
+    --jp-blue: #2f5587;      /* 藍色販賣機 */
+    --jp-red: #c24239;       /* 紅色販賣機 */
+    --jp-yellow: #d6a656;    /* 販賣機飲料/招牌黃 */
+    --jp-green: #6a8e7b;     /* 綠色點綴 */
 
-        * { box-sizing: border-box; margin: 0; padding: 0; -webkit-tap-highlight-color: transparent; }
-        
-        body { 
-            font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
-            display: flex; flex-direction: column; 
-            position: fixed; top: 0; left: 0; width: 100%; height: 100%;
-            background-color: var(--bg-color); color: var(--text-color); 
-            overflow: hidden;
-            padding-bottom: env(safe-area-inset-bottom); /* 支援 iPhone 底部小白條 */
-        }
+    /* 編輯器設定 */
+    --editor-font-size: 15px;
+    --line-num-bg: #e9e6df;
+    --line-num-color: #b0aca3;
+}
 
-        /* === 頂部狀態列 === */
-        .status-bar {
-            display: flex; justify-content: space-between; align-items: center;
-            padding: 8px 15px; background-color: #151515; font-size: 12px; color: #888;
-            flex-shrink: 0; border-bottom: 1px solid #000;
-        }
-        .status-bar span { font-family: monospace; }
+* { box-sizing: border-box; margin: 0; padding: 0; -webkit-tap-highlight-color: transparent; }
 
-        /* === 編輯器主體 === */
-        .editor-container { 
-            display: flex; flex-direction: column; 
-            flex: 1; width: 100%; overflow: hidden;
-            position: relative;
-        }
+body {
+    font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
+    display: flex; flex-direction: column;
+    position: fixed; top: 0; left: 0; width: 100%; height: 100%;
+    background-color: var(--bg-color); color: var(--text-color);
+    overflow: hidden;
+    padding-bottom: env(safe-area-inset-bottom);
+}
 
-        /* 搜尋列 (整合在頂部) */
-        .search-bar {
-            display: none; padding: 8px 10px; background-color: var(--toolbar-bg);
-            border-bottom: 1px solid var(--border-color); gap: 8px; align-items: center;
-            flex-shrink: 0; position: absolute; top: 0; left: 0; right: 0; z-index: 10;
-        }
-        .search-bar.active { display: flex; }
-        .search-bar input {
-            flex: 1; padding: 8px 12px; border-radius: 6px;
-            border: 1px solid #444; background-color: #1e1e1e;
-            color: white; font-size: 14px; outline: none;
-        }
-        .search-bar button { padding: 8px 12px; background-color: #555; color: #fff; border: none; border-radius: 6px;}
+/* === 頂部狀態列 === */
+.status-bar {
+    display: flex; justify-content: space-between; align-items: center;
+    padding: 12px 16px; background-color: var(--jp-blue); color: #fff;
+    flex-shrink: 0; box-shadow: 0 2px 10px rgba(47, 85, 135, 0.2);
+    letter-spacing: 0.5px; font-size: 13px;
+}
+.status-bar span { font-family: -apple-system, sans-serif; font-weight: 600; }
+.status-bar .right { display: flex; gap: 12px; align-items: center; }
+.status-bar .icon-btn {
+    background: rgba(255,255,255,0.15); border: none; color: #fff; font-size: 14px;
+    cursor: pointer; padding: 4px 8px; border-radius: 6px; transition: background 0.2s;
+}
+.status-bar .icon-btn:active { background: rgba(255,255,255,0.3); }
 
-        /* 程式碼輸入框 */
-        textarea { 
-            flex: 1; width: 100%; height: 100%;
-            background-color: var(--bg-color); 
-            color: var(--text-color); 
-            font-family: 'SFMono-Regular', Consolas, 'Liberation Mono', Menlo, monospace; 
-            font-size: 15px; 
-            padding: 15px; border: none; resize: none; outline: none;
-            line-height: 1.6; white-space: pre; overflow: auto;
-            padding-top: 45px; /* 留空間給可能出現的搜尋列 */
-        }
+/* === 編輯器主體 === */
+.editor-container {
+    display: flex; flex-direction: column;
+    flex: 1; width: 100%; overflow: hidden;
+    position: relative;
+}
 
-        /* === 底部工具列 === */
-        .toolbar { 
-            display: flex; justify-content: space-around; align-items: center;
-            padding: 10px; background-color: var(--toolbar-bg); 
-            border-top: 1px solid var(--border-color);
-            flex-shrink: 0; 
-        }
+/* 搜尋列 */
+.search-bar {
+    display: none; padding: 10px 16px; background-color: var(--surface-color);
+    border-bottom: 2px solid var(--surface-border); gap: 8px; align-items: center;
+    flex-shrink: 0; position: absolute; top: 0; left: 0; right: 0; z-index: 20;
+}
+.search-bar.active { display: flex; }
+.search-bar input {
+    flex: 1; min-width: 0; padding: 8px 12px; border-radius: 8px;
+    border: 1.5px solid var(--surface-border); background-color: var(--bg-color);
+    color: var(--text-color); font-size: 14px; outline: none;
+}
+.search-bar input:focus { border-color: var(--jp-blue); }
+.search-bar input.replace-input { flex: 0 0 40%; }
+.search-bar button {
+    padding: 8px 12px; background-color: #fff; color: var(--text-color);
+    border: 1.5px solid var(--surface-border); border-radius: 8px; font-size: 13px; font-weight: bold; cursor: pointer;
+    flex-shrink: 0; transition: background 0.2s;
+}
+.search-bar button:active { background-color: var(--bg-color); }
+.search-bar .result-count { font-size: 12px; color: var(--text-muted); font-family: monospace; flex-shrink: 0; }
+.search-bar .replace-row { display: none; width: 100%; gap: 8px; margin-top: 4px; }
+.search-bar.replace-mode .replace-row { display: flex; }
+.search-bar.replace-mode { flex-wrap: wrap; }
 
-        .tool-btn {
-            display: flex; flex-direction: column; align-items: center; justify-content: center;
-            background: none; border: none; color: #aaa; cursor: pointer;
-            padding: 5px; gap: 4px; font-size: 12px; font-weight: bold;
-            transition: transform 0.1s;
-        }
-        .tool-btn:active { transform: scale(0.9); }
-        
-        .tool-btn .icon {
-            display: flex; align-items: center; justify-content: center;
-            width: 42px; height: 42px; border-radius: 50%; font-size: 18px;
-            color: white;
-        }
+/* 快速片段列 */
+.snippet-bar {
+    display: flex; gap: 8px; padding: 10px 16px;
+    background-color: var(--bg-color); border-bottom: 2px solid var(--surface-border);
+    overflow-x: auto; flex-shrink: 0; scrollbar-width: none;
+}
+.snippet-bar::-webkit-scrollbar { display: none; }
+.snippet-btn {
+    padding: 6px 14px; background-color: #fff; color: var(--text-color);
+    border: 1.5px solid var(--surface-border); border-radius: 8px; font-size: 13px;
+    font-family: monospace; white-space: nowrap; cursor: pointer;
+    flex-shrink: 0; box-shadow: 0 2px 0 var(--surface-border);
+    transition: transform 0.1s, box-shadow 0.1s;
+}
+.snippet-btn:active { transform: translateY(2px); box-shadow: 0 0 0 var(--surface-border); }
 
-        /* 為每個按鈕設定顏色 */
-        .btn-run .icon { background-color: var(--btn-run); }
-        .btn-load .icon { background-color: var(--btn-load); }
-        .btn-save .icon { background-color: var(--btn-save); }
-        .btn-search .icon { background-color: var(--btn-search); }
-        .btn-clear .icon { background-color: var(--btn-clear); }
+/* 編輯區（含行號） */
+.editor-wrap { position: relative; flex: 1; overflow: hidden; display: flex; background-color: var(--bg-color); }
+.line-numbers {
+    flex-shrink: 0; width: 44px; background-color: var(--line-num-bg);
+    color: var(--line-num-color); font-family: 'SFMono-Regular', Consolas, monospace;
+    font-size: var(--editor-font-size); line-height: 1.6;
+    text-align: right; padding: 16px 8px 16px 0;
+    overflow: hidden; user-select: none; pointer-events: none; white-space: pre;
+    border-right: 1px solid var(--surface-border);
+}
+textarea {
+    flex: 1; width: 100%; height: 100%;
+    background-color: transparent; color: var(--text-color);
+    font-family: 'SFMono-Regular', Consolas, 'Liberation Mono', Menlo, monospace;
+    font-size: var(--editor-font-size);
+    padding: 16px; border: none; resize: none; outline: none;
+    line-height: 1.6; white-space: pre; overflow: auto;
+    -webkit-text-fill-color: var(--text-color);
+}
 
-        #fileInput { display: none; }
+/* === 底部工具列 (實體按鍵感) === */
+.toolbar {
+    display: flex; justify-content: space-around; align-items: center;
+    padding: 12px 10px; background-color: var(--surface-color);
+    border-top: 2px solid var(--surface-border);
+    flex-shrink: 0;
+}
+.tool-btn {
+    display: flex; flex-direction: column; align-items: center; justify-content: center;
+    background: none; border: none; color: var(--text-color); cursor: pointer;
+    padding: 4px; gap: 6px; font-size: 11px; font-weight: bold;
+    transition: transform 0.1s;
+}
+.tool-btn:active { transform: translateY(2px); }
+.tool-btn .icon {
+    display: flex; align-items: center; justify-content: center;
+    width: 44px; height: 44px; border-radius: 12px; font-size: 18px;
+    border: 2px solid rgba(0,0,0,0.15);
+    box-shadow: 0 3px 0 rgba(0,0,0,0.15);
+    color: #fff;
+}
 
-        /* === 滿版預覽介面 === */
-        .preview-overlay {
-            display: none; position: fixed; top: 0; left: 0; width: 100%; height: 100%;
-            background-color: #fff; z-index: 9999; flex-direction: column;
-        }
-        .preview-overlay.active { display: flex; }
+/* 按鈕顏色取自圖片中的販賣機 */
+.btn-run .icon { background-color: var(--jp-blue); }
+.btn-search .icon { background-color: var(--jp-green); }
+.btn-load .icon { background-color: var(--jp-yellow); }
+.btn-save .icon { background-color: #e8994a; } /* 橘黃色 */
+.btn-clear .icon { background-color: var(--jp-red); }
 
-        .preview-header {
-            position: absolute; top: 20px; left: 10px; right: 10px;
-            display: flex; justify-content: space-between;
-            z-index: 10000; pointer-events: none; 
-        }
-        .preview-header button {
-            pointer-events: auto; box-shadow: 0 4px 6px rgba(0,0,0,0.3);
-            padding: 10px 15px; border: none; border-radius: 20px; font-weight: bold;
-        }
-        .btn-close-preview { background-color: rgba(239, 68, 68, 0.9); color: white; backdrop-filter: blur(4px); }
-        .btn-refresh { background-color: rgba(16, 185, 129, 0.9); color: white; backdrop-filter: blur(4px); }
+#fileInput { display: none; }
 
-        iframe { width: 100%; height: 100%; border: none; background-color: #fff; }
-    </style>
+/* === 滿版預覽介面 === */
+.preview-overlay {
+    display: none; position: fixed; top: 0; left: 0; width: 100%; height: 100%;
+    background-color: #fff; z-index: 9999; flex-direction: column;
+}
+.preview-overlay.active { display: flex; }
+.preview-header {
+    position: absolute; top: 20px; left: 10px; right: 10px;
+    display: flex; justify-content: space-between; gap: 8px;
+    z-index: 10000; pointer-events: none;
+}
+.preview-header button {
+    pointer-events: auto; box-shadow: 0 4px 10px rgba(0,0,0,0.2);
+    padding: 10px 16px; border: 2px solid rgba(0,0,0,0.1); border-radius: 10px; 
+    font-weight: bold; font-size: 14px; cursor: pointer;
+}
+.btn-close-preview { background-color: var(--jp-red); color: white; }
+.btn-refresh { background-color: var(--jp-blue); color: white; }
+.btn-log { background-color: #fff; color: var(--text-color); }
+iframe { width: 100%; height: 100%; border: none; background-color: #fff; }
+
+/* Toast */
+#toastContainer {
+    position: fixed; bottom: 100px; left: 50%; transform: translateX(-50%);
+    z-index: 100000; display: flex; flex-direction: column; gap: 8px; align-items: center;
+    pointer-events: none;
+}
+.toast {
+    background: var(--jp-blue); color: #fff;
+    padding: 12px 24px; border-radius: 8px; font-size: 14px; font-weight: bold;
+    box-shadow: 0 6px 16px rgba(47, 85, 135, 0.3);
+    border: 2px solid rgba(255,255,255,0.2);
+    opacity: 0; transform: translateY(10px);
+    transition: opacity .25s, transform .25s;
+    max-width: 80vw; text-align: center;
+}
+.toast.show { opacity: 1; transform: translateY(0); }
+.toast.error { background: var(--jp-red); box-shadow: 0 6px 16px rgba(194, 66, 57, 0.3); }
+
+/* 草稿列表 modal */
+.modal-mask {
+    display: none; position: fixed; inset: 0; background: rgba(44, 53, 57, 0.6);
+    z-index: 100001; align-items: center; justify-content: center;
+}
+.modal-mask.active { display: flex; }
+.modal {
+    background: var(--surface-color); color: var(--text-color); border-radius: 12px;
+    width: 90%; max-width: 400px; max-height: 70vh;
+    display: flex; flex-direction: column; overflow: hidden;
+    border: 2px solid var(--surface-border);
+    box-shadow: 0 10px 30px rgba(0,0,0,0.2);
+}
+.modal h3 { padding: 16px; border-bottom: 2px solid var(--surface-border); font-size: 16px; font-weight: bold; text-align: center; color: var(--jp-blue); }
+.modal-list { flex: 1; overflow-y: auto; }
+.draft-item {
+    padding: 14px 16px; border-bottom: 1px solid var(--surface-border); cursor: pointer;
+    display: flex; justify-content: space-between; align-items: center; gap: 8px;
+}
+.draft-item:active { background: var(--bg-color); }
+.draft-item .info { flex: 1; min-width: 0; }
+.draft-item .name { font-size: 15px; font-weight: bold; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+.draft-item .time { font-size: 12px; color: var(--text-muted); margin-top: 4px; }
+.draft-item .del {
+    background: transparent; color: var(--jp-red); border: 1.5px solid var(--jp-red); border-radius: 6px;
+    padding: 6px 12px; font-size: 12px; font-weight: bold; flex-shrink: 0;
+}
+.modal-footer { padding: 16px; border-top: 2px solid var(--surface-border); display: flex; gap: 10px; background: #fff; }
+.modal-footer button {
+    flex: 1; padding: 12px; border: 2px solid rgba(0,0,0,0.1); border-radius: 8px; font-weight: bold; font-size: 14px; cursor: pointer;
+    box-shadow: 0 3px 0 rgba(0,0,0,0.1);
+}
+.modal-footer button:active { transform: translateY(2px); box-shadow: 0 1px 0 rgba(0,0,0,0.1); }
+.modal-footer .primary { background: var(--jp-blue); color: #fff; }
+.modal-footer .secondary { background: var(--bg-color); color: var(--text-color); border-color: var(--surface-border); box-shadow: 0 3px 0 var(--surface-border); }
+.modal-empty { padding: 40px; text-align: center; color: var(--text-muted); font-size: 14px; }
+</style>
 </head>
 <body>
 
-    <!-- 頂部狀態列 (顯示行數) -->
-    <div class="status-bar">
-        <div>📝 <span id="lineCount">0</span> 行</div>
-        <div>字元: <span id="charCount">0</span></div>
+<!-- 頂部狀態列 -->
+<div class="status-bar">
+    <div>
+        <span id="lineCount">0</span> 行 ｜ <span id="charCount">0</span> 字元
+    </div>
+    <div class="right">
+        <button class="icon-btn" id="fontDown">A−</button>
+        <button class="icon-btn" id="fontUp">A+</button>
+        <button class="icon-btn" id="draftBtn">📁</button>
+    </div>
+</div>
+
+<!-- 編輯器主體 -->
+<div class="editor-container">
+    <!-- 搜尋列 -->
+    <div class="search-bar" id="searchBar">
+        <input type="text" id="searchInput" placeholder="尋找..." onkeydown="handleSearch(event)">
+        <span class="result-count" id="resultCount"></span>
+        <button onclick="findPrev()">↑</button>
+        <button onclick="findNext()">↓</button>
+        <button onclick="toggleReplace()">⇄</button>
+        <button onclick="toggleSearch()" style="background-color:transparent; border:none; box-shadow:none; font-size:16px; color:var(--text-muted);">✕</button>
+        <div class="replace-row">
+            <input type="text" id="replaceInput" class="replace-input" placeholder="取代為...">
+            <button onclick="replaceOne()">取代</button>
+            <button onclick="replaceAll()">全部</button>
+        </div>
     </div>
 
-    <!-- 編輯器主體 -->
-    <div class="editor-container">
-        <!-- 搜尋列 -->
-        <div class="search-bar" id="searchBar">
-            <input type="text" id="searchInput" placeholder="尋找程式碼..." onkeydown="handleSearch(event)">
-            <button onclick="findText()">下一個</button>
-            <button onclick="toggleSearch()" style="background-color: #444;">✕</button>
+    <!-- 快速片段列 -->
+    <div class="snippet-bar" id="snippetBar">
+        <button class="snippet-btn" data-snippet="<div></div>">&lt;div&gt;</button>
+        <button class="snippet-btn" data-snippet="<script>\n\n</script>">&lt;script&gt;</button>
+        <button class="snippet-btn" data-snippet="<style>\n\n</style>">&lt;style&gt;</button>
+        <button class="snippet-btn" data-snippet="console.log();">console.log</button>
+        <button class="snippet-btn" data-snippet="alert();">alert</button>
+        <button class="snippet-btn" data-snippet="function name() {\n    \n}">function</button>
+        <button class="snippet-btn" data-snippet="if () {\n    \n}">if</button>
+        <button class="snippet-btn" data-snippet="for (let i = 0; i < ; i++) {\n    \n}">for</button>
+    </div>
+
+    <input type="file" id="fileInput" accept=".html,.htm,.txt" onchange="loadFile(event)">
+
+    <!-- 編輯區（含行號） -->
+    <div class="editor-wrap">
+        <div class="line-numbers" id="lineNumbers">1</div>
+        <textarea id="codeEditor" spellcheck="false" autocapitalize="off" autocorrect="off" wrap="off" oninput="onEditorInput()" onscroll="syncScroll()"></textarea>
+    </div>
+</div>
+
+<!-- 底部工具列 -->
+<div class="toolbar">
+    <button class="tool-btn btn-run" onclick="openPreview()"><div class="icon">▶</div>預覽</button>
+    <button class="tool-btn btn-search" onclick="toggleSearch()"><div class="icon">🔍</div>搜尋</button>
+    <button class="tool-btn btn-load" onclick="triggerLoadFile()"><div class="icon">📂</div>讀取</button>
+    <button class="tool-btn btn-save" onclick="downloadHTML()"><div class="icon">💾</div>存檔</button>
+    <button class="tool-btn btn-clear" onclick="clearCode()"><div class="icon">🗑️</div>清空</button>
+</div>
+
+<!-- 預覽 overlay -->
+<div class="preview-overlay" id="previewOverlay">
+    <div class="preview-header">
+        <button class="btn-close-preview" onclick="closePreview()">✕ 關閉</button>
+        <button class="btn-log" onclick="toggleLogPanel()">📋 Log</button>
+        <button class="btn-refresh" onclick="runCode()">🔄 重整</button>
+    </div>
+    <iframe id="previewFrame"></iframe>
+</div>
+
+<!-- Toast 容器 -->
+<div id="toastContainer"></div>
+
+<!-- 草稿列表 modal -->
+<div class="modal-mask" id="draftModal">
+    <div class="modal">
+        <h3>我的草稿</h3>
+        <div class="modal-list" id="draftList"></div>
+        <div class="modal-footer">
+            <button class="primary" onclick="saveCurrentAsDraft()">＋ 儲存目前</button>
+            <button class="secondary" onclick="closeDraftModal()">關閉</button>
         </div>
+    </div>
+</div>
 
-        <!-- 隱藏的檔案輸入框 -->
-        <input type="file" id="fileInput" accept=".html, .htm, .txt" onchange="loadFile(event)">
+<script>
+/* ==================== 基本元素 ==================== */
+const codeEditor = document.getElementById('codeEditor');
+const lineNumbers = document.getElementById('lineNumbers');
+const previewFrame = document.getElementById('previewFrame');
+const previewOverlay = document.getElementById('previewOverlay');
+const searchBar = document.getElementById('searchBar');
+const searchInput = document.getElementById('searchInput');
+const replaceInput = document.getElementById('replaceInput');
+const resultCount = document.getElementById('resultCount');
+const fileInput = document.getElementById('fileInput');
+const lineCount = document.getElementById('lineCount');
+const charCount = document.getElementById('charCount');
+const toastContainer = document.getElementById('toastContainer');
+const draftModal = document.getElementById('draftModal');
+const draftList = document.getElementById('draftList');
 
-        <!-- 程式碼編輯區 -->
-        <textarea id="codeEditor" spellcheck="false" autocapitalize="off" autocorrect="off" wrap="off" oninput="updateStats()">
-<h2 style="text-align: center; margin-top: 40px; color: #3b82f6;">🎮 遊戲開發引擎已就緒</h2>
+const LS_DRAFT_AUTO = 'mdt_autosave';
+const LS_DRAFT_LIST = 'mdt_drafts';
+const LS_FONT = 'mdt_fontsize';
+
+let searchMatches = [];
+let currentMatchIdx = -1;
+
+/* ==================== Toast ==================== */
+function toast(msg, type = '') {
+    const t = document.createElement('div');
+    t.className = 'toast ' + type;
+    t.textContent = msg;
+    toastContainer.appendChild(t);
+    requestAnimationFrame(() => t.classList.add('show'));
+    setTimeout(() => {
+        t.classList.remove('show');
+        setTimeout(() => t.remove(), 300);
+    }, 2200);
+}
+
+/* ==================== 震動回饋 ==================== */
+function haptic(ms = 10) {
+    if (navigator.vibrate) try { navigator.vibrate(ms); } catch(e) {}
+}
+
+/* ==================== 統計 & 行號 ==================== */
+function updateStats() {
+    const text = codeEditor.value;
+    const lines = text.split('\n').length;
+    lineCount.textContent = lines;
+    charCount.textContent = text.length;
+    updateLineNumbers(lines);
+}
+
+function updateLineNumbers(count) {
+    let html = '';
+    for (let i = 1; i <= count; i++) html += i + '\n';
+    lineNumbers.textContent = html;
+}
+
+function syncScroll() {
+    lineNumbers.scrollTop = codeEditor.scrollTop;
+}
+
+function onEditorInput() {
+    updateStats();
+    scheduleAutoSave();
+}
+
+/* ==================== 自動存草稿 ==================== */
+let autoSaveTimer = null;
+function scheduleAutoSave() {
+    if (autoSaveTimer) clearTimeout(autoSaveTimer);
+    autoSaveTimer = setTimeout(() => {
+        try {
+            localStorage.setItem(LS_DRAFT_AUTO, JSON.stringify({
+                code: codeEditor.value,
+                time: Date.now()
+            }));
+        } catch (e) {}
+    }, 1500);
+}
+
+/* ==================== 多草稿管理 ==================== */
+function getDrafts() {
+    try { return JSON.parse(localStorage.getItem(LS_DRAFT_LIST) || '[]'); }
+    catch (e) { return []; }
+}
+function setDrafts(arr) {
+    localStorage.setItem(LS_DRAFT_LIST, JSON.stringify(arr));
+}
+
+function openDraftModal() {
+    renderDraftList();
+    draftModal.classList.add('active');
+    haptic();
+}
+function closeDraftModal() {
+    draftModal.classList.remove('active');
+}
+
+function renderDraftList() {
+    const drafts = getDrafts();
+    if (!drafts.length) {
+        draftList.innerHTML = '<div class="modal-empty">尚無草稿<br>點下方「儲存目前」建立</div>';
+        return;
+    }
+    draftList.innerHTML = '';
+    drafts.forEach((d, i) => {
+        const item = document.createElement('div');
+        item.className = 'draft-item';
+        const date = new Date(d.time);
+        item.innerHTML = `
+            <div class="info">
+                <div class="name">${escapeHtml(d.name)}</div>
+                <div class="time">${date.toLocaleString()} ｜ ${d.code.length} 字元</div>
+            </div>
+            <button class="del" data-idx="${i}">刪除</button>
+        `;
+        item.querySelector('.info').addEventListener('click', () => loadDraft(i));
+        item.querySelector('.del').addEventListener('click', (e) => {
+            e.stopPropagation();
+            deleteDraft(i);
+        });
+        draftList.appendChild(item);
+    });
+}
+
+function saveCurrentAsDraft() {
+    if (!codeEditor.value.trim()) {
+        toast('目前為空，不需儲存', 'error');
+        return;
+    }
+    const name = prompt('草稿名稱：', '草稿 ' + new Date().toLocaleTimeString());
+    if (!name) return;
+    const drafts = getDrafts();
+    drafts.unshift({ name, code: codeEditor.value, time: Date.now() });
+    setDrafts(drafts);
+    renderDraftList();
+    toast('已儲存草稿', 'success');
+    haptic(20);
+}
+
+function loadDraft(idx) {
+    const drafts = getDrafts();
+    const d = drafts[idx];
+    if (!d) return;
+    if (codeEditor.value.trim() && codeEditor.value !== d.code) {
+        if (!confirm('目前內容會被覆蓋，繼續？')) return;
+    }
+    codeEditor.value = d.code;
+    updateStats();
+    scheduleAutoSave();
+    closeDraftModal();
+    toast('已載入草稿', 'success');
+    haptic(20);
+}
+
+function deleteDraft(idx) {
+    const drafts = getDrafts();
+    if (!confirm('刪除「' + drafts[idx].name + '」？')) return;
+    drafts.splice(idx, 1);
+    setDrafts(drafts);
+    renderDraftList();
+    toast('已刪除');
+}
+
+function escapeHtml(s) {
+    return String(s).replace(/[&<>"']/g, c => ({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));
+}
+
+/* ==================== 預覽 & 執行 ==================== */
+function openPreview() {
+    haptic();
+    runCode();
+    previewOverlay.classList.add('active');
+}
+
+function closePreview() {
+    previewOverlay.classList.remove('active');
+    const doc = previewFrame.contentDocument;
+    if (doc) { doc.open(); doc.write(''); doc.close(); }
+}
+
+let logPanelVisible = false;
+function toggleLogPanel() {
+    logPanelVisible = !logPanelVisible;
+    try {
+        previewFrame.contentWindow.postMessage({ type: 'toggle-log', visible: logPanelVisible }, '*');
+    } catch (e) {}
+    toast(logPanelVisible ? 'Log 面板已開啟' : 'Log 面板已關閉');
+}
+
+function runCode() {
+    haptic();
+    const code = codeEditor.value;
+    const doc = previewFrame.contentDocument;
+    doc.open();
+
+    const injected = `
+<script>
+(function() {
+    window.onerror = function(msg, src, line, col, err) {
+        showError('⚠️ 第 ' + line + ' 行：' + msg);
+        return false;
+    };
+    window.addEventListener('unhandledrejection', function(e) {
+        showError('⚠️ Promise 錯誤：' + (e.reason && e.reason.message ? e.reason.message : e.reason));
+    });
+    function showError(text) {
+        var old = document.getElementById('__err_banner__');
+        if (old) old.remove();
+        var b = document.createElement('div');
+        b.id = '__err_banner__';
+        b.style.cssText = 'position:fixed;bottom:0;left:0;right:0;background:#c24239;color:#fff;padding:12px;font-family:monospace;z-index:999999;font-size:13px;word-break:break-all;border-top:2px solid #a3322a;';
+        b.textContent = text;
+        document.body.appendChild(b);
+        setTimeout(function() { if (b.parentNode) b.remove(); }, 6000);
+    }
+
+    var logPanel = null;
+    function ensurePanel() {
+        if (logPanel) return logPanel;
+        logPanel = document.createElement('div');
+        logPanel.id = '__log_panel__';
+        logPanel.style.cssText = 'position:fixed;bottom:0;left:0;right:0;max-height:40vh;overflow-y:auto;background:rgba(47, 85, 135, 0.95);color:#fff;font-family:monospace;font-size:12px;padding:12px;z-index:999998;display:none;border-top:2px solid #1e3a5f;';
+        document.body.appendChild(logPanel);
+        return logPanel;
+    }
+    function pushLog(type, args) {
+        var text = args.map(function(a) {
+            if (typeof a === 'object') { try { return JSON.stringify(a); } catch(e) { return String(a); } }
+            return String(a);
+        }).join(' ');
+        var line = document.createElement('div');
+        line.style.cssText = 'padding:4px 0;border-bottom:1px solid rgba(255,255,255,0.1);color:' +
+            (type === 'error' ? '#ffb3b3' : type === 'warn' ? '#ffe199' : '#fff') + ';';
+        line.textContent = '[' + type + '] ' + text;
+        ensurePanel().appendChild(line);
+        logPanel.scrollTop = logPanel.scrollHeight;
+    }
+    var _log = console.log, _warn = console.warn, _error = console.error;
+    console.log = function() { _log.apply(console, arguments); pushLog('log', [].slice.call(arguments)); };
+    console.warn = function() { _warn.apply(console, arguments); pushLog('warn', [].slice.call(arguments)); };
+    console.error = function() { _error.apply(console, arguments); pushLog('error', [].slice.call(arguments)); };
+
+    window.addEventListener('message', function(e) {
+        if (e.data && e.data.type === 'toggle-log') {
+            var p = ensurePanel();
+            p.style.display = e.data.visible ? 'block' : 'none';
+        }
+    });
+})();
+<\/script>
+    `;
+    doc.write(injected + code);
+    doc.close();
+}
+
+/* ==================== 存檔 & 讀取 ==================== */
+function downloadHTML() {
+    haptic();
+    const name = prompt('檔名（不含副檔名）：', 'game_' + Date.now().toString(36));
+    if (name === null) return;
+    const safeName = (name.trim() || 'untitled').replace(/[\\/:*?"<>|]/g, '_');
+    const blob = new Blob([codeEditor.value], { type: 'text/html;charset=utf-8' });
+    const url = URL.createObjectURL(blob);
+    const a = document.createElement('a');
+    a.href = url;
+    a.download = safeName + '.html';
+    document.body.appendChild(a);
+    a.click();
+    document.body.removeChild(a);
+    setTimeout(() => URL.revokeObjectURL(url), 1000);
+    toast('已存檔', 'success');
+}
+
+function triggerLoadFile() {
+    haptic();
+    fileInput.click();
+}
+
+function loadFile(event) {
+    const file = event.target.files[0];
+    if (!file) return;
+    const reader = new FileReader();
+    reader.onload = function(e) {
+        if (codeEditor.value.trim() && !confirm('目前內容會被覆蓋，繼續？')) {
+            fileInput.value = '';
+            return;
+        }
+        codeEditor.value = e.target.result;
+        fileInput.value = '';
+        updateStats();
+        scheduleAutoSave();
+        toast('✅ 讀取成功', 'success');
+        haptic(20);
+    };
+    reader.onerror = function() {
+        toast('❌ 讀取失敗', 'error');
+    };
+    reader.readAsText(file, 'UTF-8');
+}
+
+/* ==================== 搜尋 / 取代 ==================== */
+function toggleSearch() {
+    haptic();
+    const active = searchBar.classList.toggle('active');
+    if (active) {
+        searchInput.focus();
+        refreshSearchCount();
+    } else {
+        searchBar.classList.remove('replace-mode');
+        clearSearchHighlight();
+    }
+}
+
+function toggleReplace() {
+    searchBar.classList.toggle('replace-mode');
+    if (searchBar.classList.contains('replace-mode')) replaceInput.focus();
+}
+
+function refreshSearchCount() {
+    const q = searchInput.value;
+    if (!q) { resultCount.textContent = ''; searchMatches = []; return; }
+    searchMatches = [];
+    const text = codeEditor.value;
+    const lowerText = text.toLowerCase();
+    const lowerQ = q.toLowerCase();
+    let idx = 0;
+    while ((idx = lowerText.indexOf(lowerQ, idx)) !== -1) {
+        searchMatches.push(idx);
+        idx += q.length;
+    }
+    resultCount.textContent = searchMatches.length ? (currentMatchIdx + 1) + '/' + searchMatches.length : '0/0';
+}
+
+function findNext() {
+    if (!searchInput.value) return;
+    refreshSearchCount();
+    if (!searchMatches.length) { toast('找不到', 'error'); return; }
+    currentMatchIdx = (currentMatchIdx + 1) % searchMatches.length;
+    selectMatch();
+}
+
+function findPrev() {
+    if (!searchInput.value) return;
+    refreshSearchCount();
+    if (!searchMatches.length) { toast('找不到', 'error'); return; }
+    currentMatchIdx = (currentMatchIdx - 1 + searchMatches.length) % searchMatches.length;
+    selectMatch();
+}
+
+function selectMatch() {
+    const q = searchInput.value;
+    const idx = searchMatches[currentMatchIdx];
+    codeEditor.focus();
+    codeEditor.setSelectionRange(idx, idx + q.length);
+    const before = codeEditor.value.substring(0, idx);
+    const lineIdx = before.split('\n').length - 1;
+    const lh = parseFloat(getComputedStyle(codeEditor).lineHeight) || 24;
+    const target = lineIdx * lh - codeEditor.clientHeight / 2 + lh;
+    codeEditor.scrollTop = Math.max(0, target);
+    resultCount.textContent = (currentMatchIdx + 1) + '/' + searchMatches.length;
+}
+
+function replaceOne() {
+    if (!searchMatches.length) return;
+    const q = searchInput.value;
+    const rep = replaceInput.value;
+    const idx = searchMatches[currentMatchIdx];
+    codeEditor.setRangeText(rep, idx, idx + q.length, 'end');
+    updateStats();
+    scheduleAutoSave();
+    refreshSearchCount();
+}
+
+function replaceAll() {
+    const q = searchInput.value;
+    if (!q) return;
+    const rep = replaceInput.value;
+    const count = searchMatches.length;
+    if (!count) return;
+    codeEditor.value = codeEditor.value.split(q).join(rep);
+    updateStats();
+    scheduleAutoSave();
+    refreshSearchCount();
+    toast('已全數取代', 'success');
+}
+
+function clearSearchHighlight() {
+    resultCount.textContent = '';
+    searchMatches = [];
+    currentMatchIdx = -1;
+}
+
+function handleSearch(e) {
+    if (e.key === 'Enter') {
+        e.preventDefault();
+        if (e.shiftKey) findPrev(); else findNext();
+    }
+}
+
+searchInput.addEventListener('input', () => { currentMatchIdx = -1; refreshSearchCount(); });
+
+/* ==================== Tab 縮排 ==================== */
+codeEditor.addEventListener('keydown', (e) => {
+    if (e.key === 'Tab') {
+        e.preventDefault();
+        const start = codeEditor.selectionStart;
+        const end = codeEditor.selectionEnd;
+        if (start !== end && codeEditor.value.substring(start, end).includes('\n')) {
+            const before = codeEditor.value.substring(0, start);
+            const sel = codeEditor.value.substring(start, end);
+            const after = codeEditor.value.substring(end);
+            let newSel = sel.split('\n').map(l => l ? '    ' + l : l).join('\n');
+            codeEditor.value = before + newSel + after;
+            codeEditor.selectionStart = start;
+            codeEditor.selectionEnd = start + newSel.length;
+        } else {
+            codeEditor.setRangeText('    ', start, end, 'end');
+        }
+        updateStats();
+        scheduleAutoSave();
+    }
+});
+
+/* ==================== 快速片段 ==================== */
+document.getElementById('snippetBar').addEventListener('click', (e) => {
+    const btn = e.target.closest('.snippet-btn');
+    if (!btn) return;
+    haptic();
+    const snip = btn.dataset.snippet;
+    const start = codeEditor.selectionStart;
+    const end = codeEditor.selectionEnd;
+    codeEditor.setRangeText(snip, start, end, 'end');
+    const inner = snip.indexOf('>') === snip.length - 5 ? snip.length - 5 :
+                  snip.indexOf('()') !== -1 ? start + snip.indexOf('()') + 1 : -1;
+    if (inner > 0) codeEditor.setSelectionRange(inner, inner);
+    updateStats();
+    scheduleAutoSave();
+    codeEditor.focus();
+});
+
+/* ==================== 清空 ==================== */
+function clearCode() {
+    haptic();
+    if (!codeEditor.value.trim()) { toast('已經是空的'); return; }
+    if (confirm('確定要清空嗎？')) {
+        codeEditor.value = '';
+        updateStats();
+        scheduleAutoSave();
+        toast('已清空');
+    }
+}
+
+/* ==================== 字體大小 ==================== */
+function applyFontSize(size) {
+    document.documentElement.style.setProperty('--editor-font-size', size + 'px');
+    localStorage.setItem(LS_FONT, size);
+}
+document.getElementById('fontUp').addEventListener('click', () => {
+    haptic();
+    const cur = parseInt(localStorage.getItem(LS_FONT) || '15');
+    applyFontSize(Math.min(24, cur + 1));
+});
+document.getElementById('fontDown').addEventListener('click', () => {
+    haptic();
+    const cur = parseInt(localStorage.getItem(LS_FONT) || '15');
+    applyFontSize(Math.max(11, cur - 1));
+});
+
+/* ==================== 草稿按鈕 ==================== */
+document.getElementById('draftBtn').addEventListener('click', openDraftModal);
+
+/* ==================== 離開警告 ==================== */
+window.addEventListener('beforeunload', (e) => {
+    if (codeEditor.value.trim()) {
+        e.preventDefault();
+        e.returnValue = '';
+    }
+});
+
+/* ==================== 初始化 ==================== */
+window.addEventListener('load', () => {
+    const fs = localStorage.getItem(LS_FONT);
+    if (fs) applyFontSize(parseInt(fs));
+
+    let restored = false;
+    try {
+        const auto = JSON.parse(localStorage.getItem(LS_DRAFT_AUTO) || 'null');
+        if (auto && auto.code) {
+            const date = new Date(auto.time).toLocaleString();
+            if (confirm('發現自動草稿（' + date + '），要還原嗎？')) {
+                codeEditor.value = auto.code;
+                restored = true;
+            }
+        }
+    } catch(e) {}
+
+    if (!restored && !codeEditor.value.trim()) {
+        codeEditor.value = `<h2 style="text-align: center; margin-top: 40px; color: #2f5587;">📻 日系復古繪本風</h2>
 <div style="text-align: center; margin-top: 20px;">
-    <button onclick="alert('你成功執行了程式碼！')" style="padding: 10px 20px; font-size: 16px; background: #10b981; color: white; border: none; border-radius: 8px;">
+    <button onclick="alert('顏色風格是不是很溫暖呢！')" style="padding: 10px 20px; font-size: 16px; background: #c24239; color: white; border: 2px solid #a3322a; border-radius: 8px; box-shadow: 0 4px 0 #a3322a;">
         點我測試
     </button>
-</div>
-        </textarea>
-    </div>
+</div>`;
+    }
 
-    <!-- 底部工具列 (拇指好按) -->
-    <div class="toolbar">
-        <button class="tool-btn btn-run" onclick="openPreview()">
-            <div class="icon">▶</div> 預覽
-        </button>
-        <button class="tool-btn btn-search" onclick="toggleSearch()">
-            <div class="icon">🔍</div> 搜尋
-        </button>
-        <button class="tool-btn btn-load" onclick="triggerLoadFile()">
-            <div class="icon">📂</div> 讀取
-        </button>
-        <button class="tool-btn btn-save" onclick="downloadHTML()">
-            <div class="icon">💾</div> 存檔
-        </button>
-        <button class="tool-btn btn-clear" onclick="clearCode()">
-            <div class="icon">🗑️</div> 清空
-        </button>
-    </div>
-
-    <!-- === 滿版預覽視窗 === -->
-    <div class="preview-overlay" id="previewOverlay">
-        <div class="preview-header">
-            <button class="btn-close-preview" onclick="closePreview()">✕ 關閉</button>
-            <button class="btn-refresh" onclick="runCode()">🔄 重新整理</button>
-        </div>
-        <iframe id="previewFrame"></iframe>
-    </div>
-
-    <script>
-        const codeEditor = document.getElementById('codeEditor');
-        const previewFrame = document.getElementById('previewFrame');
-        const previewOverlay = document.getElementById('previewOverlay');
-        const searchBar = document.getElementById('searchBar');
-        const searchInput = document.getElementById('searchInput');
-        const fileInput = document.getElementById('fileInput');
-        const lineCount = document.getElementById('lineCount');
-        const charCount = document.getElementById('charCount');
-        let lastSearchIndex = 0;
-
-        // 統計行數與字元數
-        function updateStats() {
-            const text = codeEditor.value;
-            lineCount.textContent = text.split('\n').length;
-            charCount.textContent = text.length;
-        }
-
-        // 預覽與執行
-        function openPreview() {
-            runCode();
-            previewOverlay.classList.add('active');
-        }
-
-        function closePreview() {
-            previewOverlay.classList.remove('active');
-            const iframeDoc = previewFrame.contentDocument || previewFrame.contentWindow.document;
-            iframeDoc.open(); iframeDoc.write(''); iframeDoc.close();
-        }
-
-        function runCode() {
-            const code = codeEditor.value;
-            const iframeDoc = previewFrame.contentDocument || previewFrame.contentWindow.document;
-            iframeDoc.open();
-            
-            // 錯誤捕捉器
-            const errorCatcher = `
-                <script>
-                    window.onerror = function(message, source, lineno, colno, error) {
-                        document.body.innerHTML = '<div style="color: #ef4444; padding: 20px; font-family: monospace;">' +
-                            '<h3 style="margin-bottom:10px;">⚠️ 程式碼發生錯誤：</h3><p>' + message + '</p><p style="margin-top:10px; color:#888;">行號: ' + lineno + '</p></div>';
-                        return false;
-                    };
-                <\/script>
-            `;
-            iframeDoc.write(errorCatcher + code);
-            iframeDoc.close();
-        }
-
-        // 存檔與讀取
-        function downloadHTML() {
-            const blob = new Blob([codeEditor.value], { type: 'text/html;charset=utf-8' });
-            const a = document.createElement('a');
-            a.href = URL.createObjectURL(blob);
-            const date = new Date();
-            a.download = `game_${date.getMonth()+1}${date.getDate()}_${date.getHours()}${date.getMinutes()}.html`;
-            a.click();
-            URL.revokeObjectURL(a.href);
-        }
-
-        function triggerLoadFile() { fileInput.click(); }
-
-        function loadFile(event) {
-            const file = event.target.files[0];
-            if (!file) return;
-            const reader = new FileReader();
-            reader.onload = function(e) {
-                codeEditor.value = e.target.result;
-                fileInput.value = '';
-                updateStats();
-                alert('✅ 讀取成功！');
-            };
-            reader.readAsText(file, "UTF-8");
-        }
-
-        // 搜尋功能
-        function toggleSearch() {
-            if (searchBar.classList.contains('active')) {
-                searchBar.classList.remove('active');
-            } else {
-                searchBar.classList.add('active');
-                searchInput.focus();
-            }
-        }
-
-        function findText() {
-            const query = searchInput.value;
-            if (!query) return;
-            const text = codeEditor.value;
-            let index = text.indexOf(query, lastSearchIndex);
-            if (index === -1) index = text.indexOf(query, 0);
-
-            if (index !== -1) {
-                codeEditor.focus();
-                codeEditor.setSelectionRange(index, index + query.length);
-                const linesBefore = text.substring(0, index).split('\n').length;
-                codeEditor.scrollTop = (linesBefore - 3) * 24;
-                lastSearchIndex = index + query.length;
-            } else {
-                alert('找不到「' + query + '」');
-            }
-        }
-
-        function handleSearch(e) { if (e.key === 'Enter') { e.preventDefault(); findText(); } }
-        searchInput.addEventListener('input', () => { lastSearchIndex = 0; });
-
-        // 清空
-        function clearCode() {
-            if (confirm('確定要清空嗎？')) {
-                codeEditor.value = '';
-                updateStats();
-            }
-        }
-
-        // 初始化
-        window.onload = () => {
-            updateStats();
-        };
-    </script>
+    updateStats();
+    setInterval(() => {
+        try {
+            localStorage.setItem(LS_DRAFT_AUTO, JSON.stringify({
+                code: codeEditor.value,
+                time: Date.now()
+            }));
+        } catch(e) {}
+    }, 3000);
+});
+</script>
 </body>
 </html>
