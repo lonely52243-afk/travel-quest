@@ -126,6 +126,12 @@
   .act { flex:1; padding:13px 8px; border-radius:14px; border:1px solid var(--line); background:var(--glass2); color:var(--txt); font-size:15px; font-weight:700; text-align:center; text-decoration:none; cursor:pointer; }
   .act.primary { background:linear-gradient(135deg,var(--acc),var(--acc2)); color:#021224; border:0; }
   .act:active { transform:scale(.98); }
+  .person { border-left:3px solid var(--gc, var(--line)); }
+  .grp { display:flex; align-items:center; gap:9px; margin:16px 2px 9px; font-size:13.5px; color:var(--gc); font-weight:800; letter-spacing:.16em; }
+  .grp:first-child { margin-top:2px; }
+  .grp i { width:9px; height:9px; border-radius:50%; background:var(--gc); box-shadow:0 0 9px var(--gc); }
+  .grp small { color:var(--sub); font-weight:500; letter-spacing:0; font-size:12.5px; }
+  .grp::after { content:""; flex:1; height:1px; background:linear-gradient(90deg,var(--gc),transparent); opacity:.45; }
   .empty { text-align:center; padding:50px 10px; color:var(--sub); }
   .empty .big { font-size:42px; margin-bottom:8px; }
 
@@ -267,12 +273,30 @@ const DEMO = false;
 
 // ==PURE-START==
 const UNITS = [
-  { name: '廠辦/生品', children: [], color: 'var(--c-fac)' },
-  { name: '航儀課', children: ['通導', '感測', '儀電'], color: 'var(--c-av)' },
-  { name: '武系課', children: ['快砲', '飛彈', '軍械'], color: 'var(--c-wp)' },
-  { name: '空電課', children: ['顯控', '火控', '主件'], color: 'var(--c-air)' }
+  { name: '廠辦/生品', children: [], color: 'var(--acc2)' },
+  { name: '航儀課', children: ['通導', '感測', '儀電'], color: 'var(--acc2)' },
+  { name: '武系課', children: ['快砲', '飛彈', '軍械'], color: 'var(--acc2)' },
+  { name: '空電課', children: ['顯控', '火控', '主件'], color: 'var(--acc2)' }
 ];
 const FACTORY_UNITS = ['廠辦', '生品', '廠辦/生品'];
+
+const CATS = [
+  { name: '軍官', color: '#ffb84d' }, { name: '士官', color: '#3fd0ff' },
+  { name: '戰士', color: '#4ade80' }, { name: '聘僱', color: '#c08bff' }, { name: '其他', color: '#7f93b5' }
+];
+// 由上到下的順序（越前面越高階）；數字是 CATS 的編號
+const RANK_TABLE = [
+  ['上將', 0], ['中將', 0], ['少將', 0], ['上校', 0], ['中校', 0], ['少校', 0], ['上尉', 0], ['中尉', 0], ['少尉', 0], ['准尉', 0],
+  ['士官督導長', 1], ['士官長', 1], ['上士班長', 1], ['上士', 1], ['中士', 1], ['下士', 1],
+  ['上等兵', 2], ['一等兵', 2], ['二等兵', 2], ['戰士', 2], ['兵', 2],
+  ['聘僱', 3], ['約聘', 3], ['聘雇', 3], ['聘', 3], ['僱', 3], ['雇', 3]
+];
+function rankInfo(rank) {
+  const r = String(rank || '');
+  for (let i = 0; i < RANK_TABLE.length; i++) if (r.indexOf(RANK_TABLE[i][0]) !== -1) return { cat: RANK_TABLE[i][1], order: i };
+  return { cat: 4, order: 999 };
+}
+function catColor(p) { return CATS[rankInfo(p.rank).cat].color; }
 
 function pad2(n) { n = String(n == null ? '' : n); return n.length === 1 ? '0' + n : n; }
 
@@ -365,10 +389,11 @@ function filterPeople(list, f, now) {
     if (f.year && yearNum(p.yearClass) !== f.year) continue;
     if (month && Number(p.birthM) !== month) continue;
     if (day && Number(p.birthD) !== day) continue;
+    if (f.cat !== '' && f.cat != null && rankInfo(p.rank).cat !== Number(f.cat)) continue;
     if (pq.today && !isBirthdayOn(p, now)) continue;
     if (pq.blood && bloodKey(p.blood) !== pq.blood) continue;
     if (pq.terms.length) {
-      const hay = [p.name, p.unit, unitLabel(p.unit), p.skill, p.rank, p.yearClass].join(' ').toLowerCase();
+      const hay = [p.name, p.unit, unitLabel(p.unit), p.skill, p.rank, CATS[rankInfo(p.rank).cat].name, p.yearClass].join(' ').toLowerCase();
       const digits = String(p.phone || '').replace(/\D/g, '');
       let ok = true;
       for (let t = 0; t < pq.terms.length; t++) {
@@ -383,8 +408,14 @@ function filterPeople(list, f, now) {
     }
     out.push(p);
   }
-  if (month) out.sort(function (a, b) { return Number(a.birthD) - Number(b.birthD); });
-  return out;
+  const keyed = out.map(function (p, i) { return { p: p, i: i, r: rankInfo(p.rank) }; });
+  keyed.sort(function (a, b) {
+    if (month && Number(a.p.birthD) !== Number(b.p.birthD)) return Number(a.p.birthD) - Number(b.p.birthD);
+    if (a.r.cat !== b.r.cat) return a.r.cat - b.r.cat;
+    if (a.r.order !== b.r.order) return a.r.order - b.r.order;
+    return a.i - b.i;
+  });
+  return keyed.map(function (k) { return k.p; });
 }
 
 function allYears(list) {
@@ -421,12 +452,15 @@ function buildSuggestions(list, raw) {
     allYears(list).filter(function (y) { return y.indexOf(q) === 0; }).slice(0, 3)
       .forEach(function (y) { cats.push({ type: 'cat', k: 'year', v: y, label: y + ' 年班' }); });
   }
+  CATS.slice(0, 4).forEach(function (c, i) {
+    if (c.name.indexOf(q) !== -1) cats.push({ type: 'cat', k: 'cat', v: String(i), label: c.name });
+  });
   const mm = q.match(/^(\d{1,2})月?(?:生日)?$/);
   if (mm && Number(mm[1]) >= 1 && Number(mm[1]) <= 12) {
     cats.push({ type: 'cat', k: 'month', v: String(Number(mm[1])), label: Number(mm[1]) + ' 月生日' });
   }
   cats.forEach(function (c) {
-    const f = { q: '', unit: '', year: '', month: '', day: '' };
+    const f = { q: '', unit: '', year: '', month: '', day: '', cat: '' };
     f[c.k] = c.v;
     c.n = filterPeople(list, f).length;
   });
@@ -511,7 +545,7 @@ const $ = id => document.getElementById(id);
 const PAGE = 40;
 let token = sessionStorage.getItem('tk') || '';
 let people = [], duty = [], view = [], shown = PAGE, tab = 'search', loadedAt = null;
-let flt = { q: '', unit: '', year: '', month: '', day: '' };
+let flt = { q: '', unit: '', year: '', month: '', day: '', cat: '' };
 let sugs = [], sugIdx = -1;
 const idState = {};
 
@@ -546,7 +580,7 @@ function logoutLocal(msg) {
   token = ''; sessionStorage.removeItem('tk'); sessionStorage.removeItem('recent');
   people = []; duty = []; view = [];
   for (const k in idState) delete idState[k];
-  flt = { q: '', unit: '', year: '', month: '', day: '' }; $('q').value = '';
+  flt = { q: '', unit: '', year: '', month: '', day: '', cat: '' }; $('q').value = '';
   clearTimeout(idleT);
   $('loginMsg').className = 'login-msg'; $('loginMsg').textContent = msg || '';
   showApp(false);
@@ -608,13 +642,14 @@ function setTab(name) {
 }
 
 // ---- 篩選狀態 ----
-function hasFilter() { return !!(flt.q.trim() || flt.unit || flt.year || flt.month || flt.day); }
+function hasFilter() { return !!(flt.q.trim() || flt.unit || flt.year || flt.month || flt.day || flt.cat !== ''); }
 function chipsHtml() {
   const c = [];
   if (flt.unit) {
     const v = flt.unit.slice(2);
     c.push(['unit', '🏢 ' + (flt.unit.indexOf('u:') === 0 ? unitLabel(v) : v + (v === '廠辦/生品' ? '' : '（整課）'))]);
   }
+  if (flt.cat !== '') c.push(['cat', '🎖️ ' + CATS[Number(flt.cat)].name]);
   if (flt.year) c.push(['year', '🎓 ' + flt.year + ' 年班']);
   if (flt.month && flt.day) c.push(['month', '🎂 ' + flt.month + '/' + flt.day]);
   else if (flt.month) c.push(['month', '🎂 ' + flt.month + ' 月生日']);
@@ -623,7 +658,7 @@ function chipsHtml() {
   }).join('');
 }
 function applyTile(k, v, extra) {
-  flt = { q: '', unit: '', year: '', month: '', day: '' };
+  flt = { q: '', unit: '', year: '', month: '', day: '', cat: '' };
   flt[k] = v;
   if (extra) for (const e in extra) flt[e] = extra[e];
   $('q').value = '';
@@ -677,6 +712,12 @@ function renderHome() {
     h += '<div class="panel"><h3>🕘 最近查看</h3><div class="pills">' +
       recent.map(function (p) { return '<button class="pill" data-act="pick" data-i="' + p._i + '">' + esc(p.name) + '</button>'; }).join('') + '</div></div>';
   }
+  const cc = [0, 0, 0, 0, 0];
+  people.forEach(function (p) { cc[rankInfo(p.rank).cat]++; });
+  h += '<div class="panel"><h3>🎖️ 依身分</h3><div class="pills">' +
+    CATS.slice(0, 4).map(function (c, i) {
+      return '<button class="pill" style="color:' + c.color + ';border-color:' + c.color + '88;background:' + c.color + '1a" data-act="cat" data-v="' + i + '">' + c.name + ' · ' + cc[i] + '</button>';
+    }).join('') + '</div></div>';
   h += '<div class="panel"><h3>💡 可以這樣搜尋</h3><div class="tips">' +
     '<div><code data-act="try" data-t="蔡">蔡</code>打姓氏，邊打邊選名字</div>' +
     '<div><code data-act="try" data-t="通導">通導</code><code data-act="try" data-t="航儀課">航儀課</code>單位</div>' +
@@ -713,9 +754,9 @@ function personHtml(p, open) {
        (dial ? '<a class="act" href="sms:' + esc(dial) + '">💬 簡訊</a>' : '') +
        '<button class="act" data-act="copy" data-i="' + p._i + '">📋 複製</button></div>';
   const first = p.name.charAt(0);
-  return '<div class="person' + (open ? ' open' : '') + '" data-i="' + p._i + '">' +
-    '<div class="phead" data-act="toggle"><div class="avatar" style="background:' + unitColor(p.unit) + '">' + esc(first) + '</div>' +
-    '<div class="pmain"><div class="pname">' + hl(p.name, kw) + (p.rank ? '<span class="rank">' + esc(p.rank) + '</span>' : '') +
+  return '<div class="person' + (open ? ' open' : '') + '" style="--gc:' + catColor(p) + '" data-i="' + p._i + '">' +
+    '<div class="phead" data-act="toggle"><div class="avatar" style="background:' + catColor(p) + '">' + esc(first) + '</div>' +
+    '<div class="pmain"><div class="pname">' + hl(p.name, kw) + (p.rank ? '<span class="rank" style="color:' + catColor(p) + ';border:1px solid ' + catColor(p) + '66;background:' + catColor(p) + '1f">' + esc(p.rank) + '</span>' : '') +
     (isBirthdayOn(p, now) ? '<span class="bday">🎂 今天生日</span>' : '') + '</div>' +
     (subs ? '<div class="psub">' + esc(subs) + '</div>' : '') + '</div><div class="chev">▼</div></div>' +
     '<div class="pdetail' + (open ? '' : ' hidden') + '">' + d + '</div></div>';
@@ -723,8 +764,20 @@ function personHtml(p, open) {
 function renderResults() {
   const open = view.length === 1;
   $('count').textContent = view.length ? '找到 ' + view.length + ' 人' : '';
+  const byDay = !!(flt.month || parseQuery(flt.q).month);
+  const counts = [0, 0, 0, 0, 0];
+  view.forEach(function (p) { counts[rankInfo(p.rank).cat]++; });
+  let lastCat = -1;
   $('list').innerHTML = view.length
-    ? view.slice(0, shown).map(function (p) { return personHtml(p, open); }).join('')
+    ? view.slice(0, shown).map(function (p) {
+        let head = '';
+        const c = rankInfo(p.rank).cat;
+        if (!byDay && c !== lastCat) {
+          head = '<div class="grp" style="--gc:' + CATS[c].color + '"><i></i>' + CATS[c].name + '<small>' + counts[c] + ' 人</small></div>';
+          lastCat = c;
+        }
+        return head + personHtml(p, open);
+      }).join('')
     : '<div class="empty"><div class="big">🔍</div>找不到符合的人員<br><small>換個關鍵字，或按「清除全部」</small></div>';
   $('more').classList.toggle('hidden', view.length <= shown);
 }
@@ -791,7 +844,7 @@ function renderSug() {
     if (s.type !== lastType) { h += '<div class="sug-head">' + (s.type === 'person' ? '人員' : '快速篩選') + '</div>'; lastType = s.type; }
     if (s.type === 'person') {
       const sub = [s.p.rank, unitLabel(s.p.unit), s.p.yearClass].filter(Boolean).join(' · ');
-      h += '<div class="sug-item" data-s="' + i + '"><div class="avatar" style="width:38px;height:38px;border-radius:12px;font-size:17px;background:' + unitColor(s.p.unit) + '">' + esc(s.p.name.charAt(0)) +
+      h += '<div class="sug-item" data-s="' + i + '"><div class="avatar" style="width:38px;height:38px;border-radius:12px;font-size:17px;background:' + catColor(s.p) + '">' + esc(s.p.name.charAt(0)) +
            '</div><div class="sug-main"><div class="sug-name">' + hl(s.p.name, q) + '</div><div class="sug-sub">' + esc(sub) + '</div></div></div>';
     } else {
       h += '<div class="sug-item" data-s="' + i + '"><div class="sug-main"><div class="sug-name">' + esc(s.label) + '</div><div class="sug-sub">' + s.n + ' 人</div></div><span class="sug-tag">篩選</span></div>';
@@ -807,7 +860,7 @@ function pushRecent(i) {
 }
 function pickPerson(p) {
   pushRecent(p._i);
-  flt = { q: '', unit: '', year: '', month: '', day: '' };
+  flt = { q: '', unit: '', year: '', month: '', day: '', cat: '' };
   flt.q = p.name; $('q').value = p.name; hideSug(); shown = PAGE;
   setTab('search'); renderSearch();
   $('q').blur();
@@ -874,7 +927,7 @@ document.addEventListener('pointerdown', function (e) {
 });
 $('clearQ').addEventListener('click', function () { $('q').value = ''; flt.q = ''; hideSug(); renderSearch(); $('q').focus(); });
 $('resetBtn').addEventListener('click', function () {
-  flt = { q: '', unit: '', year: '', month: '', day: '' }; $('q').value = ''; hideSug(); renderSearch();
+  flt = { q: '', unit: '', year: '', month: '', day: '', cat: '' }; $('q').value = ''; hideSug(); renderSearch();
 });
 $('moreBtn').addEventListener('click', function () { shown += PAGE; renderResults(); });
 $('fchips').addEventListener('click', function (e) {
@@ -902,6 +955,7 @@ $('app').addEventListener('click', function (e) {
     try { extra = JSON.parse(el.getAttribute('data-extra') || 'null'); } catch (x) {}
     applyTile(el.getAttribute('data-k'), el.getAttribute('data-v'), extra);
   } else if (act === 'pick') pickPerson(people[Number(el.getAttribute('data-i'))]);
+  else if (act === 'cat') applyTile('cat', el.getAttribute('data-v'));
   else if (act === 'try') { $('q').value = el.getAttribute('data-t'); flt.q = $('q').value; shown = PAGE; renderSearch(); }
 });
 $('reloadBtn').addEventListener('click', function () { loadData().then(function () { toast('已更新'); }); });
