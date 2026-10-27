@@ -2,111 +2,289 @@
 <html lang="zh-Hant">
 <head>
 <meta charset="UTF-8">
-<meta name="viewport" content="width=device-width, initial-scale=1">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<meta name="theme-color" content="#07101f">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
 <title>天眼</title>
 <style>
-  :root { --bg:#0f172a; --card:#1e293b; --line:#334155; --txt:#e2e8f0; --sub:#94a3b8; --acc:#38bdf8; --err:#f87171; --ok:#4ade80; }
+  :root {
+    --bg0:#060d1b; --bg1:#0b1830; --glass:rgba(255,255,255,.055); --glass2:rgba(255,255,255,.09);
+    --line:rgba(255,255,255,.10); --txt:#eaf2ff; --sub:#8fa3c4; --acc:#3fd0ff; --acc2:#7c9cff;
+    --amber:#ffb84d; --ok:#4ade80; --err:#ff7a8a;
+    --c-fac:#ffb84d; --c-av:#3fd0ff; --c-wp:#ff7a8a; --c-air:#a98bff; --c-def:#7f93b5;
+    --safe-b: env(safe-area-inset-bottom, 0px); --safe-t: env(safe-area-inset-top, 0px);
+  }
   * { box-sizing:border-box; -webkit-tap-highlight-color:transparent; }
-  body { margin:0; font-family:-apple-system,"Noto Sans TC","Microsoft JhengHei",sans-serif; background:var(--bg); color:var(--txt); }
-  .wrap { max-width:680px; margin:0 auto; padding:12px 14px 40px; }
-  .bar { display:flex; justify-content:space-between; align-items:center; margin:6px 0 12px; }
-  h1 { font-size:19px; margin:0; }
-  .card { background:var(--card); border:1px solid var(--line); border-radius:12px; padding:12px 14px; margin-bottom:10px; }
-  input[type=password], input[type=text], select { width:100%; padding:11px 12px; font-size:16px; border-radius:8px; border:1px solid var(--line); background:#0b1220; color:var(--txt); }
-  button, .btn { display:inline-block; padding:11px 16px; font-size:15px; border:0; border-radius:8px; background:var(--acc); color:#04121c; font-weight:600; cursor:pointer; text-decoration:none; text-align:center; }
-  button.ghost, .btn.ghost { background:transparent; color:var(--sub); border:1px solid var(--line); padding:7px 11px; font-size:14px; }
-  button:disabled { opacity:.5; }
-  .msg { color:var(--err); min-height:20px; margin-top:8px; font-size:14px; }
-  .tabs { display:flex; gap:8px; margin-bottom:10px; }
-  .tabs button { flex:1; background:transparent; color:var(--sub); border:1px solid var(--line); }
-  .tabs button.on { background:var(--acc); color:#04121c; border-color:var(--acc); }
-  .filters { display:grid; grid-template-columns:1fr 1fr 1fr; gap:8px; margin-top:8px; }
-  .filters select { padding:9px 8px; font-size:14px; }
-  .row { display:flex; gap:8px; align-items:center; }
-  .hint { color:var(--sub); font-size:13px; margin:8px 2px; }
-  .person { padding:0; overflow:hidden; }
-  .head { padding:12px 14px; cursor:pointer; }
-  .name { font-size:18px; font-weight:700; }
-  .tag { color:var(--acc); font-size:14px; margin-left:8px; }
-  .sub { color:var(--sub); font-size:14px; margin-top:3px; }
-  .detail { padding:0 14px 14px; border-top:1px solid var(--line); }
-  dl { margin:10px 0 0; display:grid; grid-template-columns:78px 1fr; gap:7px 10px; font-size:15px; }
-  dt { color:var(--sub); }
-  dd { margin:0; word-break:break-all; }
-  .btns { display:flex; gap:8px; margin-top:12px; flex-wrap:wrap; }
-  .btns .btn, .btns button { flex:1; min-width:90px; }
-  .duty { display:flex; justify-content:space-between; align-items:center; }
-  .duty .d { font-size:17px; font-weight:700; }
-  .duty .t { font-size:15px; }
-  .badge { font-size:12px; padding:2px 8px; border-radius:20px; background:var(--ok); color:#04210f; margin-left:8px; font-weight:700; }
-  .toast { position:fixed; left:50%; bottom:28px; transform:translateX(-50%); background:#0b1220; border:1px solid var(--line); padding:10px 18px; border-radius:20px; font-size:14px; opacity:0; transition:opacity .2s; pointer-events:none; }
-  .toast.on { opacity:1; }
-  .hidden { display:none; }
+  html, body { margin:0; background:var(--bg0); color:var(--txt); }
+  body { font-family:-apple-system,BlinkMacSystemFont,"SF Pro Text","Noto Sans TC","PingFang TC","Microsoft JhengHei",sans-serif; min-height:100vh;
+    background:radial-gradient(1200px 600px at 80% -10%, #14305c 0%, transparent 60%), radial-gradient(900px 500px at -10% 10%, #0f2a52 0%, transparent 55%), linear-gradient(180deg,var(--bg1),var(--bg0)); background-attachment:fixed; }
+  button { font-family:inherit; }
+  .hidden { display:none !important; }
+  mark { background:rgba(63,208,255,.25); color:#fff; border-radius:3px; padding:0 1px; }
+
+  /* ===== 登入 ===== */
+  #login { min-height:100vh; display:flex; flex-direction:column; align-items:center; justify-content:center; padding:24px; position:relative; overflow:hidden; }
+  .radar { position:absolute; width:min(92vw,520px); height:min(92vw,520px); left:50%; top:50%; transform:translate(-50%,-62%); border-radius:50%; opacity:.55; pointer-events:none;
+    background:
+      radial-gradient(circle, transparent 0 24%, rgba(63,208,255,.18) 24.4% 24.9%, transparent 25.3% 49%, rgba(63,208,255,.14) 49.4% 49.9%, transparent 50.3% 74%, rgba(63,208,255,.10) 74.4% 74.9%, transparent 75.3%),
+      linear-gradient(90deg, transparent 49.8%, rgba(63,208,255,.12) 50%, transparent 50.2%),
+      linear-gradient(0deg, transparent 49.8%, rgba(63,208,255,.12) 50%, transparent 50.2%); }
+  .radar::after { content:""; position:absolute; inset:0; border-radius:50%;
+    background:conic-gradient(from 0deg, rgba(63,208,255,.38), rgba(63,208,255,0) 22%, transparent 100%); animation:sweep 5s linear infinite; }
+  @keyframes sweep { to { transform:rotate(360deg); } }
+  .login-card { position:relative; width:100%; max-width:360px; text-align:center; }
+  .logo-big { width:92px; height:92px; margin:0 auto 14px; filter:drop-shadow(0 0 22px rgba(63,208,255,.55)); }
+  .login-card h1 { margin:0; font-size:34px; letter-spacing:.35em; padding-left:.35em; font-weight:800; background:linear-gradient(90deg,#fff,var(--acc)); -webkit-background-clip:text; background-clip:text; color:transparent; }
+  .login-card p { margin:6px 0 26px; color:var(--sub); font-size:13px; letter-spacing:.2em; }
+  .field { width:100%; padding:15px 16px; font-size:17px; color:var(--txt); border-radius:14px; border:1px solid var(--line); background:rgba(6,13,27,.65); backdrop-filter:blur(8px); outline:none; transition:border-color .2s, box-shadow .2s; text-align:center; letter-spacing:.2em; }
+  .field:focus { border-color:var(--acc); box-shadow:0 0 0 3px rgba(63,208,255,.18); }
+  .btn-main { width:100%; margin-top:12px; padding:15px; font-size:17px; font-weight:700; letter-spacing:.3em; border:0; border-radius:14px; color:#021224; cursor:pointer;
+    background:linear-gradient(135deg,var(--acc),var(--acc2)); box-shadow:0 8px 26px rgba(63,208,255,.28); transition:transform .1s, opacity .2s; }
+  .btn-main:active { transform:scale(.98); }
+  .btn-main:disabled { opacity:.55; }
+  .login-msg { min-height:22px; margin-top:12px; font-size:14px; color:var(--err); }
+  .login-msg.info { color:var(--amber); }
+
+  /* ===== App 外框 ===== */
+  #app { padding-bottom:calc(76px + var(--safe-b)); }
+  .topbar { position:sticky; top:0; z-index:30; display:flex; align-items:center; justify-content:space-between; gap:10px;
+    padding:calc(10px + var(--safe-t)) 16px 10px; background:rgba(6,13,27,.72); backdrop-filter:blur(16px); -webkit-backdrop-filter:blur(16px); border-bottom:1px solid var(--line); }
+  .brand { display:flex; align-items:center; gap:10px; }
+  .brand svg { width:30px; height:30px; filter:drop-shadow(0 0 8px rgba(63,208,255,.5)); }
+  .brand b { font-size:19px; letter-spacing:.25em; }
+  .brand small { display:block; color:var(--sub); font-size:11px; letter-spacing:.08em; margin-top:1px; }
+  .icon-btn { width:38px; height:38px; display:grid; place-items:center; border-radius:12px; border:1px solid var(--line); background:var(--glass); color:var(--sub); cursor:pointer; }
+  .icon-btn:active { background:var(--glass2); }
+  .icon-btn svg { width:19px; height:19px; stroke:currentColor; fill:none; stroke-width:1.9; stroke-linecap:round; stroke-linejoin:round; }
+  .wrap { max-width:720px; margin:0 auto; padding:14px 16px 20px; }
+  .view-title { font-size:22px; font-weight:800; margin:6px 0 4px; }
+  .view-sub { color:var(--sub); font-size:13px; margin:0 0 16px; }
+
+  /* ===== 搜尋 ===== */
+  .searchbox { position:relative; z-index:20; }
+  .searchbox .ico { position:absolute; left:15px; top:50%; transform:translateY(-50%); width:20px; height:20px; stroke:var(--sub); fill:none; stroke-width:2; stroke-linecap:round; pointer-events:none; z-index:2; }
+  .searchbox input { width:100%; padding:16px 44px 16px 46px; font-size:17px; color:var(--txt); border-radius:16px; border:1px solid var(--line); background:var(--glass); backdrop-filter:blur(10px); outline:none; transition:border-color .2s, box-shadow .2s; }
+  .searchbox input:focus { border-color:var(--acc); box-shadow:0 0 0 3px rgba(63,208,255,.16); }
+  .searchbox input::placeholder { color:#6a7fa3; }
+  .clear { position:absolute; right:10px; top:50%; transform:translateY(-50%); width:30px; height:30px; border-radius:50%; border:0; background:var(--glass2); color:var(--sub); font-size:15px; cursor:pointer; }
+  .sug { position:absolute; left:0; right:0; top:calc(100% + 8px); background:#0c1a33; border:1px solid var(--line); border-radius:16px; overflow:hidden; box-shadow:0 18px 50px rgba(0,0,0,.6); }
+  .sug-item { display:flex; align-items:center; gap:12px; padding:11px 14px; cursor:pointer; border-bottom:1px solid rgba(255,255,255,.05); }
+  .sug-item:last-child { border-bottom:0; }
+  .sug-item.on, .sug-item:active { background:rgba(63,208,255,.12); }
+  .sug-main { flex:1; min-width:0; }
+  .sug-name { font-size:16px; font-weight:700; }
+  .sug-sub { font-size:12.5px; color:var(--sub); margin-top:2px; white-space:nowrap; overflow:hidden; text-overflow:ellipsis; }
+  .sug-tag { font-size:11.5px; color:var(--acc); border:1px solid rgba(63,208,255,.35); padding:2px 8px; border-radius:20px; white-space:nowrap; }
+  .sug-head { padding:8px 14px 4px; font-size:11.5px; color:var(--sub); letter-spacing:.12em; }
+
+  .fchips { display:flex; flex-wrap:wrap; gap:8px; margin-top:12px; }
+  .fchip { display:inline-flex; align-items:center; gap:8px; padding:6px 8px 6px 12px; border-radius:20px; background:rgba(63,208,255,.14); border:1px solid rgba(63,208,255,.35); color:#d9f4ff; font-size:13.5px; }
+  .fchip button { width:20px; height:20px; border-radius:50%; border:0; background:rgba(255,255,255,.16); color:#fff; font-size:11px; cursor:pointer; line-height:20px; padding:0; }
+  .resultbar { display:flex; justify-content:space-between; align-items:center; margin:16px 2px 10px; color:var(--sub); font-size:13px; }
+  .resultbar button { background:none; border:0; color:var(--acc); font-size:13px; cursor:pointer; padding:4px 0; }
+
+  /* ===== 首頁儀表 ===== */
+  .stats { display:grid; grid-template-columns:repeat(3,1fr); gap:10px; margin-top:16px; }
+  .stat { padding:14px 10px; border-radius:16px; background:var(--glass); border:1px solid var(--line); text-align:center; }
+  .stat b { display:block; font-size:26px; font-weight:800; background:linear-gradient(180deg,#fff,var(--acc)); -webkit-background-clip:text; background-clip:text; color:transparent; }
+  .stat span { font-size:12px; color:var(--sub); letter-spacing:.08em; }
+  .panel { margin-top:14px; padding:14px 16px; border-radius:18px; background:var(--glass); border:1px solid var(--line); }
+  .panel h3 { margin:0 0 10px; font-size:14px; color:var(--sub); font-weight:600; letter-spacing:.1em; }
+  .pills { display:flex; flex-wrap:wrap; gap:8px; }
+  .pill { padding:7px 13px; border-radius:20px; background:var(--glass2); border:1px solid var(--line); color:var(--txt); font-size:14px; cursor:pointer; }
+  .pill:active { background:rgba(63,208,255,.2); }
+  .pill.hot { border-color:rgba(255,184,77,.5); background:rgba(255,184,77,.12); color:#ffe2b0; }
+  .dutyrow { display:flex; justify-content:space-between; align-items:center; padding:6px 0; }
+  .dutyrow + .dutyrow { border-top:1px solid rgba(255,255,255,.06); }
+  .tips { color:var(--sub); font-size:13px; line-height:1.9; }
+  .tips code { background:var(--glass2); padding:2px 8px; border-radius:8px; color:#cfe6ff; font-size:12.5px; margin-right:4px; cursor:pointer; }
+
+  /* ===== 人員卡片 ===== */
+  .person { margin-bottom:10px; border-radius:18px; background:var(--glass); border:1px solid var(--line); overflow:hidden; transition:border-color .2s, background .2s; }
+  .person.open { border-color:rgba(63,208,255,.4); background:rgba(63,208,255,.05); }
+  .phead { display:flex; align-items:center; gap:13px; padding:13px 14px; cursor:pointer; }
+  .avatar { flex:0 0 auto; width:46px; height:46px; border-radius:15px; display:grid; place-items:center; font-size:20px; font-weight:800; color:#04101f; }
+  .pmain { flex:1; min-width:0; }
+  .pname { font-size:18px; font-weight:800; display:flex; align-items:center; gap:8px; flex-wrap:wrap; }
+  .rank { font-size:12px; font-weight:700; padding:2px 9px; border-radius:20px; background:rgba(255,255,255,.12); color:#dbe9ff; }
+  .bday { font-size:12px; font-weight:700; padding:2px 9px; border-radius:20px; background:rgba(255,184,77,.2); color:var(--amber); }
+  .psub { margin-top:3px; font-size:13.5px; color:var(--sub); white-space:nowrap; overflow:hidden; text-overflow:ellipsis; }
+  .chev { color:var(--sub); transition:transform .2s; font-size:13px; }
+  .person.open .chev { transform:rotate(180deg); }
+  .pdetail { padding:2px 14px 14px; }
+  .grid { display:grid; grid-template-columns:1fr 1fr; gap:9px; margin-top:6px; }
+  .cell { padding:10px 12px; border-radius:13px; background:rgba(6,13,27,.45); border:1px solid rgba(255,255,255,.06); min-width:0; }
+  .cell.wide { grid-column:1 / -1; }
+  .cell label { display:block; font-size:11.5px; color:var(--sub); letter-spacing:.08em; margin-bottom:3px; }
+  .cell div { font-size:15px; word-break:break-all; }
+  .cell small { color:var(--sub); font-size:12.5px; }
+  .idrow { display:flex; align-items:center; justify-content:space-between; gap:10px; }
+  .idrow span { font-variant-numeric:tabular-nums; letter-spacing:.06em; }
+  .mini { border:1px solid var(--line); background:var(--glass2); color:var(--acc); font-size:13px; padding:5px 12px; border-radius:20px; cursor:pointer; white-space:nowrap; }
+  .actions { display:flex; gap:9px; margin-top:12px; }
+  .act { flex:1; padding:13px 8px; border-radius:14px; border:1px solid var(--line); background:var(--glass2); color:var(--txt); font-size:15px; font-weight:700; text-align:center; text-decoration:none; cursor:pointer; }
+  .act.primary { background:linear-gradient(135deg,var(--acc),var(--acc2)); color:#021224; border:0; }
+  .act:active { transform:scale(.98); }
+  .empty { text-align:center; padding:50px 10px; color:var(--sub); }
+  .empty .big { font-size:42px; margin-bottom:8px; }
+
+  /* ===== 瀏覽（單位／年班／生日） ===== */
+  .sect { margin:18px 0 10px; font-size:13px; letter-spacing:.14em; color:var(--sub); display:flex; align-items:center; gap:10px; }
+  .sect::after { content:""; flex:1; height:1px; background:var(--line); }
+  .tiles { display:grid; grid-template-columns:repeat(3,1fr); gap:10px; }
+  .tiles.two { grid-template-columns:repeat(2,1fr); }
+  .tiles.four { grid-template-columns:repeat(4,1fr); }
+  .tile { padding:14px 8px; border-radius:16px; border:1px solid var(--line); background:var(--glass); color:var(--txt); cursor:pointer; text-align:center; position:relative; overflow:hidden; }
+  .tile::before { content:""; position:absolute; left:0; right:0; top:0; height:3px; background:var(--tc, var(--acc)); opacity:.9; }
+  .tile b { display:block; font-size:16px; font-weight:800; }
+  .tile span { display:block; margin-top:3px; font-size:12.5px; color:var(--sub); }
+  .tile:active { background:rgba(63,208,255,.15); transform:scale(.98); }
+  .tile.now { border-color:rgba(255,184,77,.6); background:rgba(255,184,77,.1); }
+  .tile.zero { opacity:.45; }
+
+  /* ===== 留守 ===== */
+  .dcard { display:flex; justify-content:space-between; align-items:center; gap:10px; padding:14px 16px; margin-bottom:10px; border-radius:16px; background:var(--glass); border:1px solid var(--line); }
+  .dcard.today { border-color:rgba(255,184,77,.6); background:rgba(255,184,77,.1); }
+  .dcard .d { font-size:18px; font-weight:800; }
+  .dcard .d small { margin-left:8px; font-size:13px; color:var(--sub); font-weight:500; }
+  .dcard .t { font-size:14.5px; text-align:right; }
+  .badge { display:inline-block; font-size:11.5px; padding:2px 9px; border-radius:20px; background:var(--amber); color:#2a1a00; font-weight:800; margin-left:8px; vertical-align:middle; }
+
+  /* ===== 底部導覽 ===== */
+  .nav { position:fixed; left:0; right:0; bottom:0; z-index:40; display:flex; justify-content:space-around; padding:8px 8px calc(8px + var(--safe-b)); background:rgba(6,13,27,.82); backdrop-filter:blur(18px); -webkit-backdrop-filter:blur(18px); border-top:1px solid var(--line); }
+  .nav button { flex:1; max-width:110px; display:flex; flex-direction:column; align-items:center; gap:3px; padding:6px 0; border:0; background:none; color:var(--sub); font-size:11.5px; cursor:pointer; border-radius:12px; }
+  .nav button svg { width:23px; height:23px; stroke:currentColor; fill:none; stroke-width:1.8; stroke-linecap:round; stroke-linejoin:round; }
+  .nav button.on { color:var(--acc); }
+  .nav button.on svg { filter:drop-shadow(0 0 6px rgba(63,208,255,.6)); }
+
+  .toast { position:fixed; left:50%; bottom:calc(92px + var(--safe-b)); transform:translateX(-50%) translateY(10px); background:rgba(11,24,48,.97); border:1px solid var(--line); padding:10px 20px; border-radius:22px; font-size:14px; opacity:0; transition:all .25s; pointer-events:none; z-index:60; }
+  .toast.on { opacity:1; transform:translateX(-50%) translateY(0); }
+  .skel { height:74px; border-radius:18px; margin-bottom:10px; background:linear-gradient(90deg,var(--glass) 25%,var(--glass2) 50%,var(--glass) 75%); background-size:200% 100%; animation:sk 1.2s infinite; }
+  @keyframes sk { to { background-position:-200% 0; } }
+  .foot { text-align:center; color:#5d7094; font-size:12px; margin-top:22px; }
 </style>
 </head>
 <body>
-<div class="wrap">
-  <div class="bar">
-    <h1>🔒 天眼</h1>
-    <div id="topBtns" class="row hidden">
-      <button class="ghost" id="reloadBtn">重新整理</button>
-      <button class="ghost" id="logoutBtn">登出</button>
-    </div>
-  </div>
 
-  <!-- 登入 -->
-  <div id="loginBox" class="card">
-    <input id="pw" type="password" placeholder="請輸入密碼" autocomplete="current-password">
-    <div style="margin-top:10px"><button id="loginBtn" style="width:100%">登入</button></div>
-    <div id="loginMsg" class="msg"></div>
-  </div>
-
-  <!-- 主畫面 -->
-  <div id="mainBox" class="hidden">
-    <div class="tabs">
-      <button id="tabPeople" class="on">👤 人員</button>
-      <button id="tabDuty">📅 留守</button>
-    </div>
-
-    <div id="peoplePane">
-      <div class="card">
-        <input id="q" type="text" placeholder="輸入姓名、專長、電話…（空白分隔可同時比對）" autocomplete="off">
-        <div class="filters">
-          <select id="fUnit"></select>
-          <select id="fYear"></select>
-          <select id="fMonth"></select>
-        </div>
-        <div class="row" style="margin-top:8px; justify-content:space-between">
-          <span id="info" class="hint" style="margin:0"></span>
-          <button class="ghost" id="clearBtn">清除條件</button>
-        </div>
-      </div>
-      <div id="list"></div>
-      <div id="more" class="hidden" style="text-align:center"><button class="ghost" id="moreBtn">顯示更多</button></div>
-    </div>
-
-    <div id="dutyPane" class="hidden">
-      <div id="dutyList"></div>
-    </div>
+<!-- ============ 登入 ============ -->
+<div id="login">
+  <div class="radar"></div>
+  <div class="login-card">
+    <svg class="logo-big" viewBox="0 0 64 64" fill="none" stroke="#3fd0ff" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round">
+      <circle cx="32" cy="32" r="29" stroke-opacity=".35"/>
+      <circle cx="32" cy="32" r="21" stroke-opacity=".25"/>
+      <path d="M8 32s9-14 24-14 24 14 24 14-9 14-24 14S8 32 8 32z" stroke="#fff"/>
+      <circle cx="32" cy="32" r="7.5" fill="#3fd0ff" fill-opacity=".25"/>
+      <circle cx="32" cy="32" r="2.6" fill="#fff" stroke="none"/>
+    </svg>
+    <h1>天眼</h1>
+    <p>人員資料查詢系統</p>
+    <input id="pw" class="field" type="password" placeholder="輸入密碼" autocomplete="current-password">
+    <button id="loginBtn" class="btn-main">登入</button>
+    <div id="loginMsg" class="login-msg"></div>
   </div>
 </div>
+
+<!-- ============ 主畫面 ============ -->
+<div id="app" class="hidden">
+  <div class="topbar">
+    <div class="brand">
+      <svg viewBox="0 0 64 64" fill="none" stroke="#3fd0ff" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"><path d="M6 32s10-16 26-16 26 16 26 16-10 16-26 16S6 32 6 32z" stroke="#fff"/><circle cx="32" cy="32" r="8" fill="#3fd0ff" fill-opacity=".3"/><circle cx="32" cy="32" r="3" fill="#fff" stroke="none"/></svg>
+      <div><b>天眼</b><small id="subline">人員資料查詢</small></div>
+    </div>
+    <div style="display:flex; gap:8px">
+      <button class="icon-btn" id="reloadBtn" title="重新整理"><svg viewBox="0 0 24 24"><path d="M20 12a8 8 0 1 1-2.3-5.7M20 4v5h-5"/></svg></button>
+      <button class="icon-btn" id="logoutBtn" title="登出"><svg viewBox="0 0 24 24"><path d="M9 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h4M16 17l5-5-5-5M21 12H9"/></svg></button>
+    </div>
+  </div>
+
+  <div class="wrap">
+    <!-- 搜尋 -->
+    <section id="v-search">
+      <div class="searchbox">
+        <svg class="ico" viewBox="0 0 24 24"><circle cx="11" cy="11" r="7"/><path d="M21 21l-4.5-4.5"/></svg>
+        <input id="q" type="text" placeholder="姓名、單位、年班、生日…" autocomplete="off" autocapitalize="off" spellcheck="false" enterkeyhint="search">
+        <button class="clear hidden" id="clearQ" aria-label="清除">✕</button>
+        <div id="sug" class="sug hidden"></div>
+      </div>
+      <div id="fchips" class="fchips"></div>
+      <div id="home"></div>
+      <div id="results" class="hidden">
+        <div class="resultbar"><span id="count"></span><button id="resetBtn">清除全部</button></div>
+        <div id="list"></div>
+        <div id="more" class="hidden" style="text-align:center; margin:6px 0 10px"><button class="mini" id="moreBtn" style="padding:10px 22px">顯示更多</button></div>
+      </div>
+    </section>
+
+    <!-- 單位 -->
+    <section id="v-unit" class="hidden">
+      <div class="view-title">單位</div>
+      <p class="view-sub">點選單位，直接列出該單位所有人員</p>
+      <div id="unitTiles"></div>
+    </section>
+
+    <!-- 年班 -->
+    <section id="v-year" class="hidden">
+      <div class="view-title">年班</div>
+      <p class="view-sub">點選年班，列出同年班的人員</p>
+      <div id="yearTiles" class="tiles"></div>
+    </section>
+
+    <!-- 生日 -->
+    <section id="v-bday" class="hidden">
+      <div class="view-title">生日</div>
+      <p class="view-sub">看誰今天、這個月生日</p>
+      <div id="bdayTiles"></div>
+    </section>
+
+    <!-- 留守 -->
+    <section id="v-duty" class="hidden">
+      <div class="view-title">留守</div>
+      <p class="view-sub">未來的留守、監控、車長安排</p>
+      <div id="dutyList"></div>
+    </section>
+
+    <div class="foot" id="foot"></div>
+  </div>
+
+  <nav class="nav">
+    <button data-tab="search" class="on"><svg viewBox="0 0 24 24"><circle cx="11" cy="11" r="7"/><path d="M21 21l-4.5-4.5"/></svg>搜尋</button>
+    <button data-tab="unit"><svg viewBox="0 0 24 24"><path d="M4 21V5a2 2 0 0 1 2-2h8a2 2 0 0 1 2 2v16M16 9h2a2 2 0 0 1 2 2v10M8 7h4M8 11h4M8 15h4M3 21h18"/></svg>單位</button>
+    <button data-tab="year"><svg viewBox="0 0 24 24"><path d="M22 10 12 5 2 10l10 5 10-5zM6 12v5c0 1 3 3 6 3s6-2 6-3v-5"/></svg>年班</button>
+    <button data-tab="bday"><svg viewBox="0 0 24 24"><path d="M4 21h16M5 21v-7a2 2 0 0 1 2-2h10a2 2 0 0 1 2 2v7M12 12V8M12 8c-1.3-1.1-1.3-2.4 0-3.6 1.3 1.2 1.3 2.5 0 3.6z"/></svg>生日</button>
+    <button data-tab="duty"><svg viewBox="0 0 24 24"><path d="M4 6h16v14H4zM4 10h16M8 3v4M16 3v4"/></svg>留守</button>
+  </nav>
+</div>
+
 <div id="toast" class="toast"></div>
 
 <script>
-// ★ 部署 Apps Script 後，把網頁應用程式網址貼在這裡
+// ★ 後端（Apps Script）網址
 const API_URL = 'https://script.google.com/macros/s/AKfycbwDHcV9hNLwcCWY9KaTcur1HL_S6sarm_5uxw20fpHNTHJUpyBkgy4YmsaoKCeldZNTvg/exec';
+// 預覽用：true = 使用假資料、不連後端（正式版一律是 false）
+const DEMO = false;
 
-// ==PURE-START== （純邏輯，不碰畫面）
+// ==PURE-START==
 const UNITS = [
-  { name: '廠辦/生品', children: [] },
-  { name: '航儀課', children: ['通導', '感測', '儀電'] },
-  { name: '武系課', children: ['快砲', '飛彈', '軍械'] },
-  { name: '空電課', children: ['顯控', '火控', '主件'] }
+  { name: '廠辦/生品', children: [], color: 'var(--c-fac)' },
+  { name: '航儀課', children: ['通導', '感測', '儀電'], color: 'var(--c-av)' },
+  { name: '武系課', children: ['快砲', '飛彈', '軍械'], color: 'var(--c-wp)' },
+  { name: '空電課', children: ['顯控', '火控', '主件'], color: 'var(--c-air)' }
 ];
 const FACTORY_UNITS = ['廠辦', '生品', '廠辦/生品'];
 
-function pad2(n) { n = String(n || ''); return n.length === 1 ? '0' + n : n; }
+function pad2(n) { n = String(n == null ? '' : n); return n.length === 1 ? '0' + n : n; }
 
+function unitGroup(u) {
+  if (!u) return null;
+  if (FACTORY_UNITS.indexOf(u) !== -1) return UNITS[0];
+  for (let i = 0; i < UNITS.length; i++) {
+    if (UNITS[i].name === u || UNITS[i].children.indexOf(u) !== -1) return UNITS[i];
+  }
+  return null;
+}
+function unitColor(u) { const g = unitGroup(u); return g ? g.color : 'var(--c-def)'; }
 function unitLabel(u) {
   if (!u) return '';
   if (FACTORY_UNITS.indexOf(u) !== -1) return u;
@@ -116,29 +294,17 @@ function unitLabel(u) {
   }
   return u;
 }
-
-function yearNum(yc) {
-  const m = String(yc || '').match(/^(\d+)/);
-  return m ? m[1] : '';
-}
-
-function rocYear(y) {
-  const n = parseInt(y, 10);
-  return isNaN(n) ? '' : String(n - 1911);
-}
+function yearNum(yc) { const m = String(yc || '').match(/^(\d+)/); return m ? m[1] : ''; }
+function rocYear(y) { const n = parseInt(y, 10); return isNaN(n) ? '' : String(n - 1911); }
 
 function zodiac(month, day) {
   const m = parseInt(month, 10), d = parseInt(day, 10);
   if (isNaN(m) || isNaN(d) || m < 1 || m > 12 || d < 1 || d > 31) return null;
-  const signs = [
-    ['♑️ 摩羯座', 1, 19], ['♒️ 水瓶座', 2, 18], ['♓️ 雙魚座', 3, 20], ['♈️ 牡羊座', 4, 19],
+  const s = [['♑️ 摩羯座', 1, 19], ['♒️ 水瓶座', 2, 18], ['♓️ 雙魚座', 3, 20], ['♈️ 牡羊座', 4, 19],
     ['♉️ 金牛座', 5, 20], ['♊️ 雙子座', 6, 21], ['♋️ 巨蟹座', 7, 22], ['♌️ 獅子座', 8, 22],
-    ['♍️ 處女座', 9, 22], ['♎️ 天秤座', 10, 23], ['♏️ 天蠍座', 11, 22], ['♐️ 射手座', 12, 21]
-  ];
-  for (let i = 0; i < signs.length; i++) {
-    if (m < signs[i][1] || (m === signs[i][1] && d <= signs[i][2])) return signs[i][0];
-  }
-  return signs[0][0];
+    ['♍️ 處女座', 9, 22], ['♎️ 天秤座', 10, 23], ['♏️ 天蠍座', 11, 22], ['♐️ 射手座', 12, 21]];
+  for (let i = 0; i < s.length; i++) if (m < s[i][1] || (m === s[i][1] && d <= s[i][2])) return s[i][0];
+  return s[0][0];
 }
 
 function matchUnit(p, sel) {
@@ -147,7 +313,7 @@ function matchUnit(p, sel) {
     const gname = sel.slice(2);
     for (let i = 0; i < UNITS.length; i++) {
       if (UNITS[i].name !== gname) continue;
-      if (gname === '廠辦/生品') return FACTORY_UNITS.indexOf(p.unit) !== -1;
+      if (i === 0) return FACTORY_UNITS.indexOf(p.unit) !== -1;
       return p.unit === gname || UNITS[i].children.indexOf(p.unit) !== -1;
     }
     return false;
@@ -156,23 +322,68 @@ function matchUnit(p, sel) {
   return true;
 }
 
-function filterPeople(list, f) {
-  const terms = String(f.q || '').toLowerCase().split(/\s+/).filter(Boolean);
+function bloodKey(b) { return String(b || '').toLowerCase().replace(/型|rh|\+|\-|\s/g, ''); }
+
+function isBirthdayOn(p, now) {
+  return Number(p.birthM) === now.getMonth() + 1 && Number(p.birthD) === now.getDate();
+}
+
+// 把一串搜尋文字拆成：一般關鍵字 / 月 / 日 / 血型 / 今天生日
+function parseQuery(raw, now) {
+  now = now || new Date();
+  const out = { terms: [], month: null, day: null, blood: null, today: false };
+  const parts = String(raw || '').trim().toLowerCase().split(/\s+/).filter(Boolean);
+  for (let i = 0; i < parts.length; i++) {
+    const t = parts[i];
+    let m;
+    if (/^(今天|今日)(生日|壽星)$/.test(t)) { out.today = true; continue; }
+    if (/^(本月|這個月|當月)(生日|壽星)?$/.test(t)) { out.month = now.getMonth() + 1; continue; }
+    if ((m = t.match(/^(\d{1,2})月(\d{1,2})[日號号]?(?:生日)?$/)) || (m = t.match(/^(\d{1,2})[\/\-](\d{1,2})$/))) {
+      const mo = Number(m[1]), da = Number(m[2]);
+      if (mo >= 1 && mo <= 12 && da >= 1 && da <= 31) { out.month = mo; out.day = da; continue; }
+    }
+    if ((m = t.match(/^(\d{1,2})月(?:生日|壽星)?$/))) {
+      const mo = Number(m[1]);
+      if (mo >= 1 && mo <= 12) { out.month = mo; continue; }
+    }
+    if ((m = t.match(/^(ab|a|b|o)型$/))) { out.blood = m[1]; continue; }
+    out.terms.push(t);
+  }
+  return out;
+}
+
+function filterPeople(list, f, now) {
+  now = now || new Date();
+  const pq = parseQuery(f.q, now);
+  const month = pq.month || (f.month ? Number(f.month) : null);
+  const day = pq.day || (f.day ? Number(f.day) : null);
+  if (pq.month && f.month && Number(f.month) !== pq.month) return [];
   const out = [];
   for (let i = 0; i < list.length; i++) {
     const p = list[i];
     if (!matchUnit(p, f.unit)) continue;
     if (f.year && yearNum(p.yearClass) !== f.year) continue;
-    if (f.month && Number(p.birthM) !== Number(f.month)) continue;
-    if (terms.length) {
-      const hay = [p.name, p.unit, p.skill, p.rank, p.yearClass, p.phone, p.blood].join(' ').toLowerCase();
+    if (month && Number(p.birthM) !== month) continue;
+    if (day && Number(p.birthD) !== day) continue;
+    if (pq.today && !isBirthdayOn(p, now)) continue;
+    if (pq.blood && bloodKey(p.blood) !== pq.blood) continue;
+    if (pq.terms.length) {
+      const hay = [p.name, p.unit, unitLabel(p.unit), p.skill, p.rank, p.yearClass].join(' ').toLowerCase();
+      const digits = String(p.phone || '').replace(/\D/g, '');
       let ok = true;
-      for (let t = 0; t < terms.length; t++) if (hay.indexOf(terms[t]) === -1) { ok = false; break; }
+      for (let t = 0; t < pq.terms.length; t++) {
+        const term = pq.terms[t];
+        const td = term.replace(/\D/g, '');
+        const isNum = /^[\d\-]+$/.test(term);
+        if (hay.indexOf(term) !== -1) continue;
+        if (isNum && td.length >= 4 && digits.indexOf(td) !== -1) continue;
+        ok = false; break;
+      }
       if (!ok) continue;
     }
     out.push(p);
   }
-  if (f.month) out.sort(function (a, b) { return Number(a.birthD) - Number(b.birthD); });
+  if (month) out.sort(function (a, b) { return Number(a.birthD) - Number(b.birthD); });
   return out;
 }
 
@@ -186,16 +397,49 @@ function allYears(list) {
   return r;
 }
 
+// 輸入時的建議：先列姓名，再列單位／年班／生日月份
+function buildSuggestions(list, raw) {
+  const q = String(raw || '').trim();
+  if (!q) return [];
+  const ql = q.toLowerCase();
+  const starts = [], contains = [], cats = [];
+  for (let i = 0; i < list.length; i++) {
+    const n = list[i].name.toLowerCase();
+    const at = n.indexOf(ql);
+    if (at === 0) starts.push(list[i]); else if (at > 0) contains.push(list[i]);
+  }
+  const people = starts.concat(contains).slice(0, 6).map(function (p) { return { type: 'person', p: p }; });
+  UNITS.forEach(function (g, gi) {
+    if (g.name.toLowerCase().indexOf(ql) !== -1 || (gi === 0 && '廠辦生品'.indexOf(q) !== -1)) {
+      cats.push({ type: 'cat', k: 'unit', v: 'g:' + g.name, label: g.name + (g.children.length ? '（整課）' : '') });
+    }
+    g.children.forEach(function (c) {
+      if (c.toLowerCase().indexOf(ql) !== -1) cats.push({ type: 'cat', k: 'unit', v: 'u:' + c, label: g.name + ' / ' + c });
+    });
+  });
+  if (/^\d{1,3}$/.test(q)) {
+    allYears(list).filter(function (y) { return y.indexOf(q) === 0; }).slice(0, 3)
+      .forEach(function (y) { cats.push({ type: 'cat', k: 'year', v: y, label: y + ' 年班' }); });
+  }
+  const mm = q.match(/^(\d{1,2})月?(?:生日)?$/);
+  if (mm && Number(mm[1]) >= 1 && Number(mm[1]) <= 12) {
+    cats.push({ type: 'cat', k: 'month', v: String(Number(mm[1])), label: Number(mm[1]) + ' 月生日' });
+  }
+  cats.forEach(function (c) {
+    const f = { q: '', unit: '', year: '', month: '', day: '' };
+    f[c.k] = c.v;
+    c.n = filterPeople(list, f).length;
+  });
+  return people.concat(cats).slice(0, 9);
+}
+
 function firstPhone(raw) {
   const v = String(raw || '').trim();
   if (!v) return '';
   const parts = v.split(/[,，\/、;；]+/);
   return (parts[0] || '').trim() || v;
 }
-function dialPhone(raw) {
-  const p = firstPhone(raw);
-  return p ? p.replace(/[^\d+]/g, '') : '';
-}
+function dialPhone(raw) { const p = firstPhone(raw); return p ? p.replace(/[^\d+]/g, '') : ''; }
 
 function birthText(p) {
   if (!p.birthY && !p.birthM && !p.birthD) return '';
@@ -209,6 +453,30 @@ function joinText(p) {
   const roc = p.joinRY || rocYear(p.joinY);
   return base + (roc ? '（民國 ' + roc + ' 年）' : '');
 }
+function westYear(westStr, rocStr) {
+  const w = parseInt(westStr, 10);
+  if (!isNaN(w)) return w;
+  const r = parseInt(rocStr, 10);
+  return isNaN(r) ? NaN : r + 1911;
+}
+function ageText(p, now) {
+  now = now || new Date();
+  const y = westYear(p.birthY, p.birthRY), m = Number(p.birthM), d = Number(p.birthD);
+  if (isNaN(y) || !m || !d) return '';
+  let age = now.getFullYear() - y;
+  if (now.getMonth() + 1 < m || (now.getMonth() + 1 === m && now.getDate() < d)) age--;
+  return age >= 0 && age < 120 ? age + ' 歲' : '';
+}
+function serviceText(p, now) {
+  now = now || new Date();
+  const y = westYear(p.joinY, p.joinRY), m = Number(p.joinM), d = Number(p.joinD);
+  if (isNaN(y) || !m) return '';
+  let months = (now.getFullYear() - y) * 12 + (now.getMonth() + 1 - m);
+  if (d && now.getDate() < d) months--;
+  if (months < 0) return '';
+  const yy = Math.floor(months / 12), mm = months % 12;
+  return (yy ? yy + ' 年 ' : '') + mm + ' 個月';
+}
 
 function copyText(p, realId) {
   const L = ['👤 ' + p.name];
@@ -219,11 +487,7 @@ function copyText(p, realId) {
   if (p.skill) L.push('專長：' + p.skill);
   if (p.yearClass) L.push('年班：' + p.yearClass);
   const b = birthText(p);
-  if (b) {
-    L.push('生日：' + b);
-    const z = zodiac(p.birthM, p.birthD);
-    if (z) L.push(z);
-  }
+  if (b) { L.push('生日：' + b); const z = zodiac(p.birthM, p.birthD); if (z) L.push(z); }
   if (p.blood) L.push('血型：' + p.blood);
   const ph = firstPhone(p.phone);
   if (ph) L.push('電話：' + ph);
@@ -231,7 +495,6 @@ function copyText(p, realId) {
   if (j) L.push('入伍：' + j);
   return L.join('\n');
 }
-
 function dutyIcons(d) {
   const a = [];
   if (d.duty) a.push('🛡️ 留守');
@@ -241,264 +504,416 @@ function dutyIcons(d) {
 }
 // ==PURE-END==
 
+function demoApi() { return Promise.resolve({ ok: false }); }
+
+// ===================== 畫面與互動 =====================
 const $ = id => document.getElementById(id);
-const PAGE = 60;
+const PAGE = 40;
 let token = sessionStorage.getItem('tk') || '';
-let people = [], duty = [], view = [], shown = PAGE;
-const idState = {};   // row -> 已顯示的完整身分證
+let people = [], duty = [], view = [], shown = PAGE, tab = 'search', loadedAt = null;
+let flt = { q: '', unit: '', year: '', month: '', day: '' };
+let sugs = [], sugIdx = -1;
+const idState = {};
 
 function esc(s) {
   return String(s == null ? '' : s).replace(/[&<>"']/g, c =>
     ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;' }[c]));
 }
-
+function hl(text, q) {
+  text = String(text || ''); const k = String(q || '').trim();
+  if (!k) return esc(text);
+  const i = text.toLowerCase().indexOf(k.toLowerCase());
+  if (i < 0) return esc(text);
+  return esc(text.slice(0, i)) + '<mark>' + esc(text.slice(i, i + k.length)) + '</mark>' + esc(text.slice(i + k.length));
+}
 async function api(body) {
-  const res = await fetch(API_URL, {
-    method: 'POST',
-    headers: { 'Content-Type': 'text/plain;charset=utf-8' },
-    body: JSON.stringify(body)
-  });
+  if (DEMO) return demoApi(body);
+  const res = await fetch(API_URL, { method: 'POST', headers: { 'Content-Type': 'text/plain;charset=utf-8' }, body: JSON.stringify(body) });
   return res.json();
 }
-
 function toast(t) {
-  const el = $('toast');
-  el.textContent = t;
-  el.classList.add('on');
-  setTimeout(function () { el.classList.remove('on'); }, 1600);
+  const el = $('toast'); el.textContent = t; el.classList.add('on');
+  clearTimeout(toast._t); toast._t = setTimeout(function () { el.classList.remove('on'); }, 1600);
 }
 
-function showMain(on) {
-  $('loginBox').classList.toggle('hidden', on);
-  $('mainBox').classList.toggle('hidden', !on);
-  $('topBtns').classList.toggle('hidden', !on);
-  if (!on) $('pw').focus();
+// ---- 登入 / 登出 ----
+function showApp(on) {
+  $('login').classList.toggle('hidden', on);
+  $('app').classList.toggle('hidden', !on);
+  if (!on) setTimeout(function () { $('pw').focus(); }, 50);
 }
-
 function logoutLocal(msg) {
-  token = '';
-  sessionStorage.removeItem('tk');
+  token = ''; sessionStorage.removeItem('tk'); sessionStorage.removeItem('recent');
   people = []; duty = []; view = [];
   for (const k in idState) delete idState[k];
-  $('list').innerHTML = '';
-  $('dutyList').innerHTML = '';
-  $('loginMsg').textContent = msg || '';
-  showMain(false);
+  flt = { q: '', unit: '', year: '', month: '', day: '' }; $('q').value = '';
+  clearTimeout(idleT);
+  $('loginMsg').className = 'login-msg'; $('loginMsg').textContent = msg || '';
+  showApp(false);
 }
-
 async function login() {
   const pw = $('pw').value;
-  if (!pw) { $('loginMsg').textContent = '請輸入密碼'; return; }
+  if (!pw) { $('loginMsg').className = 'login-msg'; $('loginMsg').textContent = '請輸入密碼'; return; }
   $('loginBtn').disabled = true;
-  $('loginMsg').textContent = '登入中…';
+  $('loginMsg').className = 'login-msg info'; $('loginMsg').textContent = '驗證中…';
   try {
     const r = await api({ action: 'login', password: pw });
     if (r.ok) {
-      token = r.token;
-      sessionStorage.setItem('tk', token);
-      $('pw').value = '';
-      $('loginMsg').textContent = '';
+      token = r.token; sessionStorage.setItem('tk', token);
+      $('pw').value = ''; $('loginMsg').textContent = '';
       await loadData();
-    } else {
-      $('loginMsg').textContent = r.msg || '登入失敗';
-    }
-  } catch (e) {
-    $('loginMsg').textContent = '連線失敗，請檢查網路或網址設定';
-  }
+    } else { $('loginMsg').className = 'login-msg'; $('loginMsg').textContent = r.msg || '登入失敗'; }
+  } catch (e) { $('loginMsg').className = 'login-msg'; $('loginMsg').textContent = '連線失敗，請檢查網路'; }
   $('loginBtn').disabled = false;
 }
 
 async function loadData() {
-  $('info').textContent = '載入中…';
-  showMain(true);
+  showApp(true);
+  $('home').innerHTML = '<div class="skel"></div><div class="skel"></div><div class="skel"></div>';
   try {
     const r = await api({ action: 'load', token: token });
     if (r.expired) { logoutLocal(r.msg); return; }
-    if (!r.ok) { $('info').textContent = r.msg || '載入失敗'; return; }
+    if (!r.ok) { $('home').innerHTML = '<div class="empty">' + esc(r.msg || '載入失敗') + '</div>'; return; }
     people = r.people.map(function (p, i) { p._i = i; return p; });
     duty = r.duty || [];
-    buildFilters();
-    renderDuty();
-    applyFilter();
-    $('q').focus();
+    loadedAt = new Date();
+    renderAll();
+    bumpIdle();
   } catch (e) {
-    $('info').textContent = '連線失敗，請按「重新整理」';
+    $('home').innerHTML = '<div class="empty"><div class="big">📡</div>連線失敗，請按右上角重新整理</div>';
   }
 }
 
-function buildFilters() {
-  const curU = $('fUnit').value, curY = $('fYear').value, curM = $('fMonth').value;
-  let h = '<option value="">全部單位</option>';
-  for (let i = 0; i < UNITS.length; i++) {
-    const g = UNITS[i];
-    if (g.children.length === 0) { h += '<option value="g:' + esc(g.name) + '">' + esc(g.name) + '</option>'; continue; }
-    h += '<optgroup label="' + esc(g.name) + '"><option value="g:' + esc(g.name) + '">' + esc(g.name) + '（整課）</option>';
-    for (let j = 0; j < g.children.length; j++) h += '<option value="u:' + esc(g.children[j]) + '">' + esc(g.children[j]) + '</option>';
-    h += '</optgroup>';
+// ---- 閒置自動登出、離開畫面自動遮蔽身分證 ----
+let idleT = null;
+function bumpIdle() {
+  clearTimeout(idleT);
+  if (token) idleT = setTimeout(function () { logoutLocal('閒置過久，已自動登出'); }, 30 * 60 * 1000);
+}
+['pointerdown', 'keydown', 'scroll'].forEach(function (ev) { document.addEventListener(ev, bumpIdle, { passive: true }); });
+document.addEventListener('visibilitychange', function () {
+  if (document.hidden && Object.keys(idState).length) {
+    for (const k in idState) delete idState[k];
+    if (people.length) renderResults();
   }
-  $('fUnit').innerHTML = h;
-  let y = '<option value="">全部年班</option>';
-  allYears(people).forEach(function (v) { y += '<option value="' + esc(v) + '">' + esc(v) + ' 年班</option>'; });
-  $('fYear').innerHTML = y;
-  let m = '<option value="">生日月份</option>';
-  for (let i = 1; i <= 12; i++) m += '<option value="' + i + '">' + i + ' 月生日</option>';
-  $('fMonth').innerHTML = m;
-  $('fUnit').value = curU; $('fYear').value = curY; $('fMonth').value = curM;
+});
+
+// ---- 分頁 ----
+function setTab(name) {
+  tab = name;
+  ['search', 'unit', 'year', 'bday', 'duty'].forEach(function (t) { $('v-' + t).classList.toggle('hidden', t !== name); });
+  document.querySelectorAll('.nav button').forEach(function (b) { b.classList.toggle('on', b.getAttribute('data-tab') === name); });
+  hideSug();
+  window.scrollTo(0, 0);
 }
 
-function currentFilter() {
-  return { q: $('q').value, unit: $('fUnit').value, year: $('fYear').value, month: $('fMonth').value };
+// ---- 篩選狀態 ----
+function hasFilter() { return !!(flt.q.trim() || flt.unit || flt.year || flt.month || flt.day); }
+function chipsHtml() {
+  const c = [];
+  if (flt.unit) {
+    const v = flt.unit.slice(2);
+    c.push(['unit', '🏢 ' + (flt.unit.indexOf('u:') === 0 ? unitLabel(v) : v + (v === '廠辦/生品' ? '' : '（整課）'))]);
+  }
+  if (flt.year) c.push(['year', '🎓 ' + flt.year + ' 年班']);
+  if (flt.month && flt.day) c.push(['month', '🎂 ' + flt.month + '/' + flt.day]);
+  else if (flt.month) c.push(['month', '🎂 ' + flt.month + ' 月生日']);
+  return c.map(function (x) {
+    return '<span class="fchip">' + esc(x[1]) + '<button data-act="rm" data-k="' + x[0] + '" aria-label="移除">✕</button></span>';
+  }).join('');
 }
-
-function applyFilter() {
-  const f = currentFilter();
-  view = filterPeople(people, f);
+function applyTile(k, v, extra) {
+  flt = { q: '', unit: '', year: '', month: '', day: '' };
+  flt[k] = v;
+  if (extra) for (const e in extra) flt[e] = extra[e];
+  $('q').value = '';
   shown = PAGE;
-  const active = f.q.trim() || f.unit || f.year || f.month;
-  $('info').textContent = (active ? '找到 ' : '共 ') + view.length + ' 人';
-  renderList();
+  setTab('search');
+  renderSearch();
 }
 
-function row(label, value) {
-  return value ? '<dt>' + label + '</dt><dd>' + esc(value) + '</dd>' : '';
+// ---- 渲染 ----
+function renderAll() {
+  renderSearch(); renderUnit(); renderYear(); renderBday(); renderDuty();
+  const t = loadedAt;
+  $('foot').textContent = '資料 ' + people.length + ' 筆 · 更新於 ' + pad2(t.getHours()) + ':' + pad2(t.getMinutes()) + ' · 閒置 30 分鐘自動登出';
+}
+function renderSearch() {
+  $('clearQ').classList.toggle('hidden', !$('q').value);
+  $('fchips').innerHTML = chipsHtml();
+  const on = hasFilter();
+  $('home').classList.toggle('hidden', on);
+  $('results').classList.toggle('hidden', !on);
+  if (!on) { renderHome(); return; }
+  view = filterPeople(people, flt);
+  renderResults();
+}
+function dutyOn(dateStr) { return duty.find(function (d) { return d.date === dateStr; }); }
+function ymd(d) { return d.getFullYear() + '-' + pad2(d.getMonth() + 1) + '-' + pad2(d.getDate()); }
+
+function renderHome() {
+  const now = new Date();
+  const todayB = people.filter(function (p) { return isBirthdayOn(p, now); });
+  const monthB = people.filter(function (p) { return Number(p.birthM) === now.getMonth() + 1; });
+  let h = '<div class="stats">' +
+    '<div class="stat"><b>' + people.length + '</b><span>總人數</span></div>' +
+    '<div class="stat"><b>' + todayB.length + '</b><span>今天生日</span></div>' +
+    '<div class="stat"><b>' + monthB.length + '</b><span>本月壽星</span></div></div>';
+
+  if (todayB.length) {
+    h += '<div class="panel"><h3>🎂 今天生日</h3><div class="pills">' +
+      todayB.slice(0, 12).map(function (p) { return '<button class="pill hot" data-act="pick" data-i="' + p._i + '">' + esc(p.name) + '</button>'; }).join('') + '</div></div>';
+  }
+  const t0 = dutyOn(ymd(now)), t1 = dutyOn(ymd(new Date(now.getTime() + 86400000)));
+  if (t0 || t1) {
+    h += '<div class="panel"><h3>📅 留守提醒</h3>' +
+      (t0 ? '<div class="dutyrow"><span>今天</span><span>' + esc(dutyIcons(t0)) + '</span></div>' : '') +
+      (t1 ? '<div class="dutyrow"><span>明天</span><span>' + esc(dutyIcons(t1)) + '</span></div>' : '') + '</div>';
+  }
+  let recent = [];
+  try { recent = JSON.parse(sessionStorage.getItem('recent') || '[]'); } catch (e) {}
+  recent = recent.map(function (i) { return people[i]; }).filter(Boolean);
+  if (recent.length) {
+    h += '<div class="panel"><h3>🕘 最近查看</h3><div class="pills">' +
+      recent.map(function (p) { return '<button class="pill" data-act="pick" data-i="' + p._i + '">' + esc(p.name) + '</button>'; }).join('') + '</div></div>';
+  }
+  h += '<div class="panel"><h3>💡 可以這樣搜尋</h3><div class="tips">' +
+    '<div><code data-act="try" data-t="蔡">蔡</code>打姓氏，邊打邊選名字</div>' +
+    '<div><code data-act="try" data-t="通導">通導</code><code data-act="try" data-t="航儀課">航儀課</code>單位</div>' +
+    '<div><code data-act="try" data-t="109">109</code>年班　<code data-act="try" data-t="3月生日">3月生日</code><code data-act="try" data-t="3/15">3/15</code>生日</div>' +
+    '<div><code data-act="try" data-t="今天生日">今天生日</code><code data-act="try" data-t="O型">O型</code>血型</div>' +
+    '<div>可以混搭：<code data-act="try" data-t="通導 109">通導 109</code>用空白隔開</div></div></div>';
+  $('home').innerHTML = h;
 }
 
 function personHtml(p, open) {
+  const now = new Date();
   const ul = unitLabel(p.unit);
   const subs = [ul, p.skill, p.yearClass].filter(Boolean).join(' · ');
   const real = idState[p.row];
-  const idShown = real || p.idMask;
   const ph = firstPhone(p.phone), dial = dialPhone(p.phone);
   const z = zodiac(p.birthM, p.birthD);
-  let d = '<dl>';
-  d += row('單位', ul);
-  d += row('專長', p.skill);
-  d += row('年班', p.yearClass);
-  if (p.idMask) {
-    d += '<dt>身分證</dt><dd><span id="id' + p.row + '">' + esc(idShown) + '</span> ' +
-         '<button class="ghost" data-act="id" data-row="' + p.row + '">' + (real ? '隱藏' : '顯示') + '</button></dd>';
+  const age = ageText(p, now), svc = serviceText(p, now);
+  const bt = birthText(p), jt = joinText(p);
+  const kw = flt.q.trim();
+  function cell(label, val, extra, wide) {
+    return val ? '<div class="cell' + (wide ? ' wide' : '') + '"><label>' + label + '</label><div>' + esc(val) + (extra ? ' <small>' + esc(extra) + '</small>' : '') + '</div></div>' : '';
   }
-  d += row('生日', birthText(p) + (z ? '　' + z : ''));
-  d += row('血型', p.blood);
-  d += row('電話', ph);
-  d += row('入伍', joinText(p));
-  d += '</dl>';
-  d += '<div class="btns">' +
-       (dial ? '<a class="btn" href="tel:' + esc(dial) + '">📞 撥打</a>' : '') +
-       '<button data-act="copy" data-i="' + p._i + '">📋 複製</button></div>';
-  return '<div class="card person" data-i="' + p._i + '">' +
-    '<div class="head" data-act="toggle"><div><span class="name">' + esc(p.name) + '</span>' +
-    (p.rank ? '<span class="tag">' + esc(p.rank) + '</span>' : '') + '</div>' +
-    (subs ? '<div class="sub">' + esc(subs) + '</div>' : '') + '</div>' +
-    '<div class="detail' + (open ? '' : ' hidden') + '">' + d + '</div></div>';
+  let d = '<div class="grid">';
+  d += cell('單位', ul) + cell('專長', p.skill) + cell('年班', p.yearClass) + cell('血型', p.blood ? p.blood + ' 型' : '');
+  if (p.idMask) {
+    d += '<div class="cell wide"><label>身分證</label><div class="idrow"><span id="id' + p.row + '">' + esc(real || p.idMask) + '</span>' +
+         '<button class="mini" data-act="id" data-row="' + p.row + '">' + (real ? '隱藏' : '顯示') + '</button></div></div>';
+  }
+  d += cell('生日', bt, [z, age].filter(Boolean).join(' · '), true);
+  d += cell('電話', ph, '', true);
+  d += cell('入伍', jt, svc ? '年資 ' + svc : '', true);
+  d += '</div><div class="actions">' +
+       (dial ? '<a class="act primary" href="tel:' + esc(dial) + '">📞 撥打</a>' : '') +
+       (dial ? '<a class="act" href="sms:' + esc(dial) + '">💬 簡訊</a>' : '') +
+       '<button class="act" data-act="copy" data-i="' + p._i + '">📋 複製</button></div>';
+  const first = p.name.charAt(0);
+  return '<div class="person' + (open ? ' open' : '') + '" data-i="' + p._i + '">' +
+    '<div class="phead" data-act="toggle"><div class="avatar" style="background:' + unitColor(p.unit) + '">' + esc(first) + '</div>' +
+    '<div class="pmain"><div class="pname">' + hl(p.name, kw) + (p.rank ? '<span class="rank">' + esc(p.rank) + '</span>' : '') +
+    (isBirthdayOn(p, now) ? '<span class="bday">🎂 今天生日</span>' : '') + '</div>' +
+    (subs ? '<div class="psub">' + esc(subs) + '</div>' : '') + '</div><div class="chev">▼</div></div>' +
+    '<div class="pdetail' + (open ? '' : ' hidden') + '">' + d + '</div></div>';
 }
-
-function renderList() {
+function renderResults() {
   const open = view.length === 1;
-  $('list').innerHTML = view.slice(0, shown).map(function (p) { return personHtml(p, open); }).join('') ||
-    '<div class="hint" style="text-align:center">查無資料</div>';
+  $('count').textContent = view.length ? '找到 ' + view.length + ' 人' : '';
+  $('list').innerHTML = view.length
+    ? view.slice(0, shown).map(function (p) { return personHtml(p, open); }).join('')
+    : '<div class="empty"><div class="big">🔍</div>找不到符合的人員<br><small>換個關鍵字，或按「清除全部」</small></div>';
   $('more').classList.toggle('hidden', view.length <= shown);
 }
 
+function tile(label, sub, k, v, color, cls, extra) {
+  return '<button class="tile ' + (cls || '') + '" style="--tc:' + (color || 'var(--acc)') + '" data-act="tile" data-k="' + k + '" data-v="' + esc(v) + '"' +
+    (extra ? ' data-extra="' + esc(JSON.stringify(extra)) + '"' : '') + '><b>' + esc(label) + '</b><span>' + esc(sub) + '</span></button>';
+}
+function renderUnit() {
+  let h = '';
+  UNITS.forEach(function (g) {
+    const all = people.filter(function (p) { return matchUnit(p, 'g:' + g.name); }).length;
+    h += '<div class="sect">' + esc(g.name) + '</div>';
+    if (!g.children.length) { h += '<div class="tiles two">' + tile(g.name, all + ' 人', 'unit', 'g:' + g.name, g.color, all ? '' : 'zero') + '</div>'; return; }
+    h += '<div class="tiles four">' + tile('整課', all + ' 人', 'unit', 'g:' + g.name, g.color, all ? '' : 'zero');
+    g.children.forEach(function (c) {
+      const n = people.filter(function (p) { return p.unit === c; }).length;
+      h += tile(c, n + ' 人', 'unit', 'u:' + c, g.color, n ? '' : 'zero');
+    });
+    h += '</div>';
+  });
+  $('unitTiles').innerHTML = h;
+}
+function renderYear() {
+  $('yearTiles').innerHTML = allYears(people).map(function (y) {
+    const n = people.filter(function (p) { return yearNum(p.yearClass) === y; }).length;
+    return tile(y + ' 年班', n + ' 人', 'year', y, 'var(--acc2)');
+  }).join('') || '<div class="empty" style="grid-column:1/-1">沒有年班資料</div>';
+}
+function renderBday() {
+  const now = new Date(), cm = now.getMonth() + 1;
+  const todayN = people.filter(function (p) { return isBirthdayOn(p, now); }).length;
+  let h = '<div class="tiles two">' +
+    tile('🎂 今天生日', todayN + ' 人', 'month', String(cm), 'var(--amber)', 'now ' + (todayN ? '' : 'zero'), { day: String(now.getDate()) }) +
+    tile('📆 本月壽星', people.filter(function (p) { return Number(p.birthM) === cm; }).length + ' 人', 'month', String(cm), 'var(--amber)', 'now') + '</div>';
+  h += '<div class="sect">全部月份</div><div class="tiles">';
+  for (let m = 1; m <= 12; m++) {
+    const n = people.filter(function (p) { return Number(p.birthM) === m; }).length;
+    h += tile(m + ' 月', n + ' 人', 'month', String(m), 'var(--c-av)', (m === cm ? 'now ' : '') + (n ? '' : 'zero'));
+  }
+  $('bdayTiles').innerHTML = h + '</div>';
+}
 function renderDuty() {
-  if (!duty.length) { $('dutyList').innerHTML = '<div class="hint" style="text-align:center">目前沒有未來的留守資料</div>'; return; }
+  if (!duty.length) { $('dutyList').innerHTML = '<div class="empty"><div class="big">📅</div>目前沒有未來的留守資料</div>'; return; }
   const wk = ['日', '一', '二', '三', '四', '五', '六'];
-  const now = new Date();
-  const t0 = now.getFullYear() + '-' + pad2(now.getMonth() + 1) + '-' + pad2(now.getDate());
-  const nx = new Date(now.getTime() + 86400000);
-  const t1 = nx.getFullYear() + '-' + pad2(nx.getMonth() + 1) + '-' + pad2(nx.getDate());
+  const now = new Date(), t0 = ymd(now), t1 = ymd(new Date(now.getTime() + 86400000));
   $('dutyList').innerHTML = duty.map(function (d) {
     const p = d.date.split('-');
     const w = wk[new Date(Number(p[0]), Number(p[1]) - 1, Number(p[2])).getDay()];
     const badge = d.date === t0 ? '<span class="badge">今天</span>' : (d.date === t1 ? '<span class="badge">明天</span>' : '');
-    return '<div class="card duty"><div class="d">' + p[1] + '-' + p[2] + '（' + w + '）' + badge +
+    return '<div class="dcard' + (d.date === t0 ? ' today' : '') + '"><div class="d">' + p[1] + '/' + p[2] + '<small>週' + w + '</small>' + badge +
            '</div><div class="t">' + esc(dutyIcons(d)) + '</div></div>';
   }).join('');
 }
 
-function setTab(name) {
-  $('tabPeople').classList.toggle('on', name === 'people');
-  $('tabDuty').classList.toggle('on', name === 'duty');
-  $('peoplePane').classList.toggle('hidden', name !== 'people');
-  $('dutyPane').classList.toggle('hidden', name !== 'duty');
+// ---- 建議清單 ----
+function hideSug() { sugs = []; sugIdx = -1; $('sug').classList.add('hidden'); }
+function renderSug() {
+  const q = $('q').value.trim();
+  sugs = buildSuggestions(people, q); sugIdx = -1;
+  if (!sugs.length) { hideSug(); return; }
+  let h = '', lastType = '';
+  sugs.forEach(function (s, i) {
+    if (s.type !== lastType) { h += '<div class="sug-head">' + (s.type === 'person' ? '人員' : '快速篩選') + '</div>'; lastType = s.type; }
+    if (s.type === 'person') {
+      const sub = [s.p.rank, unitLabel(s.p.unit), s.p.yearClass].filter(Boolean).join(' · ');
+      h += '<div class="sug-item" data-s="' + i + '"><div class="avatar" style="width:38px;height:38px;border-radius:12px;font-size:17px;background:' + unitColor(s.p.unit) + '">' + esc(s.p.name.charAt(0)) +
+           '</div><div class="sug-main"><div class="sug-name">' + hl(s.p.name, q) + '</div><div class="sug-sub">' + esc(sub) + '</div></div></div>';
+    } else {
+      h += '<div class="sug-item" data-s="' + i + '"><div class="sug-main"><div class="sug-name">' + esc(s.label) + '</div><div class="sug-sub">' + s.n + ' 人</div></div><span class="sug-tag">篩選</span></div>';
+    }
+  });
+  $('sug').innerHTML = h; $('sug').classList.remove('hidden');
+}
+function pushRecent(i) {
+  let r = [];
+  try { r = JSON.parse(sessionStorage.getItem('recent') || '[]'); } catch (e) {}
+  r = [i].concat(r.filter(function (x) { return x !== i; })).slice(0, 8);
+  try { sessionStorage.setItem('recent', JSON.stringify(r)); } catch (e) {}
+}
+function pickPerson(p) {
+  pushRecent(p._i);
+  flt = { q: '', unit: '', year: '', month: '', day: '' };
+  flt.q = p.name; $('q').value = p.name; hideSug(); shown = PAGE;
+  setTab('search'); renderSearch();
+  $('q').blur();
+}
+function chooseSug(i) {
+  const s = sugs[i]; if (!s) return;
+  if (s.type === 'person') pickPerson(s.p);
+  else { hideSug(); $('q').blur(); applyTile(s.k, s.v); }
 }
 
+// ---- 動作 ----
 function copyToClipboard(text) {
-  if (navigator.clipboard && window.isSecureContext) {
-    return navigator.clipboard.writeText(text);
-  }
+  if (navigator.clipboard && window.isSecureContext) return navigator.clipboard.writeText(text);
   return new Promise(function (resolve, reject) {
     const ta = document.createElement('textarea');
-    ta.value = text;
-    ta.style.position = 'fixed';
-    ta.style.opacity = '0';
-    document.body.appendChild(ta);
-    ta.select();
+    ta.value = text; ta.style.position = 'fixed'; ta.style.opacity = '0';
+    document.body.appendChild(ta); ta.select();
     try { document.execCommand('copy') ? resolve() : reject(); } catch (e) { reject(e); }
     document.body.removeChild(ta);
   });
 }
-
 async function toggleId(btn) {
   const rowNo = Number(btn.getAttribute('data-row'));
   const span = $('id' + rowNo);
   const p = people.find(function (x) { return x.row === rowNo; });
   if (!p || !span) return;
-  if (idState[rowNo]) {
-    delete idState[rowNo];
-    span.textContent = p.idMask;
-    btn.textContent = '顯示';
-    return;
-  }
+  if (idState[rowNo]) { delete idState[rowNo]; span.textContent = p.idMask; btn.textContent = '顯示'; return; }
   btn.disabled = true;
   try {
     const r = await api({ action: 'reveal', token: token, row: rowNo });
     if (r.expired) { logoutLocal(r.msg); return; }
-    if (r.ok) {
-      idState[rowNo] = r.id;
-      span.textContent = r.id;
-      btn.textContent = '隱藏';
-    } else { toast(r.msg || '失敗'); }
+    if (r.ok) { idState[rowNo] = r.id; span.textContent = r.id; btn.textContent = '隱藏'; }
+    else toast(r.msg || '失敗');
   } catch (e) { toast('連線失敗'); }
   btn.disabled = false;
 }
 
-let timer = null;
+let qTimer = null;
 $('q').addEventListener('input', function () {
-  clearTimeout(timer);
-  timer = setTimeout(applyFilter, 150);
+  flt.q = $('q').value; shown = PAGE;
+  $('clearQ').classList.toggle('hidden', !$('q').value);
+  clearTimeout(qTimer);
+  qTimer = setTimeout(function () { renderSearch(); renderSug(); }, 90);
 });
-['fUnit', 'fYear', 'fMonth'].forEach(function (id) { $(id).addEventListener('change', applyFilter); });
-$('clearBtn').addEventListener('click', function () {
-  $('q').value = ''; $('fUnit').value = ''; $('fYear').value = ''; $('fMonth').value = '';
-  applyFilter();
-  $('q').focus();
+$('q').addEventListener('focus', function () { if ($('q').value.trim()) renderSug(); });
+$('q').addEventListener('keydown', function (e) {
+  if (e.key === 'ArrowDown' && sugs.length) { e.preventDefault(); sugIdx = (sugIdx + 1) % sugs.length; markSug(); }
+  else if (e.key === 'ArrowUp' && sugs.length) { e.preventDefault(); sugIdx = (sugIdx - 1 + sugs.length) % sugs.length; markSug(); }
+  else if (e.key === 'Enter') {
+    e.preventDefault();
+    if (sugIdx >= 0) chooseSug(sugIdx); else { hideSug(); $('q').blur(); }
+  } else if (e.key === 'Escape') hideSug();
 });
-$('moreBtn').addEventListener('click', function () { shown += PAGE; renderList(); });
-$('tabPeople').addEventListener('click', function () { setTab('people'); });
-$('tabDuty').addEventListener('click', function () { setTab('duty'); });
-$('reloadBtn').addEventListener('click', loadData);
-$('loginBtn').addEventListener('click', login);
-$('pw').addEventListener('keydown', function (e) { if (e.key === 'Enter') login(); });
+function markSug() {
+  document.querySelectorAll('.sug-item').forEach(function (el, i) { el.classList.toggle('on', i === sugIdx); });
+}
+$('sug').addEventListener('pointerdown', function (e) {
+  const el = e.target.closest('.sug-item'); if (!el) return;
+  e.preventDefault();
+  chooseSug(Number(el.getAttribute('data-s')));
+});
+document.addEventListener('pointerdown', function (e) {
+  if (!e.target.closest('.searchbox')) hideSug();
+});
+$('clearQ').addEventListener('click', function () { $('q').value = ''; flt.q = ''; hideSug(); renderSearch(); $('q').focus(); });
+$('resetBtn').addEventListener('click', function () {
+  flt = { q: '', unit: '', year: '', month: '', day: '' }; $('q').value = ''; hideSug(); renderSearch();
+});
+$('moreBtn').addEventListener('click', function () { shown += PAGE; renderResults(); });
+$('fchips').addEventListener('click', function (e) {
+  const b = e.target.closest('[data-act="rm"]'); if (!b) return;
+  const k = b.getAttribute('data-k');
+  flt[k] = ''; if (k === 'month') flt.day = '';
+  shown = PAGE; renderSearch();
+});
+document.querySelector('.nav').addEventListener('click', function (e) {
+  const b = e.target.closest('button[data-tab]'); if (b) setTab(b.getAttribute('data-tab'));
+});
+$('app').addEventListener('click', function (e) {
+  const el = e.target.closest('[data-act]'); if (!el) return;
+  const act = el.getAttribute('data-act');
+  if (act === 'toggle') {
+    const card = el.parentNode;
+    card.classList.toggle('open');
+    card.querySelector('.pdetail').classList.toggle('hidden');
+  } else if (act === 'id') toggleId(el);
+  else if (act === 'copy') {
+    const p = people[Number(el.getAttribute('data-i'))];
+    copyToClipboard(copyText(p, idState[p.row])).then(function () { toast('已複製'); }, function () { toast('複製失敗'); });
+  } else if (act === 'tile') {
+    let extra = null;
+    try { extra = JSON.parse(el.getAttribute('data-extra') || 'null'); } catch (x) {}
+    applyTile(el.getAttribute('data-k'), el.getAttribute('data-v'), extra);
+  } else if (act === 'pick') pickPerson(people[Number(el.getAttribute('data-i'))]);
+  else if (act === 'try') { $('q').value = el.getAttribute('data-t'); flt.q = $('q').value; shown = PAGE; renderSearch(); }
+});
+$('reloadBtn').addEventListener('click', function () { loadData().then(function () { toast('已更新'); }); });
 $('logoutBtn').addEventListener('click', async function () {
   try { await api({ action: 'logout', token: token }); } catch (e) {}
   logoutLocal('');
 });
-$('list').addEventListener('click', function (e) {
-  const el = e.target.closest('[data-act]');
-  if (!el) return;
-  const act = el.getAttribute('data-act');
-  if (act === 'toggle') {
-    el.parentNode.querySelector('.detail').classList.toggle('hidden');
-  } else if (act === 'id') {
-    toggleId(el);
-  } else if (act === 'copy') {
-    const p = people[Number(el.getAttribute('data-i'))];
-    copyToClipboard(copyText(p, idState[p.row])).then(function () { toast('已複製'); }, function () { toast('複製失敗'); });
-  }
-});
+$('loginBtn').addEventListener('click', login);
+$('pw').addEventListener('keydown', function (e) { if (e.key === 'Enter') login(); });
 
-if (token) loadData(); else showMain(false);
+if (DEMO) { $('loginMsg').className = 'login-msg info'; $('loginMsg').textContent = '預覽模式：任意密碼即可進入，資料皆為虛構'; }
+if (token) loadData(); else showApp(false);
 </script>
 </body>
 </html>
