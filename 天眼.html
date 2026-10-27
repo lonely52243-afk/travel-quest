@@ -5,32 +5,54 @@
 <meta name="viewport" content="width=device-width, initial-scale=1">
 <title>人員資料查詢</title>
 <style>
-  :root { --bg:#0f172a; --card:#1e293b; --line:#334155; --txt:#e2e8f0; --sub:#94a3b8; --acc:#38bdf8; --err:#f87171; }
-  * { box-sizing:border-box; }
+  :root { --bg:#0f172a; --card:#1e293b; --line:#334155; --txt:#e2e8f0; --sub:#94a3b8; --acc:#38bdf8; --err:#f87171; --ok:#4ade80; }
+  * { box-sizing:border-box; -webkit-tap-highlight-color:transparent; }
   body { margin:0; font-family:-apple-system,"Noto Sans TC","Microsoft JhengHei",sans-serif; background:var(--bg); color:var(--txt); }
-  .wrap { max-width:640px; margin:0 auto; padding:16px; }
-  h1 { font-size:20px; margin:8px 0 16px; }
-  .card { background:var(--card); border:1px solid var(--line); border-radius:12px; padding:14px; margin-bottom:12px; }
-  input[type=password], input[type=text] { width:100%; padding:12px; font-size:16px; border-radius:8px; border:1px solid var(--line); background:#0b1220; color:var(--txt); }
-  button { padding:12px 16px; font-size:16px; border:0; border-radius:8px; background:var(--acc); color:#04121c; font-weight:600; cursor:pointer; }
-  button.ghost { background:transparent; color:var(--sub); border:1px solid var(--line); padding:6px 10px; font-size:14px; }
+  .wrap { max-width:680px; margin:0 auto; padding:12px 14px 40px; }
+  .bar { display:flex; justify-content:space-between; align-items:center; margin:6px 0 12px; }
+  h1 { font-size:19px; margin:0; }
+  .card { background:var(--card); border:1px solid var(--line); border-radius:12px; padding:12px 14px; margin-bottom:10px; }
+  input[type=password], input[type=text], select { width:100%; padding:11px 12px; font-size:16px; border-radius:8px; border:1px solid var(--line); background:#0b1220; color:var(--txt); }
+  button, .btn { display:inline-block; padding:11px 16px; font-size:15px; border:0; border-radius:8px; background:var(--acc); color:#04121c; font-weight:600; cursor:pointer; text-decoration:none; text-align:center; }
+  button.ghost, .btn.ghost { background:transparent; color:var(--sub); border:1px solid var(--line); padding:7px 11px; font-size:14px; }
   button:disabled { opacity:.5; }
-  .row { display:flex; gap:8px; }
-  .row input { flex:1; }
   .msg { color:var(--err); min-height:20px; margin-top:8px; font-size:14px; }
-  .top { display:flex; justify-content:space-between; align-items:center; }
+  .tabs { display:flex; gap:8px; margin-bottom:10px; }
+  .tabs button { flex:1; background:transparent; color:var(--sub); border:1px solid var(--line); }
+  .tabs button.on { background:var(--acc); color:#04121c; border-color:var(--acc); }
+  .filters { display:grid; grid-template-columns:1fr 1fr 1fr; gap:8px; margin-top:8px; }
+  .filters select { padding:9px 8px; font-size:14px; }
+  .row { display:flex; gap:8px; align-items:center; }
+  .hint { color:var(--sub); font-size:13px; margin:8px 2px; }
+  .person { padding:0; overflow:hidden; }
+  .head { padding:12px 14px; cursor:pointer; }
   .name { font-size:18px; font-weight:700; }
-  .tag { color:var(--sub); font-size:14px; margin-left:6px; }
-  dl { margin:10px 0 0; display:grid; grid-template-columns:90px 1fr; gap:6px 10px; font-size:15px; }
+  .tag { color:var(--acc); font-size:14px; margin-left:8px; }
+  .sub { color:var(--sub); font-size:14px; margin-top:3px; }
+  .detail { padding:0 14px 14px; border-top:1px solid var(--line); }
+  dl { margin:10px 0 0; display:grid; grid-template-columns:78px 1fr; gap:7px 10px; font-size:15px; }
   dt { color:var(--sub); }
   dd { margin:0; word-break:break-all; }
-  .hint { color:var(--sub); font-size:13px; margin:4px 2px 12px; }
+  .btns { display:flex; gap:8px; margin-top:12px; flex-wrap:wrap; }
+  .btns .btn, .btns button { flex:1; min-width:90px; }
+  .duty { display:flex; justify-content:space-between; align-items:center; }
+  .duty .d { font-size:17px; font-weight:700; }
+  .duty .t { font-size:15px; }
+  .badge { font-size:12px; padding:2px 8px; border-radius:20px; background:var(--ok); color:#04210f; margin-left:8px; font-weight:700; }
+  .toast { position:fixed; left:50%; bottom:28px; transform:translateX(-50%); background:#0b1220; border:1px solid var(--line); padding:10px 18px; border-radius:20px; font-size:14px; opacity:0; transition:opacity .2s; pointer-events:none; }
+  .toast.on { opacity:1; }
   .hidden { display:none; }
 </style>
 </head>
 <body>
 <div class="wrap">
-  <h1>🔒 人員資料查詢</h1>
+  <div class="bar">
+    <h1>🔒 人員資料查詢</h1>
+    <div id="topBtns" class="row hidden">
+      <button class="ghost" id="reloadBtn">重新整理</button>
+      <button class="ghost" id="logoutBtn">登出</button>
+    </div>
+  </div>
 
   <!-- 登入 -->
   <div id="loginBox" class="card">
@@ -39,31 +61,195 @@
     <div id="loginMsg" class="msg"></div>
   </div>
 
-  <!-- 查詢 -->
+  <!-- 主畫面 -->
   <div id="mainBox" class="hidden">
-    <div class="top" style="margin-bottom:10px">
-      <span class="hint" style="margin:0">可輸入姓名、單位、專長代碼、電話、年班…</span>
-      <button class="ghost" id="logoutBtn">登出</button>
+    <div class="tabs">
+      <button id="tabPeople" class="on">👤 人員</button>
+      <button id="tabDuty">📅 留守</button>
     </div>
-    <div class="row">
-      <input id="q" type="text" placeholder="輸入關鍵字查詢">
-      <button id="searchBtn">查詢</button>
+
+    <div id="peoplePane">
+      <div class="card">
+        <input id="q" type="text" placeholder="輸入姓名、專長、電話…（空白分隔可同時比對）" autocomplete="off">
+        <div class="filters">
+          <select id="fUnit"></select>
+          <select id="fYear"></select>
+          <select id="fMonth"></select>
+        </div>
+        <div class="row" style="margin-top:8px; justify-content:space-between">
+          <span id="info" class="hint" style="margin:0"></span>
+          <button class="ghost" id="clearBtn">清除條件</button>
+        </div>
+      </div>
+      <div id="list"></div>
+      <div id="more" class="hidden" style="text-align:center"><button class="ghost" id="moreBtn">顯示更多</button></div>
     </div>
-    <div id="info" class="hint"></div>
-    <div id="result"></div>
+
+    <div id="dutyPane" class="hidden">
+      <div id="dutyList"></div>
+    </div>
   </div>
 </div>
+<div id="toast" class="toast"></div>
 
 <script>
 // ★ 部署 Apps Script 後，把網頁應用程式網址貼在這裡
 const API_URL = '請貼上Apps Script網頁應用程式網址';
 
+// ==PURE-START== （純邏輯，不碰畫面）
+const UNITS = [
+  { name: '廠辦/生品', children: [] },
+  { name: '航儀課', children: ['通導', '感測', '儀電'] },
+  { name: '武系課', children: ['快砲', '飛彈', '軍械'] },
+  { name: '空電課', children: ['顯控', '火控', '主件'] }
+];
+const FACTORY_UNITS = ['廠辦', '生品', '廠辦/生品'];
+
+function pad2(n) { n = String(n || ''); return n.length === 1 ? '0' + n : n; }
+
+function unitLabel(u) {
+  if (!u) return '';
+  if (FACTORY_UNITS.indexOf(u) !== -1) return u;
+  for (let i = 0; i < UNITS.length; i++) {
+    if (UNITS[i].name === u) return u;
+    if (UNITS[i].children.indexOf(u) !== -1) return UNITS[i].name + ' / ' + u;
+  }
+  return u;
+}
+
+function yearNum(yc) {
+  const m = String(yc || '').match(/^(\d+)/);
+  return m ? m[1] : '';
+}
+
+function rocYear(y) {
+  const n = parseInt(y, 10);
+  return isNaN(n) ? '' : String(n - 1911);
+}
+
+function zodiac(month, day) {
+  const m = parseInt(month, 10), d = parseInt(day, 10);
+  if (isNaN(m) || isNaN(d) || m < 1 || m > 12 || d < 1 || d > 31) return null;
+  const signs = [
+    ['♑️ 摩羯座', 1, 19], ['♒️ 水瓶座', 2, 18], ['♓️ 雙魚座', 3, 20], ['♈️ 牡羊座', 4, 19],
+    ['♉️ 金牛座', 5, 20], ['♊️ 雙子座', 6, 21], ['♋️ 巨蟹座', 7, 22], ['♌️ 獅子座', 8, 22],
+    ['♍️ 處女座', 9, 22], ['♎️ 天秤座', 10, 23], ['♏️ 天蠍座', 11, 22], ['♐️ 射手座', 12, 21]
+  ];
+  for (let i = 0; i < signs.length; i++) {
+    if (m < signs[i][1] || (m === signs[i][1] && d <= signs[i][2])) return signs[i][0];
+  }
+  return signs[0][0];
+}
+
+function matchUnit(p, sel) {
+  if (!sel) return true;
+  if (sel.indexOf('g:') === 0) {
+    const gname = sel.slice(2);
+    for (let i = 0; i < UNITS.length; i++) {
+      if (UNITS[i].name !== gname) continue;
+      if (gname === '廠辦/生品') return FACTORY_UNITS.indexOf(p.unit) !== -1;
+      return p.unit === gname || UNITS[i].children.indexOf(p.unit) !== -1;
+    }
+    return false;
+  }
+  if (sel.indexOf('u:') === 0) return p.unit === sel.slice(2);
+  return true;
+}
+
+function filterPeople(list, f) {
+  const terms = String(f.q || '').toLowerCase().split(/\s+/).filter(Boolean);
+  const out = [];
+  for (let i = 0; i < list.length; i++) {
+    const p = list[i];
+    if (!matchUnit(p, f.unit)) continue;
+    if (f.year && yearNum(p.yearClass) !== f.year) continue;
+    if (f.month && Number(p.birthM) !== Number(f.month)) continue;
+    if (terms.length) {
+      const hay = [p.name, p.unit, p.skill, p.rank, p.yearClass, p.phone, p.blood].join(' ').toLowerCase();
+      let ok = true;
+      for (let t = 0; t < terms.length; t++) if (hay.indexOf(terms[t]) === -1) { ok = false; break; }
+      if (!ok) continue;
+    }
+    out.push(p);
+  }
+  if (f.month) out.sort(function (a, b) { return Number(a.birthD) - Number(b.birthD); });
+  return out;
+}
+
+function allYears(list) {
+  const set = {}, r = [];
+  for (let i = 0; i < list.length; i++) {
+    const y = yearNum(list[i].yearClass);
+    if (y && !set[y]) { set[y] = 1; r.push(y); }
+  }
+  r.sort(function (a, b) { return Number(a) - Number(b); });
+  return r;
+}
+
+function firstPhone(raw) {
+  const v = String(raw || '').trim();
+  if (!v) return '';
+  const parts = v.split(/[,，\/、;；]+/);
+  return (parts[0] || '').trim() || v;
+}
+function dialPhone(raw) {
+  const p = firstPhone(raw);
+  return p ? p.replace(/[^\d+]/g, '') : '';
+}
+
+function birthText(p) {
+  if (!p.birthY && !p.birthM && !p.birthD) return '';
+  const base = p.birthY ? (p.birthY + '-' + pad2(p.birthM) + '-' + pad2(p.birthD)) : (p.birthM + '月' + p.birthD + '日');
+  const roc = p.birthRY || rocYear(p.birthY);
+  return base + (roc ? '（民國 ' + roc + ' 年）' : '');
+}
+function joinText(p) {
+  if (!p.joinY && !p.joinM && !p.joinD) return '';
+  const base = p.joinY ? (p.joinY + '-' + pad2(p.joinM) + '-' + pad2(p.joinD)) : (p.joinM + '月' + p.joinD + '日');
+  const roc = p.joinRY || rocYear(p.joinY);
+  return base + (roc ? '（民國 ' + roc + ' 年）' : '');
+}
+
+function copyText(p, realId) {
+  const L = ['👤 ' + p.name];
+  if (p.rank) L.push(p.rank);
+  if (realId) L.push('ID：' + realId);
+  const ul = unitLabel(p.unit);
+  if (ul) L.push('單位：' + ul);
+  if (p.skill) L.push('專長：' + p.skill);
+  if (p.yearClass) L.push('年班：' + p.yearClass);
+  const b = birthText(p);
+  if (b) {
+    L.push('生日：' + b);
+    const z = zodiac(p.birthM, p.birthD);
+    if (z) L.push(z);
+  }
+  if (p.blood) L.push('血型：' + p.blood);
+  const ph = firstPhone(p.phone);
+  if (ph) L.push('電話：' + ph);
+  const j = joinText(p);
+  if (j) L.push('入伍：' + j);
+  return L.join('\n');
+}
+
+function dutyIcons(d) {
+  const a = [];
+  if (d.duty) a.push('🛡️ 留守');
+  if (d.monitor) a.push('👁️ 監控');
+  if (d.captain) a.push('🚗 車長');
+  return a.join('　');
+}
+// ==PURE-END==
+
 const $ = id => document.getElementById(id);
+const PAGE = 60;
 let token = sessionStorage.getItem('tk') || '';
+let people = [], duty = [], view = [], shown = PAGE;
+const idState = {};   // row -> 已顯示的完整身分證
 
 function esc(s) {
   return String(s == null ? '' : s).replace(/[&<>"']/g, c =>
-    ({ '&':'&amp;', '<':'&lt;', '>':'&gt;', '"':'&quot;', "'":'&#39;' }[c]));
+    ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;' }[c]));
 }
 
 async function api(body) {
@@ -75,17 +261,27 @@ async function api(body) {
   return res.json();
 }
 
+function toast(t) {
+  const el = $('toast');
+  el.textContent = t;
+  el.classList.add('on');
+  setTimeout(function () { el.classList.remove('on'); }, 1600);
+}
+
 function showMain(on) {
   $('loginBox').classList.toggle('hidden', on);
   $('mainBox').classList.toggle('hidden', !on);
-  if (on) $('q').focus(); else $('pw').focus();
+  $('topBtns').classList.toggle('hidden', !on);
+  if (!on) $('pw').focus();
 }
 
 function logoutLocal(msg) {
   token = '';
   sessionStorage.removeItem('tk');
-  $('result').innerHTML = '';
-  $('info').textContent = '';
+  people = []; duty = []; view = [];
+  for (const k in idState) delete idState[k];
+  $('list').innerHTML = '';
+  $('dutyList').innerHTML = '';
   $('loginMsg').textContent = msg || '';
   showMain(false);
 }
@@ -102,7 +298,7 @@ async function login() {
       sessionStorage.setItem('tk', token);
       $('pw').value = '';
       $('loginMsg').textContent = '';
-      showMain(true);
+      await loadData();
     } else {
       $('loginMsg').textContent = r.msg || '登入失敗';
     }
@@ -112,76 +308,197 @@ async function login() {
   $('loginBtn').disabled = false;
 }
 
-function dateText(minguo, month, day, west) {
-  if (!minguo && !month && !day) return '';
-  return '民國 ' + esc(minguo) + ' 年 ' + esc(month) + ' 月 ' + esc(day) + ' 日' +
-         (west ? '（西元 ' + esc(west) + '）' : '');
-}
-
-function card(r) {
-  return '<div class="card">' +
-    '<div><span class="name">' + esc(r['姓名']) + '</span>' +
-    '<span class="tag">' + esc(r['階級職稱']) + '</span></div>' +
-    '<dl>' +
-      '<dt>單位</dt><dd>' + esc(r['單位']) + '</dd>' +
-      '<dt>專長代碼</dt><dd>' + esc(r['專長代碼']) + '</dd>' +
-      '<dt>年班</dt><dd>' + esc(r['年班']) + '</dd>' +
-      '<dt>身份證字號</dt><dd><span id="id' + r._row + '">' + esc(r['身份證字號']) + '</span> ' +
-        '<button class="ghost" data-row="' + r._row + '">顯示</button></dd>' +
-      '<dt>入伍日期</dt><dd>' + dateText(r['入伍民國年'], r['入伍月'], r['入伍日'], r['入伍西元年']) + '</dd>' +
-      '<dt>出生日期</dt><dd>' + dateText(r['出生民國年'], r['出生月'], r['出生日'], r['出生西元年']) + '</dd>' +
-      '<dt>血型</dt><dd>' + esc(r['血型']) + '</dd>' +
-      '<dt>電話</dt><dd>' + esc(r['電話']) + '</dd>' +
-    '</dl></div>';
-}
-
-async function search() {
-  const q = $('q').value.trim();
-  if (!q) { $('info').textContent = '請輸入關鍵字'; return; }
-  $('searchBtn').disabled = true;
-  $('info').textContent = '查詢中…';
+async function loadData() {
+  $('info').textContent = '載入中…';
+  showMain(true);
   try {
-    const r = await api({ action: 'search', token: token, q: q });
+    const r = await api({ action: 'load', token: token });
     if (r.expired) { logoutLocal(r.msg); return; }
-    if (!r.ok) { $('info').textContent = r.msg || '查詢失敗'; }
-    else {
-      $('info').textContent = r.total === 0 ? '查無資料' :
-        '共 ' + r.total + ' 筆' + (r.total > r.rows.length ? '（僅顯示前 ' + r.rows.length + ' 筆，請縮小範圍）' : '');
-      $('result').innerHTML = r.rows.map(card).join('');
-    }
+    if (!r.ok) { $('info').textContent = r.msg || '載入失敗'; return; }
+    people = r.people.map(function (p, i) { p._i = i; return p; });
+    duty = r.duty || [];
+    buildFilters();
+    renderDuty();
+    applyFilter();
+    $('q').focus();
   } catch (e) {
-    $('info').textContent = '連線失敗';
+    $('info').textContent = '連線失敗，請按「重新整理」';
   }
-  $('searchBtn').disabled = false;
 }
 
-async function reveal(btn) {
-  const row = btn.getAttribute('data-row');
+function buildFilters() {
+  const curU = $('fUnit').value, curY = $('fYear').value, curM = $('fMonth').value;
+  let h = '<option value="">全部單位</option>';
+  for (let i = 0; i < UNITS.length; i++) {
+    const g = UNITS[i];
+    if (g.children.length === 0) { h += '<option value="g:' + esc(g.name) + '">' + esc(g.name) + '</option>'; continue; }
+    h += '<optgroup label="' + esc(g.name) + '"><option value="g:' + esc(g.name) + '">' + esc(g.name) + '（整課）</option>';
+    for (let j = 0; j < g.children.length; j++) h += '<option value="u:' + esc(g.children[j]) + '">' + esc(g.children[j]) + '</option>';
+    h += '</optgroup>';
+  }
+  $('fUnit').innerHTML = h;
+  let y = '<option value="">全部年班</option>';
+  allYears(people).forEach(function (v) { y += '<option value="' + esc(v) + '">' + esc(v) + ' 年班</option>'; });
+  $('fYear').innerHTML = y;
+  let m = '<option value="">生日月份</option>';
+  for (let i = 1; i <= 12; i++) m += '<option value="' + i + '">' + i + ' 月生日</option>';
+  $('fMonth').innerHTML = m;
+  $('fUnit').value = curU; $('fYear').value = curY; $('fMonth').value = curM;
+}
+
+function currentFilter() {
+  return { q: $('q').value, unit: $('fUnit').value, year: $('fYear').value, month: $('fMonth').value };
+}
+
+function applyFilter() {
+  const f = currentFilter();
+  view = filterPeople(people, f);
+  shown = PAGE;
+  const active = f.q.trim() || f.unit || f.year || f.month;
+  $('info').textContent = (active ? '找到 ' : '共 ') + view.length + ' 人';
+  renderList();
+}
+
+function row(label, value) {
+  return value ? '<dt>' + label + '</dt><dd>' + esc(value) + '</dd>' : '';
+}
+
+function personHtml(p, open) {
+  const ul = unitLabel(p.unit);
+  const subs = [ul, p.skill, p.yearClass].filter(Boolean).join(' · ');
+  const real = idState[p.row];
+  const idShown = real || p.idMask;
+  const ph = firstPhone(p.phone), dial = dialPhone(p.phone);
+  const z = zodiac(p.birthM, p.birthD);
+  let d = '<dl>';
+  d += row('單位', ul);
+  d += row('專長', p.skill);
+  d += row('年班', p.yearClass);
+  if (p.idMask) {
+    d += '<dt>身分證</dt><dd><span id="id' + p.row + '">' + esc(idShown) + '</span> ' +
+         '<button class="ghost" data-act="id" data-row="' + p.row + '">' + (real ? '隱藏' : '顯示') + '</button></dd>';
+  }
+  d += row('生日', birthText(p) + (z ? '　' + z : ''));
+  d += row('血型', p.blood);
+  d += row('電話', ph);
+  d += row('入伍', joinText(p));
+  d += '</dl>';
+  d += '<div class="btns">' +
+       (dial ? '<a class="btn" href="tel:' + esc(dial) + '">📞 撥打</a>' : '') +
+       '<button data-act="copy" data-i="' + p._i + '">📋 複製</button></div>';
+  return '<div class="card person" data-i="' + p._i + '">' +
+    '<div class="head" data-act="toggle"><div><span class="name">' + esc(p.name) + '</span>' +
+    (p.rank ? '<span class="tag">' + esc(p.rank) + '</span>' : '') + '</div>' +
+    (subs ? '<div class="sub">' + esc(subs) + '</div>' : '') + '</div>' +
+    '<div class="detail' + (open ? '' : ' hidden') + '">' + d + '</div></div>';
+}
+
+function renderList() {
+  const open = view.length === 1;
+  $('list').innerHTML = view.slice(0, shown).map(function (p) { return personHtml(p, open); }).join('') ||
+    '<div class="hint" style="text-align:center">查無資料</div>';
+  $('more').classList.toggle('hidden', view.length <= shown);
+}
+
+function renderDuty() {
+  if (!duty.length) { $('dutyList').innerHTML = '<div class="hint" style="text-align:center">目前沒有未來的留守資料</div>'; return; }
+  const wk = ['日', '一', '二', '三', '四', '五', '六'];
+  const now = new Date();
+  const t0 = now.getFullYear() + '-' + pad2(now.getMonth() + 1) + '-' + pad2(now.getDate());
+  const nx = new Date(now.getTime() + 86400000);
+  const t1 = nx.getFullYear() + '-' + pad2(nx.getMonth() + 1) + '-' + pad2(nx.getDate());
+  $('dutyList').innerHTML = duty.map(function (d) {
+    const p = d.date.split('-');
+    const w = wk[new Date(Number(p[0]), Number(p[1]) - 1, Number(p[2])).getDay()];
+    const badge = d.date === t0 ? '<span class="badge">今天</span>' : (d.date === t1 ? '<span class="badge">明天</span>' : '');
+    return '<div class="card duty"><div class="d">' + p[1] + '-' + p[2] + '（' + w + '）' + badge +
+           '</div><div class="t">' + esc(dutyIcons(d)) + '</div></div>';
+  }).join('');
+}
+
+function setTab(name) {
+  $('tabPeople').classList.toggle('on', name === 'people');
+  $('tabDuty').classList.toggle('on', name === 'duty');
+  $('peoplePane').classList.toggle('hidden', name !== 'people');
+  $('dutyPane').classList.toggle('hidden', name !== 'duty');
+}
+
+function copyToClipboard(text) {
+  if (navigator.clipboard && window.isSecureContext) {
+    return navigator.clipboard.writeText(text);
+  }
+  return new Promise(function (resolve, reject) {
+    const ta = document.createElement('textarea');
+    ta.value = text;
+    ta.style.position = 'fixed';
+    ta.style.opacity = '0';
+    document.body.appendChild(ta);
+    ta.select();
+    try { document.execCommand('copy') ? resolve() : reject(); } catch (e) { reject(e); }
+    document.body.removeChild(ta);
+  });
+}
+
+async function toggleId(btn) {
+  const rowNo = Number(btn.getAttribute('data-row'));
+  const span = $('id' + rowNo);
+  const p = people.find(function (x) { return x.row === rowNo; });
+  if (!p || !span) return;
+  if (idState[rowNo]) {
+    delete idState[rowNo];
+    span.textContent = p.idMask;
+    btn.textContent = '顯示';
+    return;
+  }
   btn.disabled = true;
   try {
-    const r = await api({ action: 'reveal', token: token, row: Number(row) });
+    const r = await api({ action: 'reveal', token: token, row: rowNo });
     if (r.expired) { logoutLocal(r.msg); return; }
     if (r.ok) {
-      $('id' + row).textContent = r.id;
-      btn.remove();
-    } else { btn.disabled = false; }
-  } catch (e) { btn.disabled = false; }
+      idState[rowNo] = r.id;
+      span.textContent = r.id;
+      btn.textContent = '隱藏';
+    } else { toast(r.msg || '失敗'); }
+  } catch (e) { toast('連線失敗'); }
+  btn.disabled = false;
 }
 
-$('loginBtn').addEventListener('click', login);
-$('pw').addEventListener('keydown', e => { if (e.key === 'Enter') login(); });
-$('searchBtn').addEventListener('click', search);
-$('q').addEventListener('keydown', e => { if (e.key === 'Enter') search(); });
-$('result').addEventListener('click', e => {
-  const b = e.target.closest('button[data-row]');
-  if (b) reveal(b);
+let timer = null;
+$('q').addEventListener('input', function () {
+  clearTimeout(timer);
+  timer = setTimeout(applyFilter, 150);
 });
-$('logoutBtn').addEventListener('click', async () => {
+['fUnit', 'fYear', 'fMonth'].forEach(function (id) { $(id).addEventListener('change', applyFilter); });
+$('clearBtn').addEventListener('click', function () {
+  $('q').value = ''; $('fUnit').value = ''; $('fYear').value = ''; $('fMonth').value = '';
+  applyFilter();
+  $('q').focus();
+});
+$('moreBtn').addEventListener('click', function () { shown += PAGE; renderList(); });
+$('tabPeople').addEventListener('click', function () { setTab('people'); });
+$('tabDuty').addEventListener('click', function () { setTab('duty'); });
+$('reloadBtn').addEventListener('click', loadData);
+$('loginBtn').addEventListener('click', login);
+$('pw').addEventListener('keydown', function (e) { if (e.key === 'Enter') login(); });
+$('logoutBtn').addEventListener('click', async function () {
   try { await api({ action: 'logout', token: token }); } catch (e) {}
   logoutLocal('');
 });
+$('list').addEventListener('click', function (e) {
+  const el = e.target.closest('[data-act]');
+  if (!el) return;
+  const act = el.getAttribute('data-act');
+  if (act === 'toggle') {
+    el.parentNode.querySelector('.detail').classList.toggle('hidden');
+  } else if (act === 'id') {
+    toggleId(el);
+  } else if (act === 'copy') {
+    const p = people[Number(el.getAttribute('data-i'))];
+    copyToClipboard(copyText(p, idState[p.row])).then(function () { toast('已複製'); }, function () { toast('複製失敗'); });
+  }
+});
 
-showMain(!!token);
+if (token) loadData(); else showMain(false);
 </script>
 </body>
 </html>
