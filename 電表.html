@@ -466,6 +466,36 @@ h1,h2{margin:0;font-weight:800;letter-spacing:.02em}
   .hero h1{font-size:21px}
 }
 @media (prefers-reduced-motion:reduce){*,*::before{animation:none !important;transition:none !important}}
+
+/* ---------- v14.1：分析頁選電表、熱度表 ---------- */
+.mpick{display:grid;grid-template-columns:repeat(4,minmax(0,1fr));gap:6px;margin-bottom:12px}
+.mp{display:flex;flex-direction:column;align-items:center;gap:1px;padding:8px 4px 6px;border:1px solid var(--line);background:var(--card);border-radius:14px;min-width:0}
+.mp img{width:28px;height:28px;object-fit:contain}
+.mp b{font-size:14px;white-space:nowrap}
+.mp em{font-style:normal;font-family:var(--num);font-size:13px;color:var(--ink-3);line-height:1}
+.mp.on{background:var(--ink);border-color:var(--ink);color:#fff}
+.mp.on em{color:#b7c4cf}
+.pg-h.sub{margin-top:26px}
+.pg-h.sub h1{font-size:21px}
+.cc-n em{font-style:normal;font-family:var(--num);font-weight:500;color:var(--ink-3);margin-left:3px}
+.cc{grid-template-columns:70px minmax(0,1fr) 72px 48px}
+.hb-r.sel{background:var(--blue-wash)}
+.tb.heat{width:100%;table-layout:fixed}
+.tb.heat th:first-child,.tb.heat td:first-child{width:74px}
+.tb.heat td.hc{text-align:center;cursor:pointer;border:2px solid var(--card);border-radius:6px;font-size:14.5px;padding:8px 0}
+.tb.heat th{padding:6px 0}
+.tb.heat th{text-align:center}
+.tb.heat th:first-child{text-align:left}
+.tb td small.up{color:var(--rbf)}
+.tb td small.down{color:#0a7d0a}
+#yearTb .tb td small{display:block;margin:0;font-family:var(--num);font-size:11.5px;line-height:1}
+@media (min-width:760px){.mpick{grid-template-columns:repeat(8,minmax(0,1fr))}}
+
+/* ---------- 署名 ---------- */
+.sig{display:flex;flex-direction:column;align-items:center;gap:6px;margin:34px auto 6px;color:var(--ink-3)}
+.sig i{width:28px;height:3px;border-radius:2px;background:var(--rbf)}
+.sig span{font-size:11px;letter-spacing:.42em;padding-left:.42em}
+.sig b{font-size:17px;font-weight:700;letter-spacing:.5em;padding-left:.5em;color:var(--ink-2)}
 </style>
 </head>
 <body>
@@ -499,41 +529,44 @@ h1,h2{margin:0;font-weight:800;letter-spacing:.02em}
 
     <!-- 分析 -->
     <section class="pg" id="pg-ana">
-      <div class="pg-h"><h1>用電分析</h1><p>用每天回報的讀數推算。看到數字都可以點開，看它怎麼算出來的。</p></div>
+      <div class="pg-h"><h1>用電分析</h1><p>先選一台看它自己的變化，下面再把 8 台放在一起比。數字都可以點開看算法。</p></div>
+      <div class="mpick" id="anaPick"></div>
       <div class="kpi" id="kpi"></div>
       <div class="cards">
         <article class="card">
-          <div class="ct"><h2>每日總用電</h2><div class="seg" id="dailySeg"><button type="button" data-d="30" class="on">30 天</button><button type="button" data-d="90">90 天</button></div></div>
+          <div class="ct"><h2 id="dailyTitle">每日用電</h2><div class="seg" id="dailySeg"><button type="button" data-d="30" class="on">30 天</button><button type="button" data-d="90">90 天</button></div></div>
           <p class="note" id="dailyNote"></p>
-          <div class="lg"><span><i class="sw bar"></i>每天</span><span><i class="sw ln"></i>7 天平均</span><span><i class="sw bar lt"></i>還有電表沒回報</span></div>
+          <div class="lg"><span><i class="sw bar"></i>每天</span><span><i class="sw bar lt"></i>漏報平均分攤</span><span><i class="sw ln"></i>7 天平均</span></div>
           <div class="chart" id="chDaily"></div>
         </article>
         <article class="card">
-          <div class="ct"><h2>月份比較</h2></div>
+          <div class="ct"><h2 id="monthTitle">月份比較</h2></div>
           <p class="note" id="monthNote"></p>
           <div class="lg"><span><i class="sw bar"></i>每月</span><span><i class="sw bar lt"></i>本月（還沒結束）</span><span id="monthLegend" hidden><i class="sw ln dash"></i>去年同月</span></div>
           <div class="chart" id="chMonth"></div>
         </article>
+      </div>
+      <div class="pg-h sub"><h1>8 台互相比較</h1></div>
+      <div class="cards">
         <article class="card">
           <div class="ct"><h2>本月 vs 上月同期</h2></div>
-          <p class="note" id="catNote"></p>
+          <p class="note" id="cmpNote"></p>
           <div class="lg"><span><i class="sw bar gr"></i>上月</span><span><i class="sw bar"></i>本月</span></div>
-          <div id="catCmp"></div>
+          <div id="cmp"></div>
         </article>
         <article class="card">
-          <div class="ct"><h2>各電表用電</h2><div class="seg" id="rankSeg"><button type="button" data-r="cur" class="on">本月</button><button type="button" data-r="prev">上月</button><button type="button" data-r="d30">近 30 天</button></div></div>
+          <div class="ct"><h2>誰用最多</h2><div class="seg" id="rankSeg"><button type="button" data-r="cur" class="on">本月</button><button type="button" data-r="prev">上月</button><button type="button" data-r="d30">近 30 天</button></div></div>
           <p class="note" id="rankNote"></p>
           <div id="rank"></div>
         </article>
-        <article class="card">
+        <article class="card wide">
           <div class="ct"><h2>星期幾用最多</h2></div>
           <p class="note" id="wdNote"></p>
-          <div class="lg"><span><i class="sw bar"></i>平日</span><span><i class="sw bar lt"></i>週末</span></div>
-          <div class="chart" id="chWd"></div>
+          <div class="tb-wrap" id="wdHeat"></div>
         </article>
-        <article class="card">
+        <article class="card wide">
           <div class="ct"><h2>月報表</h2><div class="seg" id="yearSel"></div></div>
-          <p class="note">各類電表每個月用了幾度。點一列看明細。</p>
+          <p class="note">每台每個月用了幾度，小字是比去年同月。點格子看明細。</p>
           <div class="tb-wrap" id="yearTb"></div>
         </article>
         <article class="card wide" id="qSec">
@@ -543,7 +576,7 @@ h1,h2{margin:0;font-weight:800;letter-spacing:.02em}
           <div class="q-bar"><div class="seg" id="qMode"><button type="button" data-qm="read" class="on">讀數</button><button type="button" data-qm="use">用電量</button></div></div>
           <p class="note" id="qNote"></p>
           <div class="tb-wrap q" id="qTable"></div>
-          <div class="q-acts"><button type="button" class="btn pri" id="qImg">匯出圖片</button><button type="button" class="btn" id="qCsv">匯出 CSV 表格</button></div>
+          <button type="button" class="btn pri wide" id="qImg">匯出圖片</button>
         </article>
       </div>
     </section>
@@ -580,6 +613,7 @@ h1,h2{margin:0;font-weight:800;letter-spacing:.02em}
         </div>
       </article>
       <div class="about"><img id="aboutIc" alt=""><div><b>電表機房</b><span id="aboutData"></span></div></div>
+      <div class="sig" aria-label="設計製作：吱吱"><i></i><span>設計・製作</span><b>吱吱</b></div>
     </section>
   </main>
 
@@ -1403,180 +1437,232 @@ window.addEventListener("resize", () => {
 });
 
 /* ============================================================
-   7. 用電分析頁
+   7. 用電分析頁：上半「單台電表」，下半「8 台互相比較」
    ============================================================ */
 let _anaDirty = true, _dRange = 30, _rankMode = "cur", _yearSel = null;
+const ANA_M_KEY = "meter_ana_meter";
+let _anaM = (() => { try{ const v = localStorage.getItem(ANA_M_KEY); return METERS.indexOf(v) >= 0 ? v : METERS[0]; }catch(e){ return METERS[0]; } })();
 const DIST_NOTE = "漏報的日子，會把下一次回報的增量平均分到中間每一天。";
+const mName = m => short(m) + " " + code(m);
+/* 去年同月要「整個月大部分都有資料」才拿來比，避免資料剛開始的那個月比出好幾倍 */
+function fullMonthVal(m, ym){
+  const d = getDaily(m); let n = 0;
+  for(let i = 0; i < data.length; i++) if(ymOf(data[i]["日期"]) === ym && d[i] != null) n++;
+  return n >= daysInYm(ym) * .8 ? meterMonth(m, ym) : null;
+}
 function renderAnalysis(){
   if(!_anaDirty || !data.length) return;
   _anaDirty = false;
-  renderKpi(); renderDailyChart(); renderMonthChart(); renderCatCompare(); renderRank(); renderWeekday(); renderYearTable(); initQuery();
+  renderPicker(); renderSingle();
+  renderCompare(); renderRank(); renderWdHeat(); renderYearTable(); initQuery();
 }
-/* ---------- 重點數字 ---------- */
-function kpiData(){
-  return memo("kpi", () => {
-    const ym = curYm(), dom = curDayOfMonth(), pym = ymShift(ym, -1);
-    const cur = monthTotal(ym), lastSame = monthTotal(pym, dom), lastFull = monthTotal(pym);
-    const full = [], part = [];
-    for(let i = 0; i < data.length; i++) if(ymOf(data[i]["日期"]) === ym){ if(dayComplete(i)) full.push(i); else if(dayTotal(i) != null) part.push(i); }
-    const days = full.length, dAvg = days ? full.reduce((t, i) => t + dayTotal(i), 0) / days : null;
-    let best = null; full.forEach(i => { const v = dayTotal(i); if(!best || v > best.v) best = {i, v}; });
-    return {ym, pym, dom, cur, lastSame, lastFull, days, part, dAvg, proj: dAvg != null ? dAvg * daysInYm(ym) : null, best};
+function renderSingle(){ renderKpi(); renderDailyChart(); renderMonthChart(); }
+/* ---------- 選電表 ---------- */
+function renderPicker(){
+  $("#anaPick").innerHTML = METERS.map(m => '<button type="button" class="mp' + (m === _anaM ? " on" : "") + '" data-am="' + m + '"><img alt="" src="' + eqImg(m) + '"><b>' + short(m) + '</b><em>' + code(m) + '</em></button>').join("");
+}
+function setAnaMeter(m){
+  _anaM = m; try{ localStorage.setItem(ANA_M_KEY, m); }catch(e){}
+  renderPicker(); renderSingle();
+}
+/* ---------- 單台：重點數字 ---------- */
+function meterKpi(m){
+  return memo("mk" + m, () => {
+    const ym = curYm(), dom = curDayOfMonth(), pym = ymShift(ym, -1), d = getDaily(m), f = dailyFlag(m);
+    const cur = meterMonth(m, ym), lastSame = meterMonth(m, pym, dom), lastFull = meterMonth(m, pym);
+    const days = [];
+    for(let i = 0; i < data.length; i++) if(ymOf(data[i]["日期"]) === ym && d[i] != null) days.push(i);
+    const dAvg = days.length ? cur / days.length : null;
+    let best = null; days.forEach(i => { if(!f[i] && (!best || d[i] > best.v)) best = {i, v:d[i]}; });
+    const tot = KWH_METERS().reduce((t, x) => t + (meterMonth(x, ym) || 0), 0);
+    return {m, ym, pym, dom, cur, lastSame, lastFull, days:days.length, dAvg, proj: dAvg != null ? dAvg * daysInYm(ym) : null, best, share: tot && cur != null ? cur / tot * 100 : null};
   });
 }
 function renderKpi(){
-  const k = kpiData(), ch = k.cur != null && k.lastSame ? (k.cur - k.lastSame) / k.lastSame * 100 : null;
+  const k = meterKpi(_anaM), ch = k.cur != null && k.lastSame ? (k.cur - k.lastSame) / k.lastSame * 100 : null;
   const tile = (lbl, v, u, sub, ex, cls) => '<button type="button" class="kp" data-ex="' + ex + '"><span class="kp-k">' + lbl + '</span><span class="kp-v">' + v + '<small>' + u + '</small></span><span class="kp-s' + (cls ? " " + cls : "") + '">' + sub + '</span></button>';
   $("#kpi").innerHTML =
-    tile(ymLabel(k.ym) + "用電", nk(k.cur), "度", ch == null ? "上個月沒有資料可比" : "比上月同期 " + pct(ch), "kMonth", ch > 10 ? "up" : ch < -10 ? "down" : "") +
-    tile("平均每天", nk(k.dAvg), "度", k.days ? "本月 " + k.days + " 天的平均" + (k.part.length ? "（沒報齊的日子不算）" : "") : "資料還不夠", "kAvg") +
+    tile(short(_anaM) + " " + ymLabel(k.ym) + "用電", nk(k.cur), "度", ch == null ? "上個月沒有資料可比" : "比上月同期 " + pct(ch), "kMonth", ch > 10 ? "up" : ch < -10 ? "down" : "") +
+    tile("平均每天", k.dAvg != null ? n1(k.dAvg) : "—", "度", k.days ? "本月 " + k.days + " 天的平均" : "資料還不夠", "kAvg") +
     tile("預估整月", nk(k.proj), "度", k.lastFull ? "上個月整月 " + nk(k.lastFull) + " 度" : "照目前的速度推算", "kProj") +
-    tile("最高的一天", k.best ? nk(k.best.v) : "—", "度", k.best ? md(data[k.best.i]["日期"]) + "（" + WD[wdOf(data[k.best.i]["日期"])] + "）" : "—", "kBest");
-}
-function monthRows(ym, uptoDay){
-  return KWH_METERS().map(m => [short(m) + " " + code(m), meterMonth(m, ym, uptoDay)]).sort((a, b) => (b[1] || 0) - (a[1] || 0)).map(r => [r[0], r[1] == null ? "沒有資料" : n1(r[1]) + " 度", r[1] == null ? "muted" : ""]);
+    tile("佔 8 台的比例", k.share != null ? k.share.toFixed(0) : "—", "%", "本月用電的佔比", "kShare");
 }
 EX.kMonth = () => {
-  const k = kpiData(), ch = k.cur != null && k.lastSame ? (k.cur - k.lastSame) / k.lastSame * 100 : null;
-  explain({t:ymLabel(k.ym) + "用電", v:nk(k.cur), u:"度", how:"這個月 8 台電表每天的用電加起來（1 號到 " + k.dom + " 號）。" + DIST_NOTE +
-    (ch != null ? "<br>上個月同樣 1～" + k.dom + " 號用了 <b>" + nk(k.lastSame) + "</b> 度，所以是 <b>" + pct(ch) + "</b>。" : ""), rowsTitle:"每台電表", rows: monthRows(k.ym)});
+  const k = meterKpi(_anaM), ch = k.cur != null && k.lastSame ? (k.cur - k.lastSame) / k.lastSame * 100 : null;
+  const d = getDaily(_anaM), f = dailyFlag(_anaM), rows = [];
+  for(let i = data.length - 1; i >= 0; i--) if(ymOf(data[i]["日期"]) === k.ym && d[i] != null) rows.push([md(data[i]["日期"]) + "（" + WD[wdOf(data[i]["日期"])] + "）" + (f[i] ? " 平均分攤" : ""), n2(d[i]), f[i] ? "muted" : ""]);
+  explain({t:mName(_anaM) + "：" + ymLabel(k.ym) + "用電", v:nk(k.cur), u:"度", how:"這台這個月每天的用電加起來（1 號到 " + k.dom + " 號）。" + DIST_NOTE +
+    (ch != null ? "<br>上個月同樣 1～" + k.dom + " 號用了 <b>" + nk(k.lastSame) + "</b> 度：" + nk(k.cur) + " ÷ " + nk(k.lastSame) + " − 1 ＝ <b>" + pct(ch) + "</b>。" : ""), rowsTitle:"每天", rows});
 };
 EX.kAvg = () => {
-  const k = kpiData();
-  explain({t:"本月平均每天", v:nk(k.dAvg), u:"度", how:"本月 <b>" + METERS.length + " 台都有資料</b>的 <b>" + k.days + "</b> 天，每天總用電的平均。" + (k.part.length ? "還有電表沒回報的日子（例如今天）先不算，不然會把平均拉低。" : ""), rowsTitle:"最近 10 天",
-    rows: lastDays(10).reverse().map(d => [md(d.date) + "（" + WD[wdOf(d.date)] + "）", d.v == null ? "沒有資料" : n1(d.v) + " 度", d.v == null ? "muted" : ""])});
+  const k = meterKpi(_anaM);
+  explain({t:mName(_anaM) + "：平均每天", v:k.dAvg != null ? n2(k.dAvg) : "—", u:"度", how:"本月用電 <b>" + nk(k.cur) + "</b> ÷ 有資料的 <b>" + k.days + "</b> 天。今天還沒回報的話，今天先不算。",
+    rows:[["上個月平均每天", k.lastFull != null ? n2(k.lastFull / daysInYm(k.pym)) : "—"], ["最多的一天", k.best ? md(data[k.best.i]["日期"]) + "　" + n2(k.best.v) : "—"]]});
 };
 EX.kProj = () => {
-  const k = kpiData();
-  explain({t:"預估整月", v:nk(k.proj), u:"度", how:"用目前的平均每天 <b>" + nk(k.dAvg) + "</b> 度 × 這個月 <b>" + daysInYm(k.ym) + "</b> 天。只是照目前的速度推算，後面用得多或少都會變。",
+  const k = meterKpi(_anaM);
+  explain({t:mName(_anaM) + "：預估整月", v:nk(k.proj), u:"度", how:"平均每天 <b>" + (k.dAvg != null ? n2(k.dAvg) : "—") + "</b> 度 × 這個月 <b>" + daysInYm(k.ym) + "</b> 天。只是照目前的速度推算。",
     rows:[["上個月整月", k.lastFull == null ? "沒有資料" : nk(k.lastFull) + " 度"], ["預估比上個月", k.proj != null && k.lastFull ? pct((k.proj - k.lastFull) / k.lastFull * 100) : "—", "hl"]]});
 };
-EX.kBest = () => { const k = kpiData(); if(k.best) EX.day(String(k.best.i)); };
-/* 某一天的明細 */
-EX.day = si => {
-  const i = +si, t = dayTotal(i), rows = KWH_METERS().map(m => { const v = getDaily(m)[i], f = dailyFlag(m)[i]; return [short(m) + " " + code(m), v == null ? "沒有資料" : n2(v) + (f ? "（平均分攤）" : ""), v == null || f ? "muted" : ""]; });
-  const a7 = avg(lastDaysAt(i, 7));
-  explain({t:md(data[i]["日期"]) + "（" + WD[wdOf(data[i]["日期"])] + "）總用電", v:nk(t), u:"度", how:"這一天每台電表的用電加起來。" + DIST_NOTE + (a7 ? "<br>前 7 天平均 " + nk(a7) + " 度，這天 " + pct((t - a7) / a7 * 100) + "。" : ""), rowsTitle:"每台電表", rows});
+EX.kShare = () => {
+  const ym = curYm(), its = KWH_METERS().map(m => [m, meterMonth(m, ym) || 0]).sort((a, b) => b[1] - a[1]), tot = its.reduce((t, x) => t + x[1], 0);
+  explain({t:mName(_anaM) + "：佔 8 台的比例", v:tot ? (( meterMonth(_anaM, ym) || 0) / tot * 100).toFixed(1) : "—", u:"%", how:"這台本月用電 ÷ 8 台本月用電的總和（" + nk(tot) + " 度）。", rowsTitle:"8 台本月",
+    rows: its.map(x => [mName(x[0]), nk(x[1]) + " 度（" + (tot ? (x[1] / tot * 100).toFixed(0) : 0) + "%）", x[0] === _anaM ? "hl" : ""])});
 };
-function dayComplete(i){ return KWH_METERS().every(m => getDaily(m)[i] != null); }
-function lastDaysAt(i, n){ const out = []; for(let k = Math.max(0, i - n); k < i; k++) out.push(dayTotal(k)); return out; }
-
-/* ---------- 每日總用電 ---------- */
+/* 單台某一天 */
+EX.mday = arg => {
+  const [m, si] = arg.split("|"), i = +si, v = getDaily(m)[i], f = dailyFlag(m)[i];
+  const p = lastReport(m, i + 1 > data.length ? data.length : i), here = num(data[i][m]);
+  let how;
+  if(v == null) how = here ? "這天有讀數，但跟上一次比是倒退或是第一筆，所以不算。" : "這天沒回報，下一次回報之後才會補上（平均分攤）。";
+  else if(!f) how = "這天讀數 <b>" + n1(data[i][m]) + "</b> − 前一天 <b>" + n1(p ? p.v : 0) + "</b> ＝ <b>" + n2(v) + "</b> 度。";
+  else { let nx = null; for(let j = i; j < data.length; j++) if(num(data[j][m])){ nx = j; break; } let pv = null; for(let j = i - 1; j >= 0; j--) if(num(data[j][m])){ pv = j; break; }
+    const g = nx != null && pv != null ? dayGap(data[pv]["日期"], data[nx]["日期"]) : 1;
+    how = "這段有漏報：" + (pv != null ? md(data[pv]["日期"]) + " 讀數 " + n1(data[pv][m]) : "") + (nx != null ? "，到 " + md(data[nx]["日期"]) + " 讀數 " + n1(data[nx][m]) : "") + "，中間 <b>" + g + "</b> 天平均分，每天 <b>" + n2(v) + "</b> 度。"; }
+  const a7 = avg(lastDaysAtM(m, i, 7));
+  explain({t:mName(m) + "：" + md(data[i]["日期"]) + "（" + WD[wdOf(data[i]["日期"])] + "）", v: v == null ? "—" : n2(v), u:"度", how,
+    rows:[["前 7 天平均", a7 != null ? n2(a7) : "—"], ["跟前 7 天比", v != null && a7 ? pct((v - a7) / a7 * 100) : "—", "hl"]]});
+};
+function lastDaysAtM(m, i, n){ const d = getDaily(m), out = []; for(let k = Math.max(0, i - n); k < i; k++) out.push(d[k]); return out; }
+/* ---------- 單台：每日用電 ---------- */
 function renderDailyChart(){
-  const days = lastDays(_dRange), vals = days.map(d => d.v);
-  const ma = days.map(d => { const w = []; for(let j = Math.max(0, d.i - 6); j <= d.i; j++) w.push(dayComplete(j) ? dayTotal(j) : null); return w.filter(v => v != null).length >= 4 ? avg(w) : null; });
-  const fullV = days.map(d => dayComplete(d.i) ? d.v : null);
-  const a = avg(fullV), mxI = fullV.reduce((b, v, k) => v != null && (b < 0 || v > fullV[b]) ? k : b, -1);
-  const wkd = avg(days.filter(d => { const w = wdOf(d.date); return w > 0 && w < 6; }).map(d => dayComplete(d.i) ? d.v : null)), wke = avg(days.filter(d => { const w = wdOf(d.date); return w === 0 || w === 6; }).map(d => dayComplete(d.i) ? d.v : null));
-  $("#dailyNote").innerHTML = a == null ? "資料還不夠" : "這 " + _dRange + " 天平均每天 <b>" + nk(a) + "</b> 度，最高是 " + md(days[mxI].date) + " 的 <b>" + nk(vals[mxI]) + "</b> 度" + (wkd && wke ? "；假日平均比平日" + (wke < wkd ? "少" : "多") + " " + Math.abs((wke - wkd) / wkd * 100).toFixed(0) + "%" : "") + "。";
-  const part = days.map(d => d.v != null && !dayComplete(d.i));
-  colChart($("#chDaily"), {labels: days.map(d => md(d.date)), values: vals, colors: part.map(p => p ? "#86b6ef" : null), line:{values: ma, color:CH.gray}, xEvery: _dRange > 40 ? 15 : 6, lastLabel:true,
-    tip: k => '<b>' + (vals[k] == null ? "沒有資料" : nk(vals[k]) + " 度") + '</b><span>' + md(days[k].date) + "（" + WD[wdOf(days[k].date)] + "）" + (ma[k] != null ? "・7 天平均 " + nk(ma[k]) : "") + (part[k] ? "・還有電表沒回報，數字會再變大" : "") + '</span>',
-    onPick: k => EX.day(String(days[k].i))});
+  const m = _anaM, d = getDaily(m), f = dailyFlag(m), days = lastDays(_dRange).map(x => ({i:x.i, date:x.date, v:d[x.i], f:f[x.i]}));
+  const vals = days.map(x => x.v);
+  const ma = days.map(x => { const w = []; for(let j = Math.max(0, x.i - 6); j <= x.i; j++) w.push(d[j]); return w.filter(v => v != null).length >= 4 ? avg(w) : null; });
+  const a = avg(vals), real = days.filter(x => x.v != null && !x.f), mx = real.reduce((b, x) => !b || x.v > b.v ? x : b, null);
+  const wkd = avg(days.filter(x => { const w = wdOf(x.date); return w > 0 && w < 6; }).map(x => x.v)), wke = avg(days.filter(x => { const w = wdOf(x.date); return w === 0 || w === 6; }).map(x => x.v));
+  $("#dailyTitle").textContent = mName(m) + " 每日用電";
+  $("#dailyNote").innerHTML = a == null ? "資料還不夠" : "這 " + _dRange + " 天平均每天 <b>" + n1(a) + "</b> 度" + (mx ? "，最多是 " + md(mx.date) + " 的 <b>" + n1(mx.v) + "</b> 度" : "") + (wkd && wke ? "；假日比平日" + (wke < wkd ? "少" : "多") + " " + Math.abs((wke - wkd) / wkd * 100).toFixed(0) + "%" : "") + "。";
+  colChart($("#chDaily"), {labels: days.map(x => md(x.date)), values: vals, colors: days.map(x => x.f ? "#86b6ef" : null), line:{values: ma, color:CH.gray}, xEvery: _dRange > 40 ? 15 : 6, lastLabel:true,
+    tip: k => '<b>' + (vals[k] == null ? (days[k].i === todayIndex() ? "今天還沒回報" : "沒有資料") : n2(vals[k]) + " 度") + '</b><span>' + md(days[k].date) + "（" + WD[wdOf(days[k].date)] + "）" + (days[k].f ? "・漏報平均分攤" : "") + (ma[k] != null ? "・7 天平均 " + n1(ma[k]) : "") + '</span>',
+    onPick: k => EX.mday(m + "|" + days[k].i)});
 }
-/* ---------- 月份比較 ---------- */
+/* ---------- 單台：月份比較 ---------- */
 function monthList(){ return memo("months", () => { const s = {}; data.forEach(r => { s[ymOf(r["日期"])] = 1; }); return Object.keys(s).sort(); }); }
 function renderMonthChart(){
-  const cur = curYm(), ms = []; for(let k = 11; k >= 0; k--) ms.push(ymShift(cur, -k));
-  const first = monthList()[0], use = ms.filter(m => m >= first);
-  const vals = use.map(m => monthTotal(m)), ly = use.map(m => monthTotal(ymShift(m, -12)));
-  const hasLy = ly.some(v => v != null);
-  const full = use.map(m => m !== cur), cv = vals[vals.length - 1], pv = vals.length > 1 ? vals[vals.length - 2] : null;
-  const k = kpiData();
+  const m = _anaM, cur = curYm(), ms = []; for(let k = 11; k >= 0; k--) ms.push(ymShift(cur, -k));
+  const use = ms.filter(x => x >= monthList()[0]);
+  const vals = use.map(x => meterMonth(m, x)), ly = use.map(x => fullMonthVal(m, ymShift(x, -12))), hasLy = ly.some(v => v != null);
+  const pv = vals.length > 1 ? vals[vals.length - 2] : null, k = meterKpi(m);
+  const fullV = vals.slice(0, -1).filter(v => v != null), hiM = fullV.length ? use[vals.indexOf(Math.max(...fullV))] : null, loM = fullV.length ? use[vals.indexOf(Math.min(...fullV))] : null;
+  $("#monthTitle").textContent = mName(m) + " 月份比較";
   $("#monthLegend").hidden = !hasLy;
-  $("#monthNote").innerHTML = (pv != null ? "上個月（" + ymLabel(ymShift(cur, -1)) + "）用了 <b>" + nk(pv) + "</b> 度" : "") + (k.proj != null ? "；這個月照目前速度大約 <b>" + nk(k.proj) + "</b> 度" + (pv ? "（" + pct((k.proj - pv) / pv * 100) + "）" : "") : "") + "。本月還沒結束，柱子比較短是正常的。";
-  colChart($("#chMonth"), {labels: use.map(m => (+m.split("/")[1]) + "月"), values: vals, colors: use.map((m, i) => full[i] ? CH.blue : "#86b6ef"), line: hasLy ? {values: ly, color:CH.gray, dash:true} : null, xEvery: use.length > 8 ? 2 : 1,
+  $("#monthNote").innerHTML = (pv != null ? "上個月用了 <b>" + nk(pv) + "</b> 度" : "") + (k.proj != null ? "，這個月照目前速度大約 <b>" + nk(k.proj) + "</b> 度" + (pv ? "（" + pct((k.proj - pv) / pv * 100) + "）" : "") : "") + "。" + (hiM && hiM !== loM ? "最多是 " + ymLabel(hiM) + "、最少是 " + ymLabel(loM) + "。" : "");
+  colChart($("#chMonth"), {labels: use.map(x => (+x.split("/")[1]) + "月"), values: vals, colors: use.map(x => x === cur ? "#86b6ef" : null), line: hasLy ? {values: ly, color:CH.gray, dash:true} : null, xEvery: use.length > 8 ? 2 : 1,
     tip: i => '<b>' + nk(vals[i]) + ' 度</b><span>' + use[i].replace("/", " 年 ") + " 月" + (use[i] === cur ? "（到 " + curDayOfMonth() + " 號）" : "") + (ly[i] != null ? "・去年 " + nk(ly[i]) + "（" + pct((vals[i] - ly[i]) / ly[i] * 100) + "）" : "") + '</span>',
-    onPick: i => EX.month(use[i])});
+    onPick: i => EX.mmonth(m + "|" + use[i])});
 }
-EX.month = ym => {
-  const t = monthTotal(ym), p = monthTotal(ymShift(ym, -1)), ly = monthTotal(ymShift(ym, -12)), isCur = ym === curYm();
-  const rows = CATEGORIES.map(c => { const v = catMonth(c, ym); return [c.name, v == null ? "沒有資料" : n1(v) + " 度", v == null ? "muted" : ""]; });
-  rows.push(["比上個月", p ? pct((t - p) / p * 100) + "（" + nk(p) + " 度）" : "沒有資料", "hl"]);
-  rows.push(["比去年同月", ly ? pct((t - ly) / ly * 100) + "（" + nk(ly) + " 度）" : "沒有資料", "hl"]);
-  explain({t:ym.replace("/", " 年 ") + " 月用電", v:nk(t), u:"度", how:"這個月每天的用電加起來" + (isCur ? "（只到 " + curDayOfMonth() + " 號，月還沒結束）" : "") + "。" + DIST_NOTE, rowsTitle:"各類電表", rows});
+EX.mmonth = arg => {
+  const [m, ym] = arg.split("|"), t = meterMonth(m, ym), p = meterMonth(m, ymShift(ym, -1)), ly = fullMonthVal(m, ymShift(ym, -12)), isCur = ym === curYm();
+  let n = 0; const d = getDaily(m); for(let i = 0; i < data.length; i++) if(ymOf(data[i]["日期"]) === ym && d[i] != null) n++;
+  explain({t:mName(m) + "：" + ym.replace("/", " 年 ") + " 月", v:nk(t), u:"度", how:"這台這個月每天的用電加起來" + (isCur ? "（只到 " + curDayOfMonth() + " 號，月還沒結束）" : "") + "。" + DIST_NOTE,
+    rows:[["有資料的天數", n + " 天"], ["平均每天", n && t != null ? n2(t / n) : "—"], ["比上個月", p ? pct((t - p) / p * 100) + "（" + nk(p) + " 度）" : "沒有資料", "hl"], ["比去年同月", ly ? pct((t - ly) / ly * 100) + "（" + nk(ly) + " 度）" : "沒有資料", "hl"]]});
 };
-/* ---------- 本月 vs 上月（同期） ---------- */
-function renderCatCompare(){
+
+/* ---------- 8 台比較：本月 vs 上月同期 ---------- */
+function renderCompare(){
   const ym = curYm(), pym = ymShift(ym, -1), dom = curDayOfMonth();
-  const items = CATEGORIES.filter(c => c.meters.some(m => unitOf(m) === "kWh")).map(c => ({c, a: catMonth(c, ym), b: catMonth(c, pym, dom)}));
+  const items = KWH_METERS().map(m => ({m, a: meterMonth(m, ym), b: meterMonth(m, pym, dom)}));
   const mx = Math.max(1e-9, ...items.map(x => Math.max(x.a || 0, x.b || 0)));
-  const big = items.filter(x => x.a != null && x.b).map(x => ({n:x.c.name, d:(x.a - x.b) / x.b * 100})).sort((p, q) => Math.abs(q.d) - Math.abs(p.d))[0];
-  $("#catNote").innerHTML = "都只算 1～" + dom + " 號，才公平。" + (big ? "變化最大的是<b>" + big.n + "</b>（" + pct(big.d) + "）。" : "");
-  $("#catCmp").innerHTML = items.map(x => {
+  const ch = items.filter(x => x.a != null && x.b).map(x => ({m:x.m, d:(x.a - x.b) / x.b * 100})).sort((p, q) => q.d - p.d);
+  $("#cmpNote").innerHTML = "都只算 1～" + dom + " 號，才公平。" + (ch.length ? "增加最多的是 <b>" + mName(ch[0].m) + "</b>（" + pct(ch[0].d) + "）" + (ch.length > 1 && ch[ch.length-1].d < 0 ? "，減少最多的是 <b>" + mName(ch[ch.length-1].m) + "</b>（" + pct(ch[ch.length-1].d) + "）" : "") + "。" : "");
+  $("#cmp").innerHTML = items.map(x => {
     const d = x.a != null && x.b ? (x.a - x.b) / x.b * 100 : null;
-    return '<button type="button" class="cc" data-ex="cat" data-arg="' + esc(x.c.name) + '"><span class="cc-n">' + x.c.name + '</span>' +
+    return '<button type="button" class="cc" data-ex="cmpM" data-arg="' + x.m + '"><span class="cc-n">' + short(x.m) + '<em>' + code(x.m) + '</em></span>' +
       '<span class="cc-bars"><i class="b" style="width:' + ((x.b || 0) / mx * 100).toFixed(1) + '%"></i><i class="a" style="width:' + ((x.a || 0) / mx * 100).toFixed(1) + '%"></i></span>' +
       '<span class="cc-v"><b>' + nk(x.a) + '</b><small>上月 ' + nk(x.b) + '</small></span><span class="cc-d ' + (d > 10 ? "up" : d < -10 ? "down" : "") + '">' + pct(d) + '</span></button>';
   }).join("");
 }
-EX.cat = name => {
-  const c = CATEGORIES.find(x => x.name === name), ym = curYm(), pym = ymShift(ym, -1), dom = curDayOfMonth();
-  const a = catMonth(c, ym), b = catMonth(c, pym, dom);
-  const rows = [];
-  c.meters.forEach(m => { rows.push([short(m) + " " + code(m) + " 本月", nk(meterMonth(m, ym))]); rows.push([short(m) + " " + code(m) + " 上月同期", nk(meterMonth(m, pym, dom)), "muted"]); });
-  explain({t:name + "：本月 vs 上月", v: a != null && b ? pct((a - b) / b * 100) : "—", how:"本月 1～" + dom + " 號 <b>" + nk(a) + "</b> 度，對上個月同樣 1～" + dom + " 號 <b>" + nk(b) + "</b> 度。（本月 ÷ 上月 − 1）", rows});
+EX.cmpM = m => {
+  const ym = curYm(), pym = ymShift(ym, -1), dom = curDayOfMonth(), a = meterMonth(m, ym), b = meterMonth(m, pym, dom);
+  explain({t:mName(m) + "：本月 vs 上月同期", v: a != null && b ? pct((a - b) / b * 100) : "—", how:"本月 1～" + dom + " 號 <b>" + nk(a) + "</b> 度，對上個月同樣 1～" + dom + " 號 <b>" + nk(b) + "</b> 度。（本月 ÷ 上月 − 1）",
+    rows:[["本月平均每天", a != null ? n2(a / dom) : "—"], ["上月同期平均每天", b != null ? n2(b / dom) : "—"]],
+    note:'<button type="button" class="btn" onclick="closeSheet();pickAna(\'' + m + '\')">看這台的完整分析</button>'});
 };
-/* ---------- 各電表排行 ---------- */
+function pickAna(m){ setAnaMeter(m); const el = $("#anaPick"); if(el) window.scrollTo({top: el.getBoundingClientRect().top + window.scrollY - 70, behavior:"smooth"}); }
+window.pickAna = pickAna;
+/* ---------- 8 台比較：排行 ---------- */
 function rankItems(){
   const ym = curYm();
   const val = m => _rankMode === "cur" ? meterMonth(m, ym) : _rankMode === "prev" ? meterMonth(m, ymShift(ym, -1)) : (() => { let t = 0, n = 0; lastDays(30).forEach(d => { const v = getDaily(m)[d.i]; if(v != null){ t += v; n++; } }); return n ? t : null; })();
   const its = KWH_METERS().map(m => ({m, v: val(m)})).sort((a, b) => (b.v || 0) - (a.v || 0));
-  const tot = its.reduce((s, x) => s + (x.v || 0), 0);
-  return {its, tot};
+  return {its, tot: its.reduce((s, x) => s + (x.v || 0), 0)};
 }
 function renderRank(){
   $$("#rankSeg button").forEach(b => b.classList.toggle("on", b.dataset.r === _rankMode));
   const {its, tot} = rankItems();
-  $("#rankNote").innerHTML = its[0] && its[0].v ? "<b>" + short(its[0].m) + " " + code(its[0].m) + "</b> 用最多，佔 " + (its[0].v / tot * 100).toFixed(0) + "%。" : "這段時間沒有資料。";
-  $("#rank").innerHTML = hbars(its.map(x => ({label: short(x.m) + '<em>' + code(x.m) + '</em>', value: x.v, sub: tot && x.v ? (x.v / tot * 100).toFixed(0) + "%" : "", ex:"rankM", arg:x.m})));
+  $("#rankNote").innerHTML = its[0] && its[0].v ? "<b>" + mName(its[0].m) + "</b> 用最多，佔 " + (its[0].v / tot * 100).toFixed(0) + "%；最少是 <b>" + mName(its[its.length-1].m) + "</b>。" : "這段時間沒有資料。";
+  $("#rank").innerHTML = hbars(its.map(x => ({label: short(x.m) + '<em>' + code(x.m) + '</em>', value: x.v, sub: tot && x.v ? (x.v / tot * 100).toFixed(0) + "%" : "", ex:"rankM", arg:x.m, cls: x.m === _anaM ? "sel" : ""})));
 }
 EX.rankM = m => {
   const {tot} = rankItems(), lbl = {cur: ymLabel(curYm()), prev: ymLabel(ymShift(curYm(), -1)), d30:"近 30 天"}[_rankMode];
   const days = _rankMode === "d30" ? lastDays(30).map(d => d.i) : data.map((r, i) => i).filter(i => ymOf(data[i]["日期"]) === (_rankMode === "cur" ? curYm() : ymShift(curYm(), -1)));
   const vs = days.map(i => getDaily(m)[i]).filter(v => v != null), t = vs.reduce((s, v) => s + v, 0);
-  explain({t:short(m) + " " + code(m) + "：" + lbl, v:n1(t), u:"度", how:"這段時間每天的用電加起來，再除以 8 台的總和 " + nk(tot) + " 度，就是它的佔比 <b>" + (tot ? (t / tot * 100).toFixed(1) : 0) + "%</b>。",
+  explain({t:mName(m) + "：" + lbl, v:n1(t), u:"度", how:"這段時間每天的用電加起來，再除以 8 台的總和 " + nk(tot) + " 度，就是它的佔比 <b>" + (tot ? (t / tot * 100).toFixed(1) : 0) + "%</b>。",
     rows:[["有資料的天數", vs.length + " 天"], ["平均每天", vs.length ? n2(t / vs.length) : "—"], ["最多的一天", vs.length ? n2(Math.max(...vs)) : "—"], ["最少的一天", vs.length ? n2(Math.min(...vs)) : "—"]],
-    note:'<button type="button" class="btn" onclick="closeSheet();openDetail(\'' + m + '\')">看這台的詳細</button>'});
+    note:'<button type="button" class="btn" onclick="closeSheet();pickAna(\'' + m + '\')">看這台的完整分析</button>'});
 };
-/* ---------- 星期幾 ---------- */
-function weekdayStats(){
-  const days = lastDays(91), b = [0,1,2,3,4,5,6].map(() => []);
-  days.forEach(d => { if(d.v != null && dayComplete(d.i)) b[wdOf(d.date)].push(d); });
-  const order = [1,2,3,4,5,6,0];
-  return order.map(w => ({w, n:b[w].length, v: avg(b[w].map(d => d.v)), list:b[w]}));
+/* ---------- 8 台比較：星期幾（每台自己比，顏色越深＝那天用越多） ---------- */
+const WD_ORDER = [1,2,3,4,5,6,0];
+function wdStats(m){
+  return memo("wd" + m, () => {
+    const d = getDaily(m), f = dailyFlag(m), b = [0,1,2,3,4,5,6].map(() => []);
+    lastDays(91).forEach(x => { if(d[x.i] != null && !f[x.i]) b[wdOf(x.date)].push({date:x.date, v:d[x.i]}); });
+    return WD_ORDER.map(w => ({w, list:b[w], v: avg(b[w].map(x => x.v))}));
+  });
 }
-function renderWeekday(){
-  const ws = weekdayStats(), vals = ws.map(x => x.v);
-  const wkd = avg(ws.filter(x => x.w > 0 && x.w < 6).map(x => x.v)), wke = avg(ws.filter(x => x.w === 0 || x.w === 6).map(x => x.v));
-  $("#wdNote").innerHTML = wkd && wke ? "近 3 個月，平日平均 <b>" + nk(wkd) + "</b> 度、假日 <b>" + nk(wke) + "</b> 度，假日" + (wke < wkd ? "少" : "多") + "用 " + Math.abs((wke - wkd) / wkd * 100).toFixed(0) + "%。" : "資料還不夠。";
-  colChart($("#chWd"), {labels: ws.map(x => "週" + WD[x.w]), values: vals, colors: ws.map(x => x.w === 0 || x.w === 6 ? "#86b6ef" : CH.blue), xEvery:1, h:170,
-    tip: i => '<b>' + nk(vals[i]) + ' 度</b><span>週' + WD[ws[i].w] + "平均（" + ws[i].n + " 天）</span>", onPick: i => EX.wd(String(i))});
+const HEAT = ["#eaf2fc","#cde2fb","#9ec5f4","#6da7ec","#3987e5","#256abf"];
+function renderWdHeat(){
+  let h = '<table class="tb heat"><thead><tr><th>電表</th>' + WD_ORDER.map(w => '<th>' + WD[w] + '</th>').join("") + '</tr></thead><tbody>';
+  const notes = [];
+  KWH_METERS().forEach(m => {
+    const st = wdStats(m), vs = st.map(x => x.v).filter(v => v != null), lo = Math.min(...vs), hi = Math.max(...vs);
+    const wkd = avg(st.filter(x => x.w > 0 && x.w < 6).map(x => x.v)), wke = avg(st.filter(x => x.w === 0 || x.w === 6).map(x => x.v));
+    const dd = wkd && wke != null ? (wke - wkd) / wkd * 100 : null;
+    if(dd != null) notes.push({m, dd});
+    h += '<tr><td>' + short(m) + '<small>' + code(m) + '</small></td>' + st.map((x, k) => {
+      if(x.v == null) return '<td class="hc">—</td>';
+      const lv = hi > lo ? Math.round((x.v - lo) / (hi - lo) * 5) : 2;
+      return '<td class="hc" data-ex="wdC" data-arg="' + m + '|' + k + '" style="background:' + HEAT[lv] + ';color:' + (lv >= 4 ? "#fff" : "var(--ink)") + '">' + (x.v >= 10 ? x.v.toFixed(0) : x.v.toFixed(1)) + '</td>';
+    }).join("") + '</tr>';
+  });
+  $("#wdHeat").innerHTML = h + '</tbody></table>';
+  notes.sort((a, b) => a.dd - b.dd);
+  $("#wdNote").innerHTML = "近 3 個月每台「週幾」的平均每天用電，<b>每一列自己比</b>：顏色越深＝這台那天用越多。" + (notes.length ? "假日最省的是 <b>" + mName(notes[0].m) + "</b>（" + pct(notes[0].dd) + "），假日跟平日差最少的是 <b>" + mName(notes[notes.length-1].m) + "</b>（" + pct(notes[notes.length-1].dd) + "）。" : "");
 }
-EX.wd = si => {
-  const x = weekdayStats()[+si];
-  explain({t:"週" + WD[x.w] + "平均用電", v:nk(x.v), u:"度", how:"近 3 個月裡所有的週" + WD[x.w] + "（" + x.n + " 天），每天總用電的平均。", rowsTitle:"每一個週" + WD[x.w],
-    rows: x.list.slice().reverse().map(d => [md(d.date), n1(d.v) + " 度"])});
+EX.wdC = arg => {
+  const [m, k] = arg.split("|"), x = wdStats(m)[+k];
+  const st = wdStats(m), wkd = avg(st.filter(y => y.w > 0 && y.w < 6).map(y => y.v)), wke = avg(st.filter(y => y.w === 0 || y.w === 6).map(y => y.v));
+  explain({t:mName(m) + "：週" + WD[x.w] + "平均", v:n2(x.v), u:"度", how:"近 3 個月這台所有的週" + WD[x.w] + "（" + x.list.length + " 天），每天用電的平均。漏報平均分攤的日子不算，避免失真。" + (wkd && wke != null ? "<br>這台平日平均 <b>" + n1(wkd) + "</b>、假日 <b>" + n1(wke) + "</b>，假日" + pct((wke - wkd) / wkd * 100) + "。" : ""), rowsTitle:"每一個週" + WD[x.w],
+    rows: x.list.slice().reverse().map(d => [md(d.date), n2(d.v)])});
 };
-/* ---------- 月報表 ---------- */
+/* ---------- 8 台比較：月報表 ---------- */
 function renderYearTable(){
   const years = Object.keys(monthList().reduce((o, m) => (o[m.slice(0, 4)] = 1, o), {})).sort();
   const yr = _yearSel && years.includes(_yearSel) ? _yearSel : years[years.length - 1];
   $("#yearSel").innerHTML = years.map(y => '<button type="button" data-y="' + y + '" class="' + (y === yr ? "on" : "") + '">' + y + '</button>').join("");
-  const cats = CATEGORIES.filter(c => c.meters.some(m => unitOf(m) === "kWh"));
-  let h = '<table class="tb"><thead><tr><th>月</th>' + cats.map(c => '<th>' + c.name + '</th>').join("") + '<th>合計</th><th>比去年</th></tr></thead><tbody>';
-  let sum = cats.map(() => 0), all = 0;
+  const ms = KWH_METERS();
+  let h = '<table class="tb"><thead><tr><th>月</th>' + ms.map(m => '<th>' + short(m) + '<small>' + code(m) + '</small></th>').join("") + '</tr></thead><tbody>';
+  const sum = ms.map(() => 0);
   for(let mo = 1; mo <= 12; mo++){
     const ym = yr + "/" + String(mo).padStart(2, "0");
     if(!hasMonth(ym)) continue;
-    const vs = cats.map(c => catMonth(c, ym)), t = monthTotal(ym), ly = monthTotal(ymShift(ym, -12));
-    vs.forEach((v, k) => sum[k] += v || 0); all += t || 0;
-    const d = ly ? (t - ly) / ly * 100 : null;
-    h += '<tr data-ex="month" data-arg="' + ym + '"><td>' + mo + '月' + (ym === curYm() ? '<small>到' + curDayOfMonth() + '號</small>' : '') + '</td>' + vs.map(v => '<td>' + (v == null ? "—" : n1(v)) + '</td>').join("") + '<td><b>' + (t == null ? "—" : n1(t)) + '</b></td><td class="' + (d > 15 ? "up" : d < -15 ? "down" : "") + '">' + pct(d) + '</td></tr>';
+    h += '<tr><td>' + mo + '月' + (ym === curYm() ? '<small>到' + curDayOfMonth() + '號</small>' : '') + '</td>' + ms.map((m, k) => {
+      const v = meterMonth(m, ym), ly = fullMonthVal(m, ymShift(ym, -12)); sum[k] += v || 0;
+      const d = v != null && ly ? (v - ly) / ly * 100 : null;
+      return '<td data-ex="mmonth" data-arg="' + m + '|' + ym + '">' + (v == null ? "—" : n1(v)) + (d != null ? '<small class="' + (d > 15 ? "up" : d < -15 ? "down" : "") + '">' + pct(d) + '</small>' : '') + '</td>';
+    }).join("") + '</tr>';
   }
-  h += '</tbody><tfoot><tr><td>全年</td>' + sum.map(v => '<td>' + n1(v) + '</td>').join("") + '<td><b>' + n1(all) + '</b></td><td></td></tr></tfoot></table>';
+  h += '</tbody><tfoot><tr><td>全年</td>' + sum.map(v => '<td>' + n1(v) + '</td>').join("") + '</tr></tfoot></table>';
   $("#yearTb").innerHTML = h;
 }
+/* 分析頁的切換按鈕 */
+document.addEventListener("click", e => {
+  const am = e.target.closest("#anaPick [data-am]"); if(am){ sfxTap(); setAnaMeter(am.dataset.am); renderRank(); return; }
+  const d = e.target.closest("#dailySeg [data-d]"); if(d){ sfxTap(); _dRange = +d.dataset.d; $$("#dailySeg button").forEach(b => b.classList.toggle("on", b === d)); renderDailyChart(); return; }
+  const r = e.target.closest("#rankSeg [data-r]"); if(r){ sfxTap(); _rankMode = r.dataset.r; renderRank(); return; }
+  const y = e.target.closest("#yearSel [data-y]"); if(y){ sfxTap(); _yearSel = y.dataset.y; renderYearTable(); }
+});
 
 /* ---------- 查詢度數（日期區間）＋ 匯出 ---------- */
 let _qMode = "read", _qInited = false;
@@ -1598,7 +1684,7 @@ function initQuery(){
       $$("#qQuick button").forEach(x => x.classList.toggle("on", x === b)); renderQuery();
     };
     $("#qMode").onclick = ev => { const b = ev.target.closest("[data-qm]"); if(!b) return; sfxTap(); _qMode = b.dataset.qm; renderQuery(); };
-    $("#qCsv").onclick = exportCsv; $("#qImg").onclick = exportImg;
+    $("#qImg").onclick = exportImg;
   }
   renderQuery();
 }
@@ -1623,15 +1709,6 @@ function renderQuery(){
   });
   $("#qTable").innerHTML = h + '</tbody></table>';
   $$("#qTable td[data-ex]").forEach(td => { if(td.textContent === "—") td.removeAttribute("data-ex"); });
-}
-function exportCsv(){
-  const {s, e, rows} = qRange(); if(!rows.length) return;
-  const lines = [["日期"].concat(METERS).join(",")];
-  rows.forEach(row => lines.push([row.r["日期"]].concat(METERS.map(m => { const v = qCell(m, row); return v == null ? "" : v.toFixed(_qMode === "use" ? 2 : 1); })).join(",")));
-  if(_qMode === "use") lines.push(["合計"].concat(qSums(rows).map(v => v == null ? "" : v.toFixed(1))).join(","));
-  const blob = new Blob(["﻿" + lines.join("\r\n")], {type:"text/csv;charset=utf-8"});
-  saveBlob(blob, "電表" + (_qMode === "use" ? "用電量" : "讀數") + "_" + s.replace(/\//g, "") + "-" + e.replace(/\//g, "") + ".csv");
-  toast("已匯出 " + rows.length + " 天");
 }
 function saveBlob(blob, name){
   const a = document.createElement("a"); a.href = URL.createObjectURL(blob); a.download = name;
@@ -1668,7 +1745,7 @@ async function exportImg(){
     if(use) rowDraw("合計", qSums(rows), true, "#eef4fc");
     shown.forEach((row, k) => rowDraw(md(row.r["日期"]) + "（" + WD[wdOf(row.r["日期"])] + "）", METERS.map(m => qCell(m, row)), false, k % 2 ? "#f6f8f9" : null));
     x.textAlign = "left"; x.fillStyle = "#7c8893"; x.font = "500 20px " + F;
-    x.fillText(list.length > maxRows ? "只畫了最近 " + maxRows + " 天；完整資料請用「匯出 CSV」。" : (use ? "用電量＝跟上一次回報的讀數相減；漏報後的那天會包含中間幾天的量。" : "讀數＝電表上的累計數字。"), L + 8, y + 44);
+    x.fillText(list.length > maxRows ? "只畫了最近 " + maxRows + " 天；要看更早的，請把日期範圍縮短再匯出。" : (use ? "用電量＝跟上一次回報的讀數相減；漏報後的那天會包含中間幾天的量。" : "讀數＝電表上的累計數字。"), L + 8, y + 44);
     const blob = await new Promise(ok => cv.toBlob(ok, "image/png"));
     if(!blob){ toast("這支手機不能存圖片"); return; }
     const name = "電表" + (use ? "用電量" : "讀數") + "_" + md(s).replace("/", "") + "-" + md(e).replace("/", "") + ".png";
@@ -1681,12 +1758,6 @@ async function exportImg(){
 }
 function rr(x, a, b, w, h, r){ x.beginPath(); x.moveTo(a + r, b); x.arcTo(a + w, b, a + w, b + h, r); x.arcTo(a + w, b + h, a, b + h, r); x.arcTo(a, b + h, a, b, r); x.arcTo(a, b, a + w, b, r); x.closePath(); }
 const rrPath = rr;
-/* 分析頁的切換按鈕 */
-document.addEventListener("click", e => {
-  const d = e.target.closest("#dailySeg [data-d]"); if(d){ sfxTap(); _dRange = +d.dataset.d; $$("#dailySeg button").forEach(b => b.classList.toggle("on", b === d)); renderDailyChart(); return; }
-  const r = e.target.closest("#rankSeg [data-r]"); if(r){ sfxTap(); _rankMode = r.dataset.r; renderRank(); return; }
-  const y = e.target.closest("#yearSel [data-y]"); if(y){ sfxTap(); _yearSel = y.dataset.y; renderYearTable(); }
-});
 
 /* ============================================================
    8. 人員清冊
@@ -1977,9 +2048,10 @@ function tourSteps(){
     {tab:"today", sel:".hero", t:"今天的狀況", x:"一句話告訴你今天還差幾台。下面三個數字都可以<b>點開看是哪幾台</b>。"},
     {tab:"today", sel:"#board .tag", t:"電表狀態牌", x:"紅牌＝沒回報、黃牌＝數字怪怪的、白牌＝正常。<b>點牌子</b>看這台的詳細和圖表。"},
     {tab:"today", sel:"#todayUse", t:"每個數字都能點", x:"看到數字不懂怎麼來的，就<b>點它</b>，會告訴你怎麼算、用了哪些資料。"},
-    {tab:"ana", sel:"#kpi", t:"用電分析", x:"這個月用多少、跟上個月比、預估整月。全部都可以點開看算法。"},
-    {tab:"ana", sel:"#chDaily", t:"圖表用手指點", x:"點一下或按住滑動，就會顯示那天的數字；再按「看明細」看每台用多少。"},
-    {tab:"ana", sel:"#qSec", t:"查某幾天的度數", x:"選開始和結束日期，看每天的讀數或用電量。可以<b>匯出圖片</b>直接傳 LINE，或匯出 CSV。"},
+    {tab:"ana", sel:"#anaPick", t:"用電分析：先選一台", x:"點上面的電表，下面的數字和圖表就換成那一台：這個月用多少、跟上個月比、每天和每月的變化。"},
+    {tab:"ana", sel:"#chDaily", t:"圖表用手指點", x:"點一下或按住滑動，就會顯示那天的數字；再按「看明細」看怎麼算的。"},
+    {tab:"ana", sel:"#cmp", t:"8 台互相比較", x:"往下是 8 台放在一起比：本月和上月、誰用最多、星期幾用最多、月報表。"},
+    {tab:"ana", sel:"#qSec", t:"查某幾天的度數", x:"選開始和結束日期，看每天的讀數或用電量，按<b>匯出圖片</b>就能直接傳 LINE。"},
     {tab:"roster", sel:"#rosterGrid .rc", t:"人員清冊", x:"每人一張卡。點自己的卡可以換頭像、看貼紙牆、存成圖片。"},
     {tab:"more", sel:"#homeSec", t:"存到手機桌面", x:"照著步驟加到手機桌面，之後全螢幕打開，就像 App。"},
     {tab:"today", sel:null, img:"m2", t:"開始使用吧", x:"之後想再看一次，到「更多」→「使用導覽」。", end:true}
