@@ -1,0 +1,187 @@
+<!DOCTYPE html>
+<html lang="zh-Hant">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>人員資料查詢</title>
+<style>
+  :root { --bg:#0f172a; --card:#1e293b; --line:#334155; --txt:#e2e8f0; --sub:#94a3b8; --acc:#38bdf8; --err:#f87171; }
+  * { box-sizing:border-box; }
+  body { margin:0; font-family:-apple-system,"Noto Sans TC","Microsoft JhengHei",sans-serif; background:var(--bg); color:var(--txt); }
+  .wrap { max-width:640px; margin:0 auto; padding:16px; }
+  h1 { font-size:20px; margin:8px 0 16px; }
+  .card { background:var(--card); border:1px solid var(--line); border-radius:12px; padding:14px; margin-bottom:12px; }
+  input[type=password], input[type=text] { width:100%; padding:12px; font-size:16px; border-radius:8px; border:1px solid var(--line); background:#0b1220; color:var(--txt); }
+  button { padding:12px 16px; font-size:16px; border:0; border-radius:8px; background:var(--acc); color:#04121c; font-weight:600; cursor:pointer; }
+  button.ghost { background:transparent; color:var(--sub); border:1px solid var(--line); padding:6px 10px; font-size:14px; }
+  button:disabled { opacity:.5; }
+  .row { display:flex; gap:8px; }
+  .row input { flex:1; }
+  .msg { color:var(--err); min-height:20px; margin-top:8px; font-size:14px; }
+  .top { display:flex; justify-content:space-between; align-items:center; }
+  .name { font-size:18px; font-weight:700; }
+  .tag { color:var(--sub); font-size:14px; margin-left:6px; }
+  dl { margin:10px 0 0; display:grid; grid-template-columns:90px 1fr; gap:6px 10px; font-size:15px; }
+  dt { color:var(--sub); }
+  dd { margin:0; word-break:break-all; }
+  .hint { color:var(--sub); font-size:13px; margin:4px 2px 12px; }
+  .hidden { display:none; }
+</style>
+</head>
+<body>
+<div class="wrap">
+  <h1>🔒 人員資料查詢</h1>
+
+  <!-- 登入 -->
+  <div id="loginBox" class="card">
+    <input id="pw" type="password" placeholder="請輸入密碼" autocomplete="current-password">
+    <div style="margin-top:10px"><button id="loginBtn" style="width:100%">登入</button></div>
+    <div id="loginMsg" class="msg"></div>
+  </div>
+
+  <!-- 查詢 -->
+  <div id="mainBox" class="hidden">
+    <div class="top" style="margin-bottom:10px">
+      <span class="hint" style="margin:0">可輸入姓名、單位、專長代碼、電話、年班…</span>
+      <button class="ghost" id="logoutBtn">登出</button>
+    </div>
+    <div class="row">
+      <input id="q" type="text" placeholder="輸入關鍵字查詢">
+      <button id="searchBtn">查詢</button>
+    </div>
+    <div id="info" class="hint"></div>
+    <div id="result"></div>
+  </div>
+</div>
+
+<script>
+// ★ 部署 Apps Script 後，把網頁應用程式網址貼在這裡
+const API_URL = '請貼上Apps Script網頁應用程式網址';
+
+const $ = id => document.getElementById(id);
+let token = sessionStorage.getItem('tk') || '';
+
+function esc(s) {
+  return String(s == null ? '' : s).replace(/[&<>"']/g, c =>
+    ({ '&':'&amp;', '<':'&lt;', '>':'&gt;', '"':'&quot;', "'":'&#39;' }[c]));
+}
+
+async function api(body) {
+  const res = await fetch(API_URL, {
+    method: 'POST',
+    headers: { 'Content-Type': 'text/plain;charset=utf-8' },
+    body: JSON.stringify(body)
+  });
+  return res.json();
+}
+
+function showMain(on) {
+  $('loginBox').classList.toggle('hidden', on);
+  $('mainBox').classList.toggle('hidden', !on);
+  if (on) $('q').focus(); else $('pw').focus();
+}
+
+function logoutLocal(msg) {
+  token = '';
+  sessionStorage.removeItem('tk');
+  $('result').innerHTML = '';
+  $('info').textContent = '';
+  $('loginMsg').textContent = msg || '';
+  showMain(false);
+}
+
+async function login() {
+  const pw = $('pw').value;
+  if (!pw) { $('loginMsg').textContent = '請輸入密碼'; return; }
+  $('loginBtn').disabled = true;
+  $('loginMsg').textContent = '登入中…';
+  try {
+    const r = await api({ action: 'login', password: pw });
+    if (r.ok) {
+      token = r.token;
+      sessionStorage.setItem('tk', token);
+      $('pw').value = '';
+      $('loginMsg').textContent = '';
+      showMain(true);
+    } else {
+      $('loginMsg').textContent = r.msg || '登入失敗';
+    }
+  } catch (e) {
+    $('loginMsg').textContent = '連線失敗，請檢查網路或網址設定';
+  }
+  $('loginBtn').disabled = false;
+}
+
+function dateText(minguo, month, day, west) {
+  if (!minguo && !month && !day) return '';
+  return '民國 ' + esc(minguo) + ' 年 ' + esc(month) + ' 月 ' + esc(day) + ' 日' +
+         (west ? '（西元 ' + esc(west) + '）' : '');
+}
+
+function card(r) {
+  return '<div class="card">' +
+    '<div><span class="name">' + esc(r['姓名']) + '</span>' +
+    '<span class="tag">' + esc(r['階級職稱']) + '</span></div>' +
+    '<dl>' +
+      '<dt>單位</dt><dd>' + esc(r['單位']) + '</dd>' +
+      '<dt>專長代碼</dt><dd>' + esc(r['專長代碼']) + '</dd>' +
+      '<dt>年班</dt><dd>' + esc(r['年班']) + '</dd>' +
+      '<dt>身份證字號</dt><dd><span id="id' + r._row + '">' + esc(r['身份證字號']) + '</span> ' +
+        '<button class="ghost" data-row="' + r._row + '">顯示</button></dd>' +
+      '<dt>入伍日期</dt><dd>' + dateText(r['入伍民國年'], r['入伍月'], r['入伍日'], r['入伍西元年']) + '</dd>' +
+      '<dt>出生日期</dt><dd>' + dateText(r['出生民國年'], r['出生月'], r['出生日'], r['出生西元年']) + '</dd>' +
+      '<dt>血型</dt><dd>' + esc(r['血型']) + '</dd>' +
+      '<dt>電話</dt><dd>' + esc(r['電話']) + '</dd>' +
+    '</dl></div>';
+}
+
+async function search() {
+  const q = $('q').value.trim();
+  if (!q) { $('info').textContent = '請輸入關鍵字'; return; }
+  $('searchBtn').disabled = true;
+  $('info').textContent = '查詢中…';
+  try {
+    const r = await api({ action: 'search', token: token, q: q });
+    if (r.expired) { logoutLocal(r.msg); return; }
+    if (!r.ok) { $('info').textContent = r.msg || '查詢失敗'; }
+    else {
+      $('info').textContent = r.total === 0 ? '查無資料' :
+        '共 ' + r.total + ' 筆' + (r.total > r.rows.length ? '（僅顯示前 ' + r.rows.length + ' 筆，請縮小範圍）' : '');
+      $('result').innerHTML = r.rows.map(card).join('');
+    }
+  } catch (e) {
+    $('info').textContent = '連線失敗';
+  }
+  $('searchBtn').disabled = false;
+}
+
+async function reveal(btn) {
+  const row = btn.getAttribute('data-row');
+  btn.disabled = true;
+  try {
+    const r = await api({ action: 'reveal', token: token, row: Number(row) });
+    if (r.expired) { logoutLocal(r.msg); return; }
+    if (r.ok) {
+      $('id' + row).textContent = r.id;
+      btn.remove();
+    } else { btn.disabled = false; }
+  } catch (e) { btn.disabled = false; }
+}
+
+$('loginBtn').addEventListener('click', login);
+$('pw').addEventListener('keydown', e => { if (e.key === 'Enter') login(); });
+$('searchBtn').addEventListener('click', search);
+$('q').addEventListener('keydown', e => { if (e.key === 'Enter') search(); });
+$('result').addEventListener('click', e => {
+  const b = e.target.closest('button[data-row]');
+  if (b) reveal(b);
+});
+$('logoutBtn').addEventListener('click', async () => {
+  try { await api({ action: 'logout', token: token }); } catch (e) {}
+  logoutLocal('');
+});
+
+showMain(!!token);
+</script>
+</body>
+</html>
