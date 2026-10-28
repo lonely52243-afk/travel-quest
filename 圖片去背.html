@@ -1,0 +1,497 @@
+<!DOCTYPE html>
+<html lang="zh-Hant">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
+<title>圖片去背工具</title>
+<style>
+  :root{
+    --bg:#f4f5f7; --card:#ffffff; --text:#1f2430; --sub:#6b7280;
+    --main:#4f46e5; --main2:#6366f1; --line:#e5e7eb; --danger:#ef4444;
+  }
+  *{box-sizing:border-box;-webkit-tap-highlight-color:transparent}
+  html,body{margin:0;padding:0;background:var(--bg);color:var(--text);
+    font-family:-apple-system,BlinkMacSystemFont,"PingFang TC","Noto Sans TC","Microsoft JhengHei",sans-serif}
+  .wrap{max-width:720px;margin:0 auto;padding:16px 14px 40px}
+  h1{font-size:20px;margin:6px 0 4px}
+  .hint{font-size:13px;color:var(--sub);margin:0 0 14px}
+  .card{background:var(--card);border-radius:14px;padding:14px;margin-bottom:12px;
+    box-shadow:0 1px 3px rgba(0,0,0,.08)}
+  .btn{appearance:none;border:0;border-radius:10px;padding:11px 14px;font-size:15px;
+    background:var(--main);color:#fff;font-weight:600;cursor:pointer}
+  .btn:active{background:var(--main2)}
+  .btn.ghost{background:#eef0f6;color:var(--text)}
+  .btn.ghost:active{background:#e0e3ee}
+  .btn:disabled{opacity:.45;cursor:not-allowed}
+  .row{display:flex;gap:8px;flex-wrap:wrap;align-items:center}
+  .row > .grow{flex:1}
+  .tabs{display:flex;background:#eef0f6;border-radius:10px;padding:3px;margin-bottom:12px}
+  .tab{flex:1;text-align:center;padding:9px 6px;border-radius:8px;font-size:14px;font-weight:600;
+    color:var(--sub);cursor:pointer;user-select:none}
+  .tab.on{background:#fff;color:var(--main);box-shadow:0 1px 2px rgba(0,0,0,.1)}
+  .drop{border:2px dashed #c7cbe0;border-radius:12px;padding:26px 10px;text-align:center;
+    color:var(--sub);font-size:14px;cursor:pointer}
+  .drop.over{border-color:var(--main);background:#eef0ff}
+  .stage{position:relative;border-radius:10px;overflow:hidden;line-height:0;
+    border:1px solid var(--line);touch-action:manipulation}
+  .stage.checker{background-color:#fff;
+    background-image:linear-gradient(45deg,#d9dce3 25%,transparent 25%,transparent 75%,#d9dce3 75%),
+                     linear-gradient(45deg,#d9dce3 25%,transparent 25%,transparent 75%,#d9dce3 75%);
+    background-size:20px 20px;background-position:0 0,10px 10px}
+  .stage.white{background:#fff}
+  .stage.black{background:#000}
+  .stage.green{background:#22c55e}
+  canvas{width:100%;height:auto;display:block}
+  canvas.pick{cursor:crosshair}
+  label.lb{display:flex;justify-content:space-between;font-size:14px;margin:10px 0 4px}
+  label.lb b{color:var(--main)}
+  input[type=range]{width:100%;accent-color:var(--main)}
+  .swatch{width:26px;height:26px;border-radius:6px;border:1px solid var(--line);
+    display:inline-block;vertical-align:middle;background:#fff}
+  .seg{display:flex;gap:6px;flex-wrap:wrap}
+  .chip{padding:7px 12px;border-radius:999px;background:#eef0f6;font-size:13px;cursor:pointer;
+    user-select:none;font-weight:600;color:var(--sub)}
+  .chip.on{background:var(--main);color:#fff}
+  .status{font-size:13px;color:var(--sub);min-height:18px;margin-top:8px}
+  .status.err{color:var(--danger)}
+  .bar{height:6px;background:#e5e7eb;border-radius:3px;overflow:hidden;margin-top:8px;display:none}
+  .bar i{display:block;height:100%;width:0;background:var(--main);transition:width .2s}
+  .result{display:none;margin-top:12px}
+  .result img{width:100%;border-radius:10px;border:1px solid var(--line);
+    background-color:#fff;
+    background-image:linear-gradient(45deg,#d9dce3 25%,transparent 25%,transparent 75%,#d9dce3 75%),
+                     linear-gradient(45deg,#d9dce3 25%,transparent 25%,transparent 75%,#d9dce3 75%);
+    background-size:20px 20px;background-position:0 0,10px 10px}
+  .foot{text-align:center;font-size:12px;color:#9aa0ad;margin-top:18px}
+  .hide{display:none !important}
+  .dim{opacity:.4;pointer-events:none}
+</style>
+</head>
+<body>
+<div class="wrap">
+  <h1>圖片去背工具</h1>
+  <p class="hint">圖片只在你的裝置上處理，不會上傳。完成後存成透明背景 PNG。</p>
+
+  <!-- 選圖 -->
+  <div class="card">
+    <div class="drop" id="drop">點這裡選擇圖片，或把圖片拖進來</div>
+    <input type="file" id="file" accept="image/*" class="hide">
+  </div>
+
+  <!-- 工作區 -->
+  <div class="card hide" id="work">
+    <div class="tabs">
+      <div class="tab on" id="tabColor">顏色去背</div>
+      <div class="tab" id="tabAI">AI 去背</div>
+    </div>
+
+    <div class="stage checker" id="stage">
+      <canvas id="cv" class="pick"></canvas>
+    </div>
+
+    <div class="row" style="margin-top:10px">
+      <span style="font-size:13px;color:var(--sub)">預覽底色</span>
+      <div class="seg" id="bgSeg">
+        <div class="chip on" data-bg="checker">透明格</div>
+        <div class="chip" data-bg="white">白</div>
+        <div class="chip" data-bg="black">黑</div>
+        <div class="chip" data-bg="green">綠</div>
+      </div>
+    </div>
+
+    <!-- 顏色去背面板 -->
+    <div id="panelColor" style="margin-top:6px">
+      <p class="hint" style="margin:10px 0 0">在圖片上點一下要去掉的背景顏色。</p>
+      <label class="lb"><span>容許值（越大去越多）</span><b id="tolV">30</b></label>
+      <input type="range" id="tol" min="1" max="150" value="30">
+      <label class="lb"><span>邊緣柔化</span><b id="softV">10</b></label>
+      <input type="range" id="soft" min="0" max="60" value="10">
+      <div class="row" style="margin-top:10px">
+        <span style="font-size:14px">範圍</span>
+        <div class="seg" id="scopeSeg">
+          <div class="chip on" data-scope="contig">只去相連的</div>
+          <div class="chip" data-scope="global">整張同色都去</div>
+        </div>
+      </div>
+      <div class="row" style="margin-top:10px">
+        <span style="font-size:13px;color:var(--sub)">上次點選的顏色</span>
+        <span class="swatch" id="sw"></span>
+      </div>
+    </div>
+
+    <!-- AI 去背面板 -->
+    <div id="panelAI" class="hide" style="margin-top:6px">
+      <p class="hint" style="margin:10px 0 0">
+        自動辨識主體並去掉背景。第一次使用要下載 AI 模型（約數十 MB），需要網路，之後瀏覽器會快取。
+      </p>
+      <div class="row" style="margin-top:10px">
+        <button class="btn grow" id="btnAI">開始 AI 去背</button>
+      </div>
+      <div class="bar" id="bar"><i id="barI"></i></div>
+    </div>
+
+    <div class="status" id="status"></div>
+
+    <div class="row" style="margin-top:12px">
+      <button class="btn ghost" id="btnUndo" disabled>復原</button>
+      <button class="btn ghost" id="btnReset" disabled>還原原圖</button>
+      <button class="btn ghost" id="btnNew">換一張</button>
+    </div>
+    <div class="row" style="margin-top:10px">
+      <button class="btn grow" id="btnSave">存成 PNG</button>
+    </div>
+
+    <div class="result" id="result">
+      <p class="hint" style="margin:0 0 8px">
+        如果上面按了沒有下載（例如部分 iPhone），請長按下方圖片，選「加入照片」或「儲存圖像」。
+      </p>
+      <img id="resImg" alt="去背結果">
+    </div>
+  </div>
+
+  <div class="foot">吱吱製作</div>
+</div>
+
+<script>
+(function(){
+  "use strict";
+
+  var MAXD = 3000;           // 圖片最長邊上限，避免手機記憶體不足
+  var MAX_HISTORY = 8;       // 復原步數上限
+
+  var $ = function(id){ return document.getElementById(id); };
+  var cv = $('cv');
+  var ctx = cv.getContext('2d', { willReadFrequently: true });
+
+  var hasImg = false;
+  var baseName = 'image';
+  var history = [];          // 每一步的 ImageData
+  var original = null;       // 原圖 ImageData
+  var mode = 'color';        // 'color' | 'ai'
+  var scope = 'contig';      // 'contig' | 'global'
+  var aiMod = null;
+  var busy = false;
+  var resultURL = null;
+
+  /* ---------- 小工具 ---------- */
+  function setStatus(msg, isErr){
+    var s = $('status');
+    s.textContent = msg || '';
+    s.className = 'status' + (isErr ? ' err' : '');
+  }
+
+  function updateButtons(){
+    $('btnUndo').disabled = history.length <= 1 || busy;
+    $('btnReset').disabled = !original || history.length <= 1 || busy;
+    $('btnSave').disabled = !hasImg || busy;
+    $('btnAI').disabled = !hasImg || busy;
+  }
+
+  function pushHistory(){
+    history.push(ctx.getImageData(0, 0, cv.width, cv.height));
+    if (history.length > MAX_HISTORY + 1) {
+      // 第 0 筆是原圖，保留；丟掉第 1 筆
+      history.splice(1, 1);
+    }
+    updateButtons();
+  }
+
+  function clearResult(){
+    $('result').style.display = 'none';
+    if (resultURL) { URL.revokeObjectURL(resultURL); resultURL = null; }
+    $('resImg').removeAttribute('src');
+  }
+
+  /* ---------- 載入圖片 ---------- */
+  function loadFile(f){
+    if (!f || !/^image\//.test(f.type)) {
+      setStatus('這不是圖片檔。', true);
+      return;
+    }
+    baseName = (f.name || 'image').replace(/\.[^.]+$/, '') || 'image';
+    var url = URL.createObjectURL(f);
+    var img = new Image();
+    img.onload = function(){
+      var w = img.naturalWidth, h = img.naturalHeight;
+      var k = Math.min(1, MAXD / Math.max(w, h));
+      var nw = Math.max(1, Math.round(w * k));
+      var nh = Math.max(1, Math.round(h * k));
+      cv.width = nw; cv.height = nh;
+      ctx.clearRect(0, 0, nw, nh);
+      ctx.drawImage(img, 0, 0, nw, nh);
+      URL.revokeObjectURL(url);
+      original = ctx.getImageData(0, 0, nw, nh);
+      history = [original];
+      hasImg = true;
+      clearResult();
+      $('work').classList.remove('hide');
+      $('drop').textContent = '已載入：' + (f.name || '圖片') + '（點這裡可換圖）';
+      setStatus(k < 1 ? '圖片太大，已縮小到 ' + nw + '×' + nh + '。' : '尺寸 ' + nw + '×' + nh + '。');
+      updateButtons();
+    };
+    img.onerror = function(){
+      URL.revokeObjectURL(url);
+      setStatus('圖片讀取失敗。', true);
+    };
+    img.src = url;
+  }
+
+  /* ---------- 顏色去背 ---------- */
+  function colorRemove(sx, sy){
+    var w = cv.width, h = cv.height;
+    var im = ctx.getImageData(0, 0, w, h);
+    var d = im.data;
+    var si = (sy * w + sx) * 4;
+    var tr = d[si], tg = d[si + 1], tb = d[si + 2];
+    $('sw').style.background = 'rgb(' + tr + ',' + tg + ',' + tb + ')';
+
+    var tol = parseInt($('tol').value, 10);
+    var soft = parseInt($('soft').value, 10);
+    var limit = tol + soft;
+    var limit2 = limit * limit;
+    var tol2 = tol * tol;
+
+    // 回傳 -1：不在範圍；0..255：新的 alpha 上限
+    function test(i){
+      var a = d[i + 3];
+      if (a === 0) return 0;
+      var dr = d[i] - tr, dg = d[i + 1] - tg, db = d[i + 2] - tb;
+      var dist2 = dr * dr + dg * dg + db * db;
+      if (dist2 > limit2) return -1;
+      if (dist2 <= tol2) return 0;
+      var dist = Math.sqrt(dist2);
+      var na = Math.round(255 * (dist - tol) / (soft || 1));
+      return na;
+    }
+
+    function apply(i, na){
+      if (na < d[i + 3]) d[i + 3] = na;
+    }
+
+    if (scope === 'global') {
+      for (var p = 0; p < w * h; p++) {
+        var i = p * 4;
+        var r = test(i);
+        if (r >= 0) apply(i, r);
+      }
+    } else {
+      var visited = new Uint8Array(w * h);
+      var stack = new Int32Array(w * h);
+      var sp = 0;
+      var startP = sy * w + sx;
+      stack[sp++] = startP;
+      visited[startP] = 1;
+      while (sp > 0) {
+        var cur = stack[--sp];
+        var ci = cur * 4;
+        var res = test(ci);
+        if (res < 0) continue;
+        apply(ci, res);
+        // 半透明邊緣像素不再往外擴散，避免染到主體
+        if (res > 0) continue;
+        var x = cur % w, y = (cur - x) / w;
+        if (x > 0 && !visited[cur - 1]) { visited[cur - 1] = 1; stack[sp++] = cur - 1; }
+        if (x < w - 1 && !visited[cur + 1]) { visited[cur + 1] = 1; stack[sp++] = cur + 1; }
+        if (y > 0 && !visited[cur - w]) { visited[cur - w] = 1; stack[sp++] = cur - w; }
+        if (y < h - 1 && !visited[cur + w]) { visited[cur + w] = 1; stack[sp++] = cur + w; }
+      }
+    }
+    ctx.putImageData(im, 0, 0);
+    pushHistory();
+    clearResult();
+  }
+
+  function onPick(e){
+    if (!hasImg || mode !== 'color' || busy) return;
+    var rect = cv.getBoundingClientRect();
+    var x = Math.floor((e.clientX - rect.left) * cv.width / rect.width);
+    var y = Math.floor((e.clientY - rect.top) * cv.height / rect.height);
+    x = Math.max(0, Math.min(cv.width - 1, x));
+    y = Math.max(0, Math.min(cv.height - 1, y));
+    setStatus('處理中…');
+    // 讓畫面先更新狀態文字再計算
+    setTimeout(function(){
+      try {
+        colorRemove(x, y);
+        setStatus('完成。不滿意可以按「復原」，或調整容許值再點一次。');
+      } catch (err) {
+        setStatus('處理失敗：' + err.message, true);
+      }
+    }, 20);
+  }
+
+  /* ---------- AI 去背 ---------- */
+  function setBar(p){
+    var bar = $('bar');
+    bar.style.display = 'block';
+    $('barI').style.width = Math.max(0, Math.min(100, p)) + '%';
+  }
+
+  function canvasToBlob(){
+    return new Promise(function(resolve, reject){
+      cv.toBlob(function(b){
+        if (b) resolve(b); else reject(new Error('無法輸出圖片'));
+      }, 'image/png');
+    });
+  }
+
+  function runAI(){
+    if (!hasImg || busy) return;
+    busy = true;
+    updateButtons();
+    setStatus('載入 AI 模組…');
+    setBar(3);
+
+    var loadMod = aiMod
+      ? Promise.resolve(aiMod)
+      : import('https://cdn.jsdelivr.net/npm/@imgly/background-removal@1.5.5/+esm')
+          .then(function(m){ aiMod = m; return m; });
+
+    loadMod.then(function(mod){
+      return canvasToBlob().then(function(blob){
+        setStatus('AI 辨識中，請稍候…');
+        return mod.removeBackground(blob, {
+          output: { format: 'image/png' },
+          progress: function(key, cur, total){
+            if (total > 0) {
+              var pct = Math.round(cur / total * 100);
+              if (String(key).indexOf('fetch') === 0) {
+                setStatus('下載 AI 模型… ' + pct + '%');
+                setBar(5 + pct * 0.6);
+              } else {
+                setStatus('AI 辨識中… ' + pct + '%');
+                setBar(65 + pct * 0.3);
+              }
+            }
+          }
+        });
+      });
+    }).then(function(outBlob){
+      return createImageBitmap(outBlob);
+    }).then(function(bmp){
+      ctx.clearRect(0, 0, cv.width, cv.height);
+      ctx.drawImage(bmp, 0, 0, cv.width, cv.height);
+      if (bmp.close) bmp.close();
+      pushHistory();
+      clearResult();
+      setBar(100);
+      setStatus('AI 去背完成。細節不滿意可以切到「顏色去背」再修。');
+    }).catch(function(err){
+      setStatus('AI 去背失敗：' + (err && err.message ? err.message : err) +
+        '。請確認有連上網路，或改用顏色去背。', true);
+    }).then(function(){
+      busy = false;
+      updateButtons();
+      setTimeout(function(){ $('bar').style.display = 'none'; }, 800);
+    });
+  }
+
+  /* ---------- 存檔 ---------- */
+  function savePNG(){
+    if (!hasImg || busy) return;
+    canvasToBlob().then(function(blob){
+      if (resultURL) URL.revokeObjectURL(resultURL);
+      resultURL = URL.createObjectURL(blob);
+      var a = document.createElement('a');
+      a.href = resultURL;
+      a.download = baseName + '_去背.png';
+      document.body.appendChild(a);
+      a.click();
+      document.body.removeChild(a);
+      $('resImg').src = resultURL;
+      $('result').style.display = 'block';
+      setStatus('已輸出 PNG（透明背景）。');
+    }).catch(function(err){
+      setStatus('輸出失敗：' + err.message, true);
+    });
+  }
+
+  /* ---------- 事件 ---------- */
+  $('drop').addEventListener('click', function(){ $('file').click(); });
+  $('file').addEventListener('change', function(e){
+    if (e.target.files && e.target.files[0]) loadFile(e.target.files[0]);
+    e.target.value = '';
+  });
+  ['dragenter', 'dragover'].forEach(function(ev){
+    $('drop').addEventListener(ev, function(e){
+      e.preventDefault(); $('drop').classList.add('over');
+    });
+  });
+  ['dragleave', 'drop'].forEach(function(ev){
+    $('drop').addEventListener(ev, function(e){
+      e.preventDefault(); $('drop').classList.remove('over');
+    });
+  });
+  $('drop').addEventListener('drop', function(e){
+    var f = e.dataTransfer && e.dataTransfer.files && e.dataTransfer.files[0];
+    if (f) loadFile(f);
+  });
+  // 支援貼上圖片
+  document.addEventListener('paste', function(e){
+    var items = (e.clipboardData && e.clipboardData.items) || [];
+    for (var i = 0; i < items.length; i++) {
+      if (items[i].type.indexOf('image') === 0) {
+        var f = items[i].getAsFile();
+        if (f) { loadFile(f); break; }
+      }
+    }
+  });
+
+  cv.addEventListener('click', onPick);
+
+  $('tab' + 'Color').addEventListener('click', function(){ switchMode('color'); });
+  $('tabAI').addEventListener('click', function(){ switchMode('ai'); });
+  function switchMode(m){
+    mode = m;
+    $('tabColor').classList.toggle('on', m === 'color');
+    $('tabAI').classList.toggle('on', m === 'ai');
+    $('panelColor').classList.toggle('hide', m !== 'color');
+    $('panelAI').classList.toggle('hide', m !== 'ai');
+    cv.classList.toggle('pick', m === 'color');
+    setStatus('');
+  }
+
+  $('tol').addEventListener('input', function(){ $('tolV').textContent = $('tol').value; });
+  $('soft').addEventListener('input', function(){ $('softV').textContent = $('soft').value; });
+
+  function bindSeg(id, attr, cb){
+    $(id).addEventListener('click', function(e){
+      var t = e.target;
+      if (!t.classList.contains('chip')) return;
+      var chips = $(id).querySelectorAll('.chip');
+      for (var i = 0; i < chips.length; i++) chips[i].classList.remove('on');
+      t.classList.add('on');
+      cb(t.getAttribute(attr));
+    });
+  }
+  bindSeg('bgSeg', 'data-bg', function(v){
+    $('stage').className = 'stage ' + v;
+  });
+  bindSeg('scopeSeg', 'data-scope', function(v){ scope = v; });
+
+  $('btnAI').addEventListener('click', runAI);
+  $('btnSave').addEventListener('click', savePNG);
+
+  $('btnUndo').addEventListener('click', function(){
+    if (history.length <= 1 || busy) return;
+    history.pop();
+    ctx.putImageData(history[history.length - 1], 0, 0);
+    clearResult();
+    updateButtons();
+    setStatus('已復原一步。');
+  });
+  $('btnReset').addEventListener('click', function(){
+    if (!original || busy) return;
+    history = [original];
+    ctx.putImageData(original, 0, 0);
+    clearResult();
+    updateButtons();
+    setStatus('已還原成原圖。');
+  });
+  $('btnNew').addEventListener('click', function(){ $('file').click(); });
+
+  updateButtons();
+})();
+</script>
+</body>
+</html>
