@@ -225,17 +225,46 @@ select { flex: none; min-height: 38px; padding: 4px 8px; border: 2px solid var(-
 .stat td:first-child, .stat th:first-child { text-align: left; font-weight: 800; }
 .stat tfoot td { border-top: 2px solid var(--ink); border-bottom: 0; font-weight: 900; }
 .statbtn.on { background: var(--yellow); }
-body.nounit .card, body.nounit #share, body.nounit .links, body.nounit #remind { display: none; }
+body.nounit .card:not(.keep), body.nounit #share, body.nounit .links, body.nounit #remind { display: none; }
 .vempty { margin: 0; padding: 10px; font-size: 14px; color: var(--muted); font-weight: 700; }
 
 /* ---- 教學、提示 ---- */
-.modal { position: fixed; inset: 0; z-index: 30; display: flex; align-items: center; justify-content: center; padding: 20px; background: rgba(35, 35, 47, 0.55); }
-.sheet { width: 100%; max-width: 420px; max-height: 90vh; overflow: auto; padding: 20px 18px 18px; border: 2px solid var(--ink); border-radius: 20px; background: var(--bg); box-shadow: 0 5px 0 var(--ink); }
-.sheet h2 { margin: 0 0 12px; text-align: center; font-size: 20px; font-weight: 900; }
-.step { display: grid; grid-template-columns: 44px 1fr; gap: 12px; align-items: start; margin-bottom: 10px; padding: 10px; border: 2px solid var(--ink); border-radius: 12px; background: #fff; }
-.step .no { display: flex; align-items: center; justify-content: center; width: 44px; height: 44px; border: 2px solid var(--ink); border-radius: 12px; background: var(--yellow); font-size: 22px; font-weight: 900; }
-.step b { display: block; font-size: 15px; font-weight: 900; }
-.step span { font-size: 13px; font-weight: 700; color: #4a463d; }
+.modal { position: fixed; inset: 0; z-index: 30; display: flex; align-items: flex-end; justify-content: center; background: rgba(28, 43, 69, 0.55); }
+.sheet {
+  width: 100%; max-width: 520px; max-height: 92vh; display: flex; flex-direction: column; background: var(--bg);
+  border: 2px solid var(--ink); border-bottom: 0; border-radius: 20px 20px 0 0;
+}
+.sheet-head { display: flex; align-items: center; justify-content: space-between; padding: 14px 16px 8px; }
+.sheet-head h2 { margin: 0; font-size: 20px; font-weight: 900; }
+.xbtn { min-width: 44px; min-height: 44px; border: 2px solid var(--ink); border-radius: 12px; background: #fff; font-size: 18px; font-weight: 900; cursor: pointer; }
+.seg { display: flex; gap: 6px; padding: 0 16px 10px; }
+.seg button { flex: 1; min-height: 42px; padding: 4px 6px; border: 2px solid var(--ink); border-radius: 12px; background: #fff; font-size: 14px; font-weight: 900; cursor: pointer; }
+.seg button[aria-selected="true"] { background: var(--yellow); box-shadow: 0 2px 0 var(--ink); }
+.sheet-body { flex: 1 1 auto; overflow-y: auto; padding: 4px 16px 12px; -webkit-overflow-scrolling: touch; }
+.sheet-foot { padding: 10px 16px calc(14px + env(safe-area-inset-bottom, 0px)); border-top: 2px solid var(--ink); background: var(--bg); }
+.sheet-foot .primary { margin-top: 0; }
+.panel h3 { margin: 14px 0 8px; font-size: 15px; font-weight: 900; }
+.panel h3:first-child { margin-top: 4px; }
+.lead2 { margin: 0 0 10px; font-size: 14px; font-weight: 700; color: #4a463d; }
+.step { display: grid; grid-template-columns: 38px 1fr; gap: 10px; align-items: start; margin-bottom: 10px; padding: 10px; border: 2px solid var(--ink); border-radius: 14px; background: #fff; }
+.step .no { display: flex; align-items: center; justify-content: center; width: 38px; height: 38px; border: 2px solid var(--ink); border-radius: 10px; background: var(--yellow); font-size: 18px; font-weight: 900; }
+.step b { display: block; font-size: 16px; font-weight: 900; }
+.step p { margin: 2px 0 0; font-size: 14px; font-weight: 700; color: #4a463d; line-height: 1.55; }
+.mock { margin-top: 8px; padding: 8px; border: 2px dashed #c9c1ae; border-radius: 10px; background: #fffdf8; font-size: 13px; font-weight: 800; pointer-events: none; }
+.m-in { padding: 6px 10px; border: 2px solid var(--ink); border-radius: 10px; background: #fff; font-size: 15px; }
+.m-opt { display: flex; align-items: center; gap: 8px; margin-top: 6px; padding: 5px 8px; border: 2px solid var(--ink); border-radius: 10px; background: #fff; }
+.m-opt:first-child { margin-top: 0; }
+.m-opt i { display: inline-flex; align-items: center; justify-content: center; width: 24px; height: 24px; border: 2px solid var(--ink); border-radius: 6px; color: #fff; font-style: normal; font-size: 12px; }
+.m-opt.g i { background: var(--c0); } .m-opt.y i { background: var(--c1); color: var(--ink); } .m-opt.r i { background: var(--c2); }
+.m-opt.sel { background: #d9f4e3; }
+.m-opt em { margin-left: auto; padding: 0 8px; border: 2px solid var(--ink); border-radius: 99px; background: #fff; font-size: 11px; font-style: normal; }
+.m-btn { padding: 8px; border: 2px solid var(--ink); border-radius: 10px; background: var(--yellow); text-align: center; box-shadow: 0 2px 0 var(--ink); }
+.m-ok { margin-top: 6px; padding: 5px 8px; border: 2px solid var(--ink); border-radius: 10px; background: #d9f4e3; }
+.m-link { display: inline-block; padding: 2px 10px; border: 2px solid var(--ink); border-radius: 99px; background: #fff; }
+.faq { margin: 0 0 8px; padding: 8px 12px; border: 2px solid var(--ink); border-radius: 12px; background: #fff; }
+.faq summary { cursor: pointer; font-size: 14px; font-weight: 900; }
+.faq p { margin: 6px 0 2px; font-size: 14px; font-weight: 700; color: #4a463d; line-height: 1.6; }
+.note { margin: 10px 0 0; padding: 8px 12px; border: 2px solid var(--ink); border-radius: 12px; background: #fff3c2; font-size: 13px; font-weight: 800; line-height: 1.55; }
 .toast {
   position: fixed; left: 50%; transform: translateX(-50%); z-index: 40; bottom: calc(22px + env(safe-area-inset-bottom, 0px));
   max-width: calc(100% - 32px); padding: 12px 22px; border: 2px solid var(--ink); border-radius: 99px; background: var(--yellow);
@@ -259,6 +288,15 @@ body.nounit .card, body.nounit #share, body.nounit .links, body.nounit #remind {
     </div>
   </header>
 
+  <section id="createCard" class="card keep" aria-label="建立單位" hidden>
+    <div class="head"><h2 id="createTitle">這個單位還沒建立</h2></div>
+    <p class="hint" style="margin-top:0">管理者可以在這裡直接建立。一般同仁請向幹部確認連結。</p>
+    <div class="field"><label for="cMaster">總管理密碼</label><input type="password" id="cMaster" autocomplete="off"></div>
+    <div class="field"><label for="cPin">這個單位的管理密碼（4～20 個字）</label><input type="text" id="cPin" maxlength="20" autocomplete="off" placeholder="之後交給該單位幹部"></div>
+    <button id="cBtn" class="primary" type="button" disabled>建立這個單位</button>
+    <p id="cMsg" class="msg" role="status"></p>
+    <div class="links"><button id="cHome" class="linkbtn" type="button">回到預設單位</button></div>
+  </section>
   <p id="remind" class="remind" role="status" hidden></p>
   <p id="boot" class="boot">載入中…　如果超過 10 秒還是空白，請改用 Safari 或 Chrome 開啟，或重新整理。</p>
   <div id="notice" class="notice" role="alert" hidden><span id="noticeText"></span><button id="retry" type="button">重新讀取</button></div>
@@ -309,18 +347,7 @@ body.nounit .card, body.nounit #share, body.nounit .links, body.nounit #remind {
 
   <section id="admin" class="card admin" aria-label="幹部管理" hidden>
     <h2>幹部管理</h2>
-    <details class="how"><summary>幹部怎麼用？</summary>
-      <ol>
-        <li><b>回報</b>：同仁投完後，按「回報文字」下面的「複製回報文字」，貼到 Juiker 就是成品。</li>
-        <li><b>日期</b>：預設是明天，用左右箭頭或點日期可以換天，每天的票各自保存。</li>
-        <li><b>截止時間</b>：下面可設定，逾時同仁只能看、不能改。</li>
-        <li><b>同仁名單</b>：貼上全名後，頁面會顯示誰還沒投，同仁點名字就能填入。</li>
-        <li><b>打錯、用暱稱</b>：解鎖後最下面的名單可以刪除，請同仁重投。</li>
-        <li><b>分享</b>：按「分享給同仁」會帶出連結，直接貼到群組。</li>
-        <li><b>清單與統計</b>：「清單編輯」可以幫同仁代選、改狀態或取消；「統計」可看近 7 天、近 30 天、本月每個人各狀態的天數，並複製成文字。</li>
-        <li><b>其他單位</b>：輸入單位代號和該單位密碼，按「建立單位」會複製專用連結，票和設定各自分開。</li>
-      </ol>
-    </details>
+    <button id="helpAdmin" class="btn" type="button" style="width:100%;margin-bottom:12px">幹部怎麼用？看圖文說明</button>
     <div id="adminLogin">
       <div class="field"><label for="aPin">管理密碼</label><input type="password" id="aPin" autocomplete="off"></div>
       <button id="unlock" class="btn" type="button" style="width:100%">解鎖</button>
@@ -354,9 +381,9 @@ body.nounit .card, body.nounit #share, body.nounit .links, body.nounit #remind {
       <div class="row" style="margin-top:10px"><button id="statCopy" class="btn" type="button" disabled>複製統計文字</button></div>
       <p class="sub">給其他單位使用</p>
       <div class="field"><label for="uName">單位代號（中文或英文，最多 12 字）</label><input type="text" id="uName" maxlength="12" autocomplete="off" placeholder="例：通信股"></div>
-      <div class="field"><label for="uPin">該單位的管理密碼（4～20 個字）</label><input type="text" id="uPin" maxlength="20" autocomplete="off" placeholder="交給該單位幹部"><small>只有「總管理密碼」解鎖後才能建立單位。建立後把連結和這組密碼給對方，對方進去按「幹部管理」就能改成自己單位的名稱、選項和名單。</small></div>
+      <div class="field"><label for="uPin">該單位的管理密碼（4～20 個字）</label><input type="text" id="uPin" maxlength="20" autocomplete="off" placeholder="交給該單位幹部"><small>只有「總管理密碼」解鎖後才能建立單位。先按「建立單位」，再按「複製網址」，把網址和這組密碼給對方，對方進去按「幹部管理」就能改成自己單位的名稱、選項和名單。</small></div>
       <input type="text" id="uLink" readonly aria-label="該單位的專用網址" hidden>
-      <div class="row" style="margin-top:8px"><button id="uCreate" class="btn" type="button" disabled>建立單位並複製網址</button></div>
+      <div class="row" style="margin-top:8px"><button id="uCreate" class="btn" type="button" disabled>建立單位</button><button id="uCopy" class="btn" type="button" disabled>複製網址</button></div>
     </div>
     <p id="adminMsg" class="msg" role="status"></p>
   </section>
@@ -364,13 +391,63 @@ body.nounit .card, body.nounit #share, body.nounit .links, body.nounit #remind {
   <p class="fine">資料同步自 Google 試算表　·　吱吱製作</p>
 </main>
 
-<div id="help-modal" class="modal" role="dialog" aria-modal="true" aria-label="使用教學" hidden>
+<div id="help-modal" class="modal" role="dialog" aria-modal="true" aria-label="使用說明" hidden>
   <div class="sheet">
-    <h2>3 步驟完成投票</h2>
-    <div class="step"><span class="no">1</span><div><b>輸入你的全名</b><span>要寫全名，不要用暱稱，這樣才對得上名單。</span></div></div>
-    <div class="step"><span class="no">2</span><div><b>點選你的狀態</b><span>選好會看到「你的選擇」，也看得到其他同仁選了什麼。</span></div></div>
-    <div class="step"><span class="no">3</span><div><b>按「送出」</b><span>看到「已登記」才算完成。截止前想改，重新選一次再送出就好。</span></div></div>
-    <button id="helpOk" class="primary" type="button" style="margin-top:4px">知道了（之後不再自動顯示）</button>
+    <div class="sheet-head"><h2>使用說明</h2><button id="helpX" class="xbtn" type="button" aria-label="關閉">✕</button></div>
+    <div class="seg" role="tablist">
+      <button type="button" role="tab" data-tab="vote" aria-selected="true">我要投票</button>
+      <button type="button" role="tab" data-tab="admin" aria-selected="false">幹部使用</button>
+      <button type="button" role="tab" data-tab="home" aria-selected="false">加到桌面</button>
+    </div>
+    <div class="sheet-body">
+      <div class="panel" data-panel="vote">
+        <p class="lead2">只要 3 步，不用登入、不用註冊，約 10 秒完成。</p>
+        <div class="step"><span class="no">1</span><div><b>輸入你的全名</b><p>請寫「全名」，不要寫暱稱或綽號，這樣幹部才對得上名單。</p>
+          <div class="mock" aria-hidden="true"><div class="m-in">王小明</div></div></div></div>
+        <div class="step"><span class="no">2</span><div><b>點選你的狀態</b><p>點一下你要的狀態，選到的那一格會變色。下面會看到每個狀態有哪些人。</p>
+          <div class="mock" aria-hidden="true"><div class="m-opt g sel"><i>1</i>休假<em>✓ 你的選擇</em></div><div class="m-opt y"><i>0</i>留守</div><div class="m-opt r"><i>0</i>救災</div></div></div></div>
+        <div class="step"><span class="no">3</span><div><b>按下「送出」</b><p>一定要按送出才算數。看到「已登記」就完成了，可以直接關掉網頁。</p>
+          <div class="mock" aria-hidden="true"><div class="m-btn">送出：王小明　休假（10/30）</div><div class="m-ok">✓ 已登記</div></div></div></div>
+        <h3>常見問題</h3>
+        <details class="faq"><summary>選錯了，可以改嗎？</summary><p>可以。重新點選正確的狀態，再按一次「送出」，會直接蓋掉上一次的選擇。截止之前都可以改。</p></details>
+        <details class="faq"><summary>怎麼知道自己有沒有投成功？</summary><p>投成功後，畫面會出現「你已投票：○○」的綠色框，名字也會出現在該狀態的名單裡（有底線）。關掉再打開，輸入同樣的名字也看得到。</p></details>
+        <details class="faq"><summary>我要投別天的怎麼辦？</summary><p>最上面日期兩旁有左右箭頭，按一下換一天；點中間的日期也可以直接選。預設顯示的是明天。</p></details>
+        <details class="faq"><summary>為什麼按不了、只能看？</summary><p>可能已經過了截止時間，或是那一天已經結束。這時只能查看，不能再改，有需要請找幹部。</p></details>
+        <details class="faq"><summary>別人看得到我選什麼嗎？</summary><p>看得到。這是公開調查，每個人的名字會列在自己選的狀態下面。</p></details>
+        <details class="faq"><summary>換手機、換電腦會有影響嗎？</summary><p>不會。資料存在雲端，在任何裝置輸入同一個全名，就是同一個人。</p></details>
+      </div>
+      <div class="panel" data-panel="admin" hidden>
+        <p class="lead2">給負責整理的幹部。平常只要做這 3 件事。</p>
+        <h3>每天要做的事</h3>
+        <div class="step"><span class="no">1</span><div><b>把連結發給大家</b><p>按頁面下方的「分享給同仁」，選 Juiker 貼到群組。連結會帶著日期，同仁點開就是那一天。</p></div></div>
+        <div class="step"><span class="no">2</span><div><b>看誰還沒投</b><p>頁面中間的「尚未投票」會列出還沒投的人（需先設定同仁名單）。可以直接點名提醒。</p></div></div>
+        <div class="step"><span class="no">3</span><div><b>複製回報文字</b><p>往下找到「回報文字」，按「複製回報文字」，貼到 Juiker 就是成品，不用自己整理。</p>
+          <div class="mock" aria-hidden="true">軍械股（10/30）人員狀況如下：<br><br>休假： 1員（同咨）<br>到班： 1員（冠瑜）</div></div></div>
+        <h3>第一次設定（只做一次）</h3>
+        <div class="step"><span class="no">1</span><div><b>打開幹部管理</b><p>拉到網頁最底部，按小字的「幹部管理」，輸入管理密碼，按「解鎖」。</p></div></div>
+        <div class="step"><span class="no">2</span><div><b>改成自己單位的樣子</b><p>改「單位名稱」和「狀態選項」（2～6 個，用頓號分開）。可以設定每天的截止時間，也可以貼上「同仁名單」。</p></div></div>
+        <div class="step"><span class="no">3</span><div><b>按「儲存設定」</b><p>看到「已儲存」就完成，大家重新整理就會看到新的設定。</p></div></div>
+        <h3>其他功能</h3>
+        <details class="faq"><summary>同仁打錯、用暱稱怎麼辦？</summary><p>在幹部管理的「清單編輯」，把那個人的狀態改成「未投票」就是取消。再用下面的「新增人員」輸入全名，幫他選好。</p></details>
+        <details class="faq"><summary>同仁沒時間投，可以代投嗎？</summary><p>可以。「清單編輯」每個人旁邊都有下拉選單，直接選狀態就會存起來，不受截止時間限制。</p></details>
+        <details class="faq"><summary>想看這個月誰休了幾天？</summary><p>在幹部管理的「統計」按「近 7 天」「近 30 天」或「本月」，會列出每個人各狀態的天數，可以複製成文字。</p></details>
+        <details class="faq"><summary>其他單位也想用，怎麼辦？</summary><p>由總管理者在「給其他單位使用」輸入單位代號和該單位密碼，按「建立單位」，再按「複製網址」。把網址和密碼交給對方，對方照上面「第一次設定」做一次，就是自己單位專用的，資料不會跟別人混在一起。</p></details>
+        <details class="faq"><summary>忘記管理密碼怎麼辦？</summary><p>請總管理者用「總管理密碼」解鎖你們單位，在「這個單位的管理密碼」欄位設定新密碼，按「儲存設定」就好。總管理密碼本身放在 Apps Script 程式最上面的 ADMIN_PIN，改掉後重新部署即可。</p></details>
+        <p class="note">提醒：管理密碼請只告訴要整理的幹部，不要貼在群組。</p>
+      </div>
+      <div class="panel" data-panel="home" hidden>
+        <p class="lead2">加到手機桌面後，點一下圖示就能直接投票，不用再找連結。</p>
+        <h3>iPhone（用 Safari 開啟）</h3>
+        <div class="step"><span class="no">1</span><div><b>按下面中間的「分享」</b><p>就是那個方框加向上箭頭的圖示。</p></div></div>
+        <div class="step"><span class="no">2</span><div><b>往下滑，點「加入主畫面」</b><p>如果沒看到，把選單拉到最下面找。</p></div></div>
+        <div class="step"><span class="no">3</span><div><b>按右上角「新增」</b><p>桌面就會出現圖示，之後點它就能投票。</p></div></div>
+        <h3>Android（用 Chrome 開啟）</h3>
+        <div class="step"><span class="no">1</span><div><b>按右上角「⋮」</b><p>三個點的選單。</p></div></div>
+        <div class="step"><span class="no">2</span><div><b>點「加到主畫面」</b><p>再按「新增」，桌面就會出現圖示。</p></div></div>
+        <p class="note">如果是從 Juiker 裡面點開的，請先選「用瀏覽器開啟」（Safari 或 Chrome），再照上面做。</p>
+      </div>
+    </div>
+    <div class="sheet-foot"><button id="helpOk" class="primary" type="button">我知道了</button></div>
   </div>
 </div>
 <div id="toast" class="toast" role="status" hidden></div>
@@ -534,7 +611,7 @@ body.nounit .card, body.nounit #share, body.nounit .links, body.nounit #remind {
   var OPTS = DEFAULT_OPTIONS.slice();
   var ROSTER_KEY = "";
   var curDate = START_DATE, fetchedAt = 0;
-  var noUnit = false, skew = 0, loading = false, again = false, loaded = false, failCount = 0;
+  var helpPending = false, noUnit = false, skew = 0, loading = false, again = false, loaded = false, failCount = 0;
   var pick = "", busy = false, sticky = "", stickyK = "", confirmClear = false, clearTimer = 0, toastTimer = 0;
   var pin = "", adminOpen = false, adminDirty = false;
 
@@ -827,8 +904,10 @@ body.nounit .card, body.nounit #share, body.nounit .links, body.nounit #remind {
         noUnit = true;
         document.body.classList.add("nounit");
         $("boot").hidden = true;
-        notice("這個單位代號還沒有建立，請向管理者確認連結是否正確。");
-        $("retry").hidden = true;
+        notice("");
+        $("unit").textContent = UNIT_KEY || "　";
+        $("createTitle").textContent = "「" + UNIT_KEY + "」還沒建立";
+        $("createCard").hidden = false;
         return;
       }
       if (!s || !s.date) throw new Error("bad");
@@ -843,6 +922,7 @@ body.nounit .card, body.nounit #share, body.nounit .links, body.nounit #remind {
       loaded = true;
       $("boot").hidden = true;
       notice("");
+      if (helpPending) { helpPending = false; showHelp(true); }
       updateAll();
       syncAdmin();
     }).catch(function () {
@@ -930,13 +1010,27 @@ body.nounit .card, body.nounit #share, body.nounit .links, body.nounit #remind {
   });
 
   /* ---- 教學 ---- */
-  function showHelp(show) { $("help-modal").hidden = !show; }
-  $("help").addEventListener("click", function () { showHelp(true); });
-  $("helpOk").addEventListener("click", function () {
+  function showHelp(show, tab) {
+    $("help-modal").hidden = !show;
+    if (!show) return;
+    tab = tab || "vote";
+    Array.prototype.forEach.call(document.querySelectorAll(".seg button"), function (b) { b.setAttribute("aria-selected", String(b.dataset.tab === tab)); });
+    Array.prototype.forEach.call(document.querySelectorAll(".panel"), function (pn) { pn.hidden = pn.dataset.panel !== tab; });
+    $("help-modal").querySelector(".sheet-body").scrollTop = 0;
+  }
+  function closeHelp() {
     showHelp(false);
     try { localStorage.setItem("armsStatusHelp", "1"); } catch (e2) {}
+  }
+  Array.prototype.forEach.call(document.querySelectorAll(".seg button"), function (b) {
+    b.addEventListener("click", function () { showHelp(true, b.dataset.tab); });
   });
-  $("help-modal").addEventListener("click", function (e) { if (e.target === $("help-modal")) $("helpOk").click(); });
+  $("helpX").addEventListener("click", closeHelp);
+  $("help").addEventListener("click", function () { showHelp(true); });
+  $("helpOk").addEventListener("click", closeHelp);
+  $("helpAdmin").addEventListener("click", function () { showHelp(true, "admin"); });
+  $("help-modal").addEventListener("click", function (e) { if (e.target === $("help-modal")) closeHelp(); });
+  document.addEventListener("keydown", function (e) { if (e.key === "Escape" && !$("help-modal").hidden) closeHelp(); });
 
   /* ---- 管理 ---- */
   $("adminToggle").addEventListener("click", function () {
@@ -968,19 +1062,37 @@ body.nounit .card, body.nounit #share, body.nounit .links, body.nounit #remind {
     var box = $("uLink");
     box.value = l; box.hidden = !l;
     $("uCreate").disabled = !(l && pinOk);
+    $("uCopy").disabled = !l;
     if ($("uName").value && !l) adminMsg("單位代號只能是中文、英文、數字，最多 12 字。", "err");
   }
   $("uName").addEventListener("input", checkUnitForm);
   $("uPin").addEventListener("input", checkUnitForm);
+  /* 還沒建立的單位：管理者可以直接在這裡建立 */
+  function checkCreate() { $("cBtn").disabled = !($("cMaster").value && /^\S{4,20}$/.test($("cPin").value)); }
+  $("cMaster").addEventListener("input", checkCreate);
+  $("cPin").addEventListener("input", checkCreate);
+  $("cBtn").addEventListener("click", function () {
+    $("cBtn").disabled = true;
+    call("adminCreateUnit", { pin: $("cMaster").value, code: UNIT_KEY, unit: UNIT_KEY, newpin: $("cPin").value }).then(function (r) {
+      if (r && r.ok) { $("cMsg").textContent = "已建立，重新載入中…"; $("cMsg").dataset.k = "ok"; location.reload(); }
+      else { $("cMsg").textContent = (r && r.msg) || "建立失敗。"; $("cMsg").dataset.k = "err"; checkCreate(); }
+    }).catch(function () { $("cMsg").textContent = "連線失敗，請再試一次。"; $("cMsg").dataset.k = "err"; checkCreate(); });
+  });
+  $("cHome").addEventListener("click", function () { location.href = location.href.split("#")[0].split("?")[0]; });
+
+  $("uCopy").addEventListener("click", function () {
+    var l = unitLink();
+    if (!l) return;
+    copyText(l, "已複製該單位的網址", function () { var b = $("uLink"); b.hidden = false; b.focus(); b.select(); adminMsg("請長按網址後選「拷貝」。", ""); });
+  });
   $("uCreate").addEventListener("click", function () {
     var l = unitLink(), k = $("uName").value.replace(/\s+/g, "");
     if (!l) return;
     $("uCreate").disabled = true;
     call("adminCreateUnit", { pin: pin, code: k, unit: k, newpin: $("uPin").value }).then(function (r) {
       if (r && r.ok) {
-        adminMsg("已建立「" + k + "」。連結已複製，請連同密碼交給該單位幹部。", "ok");
-        copyText(l, "已建立，連結已複製", function () { var b = $("uLink"); b.hidden = false; b.focus(); b.select(); });
-        $("uPin").value = "";
+        adminMsg("已建立「" + k + "」。請按「複製網址」，連同密碼交給該單位幹部。", "ok");
+        toast("已建立「" + k + "」");
       } else adminMsg((r && r.msg) || "建立失敗。", "err");
     }).catch(function () { adminMsg("建立失敗，請再試一次。", "err"); }).then(checkUnitForm);
   });
@@ -1097,8 +1209,8 @@ body.nounit .card, body.nounit #share, body.nounit .links, body.nounit #remind {
   try {
     var saved = localStorage.getItem("armsStatusName");
     if (saved) $("who").value = normName(saved);
-    if (!localStorage.getItem("armsStatusHelp")) showHelp(true);
-  } catch (e3) { showHelp(true); }
+    if (!localStorage.getItem("armsStatusHelp")) helpPending = true;
+  } catch (e3) { helpPending = true; }
 
   if (DEMO) $("preview").hidden = false;
   buildOpts();
