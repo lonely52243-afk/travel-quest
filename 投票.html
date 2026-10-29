@@ -5,6 +5,11 @@
 <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
 <meta name="color-scheme" content="light">
 <meta name="theme-color" content="#fff6e6">
+<link rel="apple-touch-icon" href="vote-icon.png">
+<link rel="icon" type="image/png" href="vote-icon.png">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-status-bar-style" content="default">
 <title>人員情況投票</title>
 <style>
 /* 風格：奶油色底加淡格線、空軍藍的框線與文字、黃／紅／綠重點色，版面端正不歪斜。整頁只有淺色，不跟著手機深色模式變。 */
@@ -209,8 +214,18 @@ textarea { min-height: 96px; resize: vertical; line-height: 1.6; }
 .vrow { display: flex; align-items: center; gap: 10px; padding: 6px 10px; min-height: 46px; }
 .vrow + .vrow { border-top: 2px solid #e6dfcf; }
 .vrow .vn { flex: 1 1 auto; min-width: 0; font-weight: 900; overflow-wrap: anywhere; }
-.vrow .vs { flex: none; font-size: 13px; color: var(--muted); font-weight: 700; }
-.vrow button { flex: none; min-height: 36px; padding: 4px 12px; border: 2px solid var(--coral); border-radius: 8px; background: #fff; color: var(--coral); font-size: 14px; font-weight: 900; cursor: pointer; }
+.vrow.none .vn { color: var(--muted); font-weight: 700; }
+select { flex: none; min-height: 38px; padding: 4px 8px; border: 2px solid var(--ink); border-radius: 10px; background: #fffdf8; color: var(--ink); font: inherit; font-size: 14px; font-weight: 800; }
+.addrow { display: flex; gap: 8px; margin-top: 10px; }
+.addrow input { flex: 1 1 auto; }
+.addrow .btn { flex: none; min-width: 64px; }
+.stat { width: 100%; border-collapse: collapse; margin-top: 8px; font-size: 13px; }
+.stat th, .stat td { padding: 5px 6px; border-bottom: 1px solid #e6dfcf; text-align: center; font-variant-numeric: tabular-nums; }
+.stat th { font-weight: 900; color: var(--muted); }
+.stat td:first-child, .stat th:first-child { text-align: left; font-weight: 800; }
+.stat tfoot td { border-top: 2px solid var(--ink); border-bottom: 0; font-weight: 900; }
+.statbtn.on { background: var(--yellow); }
+body.nounit .card, body.nounit #share, body.nounit .links, body.nounit #remind { display: none; }
 .vempty { margin: 0; padding: 10px; font-size: 14px; color: var(--muted); font-weight: 700; }
 
 /* ---- 教學、提示 ---- */
@@ -302,7 +317,8 @@ textarea { min-height: 96px; resize: vertical; line-height: 1.6; }
         <li><b>同仁名單</b>：貼上全名後，頁面會顯示誰還沒投，同仁點名字就能填入。</li>
         <li><b>打錯、用暱稱</b>：解鎖後最下面的名單可以刪除，請同仁重投。</li>
         <li><b>分享</b>：按「分享給同仁」會帶出連結，直接貼到群組。</li>
-        <li><b>其他單位</b>：輸入單位代號，複製專用網址給對方，票和設定各自分開。</li>
+        <li><b>清單與統計</b>：「清單編輯」可以幫同仁代選、改狀態或取消；「統計」可看近 7 天、近 30 天、本月每個人各狀態的天數，並複製成文字。</li>
+        <li><b>其他單位</b>：輸入單位代號和該單位密碼，按「建立單位」會複製專用連結，票和設定各自分開。</li>
       </ol>
     </details>
     <div id="adminLogin">
@@ -321,12 +337,26 @@ textarea { min-height: 96px; resize: vertical; line-height: 1.6; }
         <button id="saveCfg" class="btn" type="button">儲存設定</button>
         <button id="clearBtn" class="btn danger" type="button">清空這一天的投票</button>
       </div>
-      <p class="sub">給其他單位使用</p>
-      <div class="field"><label for="uName">單位代號（中文或英文，最多 12 字）</label><input type="text" id="uName" maxlength="12" autocomplete="off" placeholder="例：通信股"><small>每個單位一個專用網址，投票和設定各自分開，試算表會自動多一組該單位的分頁。</small></div>
-      <input type="text" id="uLink" readonly aria-label="該單位的專用網址" hidden>
-      <div class="row" style="margin-top:8px"><button id="uCopy" class="btn" type="button" disabled>複製該單位網址</button></div>
       <p id="adminDay" class="sub"></p>
       <div id="voteList" class="vlist"></div>
+      <div class="addrow">
+        <input type="text" id="addName" maxlength="10" placeholder="新增人員（全名）" autocomplete="off">
+        <select id="addStatus" aria-label="狀態"></select>
+        <button id="addBtn" class="btn" type="button">加入</button>
+      </div>
+      <p class="sub">統計</p>
+      <div class="row">
+        <button class="btn statbtn" type="button" data-r="7">近 7 天</button>
+        <button class="btn statbtn" type="button" data-r="30">近 30 天</button>
+        <button class="btn statbtn" type="button" data-r="m">本月</button>
+      </div>
+      <div id="statBox"></div>
+      <div class="row" style="margin-top:10px"><button id="statCopy" class="btn" type="button" disabled>複製統計文字</button></div>
+      <p class="sub">給其他單位使用</p>
+      <div class="field"><label for="uName">單位代號（中文或英文，最多 12 字）</label><input type="text" id="uName" maxlength="12" autocomplete="off" placeholder="例：通信股"></div>
+      <div class="field"><label for="uPin">該單位的管理密碼（4～20 個字）</label><input type="text" id="uPin" maxlength="20" autocomplete="off" placeholder="交給該單位幹部"><small>只有「總管理密碼」解鎖後才能建立單位。建立後把連結和這組密碼給對方，對方進去按「幹部管理」就能改成自己單位的名稱、選項和名單。</small></div>
+      <input type="text" id="uLink" readonly aria-label="該單位的專用網址" hidden>
+      <div class="row" style="margin-top:8px"><button id="uCreate" class="btn" type="button" disabled>建立單位並複製網址</button></div>
     </div>
     <p id="adminMsg" class="msg" role="status"></p>
   </section>
@@ -368,6 +398,8 @@ textarea { min-height: 96px; resize: vertical; line-height: 1.6; }
     var d0 = qs.get("d") || "";
     if (DATE_RE.test(d0)) START_DATE = d0;
     if (qs.get("demo") === "1") DEMO = true;
+    /* 加到手機桌面時會記住目前網址，所以把 d（指定日期）拿掉，每次開都從預設日期開始 */
+    if (d0 && history.replaceState) history.replaceState(null, "", location.pathname + (UNIT_KEY ? "?u=" + encodeURIComponent(UNIT_KEY) : ""));
   } catch (e0) {}
   if (!/^https:\/\//.test(API_URL)) DEMO = true;
 
@@ -450,7 +482,32 @@ textarea { min-height: 96px; resize: vertical; line-height: 1.6; }
         return { ok: true };
       },
       adminDelete: function (a) { if (a.pin !== PIN) return { ok: false, msg: "密碼錯誤" }; byDate[a.date] = (byDate[a.date] || []).filter(function (v) { return v.name !== a.name; }); return { ok: true }; },
-      adminClear: function (a) { if (a.pin !== PIN) return { ok: false, msg: "密碼錯誤" }; byDate[a.date] = []; return { ok: true }; }
+      adminClear: function (a) { if (a.pin !== PIN) return { ok: false, msg: "密碼錯誤" }; byDate[a.date] = []; return { ok: true }; },
+      adminSetVote: function (a) {
+        if (a.pin !== PIN) return { ok: false, msg: "密碼錯誤" };
+        var name = String(a.name || "").replace(/[\s\u3000]+/g, "");
+        if (!NAME_RE.test(name)) return { ok: false, msg: "請輸入中文全名（至少兩個字）" };
+        var list = byDate[a.date] = (byDate[a.date] || []).filter(function (v) { return v.name !== name; });
+        if (a.status) {
+          if (cfg.options.indexOf(a.status) < 0) return { ok: false, msg: "狀態不正確" };
+          list.push({ name: name, status: a.status, t: Date.now() });
+        }
+        return { ok: true };
+      },
+      adminRange: function (a) {
+        if (a.pin !== PIN) return { ok: false, msg: "密碼錯誤" };
+        var rows = [];
+        Object.keys(byDate).forEach(function (d) {
+          if (d >= a.from && d <= a.to) byDate[d].forEach(function (v) { if (cfg.options.indexOf(v.status) >= 0) rows.push({ date: d, name: v.name, status: v.status }); });
+        });
+        return { ok: true, rows: rows, options: cfg.options.slice(), roster: cfg.roster.slice() };
+      },
+      adminCreateUnit: function (a) {
+        if (a.pin !== PIN) return { ok: false, msg: "建立單位需要總管理密碼" };
+        if (!KEY_RE.test(a.code || "")) return { ok: false, msg: "單位代號只能是中文、英文、數字，最多 12 字" };
+        if (!/^\S{4,20}$/.test(a.newpin || "")) return { ok: false, msg: "請替這個單位設定管理密碼（4～20 個字，不能有空白）" };
+        return { ok: true, key: a.code };
+      }
     };
   })();
 
@@ -477,7 +534,7 @@ textarea { min-height: 96px; resize: vertical; line-height: 1.6; }
   var OPTS = DEFAULT_OPTIONS.slice();
   var ROSTER_KEY = "";
   var curDate = START_DATE, fetchedAt = 0;
-  var skew = 0, loading = false, again = false, loaded = false, failCount = 0;
+  var noUnit = false, skew = 0, loading = false, again = false, loaded = false, failCount = 0;
   var pick = "", busy = false, sticky = "", stickyK = "", confirmClear = false, clearTimer = 0, toastTimer = 0;
   var pin = "", adminOpen = false, adminDirty = false;
 
@@ -710,24 +767,40 @@ textarea { min-height: 96px; resize: vertical; line-height: 1.6; }
     b.textContent = ready ? "送出：" + nm + "　" + pick + "（" + md(curDate) + "）" : (busy ? "送出中…" : "送出");
     updateMine(); updateGuide(); updateRemind();
   }
+  /* 清單編輯：名單裡的人＋已投票的人，每人一個下拉選單，改了就直接存 */
+  function adminNames() {
+    var names = roster().slice(), seen = {};
+    names.forEach(function (n) { seen[n] = 1; });
+    S.votes.forEach(function (v) { if (!seen[v.name]) { seen[v.name] = 1; names.push(v.name); } });
+    return names;
+  }
   function renderAdminList() {
-    $("adminDay").textContent = longDate(curDate, S.today) + " 的投票名單（打錯或用暱稱的可以刪除）";
+    $("adminDay").textContent = "清單編輯　" + longDate(curDate, S.today) + "（已投 " + S.votes.length + " 人）";
     var box = $("voteList");
     box.textContent = "";
-    if (!S.votes.length) {
-      var p = document.createElement("p"); p.className = "vempty"; p.textContent = "這一天沒有人投票。";
+    var names = adminNames();
+    if (!names.length) {
+      var p = document.createElement("p"); p.className = "vempty"; p.textContent = "這一天還沒有人，可以用下面的欄位新增。";
       box.appendChild(p);
-      return;
     }
-    S.votes.forEach(function (v) {
-      var row = document.createElement("div"); row.className = "vrow";
-      var n = document.createElement("span"); n.className = "vn"; n.textContent = v.name;
-      var s = document.createElement("span"); s.className = "vs"; s.textContent = v.status;
-      var b = document.createElement("button"); b.type = "button"; b.textContent = "刪除"; b.dataset.name = v.name;
-      b.setAttribute("aria-label", "刪除 " + v.name + " 的投票");
-      row.appendChild(n); row.appendChild(s); row.appendChild(b);
+    names.forEach(function (name) {
+      var v = findVote(name);
+      var row = document.createElement("div"); row.className = "vrow" + (v ? "" : " none");
+      var n = document.createElement("span"); n.className = "vn"; n.textContent = name;
+      var sel = document.createElement("select"); sel.dataset.name = name;
+      sel.setAttribute("aria-label", name + " 的狀態");
+      var o0 = document.createElement("option"); o0.value = ""; o0.textContent = "未投票"; sel.appendChild(o0);
+      OPTS.forEach(function (o) { var op = document.createElement("option"); op.value = o; op.textContent = o; sel.appendChild(op); });
+      sel.value = v ? v.status : "";
+      row.appendChild(n); row.appendChild(sel);
       box.appendChild(row);
     });
+    var as = $("addStatus"), cur = as.value;
+    if (as.options.length !== OPTS.length) {
+      as.textContent = "";
+      OPTS.forEach(function (o) { var op = document.createElement("option"); op.value = o; op.textContent = o; as.appendChild(op); });
+      if (cur && OPTS.indexOf(cur) >= 0) as.value = cur;
+    }
   }
   function updateAll() {
     ensureOpts(); ensureRosterList();
@@ -745,10 +818,19 @@ textarea { min-height: 96px; resize: vertical; line-height: 1.6; }
   }
 
   function refresh() {
+    if (noUnit) return Promise.resolve();
     if (loading) { again = true; return Promise.resolve(); }
     loading = true;
     var want = curDate;
     return call("getState", { date: want || "" }).then(function (s) {
+      if (s && s.nounit) {
+        noUnit = true;
+        document.body.classList.add("nounit");
+        $("boot").hidden = true;
+        notice("這個單位代號還沒有建立，請向管理者確認連結是否正確。");
+        $("retry").hidden = true;
+        return;
+      }
       if (!s || !s.date) throw new Error("bad");
       failCount = 0;
       if (want && s.date !== want) return;
@@ -876,19 +958,31 @@ textarea { min-height: 96px; resize: vertical; line-height: 1.6; }
     $(id).addEventListener("input", function () { adminDirty = true; });
     $(id).addEventListener("change", function () { adminDirty = true; });
   });
+  /* 建立單位 */
   function unitLink() {
     var k = $("uName").value.replace(/\s+/g, "");
     return KEY_RE.test(k) ? shareUrl("", k) : "";
   }
-  $("uName").addEventListener("input", function () {
-    var l = unitLink(), box = $("uLink");
-    box.value = l; box.hidden = !l; $("uCopy").disabled = !l;
-    adminMsg($("uName").value && !l ? "單位代號只能是中文、英文、數字，最多 12 字。" : "", "err");
-  });
-  $("uCopy").addEventListener("click", function () {
-    var l = unitLink();
+  function checkUnitForm() {
+    var l = unitLink(), pinOk = /^\S{4,20}$/.test($("uPin").value);
+    var box = $("uLink");
+    box.value = l; box.hidden = !l;
+    $("uCreate").disabled = !(l && pinOk);
+    if ($("uName").value && !l) adminMsg("單位代號只能是中文、英文、數字，最多 12 字。", "err");
+  }
+  $("uName").addEventListener("input", checkUnitForm);
+  $("uPin").addEventListener("input", checkUnitForm);
+  $("uCreate").addEventListener("click", function () {
+    var l = unitLink(), k = $("uName").value.replace(/\s+/g, "");
     if (!l) return;
-    copyText(l, "已複製該單位的網址", function () { var b = $("uLink"); b.hidden = false; b.focus(); b.select(); adminMsg("請長按網址後選「拷貝」。", ""); });
+    $("uCreate").disabled = true;
+    call("adminCreateUnit", { pin: pin, code: k, unit: k, newpin: $("uPin").value }).then(function (r) {
+      if (r && r.ok) {
+        adminMsg("已建立「" + k + "」。連結已複製，請連同密碼交給該單位幹部。", "ok");
+        copyText(l, "已建立，連結已複製", function () { var b = $("uLink"); b.hidden = false; b.focus(); b.select(); });
+        $("uPin").value = "";
+      } else adminMsg((r && r.msg) || "建立失敗。", "err");
+    }).catch(function () { adminMsg("建立失敗，請再試一次。", "err"); }).then(checkUnitForm);
   });
   $("aPin").addEventListener("keydown", function (e) { if (e.key === "Enter") { e.preventDefault(); $("unlock").click(); } });
   $("saveCfg").addEventListener("click", function () {
@@ -901,14 +995,89 @@ textarea { min-height: 96px; resize: vertical; line-height: 1.6; }
       return refresh();
     }).catch(function () { adminMsg("儲存失敗，請再試一次。", "err"); });
   });
-  $("voteList").addEventListener("click", function (e) {
-    var b = e.target.closest("button");
-    if (!b) return;
-    b.disabled = true;
-    call("adminDelete", { pin: pin, date: curDate, name: b.dataset.name }).then(function (r) {
-      adminMsg(r && r.ok ? "已刪除。" : (r && r.msg) || "刪除失敗。", r && r.ok ? "ok" : "err");
+  function setVote(name, status, done) {
+    call("adminSetVote", { pin: pin, date: curDate, name: name, status: status }).then(function (r) {
+      if (r && r.ok) adminMsg(status ? "已設定：" + name + "　" + status : "已取消：" + name, "ok");
+      else adminMsg((r && r.msg) || "儲存失敗。", "err");
       return refresh();
-    }).catch(function () { adminMsg("刪除失敗，請再試一次。", "err"); b.disabled = false; });
+    }).catch(function () { adminMsg("儲存失敗，請再試一次。", "err"); refresh(); }).then(function () { if (done) done(); });
+  }
+  $("voteList").addEventListener("change", function (e) {
+    var sel = e.target.closest("select");
+    if (!sel) return;
+    sel.disabled = true;
+    setVote(sel.dataset.name, sel.value, function () { sel.disabled = false; });
+  });
+  $("addBtn").addEventListener("click", function () {
+    var nm = normName($("addName").value);
+    if (!NAME_RE.test(nm)) { adminMsg("請輸入中文全名（至少兩個字）。", "err"); return; }
+    $("addBtn").disabled = true;
+    setVote(nm, $("addStatus").value, function () { $("addName").value = ""; $("addBtn").disabled = false; });
+  });
+  $("addName").addEventListener("keydown", function (e) { if (e.key === "Enter") { e.preventDefault(); $("addBtn").click(); } });
+
+  /* 統計 */
+  var statText = "";
+  function monthRange(today) {
+    var y = +today.slice(0, 4), m = +today.slice(5, 7);
+    var first = today.slice(0, 7) + "-01";
+    var next = m === 12 ? (y + 1) + "-01-01" : y + "-" + pad(m + 1) + "-01";
+    return [first, addDays(next, -1)];
+  }
+  function renderStats(res, from, to) {
+    var opts = res.options && res.options.length ? res.options : OPTS;
+    var cnt = {}, names = (res.roster || []).slice(), seen = {};
+    names.forEach(function (n) { seen[n] = 1; });
+    res.rows.forEach(function (r) {
+      if (!seen[r.name]) { seen[r.name] = 1; names.push(r.name); }
+      cnt[r.name] = cnt[r.name] || {};
+      cnt[r.name][r.status] = (cnt[r.name][r.status] || 0) + 1;
+    });
+    var box = $("statBox");
+    box.textContent = "";
+    if (!names.length) { var p = document.createElement("p"); p.className = "vempty"; p.textContent = "這段期間沒有投票紀錄。"; box.appendChild(p); statText = ""; $("statCopy").disabled = true; return; }
+    var tbl = document.createElement("table"); tbl.className = "stat";
+    var thead = document.createElement("thead"), hr = document.createElement("tr");
+    ["姓名"].concat(opts, ["合計"]).forEach(function (t) { var th = document.createElement("th"); th.textContent = t; hr.appendChild(th); });
+    thead.appendChild(hr); tbl.appendChild(thead);
+    var tb = document.createElement("tbody"), tot = {}, all = 0, lines = [(S.cfg.unit || "") + " 統計　" + md(from) + "～" + md(to) + "（天數）"];
+    names.forEach(function (n) {
+      var tr = document.createElement("tr"), sum = 0, parts = [];
+      var td0 = document.createElement("td"); td0.textContent = n; tr.appendChild(td0);
+      opts.forEach(function (o) {
+        var c = (cnt[n] && cnt[n][o]) || 0; sum += c; tot[o] = (tot[o] || 0) + c;
+        var td = document.createElement("td"); td.textContent = c ? String(c) : "–"; tr.appendChild(td);
+        if (c) parts.push(o + c);
+      });
+      var tdS = document.createElement("td"); tdS.textContent = String(sum); tr.appendChild(tdS);
+      all += sum; tb.appendChild(tr);
+      lines.push(n + "：" + (parts.length ? parts.join("　") : "無紀錄"));
+    });
+    tbl.appendChild(tb);
+    var tf = document.createElement("tfoot"), fr = document.createElement("tr");
+    var f0 = document.createElement("td"); f0.textContent = "合計"; fr.appendChild(f0);
+    opts.forEach(function (o) { var td = document.createElement("td"); td.textContent = String(tot[o] || 0); fr.appendChild(td); });
+    var fS = document.createElement("td"); fS.textContent = String(all); fr.appendChild(fS);
+    tf.appendChild(fr); tbl.appendChild(tf); box.appendChild(tbl);
+    lines.push("合計：" + opts.map(function (o) { return o + (tot[o] || 0); }).join("　"));
+    statText = lines.join("\n");
+    $("statCopy").disabled = false;
+  }
+  Array.prototype.forEach.call(document.querySelectorAll(".statbtn"), function (b) {
+    b.addEventListener("click", function () {
+      var r = b.dataset.r, t = S.today || curDate, from, to;
+      if (r === "m") { var mr = monthRange(t); from = mr[0]; to = mr[1]; }
+      else { to = addDays(t, 1); from = addDays(to, -(+r - 1)); }
+      Array.prototype.forEach.call(document.querySelectorAll(".statbtn"), function (x) { x.classList.toggle("on", x === b); });
+      $("statBox").textContent = "統計中…";
+      call("adminRange", { pin: pin, from: from, to: to }).then(function (res) {
+        if (res && res.ok) renderStats(res, from, to);
+        else { $("statBox").textContent = ""; adminMsg((res && res.msg) || "統計失敗。", "err"); }
+      }).catch(function () { $("statBox").textContent = ""; adminMsg("統計失敗，請再試一次。", "err"); });
+    });
+  });
+  $("statCopy").addEventListener("click", function () {
+    if (statText) copyText(statText, "已複製統計文字", function () { adminMsg("無法自動複製。", "err"); });
   });
   function resetClear() { confirmClear = false; clearTimeout(clearTimer); $("clearBtn").textContent = "清空這一天的投票"; }
   $("clearBtn").addEventListener("click", function () {
