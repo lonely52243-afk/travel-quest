@@ -402,7 +402,7 @@ body.nounit .card:not(.keep), body.nounit #share, body.nounit .links, body.nouni
     <div class="sheet-body">
       <div class="panel" data-panel="vote">
         <p class="lead2">只要 3 步，不用登入、不用註冊，約 10 秒完成。</p>
-        <div class="step"><span class="no">1</span><div><b>輸入你的全名</b><p>請寫「全名」，不要寫暱稱或綽號，這樣幹部才對得上名單。</p>
+        <div class="step"><span class="no">1</span><div><b>輸入你的全名</b><p>請寫「全名」，不要寫暱稱或綽號，這樣幹部才對得上名單。（也可以一次打「王小明休假」，系統會自動分開。）</p>
           <div class="mock" aria-hidden="true"><div class="m-in">王小明</div></div></div></div>
         <div class="step"><span class="no">2</span><div><b>點選你的狀態</b><p>點一下你要的狀態，選到的那一格會變色。下面會看到每個狀態有哪些人。</p>
           <div class="mock" aria-hidden="true"><div class="m-opt g sel"><i>1</i>休假<em>✓ 你的選擇</em></div><div class="m-opt y"><i>0</i>留守</div><div class="m-opt r"><i>0</i>救災</div></div></div></div>
@@ -946,10 +946,33 @@ body.nounit .card:not(.keep), body.nounit #share, body.nounit .links, body.nouni
   $("date").addEventListener("change", function () { setDate($("date").value); });
   $("retry").addEventListener("click", function () { notice(""); refresh(); });
 
-  function onName() { setMsg("", ""); updateNameHint(); updateOpts(); updateSubmit(); }
+  /* 模糊判斷：打「王小明休假」或「休假王小明」，自動拆成名字＋狀態 */
+  function parseCombined(raw) {
+    var s = String(raw || "").replace(/[\s\u3000]+/g, "");
+    var list = OPTS.slice().sort(function (a, b) { return b.length - a.length; });
+    for (var i = 0; i < list.length; i++) {
+      var o = list[i], nm;
+      if (s.length > o.length && s.slice(-o.length) === o) { nm = s.slice(0, -o.length); if (NAME_RE.test(nm)) return { name: nm, status: o }; }
+      if (s.length > o.length && s.slice(0, o.length) === o) { nm = s.slice(o.length); if (NAME_RE.test(nm)) return { name: nm, status: o }; }
+    }
+    return null;
+  }
+  function onName(e) {
+    setMsg("", "");
+    var c = !(e && e.isComposing) && loaded && !isClosed() ? parseCombined($("who").value) : null;
+    if (c) { $("who").value = c.name; pick = c.status; }
+    updateNameHint(); updateOpts(); updateSubmit();
+    if (c) { var hn = $("nameHint"); hn.textContent = "已幫你判斷：" + c.name + "　" + c.status + "，確認沒錯請按「送出」。"; hn.dataset.k = "ok"; }
+  }
   $("who").addEventListener("input", onName);
   $("who").addEventListener("change", onName);
-  $("who").addEventListener("keydown", function (e) { if (e.key === "Enter") { e.preventDefault(); $("who").blur(); } });
+  $("who").addEventListener("compositionend", onName);
+  $("who").addEventListener("keydown", function (e) {
+    if (e.key !== "Enter") return;
+    e.preventDefault();
+    onName();
+    if (!$("submit").disabled) $("submit").click(); else $("who").blur();
+  });
   $("unvoted").addEventListener("click", function (e) {
     var b = e.target.closest(".chip");
     if (!b || b.disabled) return;
