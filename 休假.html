@@ -135,7 +135,7 @@ body {
   background-image: linear-gradient(var(--grid) 1px, transparent 1px), linear-gradient(90deg, var(--grid) 1px, transparent 1px);
   background-size: 28px 28px;
   color: var(--text);
-  height: 100vh; height: 100dvh; display: flex; flex-direction: column; overflow: hidden;
+  position: fixed; inset: 0; height: auto; display: flex; flex-direction: column; overflow: hidden;
 }
 button { font-family: inherit; color: inherit; -webkit-user-select: none; user-select: none; -webkit-touch-callout: none; }
 #sheet, .tabbar, .toolbar, .appbar, .legend, .daycard { -webkit-user-select: none; user-select: none; -webkit-touch-callout: none; }
@@ -478,6 +478,41 @@ noscript { display: block; padding: 24px; text-align: center; }
 .gseg { background: rgba(255,253,247,.12); border-color: rgba(255,253,247,.6); }
 .gseg button { color: #FFFDF7; opacity: .8; min-height: 30px; padding: 3px 11px; font-size: 14px; }
 .gseg button.on { background: var(--yellow); color: #1E2A4A; opacity: 1; }
+.gnote { display: none; margin-bottom: 10px; font-weight: 800; }
+.gnote.on { display: block; }
+.gnote b { background: var(--yellow); color: #1E2A4A; border: 2px solid var(--ink); border-radius: 8px; padding: 1px 10px; margin-right: 6px; }
+.gchip { display: inline-block; background: var(--yellow); color: #1E2A4A; border: 1.5px solid var(--ink); border-radius: 7px; padding: 0 7px; margin-right: 6px; font-size: 13px; font-weight: 800; }
+
+/* ===== 分析：折線、比較、直方 ===== */
+.box h3 small { font-weight: 500; color: var(--muted); font-size: 12px; margin-left: 6px; }
+.kpi .dl { font-size: 11px; color: var(--muted); margin-top: 3px; font-weight: 700; }
+svg.lc { width: 100%; height: auto; display: block; }
+.lc-grid { stroke: var(--line); stroke-width: 1; }
+.lc-t { fill: var(--muted); font-size: 9px; }
+.lc-cur { fill: none; stroke: var(--full); stroke-width: 2.6; stroke-linejoin: round; stroke-linecap: round; }
+.lc-prev { fill: none; stroke: var(--slate); stroke-width: 2; stroke-dasharray: 4 3; stroke-linecap: round; }
+.lc-dot { fill: var(--yellow); stroke: var(--ink); stroke-width: 1.5; }
+.lc-lg { display: flex; gap: 14px; flex-wrap: wrap; font-size: 12px; color: var(--muted); margin-top: 4px; }
+.lc-lg i { display: inline-block; width: 14px; height: 4px; border-radius: 2px; margin-right: 5px; vertical-align: 3px; }
+.lc-lg i.c { background: var(--full); }
+.lc-lg i.p { background: repeating-linear-gradient(90deg, var(--slate) 0 4px, transparent 4px 7px); }
+.lc-lg i.h { background: var(--am); }
+table.cmp { width: 100%; border-collapse: collapse; font-size: 14px; text-align: center; }
+table.cmp th { padding: 6px 4px; border-bottom: 2px solid var(--ink); font-weight: 800; }
+table.cmp td { padding: 7px 4px; border-bottom: 1px solid var(--line); font-weight: 700; }
+table.cmp td.k { text-align: left; color: var(--muted); font-weight: 600; font-size: 13px; }
+table.cmp td.hi { background: var(--yellow-soft); }
+.cmpbars { margin-top: 12px; }
+.hrow .bw i.g0 { background: var(--full); }
+.hrow .bw i.g1 { background: var(--pm); }
+.stk { display: flex; height: 18px; border: 2px solid var(--ink); border-radius: 9px; overflow: hidden; }
+.stk i.a { background: var(--full); }
+.stk i.b { background: var(--am); }
+.bw.dual { display: flex; }
+.bw.dual i.s { background: var(--stay); height: 100%; }
+.bw.dual i.m { background: var(--mon); height: 100%; }
+.hrow .k.nm2 { width: 64px; }
+.cmpbars .hrow .k { width: 48px; }
 
   </style>
 </head>
@@ -547,6 +582,7 @@ noscript { display: block; padding: 24px; text-align: center; }
     <!-- ===== 產出 ===== -->
     <section class="page" id="page-out" aria-label="產出文字">
       <div class="box">
+        <div class="gnote" id="outGroup"></div>
         <div class="field">
           <label>內容</label>
           <div class="seg" id="outTypeSeg" role="group" aria-label="內容">
@@ -930,6 +966,7 @@ noscript { display: block; padding: 24px; text-align: center; }
         }).join('');
         box.dataset.sig = sig;
       }
+      function gTag() { return groups.length > 1 && prefs.group ? '<span class="gchip">' + esc(prefs.group) + '</span>' : ''; }
       function allNames() {
         var seen = {}, out = [];
         groups.forEach(function (g) { (g.employees || []).forEach(function (e) { if (!seen[e.name]) { seen[e.name] = 1; out.push(e); } }); });
@@ -1290,8 +1327,9 @@ noscript { display: block; padding: 24px; text-align: center; }
           }
           function addKey(k) { addMonth(+k.slice(0, 4), +k.slice(5, 7)); }
           if (tab === 'ana') {
-            if (anaMode === 'year') return;
-            addMonth(anaYear, anaMonth - 1); addMonth(anaYear, anaMonth + 1);
+            if (anaMode === 'year') {
+              for (var pm2 = 1; pm2 <= 12; pm2++) addMonth(anaYear - 1, pm2);
+            } else { addMonth(anaYear, anaMonth - 1); addMonth(anaYear, anaMonth + 1); }
           } else if (tab === 'sched' && view === 'month') {
             var d0 = parseKey(anchor);
             addMonth(d0.getFullYear(), d0.getMonth()); addMonth(d0.getFullYear(), d0.getMonth() + 1);
@@ -1300,7 +1338,7 @@ noscript { display: block; padding: 24px; text-align: center; }
             [-14, -7, 0, 7, 14].forEach(function (n) { weekKeys(addDays(anchor, n)).forEach(addKey); });
           }
           Object.keys(want).forEach(function (id) {
-            if (!fresh[id] && !inflight[id]) fetchPeriod(want[id][0], want[id][1]).catch(function () {});
+            if (!fresh[id] && !inflight[id]) fetchPeriod(want[id][0], want[id][1]).then(function () { if (tab === 'ana') safeRender(); }).catch(function () {});
           });
         }, 350);
       }
@@ -1696,7 +1734,7 @@ noscript { display: block; padding: 24px; text-align: center; }
       function renderWeek() {
         var keys = weekKeys(anchor);
         var tk = todayKey();
-        $('wTitle').innerHTML = mdLabel(keys[0]) + ' – ' + mdLabel(keys[6]) + '<small>' + keys[0].slice(0, 4) + '</small>';
+        $('wTitle').innerHTML = gTag() + mdLabel(keys[0]) + ' – ' + mdLabel(keys[6]) + '<small>' + keys[0].slice(0, 4) + '</small>';
         var ids = neededIds();
         var gt = gate(ids);
         if (gt) { $('weekBody').innerHTML = gt; return; }
@@ -1762,6 +1800,9 @@ noscript { display: block; padding: 24px; text-align: center; }
       }
 
       function renderOut() {
+        var og = $('outGroup');
+        if (groups.length > 1 && prefs.group) { og.innerHTML = '<b>' + esc(prefs.group) + '</b>目前產出的是「' + esc(prefs.group) + '」這 ' + employees.length + ' 人（右上角可切換）'; og.classList.add('on'); }
+        else og.classList.remove('on');
         var segT = $('outTypeSeg').querySelectorAll('button');
         for (var i = 0; i < segT.length; i++) segT[i].classList.toggle('on', segT[i].dataset.v === outType);
         var segR = $('outRangeSeg').querySelectorAll('button');
@@ -1879,7 +1920,7 @@ noscript { display: block; padding: 24px; text-align: center; }
       function renderAna() {
         if (!anaTouched) { anaTouched = true; if (prefs.me) anaPerson = prefs.me; }
         if (anaPerson && employees.length && !employees.some(function (e) { return e.name === anaPerson; })) anaPerson = '';
-        $('aTitle').innerHTML = anaMode === 'year' ? (anaYear + ' 年') : (anaYear + ' 年 ' + anaMonth + ' 月');
+        $('aTitle').innerHTML = gTag() + (anaMode === 'year' ? (anaYear + ' 年') : (anaYear + ' 年 ' + anaMonth + ' 月'));
         var segs = $('anaSeg').querySelectorAll('button');
         for (var i = 0; i < segs.length; i++) segs[i].classList.toggle('on', segs[i].dataset.v === anaMode);
 
@@ -1887,7 +1928,7 @@ noscript { display: block; padding: 24px; text-align: center; }
         var sel = $('anaPerson');
         var sig = employees.map(function (e) { return e.name; }).join('|') + '#' + anaPerson;
         if (sel.dataset.sig !== sig) {
-          var opts = '<option value="">全體</option>';
+          var opts = '<option value="">' + (groups.length > 1 && prefs.group ? '全' + esc(prefs.group) + '（' + employees.length + ' 人）' : '全體') + '</option>';
           employees.forEach(function (e) {
             opts += '<option value="' + esc(e.name) + '"' + (e.name === anaPerson ? ' selected' : '') + '>' + esc(e.name) + '</option>';
           });
@@ -1909,15 +1950,18 @@ noscript { display: block; padding: 24px; text-align: center; }
         var peak = null;
         A.series.forEach(function (s) { if (!s.off && s.value > 0 && (!peak || s.value > peak.value)) peak = s; });
         var tw = topWeekday(A.wd);
+        var PV = prevInfo();
+        var PA = PV ? analyze(PV.keys) : null;
 
         h += '<div class="box"><div class="cards">' +
-          kpi(fmtNum(A.total), '平日休假(天)') +
+          kpi(fmtNum(A.total), '平日休假(天)', PA ? dlt(A.total, PA.total, PV.label) : '') +
           kpi(A.people + ' / ' + employees.length, '有休假人數') +
-          kpi(fmtNum(A.avg), '平均每人(天)') +
+          kpi(fmtNum(A.avg), '平均每人(天)', PA ? dlt(A.avg, PA.avg, PV.label) : '') +
           kpi(fmtNum(A.rest), '假日休息(人天)') +
           kpi(A.stayN + ' / ' + A.monN, '留守／監控(人次)') + '</div></div>';
 
         // 趨勢
+        h += trendBox(A, PV);
         var items;
         if (anaMode === 'month') {
           items = A.series.map(function (s) {
@@ -1933,6 +1977,9 @@ noscript { display: block; padding: 24px; text-align: center; }
           items = ms.map(function (v, idx) { return { label: (idx + 1) + '月', value: v, off: false, peak: mmax > 0 && v === mmax }; });
           h += '<div class="box"><h3>每月平日休假(人天)</h3>' + barChart(items) + '</div>';
         }
+
+        h += groupCompareBox(keys);
+        h += histBox(A);
 
         // 排名
         var sorted = A.per.slice().sort(function (a, b) { return b.days - a.days; });
@@ -1955,6 +2002,9 @@ noscript { display: block; padding: 24px; text-align: center; }
           h += '<div class="hrow"><span class="k">週' + w + '</span><div class="bw"><i style="width:' + pct + '%"></i></div><span class="n">' + fmtNum(A.wd[idx]) + '</span></div>';
         });
         h += '</div>';
+
+        h += typeBox(A);
+        h += dutyBox(A);
 
         // 重點
         var lines = [];
@@ -2013,8 +2063,170 @@ noscript { display: block; padding: 24px; text-align: center; }
         $('anaBody').innerHTML = h;
       }
 
-      function kpi(num, label) {
-        return '<div class="kpi"><div class="num">' + esc(num) + '</div><div class="lbl">' + esc(label) + '</div></div>';
+      function kpi(num, label, delta) {
+        return '<div class="kpi"><div class="num">' + esc(num) + '</div><div class="lbl">' + esc(label) + '</div>' + (delta || '') + '</div>';
+      }
+      function dlt(cur, prev, label) {
+        var d = Math.round((cur - prev) * 10) / 10;
+        var t = d === 0 ? '持平' : (d > 0 ? '▲ ' + fmtNum(d) : '▼ ' + fmtNum(-d));
+        return '<div class="dl">' + label + ' ' + t + '</div>';
+      }
+
+      // ====== 比較用：上一期、各名冊 ======
+      function prevInfo() {
+        if (anaMode === 'year') {
+          var py = anaYear - 1, ok = true;
+          for (var m = 1; m <= 12; m++) if (!loaded[py + '-' + pad(m)]) ok = false;
+          return ok ? { keys: yearKeys(py), label: '較去年', name: py + ' 年' } : null;
+        }
+        var pm = anaMonth - 1, pyy = anaYear;
+        if (pm < 1) { pm = 12; pyy--; }
+        if (!loaded[pyy + '-' + pad(pm)]) return null;
+        return { keys: monthKeys(pyy, pm), label: '較上月', name: pm + ' 月' };
+      }
+      function analyzeGroup(g, keys) {
+        var save = employees;
+        employees = g.employees || [];
+        try { return analyze(keys); } finally { employees = save; }
+      }
+
+      // ====== 折線圖（SVG） ======
+      function lineChart(labels, cur, prev, curName, prevName) {
+        var W = 320, H = 150, L = 28, R = 8, T = 10, B = 22;
+        var n = labels.length, max = 1;
+        cur.concat(prev || []).forEach(function (v) { if (v !== null && v > max) max = v; });
+        max = Math.ceil(max);
+        function X(i) { return L + (n > 1 ? i * (W - L - R) / (n - 1) : 0); }
+        function Y(v) { return T + (H - T - B) * (1 - v / max); }
+        function path(arr) {
+          var d = '', started = false;
+          for (var i = 0; i < arr.length; i++) {
+            if (arr[i] === null || arr[i] === undefined) break;
+            d += (started ? 'L' : 'M') + X(i).toFixed(1) + ' ' + Y(arr[i]).toFixed(1) + ' ';
+            started = true;
+          }
+          return d;
+        }
+        var g = '';
+        [0, 0.5, 1].forEach(function (f) {
+          var yy = Y(max * f).toFixed(1);
+          g += '<line class="lc-grid" x1="' + L + '" x2="' + (W - R) + '" y1="' + yy + '" y2="' + yy + '"/>' +
+            '<text class="lc-t" x="' + (L - 4) + '" y="' + (+yy + 3) + '" text-anchor="end">' + fmtNum(max * f) + '</text>';
+        });
+        labels.forEach(function (lb, i) {
+          if (lb) g += '<text class="lc-t" x="' + X(i).toFixed(1) + '" y="' + (H - 7) + '" text-anchor="middle">' + esc(lb) + '</text>';
+        });
+        if (prev) g += '<path class="lc-prev" d="' + path(prev) + '"/>';
+        g += '<path class="lc-cur" d="' + path(cur) + '"/>';
+        if (n <= 14) {
+          cur.forEach(function (v, i) { if (v !== null) g += '<circle class="lc-dot" cx="' + X(i).toFixed(1) + '" cy="' + Y(v).toFixed(1) + '" r="3"/>'; });
+        } else {
+          for (var li = cur.length - 1; li >= 0; li--) if (cur[li] !== null) { g += '<circle class="lc-dot" cx="' + X(li).toFixed(1) + '" cy="' + Y(cur[li]).toFixed(1) + '" r="3"/>'; break; }
+        }
+        return '<svg class="lc" viewBox="0 0 ' + W + ' ' + H + '" role="img" aria-label="折線圖">' + g + '</svg>' +
+          '<div class="lc-lg"><span><i class="c"></i>' + esc(curName) + '</span>' + (prev ? '<span><i class="p"></i>' + esc(prevName) + '</span>' : '') + '</div>';
+      }
+
+      function trendBox(A, PV) {
+        var tk = todayKey(), labels = [], cur = [], prev = null, acc = 0, title, hint;
+        if (anaMode === 'month') {
+          title = '累計休假（平日）';
+          A.series.forEach(function (sr) {
+            var dd = +sr.key.slice(8, 10);
+            labels.push((dd === 1 || dd % 5 === 0) ? String(dd) : '');
+            if (!sr.off) acc += sr.value;
+            cur.push(sr.key > tk && ymOf(sr.key) === ymOf(tk) ? null : acc);
+          });
+          if (PV) {
+            var pa = analyze(PV.keys), pacc = 0; prev = [];
+            pa.series.forEach(function (sr) { if (!sr.off) pacc += sr.value; prev.push(pacc); });
+            while (prev.length < labels.length) prev.push(prev[prev.length - 1]);
+            prev = prev.slice(0, labels.length);
+          }
+          hint = '線越往上，代表這個月休得越多；虛線是上個月同一天的累計。';
+          return '<div class="box"><h3>' + title + '<small>折線圖</small></h3>' + lineChart(labels, cur, prev, anaMonth + ' 月', PV ? PV.name : '') + '<div class="hint">' + hint + '</div></div>';
+        }
+        title = '每月平日休假（人天）';
+        var ms = [], i, m;
+        for (m = 1; m <= 12; m++) ms.push(0);
+        A.series.forEach(function (sr) { if (!sr.off) ms[+sr.key.slice(5, 7) - 1] += sr.value; });
+        var nowY = new Date().getFullYear(), nowM = new Date().getMonth() + 1;
+        for (i = 0; i < 12; i++) { labels.push((i + 1) + ''); cur.push(anaYear > nowY || (anaYear === nowY && i + 1 > nowM) ? null : ms[i]); }
+        if (PV) {
+          var py = analyze(PV.keys), pms = [];
+          for (m = 1; m <= 12; m++) pms.push(0);
+          py.series.forEach(function (sr) { if (!sr.off) pms[+sr.key.slice(5, 7) - 1] += sr.value; });
+          prev = pms;
+        }
+        return '<div class="box"><h3>' + title + '<small>折線圖</small></h3>' + lineChart(labels, cur, prev, anaYear + ' 年', PV ? PV.name : '') + '<div class="hint">橫軸是月份；虛線是去年同月，可以看今年是比較多還是比較少。</div></div>';
+      }
+
+      // ====== 直方圖：每個人休了幾天 ======
+      function histBox(A) {
+        var bins = anaMode === 'year'
+          ? [['0', 0, 0], ['1–3', 0.01, 3], ['4–6', 3.01, 6], ['7–10', 6.01, 10], ['11–15', 10.01, 15], ['16+', 15.01, 9999]]
+          : [['0', 0, 0], ['0.5–1', 0.01, 1], ['1.5–2', 1.01, 2], ['2.5–3', 2.01, 3], ['3.5+', 3.01, 9999]];
+        var items = bins.map(function (b) {
+          var c = 0, nm = [];
+          A.per.forEach(function (p) { if (p.days >= b[1] && p.days <= b[2]) { c++; nm.push(p.name); } });
+          return { label: b[0], value: c, off: false, peak: false };
+        });
+        return '<div class="box"><h3>大家休幾天<small>直方圖</small></h3>' + barChart(items) +
+          '<div class="hint">橫軸是平日休假天數，柱子高度是人數。柱子都擠在左邊代表大家休得少；有人落在右邊就是休得特別多。</div></div>';
+      }
+
+      // ====== 班／股 比較 ======
+      function groupCompareBox(keys) {
+        if (groups.length < 2) return '';
+        var rows = groups.map(function (g) { return { g: g, a: analyzeGroup(g, keys) }; });
+        var cols = rows.map(function (r) { return '<th>' + esc(r.g.name) + '</th>'; }).join('');
+        function line(label, fn, hi) {
+          var vals = rows.map(function (r) { return fn(r); });
+          var mx = Math.max.apply(null, vals.map(function (v) { return parseFloat(v); }));
+          return '<tr><td class="k">' + label + '</td>' + vals.map(function (v) {
+            return '<td' + (hi && mx > 0 && parseFloat(v) === mx ? ' class="hi"' : '') + '>' + v + '</td>';
+          }).join('') + '</tr>';
+        }
+        var h = '<div class="box"><h3>班／股 比較<small>各看各的名冊</small></h3><table class="cmp"><thead><tr><th></th>' + cols + '</tr></thead><tbody>' +
+          line('人數', function (r) { return String(r.a.per.length); }, false) +
+          line('平日休假(人天)', function (r) { return fmtNum(r.a.total); }, true) +
+          line('平均每人(天)', function (r) { return fmtNum(r.a.avg); }, true) +
+          line('有休假人數', function (r) { return String(r.a.people); }, true) +
+          line('假日休息(人天)', function (r) { return fmtNum(r.a.rest); }, true) +
+          line('留守(人次)', function (r) { return String(r.a.stayN); }, true) +
+          line('監控(人次)', function (r) { return String(r.a.monN); }, true) +
+          '</tbody></table>';
+        var mxAvg = Math.max.apply(null, rows.map(function (r) { return r.a.avg; }));
+        h += '<div class="cmpbars">';
+        rows.forEach(function (r, idx) {
+          var pct = mxAvg > 0 ? Math.round(r.a.avg / mxAvg * 100) : 0;
+          h += '<div class="hrow"><span class="k">' + esc(r.g.name) + '</span><div class="bw"><i class="g' + idx + '" style="width:' + pct + '%"></i></div><span class="n">' + fmtNum(r.a.avg) + '</span></div>';
+        });
+        h += '<div class="hint">長條是「平均每人休幾天」，公平比較人數不同的兩邊。「股」包含「班」的人，所以數字會有重疊。</div></div></div>';
+        return h;
+      }
+
+      // ====== 假別、留守／監控分配 ======
+      function typeBox(A) {
+        var f = 0, hf = 0;
+        A.per.forEach(function (p) { f += p.full; hf += p.half; });
+        if (f + hf === 0) return '';
+        var pf = Math.round(f / (f + hf) * 100);
+        return '<div class="box"><h3>全天／半天</h3><div class="stk"><i class="a" style="width:' + pf + '%"></i><i class="b" style="width:' + (100 - pf) + '%"></i></div>' +
+          '<div class="lc-lg"><span><i class="c"></i>全天 ' + f + ' 次</span><span><i class="h"></i>半天 ' + hf + ' 次</span></div></div>';
+      }
+      function dutyBox(A) {
+        var arr = A.per.filter(function (p) { return p.stayN + p.monN > 0; });
+        if (!arr.length) return '';
+        arr.sort(function (a, b) { return (b.stayN + b.monN) - (a.stayN + a.monN); });
+        var mx = arr[0].stayN + arr[0].monN;
+        var h = '<div class="box"><h3>留守／監控分配</h3>';
+        arr.forEach(function (p) {
+          h += '<div class="hrow"><span class="k nm2">' + esc(p.name) + '</span><div class="bw dual">' +
+            '<i class="s" style="width:' + (p.stayN / mx * 100) + '%"></i><i class="m" style="width:' + (p.monN / mx * 100) + '%"></i></div>' +
+            '<span class="n">' + p.stayN + '／' + p.monN + '</span></div>';
+        });
+        return h + '<div class="hint">紅色＝留守，深藍＝監控；數字是「留守次數／監控次數」。看誰排得比較多、輪替是否平均。</div></div>';
       }
 
       // ====== 總繪製 ======
