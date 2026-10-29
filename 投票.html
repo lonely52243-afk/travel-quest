@@ -2,20 +2,943 @@
 <html lang="zh-Hant">
 <head>
 <meta charset="utf-8">
-<meta name="viewport" content="width=device-width, initial-scale=1">
-<meta http-equiv="refresh" content="0; url=https://script.google.com/macros/s/AKfycbwbYGK_okLvUI5UOrmQV7YnT2i130_MDjdVGv78AshxuPmCUaDC8UTmDkx7nlMZReqcGw/exec">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<meta name="color-scheme" content="light">
+<meta name="theme-color" content="#fff6e6">
 <title>人員情況投票</title>
 <style>
-body{margin:0;min-height:100vh;display:flex;align-items:center;justify-content:center;background:#eef2f6;color:#0f1b2d;font-family:"PingFang TC","Microsoft JhengHei",system-ui,sans-serif;text-align:center;padding:16px}
-a{display:inline-block;margin-top:12px;padding:14px 28px;border-radius:14px;background:#2563b8;color:#fff;font-weight:700;text-decoration:none}
-@media (prefers-color-scheme:dark){body{background:#0a111b;color:#e8eef6}}
+/* 風格：奶油色底加淡格線、空軍藍的框線與文字、黃／紅／綠重點色，版面端正不歪斜。整頁只有淺色，不跟著手機深色模式變。 */
+:root {
+  --bg: #fff6e6;
+  --grid: rgba(120, 90, 40, 0.07);
+  --ink: #1c2b45;
+  --muted: #6b7280;
+  --paper: #ffffff;
+  --yellow: #ffc21a;
+  --coral: #e5463f;
+  --coral-soft: #ffd9d4;
+  --orange: #f26a1b;
+  --ok: #1f8f55;
+  --c0: #2fa862; --c1: #f5b400; --c2: #e5463f; --c3: #2b7de9; --c4: #8a5cf6; --c5: #f26a1b;
+  --font: "PingFang TC", "Microsoft JhengHei", "Noto Sans TC", system-ui, sans-serif;
+}
+* { box-sizing: border-box; -webkit-tap-highlight-color: transparent; }
+html, body { margin: 0; }
+html { background: var(--bg); }
+body {
+  min-height: 100vh;
+  background-color: var(--bg);
+  background-image:
+    linear-gradient(var(--grid) 1px, transparent 1px),
+    linear-gradient(90deg, var(--grid) 1px, transparent 1px);
+  background-size: 28px 28px;
+  color: var(--ink);
+  font-family: var(--font);
+  font-size: 16px;
+  line-height: 1.55;
+  padding-block: calc(22px + env(safe-area-inset-top, 0px)) calc(56px + env(safe-area-inset-bottom, 0px));
+  padding-left: max(16px, env(safe-area-inset-left, 0px));
+  padding-right: max(16px, env(safe-area-inset-right, 0px));
+}
+:focus-visible { outline: 3px solid var(--coral); outline-offset: 3px; }
+[hidden] { display: none !important; }
+button { font: inherit; color: inherit; }
+.wrap { max-width: 520px; margin: 0 auto; display: flex; flex-direction: column; gap: 16px; }
+
+/* ---- 標題區 ---- */
+.top { text-align: center; padding-top: 8px; }
+.tag {
+  display: inline-block; padding: 6px 18px; border: 2px solid var(--ink); border-radius: 10px; background: var(--yellow);
+  font-size: 14px; font-weight: 900; letter-spacing: 0.22em; box-shadow: 0 2px 0 var(--ink);
+}
+.stamp {
+  position: relative; margin: 20px 0 0; padding: 22px 12px 16px; background: var(--paper);
+  border: 2px solid var(--ink); border-top: 8px solid var(--yellow); border-radius: 16px; box-shadow: 0 4px 0 var(--ink);
+}
+.stamp h1 { margin: 0; font-size: clamp(36px, 11vw, 50px); font-weight: 900; line-height: 1.2; letter-spacing: 0.08em; overflow-wrap: anywhere; }
+.stamp .sub { margin: 4px 0 0; font-size: 15px; font-weight: 800; letter-spacing: 0.3em; color: var(--muted); }
+.stamp .badge {
+  position: absolute; top: -17px; right: 14px; padding: 2px 12px; border: 2px solid var(--ink); border-radius: 8px;
+  background: var(--ink); color: #fff; font-size: 13px; font-weight: 800; letter-spacing: 0.12em;
+}
+.lead { margin: 26px 0 12px; font-size: 17px; }
+.lead b { font-weight: 900; }
+.chips-row { display: flex; flex-wrap: wrap; justify-content: center; gap: 8px; }
+.pillt {
+  padding: 4px 14px; border: 2px solid var(--ink); border-radius: 99px; background: #fff;
+  color: var(--ink); font-size: 14px; font-weight: 800;
+}
+
+.label { margin: 6px 0 -4px 4px; font-size: 14px; font-weight: 900; letter-spacing: 0.3em; color: var(--muted); }
+
+/* ---- 提醒、狀態條 ---- */
+.remind {
+  margin: 0; padding: 12px 16px; border: 2px solid var(--ink); border-radius: 14px; background: #fff3c2;
+  font-size: 16px; font-weight: 800; box-shadow: 0 4px 0 var(--ink); overflow-wrap: anywhere;
+}
+.remind[data-k="ok"] { background: #d9f4e3; }
+.remind[data-k="warn"] { background: var(--coral-soft); }
+.remind[data-k="muted"] { background: #f0ebe0; color: var(--muted); }
+.boot { margin: 0; padding: 12px 14px; border: 3px dashed var(--ink); border-radius: 14px; background: #fff; font-size: 15px; font-weight: 700; }
+.notice { margin: 0; padding: 12px 14px; border: 3px solid var(--coral); border-radius: 14px; background: #fff; color: var(--coral); font-size: 15px; font-weight: 800; }
+.notice button { margin-top: 8px; display: block; min-height: 44px; padding: 6px 18px; border: 2px solid var(--ink); border-radius: 12px; background: var(--yellow); font-weight: 900; box-shadow: 0 2px 0 var(--ink); cursor: pointer; }
+.preview { margin: 0; padding: 10px 12px; border: 3px dashed var(--muted); border-radius: 14px; background: #fff; color: var(--muted); font-size: 13px; font-weight: 700; }
+
+/* ---- 卡片 ---- */
+.card {
+  background: var(--paper); border: 2px solid var(--ink); border-radius: 18px; padding: 16px; min-width: 0;
+  box-shadow: 0 4px 0 var(--ink);
+}
+.datebar { display: grid; grid-template-columns: 52px 1fr 52px; align-items: center; gap: 8px; }
+.datebar > button {
+  height: 52px; border: 2px solid var(--ink); border-radius: 14px; background: var(--yellow);
+  font-size: 28px; font-weight: 900; line-height: 1; cursor: pointer; box-shadow: 0 2px 0 var(--ink);
+}
+.datebar > button:active { transform: translateY(2px); box-shadow: none; }
+.datepick { position: relative; display: flex; align-items: baseline; justify-content: center; gap: 10px; padding: 2px 0; }
+.d-big { font-size: 48px; font-weight: 900; line-height: 1.1; font-variant-numeric: tabular-nums; }
+.d-sub { font-size: 18px; font-weight: 900; color: var(--orange); }
+.datepick input { position: absolute; inset: 0; width: 100%; height: 100%; opacity: 0; cursor: pointer; font-size: 16px; }
+.pill {
+  display: block; width: fit-content; max-width: 100%; margin: 12px auto 0; padding: 4px 16px; border: 2px solid var(--ink);
+  border-radius: 99px; background: #d9f4e3; font-size: 14px; font-weight: 900; text-align: center; font-variant-numeric: tabular-nums;
+}
+.pill[data-k="closed"], .pill[data-k="past"] { background: var(--coral-soft); }
+.pill[data-k="soon"] { background: var(--yellow); }
+.hero-note { margin: 10px 0 0; text-align: center; font-size: 14px; color: var(--muted); font-weight: 700; overflow-wrap: anywhere; }
+.hero-note:empty { display: none; }
+
+.mine { --c: var(--c0); margin: 0 0 12px; padding: 12px 14px; border: 2px solid var(--ink); border-radius: 14px; background: color-mix(in srgb, var(--c) 22%, #fff); }
+.mine[data-i="1"] { --c: var(--c1); } .mine[data-i="2"] { --c: var(--c2); } .mine[data-i="3"] { --c: var(--c3); }
+.mine[data-i="4"] { --c: var(--c4); } .mine[data-i="5"] { --c: var(--c5); }
+.mine .m1 { font-size: 21px; font-weight: 900; line-height: 1.4; }
+.mine .m2 { margin-top: 2px; font-size: 13px; color: var(--muted); font-weight: 700; }
+.guide { margin: 0 0 14px; padding: 12px 14px; border-radius: 14px; background: #fff3c2; border: 2px solid var(--ink); font-size: 17px; font-weight: 900; line-height: 1.5; overflow-wrap: anywhere; }
+.guide[data-k="ok"] { background: #d9f4e3; }
+.guide[data-k="err"] { background: var(--coral-soft); color: #a3231c; }
+.guide[data-k="muted"] { background: #f0ebe0; color: var(--muted); }
+
+.lab { display: block; margin: 0 0 6px; font-size: 14px; font-weight: 900; letter-spacing: 0.2em; color: var(--muted); }
+input[type="text"], input[type="password"], input[type="time"], textarea {
+  width: 100%; min-width: 0; padding: 10px 12px; border: 2px solid var(--ink); border-radius: 14px;
+  background: #fffdf8; color: var(--ink); font: inherit; font-size: 16px; font-weight: 700;
+}
+textarea { min-height: 96px; resize: vertical; line-height: 1.6; }
+#who { min-height: 58px; font-size: 22px; font-weight: 900; letter-spacing: 0.06em; }
+.hint { margin: 8px 0 16px; font-size: 13px; font-weight: 700; color: var(--muted); }
+.hint[data-k="err"] { color: var(--coral); }
+.hint[data-k="warn"] { color: #b25a00; }
+.hint[data-k="ok"] { color: var(--ok); }
+
+/* ---- 選項（像圖裡的等級卡） ---- */
+.opts { display: flex; flex-direction: column; gap: 12px; }
+.optwrap {
+  --c: var(--c0); position: relative; overflow: hidden; border: 2px solid var(--ink); border-radius: 16px; box-shadow: 0 4px 0 var(--ink);
+  background: linear-gradient(90deg, color-mix(in srgb, var(--c) 16%, #fff) 0%, #fff 62%);
+}
+.optwrap::before { content: ""; position: absolute; left: 0; top: 0; bottom: 0; width: 9px; background: var(--c); }
+.optwrap[data-i="1"] { --c: var(--c1); } .optwrap[data-i="2"] { --c: var(--c2); } .optwrap[data-i="3"] { --c: var(--c3); }
+.optwrap[data-i="4"] { --c: var(--c4); } .optwrap[data-i="5"] { --c: var(--c5); }
+.optwrap[data-sel="true"] { background: color-mix(in srgb, var(--c) 30%, #fff); transform: translateY(2px); box-shadow: 0 2px 0 var(--ink); }
+.opt {
+  display: grid; grid-template-columns: 64px 1fr auto; align-items: center; gap: 14px; width: 100%; min-height: 80px;
+  padding: 10px 14px 10px 20px; border: 0; background: transparent; text-align: left; cursor: pointer;
+}
+.opts[data-closed="true"] .opt { cursor: default; }
+.numbox {
+  display: flex; flex-direction: column; align-items: center; justify-content: center; width: 64px; height: 64px;
+  border: 2px solid var(--ink); border-radius: 14px; background: var(--c); color: #fff; line-height: 1;
+  text-shadow: 0 1px 0 rgba(0, 0, 0, 0.25);
+}
+.optwrap[data-i="1"] .numbox { color: var(--ink); text-shadow: none; }
+.numbox .n { font-size: 28px; font-weight: 900; font-variant-numeric: tabular-nums; }
+.numbox .u { margin-top: 3px; font-size: 12px; font-weight: 900; }
+.oname { font-weight: 900; font-size: 22px; line-height: 1.25; }
+.oname small { display: block; margin-top: 2px; font-size: 13px; font-weight: 700; color: var(--muted); }
+.radio { width: 30px; height: 30px; border: 2px solid var(--ink); border-radius: 50%; background: #fff; }
+.optwrap[data-sel="true"] .radio { background: var(--ink); box-shadow: inset 0 0 0 5px #fff; }
+.mypill { display: inline-block; margin-left: 8px; padding: 1px 10px; border: 2px solid var(--ink); border-radius: 99px; background: #fff; font-size: 12px; font-weight: 900; vertical-align: middle; }
+.opt-names { padding: 0 16px 14px 98px; font-size: 14px; font-weight: 700; line-height: 1.7; color: #4a463d; overflow-wrap: anywhere; }
+.opt-names:empty { display: none; }
+.opt-names .me { font-weight: 900; color: var(--ink); text-decoration: underline var(--coral); text-decoration-thickness: 2px; text-underline-offset: 4px; }
+
+.primary {
+  width: 100%; min-height: 60px; margin-top: 16px; border: 2px solid var(--ink); border-radius: 16px; background: var(--yellow);
+  font-size: 19px; font-weight: 900; box-shadow: 0 4px 0 var(--ink); cursor: pointer;
+}
+.primary:active:not(:disabled) { transform: translateY(4px); box-shadow: none; }
+.primary:disabled { background: #eee6d3; color: #a69e8c; border-color: #b8b09c; box-shadow: 0 4px 0 #b8b09c; cursor: not-allowed; }
+.bigbtn {
+  width: 100%; min-height: 60px; border: 2px solid var(--ink); border-radius: 16px; background: #fff; font-size: 19px; font-weight: 900;
+  box-shadow: 0 4px 0 var(--ink); cursor: pointer;
+}
+.bigbtn:active { transform: translateY(4px); box-shadow: none; }
+
+.head { display: flex; align-items: baseline; justify-content: space-between; gap: 8px; margin-bottom: 10px; }
+.head h2 { margin: 0; font-size: 17px; font-weight: 900; }
+.head .small { font-size: 13px; color: var(--muted); font-weight: 700; font-variant-numeric: tabular-nums; }
+.chips { display: flex; flex-wrap: wrap; gap: 8px; }
+.chip { min-height: 42px; padding: 6px 16px; border: 2px solid var(--ink); border-radius: 99px; background: #fff3c2; font-size: 16px; font-weight: 900; cursor: pointer; }
+.chip:disabled { opacity: 0.6; cursor: default; }
+
+.report { white-space: pre-wrap; overflow-wrap: anywhere; padding: 12px 14px; border: 2px solid var(--ink); border-radius: 14px; background: #fffdf8; font-size: 15px; font-weight: 700; line-height: 1.85; user-select: text; -webkit-user-select: text; }
+.report-btn { margin-top: 12px; }
+.msg { min-height: 1.5em; margin: 8px 0 0; font-size: 14px; font-weight: 700; color: var(--muted); overflow-wrap: anywhere; }
+.msg[data-k="ok"] { color: var(--ok); } .msg[data-k="err"] { color: var(--coral); }
+
+.links { display: flex; justify-content: center; flex-wrap: wrap; gap: 6px 22px; }
+.linkbtn { border: 0; background: none; padding: 8px 6px; font-size: 16px; font-weight: 900; cursor: pointer; }
+.fine { margin: 0; text-align: center; font-size: 13px; font-weight: 700; color: var(--muted); }
+
+/* ---- 管理 ---- */
+.admin h2 { margin: 0 0 12px; font-size: 17px; font-weight: 900; }
+.field { display: flex; flex-direction: column; gap: 4px; margin-bottom: 12px; font-size: 14px; }
+.field label { color: var(--muted); font-weight: 900; }
+.field small { color: var(--muted); font-weight: 700; }
+.checkrow { display: flex; align-items: center; gap: 8px; margin-bottom: 14px; font-size: 14px; font-weight: 800; }
+.checkrow input { width: 20px; height: 20px; flex: none; }
+.row { display: flex; flex-wrap: wrap; gap: 10px; }
+.btn { flex: 1 1 140px; min-height: 48px; padding: 8px 14px; border: 2px solid var(--ink); border-radius: 14px; background: #fff; font-weight: 900; box-shadow: 0 2px 0 var(--ink); cursor: pointer; }
+.btn.danger { color: var(--coral); border-color: var(--coral); box-shadow: 0 3px 0 var(--coral); }
+.btn:disabled { opacity: 0.4; cursor: not-allowed; }
+.sub { margin: 18px 0 8px; font-size: 14px; font-weight: 900; }
+.vlist { display: flex; flex-direction: column; border: 2px solid var(--ink); border-radius: 12px; overflow: hidden; }
+.vrow { display: flex; align-items: center; gap: 10px; padding: 6px 10px; min-height: 46px; }
+.vrow + .vrow { border-top: 2px solid #e6dfcf; }
+.vrow .vn { flex: 1 1 auto; min-width: 0; font-weight: 900; overflow-wrap: anywhere; }
+.vrow .vs { flex: none; font-size: 13px; color: var(--muted); font-weight: 700; }
+.vrow button { flex: none; min-height: 36px; padding: 4px 12px; border: 2px solid var(--coral); border-radius: 8px; background: #fff; color: var(--coral); font-size: 14px; font-weight: 900; cursor: pointer; }
+.vempty { margin: 0; padding: 10px; font-size: 14px; color: var(--muted); font-weight: 700; }
+
+/* ---- 教學、提示 ---- */
+.modal { position: fixed; inset: 0; z-index: 30; display: flex; align-items: center; justify-content: center; padding: 20px; background: rgba(35, 35, 47, 0.55); }
+.sheet { width: 100%; max-width: 420px; max-height: 90vh; overflow: auto; padding: 20px 18px 18px; border: 2px solid var(--ink); border-radius: 20px; background: var(--bg); box-shadow: 0 5px 0 var(--ink); }
+.sheet h2 { margin: 0 0 14px; text-align: center; font-size: 24px; font-weight: 900; }
+.step { display: grid; grid-template-columns: 44px 1fr; gap: 12px; align-items: start; margin-bottom: 12px; padding: 12px; border: 2px solid var(--ink); border-radius: 14px; background: #fff; }
+.step .no { display: flex; align-items: center; justify-content: center; width: 44px; height: 44px; border: 2px solid var(--ink); border-radius: 12px; background: var(--yellow); font-size: 22px; font-weight: 900; }
+.step b { display: block; font-size: 17px; font-weight: 900; }
+.step span { font-size: 14px; font-weight: 700; color: #4a463d; }
+.toast {
+  position: fixed; left: 50%; transform: translateX(-50%); z-index: 40; bottom: calc(22px + env(safe-area-inset-bottom, 0px));
+  max-width: calc(100% - 32px); padding: 12px 22px; border: 2px solid var(--ink); border-radius: 99px; background: var(--yellow);
+  font-size: 16px; font-weight: 900; text-align: center; box-shadow: 0 4px 0 var(--ink);
+}
+.toast[data-k="err"] { background: var(--coral); color: #fff; }
+@media (prefers-reduced-motion: no-preference) {
+  .toast { animation: rise 0.2s ease-out; }
+  @keyframes rise { from { opacity: 0; transform: translate(-50%, 10px); } to { opacity: 1; transform: translate(-50%, 0); } }
+}
 </style>
 </head>
 <body>
-<div>
-<p>前往投票頁面中…</p>
-<a id="go" href="https://script.google.com/macros/s/AKfycbwbYGK_okLvUI5UOrmQV7YnT2i130_MDjdVGv78AshxuPmCUaDC8UTmDkx7nlMZReqcGw/exec">沒有自動跳轉，請按這裡</a>
+<main class="wrap">
+  <header class="top">
+    <span class="tag">每日調查</span>
+    <div class="stamp">
+      <span class="badge">公開調查</span>
+      <h1 id="unit">　</h1>
+      <p class="sub">人員情況</p>
+    </div>
+    <p class="lead">輸入<b>全名</b>、選擇<b>狀態</b>，按送出即完成</p>
+    <div class="chips-row"><span class="pillt">不用登入</span><span class="pillt">全員公開</span><span class="pillt">可重複修改</span></div>
+  </header>
+
+  <p id="remind" class="remind" role="status" hidden></p>
+  <p id="boot" class="boot">載入中…　如果超過 10 秒還是空白，請改用 Safari 或 Chrome 開啟，或重新整理。</p>
+  <div id="notice" class="notice" role="alert" hidden><span id="noticeText"></span><button id="retry" type="button">重新讀取</button></div>
+  <p id="preview" class="preview" hidden>預覽畫面：資料只存在這個畫面，重新整理就會消失。管理密碼是 1234。</p>
+
+  <p class="label">選 擇 日 期</p>
+  <section class="card" aria-label="日期">
+    <div class="datebar">
+      <button id="prev" type="button" aria-label="前一天">‹</button>
+      <div class="datepick">
+        <span id="dBig" class="d-big">…</span>
+        <span id="dSub" class="d-sub"></span>
+        <input type="date" id="date" aria-label="選擇日期">
+      </div>
+      <button id="next" type="button" aria-label="後一天">›</button>
+    </div>
+    <p id="deadline" class="pill" hidden></p>
+    <p id="note" class="hero-note"></p>
+  </section>
+
+  <p class="label">我 要 投 票</p>
+  <section class="card" aria-label="投票">
+    <div id="mine" class="mine" role="status" hidden></div>
+    <p id="guide" class="guide" role="status" data-k="todo">載入中…</p>
+    <label class="lab" for="who">你的全名</label>
+    <input type="text" id="who" maxlength="10" placeholder="例：王小明" autocomplete="off" enterkeyhint="done">
+    <datalist id="rosterList"></datalist>
+    <p id="nameHint" class="hint"></p>
+    <div id="opts" class="opts" role="radiogroup" aria-label="狀態"></div>
+    <button id="submit" class="primary" type="button" disabled>送出</button>
+  </section>
+
+  <section id="unvotedCard" class="card" aria-label="尚未投票" hidden>
+    <div class="head"><h2 id="unvotedTitle">尚未投票</h2><span class="small">點自己的名字直接填入</span></div>
+    <div id="unvoted" class="chips"></div>
+  </section>
+
+  <p class="label">回 報 文 字</p>
+  <section class="card" aria-label="回報文字">
+    <div class="head"><h2>貼到 Juiker 用</h2><span id="progress" class="small"></span></div>
+    <div id="report" class="report"></div>
+    <button id="copy" class="bigbtn report-btn" type="button">複製回報文字</button>
+    <p id="copyMsg" class="msg" role="status"></p>
+  </section>
+
+  <button id="share" class="bigbtn" type="button">分享給同仁</button>
+  <div class="links">
+    <button id="help" class="linkbtn" type="button">再看一次教學</button>
+    <button id="adminToggle" class="linkbtn" type="button">管理</button>
+  </div>
+
+  <section id="admin" class="card admin" aria-label="管理" hidden>
+    <h2>管理</h2>
+    <div id="adminLogin">
+      <div class="field"><label for="aPin">管理密碼</label><input type="password" id="aPin" autocomplete="off"></div>
+      <button id="unlock" class="btn" type="button" style="width:100%">解鎖</button>
+    </div>
+    <div id="adminBody" hidden>
+      <div class="field"><label for="aUnit">單位名稱</label><input type="text" id="aUnit" maxlength="20" autocomplete="off"></div>
+      <div class="field"><label for="aOptions">狀態選項</label><input type="text" id="aOptions" autocomplete="off"><small>2～6 個，用頓號分開，例：休假、留守、救災、到班</small></div>
+      <div class="field"><label for="aNote">說明（可空白）</label><input type="text" id="aNote" autocomplete="off"></div>
+      <div class="field"><label for="aCutoff">每天截止時間（投票日前一天，可空白）</label><input type="time" id="aCutoff"></div>
+      <div class="field"><label for="aRoster">同仁名單（可空白）</label><textarea id="aRoster" autocomplete="off"></textarea><small>貼上全名，用頓號、逗號或換行分開。填了之後，頁面會列出「尚未投票」的人，同仁點名字就能填入，輸入的名字也會幫忙核對。</small></div>
+      <div class="field"><label for="aPin2">這個單位的管理密碼</label><input type="password" id="aPin2" autocomplete="new-password" placeholder="不改請留空"><small>4～20 個字。沒設定的單位，用程式裡的 ADMIN_PIN 當密碼。</small></div>
+      <label class="checkrow"><input type="checkbox" id="aShort"> 回報文字只留名字，省略姓氏</label>
+      <div class="row">
+        <button id="saveCfg" class="btn" type="button">儲存設定</button>
+        <button id="clearBtn" class="btn danger" type="button">清空這一天的投票</button>
+      </div>
+      <p class="sub">給其他單位使用</p>
+      <div class="field"><label for="uName">單位代號（中文或英文，最多 12 字）</label><input type="text" id="uName" maxlength="12" autocomplete="off" placeholder="例：通信股"><small>每個單位一個專用網址，投票和設定各自分開，試算表會自動多一組該單位的分頁。</small></div>
+      <input type="text" id="uLink" readonly aria-label="該單位的專用網址" hidden>
+      <div class="row" style="margin-top:8px"><button id="uCopy" class="btn" type="button" disabled>複製該單位網址</button></div>
+      <p id="adminDay" class="sub"></p>
+      <div id="voteList" class="vlist"></div>
+    </div>
+    <p id="adminMsg" class="msg" role="status"></p>
+  </section>
+
+  <p class="fine">資料即時同步自 Google 試算表</p>
+  <p class="fine">吱吱製作</p>
+</main>
+
+<div id="help-modal" class="modal" role="dialog" aria-modal="true" aria-label="使用教學" hidden>
+  <div class="sheet">
+    <h2>3 步驟完成投票</h2>
+    <div class="step"><span class="no">1</span><div><b>輸入你的全名</b><span>要寫全名，不要用暱稱，這樣才對得上名單。</span></div></div>
+    <div class="step"><span class="no">2</span><div><b>點選你的狀態</b><span>選好會看到「你的選擇」，也看得到其他同仁選了什麼。</span></div></div>
+    <div class="step"><span class="no">3</span><div><b>按「送出」</b><span>看到「已登記」才算完成。截止前想改，重新選一次再送出就好。</span></div></div>
+    <button id="helpOk" class="primary" type="button" style="margin-top:6px">知道了</button>
+  </div>
 </div>
-<script>location.replace(document.getElementById("go").href + location.search);</script>
+<div id="toast" class="toast" role="status" hidden></div>
+
+<script>
+(function () {
+  "use strict";
+  var API_URL = "https://script.google.com/macros/s/AKfycbwbYGK_okLvUI5UOrmQV7YnT2i130_MDjdVGv78AshxuPmCUaDC8UTmDkx7nlMZReqcGw/exec";
+  var DEFAULT_OPTIONS = ["休假", "留守", "救災", "到班"];
+  var COMPOUND = ["歐陽", "司馬", "諸葛", "上官", "夏侯", "皇甫", "張簡", "范姜", "公孫", "慕容", "令狐", "司徒", "南宮", "東方", "尉遲", "長孫", "宇文", "單于"];
+  var NAME_RE = /^[一-鿿A-Za-z·.]{2,10}$/;
+  var KEY_RE = /^[一-鿿A-Za-z0-9_-]{1,12}$/;
+  var DATE_RE = /^\d{4}-\d{2}-\d{2}$/;
+  var WEEK = ["日", "一", "二", "三", "四", "五", "六"];
+  var POLL_MS = 20000;
+
+  var $ = function (id) { return document.getElementById(id); };
+  var pad = function (n) { return String(n).padStart(2, "0"); };
+
+  var UNIT_KEY = "", START_DATE = "", DEMO = false;
+  try {
+    var qs = new URLSearchParams(location.search);
+    var u0 = (qs.get("u") || "").trim();
+    if (KEY_RE.test(u0)) UNIT_KEY = u0;
+    var d0 = qs.get("d") || "";
+    if (DATE_RE.test(d0)) START_DATE = d0;
+    if (qs.get("demo") === "1") DEMO = true;
+  } catch (e0) {}
+  if (!/^https:\/\//.test(API_URL)) DEMO = true;
+
+  /* ---- 日期小工具（用字串計算，不受手機時區影響） ---- */
+  function utcMs(ds) { var p = ds.split("-"); return Date.UTC(+p[0], +p[1] - 1, +p[2]); }
+  function addDays(ds, n) {
+    var d = new Date(utcMs(ds) + n * 86400000);
+    return d.getUTCFullYear() + "-" + pad(d.getUTCMonth() + 1) + "-" + pad(d.getUTCDate());
+  }
+  function validDate(ds) { return DATE_RE.test(ds) && addDays(ds, 0) === ds; }
+  function md(ds) { var p = ds.split("-"); return (+p[1]) + "/" + (+p[2]); }
+  function weekText(ds, today) {
+    var wk = "週" + WEEK[new Date(utcMs(ds)).getUTCDay()];
+    return today && today.slice(0, 4) !== ds.slice(0, 4) ? ds.slice(0, 4) + "年　" + wk : wk;
+  }
+  function longDate(ds, today) {
+    if (!ds) return "";
+    var p = ds.split("-");
+    return (+p[1]) + "月" + (+p[2]) + "日 " + weekText(ds, today);
+  }
+  function dayParen(ds) { return ds ? "(" + (+ds.split("-")[2]) + "日)" : ""; }
+
+  /* ---- 預覽用假後端（網址加 ?demo=1，或沒有填 API 網址時） ---- */
+  var MOCK = (function () {
+    var PIN = "1234";
+    var cfg = { unit: UNIT_KEY || "軍械股", options: DEFAULT_OPTIONS.slice(), note: "", cutoff: "", short: true, roster: [] };
+    var today = (function () { var d = new Date(); return d.getFullYear() + "-" + pad(d.getMonth() + 1) + "-" + pad(d.getDate()); })();
+    var byDate = {};
+    function splitNames(s) { return String(s || "").split(/[、,，;；\s]+/).filter(Boolean); }
+    function parseOpts(s) {
+      var a = splitNames(s), seen = {};
+      for (var i = 0; i < a.length; i++) { if (a[i].length > 6 || seen[a[i]]) return null; seen[a[i]] = 1; }
+      return a.length >= 2 && a.length <= 6 ? a : null;
+    }
+    function closeInfo(date) {
+      if (date < today) return { closed: true, reason: "past", closeAt: null };
+      var closeAt = null;
+      if (cfg.cutoff) {
+        var hm = cfg.cutoff.split(":"), p = date.split("-");
+        closeAt = new Date(+p[0], +p[1] - 1, +p[2] - 1, +hm[0], +hm[1]).getTime();
+      }
+      var closed = !!closeAt && Date.now() > closeAt;
+      return { closed: closed, reason: closed ? "cutoff" : "", closeAt: closeAt };
+    }
+    return {
+      getState: function (a) {
+        var date = validDate(a.date || "") ? a.date : addDays(today, 1);
+        var c = closeInfo(date);
+        var votes = (byDate[date] || []).filter(function (v) { return cfg.options.indexOf(v.status) >= 0; });
+        return { date: date, today: today, votes: JSON.parse(JSON.stringify(votes)), cfg: JSON.parse(JSON.stringify(cfg)),
+          closed: c.closed, reason: c.reason, closeAt: c.closeAt, now: Date.now() };
+      },
+      submitVote: function (a) {
+        var name = String(a.name || "").replace(/[\s　]+/g, "");
+        if (!validDate(a.date || "")) return { ok: false, msg: "日期不正確" };
+        if (!NAME_RE.test(name)) return { ok: false, msg: "請輸入中文全名（至少兩個字）" };
+        if (cfg.options.indexOf(a.status) < 0) return { ok: false, msg: "請選擇狀態" };
+        var c = closeInfo(a.date);
+        if (c.closed) return { ok: false, msg: c.reason === "past" ? "這一天已結束，不能再投票" : "投票已截止" };
+        var list = byDate[a.date] = byDate[a.date] || [];
+        for (var i = 0; i < list.length; i++) {
+          if (list[i].name === name) { list[i].status = a.status; list[i].t = Date.now(); return { ok: true }; }
+        }
+        list.push({ name: name, status: a.status, t: Date.now() });
+        return { ok: true };
+      },
+      adminCheck: function (a) { return a.pin === PIN; },
+      adminSave: function (a) {
+        if (a.pin !== PIN) return { ok: false, msg: "密碼錯誤" };
+        var unit = String(a.unit || "").trim();
+        if (!unit || unit.length > 20) return { ok: false, msg: "單位名稱請填 1～20 個字" };
+        var o = parseOpts(a.options);
+        if (!o) return { ok: false, msg: "狀態選項請填 2～6 個，用頓號分開，不能重複" };
+        var names = splitNames(a.roster), seen = {}, ok = [], bad = [];
+        names.forEach(function (n) { if (seen[n]) return; seen[n] = 1; (NAME_RE.test(n) ? ok : bad).push(n); });
+        if (bad.length) return { ok: false, msg: "這些名字不是中文全名：" + bad.slice(0, 3).join("、") + (bad.length > 3 ? " 等" : "") };
+        if (a.newpin && !/^\S{4,20}$/.test(a.newpin)) return { ok: false, msg: "管理密碼請填 4～20 個字，不能有空白" };
+        if (a.newpin) PIN = a.newpin;
+        cfg = { unit: unit, options: o, note: a.note || "", cutoff: a.cutoff || "", short: a.short === "1", roster: ok };
+        return { ok: true };
+      },
+      adminDelete: function (a) { if (a.pin !== PIN) return { ok: false, msg: "密碼錯誤" }; byDate[a.date] = (byDate[a.date] || []).filter(function (v) { return v.name !== a.name; }); return { ok: true }; },
+      adminClear: function (a) { if (a.pin !== PIN) return { ok: false, msg: "密碼錯誤" }; byDate[a.date] = []; return { ok: true }; }
+    };
+  })();
+
+  /* 呼叫伺服器：全部用 GET，結果是 JSON */
+  function call(fn, args) {
+    args = args || {};
+    if (DEMO) {
+      return new Promise(function (resolve, reject) {
+        setTimeout(function () { try { resolve(MOCK[fn](args)); } catch (e) { reject(e); } }, 120);
+      });
+    }
+    var q = ["fn=" + encodeURIComponent(fn), "u=" + encodeURIComponent(UNIT_KEY)];
+    Object.keys(args).forEach(function (k) {
+      if (args[k] !== undefined && args[k] !== null) q.push(encodeURIComponent(k) + "=" + encodeURIComponent(args[k]));
+    });
+    q.push("_=" + Date.now());
+    var ctl = typeof AbortController !== "undefined" ? new AbortController() : null;
+    var timer = ctl ? setTimeout(function () { ctl.abort(); }, 25000) : 0;
+    return fetch(API_URL + "?" + q.join("&"), { method: "GET", redirect: "follow", signal: ctl ? ctl.signal : undefined })
+      .then(function (r) { clearTimeout(timer); if (!r.ok) throw new Error("http " + r.status); return r.json(); });
+  }
+
+  var S = { date: "", today: "", votes: [], cfg: { unit: "", options: DEFAULT_OPTIONS.slice(), note: "", cutoff: "", short: true, roster: [] }, closed: false, reason: "", closeAt: null, now: Date.now() };
+  var OPTS = DEFAULT_OPTIONS.slice();
+  var ROSTER_KEY = "";
+  var curDate = START_DATE, fetchedAt = 0;
+  var skew = 0, loading = false, again = false, loaded = false, failCount = 0;
+  var pick = "", busy = false, sticky = "", stickyK = "", confirmClear = false, clearTimer = 0, toastTimer = 0;
+  var pin = "", adminOpen = false, adminDirty = false;
+
+  function nowMs() { return Date.now() + skew; }
+  function isClosed() { return S.reason === "past" || (!!S.closeAt && nowMs() > S.closeAt); }
+  function roster() { return S.cfg.roster || []; }
+  function fmtTime(ms) {
+    var d = new Date(ms);
+    return (d.getMonth() + 1) + "/" + d.getDate() + " " + pad(d.getHours()) + ":" + pad(d.getMinutes());
+  }
+  function countdown(ms) {
+    var m = Math.floor(ms / 60000);
+    if (m < 1) return "不到 1 分鐘";
+    if (m < 60) return m + " 分鐘";
+    var h = Math.floor(m / 60);
+    if (h < 24) return h + " 小時 " + (m % 60) + " 分";
+    return Math.floor(h / 24) + " 天 " + (h % 24) + " 小時";
+  }
+  function normName(s) { return String(s || "").replace(/[\s　]+/g, "").slice(0, 10); }
+  function shortName(name) {
+    var a = Array.from(name);
+    if (a.length === 3) return a.slice(1).join("");
+    if (a.length === 4 && COMPOUND.indexOf(a.slice(0, 2).join("")) >= 0) return a.slice(2).join("");
+    return name;
+  }
+  function currentName() { return normName($("who").value); }
+  function votersOf(o) { return S.votes.filter(function (v) { return v.status === o; }).map(function (v) { return v.name; }); }
+  function findVote(name) {
+    for (var i = 0; i < S.votes.length; i++) if (S.votes[i].name === name) return S.votes[i];
+    return null;
+  }
+  function joinOpts(a) { return a.length <= 1 ? (a[0] || "") : a.slice(0, -1).join("、") + "及" + a[a.length - 1]; }
+
+  function buildReport() {
+    var strip = S.cfg.short !== false;
+    var L = [(S.cfg.unit || "") + dayParen(curDate) + "人員情況如下", joinOpts(OPTS) + "人員～"];
+    OPTS.forEach(function (o) {
+      var a = votersOf(o);
+      if (strip) a = a.map(shortName);
+      if (a.length) L.push(o + "：" + a.length + "員（" + a.join("、") + "）");
+    });
+    return L.join("\n");
+  }
+
+  function notice(t) { $("noticeText").textContent = t; $("notice").hidden = !t; }
+  function setMsg(t, k) { sticky = t || ""; stickyK = k || ""; }
+  function copyMsg(t, k) { var el = $("copyMsg"); el.textContent = t || ""; el.dataset.k = k || ""; }
+  function adminMsg(t, k) { var el = $("adminMsg"); el.textContent = t || ""; el.dataset.k = k || ""; }
+  function toast(t, k) {
+    var el = $("toast");
+    el.textContent = t; el.dataset.k = k || ""; el.hidden = false;
+    clearTimeout(toastTimer);
+    toastTimer = setTimeout(function () { el.hidden = true; }, 3200);
+  }
+  function copyText(text, okMsg, failEl) {
+    function done() { toast(okMsg); }
+    function fallback() {
+      var ta = document.createElement("textarea");
+      ta.value = text; ta.setAttribute("readonly", ""); ta.style.position = "fixed"; ta.style.opacity = "0";
+      document.body.appendChild(ta); ta.select();
+      var ok = false;
+      try { ok = document.execCommand("copy"); } catch (e1) {}
+      document.body.removeChild(ta);
+      if (ok) done(); else if (failEl) failEl();
+    }
+    if (navigator.clipboard && navigator.clipboard.writeText) navigator.clipboard.writeText(text).then(done, fallback);
+    else fallback();
+  }
+
+  function buildOpts() {
+    var box = $("opts");
+    box.textContent = "";
+    OPTS.forEach(function (o, i) {
+      var wrap = document.createElement("div");
+      wrap.className = "optwrap"; wrap.dataset.i = String(i); wrap.dataset.sel = "false";
+      var b = document.createElement("button");
+      b.type = "button"; b.className = "opt"; b.dataset.o = o;
+      b.setAttribute("role", "radio"); b.setAttribute("aria-checked", "false");
+      var num = document.createElement("span"); num.className = "numbox";
+      var n = document.createElement("span"); n.className = "n"; n.textContent = "–";
+      var un = document.createElement("span"); un.className = "u"; un.textContent = "人";
+      num.appendChild(n); num.appendChild(un);
+      var nm = document.createElement("span"); nm.className = "oname";
+      nm.appendChild(document.createTextNode(o));
+      var pill = document.createElement("span"); pill.className = "mypill"; pill.textContent = "✓ 你的選擇"; pill.hidden = true;
+      nm.appendChild(pill);
+      var radio = document.createElement("span"); radio.className = "radio";
+      b.appendChild(num); b.appendChild(nm); b.appendChild(radio);
+      var names = document.createElement("div"); names.className = "opt-names";
+      wrap.appendChild(b); wrap.appendChild(names);
+      box.appendChild(wrap);
+    });
+  }
+  function ensureOpts() {
+    var o = S.cfg.options && S.cfg.options.length ? S.cfg.options : DEFAULT_OPTIONS;
+    if (o.join("|") !== OPTS.join("|")) {
+      OPTS = o.slice();
+      if (OPTS.indexOf(pick) < 0) pick = "";
+      buildOpts();
+    }
+  }
+  function ensureRosterList() {
+    var r = roster(), key = r.join("|");
+    if (key === ROSTER_KEY) return;
+    ROSTER_KEY = key;
+    var dl = $("rosterList");
+    dl.textContent = "";
+    r.forEach(function (n) { var o = document.createElement("option"); o.value = n; dl.appendChild(o); });
+    if (r.length) $("who").setAttribute("list", "rosterList"); else $("who").removeAttribute("list");
+  }
+  function renderNames(el, arr, me) {
+    el.textContent = "";
+    arr.forEach(function (n, i) {
+      if (i) el.appendChild(document.createTextNode("、"));
+      var s = document.createElement("span");
+      s.textContent = n;
+      if (n === me) s.className = "me";
+      el.appendChild(s);
+    });
+  }
+  function updateOpts() {
+    var wraps = $("opts").children, me = currentName();
+    var mv = loaded && NAME_RE.test(me) ? findVote(me) : null;
+    $("opts").dataset.closed = String(isClosed());
+    for (var k = 0; k < wraps.length; k++) {
+      var o = OPTS[k], a = votersOf(o);
+      wraps[k].dataset.sel = String(pick === o);
+      wraps[k].querySelector(".opt").setAttribute("aria-checked", String(pick === o));
+      wraps[k].querySelector(".n").textContent = loaded ? String(a.length) : "–";
+      renderNames(wraps[k].querySelector(".opt-names"), a, me);
+      wraps[k].querySelector(".mypill").hidden = !(mv && mv.status === o);
+    }
+  }
+  function updateHeader() {
+    $("unit").textContent = S.cfg.unit || "　";
+    document.title = (S.cfg.unit || "") + "人員情況投票";
+    $("dBig").textContent = curDate ? md(curDate) : "…";
+    $("dSub").textContent = curDate ? weekText(curDate, S.today) : "";
+    if (curDate && $("date").value !== curDate) $("date").value = curDate;
+    $("note").textContent = S.cfg.note || "";
+    var d = $("deadline"), closed = isClosed();
+    if (S.reason === "past") { d.textContent = "這一天已結束，只能查看"; d.dataset.k = "past"; d.hidden = false; }
+    else if (S.closeAt) {
+      if (closed) { d.textContent = "投票已截止，只能查看"; d.dataset.k = "closed"; }
+      else {
+        var left = S.closeAt - nowMs();
+        d.textContent = "截止 " + fmtTime(S.closeAt) + (left < 36 * 3600000 ? "　還有 " + countdown(left) : "");
+        d.dataset.k = left < 2 * 3600000 ? "soon" : "open";
+      }
+      d.hidden = false;
+    } else d.hidden = true;
+  }
+  /* 最上面的提醒：依「輸入框裡的名字」判斷投了沒有、快不快截止 */
+  function updateRemind() {
+    var el = $("remind"), nm = currentName(), t = "", k = "";
+    if (!loaded) { el.hidden = true; return; }
+    var closed = isClosed(), left = S.closeAt ? S.closeAt - nowMs() : null;
+    var mv = NAME_RE.test(nm) ? findVote(nm) : null;
+    if (closed) { t = S.reason === "past" ? "這一天已經結束，只能查看" : "投票已截止，只能查看"; k = "muted"; }
+    else if (mv) {
+      t = "✓ " + nm + "　" + md(curDate) + " 你投的是「" + mv.status + "」";
+      if (left !== null && left < 2 * 3600000) t += "　" + countdown(left) + "後截止";
+      k = "ok";
+    } else if (NAME_RE.test(nm)) {
+      t = "" + nm + "，" + md(curDate) + " 你尚未投票" + (left !== null && left < 36 * 3600000 ? "　還有 " + countdown(left) : "");
+      k = "warn";
+    } else if (left !== null && left < 2 * 3600000) { t = "快截止了，還有 " + countdown(left); k = "warn"; }
+    else if (!roster().length) { el.hidden = true; return; }
+    else {
+      var voted = {}; S.votes.forEach(function (v) { voted[v.name] = 1; });
+      var n = roster().filter(function (x) { return !voted[x]; }).length;
+      if (!n) { t = "全員都投票了"; k = "ok"; } else { t = "還有 " + n + " 人沒投票，投了嗎？"; k = ""; }
+    }
+    el.textContent = t; el.dataset.k = k; el.hidden = !t;
+  }
+  function updateReport() {
+    $("report").textContent = buildReport();
+    var t;
+    if (!loaded) t = "讀取中…";
+    else { var d = new Date(fetchedAt || Date.now()); t = "已投票 " + S.votes.length + " 人　" + pad(d.getHours()) + ":" + pad(d.getMinutes()) + " 更新"; }
+    $("progress").textContent = t;
+  }
+  function updateUnvoted() {
+    var R = roster(), card = $("unvotedCard");
+    card.hidden = !R.length;
+    if (!R.length) return;
+    var voted = {};
+    S.votes.forEach(function (v) { voted[v.name] = 1; });
+    var left = R.filter(function (n) { return !voted[n]; });
+    $("unvotedTitle").textContent = !loaded ? "尚未投票" : (left.length ? "尚未投票　" + left.length + " 人" : "全員已投票 ✓");
+    var box = $("unvoted");
+    box.textContent = "";
+    if (!loaded) return;
+    var closed = isClosed();
+    left.forEach(function (n) {
+      var b = document.createElement("button");
+      b.type = "button"; b.className = "chip"; b.textContent = n; b.disabled = closed;
+      box.appendChild(b);
+    });
+  }
+  function updateNameHint() {
+    var raw = $("who").value.replace(/[\s　]/g, ""), h = $("nameHint"), R = roster();
+    if (!raw) { h.textContent = R.length ? "輸入全名，或點下面「尚未投票」裡自己的名字。" : "請輸入全名（例：王小明），不要用暱稱。"; h.dataset.k = ""; return; }
+    var nm = normName(raw);
+    if (!NAME_RE.test(nm)) { h.textContent = raw.length < 2 ? "至少要兩個字。" : "只能輸入中文或英文字母，不要數字或符號。"; h.dataset.k = "err"; }
+    else if (R.length && R.indexOf(nm) < 0) { h.textContent = "名單裡沒有「" + nm + "」，請確認是不是全名。仍然可以送出。"; h.dataset.k = "warn"; }
+    else if (R.length) { h.textContent = "✓ 名單中有這個名字"; h.dataset.k = "ok"; }
+    else { h.textContent = "請確認這是你的全名。"; h.dataset.k = ""; }
+  }
+  function updateMine() {
+    var el = $("mine"), nm = currentName();
+    var v = loaded && NAME_RE.test(nm) ? findVote(nm) : null;
+    if (!v) { el.hidden = true; return; }
+    var i = OPTS.indexOf(v.status);
+    el.dataset.i = String(i < 0 ? 0 : i);
+    el.textContent = "";
+    var a = document.createElement("div"); a.className = "m1"; a.textContent = "✓ 你已投票：" + v.status;
+    var b = document.createElement("div"); b.className = "m2"; b.textContent = v.name + "　" + longDate(curDate, S.today);
+    el.appendChild(a); el.appendChild(b);
+    el.hidden = false;
+  }
+  function updateGuide() {
+    var nm = currentName(), g, k = "todo";
+    if (!loaded) g = "載入中…";
+    else if (sticky) { g = sticky; k = stickyK; }
+    else if (isClosed()) { g = S.reason === "past" ? "這一天已經結束，只能查看。" : "投票已截止，只能查看。"; k = "muted"; }
+    else if (!NAME_RE.test(nm)) g = "第 1 步：輸入你的全名";
+    else if (!pick) g = findVote(nm) ? "要更改的話，請重新點選下面的選項" : "第 2 步：點選你的狀態";
+    else g = "第 3 步：按下面的「送出」才算完成";
+    var el = $("guide");
+    el.textContent = g; el.dataset.k = k;
+  }
+  function updateSubmit() {
+    var nm = currentName();
+    var ready = loaded && NAME_RE.test(nm) && !!pick && !busy && !isClosed();
+    var b = $("submit");
+    b.disabled = !ready;
+    b.textContent = ready ? "送出：" + nm + "　" + pick + "（" + md(curDate) + "）" : (busy ? "送出中…" : "送出");
+    updateMine(); updateGuide(); updateRemind();
+  }
+  function renderAdminList() {
+    $("adminDay").textContent = longDate(curDate, S.today) + " 的投票名單（打錯或用暱稱的可以刪除）";
+    var box = $("voteList");
+    box.textContent = "";
+    if (!S.votes.length) {
+      var p = document.createElement("p"); p.className = "vempty"; p.textContent = "這一天沒有人投票。";
+      box.appendChild(p);
+      return;
+    }
+    S.votes.forEach(function (v) {
+      var row = document.createElement("div"); row.className = "vrow";
+      var n = document.createElement("span"); n.className = "vn"; n.textContent = v.name;
+      var s = document.createElement("span"); s.className = "vs"; s.textContent = v.status;
+      var b = document.createElement("button"); b.type = "button"; b.textContent = "刪除"; b.dataset.name = v.name;
+      b.setAttribute("aria-label", "刪除 " + v.name + " 的投票");
+      row.appendChild(n); row.appendChild(s); row.appendChild(b);
+      box.appendChild(row);
+    });
+  }
+  function updateAll() {
+    ensureOpts(); ensureRosterList();
+    updateHeader(); updateOpts(); updateReport(); updateUnvoted(); updateNameHint(); updateSubmit();
+    if (adminOpen) renderAdminList();
+  }
+  function syncAdmin() {
+    if (adminDirty) return;
+    $("aUnit").value = S.cfg.unit || "";
+    $("aOptions").value = (S.cfg.options || []).join("、");
+    $("aNote").value = S.cfg.note || "";
+    $("aCutoff").value = S.cfg.cutoff || "";
+    $("aRoster").value = roster().join("、");
+    $("aShort").checked = S.cfg.short !== false;
+  }
+
+  function refresh() {
+    if (loading) { again = true; return Promise.resolve(); }
+    loading = true;
+    var want = curDate;
+    return call("getState", { date: want || "" }).then(function (s) {
+      if (!s || !s.date) throw new Error("bad");
+      failCount = 0;
+      if (want && s.date !== want) return;
+      if (!curDate) curDate = s.date;
+      if (s.date !== curDate) return;
+      if (!s.cfg.roster) s.cfg.roster = [];
+      S = s;
+      skew = s.now - Date.now();
+      fetchedAt = Date.now();
+      loaded = true;
+      $("boot").hidden = true;
+      notice("");
+      updateAll();
+      syncAdmin();
+    }).catch(function () {
+      failCount++;
+      if (!loaded || failCount >= 2) notice("讀不到投票資料。請確認網路後，按下面的「重新讀取」。");
+    }).then(function () {
+      loading = false;
+      if (again) { again = false; return refresh(); }
+    });
+  }
+  function setDate(ds) {
+    if (!validDate(ds) || ds === curDate) return;
+    curDate = ds; pick = ""; setMsg("", ""); copyMsg("", "");
+    loaded = false; S.votes = []; S.reason = ""; S.closeAt = null;
+    updateAll(); refresh();
+  }
+
+  $("prev").addEventListener("click", function () { if (curDate) setDate(addDays(curDate, -1)); });
+  $("next").addEventListener("click", function () { if (curDate) setDate(addDays(curDate, 1)); });
+  $("date").addEventListener("change", function () { setDate($("date").value); });
+  $("retry").addEventListener("click", function () { notice(""); refresh(); });
+
+  function onName() { setMsg("", ""); updateNameHint(); updateOpts(); updateSubmit(); }
+  $("who").addEventListener("input", onName);
+  $("who").addEventListener("change", onName);
+  $("who").addEventListener("keydown", function (e) { if (e.key === "Enter") { e.preventDefault(); $("who").blur(); } });
+  $("unvoted").addEventListener("click", function (e) {
+    var b = e.target.closest(".chip");
+    if (!b || b.disabled) return;
+    $("who").value = b.textContent;
+    onName();
+    $("who").scrollIntoView({ behavior: "smooth", block: "center" });
+  });
+  $("opts").addEventListener("click", function (e) {
+    var b = e.target.closest(".opt");
+    if (!b) return;
+    if (isClosed()) { setMsg("", ""); updateSubmit(); return; }
+    if (!NAME_RE.test(currentName())) { setMsg("請先在上面輸入你的全名", "err"); updateSubmit(); $("who").focus(); return; }
+    pick = b.dataset.o; setMsg("", ""); updateAll();
+  });
+  $("submit").addEventListener("click", function () {
+    var nm = currentName();
+    if (!loaded || !NAME_RE.test(nm) || !pick || busy || isClosed()) return;
+    var o = pick, ds = curDate;
+    busy = true; updateSubmit();
+    call("submitVote", { date: ds, name: nm, status: o }).then(function (r) {
+      if (r && r.ok) {
+        pick = "";
+        try { localStorage.setItem("armsStatusName", nm); } catch (e1) {}
+        setMsg("✓ 已登記：" + nm + "　" + o + "（" + longDate(ds, S.today) + "）。要更改，重新選一次再送出就可以。", "ok");
+        toast("✓ 已登記　" + nm + "　" + o);
+      } else {
+        setMsg((r && r.msg) || "送出失敗，請再試一次。", "err");
+        toast((r && r.msg) || "送出失敗，請再試一次。", "err");
+      }
+    }).catch(function () {
+      setMsg("送出失敗，請檢查網路後再試一次。", "err");
+      toast("送出失敗，請檢查網路後再試一次。", "err");
+    }).then(function () { busy = false; return refresh(); }).then(updateAll);
+  });
+  $("copy").addEventListener("click", function () {
+    copyText(buildReport(), "已複製，可以貼到 Juiker", function () {
+      var r = document.createRange(); r.selectNodeContents($("report"));
+      var s = window.getSelection(); s.removeAllRanges(); s.addRange(r);
+      copyMsg("無法自動複製，文字已選取，請長按後選「拷貝」。", "err");
+    });
+  });
+
+  /* ---- 分享 ---- */
+  function shareUrl(date, key) {
+    var base = location.href.split("#")[0].split("?")[0];
+    var q = [];
+    if (key) q.push("u=" + encodeURIComponent(key));
+    if (date) q.push("d=" + date);
+    return base + (q.length ? "?" + q.join("&") : "");
+  }
+  $("share").addEventListener("click", function () {
+    var url = shareUrl(curDate, UNIT_KEY);
+    var text = "【" + (S.cfg.unit || "") + "人員情況】" + (curDate ? md(curDate) + " " : "") + "請點連結，輸入全名投票";
+    if (navigator.share) {
+      navigator.share({ title: (S.cfg.unit || "") + "人員情況投票", text: text, url: url }).catch(function () {});
+    } else {
+      copyText(text + "\n" + url, "已複製分享連結，可以貼到 Juiker", function () { toast("無法自動複製，請手動複製網址", "err"); });
+    }
+  });
+
+  /* ---- 教學 ---- */
+  function showHelp(show) { $("help-modal").hidden = !show; }
+  $("help").addEventListener("click", function () { showHelp(true); });
+  $("helpOk").addEventListener("click", function () {
+    showHelp(false);
+    try { localStorage.setItem("armsStatusHelp", "1"); } catch (e2) {}
+  });
+  $("help-modal").addEventListener("click", function (e) { if (e.target === $("help-modal")) $("helpOk").click(); });
+
+  /* ---- 管理 ---- */
+  $("adminToggle").addEventListener("click", function () {
+    var a = $("admin");
+    a.hidden = !a.hidden;
+    if (!a.hidden) a.scrollIntoView({ behavior: "smooth", block: "start" });
+  });
+  $("unlock").addEventListener("click", function () {
+    var p = $("aPin").value;
+    call("adminCheck", { pin: p }).then(function (ok) {
+      if (ok === true) {
+        pin = p; adminOpen = true; adminDirty = false;
+        $("adminLogin").hidden = true; $("adminBody").hidden = false;
+        adminMsg("", ""); syncAdmin(); renderAdminList();
+      } else adminMsg("密碼錯誤。", "err");
+    }).catch(function () { adminMsg("連線失敗，請再試一次。", "err"); });
+  });
+  ["aUnit", "aOptions", "aNote", "aCutoff", "aRoster", "aShort"].forEach(function (id) {
+    $(id).addEventListener("input", function () { adminDirty = true; });
+    $(id).addEventListener("change", function () { adminDirty = true; });
+  });
+  function unitLink() {
+    var k = $("uName").value.replace(/\s+/g, "");
+    return KEY_RE.test(k) ? shareUrl("", k) : "";
+  }
+  $("uName").addEventListener("input", function () {
+    var l = unitLink(), box = $("uLink");
+    box.value = l; box.hidden = !l; $("uCopy").disabled = !l;
+    adminMsg($("uName").value && !l ? "單位代號只能是中文、英文、數字，最多 12 字。" : "", "err");
+  });
+  $("uCopy").addEventListener("click", function () {
+    var l = unitLink();
+    if (!l) return;
+    copyText(l, "已複製該單位的網址", function () { var b = $("uLink"); b.hidden = false; b.focus(); b.select(); adminMsg("請長按網址後選「拷貝」。", ""); });
+  });
+  $("aPin").addEventListener("keydown", function (e) { if (e.key === "Enter") { e.preventDefault(); $("unlock").click(); } });
+  $("saveCfg").addEventListener("click", function () {
+    call("adminSave", {
+      pin: pin, unit: $("aUnit").value.trim(), options: $("aOptions").value.trim(), note: $("aNote").value.trim(),
+      cutoff: $("aCutoff").value, roster: $("aRoster").value, short: $("aShort").checked ? "1" : "0", newpin: $("aPin2").value
+    }).then(function (r) {
+      if (r && r.ok) { adminDirty = false; if ($("aPin2").value) { pin = $("aPin2").value; $("aPin2").value = ""; } }
+      adminMsg(r && r.ok ? "已儲存。" : (r && r.msg) || "儲存失敗。", r && r.ok ? "ok" : "err");
+      return refresh();
+    }).catch(function () { adminMsg("儲存失敗，請再試一次。", "err"); });
+  });
+  $("voteList").addEventListener("click", function (e) {
+    var b = e.target.closest("button");
+    if (!b) return;
+    b.disabled = true;
+    call("adminDelete", { pin: pin, date: curDate, name: b.dataset.name }).then(function (r) {
+      adminMsg(r && r.ok ? "已刪除。" : (r && r.msg) || "刪除失敗。", r && r.ok ? "ok" : "err");
+      return refresh();
+    }).catch(function () { adminMsg("刪除失敗，請再試一次。", "err"); b.disabled = false; });
+  });
+  function resetClear() { confirmClear = false; clearTimeout(clearTimer); $("clearBtn").textContent = "清空這一天的投票"; }
+  $("clearBtn").addEventListener("click", function () {
+    var btn = $("clearBtn");
+    if (!confirmClear) {
+      confirmClear = true; btn.textContent = "確定清空？再按一次";
+      clearTimeout(clearTimer); clearTimer = setTimeout(resetClear, 4000);
+      return;
+    }
+    resetClear(); btn.disabled = true;
+    call("adminClear", { pin: pin, date: curDate }).then(function (r) {
+      adminMsg(r && r.ok ? "已清空這一天的投票。" : (r && r.msg) || "清空失敗。", r && r.ok ? "ok" : "err");
+      return refresh();
+    }).catch(function () { adminMsg("清空失敗，請再試一次。", "err"); }).then(function () { btn.disabled = false; });
+  });
+
+  try {
+    var saved = localStorage.getItem("armsStatusName");
+    if (saved) $("who").value = normName(saved);
+    if (!localStorage.getItem("armsStatusHelp")) showHelp(true);
+  } catch (e3) { showHelp(true); }
+
+  if (DEMO) $("preview").hidden = false;
+  buildOpts();
+  updateAll();
+  refresh();
+  document.addEventListener("visibilitychange", function () { if (!document.hidden) refresh(); });
+  setInterval(function () { if (!document.hidden) refresh(); }, POLL_MS);
+  setInterval(function () { updateHeader(); updateOpts(); updateUnvoted(); updateSubmit(); }, 20000);
+})();
+</script>
 </body>
 </html>
