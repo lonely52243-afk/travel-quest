@@ -685,6 +685,23 @@ body.hasg .appbar { border-bottom: none; }
 .toolbar { margin-bottom: 5px; }
 .brow .chip.todo { border: none; background: transparent; padding: 0 3px; color: var(--offtext); font-weight: 700; }
 
+/* 週末摘要：預設一行一天，點開才看全部名字 */
+.modebar.hide { display: none; }
+.bsum { display: flex; align-items: center; gap: 8px; padding: 6px 8px; min-height: 40px; border-bottom: 1px solid var(--line); background: var(--off); cursor: pointer; font-size: 13px; }
+.bsum.today { background: var(--yellow-soft); }
+.bsum:last-of-type { border-bottom: none; }
+.bsum b { flex-shrink: 0; font-size: 13px; }
+.bsum .st { flex: 1; min-width: 0; color: var(--offtext); font-weight: 700; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+.bsum .td { flex-shrink: 0; font-weight: 800; color: #fff; background: var(--red); border-radius: 999px; padding: 1px 9px; font-size: 12.5px; }
+.bsum .td.ok { background: none; color: var(--pm); padding: 0; }
+.bsum .caret { flex-shrink: 0; width: 9px; height: 9px; border-right: 3px solid var(--text); border-bottom: 3px solid var(--text); transform: rotate(45deg); margin: 0 4px 3px 2px; transition: transform .15s; }
+.bsum .caret.up { transform: rotate(-135deg); margin-bottom: -3px; }
+.bsum .caret.sp { visibility: hidden; }
+.brief { max-height: 40vh; }
+.legend { flex-wrap: nowrap; overflow-x: auto; white-space: nowrap; gap: 10px; font-size: 12px; scrollbar-width: none; }
+.legend::-webkit-scrollbar { display: none; }
+.legend span { flex-shrink: 0; }
+
   </style>
 </head>
 <body>
@@ -1090,7 +1107,7 @@ body.hasg .appbar { border-bottom: none; }
       var ignoreClick = false;
       var toastTimer = null;
       var cacheTimer = null;
-      var prefs = { theme: 'light', view: 'week', me: '', pw: '', group: '', seen: false, gHint: false, away: [],
+      var prefs = { theme: 'light', view: 'week', me: '', pw: '', group: '', seen: false, gHint: false, briefOpen: false, away: [],
         ot: { sup: '', from: '1800', to: '1900', why: '', rec: [], short: true, when: '夜間' } };
       var editing = false, editT = null;
       var daysFrom = todayKey(), daysCount = 21, daysBusy = false;
@@ -1186,12 +1203,11 @@ body.hasg .appbar { border-bottom: none; }
         setTimeout(function () { try { $('pwInput').focus(); } catch (e) { /* 忽略 */ } }, 150);
       }
       function renderModeBar() {
-        var b = $('modeBar'), h;
-        if (forcedRO) { b.className = 'modebar ro'; h = '<span>🔒 這是唯讀連結，只能查看</span>'; }
-        else if (!prefs.pw) { b.className = 'modebar ro'; h = '<span>🔒 目前只能查看</span><button data-mode="login">管理者登入</button>'; }
-        else if (!editing) { b.className = 'modebar ro'; h = '<span>🔒 唯讀中（防止誤點）</span><button data-mode="on">開啟編輯</button>'; }
-        else { b.className = 'modebar on'; h = '<span>✏️ 編輯中：點一下＝全天休　長按＝更多</span><button data-mode="off">結束編輯</button>'; }
-        b.innerHTML = h;
+        var b = $('modeBar');
+        if (editing && !forcedRO) {
+          b.className = 'modebar on';
+          b.innerHTML = '<span>✏️ 編輯中：點一下＝全天休　長按＝更多</span><button data-mode="off">結束編輯</button>';
+        } else { b.className = 'modebar hide'; b.innerHTML = ''; }
       }
 
       // ====== 日期工具 ======
@@ -1940,26 +1956,38 @@ body.hasg .appbar { border-bottom: none; }
         var box = $('brief'), list = briefList(), tk = todayKey();
         if (!employees.length) { box.innerHTML = ''; return; }
         if (!isReady(idsOfKeys(list))) { box.innerHTML = '<div class="brow"><span class="muted">讀取中…</span></div>'; return; }
-        var h = '';
-        list.forEach(function (k) {
-          var inf = dayInfo(k), lv = leavesOf(k), isT = (k === tk);
-          h += '<div class="brow' + (inf.off ? ' off' : '') + (isT ? ' today' : '') + '" data-date="' + k + '" role="button" tabindex="0">' +
-            '<span class="bd"><b>' + (isT ? '今天' : '週' + wkOf(k)) + '</b>' + mdLabel(k) + (inf.label ? ' ' + esc(inf.label) : '') + '</span><div class="bc">';
-          if (inf.off) {
-            var st = stayOf(k), mo = monOf(k), uf = unfiledOf(k);
-            h += '<span class="bl">留守</span>' + (st.length ? st.map(function (x) { return stayChip(x, k); }).join('') : '<span class="muted">無</span>');
-            if (mo.length) h += '<span class="bl">監控</span>' + mo.map(function (x) { return monChip(x, k); }).join('');
-            if (lv.length) h += '<span class="bl">休</span>' + lv.map(function (x) { return leaveChip(x, k); }).join('');
-            h += awayBrief(k);
-            h += uf.length ? '<span class="bl todo">未點</span>' + uf.map(function (x) { return todoChip(x, k); }).join('') : '<span class="ok">✓ 全部已點</span>';
-          } else {
-            h += lv.length ? '<span class="bl">休</span>' + lv.map(function (x) { return leaveChip(x, k); }).join('') : (awayOf(k).length ? '' : '<span class="ok">全員到班</span>');
-            h += awayBrief(k);
-            var mo2 = monOf(k);
-            if (mo2.length) h += '<span class="bl">監控</span>' + mo2.map(function (x) { return monChip(x, k); }).join('');
-          }
-          h += '</div></div>';
+        var open = !!prefs.briefOpen, h = '';
+        var offs = list.filter(function (k) { return dayInfo(k).off; });
+        if (!offs.length) offs = [list[0]];
+        offs.forEach(function (k, i) {
+          var inf = dayInfo(k), st = stayOf(k).map(fmtStay), uf = unfiledOf(k), isT = (k === tk);
+          h += '<div class="bsum' + (isT ? ' today' : '') + '" data-btoggle="1" role="button" tabindex="0">' +
+            '<b>' + (isT ? '今天' : '週' + wkOf(k)) + ' ' + mdLabel(k) + (inf.label ? ' ' + esc(inf.label) : '') + '</b>' +
+            '<span class="st">' + (inf.off ? '留守：' + (st.length ? esc(st.join('、')) : '無') : '') + '</span>' +
+            '<span class="td' + (uf.length ? '' : ' ok') + '">' + (uf.length ? '未點 ' + uf.length : '✓ 已點完') + '</span>' +
+            (i === 0 ? '<i class="caret' + (open ? ' up' : '') + '"></i>' : '<i class="caret sp"></i>') + '</div>';
         });
+        if (open) {
+          list.forEach(function (k) {
+            var inf = dayInfo(k), lv = leavesOf(k), isT = (k === tk);
+            h += '<div class="brow' + (inf.off ? ' off' : '') + (isT ? ' today' : '') + '" data-date="' + k + '" role="button" tabindex="0">' +
+              '<span class="bd"><b>' + (isT ? '今天' : '週' + wkOf(k)) + '</b>' + mdLabel(k) + (inf.label ? ' ' + esc(inf.label) : '') + '</span><div class="bc">';
+            if (inf.off) {
+              var st = stayOf(k), mo = monOf(k), uf = unfiledOf(k);
+              h += '<span class="bl">留守</span>' + (st.length ? st.map(function (x) { return stayChip(x, k); }).join('') : '<span class="muted">無</span>');
+              if (mo.length) h += '<span class="bl">監控</span>' + mo.map(function (x) { return monChip(x, k); }).join('');
+              if (lv.length) h += '<span class="bl">休</span>' + lv.map(function (x) { return leaveChip(x, k); }).join('');
+              h += awayBrief(k);
+              h += uf.length ? '<span class="bl todo">未點</span>' + uf.map(function (x) { return todoChip(x, k); }).join('') : '<span class="ok">✓ 全部已點</span>';
+            } else {
+              h += lv.length ? '<span class="bl">休</span>' + lv.map(function (x) { return leaveChip(x, k); }).join('') : (awayOf(k).length ? '' : '<span class="ok">全員到班</span>');
+              h += awayBrief(k);
+              var mo2 = monOf(k);
+              if (mo2.length) h += '<span class="bl">監控</span>' + mo2.map(function (x) { return monChip(x, k); }).join('');
+            }
+            h += '</div></div>';
+          });
+        }
         box.innerHTML = h;
       }
 
@@ -2630,6 +2658,7 @@ body.hasg .appbar { border-bottom: none; }
           return false;
         }
         $('brief').addEventListener('click', function (ev) {
+          if (ev.target.closest && ev.target.closest('[data-btoggle]')) { prefs.briefOpen = !prefs.briefOpen; savePrefs(); renderBrief(); return; }
           if (chipOrRow(ev)) return;
           var row = ev.target.closest ? ev.target.closest('.brow[data-date]') : null;
           if (row) onDayTap(row);
