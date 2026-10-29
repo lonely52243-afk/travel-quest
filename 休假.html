@@ -250,8 +250,9 @@ td.cell { height: 54px; font-size: 17px; font-weight: 800; cursor: pointer; tran
 table.grid.mo td.cell { height: 46px; font-size: 14px; }
 td.cell.off { background: var(--off); }
 td.cell.full { background: var(--full); color: #fff; }
-td.cell.am { background: var(--am); color: #1E2A4A; }
-td.cell.pm { background: var(--pm); color: #fff; }
+td.cell.am, td.cell.pm { font-size: 14px; line-height: 1; }
+td.cell.am { background-image: linear-gradient(to bottom right, var(--am) 0, var(--am) 47.5%, var(--ink) 47.5%, var(--ink) 50.5%, transparent 50.5%); color: #1E2A4A; text-align: left; vertical-align: top; padding: 5px 0 0 6px; }
+td.cell.pm { background-image: linear-gradient(to top left, var(--pm) 0, var(--pm) 47.5%, var(--ink) 47.5%, var(--ink) 50.5%, transparent 50.5%); color: #fff; text-align: right; vertical-align: bottom; padding: 0 6px 5px 0; }
 td.cell.stay { background: var(--stay); color: #fff; }
 td.cell.mon { background: var(--mon); color: #FFFDF7; }
 td.cell.press { transform: scale(.92); }
@@ -355,12 +356,19 @@ select { max-width: 100%; }
 .cc.off { background: var(--off); }
 .cc.off .n { color: var(--offtext); }
 .cc.full { background: var(--full); border-color: var(--full); color: #fff; }
-.cc.am { background: var(--am); border-color: var(--am); color: #1E2A4A; }
-.cc.pm { background: var(--pm); border-color: var(--pm); color: #fff; }
+.cc.am { background-image: linear-gradient(to bottom right, var(--am) 0, var(--am) 47.5%, var(--ink) 47.5%, var(--ink) 50.5%, transparent 50.5%); color: var(--text); }
+.cc.pm { background-image: linear-gradient(to top left, var(--pm) 0, var(--pm) 47.5%, var(--ink) 47.5%, var(--ink) 50.5%, transparent 50.5%); color: var(--text); }
 .cc.stay { background: var(--stay); border-color: var(--stay); color: #fff; }
 .cc.mon { background: var(--mon); border-color: var(--mon); color: #FFFDF7; }
-.cc.full .n, .cc.full .t, .cc.pm .n, .cc.pm .t, .cc.stay .n, .cc.stay .t, .cc.mon .n, .cc.mon .t { color: #fff; }
-.cc.am .n, .cc.am .t { color: #1E2A4A; }
+.cc.full .n, .cc.full .t, .cc.stay .n, .cc.stay .t, .cc.mon .n, .cc.mon .t { color: #fff; }
+.cc.am .t, .cc.pm .t { display: none; }
+.cc.am .n, .cc.pm .n, .cc.am .m, .cc.pm .m { position: absolute; margin: 0; }
+.cc.am .n { right: 5px; bottom: 3px; color: var(--text); }
+.cc.am .m { left: 5px; top: 3px; color: #1E2A4A; }
+.cc.pm .n { left: 5px; top: 3px; color: var(--text); }
+.cc.pm .m { right: 5px; bottom: 3px; color: #fff; }
+.cal.mini .cc.am .n { right: 3px; bottom: 1px; }
+.cal.mini .cc.pm .n { left: 3px; top: 1px; }
 .cc.today { box-shadow: 0 0 0 2px var(--ink); }
 .cal.mini { gap: 2px; }
 .cal.mini .cc { min-height: 26px; border-radius: 4px; padding: 3px 0; }
@@ -405,6 +413,10 @@ details .dbody2 { padding: 0 0 14px; font-size: 14.5px; line-height: 1.75; }
 details .dbody2 ol, details .dbody2 ul { margin: 6px 0; padding-left: 22px; }
 details .dbody2 li { margin: 3px 0; }
 .kbd { display: inline-block; padding: 0 7px; border: 2px solid var(--ink); border-radius: 6px; background: var(--card2); font-weight: 800; font-size: 13px; }
+.sw.am { background: linear-gradient(to bottom right, var(--am) 50%, transparent 50%); }
+.sw.pm { background: linear-gradient(to top left, var(--pm) 50%, transparent 50%); }
+.legend i.lg-am { background: linear-gradient(to bottom right, var(--am) 50%, transparent 50%); border: 1.5px solid var(--ink); }
+.legend i.lg-pm { background: linear-gradient(to top left, var(--pm) 50%, transparent 50%); border: 1.5px solid var(--ink); }
 .sw { display: inline-block; width: 14px; height: 14px; border-radius: 3px; vertical-align: -2px; margin-right: 4px; border: 1px solid var(--ink); }
 .ver { text-align: center; font-size: 12px; color: var(--muted); padding: 4px 0 8px; line-height: 1.8; }
 
@@ -484,8 +496,8 @@ noscript { display: block; padding: 24px; text-align: center; }
       <div class="gridbox" id="gridBox"></div>
       <div class="legend">
         <span><i style="background:var(--full)"></i>全天休</span>
-        <span><i style="background:var(--am)"></i>上午休</span>
-        <span><i style="background:var(--pm)"></i>下午休</span>
+        <span><i class="lg-am"></i>上午休</span>
+        <span><i class="lg-pm"></i>下午休</span>
         <span><i style="background:var(--stay)"></i>留守</span>
         <span><i style="background:var(--mon)"></i>監控</span>
         <span><i style="background:var(--card);border:2px solid var(--ink)"></i>空白＝還沒點假單</span>
@@ -600,14 +612,6 @@ noscript { display: block; padding: 24px; text-align: center; }
       <div class="box">
         <h3>連結</h3>
         <ul class="list">
-          <li class="row col">
-            <div class="t"><b>公司請假系統</b><span id="leaveUrlDesc">貼上網址存起來，之後一鍵打開（只存在這支手機）。</span></div>
-            <div class="urlrow">
-              <input type="url" id="leaveUrl" placeholder="https://" inputmode="url" autocapitalize="off" autocomplete="off" aria-label="公司請假系統網址">
-              <button class="ghost" id="leaveUrlSave">儲存</button>
-            </div>
-            <div class="btnrow"><button class="primary small" id="leaveUrlOpen">打開公司請假系統</button></div>
-          </li>
           <li class="row col" id="rowSheet">
             <div class="t"><b>Google 試算表</b><span>資料都存在這裡。要新增或刪除同仁，請在「員工名冊」分頁修改。</span></div>
             <div class="btnrow"><button class="ghost" id="openSheet">打開試算表</button></div>
@@ -645,8 +649,8 @@ noscript { display: block; padding: 24px; text-align: center; }
             <div class="dbody2">
               <ul>
                 <li><span class="sw" style="background:var(--full)"></span>藍色「休」＝全天休假</li>
-                <li><span class="sw" style="background:var(--am)"></span>黃色「休」＝上午休</li>
-                <li><span class="sw" style="background:var(--pm)"></span>綠色「休」＝下午休</li>
+                <li><span class="sw am"></span>格子的左上半是黃色（斜線分半）＝上午休</li>
+                <li><span class="sw pm"></span>格子的右下半是綠色（斜線分半）＝下午休；另一半空白代表那半天有上班</li>
                 <li><span class="sw" style="background:var(--stay)"></span>紅色「留」＝留守　<span class="sw" style="background:var(--mon)"></span>深藍色「監」＝監控（這兩種不算休假）</li>
                 <li><span class="sw" style="background:var(--off)"></span>粉紅底＝假日（國定假日、週六日）。日期下方的小標籤是假日名稱，紅色「班」是補班日。</li>
                 <li>黃色圓圈的日期＝今天。名字旁的紅點＝你自己（需先在「我的設定」選好）。</li>
@@ -856,7 +860,7 @@ noscript { display: block; padding: 24px; text-align: center; }
       var ignoreClick = false;
       var toastTimer = null;
       var cacheTimer = null;
-      var prefs = { theme: 'light', view: 'week', me: '', ro: false, leaveUrl: '', seen: false, autoStay: false };
+      var prefs = { theme: 'light', view: 'week', me: '', ro: false, seen: false, autoStay: false };
       var forcedRO = false;
       var lastSync = 0;
       var loadError = '';
@@ -1862,7 +1866,7 @@ noscript { display: block; padding: 24px; text-align: center; }
         if (anaMode === 'month') {
           h += '<div class="box"><h3>休假月曆</h3>' + calHtml(anaYear, anaMonth, P.name, false) +
             '<div class="legend" style="margin-top:10px"><span><i style="background:var(--full)"></i>全天休</span>' +
-            '<span><i style="background:var(--am)"></i>上午休</span><span><i style="background:var(--pm)"></i>下午休</span>' +
+            '<span><i class="lg-am"></i>上午休</span><span><i class="lg-pm"></i>下午休</span>' +
             '<span><i style="background:var(--stay)"></i>留守</span><span><i style="background:var(--mon)"></i>監控</span><span><i style="background:var(--off);border:1px solid var(--offtext)"></i>假日</span></div></div>';
         } else {
           h += '<div class="box"><h3>全年休假月曆</h3><div class="years">';
@@ -1870,7 +1874,7 @@ noscript { display: block; padding: 24px; text-align: center; }
             h += '<div><div class="mt">' + m + ' 月</div>' + calHtml(anaYear, m, P.name, true) + '</div>';
           }
           h += '</div><div class="legend" style="margin-top:10px"><span><i style="background:var(--full)"></i>全天休</span>' +
-            '<span><i style="background:var(--am)"></i>上午休</span><span><i style="background:var(--pm)"></i>下午休</span>' +
+            '<span><i class="lg-am"></i>上午休</span><span><i class="lg-pm"></i>下午休</span>' +
             '<span><i style="background:var(--stay)"></i>留守</span><span><i style="background:var(--mon)"></i>監控</span><span><i style="background:var(--off);border:1px solid var(--offtext)"></i>假日</span></div></div>';
         }
 
@@ -1965,7 +1969,6 @@ noscript { display: block; padding: 24px; text-align: center; }
         $('roDesc').textContent = forcedRO
           ? '你是用唯讀連結開啟的，這個模式無法關閉。'
           : '打開後不能修改，只能查看，避免不小心點到。';
-        if (document.activeElement !== $('leaveUrl')) $('leaveUrl').value = prefs.leaveUrl || '';
         $('rowSheet').style.display = isRO() ? 'none' : '';
         $('hYears').textContent = HOLIDAY_YEARS.join('、');
         $('lastSync').textContent = fmtTime(lastSync);
@@ -2023,16 +2026,6 @@ noscript { display: block; padding: 24px; text-align: center; }
           prefs.autoStay = $('autoStay').checked; savePrefs();
           showToast(prefs.autoStay ? '已開啟：假日沒標記的人也算留守' : '已關閉：只有標記「留守」的人才算留守', null, null, 3000);
         });
-        $('leaveUrlSave').addEventListener('click', function () {
-          var v = $('leaveUrl').value.trim();
-          if (v && !/^https?:\/\//i.test(v)) v = 'https://' + v;
-          prefs.leaveUrl = v; savePrefs(); $('leaveUrl').value = v;
-          showToast(v ? '已儲存網址' : '已清除網址', null, null, 2200);
-        });
-        $('leaveUrlOpen').addEventListener('click', function () {
-          if (!prefs.leaveUrl) { showToast('請先貼上網址並按「儲存」', null, null, 2800); return; }
-          window.open(prefs.leaveUrl, '_blank', 'noopener');
-        });
         $('openSheet').addEventListener('click', function () { window.open(SHEET_URL, '_blank', 'noopener'); });
         $('copyLink').addEventListener('click', function () { copyText(shareUrl(false)); });
         $('copyRoLink').addEventListener('click', function () { copyText(shareUrl(true)); });
@@ -2052,7 +2045,7 @@ noscript { display: block; padding: 24px; text-align: center; }
           openSheet({
             title: '清除手機暫存？',
             sub: '不會刪除試算表資料',
-            body: '<div class="sec">會清掉這支手機上的暫存資料與設定（我是誰、外觀、公司網址…），清除後頁面會重新載入。</div>',
+            body: '<div class="sec">會清掉這支手機上的暫存資料與設定（我是誰、外觀…），清除後頁面會重新載入。</div>',
             actions: [{
               label: '確定清除', cls: 'danger',
               fn: function () {
