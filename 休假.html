@@ -45,6 +45,8 @@
   --link: #1B4F9E;
   --focus: #2468C9;
   --shadow: 0 3px 0 #1E2A4A;
+  --stay: #C93338;
+  --mon: #1E2A4A;
   --chip-full-bg: #DCE7F8;
   --chip-full: #1B4F9E;
   --chip-am-bg: #FFF0B8;
@@ -76,6 +78,8 @@
   --link: #8EB4F5;
   --focus: #8EB4F5;
   --shadow: 0 3px 0 #070B18;
+  --stay: #E5484D;
+  --mon: #4A5E96;
   --chip-full-bg: #263A66;
   --chip-full: #B9D1FA;
   --chip-am-bg: #4A3F22;
@@ -108,6 +112,8 @@
   --link: #8EB4F5;
   --focus: #8EB4F5;
   --shadow: 0 3px 0 #070B18;
+  --stay: #E5484D;
+  --mon: #4A5E96;
   --chip-full-bg: #263A66;
   --chip-full: #B9D1FA;
   --chip-am-bg: #4A3F22;
@@ -131,7 +137,9 @@ body {
   color: var(--text);
   padding-bottom: calc(92px + env(safe-area-inset-bottom));
 }
-button { font-family: inherit; color: inherit; }
+button { font-family: inherit; color: inherit; -webkit-user-select: none; user-select: none; -webkit-touch-callout: none; }
+#sheet, .tabbar, .toolbar, .appbar, .legend, .daycard { -webkit-user-select: none; user-select: none; -webkit-touch-callout: none; }
+textarea, input, select { -webkit-user-select: text; user-select: text; }
 button, select, input, textarea { font-size: inherit; }
 :focus-visible { outline: 3px solid var(--focus); outline-offset: 2px; border-radius: 6px; }
 .sr { position: absolute; width: 1px; height: 1px; overflow: hidden; clip: rect(0 0 0 0); white-space: nowrap; }
@@ -194,17 +202,17 @@ main { max-width: 980px; margin: 0 auto; padding: 14px 12px; }
 /* ===== 工具列 ===== */
 .toolbar { display: flex; align-items: center; gap: 8px; flex-wrap: wrap; margin-bottom: 12px; }
 .seg { flex-shrink: 0; display: inline-flex; background: var(--card); border: 2px solid var(--ink); border-radius: 10px; overflow: hidden; }
-.seg button { white-space: nowrap; border: none; background: none; color: var(--muted); padding: 8px 14px; font-weight: 600; cursor: pointer; min-height: 38px; }
+.seg button { white-space: nowrap; border: none; background: none; color: var(--muted); padding: 8px 12px; font-weight: 600; cursor: pointer; min-height: 38px; }
 .seg button.on { background: var(--ink-bar); color: #FFFDF7; font-weight: 800; }
-.nav { display: flex; align-items: center; gap: 6px; flex: 1; justify-content: center; min-width: 190px; }
+.nav { display: flex; align-items: center; gap: 6px; flex: 1; justify-content: center; min-width: 0; }
 .nav button {
   border: 2px solid var(--ink); background: var(--yellow); color: #1E2A4A; box-shadow: 0 2px 0 var(--ink);
-  width: 40px; height: 40px; border-radius: 10px; cursor: pointer; padding: 0;
+  width: 38px; height: 40px; flex-shrink: 0; border-radius: 10px; cursor: pointer; padding: 0;
 }
 .nav button:active { transform: translateY(2px); box-shadow: none; }
-.nav .ttl { white-space: nowrap; flex: 1; text-align: center; font-weight: 800; font-size: 17px; line-height: 1.25; }
+.nav .ttl { white-space: nowrap; flex: 1; min-width: 0; text-align: center; font-weight: 800; font-size: 16px; line-height: 1.25; }
 .nav .ttl small { display: block; font-size: 12px; font-weight: 500; color: var(--muted); }
-.pill-btn { border: 2px solid var(--ink); color: var(--text); background: var(--card); box-shadow: 0 2px 0 var(--ink); border-radius: 10px; padding: 8px 14px; font-weight: 800; cursor: pointer; min-height: 40px; }
+.pill-btn { border: 2px solid var(--ink); color: var(--text); background: var(--card); box-shadow: 0 2px 0 var(--ink); border-radius: 10px; padding: 8px 11px; font-weight: 800; cursor: pointer; min-height: 40px; flex-shrink: 0; white-space: nowrap; }
 .pill-btn:active { transform: translateY(2px); box-shadow: none; }
 
 /* ===== 提示 ===== */
@@ -244,6 +252,8 @@ td.cell.off { background: var(--off); }
 td.cell.full { background: var(--full); color: #fff; }
 td.cell.am { background: var(--am); color: #1E2A4A; }
 td.cell.pm { background: var(--pm); color: #fff; }
+td.cell.stay { background: var(--stay); color: #fff; }
+td.cell.mon { background: var(--mon); color: #FFFDF7; }
 td.cell.press { transform: scale(.92); }
 body.ro td.cell { cursor: default; }
 td.foot { height: 36px; font-size: 13px; font-weight: 800; background: var(--card2); color: var(--muted); }
@@ -284,6 +294,8 @@ tr.footrow td.namecol { background: var(--card2); font-size: 12px; color: var(--
 .chip.stay { background: var(--off); color: var(--offtext); border: 1px solid var(--offtext); }
 .chip.am { background: var(--chip-am-bg); color: var(--chip-am); }
 .chip.pm { background: var(--chip-pm-bg); color: var(--chip-pm); }
+.chip.mon { background: var(--mon); color: #FFFDF7; }
+.chip.todo { background: transparent; color: var(--muted); border: 1px dashed var(--muted); }
 .chip.me { box-shadow: 0 0 0 2px var(--ink); }
 .muted { color: var(--muted); }
 .good { color: var(--chip-pm); font-weight: 800; }
@@ -345,7 +357,9 @@ select { max-width: 100%; }
 .cc.full { background: var(--full); border-color: var(--full); color: #fff; }
 .cc.am { background: var(--am); border-color: var(--am); color: #1E2A4A; }
 .cc.pm { background: var(--pm); border-color: var(--pm); color: #fff; }
-.cc.full .n, .cc.full .t, .cc.pm .n, .cc.pm .t { color: #fff; }
+.cc.stay { background: var(--stay); border-color: var(--stay); color: #fff; }
+.cc.mon { background: var(--mon); border-color: var(--mon); color: #FFFDF7; }
+.cc.full .n, .cc.full .t, .cc.pm .n, .cc.pm .t, .cc.stay .n, .cc.stay .t, .cc.mon .n, .cc.mon .t { color: #fff; }
 .cc.am .n, .cc.am .t { color: #1E2A4A; }
 .cc.today { box-shadow: 0 0 0 2px var(--ink); }
 .cal.mini { gap: 2px; }
@@ -415,6 +429,8 @@ details .dbody2 li { margin: 3px 0; }
 .sh-btn { display: block; width: 100%; border: 2px solid var(--line-strong); background: var(--card2); color: var(--text); border-radius: 12px; padding: 14px; font-size: 16px; margin-top: 8px; cursor: pointer; text-align: center; font-weight: 600; }
 .sh-btn.on { background: var(--yellow-soft); border-color: var(--ink); font-weight: 800; }
 .sh-btn.main { background: var(--yellow); border-color: var(--ink); box-shadow: 0 3px 0 var(--ink); font-weight: 800; color: #1E2A4A; }
+.sh-btn.duty.stay { border-left: 8px solid var(--stay); }
+.sh-btn.duty.mon { border-left: 8px solid var(--mon); }
 .sh-btn.danger { color: var(--offtext); }
 .sh-btn.cancel { background: none; border-color: transparent; color: var(--muted); }
 
@@ -470,9 +486,11 @@ noscript { display: block; padding: 24px; text-align: center; }
         <span><i style="background:var(--full)"></i>全天休</span>
         <span><i style="background:var(--am)"></i>上午休</span>
         <span><i style="background:var(--pm)"></i>下午休</span>
+        <span><i style="background:var(--stay)"></i>留守</span>
+        <span><i style="background:var(--mon)"></i>監控</span>
         <span><i style="background:var(--card);border:2px solid var(--ink)"></i>空白＝還沒點假單</span>
       </div>
-      <div class="hintline" id="schedHint">點一下＝全天休假　長按＝上午／下午　左右滑動＝換週　<button class="linkbtn" data-go="help">完整說明</button></div>
+      <div class="hintline" id="schedHint">點一下＝全天休假　長按＝上午／下午／留守／監控　左右滑動＝換週　<button class="linkbtn" data-go="help">完整說明</button></div>
     </section>
 
     <!-- ===== 本週人員情況 ===== -->
@@ -517,7 +535,7 @@ noscript { display: block; padding: 24px; text-align: center; }
           <button class="primary" id="outCopy"><span class="ico i-copy"></span>複製</button>
           <span class="muted" id="outHint"></span>
         </div>
-        <div class="hint">「假日留守」只列假日，名單是當天沒有全天休假的人，半天休的人會註明時段。文字框可以直接修改後再複製。</div>
+        <div class="hint">「假日留守」只列假日，名單是你標記「留守」的人；有人標「監控」會多一行「監控：…」。文字框可以直接修改後再複製。</div>
       </div>
     </section>
 
@@ -569,6 +587,10 @@ noscript { display: block; padding: 24px; text-align: center; }
             <div class="seg" id="prefTheme" role="group" aria-label="外觀"><button data-v="light">淺色</button><button data-v="dark">深色</button><button data-v="auto">跟隨</button></div>
           </li>
           <li class="row">
+            <div class="t"><b>假日自動算留守</b><span>關閉時，只有你標記「留守」的人才列入留守名單；打開後，假日沒標記的人也算留守。</span></div>
+            <label class="switch"><input type="checkbox" id="autoStay" aria-label="假日自動算留守"><i></i></label>
+          </li>
+          <li class="row">
             <div class="t"><b>唯讀模式</b><span id="roDesc">打開後不能修改，只能查看，避免不小心點到。</span></div>
             <label class="switch"><input type="checkbox" id="roSwitch" aria-label="唯讀模式"><i></i></label>
           </li>
@@ -611,8 +633,8 @@ noscript { display: block; padding: 24px; text-align: center; }
               <ol>
                 <li>打開「班表」，每個人每天一格。</li>
                 <li><b>點一下格子</b>＝全天休假；再點一下＝取消。下方會出現「復原」，點錯可以反悔。</li>
-                <li><b>長按格子</b>（約半秒）＝選上午休、下午休、全天，或取消。</li>
-                <li><b>格子空白</b>＝這個人這天還沒有休假紀錄（還沒點假單）。</li>
+                <li><b>長按格子</b>（約半秒）＝選上午休、下午休、全天休、<b>留守</b>、<b>監控</b>，或清除標記。</li>
+                <li><b>格子空白</b>＝這個人這天什麼標記都沒有（還沒點假單）。</li>
                 <li><b>點上方的日期</b>＝看當天名單，也能把那天標為假日或上班日。</li>
                 <li><b>左右滑動</b>＝切換上一週／下一週。</li>
               </ol>
@@ -625,6 +647,7 @@ noscript { display: block; padding: 24px; text-align: center; }
                 <li><span class="sw" style="background:var(--full)"></span>藍色「休」＝全天休假</li>
                 <li><span class="sw" style="background:var(--am)"></span>黃色「休」＝上午休</li>
                 <li><span class="sw" style="background:var(--pm)"></span>綠色「休」＝下午休</li>
+                <li><span class="sw" style="background:var(--stay)"></span>紅色「留」＝留守　<span class="sw" style="background:var(--mon)"></span>深藍色「監」＝監控（這兩種不算休假）</li>
                 <li><span class="sw" style="background:var(--off)"></span>粉紅底＝假日（國定假日、週六日）。日期下方的小標籤是假日名稱，紅色「班」是補班日。</li>
                 <li>黃色圓圈的日期＝今天。名字旁的紅點＝你自己（需先在「我的設定」選好）。</li>
                 <li>最下面「休假」那一列＝當天休假人數，半天算 0.5，平日休最多的那天會用黃色標出來。</li>
@@ -645,8 +668,9 @@ noscript { display: block; padding: 24px; text-align: center; }
             <summary>「本週」頁看什麼</summary>
             <div class="dbody2">
               <ul>
-                <li>每天一張卡片：誰休假、假日誰留守、平日到班幾人。</li>
-                <li><b>留守</b>＝假日當天沒有全天休假的人；上午或下午休的人會註明時段。</li>
+                <li>每天一張卡片：誰休假、假日誰留守、有沒有監控、平日到班幾人。</li>
+                <li><b>留守</b>＝你長按標記為「留守」的人。假日還沒任何標記的人會列在「未點」。</li>
+                <li>如果希望假日沒標記的人自動算留守，到「更多」打開「假日自動算留守」。</li>
                 <li>每張卡右邊可以複製單天的文字，上方可以複製整週。</li>
               </ul>
             </div>
@@ -664,7 +688,8 @@ noscript { display: block; padding: 24px; text-align: center; }
 王小明、李小華
 
 1/18（日）
-王小明、陳小美</div>
+王小明、陳小美
+監控：李小華</div>
             </div>
           </details>
           <details>
@@ -673,7 +698,7 @@ noscript { display: block; padding: 24px; text-align: center; }
               <ul>
                 <li>可以切換「月」或「年」，也可以選「全體」或某個人。</li>
                 <li>平日休假：全天算 1 天、上午或下午算 0.5 天。假日有標「休」的另外算「假日休息」，不混在平日裡。</li>
-                <li>全體：看休假總數、每天人數、每人排名、星期幾最常休。點排名裡的名字就會跳到那個人的分析。</li>
+                <li>全體：看休假總數、每天人數、每人排名、星期幾最常休、留守和監控的人次。點排名裡的名字就會跳到那個人的分析。</li>
                 <li>個人：看休假天數、與團隊平均的差距、休假月曆和明細。</li>
               </ul>
             </div>
@@ -831,13 +856,14 @@ noscript { display: block; padding: 24px; text-align: center; }
       var ignoreClick = false;
       var toastTimer = null;
       var cacheTimer = null;
-      var prefs = { theme: 'light', view: 'week', me: '', ro: false, leaveUrl: '', seen: false };
+      var prefs = { theme: 'light', view: 'week', me: '', ro: false, leaveUrl: '', seen: false, autoStay: false };
       var forcedRO = false;
       var lastSync = 0;
       var loadError = '';
       var anaTouched = false;
       var lastActive = Date.now();
       var pressing = false;
+      var sheetT = 0;
 
       function $(id) { return document.getElementById(id); }
 
@@ -901,10 +927,15 @@ noscript { display: block; padding: 24px; text-align: center; }
 
       // ====== 資料判斷 ======
       function getRec(k, name) { return (records[k] || {})[name] || null; }
-      function leaveValue(rec) { return rec ? (rec.period === '全天' ? 1 : 0.5) : 0; }
+      function isLeave(r) { return !!r && (r.period === '全天' || r.period === '上午' || r.period === '下午'); }
+      function isDuty(r) { return !!r && (r.period === '留守' || r.period === '監控'); }
+      function recLabel(r) { return isLeave(r) ? r.period + '休' : r.period; }
+      function leaveValue(rec) { return isLeave(rec) ? (rec.period === '全天' ? 1 : 0.5) : 0; }
       function cloneRec(r) { return r ? { period: r.period, type: r.type || '特休' } : null; }
       function periodClass(rec) {
         if (!rec) return '';
+        if (rec.period === '留守') return 'stay';
+        if (rec.period === '監控') return 'mon';
         return rec.period === '全天' ? 'full' : (rec.period === '上午' ? 'am' : 'pm');
       }
 
@@ -944,17 +975,42 @@ noscript { display: block; padding: 24px; text-align: center; }
       function stayChip(s) {
         return '<span class="chip stay' + (prefs.me && s.name === prefs.me ? ' me' : '') + '">' + esc(fmtStay(s)) + '</span>';
       }
+      function monChip(m) {
+        return '<span class="chip mon' + (prefs.me && m.name === prefs.me ? ' me' : '') + '">' + esc(m.name) + '</span>';
+      }
+      function todoChip(m) {
+        return '<span class="chip todo' + (prefs.me && m.name === prefs.me ? ' me' : '') + '">' + esc(m.name) + '</span>';
+      }
+      function secHtml(title, arr, fn) {
+        return '<div class="sec"><b>' + title + ' ' + arr.length + ' 人</b>' +
+          (arr.length ? '<div class="chips">' + arr.map(fn).join('') + '</div>' : '<span class="muted">無</span>') + '</div>';
+      }
       function fmtLeave(l) { return l.period === '全天' ? l.name : l.name + '（' + l.period + '休）'; }
 
-      // 沒有全天休假的人 ＝ 留守（半天休的註明時段）
+      // 留守＝被標記「留守」的人；「更多」裡開啟「假日自動算留守」時，假日沒標記的人也算（半天休的註明時段）
       function stayOf(k) {
         var out = [];
         employees.forEach(function (e) {
           var r = getRec(k, e.name);
+          if (r && r.period === '留守') { out.push({ name: e.name, period: '' }); return; }
+          if (!prefs.autoStay) return;
           if (!r) { out.push({ name: e.name, period: '' }); return; }
-          if (r.period === '全天') return;
-          out.push({ name: e.name, period: r.period });
+          if (r.period === '上午' || r.period === '下午') out.push({ name: e.name, period: r.period });
         });
+        return out;
+      }
+      function monOf(k) {
+        var out = [];
+        employees.forEach(function (e) {
+          var r = getRec(k, e.name);
+          if (r && r.period === '監控') out.push({ name: e.name });
+        });
+        return out;
+      }
+      // 這天完全沒有任何標記的人（＝還沒點假單）
+      function unfiledOf(k) {
+        var out = [];
+        employees.forEach(function (e) { if (!getRec(k, e.name)) out.push({ name: e.name }); });
         return out;
       }
       function fmtStay(s) { return s.period ? s.name + '（' + s.period + '休）' : s.name; }
@@ -971,7 +1027,10 @@ noscript { display: block; padding: 24px; text-align: center; }
       // ====== 產出文字 ======
       function stayText(k) {
         var names = stayOf(k).map(fmtStay);
-        return dayHead(k) + '\n' + (names.length ? names.join('、') : '無');
+        var mons = monOf(k).map(function (m) { return m.name; });
+        var t = dayHead(k) + '\n' + (names.length ? names.join('、') : '無');
+        if (mons.length) t += '\n監控：' + mons.join('、');
+        return t;
       }
       function statusText(k) {
         var info = dayInfo(k);
@@ -984,6 +1043,8 @@ noscript { display: block; padding: 24px; text-align: center; }
         } else {
           lines.push('到班：' + presentCount(k) + ' 人');
         }
+        var mons = monOf(k).map(function (m) { return m.name; });
+        if (mons.length) lines.push('監控：' + mons.join('、'));
         return lines.join('\n');
       }
 
@@ -1211,7 +1272,7 @@ noscript { display: block; padding: 24px; text-align: center; }
         openSheet({
           title: name,
           sub: dayHead(k) + (info.label ? '・' + info.label : '') + (info.off ? '（假日）' : ''),
-          body: '<div class="sec"><b>' + (rec ? esc(rec.period) + '休' : '沒有休假紀錄（空白＝還沒點假單）') + '</b></div>' +
+          body: '<div class="sec"><b>' + (rec ? esc(recLabel(rec)) : '沒有任何標記（空白＝還沒點假單）') + '</b></div>' +
             '<div class="hint">唯讀模式，無法修改。要修改請到「更多」關閉唯讀模式。</div>',
           actions: []
         });
@@ -1244,9 +1305,18 @@ noscript { display: block; padding: 24px; text-align: center; }
             }
           });
         });
+        ['留守', '監控'].forEach(function (p) {
+          actions.push({
+            label: (rec && rec.period === p ? '✓ ' : '') + p,
+            cls: 'duty ' + (p === '留守' ? 'stay' : 'mon') + (rec && rec.period === p ? ' on' : ''),
+            fn: function () {
+              applyState(k, name, { period: p, type: p }, rec, name + ' ' + mdLabel(k) + ' ' + p);
+            }
+          });
+        });
         if (rec) {
           actions.push({
-            label: '取消休假', cls: 'danger',
+            label: '清除標記', cls: 'danger',
             fn: function () { applyState(k, name, null, rec, '已取消 ' + name + ' ' + mdLabel(k)); }
           });
         }
@@ -1265,14 +1335,16 @@ noscript { display: block; padding: 24px; text-align: center; }
           (lv.length ? '<div class="chips">' + lv.map(function (l) {
             return leaveChip(l);
           }).join('') + '</div>' : '<span class="muted">無</span>') + '</div>';
+        var st = stayOf(k), mo = monOf(k);
         if (info.off) {
-          var st = stayOf(k);
-          body += '<div class="sec"><b>留守 ' + st.length + ' 人</b>' +
-            (st.length ? '<div class="chips">' + st.map(function (s) {
-              return stayChip(s);
-            }).join('') + '</div>' : '<span class="muted">無</span>') + '</div>';
+          body += secHtml('留守', st, stayChip);
         } else {
           body += '<div class="sec"><b>到班 ' + presentCount(k) + ' 人</b></div>';
+        }
+        if (mo.length) body += secHtml('監控', mo, monChip);
+        if (info.off) {
+          var uf = unfiledOf(k);
+          if (uf.length) body += secHtml('還沒點', uf, todoChip);
         }
         var actions = [];
         var cur = info.manual;
@@ -1349,12 +1421,16 @@ noscript { display: block; padding: 24px; text-align: center; }
           var btn = document.createElement('button');
           btn.className = 'sh-btn' + (a.cls ? ' ' + a.cls : '');
           btn.textContent = a.label;
-          btn.addEventListener('click', function () { closeSheet(); a.fn(); });
+          btn.addEventListener('click', function () {
+            if (Date.now() - sheetT < 350) return;
+            closeSheet(); a.fn();
+          });
           s.appendChild(btn);
         });
         var c = document.createElement('button'); c.className = 'sh-btn cancel'; c.textContent = '關閉';
         c.addEventListener('click', closeSheet); s.appendChild(c);
         $('toast').classList.remove('show');
+        sheetT = Date.now();
         $('sheetMask').classList.add('show');
       }
       function closeSheet() { $('sheetMask').classList.remove('show'); }
@@ -1438,7 +1514,9 @@ noscript { display: block; padding: 24px; text-align: center; }
           var html = '今天 <b>' + dayHead(tk) + '</b>' + (ti.label ? '（' + esc(ti.label) + '）' : '') + '　';
           if (lv.length) html += '休假 <b>' + lv.length + '</b> 人：' + esc(lv.map(fmtLeave).join('、'));
           else html += ti.off ? '無人休假' : '全員到班';
+          var tmo = monOf(tk);
           if (ti.off) html += '<br>留守 <b>' + stayOf(tk).length + '</b> 人';
+          if (tmo.length) html += (ti.off ? '　' : '<br>') + '監控 <b>' + tmo.length + '</b> 人：' + esc(tmo.map(function (m) { return m.name; }).join('、'));
           strip.innerHTML = html;
           strip.style.display = 'block';
         } else { strip.style.display = 'none'; }
@@ -1463,8 +1541,10 @@ noscript { display: block; padding: 24px; text-align: center; }
             var rec = getRec(k, emp.name);
             var cls = 'cell' + (inf.off ? ' off' : '');
             var txt = '';
-            if (rec && (rec.period === '全天' || rec.period === '上午' || rec.period === '下午')) {
+            if (isLeave(rec)) {
               cls += ' ' + periodClass(rec); txt = '休';
+            } else if (isDuty(rec)) {
+              cls += ' ' + periodClass(rec); txt = rec.period === '留守' ? '留' : '監';
             }
             h += '<td class="' + cls + '" data-date="' + k + '" data-name="' + esc(emp.name) + '">' + txt + '</td>';
           });
@@ -1519,10 +1599,18 @@ noscript { display: block; padding: 24px; text-align: center; }
             cards += '<div class="drow"><span class="lbl">留守</span><div class="chips">' +
               (st.length ? st.map(function (s) { return stayChip(s); }).join('') : '<span class="muted">無</span>') +
               '</div></div>';
+            var uf = unfiledOf(k);
+            if (uf.length) {
+              cards += '<div class="drow"><span class="lbl">未點</span><div class="chips">' + uf.map(todoChip).join('') + '</div></div>';
+            }
           } else {
             var pc = presentCount(k);
             cards += '<div class="drow"><span class="lbl">到班</span>' +
               (lv.length === 0 ? '<span class="good">全員到班（' + pc + ' 人）</span>' : '<span>' + pc + ' 人</span>') + '</div>';
+          }
+          var mo = monOf(k);
+          if (mo.length) {
+            cards += '<div class="drow"><span class="lbl">監控</span><div class="chips">' + mo.map(monChip).join('') + '</div></div>';
           }
           cards += '</div><button class="copy-btn" data-date="' + k + '">複製</button></div>';
         });
@@ -1583,10 +1671,11 @@ noscript { display: block; padding: 24px; text-align: center; }
       function analyze(keys) {
         var per = {};
         employees.forEach(function (e) {
-          per[e.name] = { name: e.name, days: 0, rest: 0, full: 0, half: 0, wd: [0, 0, 0, 0, 0] };
+          per[e.name] = { name: e.name, days: 0, rest: 0, full: 0, half: 0, stayN: 0, monN: 0, wd: [0, 0, 0, 0, 0] };
         });
         var series = [];
         var wdAll = [0, 0, 0, 0, 0];
+        var stayAll = 0, monAll = 0;
         keys.forEach(function (k) {
           var inf = dayInfo(k);
           var dow = parseKey(k).getDay();
@@ -1594,6 +1683,11 @@ noscript { display: block; padding: 24px; text-align: center; }
           employees.forEach(function (e) {
             var r = getRec(k, e.name);
             if (!r) return;
+            if (isDuty(r)) {
+              if (r.period === '留守') { per[e.name].stayN++; stayAll++; } else { per[e.name].monN++; monAll++; }
+              return;
+            }
+            if (!isLeave(r)) return;
             var v = leaveValue(r);
             var p = per[e.name];
             if (inf.off) {
@@ -1610,7 +1704,7 @@ noscript { display: block; padding: 24px; text-align: center; }
         var total = 0, rest = 0, people = 0;
         arr.forEach(function (p) { total += p.days; rest += p.rest; if (p.days > 0) people++; });
         return { per: arr, series: series, total: total, rest: rest, people: people,
-                 avg: arr.length ? total / arr.length : 0, wd: wdAll };
+                 avg: arr.length ? total / arr.length : 0, wd: wdAll, stayN: stayAll, monN: monAll };
       }
 
       function topWeekday(wd) {
@@ -1650,7 +1744,7 @@ noscript { display: block; padding: 24px; text-align: center; }
           h += '<div class="' + cls + '"><span class="n">' + d + '</span>';
           if (!mini) {
             if (inf.tag) h += '<span class="t">' + esc(inf.tag) + '</span>';
-            if (r) h += '<span class="m">休</span>';
+            if (r) h += '<span class="m">' + (isLeave(r) ? '休' : (r.period === '留守' ? '留' : '監')) + '</span>';
 
           }
           h += '</div>';
@@ -1695,7 +1789,8 @@ noscript { display: block; padding: 24px; text-align: center; }
           kpi(fmtNum(A.total), '平日休假(天)') +
           kpi(A.people + ' / ' + employees.length, '有休假人數') +
           kpi(fmtNum(A.avg), '平均每人(天)') +
-          kpi(fmtNum(A.rest), '假日休息(人天)') + '</div></div>';
+          kpi(fmtNum(A.rest), '假日休息(人天)') +
+          kpi(A.stayN + ' / ' + A.monN, '留守／監控(人次)') + '</div></div>';
 
         // 趨勢
         var items;
@@ -1757,6 +1852,7 @@ noscript { display: block; padding: 24px; text-align: center; }
         h += '<div class="box"><h3>' + esc(P.name) + '</h3><div class="cards">' +
           kpi(fmtNum(P.days), '平日休假(天)') +
           kpi(fmtNum(P.rest), '假日休息(天)') +
+          kpi(P.stayN + ' / ' + P.monN, '留守／監控(次)') +
           kpi(P.full + ' / ' + P.half, '全天 / 半天次數') +
           kpi(tw ? tw.name : '—', '平日最常休') +
           kpi(fmtNum(A.avg), '團隊平均(天)') +
@@ -1767,7 +1863,7 @@ noscript { display: block; padding: 24px; text-align: center; }
           h += '<div class="box"><h3>休假月曆</h3>' + calHtml(anaYear, anaMonth, P.name, false) +
             '<div class="legend" style="margin-top:10px"><span><i style="background:var(--full)"></i>全天休</span>' +
             '<span><i style="background:var(--am)"></i>上午休</span><span><i style="background:var(--pm)"></i>下午休</span>' +
-            '<span><i style="background:var(--off);border:1px solid var(--offtext)"></i>假日</span></div></div>';
+            '<span><i style="background:var(--stay)"></i>留守</span><span><i style="background:var(--mon)"></i>監控</span><span><i style="background:var(--off);border:1px solid var(--offtext)"></i>假日</span></div></div>';
         } else {
           h += '<div class="box"><h3>全年休假月曆</h3><div class="years">';
           for (var m = 1; m <= 12; m++) {
@@ -1775,7 +1871,7 @@ noscript { display: block; padding: 24px; text-align: center; }
           }
           h += '</div><div class="legend" style="margin-top:10px"><span><i style="background:var(--full)"></i>全天休</span>' +
             '<span><i style="background:var(--am)"></i>上午休</span><span><i style="background:var(--pm)"></i>下午休</span>' +
-            '<span><i style="background:var(--off);border:1px solid var(--offtext)"></i>假日</span></div></div>';
+            '<span><i style="background:var(--stay)"></i>留守</span><span><i style="background:var(--mon)"></i>監控</span><span><i style="background:var(--off);border:1px solid var(--offtext)"></i>假日</span></div></div>';
         }
 
         // 明細
@@ -1785,9 +1881,9 @@ noscript { display: block; padding: 24px; text-align: center; }
           if (!r) return;
           var inf = dayInfo(k);
           rows += '<div class="detail-row"><span>' + dayHead(k) + (inf.label ? ' <span class="tag">' + esc(inf.label) + '</span>' : '') +
-            '</span><span><b>' + esc(r.period) + '休</b>' + (inf.off ? ' <span class="muted">（假日休息）</span>' : '') + '</span></div>';
+            '</span><span><b>' + esc(recLabel(r)) + '</b>' + (inf.off && isLeave(r) ? ' <span class="muted">（假日休息）</span>' : '') + '</span></div>';
         });
-        h += '<div class="box"><h3>休假明細</h3>' + (rows || '<div class="muted">這段期間沒有休假紀錄</div>') + '</div>';
+        h += '<div class="box"><h3>紀錄明細</h3>' + (rows || '<div class="muted">這段期間沒有任何紀錄</div>') + '</div>';
 
         $('anaBody').innerHTML = h;
       }
@@ -1864,6 +1960,7 @@ noscript { display: block; padding: 24px; text-align: center; }
         setSegOn('prefView', prefs.view);
         setSegOn('prefTheme', prefs.theme);
         $('roSwitch').checked = isRO();
+        $('autoStay').checked = !!prefs.autoStay;
         $('roSwitch').disabled = forcedRO;
         $('roDesc').textContent = forcedRO
           ? '你是用唯讀連結開啟的，這個模式無法關閉。'
@@ -1921,6 +2018,10 @@ noscript { display: block; padding: 24px; text-align: center; }
           if (forcedRO) { $('roSwitch').checked = true; return; }
           prefs.ro = $('roSwitch').checked; savePrefs(); applyRO(); renderMore();
           showToast(prefs.ro ? '已開啟唯讀模式' : '已關閉唯讀模式，可以修改', null, null, 2200);
+        });
+        $('autoStay').addEventListener('change', function () {
+          prefs.autoStay = $('autoStay').checked; savePrefs();
+          showToast(prefs.autoStay ? '已開啟：假日沒標記的人也算留守' : '已關閉：只有標記「留守」的人才算留守', null, null, 3000);
         });
         $('leaveUrlSave').addEventListener('click', function () {
           var v = $('leaveUrl').value.trim();
