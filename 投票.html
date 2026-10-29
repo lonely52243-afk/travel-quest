@@ -513,11 +513,11 @@ textarea { min-height: 96px; resize: vertical; line-height: 1.6; }
 
   function buildReport() {
     var strip = S.cfg.short !== false;
-    var L = [(S.cfg.unit || "") + dayParen(curDate) + "人員情況如下", joinOpts(OPTS) + "人員～"];
+    var L = [(S.cfg.unit || "") + "（" + (curDate ? md(curDate) : "") + "）人員狀況如下：", ""];
     OPTS.forEach(function (o) {
       var a = votersOf(o);
       if (strip) a = a.map(shortName);
-      if (a.length) L.push(o + "：" + a.length + "員（" + a.join("、") + "）");
+      if (a.length) L.push(o + "： " + a.length + "員（" + a.join("、") + "）");
     });
     return L.join("\n");
   }
