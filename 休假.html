@@ -475,6 +475,9 @@ noscript { display: block; padding: 24px; text-align: center; }
 
 .pwrow { display: flex; gap: 8px; align-items: center; }
 .pwrow input { flex: 1; min-width: 0; border: 2px solid var(--ink); border-radius: 10px; padding: 9px 12px; font-size: 16px; background: var(--card2); color: var(--text); font-family: inherit; }
+.gseg { background: rgba(255,253,247,.12); border-color: rgba(255,253,247,.6); }
+.gseg button { color: #FFFDF7; opacity: .8; min-height: 30px; padding: 3px 11px; font-size: 14px; }
+.gseg button.on { background: var(--yellow); color: #1E2A4A; opacity: 1; }
 
   </style>
 </head>
@@ -487,6 +490,7 @@ noscript { display: block; padding: 24px; text-align: center; }
       <div class="bt">同仁班表</div>
     </div>
     <div class="right">
+      <div class="seg gseg" id="groupSeg" role="group" aria-label="名冊" style="display:none"></div>
       <span class="ro-badge" id="roBadge">唯讀</span>
       <span id="sync" aria-live="polite"></span>
       <button class="icon-btn" id="refreshBtn" aria-label="重新整理" title="重新整理"><span class="ico i-refresh"></span></button>
@@ -868,11 +872,12 @@ noscript { display: block; padding: 24px; text-align: center; }
       var HOLIDAY_YEARS = [2026, 2027];
 
       var WK = ['日', '一', '二', '三', '四', '五', '六'];
-      var CACHE_KEY = 'leave_cache_v3';
+      var CACHE_KEY = 'leave_cache_v4';
       var PREF_KEY = 'leave_prefs_v4';
 
       // ====== 狀態 ======
       var employees = [];
+      var groups = [];
       var records = {};
       var dayTypes = {};
       var loaded = {};
@@ -893,7 +898,7 @@ noscript { display: block; padding: 24px; text-align: center; }
       var ignoreClick = false;
       var toastTimer = null;
       var cacheTimer = null;
-      var prefs = { theme: 'light', view: 'week', me: '', ro: false, pw: '', seen: false, autoStay: false };
+      var prefs = { theme: 'light', view: 'week', me: '', ro: false, pw: '', group: '', seen: false, autoStay: false };
       var forcedRO = false;
       var lastSync = 0;
       var loadError = '';
@@ -905,6 +910,37 @@ noscript { display: block; padding: 24px; text-align: center; }
       var sheetT = 0;
 
       function $(id) { return document.getElementById(id); }
+
+      // ====== 名冊分組（彈射／股…） ======
+      function pickGroup() {
+        if (!groups.length) return;
+        var g = null;
+        groups.forEach(function (x) { if (x.name === prefs.group) g = x; });
+        if (!g) { g = groups[0]; prefs.group = g.name; }
+        employees = g.employees || [];
+      }
+      function renderGroupSeg() {
+        var box = $('groupSeg');
+        if (groups.length < 2) { box.style.display = 'none'; return; }
+        var sig = groups.map(function (g) { return g.name; }).join('|') + '#' + prefs.group;
+        box.style.display = '';
+        if (box.dataset.sig === sig) return;
+        box.innerHTML = groups.map(function (g) {
+          return '<button data-g="' + esc(g.name) + '"' + (g.name === prefs.group ? ' class="on"' : '') + '>' + esc(g.name) + '</button>';
+        }).join('');
+        box.dataset.sig = sig;
+      }
+      function allNames() {
+        var seen = {}, out = [];
+        groups.forEach(function (g) { (g.employees || []).forEach(function (e) { if (!seen[e.name]) { seen[e.name] = 1; out.push(e); } }); });
+        return out.length ? out : employees;
+      }
+      function setGroup(name) {
+        if (name === prefs.group) return;
+        prefs.group = name; savePrefs(); pickGroup();
+        anaPerson = ''; anaTouched = true;
+        renderGroupSeg(); renderAll(); ensureData(false);
+      }
 
       // ====== 設定（只存在這支手機） ======
       function loadPrefs() {
@@ -1093,7 +1129,7 @@ noscript { display: block; padding: 24px; text-align: center; }
         cacheTimer = setTimeout(function () {
           try {
             localStorage.setItem(CACHE_KEY, JSON.stringify({
-              employees: employees, records: records, dayTypes: dayTypes, loaded: Object.keys(loaded), lastSync: lastSync
+              employees: employees, groups: groups, records: records, dayTypes: dayTypes, loaded: Object.keys(loaded), lastSync: lastSync
             }));
           } catch (e) { /* 忽略 */ }
         }, 400);
@@ -1103,7 +1139,9 @@ noscript { display: block; padding: 24px; text-align: center; }
           var raw = localStorage.getItem(CACHE_KEY);
           if (!raw) return;
           var c = JSON.parse(raw);
+          groups = c.groups || [];
           employees = c.employees || [];
+          if (groups.length) pickGroup();
           records = c.records || {};
           dayTypes = c.dayTypes || {};
           lastSync = c.lastSync || 0;
@@ -1145,7 +1183,9 @@ noscript { display: block; padding: 24px; text-align: center; }
         Object.keys(rr).forEach(function (k) { records[k] = rr[k]; });
         var dt = res.dayTypes || {};
         Object.keys(dt).forEach(function (k) { dayTypes[k] = dt[k]; });
-        if (res.employees && res.employees.length) employees = res.employees;
+        if (res.groups && res.groups.length) groups = res.groups;
+        else if (res.employees && res.employees.length) groups = [{ name: '全部', employees: res.employees }];
+        if (groups.length) { pickGroup(); renderGroupSeg(); }
         lastSync = Date.now();
         loadError = '';
         if (month) {
@@ -1838,6 +1878,7 @@ noscript { display: block; padding: 24px; text-align: center; }
 
       function renderAna() {
         if (!anaTouched) { anaTouched = true; if (prefs.me) anaPerson = prefs.me; }
+        if (anaPerson && employees.length && !employees.some(function (e) { return e.name === anaPerson; })) anaPerson = '';
         $('aTitle').innerHTML = anaMode === 'year' ? (anaYear + ' 年') : (anaYear + ' 年 ' + anaMonth + ' 月');
         var segs = $('anaSeg').querySelectorAll('button');
         for (var i = 0; i < segs.length; i++) segs[i].classList.toggle('on', segs[i].dataset.v === anaMode);
@@ -2032,10 +2073,10 @@ noscript { display: block; padding: 24px; text-align: center; }
 
       function renderMore() {
         var sel = $('meSel');
-        var sig = employees.map(function (e) { return e.name; }).join('|') + '#' + prefs.me;
+        var sig = allNames().map(function (e) { return e.name; }).join('|') + '#' + prefs.me;
         if (sel.dataset.sig !== sig) {
           var o = '<option value="">不指定</option>';
-          employees.forEach(function (e) {
+          allNames().forEach(function (e) {
             o += '<option value="' + esc(e.name) + '"' + (e.name === prefs.me ? ' selected' : '') + '>' + esc(e.name) + '</option>';
           });
           sel.innerHTML = o;
@@ -2456,6 +2497,11 @@ noscript { display: block; padding: 24px; text-align: center; }
           else if (t.dataset.go === 'help') { goHelp(); }
         });
 
+        $('groupSeg').addEventListener('click', function (ev) {
+          var b = ev.target.closest('button'); if (!b) return;
+          setGroup(b.dataset.g);
+        });
+        renderGroupSeg();
         bindMore();
         bindLifecycle();
 
