@@ -702,6 +702,14 @@ body.hasg .appbar { border-bottom: none; }
 .legend::-webkit-scrollbar { display: none; }
 .legend span { flex-shrink: 0; }
 
+/* 假日只看留守：未點縮成小字，不佔版面 */
+.daycard.off .chips { gap: 4px 6px; }
+.daycard .chip.todo { border: none; background: transparent; padding: 0 2px; color: var(--offtext); font-weight: 700; font-size: 14px; }
+.daycard.off .drow { margin: 4px 0; }
+
+.ufbtn { border: 2px dashed var(--offtext); background: transparent; color: var(--offtext); border-radius: 999px; min-height: 36px; padding: 0 14px; font-weight: 800; font-size: 14px; cursor: pointer; }
+.brow .ufbtn { min-height: 28px; font-size: 12.5px; padding: 0 10px; }
+
   </style>
 </head>
 <body>
@@ -1976,9 +1984,8 @@ body.hasg .appbar { border-bottom: none; }
               var st = stayOf(k), mo = monOf(k), uf = unfiledOf(k);
               h += '<span class="bl">留守</span>' + (st.length ? st.map(function (x) { return stayChip(x, k); }).join('') : '<span class="muted">無</span>');
               if (mo.length) h += '<span class="bl">監控</span>' + mo.map(function (x) { return monChip(x, k); }).join('');
-              if (lv.length) h += '<span class="bl">休</span>' + lv.map(function (x) { return leaveChip(x, k); }).join('');
               h += awayBrief(k);
-              h += uf.length ? '<span class="bl todo">未點</span>' + uf.map(function (x) { return todoChip(x, k); }).join('') : '<span class="ok">✓ 全部已點</span>';
+              h += uf.length ? '<span class="bl todo">未點</span>' + ufHtml(k, uf, true) : '<span class="ok">✓ 全部已點</span>';
             } else {
               h += lv.length ? '<span class="bl">休</span>' + lv.map(function (x) { return leaveChip(x, k); }).join('') : (awayOf(k).length ? '' : '<span class="ok">全員到班</span>');
               h += awayBrief(k);
@@ -2023,19 +2030,25 @@ body.hasg .appbar { border-bottom: none; }
 
       // ====== 畫面：每日（一直往下滑） ======
       function daysKeys() { return rangeKeys(daysFrom, addDays(daysFrom, daysCount - 1)); }
+      var ufOpen = {};
+      function ufHtml(k, uf, inline) {
+        if (ufOpen[k]) return (inline ? '' : '<div class="chips">') + uf.map(function (x) { return todoChip(x, k); }).join('') +
+          '<button class="ufbtn" data-uf="' + k + '">收起 ▴</button>' + (inline ? '' : '</div>');
+        return '<button class="ufbtn" data-uf="' + k + '">' + uf.length + ' 人　看名單 ▾</button>';
+      }
       function dayCard(k, tk) {
         var inf = dayInfo(k), lv = leavesOf(k);
         var cls = 'daycard' + (inf.off ? ' off' : '') + (k === tk ? ' today' : '') + (k < tk ? ' past' : '');
         var c = '<div class="' + cls + '" data-date="' + k + '"><div class="dbadge"><b>' + (+k.slice(8, 10)) + '</b><span>週' + wkOf(k) + '</span></div>' +
           '<div class="dbody"><div class="dtitle">' + mdLabel(k) + '（' + wkOf(k) + '）' + (k === tk ? ' <span class="tag now">今天</span>' : '') +
           (inf.tag ? ' <span class="tag">' + esc(inf.tag) + '</span>' : '') + '</div>';
-        c += '<div class="drow"><span class="lbl">休假</span><div class="chips">' +
+        if (!inf.off) c += '<div class="drow"><span class="lbl">休假</span><div class="chips">' +
           (lv.length ? lv.map(function (l) { return leaveChip(l, k); }).join('') : '<span class="muted">無</span>') + '</div></div>';
         if (inf.off) {
           var st = stayOf(k), uf = unfiledOf(k);
           c += '<div class="drow"><span class="lbl">留守</span><div class="chips">' +
             (st.length ? st.map(function (x) { return stayChip(x, k); }).join('') : '<span class="muted">無</span>') + '</div></div>';
-          if (uf.length) c += '<div class="drow"><span class="lbl">未點</span><div class="chips">' + uf.map(function (x) { return todoChip(x, k); }).join('') + '</div></div>';
+          if (uf.length) c += '<div class="drow"><span class="lbl">未點</span>' + ufHtml(k, uf) + '</div>';
         } else {
           var pc = presentCount(k);
           c += '<div class="drow"><span class="lbl">到班</span>' + (lv.length === 0 ? '<span class="good">全員到班（' + pc + ' 人）</span>' : '<span>' + pc + ' 人</span>') + '</div>';
@@ -2659,6 +2672,8 @@ body.hasg .appbar { border-bottom: none; }
         }
         $('brief').addEventListener('click', function (ev) {
           if (ev.target.closest && ev.target.closest('[data-btoggle]')) { prefs.briefOpen = !prefs.briefOpen; savePrefs(); renderBrief(); return; }
+          var uf = ev.target.closest ? ev.target.closest('[data-uf]') : null;
+          if (uf) { ufOpen[uf.dataset.uf] = !ufOpen[uf.dataset.uf]; renderBrief(); return; }
           if (chipOrRow(ev)) return;
           var row = ev.target.closest ? ev.target.closest('.brow[data-date]') : null;
           if (row) onDayTap(row);
@@ -2677,6 +2692,8 @@ body.hasg .appbar { border-bottom: none; }
         document.querySelector('main').addEventListener('scroll', daysMore, { passive: true });
         $('dToday').onclick = function () { daysFrom = todayKey(); daysCount = 21; document.querySelector('main').scrollTop = 0; renderAll(); ensureData(false); };
         $('daysBody').addEventListener('click', function (ev) {
+          var uf = ev.target.closest ? ev.target.closest('[data-uf]') : null;
+          if (uf) { ufOpen[uf.dataset.uf] = !ufOpen[uf.dataset.uf]; renderDays(); return; }
           var pv = ev.target.closest ? ev.target.closest('[data-dprev]') : null;
           if (pv) { daysFrom = addDays(daysFrom, -7); daysCount += 7; renderDays(); ensureData(false); return; }
           var c = ev.target.closest ? ev.target.closest('.copy-btn') : null;
