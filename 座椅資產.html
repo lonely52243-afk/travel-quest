@@ -152,6 +152,15 @@ tfoot td{font-weight:700;background:var(--soft)}
 .ytab span{font-size:13px;color:var(--mute)}
 .ytab.on{background:var(--accent);color:var(--accent-t)}
 .ytab.on span{color:var(--accent-t)}
+.rbar{height:5px;border-radius:3px;background:var(--line);margin-top:4px;overflow:hidden}.rbar i{display:block;height:100%;background:var(--accent)}
+.mbars{display:flex;align-items:flex-end;gap:2px;padding:8px 4px 4px}
+.mb{flex:1;display:flex;flex-direction:column;align-items:center;justify-content:flex-end;gap:2px;padding:2px 0;background:none;border:0;min-width:0}
+.mb i{display:block;width:70%;background:var(--accent);border-radius:3px 3px 0 0;min-height:2px}
+.mb.on i{outline:2px solid var(--text)}.mb:disabled i{background:var(--line)}
+.mb .mv{font-size:12px;font-weight:700}.mb .ml{font-size:11px;color:var(--mute)}
+.dist{margin:10px 0}.dt{display:flex;justify-content:space-between;margin-bottom:4px}
+.db{display:flex;height:22px;border-radius:6px;overflow:hidden}.db i{color:#fff;font-size:12px;font-style:normal;display:flex;align-items:center;justify-content:center;min-width:18px}
+.legend{display:flex;gap:12px;flex-wrap:wrap;font-size:13px;color:var(--mute);margin-top:6px}.legend i{display:inline-block;width:10px;height:10px;border-radius:2px;margin-right:4px}
 </style>
 </head>
 <body>
@@ -185,6 +194,7 @@ tfoot td{font-weight:700;background:var(--soft)}
     <button data-nav="count" class="on">總覽</button>
     <button data-nav="lookup">查序號</button>
     <button data-nav="expiry">屆期<span class="badge" id="badgeExp" hidden></span></button>
+    <button data-nav="analysis">分析</button>
     <button data-nav="work">作業<span class="badge" id="badgeWork" hidden></span></button>
   </div>
 </nav>
@@ -257,13 +267,13 @@ function seatCheckin(rows, p, now) {
   const d = seatDateArg(p.date, seatToday(now), '進廠');
   const from = r['位置'];
   r['位置'] = '指部工廠'; r['狀態'] = '交修中'; r['進廠日'] = seatFmt(d); r['備註'] = '交修中'; r['更新時間'] = seatFmtTime(now);
-  return { rows: [r], logs: [seatLog(now, '進廠', r, from, '指部工廠', '進廠日 ' + seatFmt(d))], msg: r['序號'] + ' 已進廠到指部工廠' };
+  return { rows: [r], logs: [seatLog(now, '進廠', r, from, '指部工廠', '進廠日 ' + seatFmt(d))], msg: r['序號'] + ' 已進廠到指部' };
 }
 
 /* 出廠：指部工廠 → 一修／三修，出廠日 = 生效日，三線屆期 = 出廠日 + 6 年 */
 function seatCheckout(rows, p, now) {
   const r = seatNeed(rows, p.serial);
-  if (r['位置'] !== '指部工廠') throw new Error(r['序號'] + ' 目前在「' + r['位置'] + '」，只有指部工廠的座椅才能出廠');
+  if (r['位置'] !== '指部工廠') throw new Error(r['序號'] + ' 目前在「' + r['位置'] + '」，只有指部的座椅才能出廠');
   if (SEAT.SERVICE.indexOf(p.loc) < 0) throw new Error('出廠要選一修或三修');
   const d = seatDateArg(p.date, seatToday(now), '出廠');
   const third = seatAddYears(d, SEAT.LIFE_YEARS);
@@ -466,8 +476,8 @@ function normType(v) {
 }
 function normSerial(v) {
   const s = String(v == null ? '' : v).toUpperCase().replace(/\s+/g, '');
-  const m = s.match(/^(?:SL)?0*(\d+)$/);
-  return m ? 'SL' + m[1].padStart(3, '0') : s;
+  const m = s.match(/^(?:SL)?(\d+)$/);
+  return m ? (/^SL/.test(s) ? s : 'SL' + m[1].padStart(3, '0')) : s;
 }
 function serialDigits(s) { return String(s).replace(/\D/g, '').replace(/^0+/, ''); }
 function toast(msg, ms) { const t = $('#toast'); t.textContent = msg; t.classList.add('on'); clearTimeout(toast._t); toast._t = setTimeout(() => t.classList.remove('on'), ms || 1800); }
@@ -487,7 +497,7 @@ function lsSet(k, v) { try { localStorage.setItem(k, JSON.stringify(v)); } catch
 const state = {
   records: [], aircraft: JSON.parse(JSON.stringify(CONFIG.AIRCRAFT)),
   source: 'none', updatedAt: null, loading: false, error: '',
-  view: 'count', key: '', logs: null, demo: null, expMode: 'soon', year: null, yList: null, q: '', horizon: 90, expType: 'all', list: null, D: null
+  view: 'count', key: '', logs: null, demo: null, expMode: 'soon', anH: 180, anMonth: null, year: null, yList: null, q: '', horizon: 90, expType: 'all', list: null, D: null
 };
 
 /* =====================================================================
@@ -560,7 +570,7 @@ function normalize(rows) {
       const raw = pick(o, F[k]); r.raw[k] = raw; r[k] = parseDate(raw);
       if (!rawBlank(raw) && !r[k]) r.badDates.push(DN[k]);
     });
-    r.serialFixed = /^SL0\d{3,}$/i.test(rawSerial);
+    r.serialFixed = false;
     return r;
   }).filter(r => r.serial);
 }
@@ -661,7 +671,7 @@ function render() {
   const n = D.withDays.filter(r => r.days <= 30 && (r.days >= 0 || SERVICE.includes(r.loc))).length, be = $('#badgeExp');
   be.hidden = !n; be.textContent = n;
   const bw = $('#badgeWork'); bw.hidden = !D.overdue.length; bw.textContent = D.overdue.length;
-  v.innerHTML = ({ lookup: viewLookup, expiry: viewExpiry, count: viewCount, work: viewWork })[state.view]() +
+  v.innerHTML = ({ lookup: viewLookup, expiry: viewExpiry, analysis: viewAnalysis, count: viewCount, work: viewWork })[state.view]() +
     '<div class="foot">共 ' + D.total + ' 張　基準日 ' + fmtDate(today()) + '</div>';
 }
 
@@ -669,14 +679,14 @@ function render() {
 function findByQuery() {
   const d = serialDigits(state.q), D = state.D;
   if (!d) return { digits: '', exact: null, list: [] };
-  const exact = D.map['SL' + d.padStart(3, '0')] || null;
+  const exact = state.records.find(r => serialDigits(r.serial) === d) || null;
   const seen = {}, list = [];
   state.records.forEach(r => { if (!seen[r.serial] && serialDigits(r.serial).startsWith(d)) { seen[r.serial] = 1; list.push(r); } });
   list.sort((a, b) => a.serial < b.serial ? -1 : 1);
   return { digits: d, exact, list };
 }
 function rowHTML(x) {
-  return '<button class="row" data-go="' + esc(x.serial) + '"><span class="s">' + esc(x.serial) + '</span><span class="m">' + esc(x.type) + ' · ' + esc(x.loc) + (x.third ? ' · ' + fmtDate(x.third) : '') +
+  return '<button class="row" data-go="' + esc(x.serial) + '"><span class="s">' + esc(x.serial) + '</span><span class="m">' + esc(x.type) + ' · ' + esc(LD(x.loc)) + (x.third ? ' · ' + fmtDate(x.third) : '') +
     '</span><span class="d ' + daysCls(x.days) + '">' + (x.days == null ? '' : daysText(x.days)) + '</span></button>';
 }
 function dateCell(r, key) {
@@ -686,9 +696,9 @@ function dateCell(r, key) {
 function cardHTML(r) {
   const D = state.D, svc = SERVICE.includes(r.loc), total = D.cnt[r.serial] || 1;
   const cls = daysCls(r.days);
-  let h = '<div class="card"><div class="dh"><div class="ser">' + esc(r.serial) + '</div><div class="tags">' + esc(r.type) + ' 型' + (CONFIG.MODEL[r.type] ? '（' + esc(CONFIG.MODEL[r.type]) + '）' : '') + '　' + esc(r.loc || '?') + '　' + esc(r.status || '') + '</div></div>';
+  let h = '<div class="card"><div class="dh"><div class="ser">' + esc(r.serial) + '</div><div class="tags">' + esc(r.type) + ' 型' + (CONFIG.MODEL[r.type] ? '（' + esc(CONFIG.MODEL[r.type]) + '）' : '') + '　' + esc(LD(r.loc) || '?') + '　' + esc(r.status || '') + '</div></div>';
   h += '<div class="remain"><div class="lbl">三線剩餘</div>';
-  if (r.days == null) h += '<div class="big mute">—</div>' + (svc ? '' : '<div class="mute">' + esc(r.status || r.loc) + '，尚無屆期日</div>');
+  if (r.days == null) h += '<div class="big mute">—</div>' + (svc ? '' : '<div class="mute">' + esc(r.status || LD(r.loc)) + '，尚無屆期日</div>');
   else if (r.days < 0) h += '<div class="big bad">已逾期 ' + (-r.days) + '<small>天</small></div>';
   else h += '<div class="big ' + cls + '">' + r.days + '<small>天</small></div>';
   h += '</div>';
@@ -700,7 +710,7 @@ function cardHTML(r) {
     (r.note ? '<div class="kv"><span>備註</span><span>' + esc(r.note) + '</span></div>' : '');
   const w = [];
   if (total > 1) w.push(['bad', '此序號在資料中出現 ' + total + ' 次']);
-  if (r.days != null && r.days < 0 && svc) w.push(['bad', '三線已過期，仍在 ' + r.loc + '，應轉待修庫']);
+  if (r.days != null && r.days < 0 && svc) w.push(['bad', '三線已過期，仍在 ' + LD(r.loc) + '，應轉待修庫']);
   else if (r.days != null && r.days <= 90 && svc) w.push([r.days <= 30 ? 'bad' : 'warn', r.days + ' 天後三線屆期，要轉待修庫']);
   if (svc && !r.third && !r.badDates.includes('三線屆期')) w.push(['warn', '缺少三線屆期日']);
   if (r.serialFixed) w.push(['warn', '試算表序號寫成 ' + r.rawSerial + '，已當成 ' + r.serial]);
@@ -726,7 +736,7 @@ function viewLookup() {
   } else if (f.digits) h += '<div class="card"><div class="empty">找不到序號 ' + esc(f.digits) + '</div></div>';
   else {
     if (D.overdue.length) h += '<button class="notice" data-nav="work">三線已逾期 ' + D.overdue.length + ' 張，點這裡處理</button>';
-    h += '<div class="card"><div class="empty">在上方輸入序號，只打數字就可以（72 → SL072）</div></div>';
+    h += '<div class="card"><div class="empty">在上方輸入序號，只打數字就可以（例如 72 或 188）</div></div>';
     const recent = lsGet('seatAsset.recent', []).filter(s => D.map[s]);
     if (recent.length) h += '<h2>最近查過</h2><div class="chips">' + recent.map(s => '<button class="chip" data-go="' + esc(s) + '">' + esc(s) + '</button>').join('') + '</div>';
   }
@@ -760,6 +770,58 @@ function viewYear() {
   }
   return h;
 }
+/* ---------- 分析 ---------- */
+function viewAnalysis() {
+  const D = state.D, SV = CONFIG.SERVICE_LOCS, TYPES = CONFIG.TYPES, H = state.anH;
+  const svc = state.records.filter(r => SV.indexOf(r.loc) >= 0);
+  const survive = (r, h) => r.days == null || r.days > h;
+  // 1) 支援度預測
+  const rows = D.support.map(s => {
+    const left = svc.filter(r => r.loc === s.loc && r.type === s.type && survive(r, H)).length;
+    return { s, left, out: s.seats - left, rate: s.ac ? left / s.ac * 100 : null };
+  });
+  const low = rows.filter(x => x.rate != null && x.rate < 90).sort((a, b) => a.rate - b.rate);
+  let h = '<div class="chips">' + [[0, '現在'], [90, '90 天後'], [180, '180 天後'], [365, '1 年後']].map(c => '<button class="chip' + (H === c[0] ? ' on' : '') + '" data-anh="' + c[0] + '">' + c[1] + '</button>').join('') + '</div>';
+  h += '<h2>' + (H ? H + ' 天後' : '現在') + '的飛機支援度</h2>';
+  h += low.length
+    ? '<div class="note warn"><b>支援度不到 90%：</b>' + low.map(x => LD(x.s.loc) + ' ' + x.s.type + '（' + pct(x.rate) + '）').join('、') + '</div>'
+    : '<div class="note"><b>所有單位型別都在 90% 以上</b></div>';
+  h += '<div class="card"><table><thead><tr><th>單位 型別</th><th>飛機</th><th>座椅</th><th>支援度</th></tr></thead><tbody>';
+  rows.forEach(x => {
+    const w = Math.max(0, Math.min(100, x.rate || 0));
+    h += '<tr><td>' + esc(LD(x.s.loc)) + ' ' + esc(x.s.type) + '</td><td>' + x.s.ac + '</td><td>' + x.left + (x.out ? '<br><small class="mute t" data-cell="' + esc(x.s.type) + '|' + esc(x.s.loc) + '|' + H + '" style="text-decoration:underline">−' + x.out + ' 張屆期（點看）</small>' : '') +
+      '</td><td class="' + rateCls(x.rate) + '">' + pct(x.rate) + '<div class="rbar"><i style="width:' + w + '%"></i></div></td></tr>';
+  });
+  h += '</tbody></table></div><div class="note">座椅 = 到那天三線還沒過期的座椅，待修庫、指部的不算，也不算之後修好回來的。</div>';
+  if (state.list) {
+    const L = listFor(state.list.t, state.list.l, state.list.w);
+    h += '<div class="bar" style="margin-top:14px"><b>' + (state.list.t === 'all' ? '全部型別' : state.list.t) + ' · ' + LD(state.list.l) + (state.list.w ? ' · ' + state.list.w + ' 天內屆期' : '') + '（' + L.length + ' 張）</b><button class="btn" data-close="1">關閉</button></div>' +
+      '<div class="card" id="listBox">' + (L.length ? L.map(rowHTML).join('') : '<div class="empty">沒有座椅</div>') + '</div>';
+  }
+  // 2) 未來 12 個月屆期量（修護負荷）
+  const t0 = today(), months = [];
+  for (let i = 0; i < 12; i++) { const d = new Date(t0.getFullYear(), t0.getMonth() + i, 1); months.push({ y: d.getFullYear(), m: d.getMonth() }); }
+  const inM = (r, mo) => r.third && r.third.getFullYear() === mo.y && r.third.getMonth() === mo.m && (r.days >= 0 || mo === months[0]);
+  const cnt = months.map(mo => svc.filter(r => inM(r, mo)).length), mx = Math.max.apply(null, cnt.concat([1]));
+  const overdue = D.overdue ? D.overdue.length : 0;
+  h += '<h2>未來 12 個月進待修庫的量</h2><div class="card"><div class="mbars">' + months.map((mo, i) =>
+    '<button class="mb' + (state.anMonth === i ? ' on' : '') + '" data-anm="' + i + '"' + (cnt[i] ? '' : ' disabled') + '><span class="mv">' + cnt[i] + '</span><i style="height:' + Math.round(cnt[i] / mx * 70) + 'px"></i><span class="ml">' + (mo.m + 1) + '月</span></button>').join('') + '</div></div>';
+  h += '<div class="note">每月屆期的一修＋三修座椅（點長條看清單）。目前待修庫 ' + state.records.filter(r => r.loc === '待修庫').length + ' 張、指部 ' + state.records.filter(r => r.loc === '指部工廠').length + ' 張在排隊' + (overdue ? '，已過期還沒搬的有 ' + overdue + ' 張' : '') + '。</div>';
+  if (state.anMonth != null && months[state.anMonth]) {
+    const mo = months[state.anMonth], L = svc.filter(r => inM(r, mo)).sort((a, b) => a.third - b.third);
+    h += '<div class="bar" style="margin-top:14px"><b>' + mo.y + ' 年 ' + (mo.m + 1) + ' 月屆期（' + L.length + ' 張）</b><button class="btn" data-anmc="1">關閉</button></div><div class="card" id="anBox">' + (L.length ? L.map(rowHTML).join('') : '<div class="empty">沒有座椅</div>') + '</div>';
+  }
+  // 3) 各型別現況分佈
+  h += '<h2>各型別現在在哪裡</h2><div class="card">';
+  TYPES.forEach(ty => {
+    const tot = state.records.filter(r => r.type === ty).length || 1;
+    const seg = [['一修', '#2f6fdb'], ['三修', '#17a589'], ['待修庫', '#e0a100'], ['指部工廠', '#d6453d']].map(l => { const n = state.records.filter(r => r.type === ty && r.loc === l[0]).length; return { n, l: l[0], c: l[1] }; });
+    h += '<div class="dist"><div class="dt"><b>' + esc(ty) + ' 型</b><span class="mute">共 ' + (tot === 1 && !seg.some(s => s.n) ? 0 : tot) + ' 張</span></div><div class="db">' +
+      seg.map(s => s.n ? '<i style="flex:' + s.n + ';background:' + s.c + '" title="' + esc(LD(s.l)) + ' ' + s.n + '">' + s.n + '</i>' : '').join('') + '</div></div>';
+  });
+  h += '<div class="legend"><span><i style="background:#2f6fdb"></i>一修</span><span><i style="background:#17a589"></i>三修</span><span><i style="background:#e0a100"></i>待修庫</span><span><i style="background:#d6453d"></i>指部</span></div></div>';
+  return h;
+}
 function viewExpiry() {
   const D = state.D;
   const modeChips = '<div class="chips">' + [['soon', '近期屆期'], ['year', '年度屆期']].map(m => '<button class="chip' + (state.expMode === m[0] ? ' on' : '') + '" data-mode="' + m[0] + '">' + m[1] + '</button>').join('') + '</div>';
@@ -778,10 +840,11 @@ function viewExpiry() {
 }
 
 /* ---------- 數量 ---------- */
-const LNAME = { '一修,三修': '服役中（一修＋三修）', '待修庫': '待修（待修庫）', '指部工廠': '翻修中（指部工廠）' };
+const LD = l => l === '指部工廠' ? '指部' : l;
+const LNAME = { '一修,三修': '服役中（一修＋三修）', '待修庫': '待修（待修庫）', '指部工廠': '翻修中（指部）' };
 function listFor(t, l, w) {
   let list = state.records.slice();
-  if (w) list = list.filter(r => r.days != null && r.days <= w);
+  if (w) list = list.filter(r => r.days != null && r.days <= w && SERVICE.includes(r.loc));
   if (t !== 'all') list = list.filter(r => r.type === t);
   if (l !== 'all') { const ls = l.split(','); list = list.filter(r => ls.indexOf(r.loc) >= 0); }
   return list.sort((a, b) => (a.days == null ? 1e9 : a.days) - (b.days == null ? 1e9 : b.days) || (a.serial < b.serial ? -1 : 1));
@@ -794,9 +857,9 @@ function viewCount() {
   const sumLocs = ls => TYPES.reduce((s, ty) => s + ls.reduce((s2, l) => s2 + M[ty][l], 0), 0);
   const st = (name, sub, ls) => '<button class="kv kvb" data-cell="all|' + ls.join(',') + '"><span>' + name + '<small class="mute">　' + sub + '</small></span><span><b>' + sumLocs(ls) + ' 張</b> ›</span></button>';
   h += '<div class="card"><div class="remain"><div class="lbl">座椅總資產</div><div class="big">' + D.total + '<small>張</small></div></div>' +
-    st('服役中', '一修＋三修', ['一修', '三修']) + st('待修', '待修庫', ['待修庫']) + st('翻修中', '指部工廠', ['指部工廠']) + '</div>';
+    st('服役中', '一修＋三修', ['一修', '三修']) + st('待修', '待修庫', ['待修庫']) + st('翻修中', '指部', ['指部工廠']) + '</div>';
   if (D.unknown.length) h += '<div class="note">另有 ' + D.unknown.length + ' 張型別或位置不在清單內，沒有算進下面的數字（見最下方資料提醒）。</div>';
-  h += '<h2>各型別數量（點數字看清單）</h2><div class="card"><table><thead><tr><th>型別</th><th>一修</th><th>三修</th><th>服役<br>小計</th><th>待修庫</th><th>翻修中<br>指部</th><th>合計</th></tr></thead><tbody>';
+  h += '<h2>各型別數量（點數字看清單）</h2><div class="card"><table><thead><tr><th>型別</th><th>一修</th><th>三修</th><th>服役<br>小計</th><th>待修庫</th><th>指部<br>翻修中</th><th>合計</th></tr></thead><tbody>';
   TYPES.forEach(ty => {
     const m = M[ty], svc = m['一修'] + m['三修'];
     h += '<tr><td>' + ty + '</td>' + cell(ty, '一修', m['一修']) + cell(ty, '三修', m['三修']) + cell(ty, '一修,三修', svc, true) + cell(ty, '待修庫', m['待修庫']) + cell(ty, '指部工廠', m['指部工廠']) + cell(ty, 'all', svc + m['待修庫'] + m['指部工廠'], true) + '</tr>';
@@ -812,7 +875,7 @@ function viewCount() {
 
   h += '<div class="bar" style="margin-top:20px"><h2 style="margin:0">各單位支援度（座椅 ÷ 飛機）</h2><button class="btn" data-act="aircraft">修改飛機數</button></div><div class="card"><table><thead><tr><th>單位 型別</th><th>飛機</th><th>座椅</th><th>現況</th><th>90天後</th></tr></thead><tbody>';
   D.support.forEach(s => {
-    h += '<tr><td>' + esc(s.loc) + ' ' + esc(s.type) + '<br><small class="mute">' + esc(CONFIG.MODEL[s.type] || '') + '</small></td><td>' + s.ac + '</td><td>' + s.seats + '</td><td class="' + rateCls(s.rate) + '">' + pct(s.rate) + '</td><td class="' + rateCls(s.proj) + '">' + pct(s.proj) + (s.exp90 ? '<br><small class="mute t" data-cell="' + esc(s.type) + '|' + esc(s.loc) + '|90" style="text-decoration:underline">−' + s.exp90 + ' 張屆期（點看）</small>' : '') + '</td></tr>';
+    h += '<tr><td>' + esc(LD(s.loc)) + ' ' + esc(s.type) + '<br><small class="mute">' + esc(CONFIG.MODEL[s.type] || '') + '</small></td><td>' + s.ac + '</td><td>' + s.seats + '</td><td class="' + rateCls(s.rate) + '">' + pct(s.rate) + '</td><td class="' + rateCls(s.proj) + '">' + pct(s.proj) + (s.exp90 ? '<br><small class="mute t" data-cell="' + esc(s.type) + '|' + esc(s.loc) + '|90" style="text-decoration:underline">−' + s.exp90 + ' 張屆期（點看）</small>' : '') + '</td></tr>';
   });
   h += '</tbody></table></div><div class="note">座椅數 = 該位置該型別的張數。90 天後 = 扣掉 90 天內三線屆期（含已逾期）的張數。100% 以上正常、90–99% 橘色、90% 以下紅色。</div>';
 
@@ -835,13 +898,13 @@ function saveRecent(s) {
   const rec = lsGet('seatAsset.recent', []).filter(x => x !== s); rec.unshift(s); lsSet('seatAsset.recent', rec.slice(0, 6));
 }
 function go(serial) {
-  const s = normSerial(serial); if (!s) return;
+  const s = (state.D && state.D.map[serial]) ? serial : normSerial(serial); if (!s) return;
   $('#q').value = serialDigits(s); state.q = $('#q').value; state.view = 'lookup';
   saveRecent(s); $('#q').blur(); render(); window.scrollTo({ top: 0 });
 }
 function nav(v) { state.view = v; render(); window.scrollTo({ top: 0 }); }
 function cardText(r) {
-  return r.serial + '｜' + r.type + '型｜' + r.loc + '｜' + r.status + '\n三線屆期 ' + fmtDate(r.third) + (r.days != null ? '（' + daysText(r.days) + '）' : '') +
+  return r.serial + '｜' + r.type + '型｜' + LD(r.loc) + '｜' + r.status + '\n三線屆期 ' + fmtDate(r.third) + (r.days != null ? '（' + daysText(r.days) + '）' : '') +
     '｜二線 ' + fmtDate(r.second) + '｜生效 ' + fmtDate(r.effective) + '｜進廠 ' + fmtDate(r.enter);
 }
 
@@ -856,7 +919,7 @@ function fld(label, inner, hint) { return '<label class="fld"><span>' + label + 
 function withCur(list, cur) { return (cur && list.indexOf(cur) < 0) ? [cur].concat(list) : list; }
 function selHTML(id, opts, val, ph) {
   return '<select id="' + id + '">' + (ph ? '<option value="">' + ph + '</option>' : '') +
-    opts.map(o => '<option value="' + esc(o) + '"' + (o === val ? ' selected' : '') + '>' + esc(o) + '</option>').join('') + '</select>';
+    opts.map(o => '<option value="' + esc(o) + '"' + (o === val ? ' selected' : '') + '>' + esc(LD(o)) + '</option>').join('') + '</select>';
 }
 function dateIn(id, d) { return '<input type="date" id="' + id + '" value="' + dateVal(d) + '">'; }
 
@@ -923,14 +986,14 @@ function logHTML(list) {
 function openAct(act, serial) {
   const D = state.D, r = serial ? D.map[serial] : null;
   if (serial && !r) return toast('找不到 ' + serial);
-  const head = r ? '<div class="mtxt"><b>' + esc(r.serial) + '</b>　' + esc(r.type) + ' 型　目前在 ' + esc(r.loc) + '</div>' : '';
+  const head = r ? '<div class="mtxt"><b>' + esc(r.serial) + '</b>　' + esc(r.type) + ' 型　目前在 ' + esc(LD(r.loc)) + '</div>' : '';
 
   if (act === 'checkin') {
-    return openModal('進廠', head + '<div class="mtxt">待修庫 → 指部工廠（開始翻修）</div>' + fld('進廠日', dateIn('f_date', today())), '確認進廠',
+    return openModal('進廠', head + '<div class="mtxt">待修庫 → 指部（開始翻修）</div>' + fld('進廠日', dateIn('f_date', today())), '確認進廠',
       () => doAction('checkin', { serial, date: slash($('#f_date').value) }));
   }
   if (act === 'checkout') {
-    openModal('出廠', head + '<div class="mtxt">指部工廠 → 一修或三修（翻修完成）</div>' +
+    openModal('出廠', head + '<div class="mtxt">指部 → 一修或三修（翻修完成）</div>' +
       fld('出廠日（也是新的生效日）', dateIn('f_date', today())) + fld('回到哪個單位', selHTML('f_loc', CONFIG.SERVICE_LOCS, '', '請選擇')) +
       '<div class="mtxt" id="f_prev"></div>' + fld('二線屆期（預設出廠日 + 3 年，可以改）', dateIn('f_sec', null)), '確認出廠',
       () => {
@@ -951,7 +1014,7 @@ function openAct(act, serial) {
   }
   if (act === 'transfer') {
     const to = r.loc === '一修' ? '三修' : '一修';
-    return openModal('調撥', head + '<div class="mtxt">' + esc(r.loc) + ' → <b>' + to + '</b></div>', '確認調撥到' + to, () => doAction('transfer', { serial, loc: to }));
+    return openModal('調撥', head + '<div class="mtxt">' + esc(LD(r.loc)) + ' → <b>' + to + '</b></div>', '確認調撥到' + to, () => doAction('transfer', { serial, loc: to }));
   }
   if (act === 'edit') {
     const stOpts = withCur(['服役中', '待進廠', '交修中'], r.status);
@@ -1026,7 +1089,7 @@ function viewWork() {
   if (!CONFIG.API_URL) h += '<div class="note" style="margin:0 0 12px">示範模式：這裡的操作只在畫面上模擬，不會寫進試算表。</div>';
   if (D.overdue.length) h += '<div class="alertbox"><b>三線已逾期 ' + D.overdue.length + ' 張，還在一修／三修</b><div class="note">系統每天凌晨 1 點會自動搬到待修庫，也可以現在手動搬。</div><button class="btn pri" data-act="automove">立即搬到待修庫（' + D.overdue.length + '）</button></div>';
   h += '<h2>待修庫（' + wait.length + ' 張）　按「進廠」送到指部</h2><div class="card">' + (wait.length ? wait.map(r => workRow(r, '進廠', 'checkin')).join('') : '<div class="empty">待修庫沒有座椅</div>') + '</div>';
-  h += '<h2>指部工廠（' + fac.length + ' 張）　修好按「出廠」</h2><div class="card">' + (fac.length ? fac.map(r => workRow(r, '出廠', 'checkout')).join('') : '<div class="empty">指部工廠沒有座椅</div>') + '</div>';
+  h += '<h2>指部（' + fac.length + ' 張）　修好按「出廠」</h2><div class="card">' + (fac.length ? fac.map(r => workRow(r, '出廠', 'checkout')).join('') : '<div class="empty">指部沒有座椅</div>') + '</div>';
   h += '<div class="chips" style="margin-top:16px"><button class="btn pri" data-act="add">新增座椅</button><button class="btn" data-act="log">看異動紀錄</button></div>';
   if (state.logs) h += '<h2>最近的異動紀錄</h2><div class="card">' + logHTML(state.logs) + '</div>';
   return h;
@@ -1034,10 +1097,13 @@ function viewWork() {
 
 
 document.addEventListener('click', e => {
-  const t = e.target.closest('[data-go],[data-nav],[data-h],[data-t],[data-cell],[data-close],[data-copy-exp],[data-copy-card],[data-act],[data-mcancel],[data-mode],[data-year],[data-ycell],[data-yclose]');
+  const t = e.target.closest('[data-go],[data-nav],[data-h],[data-t],[data-cell],[data-close],[data-copy-exp],[data-copy-card],[data-anh],[data-anm],[data-anmc],[data-act],[data-mcancel],[data-mode],[data-year],[data-ycell],[data-yclose]');
   if (!t) { if (e.target.id === 'modal') closeModal(); return; }
   const d = t.dataset;
   if (d.mcancel) return closeModal();
+  if (d.anh != null) { state.anH = +d.anh; return render(); }
+  if (d.anm != null) { state.anMonth = +d.anm; render(); const el = $('#anBox'); if (el) el.scrollIntoView({ behavior: 'smooth', block: 'start' }); return; }
+  if (d.anmc) { state.anMonth = null; return render(); }
   if (d.mode) { state.expMode = d.mode; return render(); }
   if (d.year) { state.year = +d.year; state.yList = null; return render(); }
   if (d.ycell) { const p = d.ycell.split('|'); state.yList = { t: p[0], l: p[1] }; render(); const el = $('#yBox'); if (el) el.scrollIntoView({ behavior: 'smooth', block: 'start' }); return; }
@@ -1052,7 +1118,7 @@ document.addEventListener('click', e => {
     const el = $('#listBox'); if (el) el.scrollIntoView({ behavior: 'smooth', block: 'start' }); return;
   }
   if (d.close) { state.list = null; return render(); }
-  if (d.copyExp) { const l = expiryList(); return copyText('【三線屆期】' + fmtDate(today()) + ' 起 ' + state.horizon + ' 天內，共 ' + l.length + ' 張\n' + l.map(r => r.serial + '　' + r.type + '　' + r.loc + '　' + fmtDate(r.third) + '　' + daysText(r.days)).join('\n')); }
+  if (d.copyExp) { const l = expiryList(); return copyText('【三線屆期】' + fmtDate(today()) + ' 起 ' + state.horizon + ' 天內，共 ' + l.length + ' 張\n' + l.map(r => r.serial + '　' + r.type + '　' + LD(r.loc) + '　' + fmtDate(r.third) + '　' + daysText(r.days)).join('\n')); }
   if (d.copyCard) { const r = state.D.map[d.copyCard]; if (r) return copyText(cardText(r)); }
 });
 $('#q').addEventListener('input', () => { state.q = $('#q').value; state.view = 'lookup'; render(); });
