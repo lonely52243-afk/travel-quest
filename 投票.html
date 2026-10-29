@@ -1,0 +1,534 @@
+<!doctype html>
+<html lang="zh-Hant">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<meta name="color-scheme" content="light dark">
+<title>軍械股人員情況</title>
+<style>
+/* Layout: 單欄手機版，仿 LINE 投票。說明與截止時間在上，輸入全名與選項在中，彙整好的回報文字在下，管理藏在最底下 */
+:root {
+  --bg: #f1f4f8;
+  --surface: #ffffff;
+  --fg: #14202e;
+  --muted: #566577;
+  --line: #d3dbe5;
+  --accent: #1f3a5f;
+  --on-accent: #ffffff;
+  --c-leave: #2a6f97;
+  --c-guard: #a8690f;
+  --c-rescue: #c0392b;
+  --c-on: #2f7d4f;
+  --ok: #1f7a4d;
+  --err: #b3392b;
+  --font: "PingFang TC", "Microsoft JhengHei", "Noto Sans TC", system-ui, sans-serif;
+  --radius: 10px;
+}
+@media (prefers-color-scheme: dark) {
+  :root {
+    --bg: #0e1520; --surface: #16202d; --fg: #e8eef6; --muted: #97a6b8; --line: #2b3a4c;
+    --accent: #8db5e6; --on-accent: #0e1520;
+    --c-leave: #6bb3dd; --c-guard: #e3b14f; --c-rescue: #ef7b6e; --c-on: #5cc28a;
+    --ok: #5cc28a; --err: #ef7b6e;
+  }
+}
+
+* { box-sizing: border-box; }
+html, body { margin: 0; }
+body {
+  background: var(--bg);
+  color: var(--fg);
+  font-family: var(--font);
+  font-size: 16px;
+  line-height: 1.6;
+  padding-block: 20px 40px;
+  padding-left: max(16px, env(safe-area-inset-left, 0px));
+  padding-right: max(16px, env(safe-area-inset-right, 0px));
+}
+:focus-visible { outline: 3px solid var(--accent); outline-offset: 2px; }
+[hidden] { display: none !important; }
+.wrap { max-width: 560px; margin: 0 auto; display: flex; flex-direction: column; gap: 16px; }
+
+.eyebrow { margin: 0; font-size: 13px; font-weight: 700; letter-spacing: 0.14em; color: var(--muted); }
+h1 { margin: 2px 0 0; font-size: 26px; line-height: 1.3; font-weight: 900; }
+.date { color: var(--accent); }
+.note { margin: 8px 0 0; overflow-wrap: anywhere; }
+.deadline { margin: 4px 0 0; font-size: 14px; color: var(--muted); font-variant-numeric: tabular-nums; }
+.deadline[data-closed="true"] { color: var(--err); font-weight: 700; }
+.notice { margin: 12px 0 0; padding: 10px 12px; border: 1px solid var(--err); border-radius: 8px; color: var(--err); font-size: 14px; }
+.preview { margin: 12px 0 0; padding: 10px 12px; border: 1px dashed var(--c-guard); border-radius: 8px; color: var(--c-guard); font-size: 14px; }
+
+.panel { background: var(--surface); border: 1px solid var(--line); border-radius: var(--radius); padding: 16px; min-width: 0; }
+h2 { margin: 0 0 12px; font-size: 15px; font-weight: 700; display: flex; align-items: center; gap: 8px; }
+.step {
+  display: inline-grid; place-items: center; min-width: 22px; height: 22px; border-radius: 99px;
+  background: var(--accent); color: var(--on-accent); font-size: 12px; font-weight: 700;
+}
+
+.warn {
+  margin: 0 0 12px; padding: 10px 12px; border-radius: 8px; font-size: 14px; line-height: 1.6;
+  background: color-mix(in srgb, var(--c-guard) 14%, var(--surface));
+}
+.warn strong { color: var(--c-guard); }
+input[type="text"], input[type="password"], input[type="datetime-local"] {
+  width: 100%; min-width: 0; padding: 10px 12px; border: 1px solid var(--line); border-radius: 8px;
+  background: var(--bg); color: var(--fg); font: inherit;
+}
+#who { min-height: 52px; font-size: 20px; font-weight: 700; letter-spacing: 0.05em; }
+
+.opts { display: flex; flex-direction: column; gap: 10px; }
+.optwrap { --c: var(--muted); border: 1px solid var(--line); border-radius: var(--radius); background: var(--surface); overflow: hidden; }
+.optwrap[data-s="休假"] { --c: var(--c-leave); }
+.optwrap[data-s="留守"] { --c: var(--c-guard); }
+.optwrap[data-s="救災"] { --c: var(--c-rescue); }
+.optwrap[data-s="到班"] { --c: var(--c-on); }
+.optwrap[data-sel="true"] { border-color: var(--c); box-shadow: 0 0 0 2px var(--c); }
+.opt {
+  display: grid; grid-template-columns: auto 1fr auto; align-items: center; gap: 12px; width: 100%; min-height: 56px;
+  padding: 10px 14px; border: 0; background: transparent; color: var(--fg); font: inherit; text-align: left; cursor: pointer;
+}
+.dot { width: 22px; height: 22px; border-radius: 50%; border: 2px solid var(--line); }
+.optwrap[data-sel="true"] .dot { border-color: var(--c); background: var(--c); box-shadow: inset 0 0 0 4px var(--surface); }
+.oname { font-weight: 700; font-size: 17px; }
+.cnt { font-size: 22px; font-weight: 900; font-variant-numeric: tabular-nums; color: var(--c); min-width: 2ch; text-align: right; }
+.opt-names { padding: 0 14px 12px 50px; font-size: 13px; line-height: 1.6; color: var(--muted); overflow-wrap: anywhere; }
+.opt-names:empty { display: none; }
+
+.primary {
+  width: 100%; min-height: 48px; margin-top: 14px; border: 0; border-radius: var(--radius);
+  background: var(--accent); color: var(--on-accent); font: inherit; font-size: 16px; font-weight: 700; cursor: pointer;
+}
+.primary:disabled { opacity: 0.4; cursor: not-allowed; }
+.msg { min-height: 1.6em; margin: 8px 0 0; font-size: 14px; color: var(--muted); overflow-wrap: anywhere; }
+.msg[data-k="ok"] { color: var(--ok); font-weight: 700; }
+.msg[data-k="err"] { color: var(--err); font-weight: 700; }
+
+.progress { margin: 0 0 10px; font-size: 14px; color: var(--muted); font-variant-numeric: tabular-nums; }
+.report {
+  white-space: pre-wrap; overflow-wrap: anywhere; padding: 12px; border: 1px solid var(--line); border-radius: 8px;
+  background: var(--bg); font-size: 15px; line-height: 1.85; user-select: text; -webkit-user-select: text;
+}
+.check { display: flex; align-items: center; gap: 8px; margin-top: 12px; font-size: 14px; color: var(--muted); }
+.check input { width: 18px; height: 18px; flex: none; }
+
+.field { display: flex; flex-direction: column; gap: 4px; margin-bottom: 12px; font-size: 14px; }
+.field label { color: var(--muted); }
+.row { display: flex; flex-wrap: wrap; gap: 8px; }
+.btn {
+  flex: 1 1 140px; min-height: 44px; padding: 8px 14px; border: 1px solid var(--line); border-radius: var(--radius);
+  background: var(--surface); color: var(--fg); font: inherit; font-weight: 700; cursor: pointer;
+}
+.btn.danger { color: var(--err); border-color: var(--err); }
+.btn:disabled { opacity: 0.4; cursor: not-allowed; }
+.sub { margin: 20px 0 8px; font-size: 14px; font-weight: 700; }
+.vlist { display: flex; flex-direction: column; border: 1px solid var(--line); border-radius: 8px; overflow: hidden; }
+.vrow { display: flex; align-items: center; gap: 10px; padding: 6px 10px; min-height: 44px; }
+.vrow + .vrow { border-top: 1px solid var(--line); }
+.vrow .vn { flex: 1 1 auto; min-width: 0; font-weight: 700; overflow-wrap: anywhere; }
+.vrow .vs { flex: none; font-size: 13px; color: var(--muted); }
+.vrow button {
+  flex: none; min-height: 36px; padding: 4px 12px; border: 1px solid var(--err); border-radius: 8px;
+  background: var(--surface); color: var(--err); font: inherit; font-size: 14px; cursor: pointer;
+}
+.vempty { margin: 0; padding: 10px; font-size: 14px; color: var(--muted); }
+.foot { display: flex; flex-direction: column; align-items: center; gap: 8px; }
+.linkbtn { border: 0; background: none; color: var(--muted); font: inherit; font-size: 13px; text-decoration: underline; cursor: pointer; padding: 6px 10px; }
+.sign { margin: 0; text-align: center; font-size: 13px; color: var(--muted); letter-spacing: 0.1em; }
+</style>
+</head>
+<body>
+<main class="wrap">
+  <header>
+    <p class="eyebrow">投票系統</p>
+    <h1>軍械股 <span id="dateLabel" class="date"></span> 人員情況</h1>
+    <p id="note" class="note"></p>
+    <p id="deadline" class="deadline" hidden></p>
+    <p id="notice" class="notice" role="alert" hidden></p>
+    <p id="preview" class="preview" hidden>預覽畫面：這裡的資料只存在這個畫面，重新整理就會消失。管理密碼是 1234。</p>
+  </header>
+
+  <section class="panel" aria-labelledby="h-name">
+    <h2 id="h-name"><span class="step">1</span>輸入你的全名</h2>
+    <p class="warn">請輸入<strong>全名</strong>（例：王小明），不要用暱稱或 LINE 名稱。同一個名字再投一次，會改成最新的選擇。</p>
+    <input type="text" id="who" maxlength="10" placeholder="全名" autocomplete="off" enterkeyhint="done" aria-label="全名">
+  </section>
+
+  <section class="panel" aria-labelledby="h-opt">
+    <h2 id="h-opt"><span class="step">2</span>選狀態</h2>
+    <div id="opts" class="opts" role="radiogroup" aria-labelledby="h-opt"></div>
+    <button id="submit" class="primary" type="button" disabled>送出</button>
+    <p id="msg" class="msg" role="status"></p>
+  </section>
+
+  <section class="panel" aria-labelledby="h-rep">
+    <h2 id="h-rep">回報文字</h2>
+    <p id="progress" class="progress"></p>
+    <div id="report" class="report"></div>
+    <label class="check"><input type="checkbox" id="shortNames" checked> 只留名字，省略姓氏</label>
+    <button id="copy" class="primary" type="button">複製回報文字</button>
+    <p id="copyMsg" class="msg" role="status"></p>
+  </section>
+
+  <section id="admin" class="panel" aria-labelledby="h-admin" hidden>
+    <h2 id="h-admin">管理</h2>
+    <div id="adminLogin">
+      <div class="field"><label for="aPin">管理密碼</label><input type="password" id="aPin" autocomplete="off"></div>
+      <button id="unlock" class="btn" type="button" style="width:100%">解鎖</button>
+    </div>
+    <div id="adminBody" hidden>
+      <div class="field"><label for="aLabel">日期（會顯示在標題和回報文字）</label><input type="text" id="aLabel" autocomplete="off"></div>
+      <div class="field"><label for="aNote">說明</label><input type="text" id="aNote" autocomplete="off"></div>
+      <div class="field"><label for="aDeadline">截止時間（可空白）</label><input type="datetime-local" id="aDeadline"></div>
+      <div class="row">
+        <button id="saveCfg" class="btn" type="button">儲存設定</button>
+        <button id="clearBtn" class="btn danger" type="button">清空全部投票</button>
+      </div>
+      <p class="sub">已投票名單（打錯或用暱稱的可以刪除）</p>
+      <div id="voteList" class="vlist"></div>
+    </div>
+    <p id="adminMsg" class="msg" role="status"></p>
+  </section>
+
+  <div class="foot">
+    <button id="adminToggle" class="linkbtn" type="button">管理</button>
+    <p class="sign">吱吱製作</p>
+  </div>
+</main>
+
+<script>
+(function () {
+  "use strict";
+  var OPTS = ["休假", "留守", "救災", "到班"];
+  var COMPOUND = ["歐陽", "司馬", "諸葛", "上官", "夏侯", "皇甫", "張簡", "范姜", "公孫", "慕容", "令狐", "司徒", "南宮", "東方", "尉遲", "長孫", "宇文", "單于"];
+  var NAME_RE = /^[一-鿿A-Za-z·.]{2,10}$/;
+  var DEFAULT_NOTE = "請同仁輸入全名，投票明日到班情況。";
+  var POLL_MS = 12000;
+
+  var $ = function (id) { return document.getElementById(id); };
+  var pad = function (n) { return String(n).padStart(2, "0"); };
+
+  var hasGAS = typeof google !== "undefined" && google.script && google.script.run;
+
+  /* ---- 預覽用假後端：只有在 Apps Script 以外開啟時才會用到 ---- */
+  var MOCK = (function () {
+    var now = Date.now();
+    var votes = [
+      { name: "王小明", status: "休假", t: now - 50000 },
+      { name: "李大華", status: "休假", t: now - 40000 },
+      { name: "陳美玲", status: "留守", t: now - 30000 },
+      { name: "林志豪", status: "救災", t: now - 20000 },
+      { name: "張家瑋", status: "到班", t: now - 10000 }
+    ];
+    var cfg = { label: "", note: "", deadline: null };
+    var PIN = "1234";
+    function dl() { var d = new Date(Date.now() + 86400000); return "明(" + d.getDate() + "日)"; }
+    return {
+      getState: function () { return { votes: votes.slice(), cfg: JSON.parse(JSON.stringify(cfg)), now: Date.now(), defaultLabel: dl() }; },
+      submitVote: function (name, status) {
+        name = String(name || "").replace(/[\s　]+/g, "");
+        if (!NAME_RE.test(name)) return { ok: false, msg: "請輸入中文全名（至少兩個字）" };
+        if (cfg.deadline && Date.now() > cfg.deadline) return { ok: false, msg: "投票已截止" };
+        for (var i = 0; i < votes.length; i++) {
+          if (votes[i].name === name) { votes[i].status = status; votes[i].t = Date.now(); return { ok: true }; }
+        }
+        votes.push({ name: name, status: status, t: Date.now() });
+        return { ok: true };
+      },
+      adminCheck: function (pin) { return pin === PIN; },
+      adminSave: function (pin, c) { if (pin !== PIN) return { ok: false, msg: "密碼錯誤" }; cfg = { label: c.label || "", note: c.note || "", deadline: c.deadline || null }; return { ok: true }; },
+      adminDelete: function (pin, name) { if (pin !== PIN) return { ok: false, msg: "密碼錯誤" }; votes = votes.filter(function (v) { return v.name !== name; }); return { ok: true }; },
+      adminClear: function (pin) { if (pin !== PIN) return { ok: false, msg: "密碼錯誤" }; votes = []; return { ok: true }; }
+    };
+  })();
+
+  function call(fn, args) {
+    return new Promise(function (resolve, reject) {
+      if (hasGAS) {
+        var r = google.script.run.withSuccessHandler(resolve).withFailureHandler(function (e) { reject(e); });
+        r[fn].apply(r, args);
+      } else {
+        setTimeout(function () {
+          try { resolve(MOCK[fn].apply(null, args)); } catch (e) { reject(e); }
+        }, 120);
+      }
+    });
+  }
+
+  var S = { votes: [], cfg: { label: "", note: "", deadline: null }, now: Date.now(), defaultLabel: "" };
+  var skew = 0, loading = false, loaded = false;
+  var pick = "", busy = false, sticky = "", confirmClear = false, clearTimer = 0;
+  var pin = "", adminOpen = false;
+
+  function nowMs() { return Date.now() + skew; }
+  function getLabel() { return S.cfg.label || S.defaultLabel || "明"; }
+  function getNote() { return S.cfg.note || DEFAULT_NOTE; }
+  function isClosed() { return !!S.cfg.deadline && nowMs() > S.cfg.deadline; }
+  function fmtTime(ms) {
+    var d = new Date(ms);
+    return (d.getMonth() + 1) + "/" + d.getDate() + " " + pad(d.getHours()) + ":" + pad(d.getMinutes());
+  }
+  function toLocalInput(ms) {
+    if (!ms) return "";
+    var d = new Date(ms);
+    return d.getFullYear() + "-" + pad(d.getMonth() + 1) + "-" + pad(d.getDate()) + "T" + pad(d.getHours()) + ":" + pad(d.getMinutes());
+  }
+  function normName(s) { return String(s || "").replace(/[\s　]+/g, "").slice(0, 10); }
+  function shortName(name) {
+    var a = Array.from(name);
+    if (a.length === 3) return a.slice(1).join("");
+    if (a.length === 4 && COMPOUND.indexOf(a.slice(0, 2).join("")) >= 0) return a.slice(2).join("");
+    return name;
+  }
+  function currentName() { return normName($("who").value); }
+  function votersOf(o) {
+    return S.votes.filter(function (v) { return v.status === o; }).map(function (v) { return v.name; });
+  }
+  function findVote(name) {
+    for (var i = 0; i < S.votes.length; i++) if (S.votes[i].name === name) return S.votes[i];
+    return null;
+  }
+
+  function buildReport() {
+    var strip = $("shortNames").checked;
+    var L = ["軍械股" + getLabel() + "人員情況如下", "休假、留守、救災及到班人員～"];
+    OPTS.forEach(function (o) {
+      var a = votersOf(o);
+      if (strip) a = a.map(shortName);
+      if (a.length) L.push(o + "：" + a.length + "員（" + a.join("、") + "）");
+    });
+    return L.join("\n");
+  }
+
+  function notice(t) { var el = $("notice"); el.textContent = t; el.hidden = !t; }
+  function setMsg(t, k) { sticky = t || ""; var el = $("msg"); el.textContent = t || ""; el.dataset.k = k || ""; }
+  function copyMsg(t, k) { var el = $("copyMsg"); el.textContent = t || ""; el.dataset.k = k || ""; }
+  function adminMsg(t, k) { var el = $("adminMsg"); el.textContent = t || ""; el.dataset.k = k || ""; }
+
+  function buildOpts() {
+    var h = "";
+    OPTS.forEach(function (o) {
+      h += '<div class="optwrap" data-s="' + o + '" data-sel="false"><button type="button" class="opt" role="radio" data-o="' + o + '" aria-checked="false"><span class="dot"></span><span class="oname">' + o + '</span><span class="cnt">0</span></button><div class="opt-names"></div></div>';
+    });
+    $("opts").innerHTML = h;
+  }
+  function updateOpts() {
+    var wraps = $("opts").children;
+    for (var k = 0; k < wraps.length; k++) {
+      var o = OPTS[k], a = votersOf(o);
+      wraps[k].dataset.sel = String(pick === o);
+      wraps[k].querySelector(".opt").setAttribute("aria-checked", String(pick === o));
+      wraps[k].querySelector(".cnt").textContent = String(a.length);
+      wraps[k].querySelector(".opt-names").textContent = a.join("、");
+    }
+  }
+  function updateHeader() {
+    $("dateLabel").textContent = getLabel();
+    $("note").textContent = getNote();
+    var d = $("deadline");
+    if (S.cfg.deadline) {
+      var closed = isClosed();
+      d.textContent = closed ? "投票已於 " + fmtTime(S.cfg.deadline) + " 截止" : "截止時間 " + fmtTime(S.cfg.deadline);
+      d.dataset.closed = String(closed);
+      d.hidden = false;
+    } else {
+      d.hidden = true;
+    }
+  }
+  function updateReport() {
+    $("report").textContent = buildReport();
+    var n = S.votes.length;
+    $("progress").textContent = !loaded ? "讀取中…" : n === 0
+      ? "還沒有人投票，同仁投完後會出現在這裡。"
+      : "已投票 " + n + " 人";
+  }
+  function renderAdminList() {
+    var box = $("voteList");
+    box.textContent = "";
+    if (!S.votes.length) {
+      var p = document.createElement("p");
+      p.className = "vempty";
+      p.textContent = "目前沒有人投票。";
+      box.appendChild(p);
+      return;
+    }
+    S.votes.forEach(function (v) {
+      var row = document.createElement("div");
+      row.className = "vrow";
+      var n = document.createElement("span");
+      n.className = "vn"; n.textContent = v.name;
+      var s = document.createElement("span");
+      s.className = "vs"; s.textContent = v.status;
+      var b = document.createElement("button");
+      b.type = "button"; b.textContent = "刪除"; b.dataset.name = v.name;
+      b.setAttribute("aria-label", "刪除 " + v.name + " 的投票");
+      row.appendChild(n); row.appendChild(s); row.appendChild(b);
+      box.appendChild(row);
+    });
+  }
+  function updateSubmit() {
+    var nm = currentName();
+    var closed = isClosed();
+    $("submit").disabled = !(loaded && NAME_RE.test(nm) && pick && !busy && !closed);
+    if (sticky) return;
+    var el = $("msg");
+    el.dataset.k = "";
+    var mine = nm ? findVote(nm) : null;
+    if (!loaded) el.textContent = "連線中…";
+    else if (closed) el.textContent = "投票已截止。";
+    else if (!NAME_RE.test(nm)) el.textContent = "先在上面輸入你的中文全名。";
+    else if (!pick) el.textContent = mine ? mine.name + " 目前登記：" + mine.status + "。要更改請重新選。" : "再選一個狀態。";
+    else el.textContent = "";
+  }
+  function updateAll() {
+    updateOpts(); updateReport(); updateHeader(); updateSubmit();
+    if (adminOpen) renderAdminList();
+  }
+  function syncAdmin() {
+    var ids = ["aLabel", "aNote", "aDeadline"];
+    var ae = document.activeElement;
+    if (ae && ids.indexOf(ae.id) >= 0) return;
+    $("aLabel").value = getLabel();
+    $("aNote").value = getNote();
+    $("aDeadline").value = toLocalInput(S.cfg.deadline);
+  }
+
+  function refresh() {
+    if (loading) return Promise.resolve();
+    loading = true;
+    return call("getState", []).then(function (s) {
+      S = s;
+      skew = s.now - Date.now();
+      loaded = true;
+      notice("");
+      updateAll();
+      syncAdmin();
+    }).catch(function () {
+      notice("讀不到投票資料，請重新整理頁面。");
+    }).then(function () { loading = false; });
+  }
+
+  $("who").addEventListener("input", function () { setMsg("", ""); updateSubmit(); });
+  $("who").addEventListener("keydown", function (e) { if (e.key === "Enter") { e.preventDefault(); $("who").blur(); } });
+  $("opts").addEventListener("click", function (e) {
+    var b = e.target.closest(".opt");
+    if (!b) return;
+    if (!NAME_RE.test(currentName())) { setMsg("先在上面輸入你的中文全名。", "err"); $("who").focus(); return; }
+    pick = b.dataset.o;
+    setMsg("", "");
+    updateAll();
+  });
+  $("submit").addEventListener("click", function () {
+    var nm = currentName();
+    if (!loaded || !NAME_RE.test(nm) || !pick || busy || isClosed()) return;
+    var o = pick;
+    busy = true; updateSubmit();
+    call("submitVote", [nm, o]).then(function (r) {
+      if (r && r.ok) {
+        pick = "";
+        try { localStorage.setItem("armsStatusName", nm); } catch (e1) {}
+        setMsg("已登記：" + nm + "　" + o, "ok");
+      } else {
+        setMsg((r && r.msg) || "送出失敗，請再試一次。", "err");
+      }
+    }).catch(function () {
+      setMsg("送出失敗，請再試一次。", "err");
+    }).then(function () {
+      busy = false;
+      return refresh();
+    }).then(updateAll);
+  });
+  $("shortNames").addEventListener("change", updateReport);
+  $("copy").addEventListener("click", function () {
+    var text = buildReport();
+    function fallback() {
+      var r = document.createRange();
+      r.selectNodeContents($("report"));
+      var s = window.getSelection();
+      s.removeAllRanges(); s.addRange(r);
+      try {
+        if (document.execCommand("copy")) { copyMsg("已複製，可以直接貼到 LINE。", "ok"); return; }
+      } catch (e2) {}
+      copyMsg("無法自動複製，文字已選取，請長按後選「拷貝」。", "err");
+    }
+    if (navigator.clipboard && navigator.clipboard.writeText) {
+      navigator.clipboard.writeText(text).then(function () { copyMsg("已複製，可以直接貼到 LINE。", "ok"); }, fallback);
+    } else {
+      fallback();
+    }
+  });
+
+  /* ---- 管理 ---- */
+  $("adminToggle").addEventListener("click", function () {
+    var a = $("admin");
+    a.hidden = !a.hidden;
+    if (!a.hidden) a.scrollIntoView({ behavior: "smooth", block: "start" });
+  });
+  $("unlock").addEventListener("click", function () {
+    var p = $("aPin").value;
+    call("adminCheck", [p]).then(function (ok) {
+      if (ok) {
+        pin = p; adminOpen = true;
+        $("adminLogin").hidden = true;
+        $("adminBody").hidden = false;
+        adminMsg("", "");
+        syncAdmin(); renderAdminList();
+      } else {
+        adminMsg("密碼錯誤。", "err");
+      }
+    }).catch(function () { adminMsg("連線失敗，請再試一次。", "err"); });
+  });
+  $("saveCfg").addEventListener("click", function () {
+    var v = $("aDeadline").value;
+    var t = v ? new Date(v).getTime() : null;
+    if (t !== null && isNaN(t)) t = null;
+    call("adminSave", [pin, { label: $("aLabel").value.trim(), note: $("aNote").value.trim(), deadline: t }]).then(function (r) {
+      adminMsg(r && r.ok ? "已儲存。" : (r && r.msg) || "儲存失敗。", r && r.ok ? "ok" : "err");
+      return refresh();
+    }).catch(function () { adminMsg("儲存失敗，請再試一次。", "err"); });
+  });
+  $("voteList").addEventListener("click", function (e) {
+    var b = e.target.closest("button");
+    if (!b) return;
+    b.disabled = true;
+    call("adminDelete", [pin, b.dataset.name]).then(function (r) {
+      adminMsg(r && r.ok ? "已刪除。" : (r && r.msg) || "刪除失敗。", r && r.ok ? "ok" : "err");
+      return refresh();
+    }).catch(function () { adminMsg("刪除失敗，請再試一次。", "err"); b.disabled = false; });
+  });
+  function resetClear() {
+    confirmClear = false;
+    clearTimeout(clearTimer);
+    $("clearBtn").textContent = "清空全部投票";
+  }
+  $("clearBtn").addEventListener("click", function () {
+    var btn = $("clearBtn");
+    if (!confirmClear) {
+      confirmClear = true;
+      btn.textContent = "確定清空？再按一次";
+      clearTimeout(clearTimer);
+      clearTimer = setTimeout(resetClear, 4000);
+      return;
+    }
+    resetClear();
+    btn.disabled = true;
+    call("adminClear", [pin]).then(function (r) {
+      adminMsg(r && r.ok ? "已清空，可以開始新一天的投票。" : (r && r.msg) || "清空失敗。", r && r.ok ? "ok" : "err");
+      return refresh();
+    }).catch(function () { adminMsg("清空失敗，請再試一次。", "err"); }).then(function () { btn.disabled = false; });
+  });
+
+  try {
+    var saved = localStorage.getItem("armsStatusName");
+    if (saved) $("who").value = normName(saved);
+  } catch (e3) {}
+
+  if (!hasGAS) $("preview").hidden = false;
+  buildOpts();
+  updateAll();
+  refresh();
+  setInterval(function () { if (!document.hidden) refresh(); }, POLL_MS);
+  setInterval(function () { updateHeader(); updateSubmit(); }, 30000);
+})();
+</script>
+</body>
+</html>
