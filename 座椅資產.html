@@ -361,7 +361,7 @@ const SEAT = {
   SERVICE: ['一修', '三修'],
   TYPES: ['-3', '-4', '-5', '-6'],
   LIFE_YEARS: 6,      // 三線屆期 = 出廠日 + 6 年
-  SECOND_YEARS: 3,    // 二線屆期預設 = 出廠日 + 3 年（出廠時可以手動改）
+  SECOND_YEARS: 2,    // 二線屆期預設 = 出廠日 + 2 年（出廠時可以手動改）
   DATE_FIELDS: ['生效日', '三線屆期', '二線屆期', '進廠日'],
   EDITABLE: ['型別', '位置', '狀態', '生效日', '三線屆期', '二線屆期', '循環次數', '進廠日', '備註'],
   STATUS: { '一修': '服役中', '三修': '服役中', '待修庫': '待進廠', '指部工廠': '交修中' }
@@ -1253,7 +1253,7 @@ function openAct(act, serial) {
   if (act === 'checkout') {
     openModal('出廠', head + '<div class="mtxt">指部 → 一修或三修（翻修完成）</div>' +
       fld('出廠日（也是新的生效日）', dateIn('f_date', today())) + fld('回到哪個單位', selHTML('f_loc', CONFIG.SERVICE_LOCS, '', '請選擇')) +
-      '<div class="mtxt" id="f_prev"></div>' + fld('二線屆期（預設出廠日 + 3 年，可以改）', dateIn('f_sec', null)), '確認出廠',
+      '<div class="mtxt" id="f_prev"></div>' + fld('二線屆期（預設出廠日 + 2 年，可以改）', dateIn('f_sec', null)), '確認出廠',
       () => {
         const loc = $('#f_loc').value, date = slash($('#f_date').value);
         if (!loc) { modalErr('請選擇回到一修或三修'); return; }
