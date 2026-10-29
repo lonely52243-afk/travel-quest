@@ -513,6 +513,28 @@ table.cmp td.hi { background: var(--yellow-soft); }
 .bw.dual i.m { background: var(--mon); height: 100%; }
 .hrow .k.nm2 { width: 64px; }
 .cmpbars .hrow .k { width: 48px; }
+html { background-color: var(--card); }
+
+/* ===== 小提示、篩選、收合 ===== */
+.tipbox:empty { display: none; }
+.tip { display: flex; gap: 8px; align-items: flex-start; background: var(--card); border: 2px dashed var(--ink); border-radius: 10px; padding: 7px 10px; margin-bottom: 8px; font-size: 13px; line-height: 1.5; flex-shrink: 0; }
+.tip .ti { flex-shrink: 0; background: var(--yellow); color: #1E2A4A; border: 1.5px solid var(--ink); border-radius: 6px; padding: 0 6px; font-weight: 800; font-size: 12px; margin-top: 1px; }
+.tip .tt { flex: 1; min-width: 0; }
+.tip button { flex-shrink: 0; background: none; border: none; color: var(--link); font-weight: 800; font-size: 13px; text-decoration: underline; cursor: pointer; padding: 2px 0 2px 4px; }
+details.filter { background: var(--card); border: 2px solid var(--ink); border-radius: 12px; margin-bottom: 8px; box-shadow: 0 2px 0 var(--ink); }
+details.filter > summary { list-style: none; cursor: pointer; padding: 9px 12px; font-weight: 800; font-size: 14px; display: flex; align-items: center; justify-content: space-between; gap: 8px; }
+details.filter > summary::-webkit-details-marker { display: none; }
+details.filter > summary::after { content: "展開"; font-size: 12px; font-weight: 700; color: var(--link); text-decoration: underline; flex-shrink: 0; width: auto; height: auto; border: none; background: none; line-height: 1.4; border-radius: 0; padding: 0; }
+details.filter[open] > summary::after { content: "收合"; }
+details.filter .fbody { padding: 0 12px 12px; }
+details.filter .field label { display: block; font-size: 12px; color: var(--muted); margin-bottom: 4px; }
+.foldbar { display: flex; align-items: center; gap: 12px; font-size: 12px; color: var(--muted); margin: 0 2px 8px; }
+.foldbar span { flex: 1; }
+.box.fold > h3 { cursor: pointer; display: flex; align-items: center; gap: 4px; margin-bottom: 10px; user-select: none; -webkit-user-select: none; }
+.box.fold > h3::after { content: ""; margin-left: auto; width: 9px; height: 9px; border-right: 3px solid var(--ink); border-bottom: 3px solid var(--ink); transform: rotate(45deg); transition: transform .15s; flex-shrink: 0; margin-top: -4px; }
+.box.fold.collapsed > h3 { margin-bottom: 0; }
+.box.fold.collapsed > h3::after { transform: rotate(-45deg); margin-top: 0; }
+.box.fold.collapsed > *:not(h3) { display: none; }
 
   </style>
 </head>
@@ -536,6 +558,7 @@ table.cmp td.hi { background: var(--yellow-soft); }
   <main>
     <!-- ===== 班表 ===== -->
     <section class="page active" id="page-sched" aria-label="班表">
+      <div class="tipbox" id="tip-sched"></div>
       <div class="toolbar">
         <div class="seg" id="viewSeg" role="group" aria-label="檢視方式">
           <button data-v="week" class="on">週</button>
@@ -568,6 +591,7 @@ table.cmp td.hi { background: var(--yellow-soft); }
 
     <!-- ===== 本週人員情況 ===== -->
     <section class="page" id="page-week" aria-label="本週人員情況">
+      <div class="tipbox" id="tip-week"></div>
       <div class="toolbar">
         <div class="nav">
           <button id="wPrev" aria-label="上一週"><svg class="chev" viewBox="0 0 24 24" aria-hidden="true"><path d="M15 5l-7 7 7 7"/></svg></button>
@@ -581,6 +605,7 @@ table.cmp td.hi { background: var(--yellow-soft); }
 
     <!-- ===== 產出 ===== -->
     <section class="page" id="page-out" aria-label="產出文字">
+      <div class="tipbox" id="tip-out"></div>
       <div class="box">
         <div class="gnote" id="outGroup"></div>
         <div class="field">
@@ -615,6 +640,7 @@ table.cmp td.hi { background: var(--yellow-soft); }
 
     <!-- ===== 分析 ===== -->
     <section class="page" id="page-ana" aria-label="休假分析">
+      <div class="tipbox" id="tip-ana"></div>
       <div class="toolbar">
         <div class="seg" id="anaSeg" role="group" aria-label="分析範圍">
           <button data-v="month" class="on">月</button>
@@ -626,15 +652,20 @@ table.cmp td.hi { background: var(--yellow-soft); }
           <button id="aNext" aria-label="下一個"><svg class="chev" viewBox="0 0 24 24" aria-hidden="true"><path d="M9 5l7 7-7 7"/></svg></button>
         </div>
       </div>
-      <div class="field">
-        <label class="sr" for="anaPerson">分析對象</label>
-        <select id="anaPerson" style="width:100%"></select>
-      </div>
+      <details class="filter" id="anaFilter">
+        <summary><span id="anaSum">篩選</span></summary>
+        <div class="fbody">
+          <div class="field" id="anaGroupField"><label>名冊（和上方的班表／股表同步）</label><div class="seg" id="anaGroupSeg" role="group" aria-label="名冊"></div></div>
+          <div class="field"><label for="anaPerson">分析對象</label><select id="anaPerson" style="width:100%"></select></div>
+        </div>
+      </details>
+      <div class="foldbar"><span>區塊可點標題收合</span><button class="linkbtn" id="foldAll">全部展開</button><button class="linkbtn" id="foldNone">全部收合</button></div>
       <div id="anaBody"></div>
     </section>
 
     <!-- ===== 更多 ===== -->
     <section class="page" id="page-more" aria-label="更多">
+      <div class="tipbox" id="tip-more"></div>
       <div class="box" id="adminBox">
         <h3>管理者</h3>
         <div id="adminLocked">
@@ -713,8 +744,22 @@ table.cmp td.hi { background: var(--yellow-soft); }
                 <li><b>長按格子</b>（約半秒）＝選上午休、下午休、全天休、<b>留守</b>、<b>監控</b>，或清除標記。</li>
                 <li><b>格子空白</b>＝這個人這天什麼標記都沒有（還沒點假單）。</li>
                 <li><b>點上方的日期</b>＝看當天名單，也能把那天標為假日或上班日。</li>
-                <li><b>左右滑動</b>＝切換上一週／下一週。</li>
+                <li><b>左右滑動</b>＝切換上一週／下一週，格子會跟著手指移動。</li>
+                <li>右上角<b>「班表｜股表」</b>切換名冊：兩邊休假紀錄是同一份，在班表點了，股表會自動跟著變。</li>
+                <li>沒有輸入<b>管理者密碼</b>只能查看。要新增或修改，到「更多」最上面登入。</li>
               </ol>
+            </div>
+          </details>
+          <details>
+            <summary>班表／股表怎麼分、怎麼同步</summary>
+            <div class="dbody2">
+              <ul>
+                <li><b>班表</b>＝彈射名冊那幾位；<b>股表</b>＝股名冊全部的人（包含班表的人）。</li>
+                <li>班表、本週、產出、分析都會跟著右上角的切換，只看那一邊的人。</li>
+                <li>休假紀錄是用「姓名」記在同一份資料裡，所以在班表點的休假，股表一定看得到，反過來也一樣，不用另外同步。</li>
+                <li>分析頁的「篩選」裡也能切換名冊，和右上角是同一個設定。</li>
+                <li>名冊要增減人員，請到 Google 試算表的「彈射名冊」或「股名冊」分頁修改。</li>
+              </ul>
             </div>
           </details>
           <details>
@@ -755,6 +800,7 @@ table.cmp td.hi { background: var(--yellow-soft); }
           <details>
             <summary>「產出」頁：複製文字貼到群組</summary>
             <div class="dbody2">
+              <p style="margin:0 0 6px"><b>產出固定是「股表」全部人員</b>，不受右上角班表／股表切換影響，所以不用先切換。</p>
               <ol>
                 <li>選內容（假日留守／人員情況）和範圍（本週、下週、本月、下月、自選）。</li>
                 <li>文字會自動產生，可以直接在文字框裡修改。</li>
@@ -773,9 +819,13 @@ table.cmp td.hi { background: var(--yellow-soft); }
             <summary>「分析」頁怎麼看</summary>
             <div class="dbody2">
               <ul>
-                <li>可以切換「月」或「年」，也可以選「全體」或某個人。</li>
+                <li>最上面是<b>「我的休假紀錄」</b>：先到「更多」選好「我是誰」，就會固定顯示你自己的休假、到班和留守紀錄。</li>
+                <li>可以切換「月」或「年」。展開「篩選」可換名冊（班表／股表）或選某個人。</li>
+                <li>每個區塊的標題都可以點一下收合或展開，也可以用「全部展開／全部收合」。你收合的狀態會被記住。</li>
+                <li><b>到班天數</b>＝這個月（年）的上班日總數 − 休假天數（全天算 1、半天算 0.5）。沒點任何紀錄的上班日，都當作有來上班。出勤率＝到班 ÷ 上班日。</li>
+                <li>折線圖和「較上月／較去年」會自動和上一期比較；「班／股 比較」並排兩邊的數字。</li>
                 <li>平日休假：全天算 1 天、上午或下午算 0.5 天。假日有標「休」的另外算「假日休息」，不混在平日裡。</li>
-                <li>全體：看休假總數、每天人數、每人排名、星期幾最常休、留守和監控的人次。點排名裡的名字就會跳到那個人的分析。</li>
+                <li>全體：看休假總數、每天人數、每人排名、星期幾最常休、留守和監控的分配。點排名裡的名字就會跳到那個人的分析。</li>
                 <li>個人：看休假天數、與團隊平均的差距、休假月曆和明細。</li>
               </ul>
             </div>
@@ -820,6 +870,7 @@ table.cmp td.hi { background: var(--yellow-soft); }
         <h3>資料與同步</h3>
         <ul class="list">
           <li class="row"><div class="t"><b>最後更新</b><span id="lastSync">尚未更新</span></div><button class="ghost" id="syncAll">立即更新</button></li>
+          <li class="row"><div class="t"><b>重新顯示小提示</b><span>每一頁最上面的操作提示，按過「知道了」後可以在這裡再打開。</span></div><button class="ghost" id="resetTips">顯示</button></li>
           <li class="row"><div class="t"><b>重看操作導覽</b><span>第一次使用時跳出的簡短說明</span></div><button class="ghost" id="showGuide">重看</button></li>
           <li class="row"><div class="t"><b>清除手機暫存</b><span>不會刪除試算表資料，只是清掉這支手機上的暫存和設定。</span></div><button class="ghost" id="clearCache">清除</button></li>
         </ul>
@@ -934,7 +985,7 @@ table.cmp td.hi { background: var(--yellow-soft); }
       var ignoreClick = false;
       var toastTimer = null;
       var cacheTimer = null;
-      var prefs = { theme: 'light', view: 'week', me: '', ro: false, pw: '', group: '', seen: false, autoStay: false };
+      var prefs = { theme: 'light', view: 'week', me: '', ro: false, pw: '', group: '', fold: {}, tips: {}, seen: false, autoStay: false };
       var forcedRO = false;
       var lastSync = 0;
       var loadError = '';
@@ -956,17 +1007,41 @@ table.cmp td.hi { background: var(--yellow-soft); }
         employees = g.employees || [];
       }
       function renderGroupSeg() {
-        var box = $('groupSeg');
-        if (groups.length < 2) { box.style.display = 'none'; return; }
-        var sig = groups.map(function (g) { return g.name; }).join('|') + '#' + prefs.group;
-        box.style.display = '';
-        if (box.dataset.sig === sig) return;
-        box.innerHTML = groups.map(function (g) {
-          return '<button data-g="' + esc(g.name) + '"' + (g.name === prefs.group ? ' class="on"' : '') + '>' + esc(g.name) + '</button>';
-        }).join('');
-        box.dataset.sig = sig;
+        ['groupSeg', 'anaGroupSeg'].forEach(function (id) {
+          var box = $(id);
+          if (!box) return;
+          if (groups.length < 2) { box.style.display = 'none'; if (id === 'anaGroupSeg') $('anaGroupField').style.display = 'none'; return; }
+          var sig = groups.map(function (g) { return g.name; }).join('|') + '#' + prefs.group;
+          box.style.display = '';
+          if (id === 'anaGroupSeg') $('anaGroupField').style.display = '';
+          if (box.dataset.sig === sig) return;
+          box.innerHTML = groups.map(function (g) {
+            return '<button data-g="' + esc(g.name) + '"' + (g.name === prefs.group ? ' class="on"' : '') + '>' + esc(g.name) + '</button>';
+          }).join('');
+          box.dataset.sig = sig;
+        });
       }
       function gTag() { return groups.length > 1 && prefs.group ? '<span class="gchip">' + esc(prefs.group) + '</span>' : ''; }
+      function tipInfo(t) {
+        var locked = isRO() && !forcedRO && !prefs.ro;
+        if (t === 'sched') {
+          return locked
+            ? { k: 'sched-L', t: '目前只能<b>查看</b>，不能修改。管理者請到「更多」最上面輸入密碼。右上角可切換班表／股表。' }
+            : { k: 'sched-E', t: '<b>點一下</b>格子＝全天休假；<b>長按</b>＝上午／下午／留守／監控；<b>左右滑動</b>換週；右上角切換班表／股表。' };
+        }
+        if (t === 'week') return { k: 'week', t: '每天一張卡片，按「複製」就能把當天人員情況貼到群組；<b>左右滑動</b>換週。' };
+        if (t === 'out') return { k: 'out', t: '先選「內容」和「範圍」，再按「複製」貼到群組。產出固定是「股表」全部人員，不用切換。' };
+        if (t === 'ana') return { k: 'ana', t: '最上面是<b>我的紀錄</b>（先到「更多」選「我是誰」）。點區塊標題可<b>收合</b>，「篩選」可換名冊或選個人。' };
+        if (t === 'more') return { k: 'more', t: '第一次使用先選「我是誰」。管理者在最上面輸入密碼才能編輯；往下有完整的使用說明。' };
+        return null;
+      }
+      function renderTip(t) {
+        var box = $('tip-' + t);
+        if (!box) return;
+        var inf = tipInfo(t);
+        if (!inf || (prefs.tips && prefs.tips[inf.k])) { box.innerHTML = ''; return; }
+        box.innerHTML = '<div class="tip"><span class="ti">小提示</span><span class="tt">' + inf.t + '</span><button data-tipx="' + inf.k + '">知道了</button></div>';
+      }
       function allNames() {
         var seen = {}, out = [];
         groups.forEach(function (g) { (g.employees || []).forEach(function (e) { if (!seen[e.name]) { seen[e.name] = 1; out.push(e); } }); });
@@ -975,8 +1050,9 @@ table.cmp td.hi { background: var(--yellow-soft); }
       function setGroup(name) {
         if (name === prefs.group) return;
         prefs.group = name; savePrefs(); pickGroup();
-        anaPerson = ''; anaTouched = true;
+        anaTouched = true;
         renderGroupSeg(); renderAll(); ensureData(false);
+        showToast('已切換到「' + name + '」，兩邊的休假紀錄會同步', null, null, 2200);
       }
 
       // ====== 設定（只存在這支手機） ======
@@ -1799,9 +1875,21 @@ table.cmp td.hi { background: var(--yellow-soft); }
         return rangeKeys(f, t).slice(0, 93);
       }
 
+      // 產出固定使用「股」的全部人員，不受右上角切換影響
+      function outGroupObj() {
+        var g = null;
+        groups.forEach(function (x) { if (x.name.indexOf('股') >= 0) g = x; });
+        if (!g && groups.length) g = groups.reduce(function (p, q) { return (q.employees || []).length > (p.employees || []).length ? q : p; });
+        return g;
+      }
       function renderOut() {
+        var save = employees, gobj = outGroupObj();
+        if (gobj) employees = gobj.employees || [];
+        try { renderOutInner(gobj); } finally { employees = save; }
+      }
+      function renderOutInner(gobj) {
         var og = $('outGroup');
-        if (groups.length > 1 && prefs.group) { og.innerHTML = '<b>' + esc(prefs.group) + '</b>目前產出的是「' + esc(prefs.group) + '」這 ' + employees.length + ' 人（右上角可切換）'; og.classList.add('on'); }
+        if (groups.length > 1 && gobj) { og.innerHTML = '<b>' + esc(gobj.name) + '</b>產出固定使用「' + esc(gobj.name) + '」全部 ' + employees.length + ' 人，不受右上角切換影響'; og.classList.add('on'); }
         else og.classList.remove('on');
         var segT = $('outTypeSeg').querySelectorAll('button');
         for (var i = 0; i < segT.length; i++) segT[i].classList.toggle('on', segT[i].dataset.v === outType);
@@ -1836,20 +1924,24 @@ table.cmp td.hi { background: var(--yellow-soft); }
       function analyze(keys) {
         var per = {};
         employees.forEach(function (e) {
-          per[e.name] = { name: e.name, days: 0, rest: 0, full: 0, half: 0, stayN: 0, monN: 0, wd: [0, 0, 0, 0, 0] };
+          per[e.name] = { name: e.name, days: 0, rest: 0, full: 0, half: 0, stayN: 0, monN: 0, dEl: 0, hol: 0, wd: [0, 0, 0, 0, 0] };
         });
         var series = [];
         var wdAll = [0, 0, 0, 0, 0];
         var stayAll = 0, monAll = 0;
+        var tkA = todayKey(), wdays = 0;
         keys.forEach(function (k) {
           var inf = dayInfo(k);
           var dow = parseKey(k).getDay();
           var dsum = 0;
+          var past = true; // 到班＝整個月（年）的上班日 − 休假
+          if (!inf.off && past) wdays++;
           employees.forEach(function (e) {
             var r = getRec(k, e.name);
             if (!r) return;
             if (isDuty(r)) {
               if (r.period === '留守') { per[e.name].stayN++; stayAll++; } else { per[e.name].monN++; monAll++; }
+              if (inf.off && past) per[e.name].hol++;
               return;
             }
             if (!isLeave(r)) return;
@@ -1859,6 +1951,7 @@ table.cmp td.hi { background: var(--yellow-soft); }
               p.rest += v;
             } else {
               p.days += v; dsum += v;
+              if (past) p.dEl += v;
               if (r.period === '全天') p.full++; else p.half++;
               if (dow >= 1 && dow <= 5) { p.wd[dow - 1] += v; wdAll[dow - 1] += v; }
             }
@@ -1866,10 +1959,10 @@ table.cmp td.hi { background: var(--yellow-soft); }
           series.push({ key: k, value: dsum, off: inf.off });
         });
         var arr = Object.keys(per).map(function (n) { return per[n]; });
-        var total = 0, rest = 0, people = 0;
-        arr.forEach(function (p) { total += p.days; rest += p.rest; if (p.days > 0) people++; });
+        var total = 0, rest = 0, people = 0, attT = 0;
+        arr.forEach(function (p) { total += p.days; rest += p.rest; if (p.days > 0) people++; p.att = Math.max(0, wdays - p.dEl); attT += p.att; });
         return { per: arr, series: series, total: total, rest: rest, people: people,
-                 avg: arr.length ? total / arr.length : 0, wd: wdAll, stayN: stayAll, monN: monAll };
+                 avg: arr.length ? total / arr.length : 0, wdays: wdays, attAvg: arr.length ? attT / arr.length : 0, wd: wdAll, stayN: stayAll, monN: monAll };
       }
 
       function topWeekday(wd) {
@@ -1917,8 +2010,31 @@ table.cmp td.hi { background: var(--yellow-soft); }
         return h + '</div>';
       }
 
+      var FOLD_CLOSED = ['每天休假人數', '每月平日休假(人天)', '大家休幾天', '平日哪天最常休', '全天／半天', '留守／監控分配'];
+      function foldify() {
+        var boxes = $('anaBody').querySelectorAll(':scope > .box');
+        for (var i = 0; i < boxes.length; i++) {
+          var b = boxes[i], h3 = b.querySelector(':scope > h3');
+          if (!h3 || !h3.childNodes.length) continue;
+          var key = h3.childNodes[0].textContent.trim();
+          if (!key || key === anaPerson) continue;
+          var open = prefs.fold && prefs.fold[key] !== undefined ? prefs.fold[key] : FOLD_CLOSED.indexOf(key) < 0;
+          b.classList.add('fold');
+          b.dataset.fold = key;
+          b.classList.toggle('collapsed', !open);
+          h3.setAttribute('role', 'button'); h3.setAttribute('tabindex', '0'); h3.setAttribute('aria-expanded', open ? 'true' : 'false');
+        }
+      }
+      function setFold(box, open) {
+        box.classList.toggle('collapsed', !open);
+        var h3 = box.querySelector(':scope > h3');
+        if (h3) h3.setAttribute('aria-expanded', open ? 'true' : 'false');
+        if (!prefs.fold) prefs.fold = {};
+        prefs.fold[box.dataset.fold] = open;
+      }
+
       function renderAna() {
-        if (!anaTouched) { anaTouched = true; if (prefs.me) anaPerson = prefs.me; }
+        if (!anaTouched) { anaTouched = true; }
         if (anaPerson && employees.length && !employees.some(function (e) { return e.name === anaPerson; })) anaPerson = '';
         $('aTitle').innerHTML = gTag() + (anaMode === 'year' ? (anaYear + ' 年') : (anaYear + ' 年 ' + anaMonth + ' 月'));
         var segs = $('anaSeg').querySelectorAll('button');
@@ -1936,6 +2052,7 @@ table.cmp td.hi { background: var(--yellow-soft); }
           sel.dataset.sig = sig;
         }
         sel.value = anaPerson;
+        $('anaSum').textContent = '篩選：' + (groups.length > 1 && prefs.group ? prefs.group + '　・　' : '') + (anaPerson || (groups.length > 1 && prefs.group ? '全' + prefs.group : '全體'));
 
         var ids = neededIds();
         var gt = gate(ids);
@@ -1943,10 +2060,12 @@ table.cmp td.hi { background: var(--yellow-soft); }
         var keys = anaKeys();
         var A = analyze(keys);
         if (anaPerson) renderPerson(A, keys); else renderTeam(A, keys);
+        foldify();
       }
 
       function renderTeam(A, keys) {
         var h = yearNoteHtml(keys);
+        h += meBox(A, keys);
         var peak = null;
         A.series.forEach(function (s) { if (!s.off && s.value > 0 && (!peak || s.value > peak.value)) peak = s; });
         var tw = topWeekday(A.wd);
@@ -1957,6 +2076,8 @@ table.cmp td.hi { background: var(--yellow-soft); }
           kpi(fmtNum(A.total), '平日休假(天)', PA ? dlt(A.total, PA.total, PV.label) : '') +
           kpi(A.people + ' / ' + employees.length, '有休假人數') +
           kpi(fmtNum(A.avg), '平均每人(天)', PA ? dlt(A.avg, PA.avg, PV.label) : '') +
+          kpi(A.wdays ? fmtNum(A.attAvg) : '—', '平均每人到班(天)') +
+          kpi(A.wdays + '', periodWord() + '上班日(天)') +
           kpi(fmtNum(A.rest), '假日休息(人天)') +
           kpi(A.stayN + ' / ' + A.monN, '留守／監控(人次)') + '</div></div>';
 
@@ -2026,6 +2147,9 @@ table.cmp td.hi { background: var(--yellow-soft); }
 
         h += '<div class="box"><h3>' + esc(P.name) + '</h3><div class="cards">' +
           kpi(fmtNum(P.days), '平日休假(天)') +
+          kpi(A.wdays ? fmtNum(P.att) : '—', periodWord() + '到班(天)') +
+          kpi(A.wdays ? Math.round(P.att / A.wdays * 100) + '%' : '—', '出勤率') +
+          kpi(String(P.hol), '假日到班(留守／監控)') +
           kpi(fmtNum(P.rest), '假日休息(天)') +
           kpi(P.stayN + ' / ' + P.monN, '留守／監控(次)') +
           kpi(P.full + ' / ' + P.half, '全天 / 半天次數') +
@@ -2065,6 +2189,33 @@ table.cmp td.hi { background: var(--yellow-soft); }
 
       function kpi(num, label, delta) {
         return '<div class="kpi"><div class="num">' + esc(num) + '</div><div class="lbl">' + esc(label) + '</div>' + (delta || '') + '</div>';
+      }
+      function periodWord() { return anaMode === 'year' ? anaYear + ' 年' : anaMonth + ' 月'; }
+      function meBox(A, keys) {
+        if (!prefs.me) {
+          return '<div class="box"><h3>我的休假紀錄</h3><div class="hint" style="margin:0">到「更多 → 我是誰」選你的名字，這裡就會固定顯示你自己的休假、到班和留守紀錄。</div></div>';
+        }
+        var P = null;
+        A.per.forEach(function (p) { if (p.name === prefs.me) P = p; });
+        if (!P) {
+          return '<div class="box"><h3>我的休假紀錄</h3><div class="hint" style="margin:0">「' + esc(prefs.me) + '」不在目前這個名冊裡，切換右上角的班表／股表就能看到。</div></div>';
+        }
+        var h = '<div class="box mebox"><h3>我的休假紀錄<small>' + esc(P.name) + '・' + periodWord() + '</small></h3><div class="cards">' +
+          kpi(fmtNum(P.days), '平日休假(天)') +
+          kpi(A.wdays ? fmtNum(P.att) : '—', '到班(天)') +
+          kpi(A.wdays ? Math.round(P.att / A.wdays * 100) + '%' : '—', '出勤率') +
+          kpi(P.stayN + ' / ' + P.monN, '留守／監控(次)') + '</div>';
+        var chips = '';
+        keys.forEach(function (k) {
+          var r = getRec(k, P.name);
+          if (!r) return;
+          var pc = periodClass(r);
+          chips += '<span class="chip' + (pc && pc !== 'full' ? ' ' + pc : '') + '">' + mdLabel(k) + '(' + wkOf(k) + ') ' + esc(isLeave(r) ? r.period + '休' : r.period) + '</span>';
+        });
+        h += '<div class="hint" style="margin:12px 0 6px"><b>' + periodWord() + '的紀錄</b></div>' +
+          (chips ? '<div class="chips">' + chips + '</div>' : '<div class="muted">這段期間沒有任何紀錄</div>') +
+          '<div style="margin-top:12px"><button class="ghost" data-open="' + esc(P.name) + '">看我的完整分析（月曆、明細）</button></div></div>';
+        return h;
       }
       function dlt(cur, prev, label) {
         var d = Math.round((cur - prev) * 10) / 10;
@@ -2231,6 +2382,7 @@ table.cmp td.hi { background: var(--yellow-soft); }
 
       // ====== 總繪製 ======
       function renderAll() {
+        renderTip(tab);
         if (tab === 'sched') renderSched();
         else if (tab === 'week') renderWeek();
         else if (tab === 'out') renderOut();
@@ -2328,8 +2480,8 @@ table.cmp td.hi { background: var(--yellow-soft); }
           title: '歡迎使用同仁班表',
           sub: ro ? '這是唯讀頁面' : '30 秒看懂怎麼用',
           body: ro
-            ? '<ol><li>可以看每個人哪天休假、假日誰留守。</li><li>左右滑動切換週。</li><li>點上方日期看當天名單。</li><li>空白格子＝還沒有休假紀錄。</li></ol>'
-            : '<ol><li><b>點一下格子</b>＝全天休假，再點一下取消（點錯可以復原）。</li><li><b>長按格子</b>＝選上午休、下午休或取消。</li><li><b>空白格子</b>＝還沒點假單。</li><li><b>左右滑動</b>＝換週；<b>點日期</b>＝看當天名單、標記假日。</li></ol>',
+            ? '<ol><li>可以看每個人哪天休假、假日誰留守。</li><li>右上角切換<b>班表／股表</b>。</li><li>左右滑動切換週，點上方日期看當天名單。</li><li>空白格子＝還沒有休假紀錄。</li><li>要修改請到「更多」輸入管理者密碼。</li></ol>'
+            : '<ol><li><b>點一下格子</b>＝全天休假，再點一下取消（點錯可以復原）。</li><li><b>長按格子</b>＝上午休、下午休、留守、監控或清除。</li><li><b>空白格子</b>＝還沒點假單。</li><li><b>左右滑動</b>＝換週；<b>點日期</b>＝看當天名單、標記假日。</li><li>右上角切換<b>班表／股表</b>，兩邊紀錄自動同步。</li></ol>',
           actions: [
             { label: '開始使用', cls: 'main', fn: function () {} },
             { label: '看完整說明', fn: goHelp }
@@ -2686,9 +2838,33 @@ table.cmp td.hi { background: var(--yellow-soft); }
         $('aNext').onclick = function () { anaMove(1); };
         $('anaPerson').addEventListener('change', function () { anaTouched = true; anaPerson = $('anaPerson').value; renderAll(); });
         $('anaBody').addEventListener('click', function (ev) {
+          var fh = ev.target.closest ? ev.target.closest('.box.fold > h3') : null;
+          if (fh) { var fb = fh.parentNode; setFold(fb, fb.classList.contains('collapsed')); savePrefs(); return; }
+          var op = ev.target.closest ? ev.target.closest('[data-open]') : null;
+          if (op) { anaPerson = op.dataset.open; renderAll(); document.querySelector('main').scrollTop = 0; return; }
           var r = ev.target.closest ? ev.target.closest('.rank-row') : null;
           if (r) { anaPerson = r.dataset.name; renderAll(); document.querySelector('main').scrollTop = 0; }
         });
+
+        $('anaBody').addEventListener('keydown', function (ev) {
+          if (ev.key !== 'Enter' && ev.key !== ' ') return;
+          var fh = ev.target.closest ? ev.target.closest('.box.fold > h3') : null;
+          if (fh) { ev.preventDefault(); var fb = fh.parentNode; setFold(fb, fb.classList.contains('collapsed')); savePrefs(); }
+        });
+        function foldAll(open) {
+          var bs = $('anaBody').querySelectorAll('.box.fold');
+          for (var i = 0; i < bs.length; i++) setFold(bs[i], open);
+          savePrefs();
+        }
+        $('foldAll').addEventListener('click', function () { foldAll(true); });
+        $('foldNone').addEventListener('click', function () { foldAll(false); });
+        document.addEventListener('click', function (ev) {
+          var tx = ev.target.closest ? ev.target.closest('[data-tipx]') : null;
+          if (!tx) return;
+          if (!prefs.tips) prefs.tips = {};
+          prefs.tips[tx.dataset.tipx] = 1; savePrefs(); renderTip(tab);
+        });
+        $('resetTips').addEventListener('click', function () { prefs.tips = {}; savePrefs(); renderTip(tab); showToast('已重新顯示各頁的小提示', null, null, 2200); });
 
         // 選單
         $('sheetMask').addEventListener('click', function (ev) {
@@ -2710,6 +2886,10 @@ table.cmp td.hi { background: var(--yellow-soft); }
         });
 
         $('groupSeg').addEventListener('click', function (ev) {
+          var b = ev.target.closest('button'); if (!b) return;
+          setGroup(b.dataset.g);
+        });
+        $('anaGroupSeg').addEventListener('click', function (ev) {
           var b = ev.target.closest('button'); if (!b) return;
           setGroup(b.dataset.g);
         });
