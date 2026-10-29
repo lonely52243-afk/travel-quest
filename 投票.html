@@ -15,11 +15,11 @@
   --muted: #5b6a7d;
   --line: #d9e0e8;
   --tint: #e8eef6;
-  --hero: #12305c;
-  --hero-fg: #ffffff;
-  --hero-mute: #b7c7e0;
-  --hero-chip: rgba(255, 255, 255, 0.14);
-  --accent: #12305c;
+  --hero: #ffffff;
+  --hero-fg: #0f1b2d;
+  --hero-mute: #5b6a7d;
+  --hero-chip: #eef2f6;
+  --accent: #2563b8;
   --on-accent: #ffffff;
   --ok: #1b7f4d;
   --err: #b8372b;
@@ -30,7 +30,7 @@
 @media (prefers-color-scheme: dark) {
   :root {
     --bg: #0a111b; --surface: #121c2a; --ink: #e8eef6; --muted: #94a4b8; --line: #233246; --tint: #192a40;
-    --hero: #173a6b; --hero-mute: #a9bddb;
+    --hero: #121c2a; --hero-fg: #e8eef6; --hero-mute: #94a4b8; --hero-chip: #192a40;
     --accent: #8db8ff; --on-accent: #08111d;
     --ok: #5cc28a; --err: #ef7b6e; --warn: #e3b14f;
     --c0: #6bb8e0; --c1: #e3b14f; --c2: #ef7b6e; --c3: #5cc28a; --c4: #b794d9; --c5: #9db0c2;
@@ -55,7 +55,7 @@ button { font: inherit; color: inherit; }
 .wrap { max-width: 520px; margin: 0 auto; display: flex; flex-direction: column; gap: 14px; }
 
 /* 日期牌 */
-.hero { background: var(--hero); color: var(--hero-fg); border-radius: 18px; padding: 18px 16px 16px; }
+.hero { background: var(--hero); color: var(--hero-fg); border: 1px solid var(--line); border-radius: 18px; padding: 18px 16px 16px; }
 .hero-unit { margin: 0 0 10px; text-align: center; font-size: 14px; font-weight: 700; letter-spacing: 0.16em; color: var(--hero-mute); }
 .datebar { display: grid; grid-template-columns: 48px 1fr 48px; align-items: center; gap: 8px; }
 .datebar > button {
@@ -63,14 +63,14 @@ button { font: inherit; color: inherit; }
   font-size: 28px; line-height: 1; cursor: pointer;
 }
 .datepick { position: relative; display: flex; align-items: baseline; justify-content: center; gap: 10px; padding: 2px 0; }
-.d-big { font-size: 46px; font-weight: 800; line-height: 1.1; letter-spacing: 0.01em; font-variant-numeric: tabular-nums; }
+.d-big { color: var(--accent); font-size: 46px; font-weight: 800; line-height: 1.1; letter-spacing: 0.01em; font-variant-numeric: tabular-nums; }
 .d-sub { font-size: 18px; font-weight: 700; color: var(--hero-mute); }
 .datepick input { position: absolute; inset: 0; width: 100%; height: 100%; opacity: 0; cursor: pointer; font-size: 16px; }
 .pill {
   display: block; width: fit-content; max-width: 100%; margin: 12px auto 0; padding: 4px 14px; border-radius: 99px;
   background: var(--hero-chip); font-size: 14px; font-weight: 700; text-align: center; font-variant-numeric: tabular-nums;
 }
-.pill[data-k="closed"] { background: #fff; color: #b8372b; }
+.pill[data-k="closed"] { background: color-mix(in srgb, var(--err) 14%, var(--surface)); color: var(--err); }
 .hero-note { margin: 10px 0 0; text-align: center; font-size: 14px; color: var(--hero-mute); overflow-wrap: anywhere; }
 
 .boot { margin: 0; padding: 12px 14px; border-radius: 12px; background: var(--tint); font-size: 15px; }
@@ -260,11 +260,16 @@ textarea { min-height: 96px; resize: vertical; line-height: 1.6; }
       <div class="field"><label for="aNote">說明（可空白）</label><input type="text" id="aNote" autocomplete="off"></div>
       <div class="field"><label for="aCutoff">每天截止時間（投票日前一天，可空白）</label><input type="time" id="aCutoff"></div>
       <div class="field"><label for="aRoster">同仁名單（可空白）</label><textarea id="aRoster" autocomplete="off"></textarea><small>貼上全名，用頓號、逗號或換行分開。填了之後，頁面會列出「尚未投票」的人，同仁點名字就能填入，輸入的名字也會幫忙核對。</small></div>
+      <div class="field"><label for="aPin2">這個單位的管理密碼</label><input type="password" id="aPin2" autocomplete="new-password" placeholder="不改請留空"><small>4～20 個字。沒設定的單位，用程式裡的 ADMIN_PIN 當密碼。</small></div>
       <label class="checkrow"><input type="checkbox" id="aShort"> 回報文字只留名字，省略姓氏</label>
       <div class="row">
         <button id="saveCfg" class="btn" type="button">儲存設定</button>
         <button id="clearBtn" class="btn danger" type="button">清空這一天的投票</button>
       </div>
+      <p class="sub">給其他單位使用</p>
+      <div class="field"><label for="uName">單位代號（中文或英文，最多 12 字）</label><input type="text" id="uName" maxlength="12" autocomplete="off" placeholder="例：通信股"><small>每個單位一個專用網址，投票和設定各自分開，試算表會自動多一組該單位的分頁。</small></div>
+      <input type="text" id="uLink" readonly aria-label="該單位的專用網址" hidden>
+      <div class="row"><button id="uCopy" class="btn" type="button" disabled>複製該單位網址</button></div>
       <p id="adminDay" class="sub"></p>
       <div id="voteList" class="vlist"></div>
     </div>
@@ -288,10 +293,15 @@ textarea { min-height: 96px; resize: vertical; line-height: 1.6; }
   var WEEK = ["日", "一", "二", "三", "四", "五", "六"];
   var POLL_MS = 20000;
 
+  var UNIT_KEY = "";
+  var KEY_RE = /^[\u4e00-\u9fffA-Za-z0-9_-]{1,12}$/;
   var $ = function (id) { return document.getElementById(id); };
   var pad = function (n) { return String(n).padStart(2, "0"); };
 
   var hasGAS = typeof google !== "undefined" && google.script && google.script.run;
+  if (!hasGAS) {
+    try { var qm = location.search.match(/[?&]u=([^&]*)/); if (qm && KEY_RE.test(decodeURIComponent(qm[1]))) UNIT_KEY = decodeURIComponent(qm[1]); } catch (e0) {}
+  }
 
   /* ---- 日期小工具（用字串計算，不受手機時區影響） ---- */
   function utcMs(ds) { var p = ds.split("-"); return Date.UTC(+p[0], +p[1] - 1, +p[2]); }
@@ -314,7 +324,7 @@ textarea { min-height: 96px; resize: vertical; line-height: 1.6; }
   /* ---- 預覽用假後端：只有在 Apps Script 以外開啟時才會用到 ---- */
   var MOCK = (function () {
     var PIN = "1234";
-    var cfg = { unit: "軍械股", options: DEFAULT_OPTIONS.slice(), note: "", cutoff: "", short: true, roster: [] };
+    var cfg = { unit: UNIT_KEY || "軍械股", options: DEFAULT_OPTIONS.slice(), note: "", cutoff: "", short: true, roster: [] };
     var today = (function () { var d = new Date(); return d.getFullYear() + "-" + pad(d.getMonth() + 1) + "-" + pad(d.getDate()); })();
     var byDate = {};
     function splitNames(s) { return String(s || "").split(/[、,，;；\s]+/).filter(Boolean); }
@@ -335,14 +345,14 @@ textarea { min-height: 96px; resize: vertical; line-height: 1.6; }
       return { closed: closed, reason: closed ? "cutoff" : "", closeAt: closeAt };
     }
     return {
-      getState: function (date) {
+      getState: function (key, date) {
         if (!DATE_RE.test(date || "")) date = addDays(today, 1);
         var c = closeInfo(date);
         var votes = (byDate[date] || []).filter(function (v) { return cfg.options.indexOf(v.status) >= 0; });
-        return { date: date, today: today, votes: votes, cfg: JSON.parse(JSON.stringify(cfg)),
+        return { date: date, today: today, base: location.href.split("?")[0], votes: votes, cfg: JSON.parse(JSON.stringify(cfg)),
           closed: c.closed, reason: c.reason, closeAt: c.closeAt, now: Date.now() };
       },
-      submitVote: function (date, name, status) {
+      submitVote: function (key, date, name, status) {
         name = String(name || "").replace(/[\s　]+/g, "");
         if (!DATE_RE.test(date || "")) return { ok: false, msg: "日期不正確" };
         if (!NAME_RE.test(name)) return { ok: false, msg: "請輸入中文全名（至少兩個字）" };
@@ -356,8 +366,8 @@ textarea { min-height: 96px; resize: vertical; line-height: 1.6; }
         list.push({ name: name, status: status, t: Date.now() });
         return { ok: true };
       },
-      adminCheck: function (pin) { return pin === PIN; },
-      adminSave: function (pin, c) {
+      adminCheck: function (key, pin) { return pin === PIN; },
+      adminSave: function (key, pin, c) {
         if (pin !== PIN) return { ok: false, msg: "密碼錯誤" };
         var unit = String(c.unit || "").trim();
         if (!unit || unit.length > 20) return { ok: false, msg: "單位名稱請填 1～20 個字" };
@@ -366,15 +376,18 @@ textarea { min-height: 96px; resize: vertical; line-height: 1.6; }
         var names = splitNames(c.roster), seen = {}, ok = [], bad = [];
         names.forEach(function (n) { if (seen[n]) return; seen[n] = 1; (NAME_RE.test(n) ? ok : bad).push(n); });
         if (bad.length) return { ok: false, msg: "這些名字不是中文全名：" + bad.slice(0, 3).join("、") + (bad.length > 3 ? " 等" : "") };
+        if (c.pin && !/^\S{4,20}$/.test(c.pin)) return { ok: false, msg: "管理密碼請填 4～20 個字，不能有空白" };
+        if (c.pin) PIN = c.pin;
         cfg = { unit: unit, options: o, note: c.note || "", cutoff: c.cutoff || "", short: !!c.short, roster: ok };
         return { ok: true };
       },
-      adminDelete: function (pin, date, name) { if (pin !== PIN) return { ok: false, msg: "密碼錯誤" }; byDate[date] = (byDate[date] || []).filter(function (v) { return v.name !== name; }); return { ok: true }; },
-      adminClear: function (pin, date) { if (pin !== PIN) return { ok: false, msg: "密碼錯誤" }; byDate[date] = []; return { ok: true }; }
+      adminDelete: function (key, pin, date, name) { if (pin !== PIN) return { ok: false, msg: "密碼錯誤" }; byDate[date] = (byDate[date] || []).filter(function (v) { return v.name !== name; }); return { ok: true }; },
+      adminClear: function (key, pin, date) { if (pin !== PIN) return { ok: false, msg: "密碼錯誤" }; byDate[date] = []; return { ok: true }; }
     };
   })();
 
   function call(fn, args) {
+    args = [UNIT_KEY].concat(args);
     return new Promise(function (resolve, reject) {
       if (hasGAS) {
         var r = google.script.run.withSuccessHandler(resolve).withFailureHandler(function (e) { reject(e); });
@@ -387,13 +400,13 @@ textarea { min-height: 96px; resize: vertical; line-height: 1.6; }
     });
   }
 
-  var S = { date: "", today: "", votes: [], cfg: { unit: "", options: DEFAULT_OPTIONS.slice(), note: "", cutoff: "", short: true, roster: [] }, closed: false, reason: "", closeAt: null, now: Date.now() };
+  var S = { date: "", today: "", votes: [], cfg: { unit: "", options: DEFAULT_OPTIONS.slice(), note: "", cutoff: "", short: true, roster: [] }, closed: false, reason: "", closeAt: null, base: "", now: Date.now() };
   var OPTS = DEFAULT_OPTIONS.slice();
   var ROSTER_KEY = "";
   var curDate = "", fetchedAt = 0;
   var skew = 0, loading = false, again = false, loaded = false;
   var pick = "", busy = false, sticky = "", stickyK = "", confirmClear = false, clearTimer = 0, toastTimer = 0;
-  var pin = "", adminOpen = false;
+  var pin = "", adminOpen = false, adminDirty = false;
 
   function nowMs() { return Date.now() + skew; }
   function isClosed() { return S.reason === "past" || (!!S.closeAt && nowMs() > S.closeAt); }
@@ -655,9 +668,7 @@ textarea { min-height: 96px; resize: vertical; line-height: 1.6; }
     if (adminOpen) renderAdminList();
   }
   function syncAdmin() {
-    var ids = ["aUnit", "aOptions", "aNote", "aCutoff", "aRoster"];
-    var ae = document.activeElement;
-    if (ae && ids.indexOf(ae.id) >= 0) return;
+    if (adminDirty) return;
     $("aUnit").value = S.cfg.unit || "";
     $("aOptions").value = (S.cfg.options || []).join("、");
     $("aNote").value = S.cfg.note || "";
@@ -757,7 +768,7 @@ textarea { min-height: 96px; resize: vertical; line-height: 1.6; }
   });
   $("copy").addEventListener("click", function () {
     var text = buildReport();
-    function done() { copyMsg("", ""); toast("已複製，可以直接貼到 LINE"); }
+    function done() { copyMsg("", ""); toast("已複製，可以直接貼到 Juiker 聊天室"); }
     function fallback() {
       var r = document.createRange();
       r.selectNodeContents($("report"));
@@ -795,12 +806,36 @@ textarea { min-height: 96px; resize: vertical; line-height: 1.6; }
       }
     }).catch(function () { adminMsg("連線失敗，請再試一次。", "err"); });
   });
+  function unitLink() {
+    var k = $("uName").value.replace(/\s+/g, "");
+    if (!KEY_RE.test(k)) return "";
+    var base = S.base || location.href.split("?")[0];
+    return base + "?u=" + encodeURIComponent(k);
+  }
+  $("uName").addEventListener("input", function () {
+    var l = unitLink(), box = $("uLink");
+    box.value = l; box.hidden = !l;
+    $("uCopy").disabled = !l;
+    adminMsg($("uName").value && !l ? "單位代號只能是中文、英文、數字，最多 12 字。" : "", "err");
+  });
+  $("uCopy").addEventListener("click", function () {
+    var l = unitLink();
+    if (!l) return;
+    function ok() { toast("已複製該單位的網址"); }
+    function fb() { var b = $("uLink"); b.hidden = false; b.focus(); b.select(); adminMsg("請長按網址後選「拷貝」。", ""); }
+    if (navigator.clipboard && navigator.clipboard.writeText) navigator.clipboard.writeText(l).then(ok, fb); else fb();
+  });
+  ["aUnit", "aOptions", "aNote", "aCutoff", "aRoster", "aShort"].forEach(function (id) {
+    $(id).addEventListener("input", function () { adminDirty = true; });
+    $(id).addEventListener("change", function () { adminDirty = true; });
+  });
   $("aPin").addEventListener("keydown", function (e) { if (e.key === "Enter") { e.preventDefault(); $("unlock").click(); } });
   $("saveCfg").addEventListener("click", function () {
     call("adminSave", [pin, {
       unit: $("aUnit").value.trim(), options: $("aOptions").value.trim(), note: $("aNote").value.trim(),
-      cutoff: $("aCutoff").value, roster: $("aRoster").value, short: $("aShort").checked
+      cutoff: $("aCutoff").value, roster: $("aRoster").value, short: $("aShort").checked, pin: $("aPin2").value
     }]).then(function (r) {
+      if (r && r.ok) { adminDirty = false; if ($("aPin2").value) { pin = $("aPin2").value; $("aPin2").value = ""; } }
       adminMsg(r && r.ok ? "已儲存。" : (r && r.msg) || "儲存失敗。", r && r.ok ? "ok" : "err");
       return refresh();
     }).catch(function () { adminMsg("儲存失敗，請再試一次。", "err"); });
