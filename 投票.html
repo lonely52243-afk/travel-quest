@@ -1000,7 +1000,8 @@ body.nounit .card:not(.keep), body.nounit #share, body.nounit .links, body.nouni
     var url = shareUrl(curDate, UNIT_KEY);
     var text = "【" + (S.cfg.unit || "") + "人員情況投票】請點連結，輸入全名投票";
     if (navigator.share) {
-      navigator.share({ title: (S.cfg.unit || "") + "人員情況投票", text: text, url: url }).catch(function () {});
+      /* 網址放在文字裡，不用 url 欄位，這樣貼出去的網址會維持「投票.html」，不會變成一串 %E6%8A%95... */
+      navigator.share({ title: (S.cfg.unit || "") + "人員情況投票", text: text + "\n" + url }).catch(function () {});
     } else {
       copyText(text + "\n" + url, "已複製分享連結，可以貼到 Juiker", function () { toast("無法自動複製，請手動複製網址", "err"); });
     }
