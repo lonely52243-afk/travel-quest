@@ -1673,6 +1673,19 @@ td.cell.hint { opacity: .36; }
         qkAll().forEach(function (e) { s = s.split(e.name).join(' '); var g = e.name.slice(1); if (g.length >= 2) s = s.split(g).join(' '); });
         return s.replace(/[、，,。.:：;；()（）\s\-－]/g, '');
       }
+      function qkTime(b) {
+        function hm(t) { var m = String(t).match(/^(\d{1,2})[:：]?(\d{2})$/); if (!m || +m[1] > 23 || +m[2] > 59) return ''; return pad(+m[1]) + ':' + m[2]; }
+        function fromStr(str) {
+          var toks = str.match(/\d{1,2}[:：]\d{2}|\d{4}/g) || [], v = toks.map(hm).filter(Boolean);
+          if (!v.length) return '';
+          return v.length > 1 ? v[0] + '–' + v[v.length - 1] : v[0];
+        }
+        var m = b.match(/(?:使用時間|集合時間|時間)\s*[:：]([^\n]*)/);
+        if (m) { var t = fromStr(m[1]); if (t) return t; if (/整天|全天/.test(m[1])) return '整天'; if (/上午/.test(m[1])) return '上午'; if (/下午/.test(m[1])) return '下午'; }
+        var r = b.match(/(?:^|[^\d])(\d{4})\s*[-~～至]\s*(\d{4})(?!\d)/);
+        if (r) { var a = hm(r[1]), c = hm(r[2]); if (a && c) return a + '–' + c; }
+        return '';
+      }
       function qkWhy(b) {
         var m = b.match(/(?:目的|事由|內容|任務)\s*[:：]\s*([^\n]{2,14})/);
         if (m) { var t = m[1].replace(/[\s（(].*$/, ''); if (t.length >= 2) return t.slice(0, 10); }
@@ -1692,7 +1705,8 @@ td.cell.hint { opacity: .36; }
           return {
             dates: ds.map(function (k) { return { k: k, on: true }; }),
             people: qkNames(b).map(function (n) { return { n: n, on: true }; }),
-            why: qkWhy(b)
+            why: qkWhy(b),
+            time: qkTime(b)
           };
         }).filter(function (e) { return e.people.length; });
       }
@@ -1709,7 +1723,11 @@ td.cell.hint { opacity: .36; }
         var h = '';
         qkEv.forEach(function (e, i) {
           h += '<div class="qkcard"><div class="qkh">事項 ' + (i + 1) + '</div>';
-          h += '<label class="qkl">事由（外勤）<input type="text" class="qkwhy" data-e="' + i + '" maxlength="10" value="' + esc(e.why) + '" placeholder="例：打靶"></label>';
+          h += '<label class="qkl">事由<input type="text" class="qkwhy" data-e="' + i + '" maxlength="10" value="' + esc(e.why) + '" placeholder="例：打靶"></label>';
+          h += '<label class="qkl">時間（可不填）<input type="text" class="qktime" data-e="' + i + '" maxlength="20" value="' + esc(e.time || '') + '" placeholder="例：14:00 或 08:00–17:00"></label>';
+          h += '<div class="qkchips" style="margin-top:6px">';
+          ['整天', '上午', '下午'].forEach(function (t) { h += '<button class="qkchip tp' + (e.time === t ? ' on' : '') + '" data-e="' + i + '" data-t="' + t + '">' + t + '</button>'; });
+          h += '<span class="muted" style="font-size:12px">或自己填時間</span></div>';
           h += '<div class="qkh">日期（點一下可取消）</div><div class="qkchips">';
           e.dates.forEach(function (d, j) { h += '<button class="qkchip dt' + (d.on ? ' on' : '') + '" data-e="' + i + '" data-d="' + j + '">' + mdLabel(d.k) + '（' + wkOf(d.k) + '）</button>'; });
           h += '<input type="date" class="qkadd" data-e="' + i + '" aria-label="加日期"></div>';
@@ -1735,7 +1753,7 @@ td.cell.hint { opacity: .36; }
           if (!why) { showToast('事項 ' + (i + 1) + ' 要填事由（例：打靶）', null, null, 2800); return; }
           ds.forEach(function (d) { ps.forEach(function (p) {
             var id = d.k + '|' + p.n + '|' + why; if (seen[id]) return; seen[id] = 1;
-            arr.push({ date: d.k, name: p.n, why: why });
+            arr.push({ date: d.k, name: p.n, why: why, time: (e.time || '').trim() });
           }); });
         }
         if (!arr.length) { showToast('沒有選到要加的', null, null, 2600); return; }
@@ -1744,7 +1762,8 @@ td.cell.hint { opacity: .36; }
           if (!res || !res.ok) { showToast((res && res.msg) || '新增失敗', null, null, 3200); $('qkGo').disabled = false; return; }
           arr.forEach(function (it) {
             var l = dutyAll[it.date] = dutyAll[it.date] || [];
-            if (!l.some(function (x) { return x.n === it.name && x.why === it.why; })) l.push({ n: it.name, why: it.why });
+            var ex = l.filter(function (x) { return x.n === it.name && x.why === it.why; })[0];
+            if (ex) { if (it.time) ex.time = it.time; } else l.push({ n: it.name, why: it.why, time: it.time });
           });
           $('quickPage').classList.remove('show'); renderDutyMon();
           showToast('已加入公差勤務 ' + res.added + ' 筆' + (res.added < arr.length ? '（' + (arr.length - res.added) + ' 筆本來就有）' : ''), null, null, 3000);
@@ -1754,7 +1773,7 @@ td.cell.hint { opacity: .36; }
       function dutyEditor() { return !!prefs.dutyPw && !forcedRO; }
       function dutyEmps() { var g = stockGroup(); return g ? (g.employees || []) : []; }
       function dutyDayOf(k) {
-        var day = recordsPub[k] || {}, o = { rest: [], stay: [], mon: [], out: {}, duty: {}, nDuty: 0 };
+        var day = recordsPub[k] || {}, o = { rest: [], stay: [], mon: [], out: {}, duty: {}, dutyT: {}, nDuty: 0 };
         dutyEmps().forEach(function (e) {
           var r = day[e.name]; if (!r) return;
           if (r.period === '留守') o.stay.push(e.name);
@@ -1762,7 +1781,7 @@ td.cell.hint { opacity: .36; }
           else if (r.period === '外勤') (o.out[r.type || '外勤'] = o.out[r.type || '外勤'] || []).push(e.name);
           else o.rest.push(e.name + (r.period === '全天' ? '' : '（' + r.period + '）'));
         });
-        (dutyAll[k] || []).forEach(function (x) { (o.duty[x.why] = o.duty[x.why] || []).push(x.n); o.nDuty++; });
+        (dutyAll[k] || []).forEach(function (x) { (o.duty[x.why] = o.duty[x.why] || []).push(x.n); if (x.time) o.dutyT[x.why] = x.time; o.nDuty++; });
         return o;
       }
       function renderDutyMon() {
@@ -1798,7 +1817,7 @@ td.cell.hint { opacity: .36; }
         var o = dutyDayOf(k), info = dayInfo(k), body = '', acts = [];
         function sec(title, arr, cls) { if (arr.length) body += '<div class="dsec ' + cls + '"><b>' + title + '（' + arr.length + '）</b><div>' + esc(arr.join('、')) + '</div></div>'; }
         Object.keys(o.duty).forEach(function (w) {
-          sec('公差：' + w, o.duty[w], 'duty');
+          sec('公差：' + w + (o.dutyT[w] ? '　' + o.dutyT[w] : ''), o.duty[w], 'duty');
           if (dutyEditor()) acts.push({ label: '刪除「' + w + '」', fn: function () { dutyRemove(k, w, o.duty[w].slice()); } });
         });
         sec('休假', o.rest, 'rest'); sec('留守', o.stay, 'stay'); sec('監控', o.mon, 'mon');
@@ -1813,7 +1832,7 @@ td.cell.hint { opacity: .36; }
         apiCall({ action: 'getDuty', year: y, month: m }).then(function (res) {
           if (!res || !res.ok) return;
           Object.keys(dutyAll).forEach(function (k) { if (k.indexOf(pre) === 0) delete dutyAll[k]; });
-          (res.items || []).forEach(function (it) { (dutyAll[it.date] = dutyAll[it.date] || []).push({ n: it.name, why: it.why }); });
+          (res.items || []).forEach(function (it) { (dutyAll[it.date] = dutyAll[it.date] || []).push({ n: it.name, why: it.why, time: it.time || '' }); });
           renderDutyMon();
         }).catch(function () { /* 忽略 */ });
       }
@@ -1887,10 +1906,11 @@ td.cell.hint { opacity: .36; }
         $('qkList').addEventListener('click', function (ev) {
           var b = ev.target.closest('.qkchip'); if (!b || b.classList.contains('no')) return;
           var e = qkEv[+b.dataset.e]; if (!e) return;
+          if (b.dataset.t) { e.time = e.time === b.dataset.t ? '' : b.dataset.t; qkRender(); return; }
           if (b.dataset.d !== undefined) e.dates[+b.dataset.d].on = !e.dates[+b.dataset.d].on; else e.people[+b.dataset.p].on = !e.people[+b.dataset.p].on;
           qkRender();
         });
-        $('qkList').addEventListener('input', function (ev) { var t = ev.target; if (t.classList.contains('qkwhy')) qkEv[+t.dataset.e].why = t.value; });
+        $('qkList').addEventListener('input', function (ev) { var t = ev.target; if (t.classList.contains('qkwhy')) qkEv[+t.dataset.e].why = t.value; if (t.classList.contains('qktime')) qkEv[+t.dataset.e].time = t.value; });
         $('qkList').addEventListener('change', function (ev) {
           var t = ev.target; if (!t.classList.contains('qkadd') || !t.value) return;
           var e = qkEv[+t.dataset.e]; if (!e.dates.some(function (x) { return x.k === t.value; })) { e.dates.push({ k: t.value, on: true }); e.dates.sort(function (a, b) { return a.k < b.k ? -1 : 1; }); }
