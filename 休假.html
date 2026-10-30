@@ -988,6 +988,18 @@ body.guest .editbtn, body.guest #floatBar #editBtnF, body.guest #dutyPlan { disp
 .mmore { border: 1.5px dashed var(--stay); background: none; color: var(--offtext); font-weight: 800; font-size: 14px; padding: 4px 12px; border-radius: 10px; cursor: pointer; }
 td.cell.hint { opacity: .36; }
 
+/* ===== 分析頁精簡 ===== */
+.msum2 { display: flex; gap: 14px; align-items: baseline; padding: 2px 4px 10px; font-size: 14px; color: var(--muted); }
+.msum2 b { font-size: 20px; color: var(--text); }
+.tbox { padding: 6px 10px 10px; }
+.ptable td { padding: 8px 4px; font-size: 16px; }
+.ptable th { padding: 8px 4px; font-size: 13px; cursor: pointer; }
+.ptable th.sorted { color: var(--text); }
+.ptable tfoot td { border-top: 2px solid var(--ink); border-bottom: none; background: var(--card2); font-weight: 800; padding: 9px 4px; }
+.ptable tfoot td.z { color: var(--line-strong); }
+.people { padding-bottom: 6px; }
+.people button { min-height: 36px; padding: 0 13px; font-size: 15px; }
+
   </style>
 </head>
 <body>
@@ -1450,7 +1462,7 @@ td.cell.hint { opacity: .36; }
       var ignoreClick = false;
       var toastTimer = null;
       var cacheTimer = null;
-      var prefs = { theme: 'light', view: 'week', me: '', pw: '', group: '', seen: false, gHint: false, briefOpen: false, away: [], tips: {}, show: {}, full: false, role: '', ign: {},
+      var prefs = { theme: 'light', view: 'week', me: '', pw: '', group: '', seen: false, chosen: false, gHint: false, briefOpen: false, away: [], tips: {}, show: {}, full: false, role: '', ign: {},
         ot: { sup: '', from: '1800', to: '1900', why: '', rec: [], short: true, when: '夜間' } };
       var editing = false, editT = null;
       var daysFrom = todayKey(), daysCount = 21, daysBusy = false;
@@ -2886,7 +2898,9 @@ td.cell.hint { opacity: .36; }
           var ix = otPpl.indexOf(e.name);
           return '<button data-n="' + esc(e.name) + '"' + (ix >= 0 ? ' class="on"' : '') + '>' + (ix >= 0 ? '<em>' + (ix + 1) + '</em>' : '') + esc(e.name) + tag(e.name) + '</button>';
         }).join('');
-        $('otWhyRec').innerHTML = (o.rec || []).map(function (r) { return '<button data-why="' + esc(r) + '">' + esc(r) + '</button>'; }).join('');
+        var WHY_PRE = ['彈射座椅趕修作業', '派龍趕修作業', '發射架趕修作業', '炸彈架趕修作業'];
+        var whyAll = WHY_PRE.concat((o.rec || []).filter(function (x) { return WHY_PRE.indexOf(x) < 0; }));
+        $('otWhyRec').innerHTML = whyAll.map(function (r) { return '<button data-why="' + esc(r) + '"' + (r === o.why ? ' class="on"' : '') + '>' + esc(r) + '</button>'; }).join('');
         $('otShort').checked = !!o.short;
         $('outText').value = otText();
         $('outHint').textContent = '已選 ' + otPpl.length + ' 人・標「休」的人那天有請假・文字框可直接修改';
@@ -2994,19 +3008,32 @@ td.cell.hint { opacity: .36; }
       }
 
       function monthSummary(A, keys) {
-        return '<div class="msum"><div><b>' + keys.length + '</b>本月天數</div><div><b>' + A.wdays + '</b>平日（上班日）</div><div><b>' + (keys.length - A.wdays) + '</b>假日</div></div>';
+        return '<div class="msum2"><span><b>' + keys.length + '</b> 天</span><span>上班日 <b>' + A.wdays + '</b></span><span>假日 <b>' + (keys.length - A.wdays) + '</b></span></div>';
       }
       function zcell(v) { return '<td' + (v ? '' : ' class="z"') + '>' + (v ? fmtNum(v) : '–') + '</td>'; }
 
+      var anaSort = { k: '', d: 0 };
+      var ANA_COLS = [['days', '平日休'], ['att', '到班'], ['away', '外勤'], ['rest', '假日休'], ['stayN', '留守'], ['monN', '監控']];
       function renderTeam(A, keys) {
         var h = yearNoteHtml(keys) + monthSummary(A, keys);
-        h += '<div class="box"><h3>每人一覽<small>點名字看月曆</small></h3><div class="tscroll"><table class="ptable"><thead><tr>' +
-          '<th>姓名</th><th>平日休</th><th>到班</th><th>外勤</th><th>假日休</th><th>留守</th><th>監控</th></tr></thead><tbody>';
-        A.per.forEach(function (p) {
-          h += '<tr data-name="' + esc(p.name) + '"><td class="nm' + meCls(p.name) + '">' + esc(p.name) + '</td>' + zcell(p.days) +
-            '<td>' + fmtNum(p.att) + '</td>' + zcell(p.away) + zcell(p.rest) + zcell(p.stayN) + zcell(p.monN) + '</tr>';
+        var cols = ANA_COLS.filter(function (c) { return c[0] === 'att' || c[0] === 'days' || A.per.some(function (p) { return p[c[0]]; }); });
+        var rows = A.per.slice();
+        if (anaSort.k && anaSort.d) rows.sort(function (x, y) { return anaSort.d * (y[anaSort.k] - x[anaSort.k]); });
+        h += '<div class="box tbox"><div class="tscroll"><table class="ptable"><thead><tr><th>姓名</th>' + cols.map(function (c) {
+          var on = anaSort.k === c[0] && anaSort.d;
+          return '<th data-sort="' + c[0] + '"' + (on ? ' class="sorted"' : '') + '>' + c[1] + (on ? (anaSort.d > 0 ? ' ▾' : ' ▴') : '') + '</th>';
+        }).join('') + '</tr></thead><tbody>';
+        rows.forEach(function (p) {
+          h += '<tr data-name="' + esc(p.name) + '"><td class="nm' + meCls(p.name) + '">' + esc(p.name) + '</td>' + cols.map(function (c) {
+            return c[0] === 'att' ? '<td>' + fmtNum(p.att) + '</td>' : zcell(p[c[0]]);
+          }).join('') + '</tr>';
         });
-        h += '</tbody></table></div><div class="hint">平日休：全天算 1、半天算 0.5。到班＝本月上班日 − 平日休 − 外勤（救災、出差、受訓等）。假日休＝假日有標「休」的天數。</div></div>';
+        h += '</tbody><tfoot><tr><td class="nm">合計</td>' + cols.map(function (c) {
+          if (c[0] === 'att') return '<td class="z">–</td>';
+          var s = 0; A.per.forEach(function (p) { s += p[c[0]] || 0; });
+          return '<td>' + (s ? fmtNum(s) : '–') + '</td>';
+        }).join('') + '</tr></tfoot></table></div>' +
+          '<div class="hint">點標題可以排序，點名字看個人月曆。平日休：全天 1、半天 0.5。到班＝上班日 − 平日休 − 外勤。假日休＝假日有標「休」的天數。沒有人的欄位（例如外勤、監控）會自動收起。</div></div>';
         $('anaBody').innerHTML = h;
       }
 
@@ -3619,6 +3646,12 @@ td.cell.hint { opacity: .36; }
           anaPerson = b.dataset.p || ''; renderAll();
         });
         $('anaBody').addEventListener('click', function (ev) {
+          var sth = ev.target.closest ? ev.target.closest('th[data-sort]') : null;
+          if (sth) {
+            var kk = sth.dataset.sort;
+            if (anaSort.k !== kk) { anaSort.k = kk; anaSort.d = 1; } else if (anaSort.d === 1) anaSort.d = -1; else { anaSort.k = ''; anaSort.d = 0; }
+            renderAna(); return;
+          }
           var r = ev.target.closest ? ev.target.closest('tr[data-name]') : null;
           if (r) { anaPerson = r.dataset.name; renderAll(); document.querySelector('main').scrollTop = 0; }
         });
