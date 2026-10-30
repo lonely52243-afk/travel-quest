@@ -946,6 +946,34 @@ body.hb .floatbar { display: flex; }
 .floatbar .eic { margin: 0; }
 body:not(.ht) .floatbar #editBtnF { display: none; }
 
+/* ===== 對方記的：等我確認 ===== */
+td.cell.unc { position: relative; }
+td.cell.unc::after { content: ''; position: absolute; top: 3px; right: 3px; width: 10px; height: 10px; border-radius: 50%; background: #F5A000; border: 2px solid #fff; box-shadow: 0 0 0 1px rgba(30,42,74,.35); }
+.cmp.pend { display: flex; align-items: center; gap: 10px; padding: 10px 12px; }
+.cmp.pend .cmpt { flex: 1; font-size: 15px; }
+.cmp.pend .ghost { min-height: 40px; padding: 0 14px; white-space: nowrap; }
+
+/* ===== 先選身分 ===== */
+#idGate { display: none; position: fixed; inset: 0; z-index: 9999; background: var(--bg); background-image: linear-gradient(var(--grid) 1px, transparent 1px), linear-gradient(90deg, var(--grid) 1px, transparent 1px); background-size: 28px 28px; overflow-y: auto; padding: calc(24px + env(safe-area-inset-top)) 18px calc(24px + env(safe-area-inset-bottom)); }
+#idGate.show { display: flex; align-items: center; justify-content: center; }
+.idbox { width: 100%; max-width: 420px; }
+.idtitle { font-size: 28px; font-weight: 900; color: var(--text); text-align: center; letter-spacing: 2px; }
+.idsub { text-align: center; color: var(--muted); margin: 6px 0 18px; font-size: 15px; }
+.idbtn { display: flex; flex-direction: column; align-items: flex-start; gap: 2px; width: 100%; margin-bottom: 12px; padding: 14px 18px; min-height: 72px; background: var(--card); border: 2px solid var(--ink); border-radius: 18px; box-shadow: var(--shadow); color: var(--text); cursor: pointer; text-align: left; }
+.idbtn:active { transform: translateY(2px); box-shadow: 0 1px 0 var(--ink); }
+.idbtn b { font-size: 22px; letter-spacing: 3px; }
+.idbtn span { font-size: 14px; color: var(--muted); }
+.idbtn[data-id="ban"] { border-left: 10px solid var(--full); }
+.idbtn[data-id="gu"] { border-left: 10px solid var(--yellow); }
+.idpw { margin-top: 6px; padding: 14px; background: var(--card); border: 1px solid var(--edge2); border-radius: 16px; box-shadow: var(--soft); }
+.idpw[hidden] { display: none; }
+.idfor { font-weight: 800; margin-bottom: 8px; }
+.idpw input { width: 100%; min-height: 48px; font-size: 20px; text-align: center; letter-spacing: 6px; }
+.idmsg { min-height: 22px; margin: 6px 0; color: var(--red); font-size: 14px; font-weight: 700; }
+body.guest .editbtn, body.guest #floatBar #editBtnF, body.guest #dutyPlan { display: none !important; }
+.cmpsec { display: flex; align-items: center; justify-content: space-between; gap: 8px; flex-wrap: wrap; }
+.cmpbulk { min-height: 38px; padding: 0 12px; font-size: 14px; }
+
   </style>
 </head>
 <body>
@@ -1105,8 +1133,10 @@ body:not(.ht) .floatbar #editBtnF { display: none; }
     <!-- ===== 更多 ===== -->
     <section class="page" id="page-more" aria-label="更多">
       <details class="box fold" id="adminBox" open>
-        <summary>管理者（編輯鎖）</summary>
-        <div id="adminLocked">
+        <summary>身分與編輯鎖</summary>
+        <p class="hint" id="idNow" style="margin:0 0 10px"></p>
+        <div class="btnrow" style="margin-bottom:12px"><button class="ghost" id="swId">換身分</button></div>
+        <div id="adminLocked" style="display:none">
           <p class="hint" style="margin:0 0 10px">目前只能查看。輸入管理者密碼後，才能新增或修改休假紀錄。</p>
           <div class="pwrow"><input type="password" id="pwInput" inputmode="numeric" autocomplete="off" placeholder="管理者密碼" aria-label="管理者密碼"><button class="primary small" id="pwBtn">登入</button></div>
         </div>
@@ -1114,7 +1144,7 @@ body:not(.ht) .floatbar #editBtnF { display: none; }
           <p class="hint" id="adminDesc" style="margin:0 0 10px"></p>
           <div class="btnrow">
             <button class="primary small" id="editToggle"></button>
-            <button class="ghost" id="pwOut">登出管理者</button>
+            <button class="ghost" id="pwOut">改回一般</button>
           </div>
         </div>
       </details>
@@ -1165,7 +1195,7 @@ body:not(.ht) .floatbar #editBtnF { display: none; }
             <summary>快速上手</summary>
             <div class="dbody2">
               <ol>
-                <li>最下面有<b>班表</b>和<b>股表</b>兩個分頁，首頁和分析是全部人一起看。兩邊的休假紀錄是同一份。</li>
+                <li>一開始先選身分：<b>一般</b>只能看（股表）；<b>班長</b>記班表；<b>股總</b>記股表。要換身分到「更多」按「換身分」。</li>
                 <li><b>首頁</b>：最上面是<b>當週留守</b>（即將到來的假日，連假整段都算），按「複製留守」就能貼到 Juiker；按「排留守」可以一次幫好幾個人排。下面是每天的情況，往下滑看更多天。</li>
                 <li><b>班表</b>：每個人每天一格，空白＝還沒點假單，用來記休假。最上面一行是假日的留守和未點，點一下展開細節；顏色看不懂就按右上的「ⓘ」。</li>
                 <li><b>產出</b>：複製「假日留守」「人員情況」「加班」的文字，貼到 Juiker 群組。</li>
@@ -1186,14 +1216,14 @@ body:not(.ht) .floatbar #editBtnF { display: none; }
             </div>
           </details>
           <details>
-            <summary>班長、股總怎麼分工和核對</summary>
+            <summary>三種身分怎麼分工</summary>
             <div class="dbody2">
               <ul>
-                <li><b>班長</b>（密碼 5566）、<b>股總</b>（密碼 0127）。股總接手後，班長只能記「班表」那幾位同仁，股總班表和股表全部都能記。登入後編輯列會顯示你是誰。</li>
-                <li><b>股總還沒接手時</b>，班長可以記全部人，也不做比對。等股總接手，後端設定好開始日期，從那天起班表的人由班長、股總<b>各記一份</b>。兩邊不一樣時，首頁最上面會出現紅色的<b>「異常比對」</b>。</li>
-                <li>點開比對卡片，每一筆可以選<b>「改成跟對方一樣」</b>（只會改你自己那份），或<b>「我的才對・先略過」</b>。</li>
-                <li>「等對方補記」是指對方還沒記、日子也還沒到，不算錯誤。</li>
-                <li>班表右上「顯示」勾選<b>「核對標記」</b>，不一樣的格子會出現橘色 <b>!</b>。</li>
+                <li><b>一般</b>：不用密碼，只能查看，看到的是股總那份。</li>
+                <li><b>班長</b>（密碼 5566）：只看班表 9 人，只能記自己那份，沒有股表。</li>
+                <li><b>股總</b>（密碼 0127）：看股表全部同仁，記自己那份，沒有班表分頁。</li>
+                <li>從 11/1 起，班表那 9 位由班長、股總<b>各記一份</b>。兩份不一樣時，首頁上方會出現提示，各自修正自己那份就好。</li>
+                <li>股總還沒記的日子，一般人先看到班長記的；股總記了就以股總為準。</li>
                 <li>「更多」裡有<b>修改紀錄</b>，可以查是誰、什麼時候、把哪一格改成什麼。</li>
               </ul>
             </div>
@@ -1217,7 +1247,7 @@ body:not(.ht) .floatbar #editBtnF { display: none; }
               <ul>
                 <li><b>排留守</b>：選哪幾天、選留守／監控／休假／救災／出差／受訓，再點人員，按「套用」一次完成。已經排好的人會先打勾，取消勾選就是取消那筆。</li>
                 <li><b>首頁每日卡片</b>：假日只列留守；「未點」收成一個按鈕，點開看名單。</li>
-                <li><b>產出</b>固定用「股表」全部人員。選「假日留守」＋「本週」就是這週誰留守。</li>
+                <li><b>產出</b>：班長用班表 9 人，股總用股表全部人員。選「假日留守」＋「本週」就是這週誰留守。</li>
                 <li><b>加班</b>：選日期、督導、時間、事由、點人員，文字會自動排好，按「複製文字」貼出去。事由會記住最近用過的。</li>
               </ul>
               <div class="kbd" style="white-space:pre-line;font-weight:600;line-height:1.7">今日(10／29)夜間加班人員：
@@ -1274,6 +1304,22 @@ body:not(.ht) .floatbar #editBtnF { display: none; }
 
     <footer id="foot">吱吱製作</footer>
   </main>
+
+  <div id="idGate" role="dialog" aria-modal="true" aria-label="選擇身分">
+    <div class="idbox">
+      <div class="idtitle">你是哪一位？</div>
+      <div class="idsub">選一次就好，之後會記住。</div>
+      <button class="idbtn" data-id="guest"><b>一般</b><span>只能查看</span></button>
+      <button class="idbtn" data-id="ban"><b>班長</b><span>記班表（9 人）</span></button>
+      <button class="idbtn" data-id="gu"><b>股總</b><span>記股表（全部同仁）</span></button>
+      <div class="idpw" id="idPw" hidden>
+        <div class="idfor" id="idPwFor"></div>
+        <input type="password" id="idPwInput" inputmode="numeric" autocomplete="off" placeholder="密碼" aria-label="密碼">
+        <div class="idmsg" id="idMsg" role="alert"></div>
+        <div class="btnrow"><button class="ghost" id="idBack">返回</button><button class="primary" id="idOk">進入</button></div>
+      </div>
+    </div>
+  </div>
 
   <nav class="tabbar" aria-label="主選單">
     <button data-t="days" class="on" aria-label="首頁"><span class="icw"><span class="ic week"></span></span>首頁</button>
@@ -1408,13 +1454,15 @@ body:not(.ht) .floatbar #editBtnF { display: none; }
 
       // ====== 名冊分組（彈射／股…） ======
       var empAll = [], schedGroup = 'ban';
-      function useEmps() {
+      function myId() { return myRole() === '班長' ? 'ban' : (myRole() === '股總' ? 'gu' : 'guest'); }
+      function idGroup() {
         var g = null;
-        if (tab === 'sched' && groups.length > 1) {
-          if (schedGroup === 'gu') g = outGroupObj();
-          else groups.forEach(function (x) { if (x.name === (cfg.banGroup || '班表')) g = x; });
-          if (!g && schedGroup === 'ban') g = groups[0];
-        }
+        if (myRole() === '班長') groups.forEach(function (x) { if (x.name === (cfg.banGroup || '班表')) g = x; });
+        if (!g) g = stockGroup();
+        return g;
+      }
+      function useEmps() {
+        var g = groups.length ? idGroup() : null;
         employees = g ? (g.employees || []) : empAll;
       }
       function pickGroup() {
@@ -1476,9 +1524,50 @@ body:not(.ht) .floatbar #editBtnF { display: none; }
         if (editing) { b.className = 'editbtn on'; b.innerHTML = '<i class="eic pen"></i>編輯中'; }
         else { b.className = 'editbtn'; b.innerHTML = '<i class="eic lock"></i>唯讀'; }
       }
-      function goLogin() {
-        setTab('more');
-        setTimeout(function () { try { $('pwInput').focus(); } catch (e) { /* 忽略 */ } }, 150);
+      var gateWant = '';
+      function goLogin() { showGate(); }
+      function needGate() { return !forcedRO && !prefs.chosen && !prefs.pw; }
+      function showGate() {
+        gateWant = ''; $('idPw').hidden = true; $('idMsg').textContent = ''; $('idPwInput').value = '';
+        $('idGate').classList.add('show');
+      }
+      function finishGate() {
+        $('idGate').classList.remove('show');
+        prefs.chosen = true; savePrefs(); rebuildView(); editing = false; armEdit(); applyRO();
+        setTab('days');
+        if (prefs.pw) setEditing(true, '已登入（' + prefs.role + '），編輯中');
+        ensureData(true);
+        if (!prefs.seen) setTimeout(showTour, 500);
+      }
+      function gateLogin() {
+        var pw = $('idPwInput').value.trim();
+        if (!pw) { $('idMsg').textContent = '請輸入密碼'; return; }
+        $('idOk').disabled = true;
+        apiCall({ action: 'auth', token: pw }).then(function (res) {
+          $('idOk').disabled = false;
+          if (!res || !res.ok) { $('idMsg').textContent = (res && /密碼/.test(res.msg || '')) ? '密碼錯誤' : '無法驗證：' + ((res && res.msg) || '未知錯誤') + '（後端是否已更新？）'; return; }
+          if (!res.role) { if (gateWant === '股總') { $('idMsg').textContent = '後端還是舊版，股總密碼不能用，請先更新後端。'; return; } res.role = '班長'; }
+          if (res.role !== gateWant) { $('idMsg').textContent = '這個密碼不是' + gateWant + '的，請確認有選對身分。'; return; }
+          prefs.pw = pw; prefs.role = res.role; finishGate();
+        }).catch(function (e) { $('idOk').disabled = false; $('idMsg').textContent = '無法驗證：' + e.message; });
+      }
+      function bindGate() {
+        $('idGate').addEventListener('click', function (ev) {
+          var b = ev.target.closest('button'); if (!b) return;
+          if (b.dataset.id === 'guest') { prefs.pw = ''; prefs.role = ''; finishGate(); return; }
+          if (b.dataset.id === 'ban' || b.dataset.id === 'gu') {
+            gateWant = b.dataset.id === 'ban' ? '班長' : '股總';
+            $('idPwFor').textContent = '請輸入' + gateWant + '密碼'; $('idPw').hidden = false; $('idMsg').textContent = '';
+            setTimeout(function () { try { $('idPwInput').focus(); } catch (e) { /* 忽略 */ } }, 120); return;
+          }
+          if (b.id === 'idBack') { $('idPw').hidden = true; return; }
+          if (b.id === 'idOk') gateLogin();
+        });
+        $('idPwInput').addEventListener('keydown', function (ev) { if (ev.key === 'Enter') gateLogin(); });
+        $('swId').addEventListener('click', function () {
+          prefs.chosen = false; prefs.pw = ''; prefs.role = ''; editing = false; armEdit(); savePrefs();
+          rebuildView(); applyRO(); renderAll(); showGate();
+        });
       }
       function renderModeBar() {
         var b = $('modeBar');
@@ -1536,7 +1625,7 @@ body:not(.ht) .floatbar #editBtnF { display: none; }
         if (cfg.legacy) return 'A';
         if (!banMap[name]) return 'B';
         if (!cfg.splitFrom || k < cfg.splitFrom) return 'A';
-        return role === '股總' ? 'B' : 'A';
+        return role === '班長' ? 'A' : 'B';
       }
       function canEditName(name) {
         if (isRO()) return false;
@@ -1544,7 +1633,7 @@ body:not(.ht) .floatbar #editBtnF { display: none; }
         if (r === '股總' || !cfg.splitFrom) return true;  // 交接中（沒設定分開日）：大家都能記全部人
         return !!banMap[name];
       }
-      function fromGu(k, name) { return !!(cfg.splitFrom && banMap[name] && k >= cfg.splitFrom && !(recsA[k] || {})[name] && (recsB[k] || {})[name] && myRole() !== '股總'); }
+      function fromGu() { return false; }
       function rebuildDate(k) {
         var role = myRole();
         delete recordsMy[k]; delete recordsPub[k];
@@ -1555,12 +1644,12 @@ body:not(.ht) .floatbar #editBtnF { display: none; }
             if (copyFor(n, k, '') === p[0]) { (recordsPub[k] = recordsPub[k] || {})[n] = day[n]; }
           });
         });
-        // 班長還沒記、股總先記了：班長（和一般人）先看到股總記的，班長記了就以班長為準
+        // 股總還沒記、班長先記了：一般人先看到班長記的，股總記了就以股總為準
         if (cfg.splitFrom && k >= cfg.splitFrom) {
-          Object.keys(recsB[k] || {}).forEach(function (n) {
-            if (!banMap[n] || (recsA[k] || {})[n]) return;
-            (recordsPub[k] = recordsPub[k] || {})[n] = recsB[k][n];
-            if (role !== '股總') (recordsMy[k] = recordsMy[k] || {})[n] = recsB[k][n];
+          Object.keys(recsA[k] || {}).forEach(function (n) {
+            if (!banMap[n] || (recsB[k] || {})[n]) return;
+            (recordsPub[k] = recordsPub[k] || {})[n] = recsA[k][n];
+            if (role !== '股總' && role !== '班長') (recordsMy[k] = recordsMy[k] || {})[n] = recsA[k][n];
           });
         }
       }
@@ -1571,7 +1660,7 @@ body:not(.ht) .floatbar #editBtnF { display: none; }
         Object.keys(recsA).concat(Object.keys(recsB)).forEach(function (k) { seen[k] = 1; });
         recordsMy = {}; recordsPub = {};
         Object.keys(seen).forEach(rebuildDate);
-        records = (tab === 'out' || tab === 'ana') ? recordsPub : recordsMy;
+        records = recordsMy;
       }
       function sigOf(r) { return r ? (r.period === '外勤' ? '外勤:' + (r.type || '') : r.period) : ''; }
       function cmpList() {
@@ -1599,39 +1688,60 @@ body:not(.ht) .floatbar #editBtnF { display: none; }
       function cmpIndex() { var m = {}; cmpList().forEach(function (c) { m[c.k + '|' + c.n] = true; }); return m; }
       function cmpMonthIds() { return myRole() ? idsOfKeys([todayKey(), addDays(todayKey(), 31)]) : []; }
       function recOrBlank(r) { return r ? recLabel(r) : '（空白）'; }
+      function cmpSplit() {
+        var role = myRole(), sp = { diff: [], mineOnly: [], theirsOnly: [] };
+        cmpList().forEach(function (c) {
+          if (c.kind === 'diff') sp.diff.push(c);
+          else if ((c.kind === 'onlyA') === (role === '班長')) sp.mineOnly.push(c);
+          else sp.theirsOnly.push(c);
+        });
+        return sp;
+      }
       function renderCmp() {
         var box = $('cmpCard'); if (!box) return;
         var role = myRole();
         if (!role || !cfg.splitFrom || !employees.length || !isReady(cmpMonthIds())) { box.innerHTML = ''; return; }
-        var other = role === '班長' ? '股總' : '班長', list = cmpList();
-        var urgent = list.filter(function (c) { return c.urgent; }), wait = list.filter(function (c) { return !c.urgent; });
-        if (!list.length) { box.innerHTML = ''; return; }
-        var h = '<div class="cmp ' + (urgent.length ? 'urgent' : 'calm') + '"><button class="cmphead" data-cact="toggle">' +
-          '<span class="cmpi">' + (urgent.length ? '!' : '…') + '</span><span class="cmpt">' +
-          (urgent.length ? '有 <b>' + urgent.length + '</b> 筆和' + other + '不一致' : '') +
-          (urgent.length && wait.length ? '，' : '') +
-          (wait.length ? '<b>' + wait.length + '</b> 筆等' + other + '補記' : '') +
+        var other = role === '班長' ? '股總' : '班長', sp = cmpSplit();
+        if (!sp.diff.length && !sp.mineOnly.length && !sp.theirsOnly.length) { box.innerHTML = ''; return; }
+        var parts = [];
+        if (sp.diff.length) parts.push('<b>' + sp.diff.length + '</b> 筆兩邊不一樣');
+        if (sp.theirsOnly.length) parts.push(other + '已記、你還沒記 <b>' + sp.theirsOnly.length + '</b> 筆');
+        if (sp.mineOnly.length) parts.push('<b>' + sp.mineOnly.length + '</b> 筆等' + other + '補記');
+        var h = '<div class="cmp ' + (sp.diff.length ? 'urgent' : 'calm') + '"><button class="cmphead" data-cact="toggle">' +
+          '<span class="cmpi">' + (sp.diff.length ? '!' : (sp.theirsOnly.length ? '↓' : '…')) + '</span><span class="cmpt">' + parts.join('，') +
           '</span><i class="caret' + (cmpOpen ? ' up' : '') + '"></i></button>';
         if (cmpOpen) {
-          function rows(arr, title) {
+          function rows(arr, title, mode, bulk) {
             if (!arr.length) return '';
-            var r = '<div class="cmpsec">' + title + '</div>';
+            var r = '<div class="cmpsec">' + title + (bulk ? '<button class="ghost cmpbulk" data-cact="adoptall">全部採用' + other + '的（' + arr.length + ' 筆）</button>' : '') + '</div>';
             arr.forEach(function (c) {
               var mine = role === '班長' ? c.a : c.b, theirs = role === '班長' ? c.b : c.a;
               r += '<div class="cmprow"><div class="cmpwho"><b>' + mdLabel(c.k) + '（' + wkOf(c.k) + '）</b> ' + esc(c.n) + '</div>' +
-                '<div class="cmpcols"><span>我：<b>' + esc(recOrBlank(mine)) + '</b></span><span>' + other + '：<b>' + esc(recOrBlank(theirs)) + '</b></span></div>' +
-                '<div class="cmpbtns"><button class="ghost" data-cact="adopt" data-k="' + c.k + '" data-n="' + esc(c.n) + '">' + (theirs ? '改成跟' + other + '一樣' : '取消我的紀錄') + '</button>' +
-                '<button class="ghost" data-cact="ign" data-k="' + c.k + '" data-n="' + esc(c.n) + '">我的才對・先略過</button></div></div>';
+                '<div class="cmpcols"><span>我：<b>' + esc(recOrBlank(mine)) + '</b></span><span>' + other + '：<b>' + esc(recOrBlank(theirs)) + '</b></span></div>';
+              if (mode === 'diff') r += '<div class="cmpbtns"><button class="ghost" data-cact="adopt" data-k="' + c.k + '" data-n="' + esc(c.n) + '">改成跟' + other + '一樣</button>' +
+                '<button class="ghost" data-cact="ign" data-k="' + c.k + '" data-n="' + esc(c.n) + '">我的才對・先略過</button></div>';
+              else if (mode === 'theirs') r += '<div class="cmpbtns"><button class="ghost" data-cact="adopt" data-k="' + c.k + '" data-n="' + esc(c.n) + '">採用' + other + '的</button>' +
+                '<button class="ghost" data-cact="ign" data-k="' + c.k + '" data-n="' + esc(c.n) + '">先略過</button></div>';
+              r += '</div>';
             });
             return r;
           }
-          h += '<div class="cmpbody">' + rows(urgent, '需要確認') + rows(wait, '等' + other + '補記（還沒到的日子）') + '</div>';
+          h += '<div class="cmpbody">' + rows(sp.diff, '兩邊不一樣（需要確認）', 'diff') +
+            rows(sp.theirsOnly, other + '已經記了、你還沒記', 'theirs', true) +
+            rows(sp.mineOnly, '你記了、' + other + '還沒記（等他補記）', 'mine') + '</div>';
         }
         box.innerHTML = h + '</div>';
       }
       function cmpAct(btn) {
         var act = btn.dataset.cact;
         if (act === 'toggle') { cmpOpen = !cmpOpen; renderCmp(); return; }
+        if (act === 'adoptall') {
+          if (isRO()) { showToast('要先開啟編輯（右上角）', null, null, 2600); return; }
+          var rl2 = myRole(), oth = rl2 === '班長' ? '股總' : '班長';
+          var ch = cmpSplit().theirsOnly.map(function (c) { var t = rl2 === '班長' ? c.b : c.a; return { k: c.k, name: c.n, next: { period: t.period, type: t.type }, prev: null }; });
+          if (ch.length) applyBatch(ch, '已採用' + oth + '的 ' + ch.length + ' 筆');
+          return;
+        }
         var k = btn.dataset.k, n = btn.dataset.n, role = myRole();
         var c = cmpList().filter(function (x) { return x.k === k && x.n === n; })[0];
         if (!c) { renderCmp(); return; }
@@ -2066,12 +2176,14 @@ body:not(.ht) .floatbar #editBtnF { display: none; }
         if (isRO()) { showCellInfo(el); return; }
         var k = el.dataset.date, name = el.dataset.name;
         if (!canEditName(name)) { showCellInfo(el); return; }
-        if (fromGu(k, name) && myRole() === '班長') { var gr = getRec(k, name); applyState(k, name, { period: gr.period, type: gr.type }, null, '已確認股總先記的 ' + name + ' ' + mdLabel(k)); return; }
         var prev = cloneRec(getRec(k, name));
         if (prev) {
           applyState(k, name, null, prev, '已取消 ' + name + ' ' + mdLabel(k));
         } else {
-          applyState(k, name, { period: '全天', type: '特休' }, null, name + ' ' + mdLabel(k) + ' 全天休');
+          var tr = null, rl = myRole();
+          if (rl && cfg.splitFrom && banMap[name] && k >= cfg.splitFrom) tr = ((rl === '班長' ? recsB : recsA)[k] || {})[name] || null;
+          if (tr) applyState(k, name, { period: tr.period, type: tr.type }, null, '對方已記，直接採用：' + name + ' ' + mdLabel(k) + ' ' + recLabel(tr));
+          else applyState(k, name, { period: '全天', type: '特休' }, null, name + ' ' + mdLabel(k) + ' 全天休');
         }
       }
 
@@ -2297,7 +2409,7 @@ body:not(.ht) .floatbar #editBtnF { display: none; }
         var tk = todayKey();
         var infos = keys.map(dayInfo);
         var wk = (view === 'week');
-        var cx = (prefs.show || {}).cmp ? cmpIndex() : null;
+        var cx = (prefs.show || {}).cmp !== false ? cmpIndex() : null;
         var h = '<table class="grid ' + (wk ? 'wk' : 'mo') + '"><thead><tr><th class="dh corner namecol"></th>';
         keys.forEach(function (k, idx) {
           var inf = infos[idx];
@@ -2433,7 +2545,7 @@ body:not(.ht) .floatbar #editBtnF { display: none; }
           title: '要顯示哪些', sub: '不勾的先收起來，最後可以只剩一張表；要用再回來勾',
           body: '<div class="chk-list">' + SHOW_ITEMS.map(function (x) {
             if (x[0] === 'cmp' && !myRole()) return '';
-            var on = x[0] === 'cmp' ? !!s.cmp : s[x[0]] !== false;
+            var on = s[x[0]] !== false;
             return '<label class="chkrow"><input type="checkbox" data-show="' + x[0] + '"' + (on ? ' checked' : '') + '><span>' + x[1] + '</span></label>';
           }).join('') + '</div><div class="lg-title">顏色說明</div>' +
             '<div class="lgrid">' +
@@ -2460,7 +2572,7 @@ body:not(.ht) .floatbar #editBtnF { display: none; }
       }
       function renderSched() {
         applyFull();
-        $('fTitle').textContent = schedGroup === 'gu' ? '股表' : '班表';
+        var ig = idGroup(); $('fTitle').textContent = ig ? ig.name : '';
         $('gridWrap').classList.toggle('nofoot', (prefs.show || {}).foot === false);
         var hc = hiddenCount();
         $('sInfo').innerHTML = '顯示' + (hc ? '<span class="hdot">' + hc + '</span>' : '');
@@ -2687,12 +2799,13 @@ body:not(.ht) .floatbar #editBtnF { display: none; }
       }
 
       // 產出固定使用「股」的全部人員，不受右上角切換影響
-      function outGroupObj() {
+      function stockGroup() {
         var g = null;
         groups.forEach(function (x) { if (x.name.indexOf('股') >= 0) g = x; });
         if (!g && groups.length) g = groups.reduce(function (p, q) { return (q.employees || []).length > (p.employees || []).length ? q : p; });
         return g;
       }
+      function outGroupObj() { return idGroup(); }
       function renderOut() {
         var save = employees, gobj = outGroupObj();
         if (gobj) employees = gobj.employees || [];
@@ -2923,8 +3036,9 @@ body:not(.ht) .floatbar #editBtnF { display: none; }
       // ====== 總繪製 ======
       function renderAll() {
         useEmps(); applyFull();
-        $('tabGu').style.display = groups.length > 1 ? '' : 'none';
-        records = (tab === 'out' || tab === 'ana') ? recordsPub : recordsMy;
+        applyTabs();
+        if (tab === 'out' && myId() === 'guest') { setTab('days'); return; }
+        records = recordsMy;
         var d = new Date();
         $('todayLbl').innerHTML = '<b>' + (d.getMonth() + 1) + '/' + d.getDate() + '</b><small>週' + WK[d.getDay()] + '</small>';
         renderGroupSeg();
@@ -2935,9 +3049,15 @@ body:not(.ht) .floatbar #editBtnF { display: none; }
         else if (tab === 'more') renderMore();
       }
 
+      function applyTabs() {
+        var id = myId(), vis = { days: true, sched: id === 'ban', gu: id !== 'ban', out: id !== 'guest', ana: true, more: true };
+        var btns = document.querySelectorAll('.tabbar button');
+        for (var i = 0; i < btns.length; i++) btns[i].style.display = vis[btns[i].dataset.t] === false ? 'none' : '';
+        document.body.classList.toggle('guest', id === 'guest');
+      }
       function setTab(t) {
         if (t === 'gu') { schedGroup = 'gu'; t = 'sched'; } else if (t === 'sched') schedGroup = 'ban';
-        var key = t === 'sched' ? (schedGroup === 'gu' ? 'gu' : 'sched') : t;
+        var key = t === 'sched' ? (myId() === 'ban' ? 'sched' : 'gu') : t;
         tab = t;
         $('toast').classList.remove('show');
         var pages = { sched: 'page-sched', days: 'page-days', out: 'page-out', ana: 'page-ana', more: 'page-more' };
@@ -2996,7 +3116,7 @@ body:not(.ht) .floatbar #editBtnF { display: none; }
         sel.value = prefs.me;
         setSegOn('prefTheme', prefs.theme);
         $('adminBox').style.display = forcedRO ? 'none' : '';
-        $('adminLocked').style.display = prefs.pw ? 'none' : '';
+        $('idNow').textContent = '目前身分：' + (myRole() ? myRole() : '一般（只能查看）');
         $('adminOn').style.display = prefs.pw ? '' : 'none';
         var rl = prefs.role ? '（' + prefs.role + '）' : '';
         var handover = (prefs.pw && !cfg.legacy && !cfg.splitFrom) ? '　股總還沒接手：目前班長可以記全部人，不做兩份比對。' : '';
@@ -3024,7 +3144,7 @@ body:not(.ht) .floatbar #editBtnF { display: none; }
         { ic: '<span class="tic ic-sched"></span>', t: '班表：一人一天一格', d: '<b>空白＝還沒點假單</b>。左右滑動換週，點格子看詳情。最上面一行是假日摘要，右上 <b>ⓘ</b> 看顏色代表什麼。' },
         { ic: '<span class="tic ic-out"></span>', t: '產出：一鍵回報', d: '選<b>假日留守、人員情況或加班</b>，按「複製文字」就能貼到群組。文字框也可以直接改。' },
         { ic: '<span class="tic ic-ana"></span>', t: '分析：看每個人', d: '本月每人<b>平日休幾天、到班幾天</b>，點名字看個人月曆。' },
-        { ic: '<span class="tic ic-lock"></span>', t: '放心看，不會誤改', d: '平常是<b>唯讀</b>。管理者到「更多」登入，右上角變成<b>「編輯中」</b>才能修改；3 分鐘沒動作會自動鎖回。' }
+        { ic: '<span class="tic ic-lock"></span>', t: '放心看，不會誤改', d: '一開始先選身分：<b>一般</b>只能看；<b>班長</b>、<b>股總</b>輸入密碼後才能記，右上角會顯示<b>「編輯中」</b>；3 分鐘沒動作會自動鎖回。要換身分到「更多」。' }
       ];
       var tourI = 0;
       function showTour() {
@@ -3136,6 +3256,7 @@ body:not(.ht) .floatbar #editBtnF { display: none; }
             showToast('無法驗證：' + e.message, null, null, 4000);
           });
         }
+        bindGate();
         $('pwBtn').addEventListener('click', doLogin);
         $('pwInput').addEventListener('keydown', function (ev) { if (ev.key === 'Enter') doLogin(); });
         $('pwOut').addEventListener('click', function () {
@@ -3546,7 +3667,7 @@ body:not(.ht) .floatbar #editBtnF { display: none; }
         renderAll();
         ensureData(false);
         updateBanner();
-        if (!prefs.seen) setTimeout(showGuide, 700);
+        if (needGate()) showGate(); else if (!prefs.seen) setTimeout(showGuide, 700);
       });
     })();
   
