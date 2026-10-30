@@ -1139,6 +1139,24 @@ td.cell.hint { opacity: .36; }
 #dutyPage .dhead b, #dutyPage .dhead button { white-space: nowrap; }
 #dutyEditBtn.on { background: var(--yellow); border-color: var(--ink); font-weight: 800; }
 
+.dseg { display: flex; gap: 6px; margin-bottom: 12px; }
+.dseg button { flex: 1; padding: 9px 0; border-radius: 10px; border: 2px solid var(--ink); background: var(--card); font: inherit; font-weight: 700; color: var(--text); }
+.dseg button.on { background: var(--ink); color: #fff; }
+.dot.plan { background: #a8a39a; }
+.dl.plan { border-left-color: #a8a39a; opacity: .92; }
+.dl .dpl { font-size: 18px; margin-top: 6px; font-weight: 700; } .dl .dpl span { display: inline-block; min-width: 4.2em; color: var(--muted); font-size: 15px; }
+.dl .dpl em { font-style: normal; } .dl .dpl em.away { color: #c8433a; }
+.schips { display: flex; flex-wrap: wrap; gap: 6px; margin-bottom: 10px; }
+.sch { padding: 6px 12px; border-radius: 999px; border: 1.5px solid var(--ink); background: var(--card); font: inherit; font-size: 14px; color: var(--text); }
+.sch.on { background: var(--ink); color: #fff; }
+.sum { font-size: 13px; color: var(--muted); margin: 4px 0 8px; }
+.scard { background: var(--card); border: 2px solid var(--ink); border-radius: 12px; margin-bottom: 8px; overflow: hidden; }
+.scard.low { border-color: #2a9a5b; }
+.sct { display: flex; align-items: baseline; gap: 8px; width: 100%; padding: 12px 14px; background: none; border: 0; font: inherit; color: var(--text); text-align: left; }
+.sct b { font-size: 18px; } .sct em { font-style: normal; font-size: 12px; background: #2a9a5b; color: #fff; border-radius: 6px; padding: 1px 6px; }
+.sct i { margin-left: auto; font-style: normal; font-size: 14px; color: var(--muted); }
+.scd { padding: 2px 14px 12px; font-size: 15px; line-height: 1.7; border-top: 1px dashed var(--line, #d9cfb8); }
+
   </style>
 </head>
 <body>
@@ -1474,7 +1492,7 @@ td.cell.hint { opacity: .36; }
         </div>
       </details>
 
-      <div class="ver">同仁班表 v9.1<br>國定假日資料：行政院人事行政總處辦公日曆表</div>
+      <div class="ver">同仁班表 v9.4<br>國定假日資料：行政院人事行政總處辦公日曆表</div>
     </section>
 
     <footer id="foot">吱吱製作</footer>
@@ -1498,11 +1516,15 @@ td.cell.hint { opacity: .36; }
   <div id="dutyPage" role="dialog" aria-label="公差勤務">
     <div class="dhead"><b>公差勤務</b><span></span><button class="ghost" id="dutyEditBtn">編輯</button><button class="ghost" id="dutyBack">換身分</button></div>
     <div id="dutyPwRow" class="dpw" hidden><input type="password" id="dutyPwIn" inputmode="numeric" autocomplete="off" placeholder="編輯密碼" aria-label="編輯密碼"><button class="primary small" id="dutyPwOk">確定</button><div id="dutyPwMsg" class="idmsg"></div></div>
+    <div class="dseg"><button id="segCal" class="on">月曆</button><button id="segStat">統計</button></div>
+    <div id="dutyCalBox">
     <button class="primary" id="qkOpen" hidden style="width:100%;margin-bottom:10px">貼上文字快速標記公差</button>
     <div class="dnav"><button class="ghost" id="dutyPrev" aria-label="上個月">‹</button><div id="dutyTitle"></div><button class="ghost" id="dutyNext" aria-label="下個月">›</button></div>
     <div id="dutyLoading" class="dloading" hidden>讀取中…</div>
     <div id="dutyGrid"></div>
-    <div class="dtip">點日期看當天所有同仁</div>
+    <div class="dtip">點日期看當天所有同仁（淡灰點＝輪值預排）</div>
+    </div>
+    <div id="dutyStat" hidden><div id="statBody"></div></div>
   </div>
 
   <div id="idGate" role="dialog" aria-modal="true" aria-label="選擇身分">
@@ -1865,20 +1887,24 @@ td.cell.hint { opacity: .36; }
           }); });
         }
         if (!arr.length) { showToast('沒有選到要加的', null, null, 2600); return; }
-        $('qkGo').disabled = true;
+        var snap = JSON.stringify(dutyAll);
+        arr.forEach(function (it) {
+          var l = dutyAll[it.date] = dutyAll[it.date] || [];
+          var ex = l.filter(function (x) { return x.n === it.name && x.why === it.why; })[0];
+          if (ex) { if (it.time) ex.time = it.time; } else l.push({ n: it.name, why: it.why, time: it.time });
+        });
+        dutyCacheSave(); statAll = null;
+        $('quickPage').classList.remove('show'); renderDutyMon(); if ($('dutyDay').classList.contains('show')) renderDutyDay();
+        $('okCatTxt').textContent = '已加入 ' + arr.length + ' 筆'; $('okCat').classList.add('show'); setTimeout(function () { $('okCat').classList.remove('show'); }, 1300);
         apiCall({ action: 'addDuty', token: prefs.dutyPw, items: JSON.stringify(arr) }).then(function (res) {
-          if (!res || !res.ok) { showToast((res && res.msg) || '新增失敗', null, null, 3200); $('qkGo').disabled = false; return; }
-          arr.forEach(function (it) {
-            var l = dutyAll[it.date] = dutyAll[it.date] || [];
-            var ex = l.filter(function (x) { return x.n === it.name && x.why === it.why; })[0];
-            if (ex) { if (it.time) ex.time = it.time; } else l.push({ n: it.name, why: it.why, time: it.time });
-          });
-          $('quickPage').classList.remove('show'); renderDutyMon();
-          $('okCatTxt').textContent = '已加入 ' + res.added + ' 筆'; $('okCat').classList.add('show'); setTimeout(function () { $('okCat').classList.remove('show'); }, 1500);
-          showToast('已加入公差勤務 ' + res.added + ' 筆' + (res.added < arr.length ? '（' + (arr.length - res.added) + ' 筆本來就有）' : ''), null, null, 3000);
-        }).catch(function (err) { showToast('新增失敗：' + err.message, null, null, 3200); $('qkGo').disabled = false; });
+          if (!res || !res.ok) throw new Error((res && res.msg) || '新增失敗');
+        }).catch(function (err) {
+          try { dutyAll = JSON.parse(snap); } catch (e) { /* 忽略 */ }
+          dutyCacheSave(); renderDutyMon();
+          showToast('沒有存成功，已還原：' + err.message, null, null, 4200);
+        });
       }
-      var dutyYM = null, dutyAll = {}, dutyFromApp = false;
+      var dutyYM = null, dutyAll = {}, dutyFromApp = false, rosterAll = {}, ROSTER_KEY = 'leave_roster_v1';
       function dutyEditor() { return !!prefs.dutyPw && !forcedRO; }
       function dutyEmps() { var g = stockGroup(); return g ? (g.employees || []) : []; }
       function dutyDayOf(k) {
@@ -1890,6 +1916,8 @@ td.cell.hint { opacity: .36; }
           else if (r.period === '外勤') (o.out[r.type || '外勤'] = o.out[r.type || '外勤'] || []).push(e.name);
           else o.rest.push(e.name + (r.period === '全天' ? '' : '（' + r.period + '）'));
         });
+        o.plan = {};
+        (rosterAll[k] || []).forEach(function (x) { (o.plan[x.item] = o.plan[x.item] || []).push({ n: x.n, away: !!(day[x.n] && day[x.n].period !== '留守' && day[x.n].period !== '監控') }); });
         (dutyAll[k] || []).forEach(function (x) { var lab = x.why + (x.time ? '　' + x.time : ''); var g = o.duty[lab] || (o.duty[lab] = { why: x.why, time: x.time || '', names: [] }); g.names.push(x.n); o.nDuty++; });
         return o;
       }
@@ -1910,7 +1938,7 @@ td.cell.hint { opacity: .36; }
           ws.slice(0, 2).forEach(function (w) { chips += '<i class="dc duty">' + esc(w) + '</i>'; });
           if (ws.length > 2) chips += '<i class="dc more">＋' + (ws.length - 2) + '</i>';
           var no = 0; Object.keys(o.out).forEach(function (w) { no += o.out[w].length; });
-          var dots = (o.stay.length ? '<u class="dot stay"></u>' : '') + (o.mon.length ? '<u class="dot mon"></u>' : '') + (no ? '<u class="dot out"></u>' : '');
+          var dots = (o.stay.length ? '<u class="dot stay"></u>' : '') + (o.mon.length ? '<u class="dot mon"></u>' : '') + (no ? '<u class="dot out"></u>' : '') + (Object.keys(o.plan).length ? '<u class="dot plan"></u>' : '');
           if (dots) chips += '<span class="dots">' + dots + '</span>';
           h += '<button class="dcell' + (inM ? '' : ' dim') + (k === tk ? ' today' : '') + (info.off ? ' off' : '') + '" data-k="' + k + '"><b>' + d.getDate() + '</b>' + chips + '</button>';
         }
@@ -1931,6 +1959,14 @@ td.cell.hint { opacity: .36; }
         line('stay', '留守', o.stay); line('mon', '監控', o.mon);
         Object.keys(o.out).forEach(function (w) { line('out', '外勤：' + w, o.out[w]); });
         line('rest', '休假', o.rest);
+        var pk = Object.keys(o.plan);
+        if (pk.length) {
+          h += '<div class="dl plan"><div class="dlh"><b>輪值預排</b><i>參考，實際可能會換</i></div>';
+          pk.forEach(function (it) {
+            h += '<div class="dpl"><span>' + esc(it) + '</span>' + o.plan[it].map(function (p) { return '<em' + (p.away ? ' class="away"' : '') + '>' + esc(p.n) + (p.away ? '　⚠當天休假' : '') + '</em>'; }).join('、') + '</div>';
+          });
+          h += '</div>';
+        }
         $('dutyDayBody').innerHTML = h || '<div class="dnone">這天沒有任何標記</div>';
       }
       function dutyRemove(k, why, names) {
@@ -1938,23 +1974,95 @@ td.cell.hint { opacity: .36; }
           dutyAll[k] = (dutyAll[k] || []).filter(function (x) { return !(x.n === n && x.why === why); });
           enqueue(function () { return apiCall({ action: 'removeDuty', date: k, name: n, why: why, token: prefs.dutyPw }); });
         });
-        renderDutyMon(); showToast('已刪除「' + why + '」' + names.length + ' 人', null, null, 2400);
+        dutyCacheSave(); renderDutyMon(); showToast('已刪除「' + why + '」' + names.length + ' 人', null, null, 2400);
       }
       function dutyOpen(k) { dutyDayK = k; $('dutyDay').classList.add('show'); renderDutyDay(); $('dutyDay').scrollTop = 0; }
-      var dutyReady = false;
+      var dutyReady = false, DUTY_KEY = 'leave_duty_v1', dutyFetched = {};
+      function dutyCacheSave() { try { localStorage.setItem(DUTY_KEY, JSON.stringify(dutyAll)); } catch (e) { /* 忽略 */ } }
+      function dutyCacheLoad() { try { var r = localStorage.getItem(DUTY_KEY); if (r) { var o = JSON.parse(r); if (o && typeof o === 'object') { dutyAll = o; dutyReady = true; } } } catch (e) { /* 忽略 */ } }
+      function rosterCacheLoad() { try { var r = localStorage.getItem(ROSTER_KEY); if (r) { var o = JSON.parse(r); if (o && typeof o === 'object') rosterAll = o; } } catch (e) { /* 忽略 */ } }
+      function rosterLoad() {
+        return apiCall({ action: 'getRoster' }).then(function (res) {
+          if (!res || !res.ok) return;
+          var m = {}; (res.items || []).forEach(function (it) { (m[it.date] = m[it.date] || []).push({ item: it.item, n: it.name }); });
+          rosterAll = m; try { localStorage.setItem(ROSTER_KEY, JSON.stringify(m)); } catch (e) { /* 忽略 */ }
+          if ($('dutyPage').classList.contains('show')) renderDutyMon();
+        }).catch(function () { /* 忽略 */ });
+      }
+      function dutyWarm() {
+        rosterLoad();
+        var d = new Date(), y = d.getFullYear(), m = d.getMonth() + 1, ny = m === 12 ? y + 1 : y, nm = m === 12 ? 1 : m + 1;
+        [[y, m], [ny, nm]].forEach(function (a) {
+          fetchPeriod(a[0], a[1]).catch(function () {});
+          apiCall({ action: 'getDuty', year: a[0], month: a[1] }).then(function (res) { dutyFill(a[0], a[1], res); }).catch(function () {});
+        });
+      }
+      function dutyFill(y, m, res) {
+        if (!res || !res.ok) return;
+        var pre = y + '-' + pad(m);
+        Object.keys(dutyAll).forEach(function (k) { if (k.indexOf(pre) === 0) delete dutyAll[k]; });
+        (res.items || []).forEach(function (it) { (dutyAll[it.date] = dutyAll[it.date] || []).push({ n: it.name, why: it.why, time: it.time || '' }); });
+        dutyFetched[pre] = 1; dutyCacheSave();
+      }
       function dutyLoad() {
         if (!dutyYM) renderDutyMon();
         var y = dutyYM[0], m = dutyYM[1], pre = y + '-' + pad(m);
         if (!dutyReady) { $('dutyLoading').hidden = false; $('dutyGrid').hidden = true; }
+        else { $('dutyLoading').hidden = true; $('dutyGrid').hidden = false; renderDutyMon(); }
         var p1 = fetchPeriod(y, m).then(function () { rebuildView(); }).catch(function () { /* 忽略 */ });
-        var p2 = apiCall({ action: 'getDuty', year: y, month: m }).then(function (res) {
-          if (!res || !res.ok) return;
-          Object.keys(dutyAll).forEach(function (k) { if (k.indexOf(pre) === 0) delete dutyAll[k]; });
-          (res.items || []).forEach(function (it) { (dutyAll[it.date] = dutyAll[it.date] || []).push({ n: it.name, why: it.why, time: it.time || '' }); });
-        }).catch(function () { /* 忽略 */ });
+        var p2 = apiCall({ action: 'getDuty', year: y, month: m }).then(function (res) { dutyFill(y, m, res); }).catch(function () { /* 忽略 */ });
         Promise.all([p1, p2]).then(function () {
           dutyReady = true; $('dutyLoading').hidden = true; $('dutyGrid').hidden = false; renderDutyMon();
         });
+      }
+      // ====== 公差統計 ======
+      var statAll = null, statRange = 'all', statWhy = '', statOpen = {};
+      var WHY_ALIAS = { '擦拭槍': '擦槍', '擦拭': '擦槍' };
+      function normWhy(w) { w = String(w || '').replace(/\s+/g, ''); return WHY_ALIAS[w] || w; }
+      function statLoad() {
+        $('statBody').innerHTML = statAll ? $('statBody').innerHTML : '<div class="dloading">讀取中…</div>';
+        apiCall({ action: 'getDuty', year: 0, month: 0 }).then(function (res) {
+          if (!res || !res.ok) { if (!statAll) $('statBody').innerHTML = '<div class="dnone">讀取失敗，請稍後再試</div>'; return; }
+          statAll = res.items || []; renderStat();
+        }).catch(function () { if (!statAll) $('statBody').innerHTML = '<div class="dnone">讀取失敗，請稍後再試</div>'; });
+      }
+      function statCut() {
+        var t = todayKey(), y = +t.slice(0, 4), m = +t.slice(5, 7);
+        if (statRange === 'month') return t.slice(0, 7) + '-01';
+        if (statRange === '3m') { var d = new Date(y, m - 3, 1); return keyOf(d); }
+        if (statRange === 'year') return y + '-01-01';
+        return '0000-00-00';
+      }
+      function renderStat() {
+        if (!statAll) return;
+        var cut0 = statCut(), inR = statAll.filter(function (x) { return x.date >= cut0; });
+        var wc = {}; inR.forEach(function (x) { var w = normWhy(x.why); wc[w] = (wc[w] || 0) + 1; });
+        var ws = Object.keys(wc).sort(function (a, b) { return wc[b] - wc[a]; }).slice(0, 10);
+        var h = '<div class="schips">';
+        [['month', '本月'], ['3m', '近三個月'], ['year', '今年'], ['all', '全部']].forEach(function (r) { h += '<button class="sch' + (statRange === r[0] ? ' on' : '') + '" data-r="' + r[0] + '">' + r[1] + '</button>'; });
+        h += '</div><div class="schips">';
+        h += '<button class="sch' + (!statWhy ? ' on' : '') + '" data-w="">全部事由</button>';
+        ws.forEach(function (w) { h += '<button class="sch' + (statWhy === w ? ' on' : '') + '" data-w="' + esc(w) + '">' + esc(w) + ' ' + wc[w] + '</button>'; });
+        h += '</div>';
+        var per = {}, names = dutyEmps().map(function (e) { return e.name; });
+        inR.forEach(function (x) { if (statWhy && normWhy(x.why) !== statWhy) return; (per[x.name] = per[x.name] || []).push(x); if (names.indexOf(x.name) < 0) names.push(x.name); });
+        var rows = names.map(function (n, i) { var l = (per[n] || []).slice().sort(function (a, b) { return a.date < b.date ? 1 : -1; }); return { n: n, l: l, i: i }; });
+        rows.sort(function (a, b) { return a.l.length - b.l.length || a.i - b.i; });
+        var min = rows.length ? rows[0].l.length : 0, total = 0; rows.forEach(function (r) { total += r.l.length; });
+        h += '<div class="sum">共 ' + total + ' 次，由少到多排列</div>';
+        rows.forEach(function (r) {
+          var open = statOpen[r.n];
+          h += '<div class="scard' + (r.l.length === min ? ' low' : '') + '"><button class="sct" data-n="' + esc(r.n) + '"><b>' + esc(r.n) + '</b>' + (r.l.length === min ? '<em>最少</em>' : '') + '<i>' + r.l.length + ' 次' + (r.l.length ? '　上次 ' + mdLabel(r.l[0].date) : '') + '</i></button>';
+          if (open) h += '<div class="scd">' + (r.l.length ? r.l.map(function (x) { return '<div>' + mdLabel(x.date) + '　' + esc(x.why) + (x.time ? '　' + esc(x.time) : '') + '</div>'; }).join('') : '<div class="dnone">沒有紀錄</div>') + '</div>';
+          h += '</div>';
+        });
+        $('statBody').innerHTML = h;
+      }
+      function dutySeg(which) {
+        var st = which === 'stat';
+        $('segCal').classList.toggle('on', !st); $('segStat').classList.toggle('on', st);
+        $('dutyCalBox').hidden = st; $('dutyStat').hidden = !st;
+        if (st) { if (statAll) renderStat(); statLoad(); }
       }
       function dutyUnlock() {
         var pw = $('dutyPwIn').value.trim(); if (!pw) return;
@@ -2017,6 +2125,14 @@ td.cell.hint { opacity: .36; }
           if (!$('dutyPwRow').hidden) setTimeout(function () { try { $('dutyPwIn').focus(); } catch (x) { /* 忽略 */ } }, 100);
         });
         $('dutyPwOk').addEventListener('click', dutyUnlock);
+        $('segCal').addEventListener('click', function () { dutySeg('cal'); });
+        $('segStat').addEventListener('click', function () { dutySeg('stat'); });
+        $('statBody').addEventListener('click', function (ev) {
+          var b = ev.target.closest('button'); if (!b) return;
+          if (b.dataset.r) { statRange = b.dataset.r; renderStat(); }
+          else if (b.dataset.w !== undefined && b.classList.contains('sch')) { statWhy = b.dataset.w; renderStat(); }
+          else if (b.dataset.n) { statOpen[b.dataset.n] = !statOpen[b.dataset.n]; renderStat(); }
+        });
         $('dutyPwIn').addEventListener('keydown', function (ev) { if (ev.key === 'Enter') dutyUnlock(); });
         $('dutyPrev').addEventListener('click', function () { dutyYM = dutyYM[1] === 1 ? [dutyYM[0] - 1, 12] : [dutyYM[0], dutyYM[1] - 1]; renderDutyMon(); dutyLoad(); });
         $('dutyNext').addEventListener('click', function () { dutyYM = dutyYM[1] === 12 ? [dutyYM[0] + 1, 1] : [dutyYM[0], dutyYM[1] + 1]; renderDutyMon(); dutyLoad(); });
@@ -2029,6 +2145,7 @@ td.cell.hint { opacity: .36; }
           dutyRemove(dutyDayK, g.why, g.names.slice()); renderDutyDay();
         });
         $('dutyGrid').addEventListener('click', function (ev) { var b = ev.target.closest('.dcell'); if (b) dutyOpen(b.dataset.k); });
+        dutyCacheLoad(); rosterCacheLoad(); setTimeout(dutyWarm, 600);
         $('qkOpen').addEventListener('click', function () { $('qkText').value = ''; qkEv = []; qkRender(); $('quickPage').classList.add('show'); });
         $('qkClose').addEventListener('click', function () { $('quickPage').classList.remove('show'); });
         $('qkText').addEventListener('input', qkAnalyze);
