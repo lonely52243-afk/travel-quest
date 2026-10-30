@@ -1448,7 +1448,7 @@ td.cell.stampin::before { animation: stampin .34s cubic-bezier(.3,.9,.4,1) both;
             <div class="pick" id="otPpl"></div>
             <label class="chk"><input type="checkbox" id="otShort"> 人員只寫名字（不寫姓）</label>
           </div>
-          <div class="tip otip" id="otTip" data-tip="otduty"><span class="tip-i">新功能</span><span class="tip-t">名單排好後有兩個出口：<b>① 複製文字</b>貼到群組　<b>② 加入勤務月曆</b>把這批人寫進公差勤務，大家在月曆就看得到（要用彈射密碼）。</span><button class="tip-x" aria-label="關閉提示">知道了</button></div>
+          <div class="tip otip" id="otTip" data-tip="otduty"><span class="tip-i">新功能</span><span class="tip-t">名單排好後有兩個出口：<b>① 複製文字</b>貼到群組　<b>② 加入勤務月曆</b>把這批人寫進公差勤務，大家在月曆就看得到（彈射、軍械、股總的密碼都可以）。</span><button class="tip-x" aria-label="關閉提示">知道了</button></div>
           <button class="duty-add" id="otToDuty"><span class="dai">📅</span><span class="dat"><b>加入勤務月曆</b><small>把上面的日期、事由、時間、人員寫進公差勤務</small></span><span class="dac">›</span></button>
         </div>
 
@@ -1655,7 +1655,7 @@ td.cell.stampin::before { animation: stampin .34s cubic-bezier(.3,.9,.4,1) both;
                 <li><b>排留守</b>：選哪幾天、選留守／監控／休假／救災／出差／受訓，再點人員，按「套用」一次完成。已經排好的人會先打勾，取消勾選就是取消那筆。</li>
                 <li><b>首頁每日卡片</b>：假日只列留守；「未點」收成一個按鈕，點開看名單。</li>
                 <li><b>產出</b>：彈射、軍械各用自己班，股總用全部人員。選「假日留守」＋「本週」就是這週誰留守。</li>
-                <li><b>加班</b>：選日期、督導、時間、事由、點人員，文字會自動排好，按「複製文字」貼出去；也可以按紫色的「加入勤務月曆」，這批人會寫進公差勤務，大家都看得到（要彈射密碼）。事由會記住最近用過的。</li>
+                <li><b>加班</b>：選日期、督導、時間、事由、點人員，文字會自動排好，按「複製文字」貼出去；也可以按紫色的「加入勤務月曆」，這批人會寫進公差勤務，大家都看得到（彈射、軍械、股總的密碼都可以）。事由會記住最近用過的。</li>
               </ul>
               <div class="kbd" style="white-space:pre-line;font-weight:600;line-height:1.7">今日(10／29)夜間加班人員：
 督導：何謙
@@ -2552,7 +2552,7 @@ td.cell.stampin::before { animation: stampin .34s cubic-bezier(.3,.9,.4,1) both;
       function dayTryUnlock(pw, cb) {
         if (!pw) { cb(false); return; }
         apiCall({ action: 'auth', token: pw }).then(function (res) {
-          if (!res || !res.ok || res.role !== '彈射') { cb(false); return; }
+          if (!res || !res.ok || ['彈射', '軍械', '股總'].indexOf(res.role) < 0) { cb(false); return; }
           prefs.dutyPw = pw; savePrefs(); renderDutyMon(); renderDutyDay(); showToast('已解鎖，可以新增／修改／刪除', null, null, 2200); cb(true);
         }).catch(function () { cb(false); });
       }
@@ -2560,7 +2560,7 @@ td.cell.stampin::before { animation: stampin .34s cubic-bezier(.3,.9,.4,1) both;
         var pw = $('dutyPwIn').value.trim(); if (!pw) return;
         $('dutyPwMsg').textContent = '';
         apiCall({ action: 'auth', token: pw }).then(function (res) {
-          if (!res || !res.ok || res.role !== '彈射') { $('dutyPwMsg').textContent = '這個密碼不能編輯公差勤務'; return; }
+          if (!res || !res.ok || ['彈射', '軍械', '股總'].indexOf(res.role) < 0) { $('dutyPwMsg').textContent = '這個密碼不能編輯公差勤務'; return; }
           prefs.dutyPw = pw; savePrefs(); $('dutyPwRow').hidden = true; $('dutyPwIn').value = ''; renderDutyMon();
         }).catch(function (e) { $('dutyPwMsg').textContent = '無法驗證：' + e.message; });
       }
@@ -4317,6 +4317,7 @@ td.cell.stampin::before { animation: stampin .34s cubic-bezier(.3,.9,.4,1) both;
         $('idInst').hidden = instStandalone() || no || !mobile;
       }
       var CHANGELOG = [
+        { v: 'v10.35', d: '10/31', t: ['彈射、軍械、股總的密碼都可以新增／編輯／刪除公差、寫備註、加班加入勤務月曆（後端第二十一版）'] },
         { v: 'v10.34', d: '10/31', t: ['加班頁「加入勤務月曆」改成醒目的紫色大按鈕，第一次使用會跳出說明；使用導覽也補上說明'] },
         { v: 'v10.33', d: '10/31', t: ['輪值預排（擴大FO 0740–0900、查庫 0900–1000）併進當天時間軸，用虛線標示表定'] },
         { v: 'v10.32', d: '10/31', t: ['密碼輸入框還原成原本的排法（主畫面版本鍵盤才正常），不再浮在畫面上'] },
@@ -4833,9 +4834,9 @@ td.cell.stampin::before { animation: stampin .34s cubic-bezier(.3,.9,.4,1) both;
           }
           if (dutyEditor()) { go(); return; }
           var tryPw = prefs.pw;
-          if (!tryPw) { showToast('請先用彈射密碼登入，或到公差勤務解鎖編輯', null, null, 3200); return; }
+          if (!tryPw) { showToast('請先用彈射、軍械或股總密碼登入，或到公差勤務解鎖編輯', null, null, 3200); return; }
           apiCall({ action: 'auth', token: tryPw }).then(function (res) {
-            if (!res || !res.ok || res.role !== '彈射') { showToast('這個身分不能加入勤務月曆（要彈射密碼）', null, null, 3200); return; }
+            if (!res || !res.ok || ['彈射', '軍械', '股總'].indexOf(res.role) < 0) { showToast('這個密碼不能編輯公差勤務（要用彈射、軍械或股總的密碼）', null, null, 3200); return; }
             prefs.dutyPw = tryPw; savePrefs(); go();
           }).catch(function (e) { showToast('無法驗證：' + e.message, null, null, 3000); });
         });
