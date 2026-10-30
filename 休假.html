@@ -974,6 +974,20 @@ body.guest .editbtn, body.guest #floatBar #editBtnF, body.guest #dutyPlan { disp
 .cmpsec { display: flex; align-items: center; justify-content: space-between; gap: 8px; flex-wrap: wrap; }
 .cmpbulk { min-height: 38px; padding: 0 12px; font-size: 14px; }
 
+/* ===== 這週還沒點假單 ===== */
+#brief:empty { display: none; }
+.bmiss { padding: 10px 12px; }
+.bmh { display: flex; align-items: baseline; gap: 8px; flex-wrap: wrap; }
+.bmh b { font-size: 16px; color: var(--offtext); }
+.bmiss.ok .bmh b { color: var(--pm); }
+.bmd { font-size: 13px; color: var(--muted); }
+.bmn { margin-left: auto; background: var(--red); color: #fff; font-weight: 800; font-size: 13px; padding: 2px 10px; border-radius: 999px; }
+.bmc { display: flex; flex-wrap: wrap; gap: 6px; margin-top: 8px; }
+.mchip { display: inline-flex; align-items: baseline; gap: 5px; padding: 4px 10px; border-radius: 10px; background: var(--off); border: 1.5px solid var(--stay); color: var(--offtext); font-weight: 800; font-size: 15px; }
+.mchip i { font-style: normal; font-size: 11.5px; font-weight: 600; opacity: .85; }
+.mmore { border: 1.5px dashed var(--stay); background: none; color: var(--offtext); font-weight: 800; font-size: 14px; padding: 4px 12px; border-radius: 10px; cursor: pointer; }
+td.cell.hint { opacity: .36; }
+
   </style>
 </head>
 <body>
@@ -1533,7 +1547,7 @@ body.guest .editbtn, body.guest #floatBar #editBtnF, body.guest #dutyPlan { disp
       }
       function finishGate() {
         $('idGate').classList.remove('show');
-        prefs.chosen = true; savePrefs(); rebuildView(); editing = false; armEdit(); applyRO();
+        prefs.chosen = true; savePrefs(); rebuildView(); editing = false; armEdit(); applyRO(); noticeDone = false;
         setTab('days');
         if (prefs.pw) setEditing(true, '已登入（' + prefs.role + '），編輯中');
         ensureData(true);
@@ -1688,6 +1702,25 @@ body.guest .editbtn, body.guest #floatBar #editBtnF, body.guest #dutyPlan { disp
       function cmpIndex() { var m = {}; cmpList().forEach(function (c) { m[c.k + '|' + c.n] = true; }); return m; }
       function cmpMonthIds() { return myRole() ? idsOfKeys([todayKey(), addDays(todayKey(), 31)]) : []; }
       function recOrBlank(r) { return r ? recLabel(r) : '（空白）'; }
+      var noticeDone = false;
+      function maybeNotice(sp) {
+        if (noticeDone || myRole() !== '股總' || !sp.theirsOnly.length) return;
+        noticeDone = true;
+        setTimeout(function () {
+          var tm = $('tourMask');
+          if ($('idGate').classList.contains('show') || (tm && tm.classList.contains('show')) || $('sheetMask').classList.contains('show')) return;
+          var n = sp.theirsOnly.length;
+          openSheet({
+            title: '班長已經點假單囉！',
+            sub: '有 ' + n + ' 筆班長記了、你還沒記',
+            body: '<div class="sec"><b>淡色的格子</b>就是班長已經記的，點一下就能直接採用。也可以一次全部採用。</div>',
+            actions: [
+              { label: '全部採用班長的（' + n + ' 筆）', cls: 'main', fn: function () { if (isRO()) setEditing(true); cmpAct({ dataset: { cact: 'adoptall' } }); } },
+              { label: '先去看看', fn: function () { cmpOpen = true; setTab('days'); } }
+            ]
+          });
+        }, 700);
+      }
       function cmpSplit() {
         var role = myRole(), sp = { diff: [], mineOnly: [], theirsOnly: [] };
         cmpList().forEach(function (c) {
@@ -1702,6 +1735,7 @@ body.guest .editbtn, body.guest #floatBar #editBtnF, body.guest #dutyPlan { disp
         var role = myRole();
         if (!role || !cfg.splitFrom || !employees.length || !isReady(cmpMonthIds())) { box.innerHTML = ''; return; }
         var other = role === '班長' ? '股總' : '班長', sp = cmpSplit();
+        maybeNotice(sp);
         if (!sp.diff.length && !sp.mineOnly.length && !sp.theirsOnly.length) { box.innerHTML = ''; return; }
         var parts = [];
         if (sp.diff.length) parts.push('<b>' + sp.diff.length + '</b> 筆兩邊不一樣');
@@ -2430,6 +2464,11 @@ body.guest .editbtn, body.guest #floatBar #editBtnF, body.guest #dutyPlan { disp
             var cls = 'cell' + (inf.off ? ' off' : '');
             var txt = '';
             if (rec && !catOn(rec)) rec = null;
+            var ghost = false, rl0 = myRole();
+            if (!rec && rl0 && cfg.splitFrom && banMap[emp.name] && k >= cfg.splitFrom) {
+              var gr0 = ((rl0 === '班長' ? recsB : recsA)[k] || {})[emp.name];
+              if (gr0 && catOn(gr0)) { rec = gr0; ghost = true; cls += ' hint'; }
+            }
             if (isLeave(rec)) {
               cls += ' ' + periodClass(rec); txt = '休';
             } else if (isAway(rec)) {
@@ -2437,7 +2476,7 @@ body.guest .editbtn, body.guest #floatBar #editBtnF, body.guest #dutyPlan { disp
             } else if (isDuty(rec)) {
               cls += ' ' + periodClass(rec); txt = rec.period === '留守' ? '留' : '監';
             }
-            if (cx && cx[k + '|' + emp.name]) cls += ' cmpx';
+            if (cx && cx[k + '|' + emp.name] && !ghost) cls += ' cmpx';
             if (fromGu(k, emp.name)) cls += ' fromgu';
             h += '<td class="' + cls + '" data-date="' + k + '" data-name="' + esc(emp.name) + '">' + txt + '</td>';
           });
@@ -2482,54 +2521,24 @@ body.guest .editbtn, body.guest #floatBar #editBtnF, body.guest #dutyPlan { disp
         return list;
       }
       function renderBrief() {
-        var box = $('brief'), list = briefList(), tk = todayKey();
+        var box = $('brief');
         if (!employees.length) { box.innerHTML = ''; return; }
-        if (!isReady(idsOfKeys(list))) { box.innerHTML = '<div class="brow"><span class="muted">讀取中…</span></div>'; return; }
-        var open = !!prefs.briefOpen, h = '';
-        var offs = list.filter(function (k) { return dayInfo(k).off; });
-        if (!offs.length) offs = [list[0]];
-        var allOff = offs.every(function (k) { return dayInfo(k).off; });
-        if (!open && allOff) {
-          var nm = [], seenN = {}, nUf = 0, labs = [];
-          offs.forEach(function (k) {
-            stayOf(k).map(fmtStay).forEach(function (t) { if (!seenN[t]) { seenN[t] = 1; nm.push(t); } });
-            nUf += unfiledOf(k).length;
-          });
-          var lab = offs.length > 1 ? mdLabel(offs[0]) + '–' + mdLabel(offs[offs.length - 1]) : '週' + wkOf(offs[0]) + ' ' + mdLabel(offs[0]);
-          h += '<div class="bsum" data-btoggle="1" role="button" tabindex="0">' +
-            '<b>' + (offs.length > 1 ? '假日 ' : '') + lab + '</b>' +
-            '<span class="st">留守：' + (nm.length ? esc(nm.join('、')) : '尚未排') + '</span>' +
-            '<span class="td' + (nUf ? '' : ' ok') + '">' + (nUf ? '未點 ' + nUf : '✓ 已點完') + '</span>' +
-            '<i class="caret"></i></div>';
-        } else offs.forEach(function (k, i) {
-          var inf = dayInfo(k), st = stayOf(k).map(fmtStay), uf = unfiledOf(k), isT = (k === tk);
-          h += '<div class="bsum' + (isT ? ' today' : '') + '" data-btoggle="1" role="button" tabindex="0">' +
-            '<b>' + (isT ? '今天' : '週' + wkOf(k)) + ' ' + mdLabel(k) + (inf.label ? ' ' + esc(inf.label) : '') + '</b>' +
-            '<span class="st">' + (inf.off ? '留守：' + (st.length ? esc(st.join('、')) : '無') : '') + '</span>' +
-            '<span class="td' + (uf.length ? '' : ' ok') + '">' + (uf.length ? '未點 ' + uf.length : '✓ 已點完') + '</span>' +
-            (i === 0 ? '<i class="caret' + (open ? ' up' : '') + '"></i>' : '<i class="caret sp"></i>') + '</div>';
+        var offs = briefList().filter(function (k) { return dayInfo(k).off; });
+        if (!offs.length) { box.innerHTML = ''; return; }
+        if (!isReady(idsOfKeys(offs))) { box.innerHTML = '<div class="bmiss"><span class="muted">讀取中…</span></div>'; return; }
+        var miss = [], map = {};
+        offs.forEach(function (k) {
+          unfiledOf(k).forEach(function (x) { if (!map[x.name]) { map[x.name] = []; miss.push(x.name); } map[x.name].push(k); });
         });
-        if (open) {
-          list.forEach(function (k) {
-            var inf = dayInfo(k), lv = leavesOf(k), isT = (k === tk);
-            h += '<div class="brow' + (inf.off ? ' off' : '') + (isT ? ' today' : '') + '" data-date="' + k + '" role="button" tabindex="0">' +
-              '<span class="bd"><b>' + (isT ? '今天' : '週' + wkOf(k)) + '</b>' + mdLabel(k) + (inf.label ? ' ' + esc(inf.label) : '') + '</span><div class="bc">';
-            if (inf.off) {
-              var st = stayOf(k), mo = monOf(k), uf = unfiledOf(k);
-              h += '<span class="bl">留守</span>' + (st.length ? st.map(function (x) { return stayChip(x, k); }).join('') : '<span class="muted">無</span>');
-              if (mo.length) h += '<span class="bl">監控</span>' + mo.map(function (x) { return monChip(x, k); }).join('');
-              h += awayBrief(k);
-              h += uf.length ? '<span class="bl todo">未點</span>' + ufHtml(k, uf, true) : '<span class="ok">✓ 全部已點</span>';
-            } else {
-              h += lv.length ? '<span class="bl">休</span>' + lv.map(function (x) { return leaveChip(x, k); }).join('') : (awayOf(k).length ? '' : '<span class="ok">全員到班</span>');
-              h += awayBrief(k);
-              var mo2 = monOf(k);
-              if (mo2.length) h += '<span class="bl">監控</span>' + mo2.map(function (x) { return monChip(x, k); }).join('');
-            }
-            h += '</div></div>';
-          });
-        }
-        box.innerHTML = h;
+        var lab = offs.length > 1 ? mdLabel(offs[0]) + '–' + mdLabel(offs[offs.length - 1]) : mdLabel(offs[0]);
+        var h = '<div class="bmiss' + (miss.length ? '' : ' ok') + '"><div class="bmh"><b>' + (miss.length ? '這週還沒點假單' : '這週都點完了 ✓') + '</b><span class="bmd">假日 ' + lab + '</span>' +
+          (miss.length ? '<span class="bmn">' + miss.length + ' 人</span>' : '') + '</div>';
+        var LIM = 8, more = miss.length > LIM && !prefs.briefOpen, shown = more ? miss.slice(0, LIM) : miss;
+        if (miss.length) h += '<div class="bmc">' + shown.map(function (n) {
+          var ds = map[n];
+          return '<span class="mchip">' + esc(n) + (ds.length < offs.length ? '<i>' + ds.map(function (d) { return mdLabel(d); }).join('、') + '</i>' : '') + '</span>';
+        }).join('') + (miss.length > LIM ? '<button class="mmore" data-btoggle="1">' + (more ? '還有 ' + (miss.length - LIM) + ' 人 ▾' : '收起 ▴') + '</button>' : '') + '</div>';
+        box.innerHTML = h + '</div>';
       }
 
       function catOn(r) {
@@ -2555,7 +2564,8 @@ body.guest .editbtn, body.guest #floatBar #editBtnF, body.guest #dutyPlan { disp
             '<span><i style="background:var(--stay)"></i>留守</span>' +
             '<span><i style="background:var(--mon)"></i>監控</span>' +
             '<span><i style="background:var(--away)"></i>救災／出差／受訓</span>' +
-            '<span><i style="background:var(--card);border:1.5px solid var(--ink)"></i>空白＝還沒點</span></div>',
+            '<span><i style="background:var(--card);border:1.5px solid var(--ink)"></i>空白＝還沒點</span>' +
+            (myRole() ? '<span><i style="background:var(--full);opacity:.35"></i>淡色＝對方記了、你還沒記</span>' : '') + '</div>',
           actions: [{ label: '只留表格', fn: function () { var o = {}; for (var kk in (prefs.show || {})) o[kk] = prefs.show[kk]; o.top = o.bar = o.brief = o.foot = false; prefs.show = o; savePrefs(); renderSched(); showToast('已收起，左上角的小按鈕可以再打開', null, null, 2400); } }, { label: '全部顯示', fn: function () { prefs.show = {}; savePrefs(); renderSched(); } }, { label: '看完整使用說明', fn: goHelp }]
         });
       }
