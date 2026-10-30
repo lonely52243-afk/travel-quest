@@ -1002,6 +1002,63 @@ td.cell.hint { opacity: .36; }
 
 .idbtn[data-id="arm"] { border-left: 10px solid var(--green, #5aa469); }
 
+#dutyPage { display: none; position: fixed; inset: 0; z-index: 9000; background: var(--bg); overflow-y: auto; padding: calc(16px + env(safe-area-inset-top)) 16px calc(24px + env(safe-area-inset-bottom)); }
+#dutyPage.show { display: block; }
+#dutyPage .dhead { display: flex; align-items: baseline; gap: 10px; margin-bottom: 14px; }
+#dutyPage .dhead b { font-size: 22px; letter-spacing: 2px; }
+#dutyPage .dhead span { flex: 1; color: var(--muted); font-size: 13px; }
+.dnav { display: flex; align-items: center; justify-content: space-between; margin-bottom: 8px; }
+.dnav #dutyTitle { font-size: 20px; font-weight: 700; }
+.dnav button { min-width: 48px; font-size: 22px; }
+#dutyGrid { display: grid; grid-template-columns: repeat(7, 1fr); gap: 3px; }
+#dutyGrid .dwk { text-align: center; font-size: 13px; color: var(--muted); padding: 4px 0; }
+.dcell { display: flex; flex-direction: column; align-items: stretch; gap: 2px; min-height: 76px; padding: 4px 2px; background: var(--card); border: 1.5px solid var(--line, #d9cfb8); border-radius: 8px; color: var(--text); font: inherit; cursor: pointer; text-align: center; }
+.dcell b { font-size: 14px; }
+.dcell.off b { color: #c8433a; }
+.dcell.dim { opacity: .4; }
+.dcell.today { border: 2.5px solid var(--ink); }
+.dcell .dc { font-style: normal; font-size: 11px; border-radius: 4px; padding: 1px 0; color: #fff; }
+.dc.rest { background: #2a68c8; } .dc.stay { background: #cc3a3a; } .dc.mon { background: #1d2a4a; } .dc.out { background: #d9548a; }
+.dsec { margin-bottom: 10px; } .dsec b { display: block; margin-bottom: 2px; } .dsec div { line-height: 1.6; }
+.dtip { text-align: center; color: var(--muted); font-size: 13px; margin-top: 12px; }
+
+#quickPage { display: none; position: fixed; inset: 0; z-index: 9500; background: var(--bg); overflow-y: auto; padding: calc(16px + env(safe-area-inset-top)) 16px calc(24px + env(safe-area-inset-bottom)); }
+#quickPage.show { display: block; }
+#quickPage .dhead { display: flex; align-items: baseline; gap: 10px; margin-bottom: 12px; }
+#quickPage .dhead b { font-size: 22px; letter-spacing: 2px; }
+#quickPage .dhead span { flex: 1; }
+#qkText { width: 100%; box-sizing: border-box; padding: 10px; font: inherit; font-size: 16px; border: 2px solid var(--ink); border-radius: 12px; background: var(--card); color: var(--text); }
+.qkrow { display: flex; gap: 10px; margin-top: 12px; }
+.qkrow label, .qkl { flex: 1; display: block; font-size: 13px; color: var(--muted); margin-top: 10px; }
+.qkrow label { margin-top: 0; }
+.qkrow input, .qkl input { display: block; width: 100%; box-sizing: border-box; margin-top: 4px; padding: 10px; font: inherit; font-size: 16px; border: 2px solid var(--ink); border-radius: 10px; background: var(--card); color: var(--text); }
+.qkh { margin: 14px 0 6px; font-size: 13px; color: var(--muted); }
+#qkPeople { display: flex; flex-wrap: wrap; gap: 8px; }
+.qkchip { padding: 8px 14px; border-radius: 999px; border: 2px solid var(--ink); background: var(--card); color: var(--text); font: inherit; font-size: 16px; opacity: .55; }
+.qkchip.on { background: var(--yellow); opacity: 1; font-weight: 700; }
+.qkchip.no { border-style: dashed; opacity: .4; }
+.qkcard { background: var(--card); border: 2px solid var(--ink); border-radius: 14px; padding: 4px 12px 12px; margin-top: 12px; }
+.qkchips { display: flex; flex-wrap: wrap; gap: 8px; align-items: center; }
+.qkadd { width: 140px; padding: 6px; font: inherit; font-size: 14px; border: 2px dashed var(--ink); border-radius: 10px; background: var(--card); color: var(--text); }
+.dpw { display: flex; flex-wrap: wrap; gap: 8px; margin-bottom: 10px; }
+.dpw input { flex: 1; min-width: 120px; padding: 10px; font: inherit; font-size: 16px; border: 2px solid var(--ink); border-radius: 10px; background: var(--card); color: var(--text); }
+.dpw .idmsg { width: 100%; }
+.dc.duty { background: #7a4bc2; }
+#dutyPage .dhead .ghost { font-size: 14px; padding: 6px 10px; }
+
+#sheetMask { z-index: 9800; } #toast { z-index: 9900; } #tourMask { z-index: 9850; }
+.idsec { margin: 16px 2px 8px; font-size: 13px; font-weight: 800; color: var(--muted); letter-spacing: 2px; }
+.idgrid2 { display: grid; grid-template-columns: 1fr 1fr; gap: 10px; }
+.idgrid3 { display: grid; grid-template-columns: 1fr 1fr 1fr; gap: 10px; }
+.idgrid2 .idbtn, .idgrid3 .idbtn { margin: 0; min-height: 0; padding: 14px 12px; align-items: center; text-align: center; }
+.idgrid2 .idbtn b { font-size: 19px; letter-spacing: 1px; }
+.idgrid3 .idbtn b { font-size: 21px; letter-spacing: 2px; }
+.idgrid2 .idbtn span, .idgrid3 .idbtn span { font-size: 12.5px; line-height: 1.4; }
+.idgrid3 .idbtn { border-top: 8px solid var(--ink); border-left: 2px solid var(--ink); }
+.idgrid3 .idbtn[data-id="ban"] { border-top-color: var(--full); }
+.idgrid3 .idbtn[data-id="arm"] { border-top-color: #5aa469; }
+.idgrid3 .idbtn[data-id="gu"] { border-top-color: var(--yellow); }
+
   </style>
 </head>
 <body>
@@ -1333,14 +1390,37 @@ td.cell.hint { opacity: .36; }
     <footer id="foot">吱吱製作</footer>
   </main>
 
+  <div id="quickPage" role="dialog" aria-label="快速標記">
+    <div class="dhead"><b>快速標記</b><span></span><button class="ghost" id="qkClose">關閉</button></div>
+    <textarea id="qkText" rows="6" placeholder="把通知文字貼在這裡（例：11月12日…打靶…@王志鵬 @郭瓊嵐）"></textarea>
+    <div id="qkList"></div>
+    <button class="primary" id="qkGo" style="width:100%;margin-top:14px" disabled>標記 0 人</button>
+  </div>
+
+  <div id="dutyPage" role="dialog" aria-label="公差勤務">
+    <div class="dhead"><b>公差勤務</b><span></span><button class="ghost" id="dutyEditBtn">編輯</button><button class="ghost" id="dutyBack">換身分</button></div>
+    <div id="dutyPwRow" class="dpw" hidden><input type="password" id="dutyPwIn" inputmode="numeric" autocomplete="off" placeholder="編輯密碼" aria-label="編輯密碼"><button class="primary small" id="dutyPwOk">確定</button><div id="dutyPwMsg" class="idmsg"></div></div>
+    <button class="primary" id="qkOpen" hidden style="width:100%;margin-bottom:10px">貼上文字快速標記公差</button>
+    <div class="dnav"><button class="ghost" id="dutyPrev" aria-label="上個月">‹</button><div id="dutyTitle"></div><button class="ghost" id="dutyNext" aria-label="下個月">›</button></div>
+    <div id="dutyGrid"></div>
+    <div class="dtip">點日期看當天所有同仁</div>
+  </div>
+
   <div id="idGate" role="dialog" aria-modal="true" aria-label="選擇身分">
     <div class="idbox">
-      <div class="idtitle">你是哪一位？</div>
-      <div class="idsub">選一次就好，之後會記住。</div>
-      <button class="idbtn" data-id="guest"><b>一般</b><span>查看全部・可新增留守</span></button>
-      <button class="idbtn" data-id="ban"><b>彈射</b><span>記彈射班</span></button>
-      <button class="idbtn" data-id="arm"><b>軍械</b><span>記軍械班</span></button>
-      <button class="idbtn" data-id="gu"><b>股總</b><span>記全部同仁</span></button>
+      <div class="idtitle">同仁班表</div>
+      <div class="idsub">今天要做什麼？</div>
+      <div class="idsec">只看（不用密碼）</div>
+      <div class="idgrid2">
+        <button class="idbtn" data-id="guest"><b>休假班表</b><span>看全部同仁<br>可新增留守</span></button>
+        <button class="idbtn" data-id="duty"><b>公差勤務</b><span>月曆總覽<br>點日期看全部</span></button>
+      </div>
+      <div class="idsec">要記錄（需要密碼）</div>
+      <div class="idgrid3">
+        <button class="idbtn" data-id="ban"><b>彈射</b><span>記彈射班</span></button>
+        <button class="idbtn" data-id="arm"><b>軍械</b><span>記軍械班</span></button>
+        <button class="idbtn" data-id="gu"><b>股總</b><span>記全部</span></button>
+      </div>
       <div class="idpw" id="idPw" hidden>
         <div class="idfor" id="idPwFor"></div>
         <input type="password" id="idPwInput" inputmode="numeric" autocomplete="off" placeholder="密碼" aria-label="密碼">
@@ -1465,7 +1545,7 @@ td.cell.hint { opacity: .36; }
       var ignoreClick = false;
       var toastTimer = null;
       var cacheTimer = null;
-      var prefs = { theme: 'light', view: 'week', me: '', pw: '', group: '', seen: false, chosen: false, gHint: false, briefOpen: false, away: [], tips: {}, show: {}, full: false, role: '', ign: {},
+      var prefs = { theme: 'light', view: 'week', me: '', pw: '', group: '', seen: false, chosen: false, gHint: false, briefOpen: false, away: [], tips: {}, show: {}, full: false, role: '', ign: {}, duty: false, dutyPw: '',
         ot: { sup: '', from: '1800', to: '1900', why: '', rec: [], short: true, when: '夜間' } };
       var editing = false, editT = null;
       var daysFrom = todayKey(), daysCount = 21, daysBusy = false;
@@ -1555,6 +1635,202 @@ td.cell.hint { opacity: .36; }
         else { b.className = 'editbtn'; b.innerHTML = '<i class="eic lock"></i>唯讀'; }
       }
       var gateWant = '';
+      var QK_WHY = ['打靶', '趕修作業', '救災', '出差', '受訓', '演習', '訓練', '比賽', '會議', '教育', '校閱', '檢查', '支援', '防水監', '公差', '監工'];
+      var qkEv = [];
+      function qkMk(y, m, d) { return y + '-' + pad(m) + '-' + pad(d); }
+      function qkDatesIn(txt) {
+        var out = [], y0 = new Date().getFullYear(), tk = todayKey();
+        function add(k) { if (out.indexOf(k) < 0) out.push(k); }
+        var s = txt.replace(/(^|[^\d])(\d{3,4})\s*[.\/年]\s*(\d{1,2})\s*[.\/月]\s*(\d{1,2})\s*[日號号]?/g, function (all, pre, a, b, c) {
+          var yy = +a; if (yy < 1911) yy += 1911;
+          if (+b >= 1 && +b <= 12 && +c >= 1 && +c <= 31) add(qkMk(yy, +b, +c));
+          return pre + ' ';
+        });
+        var re = /(\d{1,2})\s*[月\/]\s*(\d{1,2})\s*[日號号]?(?:\s*[至到~～－\-]\s*(?:(\d{1,2})\s*[月\/]\s*)?(\d{1,2})\s*[日號号]?)?/g, m;
+        function mk(mm, dd) { var k = qkMk(y0, mm, dd); return k < addDays(tk, -200) ? qkMk(y0 + 1, mm, dd) : k; }
+        while ((m = re.exec(s))) {
+          var m1 = +m[1], d1 = +m[2]; if (m1 < 1 || m1 > 12 || d1 < 1 || d1 > 31) continue;
+          var a2 = mk(m1, d1), b2 = a2;
+          if (m[4]) { var m2 = m[3] ? +m[3] : m1, d2 = +m[4]; if (m2 >= 1 && m2 <= 12 && d2 >= 1 && d2 <= 31) { b2 = mk(m2, d2); if (b2 < a2) b2 = a2; } }
+          for (var k = a2, n = 0; k <= b2 && n < 31; k = addDays(k, 1), n++) add(k);
+        }
+        return out.sort();
+      }
+      function qkAll() { return (stockGroup() ? stockGroup().employees : employees) || []; }
+      function qkNames(txt) {
+        var all = qkAll(), hit = {};
+        all.forEach(function (e) {
+          var n = e.name; if (txt.indexOf(n) >= 0) hit[n] = 1;
+          var g = n.slice(1); if (g.length >= 2 && txt.indexOf(g) >= 0) hit[n] = 1;
+        });
+        var re = /@~?\s*([^\s@~,，、:：;；（(]+)/g, m;
+        while ((m = re.exec(txt))) all.forEach(function (e) { if (m[1] === e.name || (m[1].length >= 2 && e.name.indexOf(m[1]) >= 0)) hit[e.name] = 1; });
+        return all.map(function (e) { return e.name; }).filter(function (n) { return hit[n]; });
+      }
+      function qkStrip(p) {
+        var s = p.replace(/(^|[^\d])(\d{3,4})\s*[.\/年]\s*\d{1,2}\s*[.\/月]\s*\d{1,2}\s*[日號号]?/g, '$1 ')
+                 .replace(/\d{1,2}\s*[月\/]\s*\d{1,2}\s*[日號号]?/g, ' ').replace(/@~?\S+/g, ' ');
+        qkAll().forEach(function (e) { s = s.split(e.name).join(' '); var g = e.name.slice(1); if (g.length >= 2) s = s.split(g).join(' '); });
+        return s.replace(/[、，,。.:：;；()（）\s\-－]/g, '');
+      }
+      function qkWhy(b) {
+        var m = b.match(/(?:目的|事由|內容|任務)\s*[:：]\s*([^\n]{2,14})/);
+        if (m) { var t = m[1].replace(/[\s（(].*$/, ''); if (t.length >= 2) return t.slice(0, 10); }
+        var ps = b.split(/\n\s*\n/);
+        for (var i = ps.length - 1; i >= 1; i--) {
+          var r = qkStrip(ps[i]);
+          if (r.length >= 2 && r.length <= 10 && (/\d{1,2}\s*[月\/]\s*\d{1,2}/.test(ps[i]) || qkNames(ps[i]).length)) return r;
+        }
+        for (var j = 0; j < QK_WHY.length; j++) if (b.indexOf(QK_WHY[j]) >= 0) return QK_WHY[j];
+        return '';
+      }
+      function qkParse(txt) {
+        var blocks = txt.split(/(?:^|\n)[ \t]*[-－—–]+[ \t]*(?:\n|$)/).map(function (x) { return x.trim(); }).filter(Boolean);
+        return blocks.map(function (b) {
+          var dl = b.match(/日期\s*[:：]([^\n]*)/), ds = qkDatesIn(dl ? dl[1] : b);
+          if (!ds.length) ds = qkDatesIn(b);
+          return {
+            dates: ds.map(function (k) { return { k: k, on: true }; }),
+            people: qkNames(b).map(function (n) { return { n: n, on: true }; }),
+            why: qkWhy(b)
+          };
+        }).filter(function (e) { return e.people.length; });
+      }
+      function qkAnalyze() { qkEv = qkParse($('qkText').value); qkRender(); }
+      function qkCount() {
+        var c = 0;
+        qkEv.forEach(function (e) {
+          var d = e.dates.filter(function (x) { return x.on; }).length, p = e.people.filter(function (x) { return x.on; }).length;
+          c += d * p;
+        });
+        return c;
+      }
+      function qkRender() {
+        var h = '';
+        qkEv.forEach(function (e, i) {
+          h += '<div class="qkcard"><div class="qkh">事項 ' + (i + 1) + '</div>';
+          h += '<label class="qkl">事由（外勤）<input type="text" class="qkwhy" data-e="' + i + '" maxlength="10" value="' + esc(e.why) + '" placeholder="例：打靶"></label>';
+          h += '<div class="qkh">日期（點一下可取消）</div><div class="qkchips">';
+          e.dates.forEach(function (d, j) { h += '<button class="qkchip dt' + (d.on ? ' on' : '') + '" data-e="' + i + '" data-d="' + j + '">' + mdLabel(d.k) + '（' + wkOf(d.k) + '）</button>'; });
+          h += '<input type="date" class="qkadd" data-e="' + i + '" aria-label="加日期"></div>';
+          h += '<div class="qkh">人（點一下可取消）</div><div class="qkchips">';
+          e.people.forEach(function (p, j) {
+            var ok = true;
+            h += '<button class="qkchip pp' + (p.on ? ' on' : '') + (ok ? '' : ' no') + '" data-e="' + i + '" data-p="' + j + '">' + esc(p.n) + (ok ? '' : '（不在你的範圍）') + '</button>';
+          });
+          h += '</div></div>';
+        });
+        if (!h) h = '<div class="muted" style="margin-top:12px">貼上文字後，這裡會顯示找到的日期、事由和人名。</div>';
+        $('qkList').innerHTML = h;
+        var cnt = qkCount();
+        $('qkGo').textContent = cnt ? '標記 ' + cnt + ' 格' : '標記';
+        $('qkGo').disabled = !cnt;
+      }
+      function qkApply() {
+        var arr = [], seen = {}, i;
+        for (i = 0; i < qkEv.length; i++) {
+          var e = qkEv[i], why = e.why.trim().slice(0, 10);
+          var ds = e.dates.filter(function (x) { return x.on; }), ps = e.people.filter(function (x) { return x.on; });
+          if (!ds.length || !ps.length) continue;
+          if (!why) { showToast('事項 ' + (i + 1) + ' 要填事由（例：打靶）', null, null, 2800); return; }
+          ds.forEach(function (d) { ps.forEach(function (p) {
+            var id = d.k + '|' + p.n + '|' + why; if (seen[id]) return; seen[id] = 1;
+            arr.push({ date: d.k, name: p.n, why: why });
+          }); });
+        }
+        if (!arr.length) { showToast('沒有選到要加的', null, null, 2600); return; }
+        $('qkGo').disabled = true;
+        apiCall({ action: 'addDuty', token: prefs.dutyPw, items: JSON.stringify(arr) }).then(function (res) {
+          if (!res || !res.ok) { showToast((res && res.msg) || '新增失敗', null, null, 3200); $('qkGo').disabled = false; return; }
+          arr.forEach(function (it) {
+            var l = dutyAll[it.date] = dutyAll[it.date] || [];
+            if (!l.some(function (x) { return x.n === it.name && x.why === it.why; })) l.push({ n: it.name, why: it.why });
+          });
+          $('quickPage').classList.remove('show'); renderDutyMon();
+          showToast('已加入公差勤務 ' + res.added + ' 筆' + (res.added < arr.length ? '（' + (arr.length - res.added) + ' 筆本來就有）' : ''), null, null, 3000);
+        }).catch(function (err) { showToast('新增失敗：' + err.message, null, null, 3200); $('qkGo').disabled = false; });
+      }
+      var dutyYM = null, dutyAll = {};
+      function dutyEditor() { return !!prefs.dutyPw && !forcedRO; }
+      function dutyEmps() { var g = stockGroup(); return g ? (g.employees || []) : []; }
+      function dutyDayOf(k) {
+        var day = recordsPub[k] || {}, o = { rest: [], stay: [], mon: [], out: {}, duty: {}, nDuty: 0 };
+        dutyEmps().forEach(function (e) {
+          var r = day[e.name]; if (!r) return;
+          if (r.period === '留守') o.stay.push(e.name);
+          else if (r.period === '監控') o.mon.push(e.name);
+          else if (r.period === '外勤') (o.out[r.type || '外勤'] = o.out[r.type || '外勤'] || []).push(e.name);
+          else o.rest.push(e.name + (r.period === '全天' ? '' : '（' + r.period + '）'));
+        });
+        (dutyAll[k] || []).forEach(function (x) { (o.duty[x.why] = o.duty[x.why] || []).push(x.n); o.nDuty++; });
+        return o;
+      }
+      function renderDutyMon() {
+        if (!dutyYM) { var t = new Date(); dutyYM = [t.getFullYear(), t.getMonth() + 1]; }
+        var y = dutyYM[0], m = dutyYM[1];
+        $('dutyTitle').textContent = y + ' 年 ' + m + ' 月';
+        $('qkOpen').hidden = !dutyEditor();
+        $('dutyEditBtn').textContent = dutyEditor() ? '編輯中（點此鎖定）' : '編輯';
+        var first = new Date(y, m - 1, 1), start = new Date(y, m - 1, 1 - first.getDay()), tk = todayKey(), h = '';
+        ['日', '一', '二', '三', '四', '五', '六'].forEach(function (w) { h += '<div class="dwk">' + w + '</div>'; });
+        for (var i = 0; i < 42; i++) {
+          var d = new Date(start.getFullYear(), start.getMonth(), start.getDate() + i), k = keyOf(d);
+          if (i >= 35 && d.getMonth() !== m - 1) break;
+          var inM = d.getMonth() === m - 1, o = dutyDayOf(k), info = dayInfo(k), chips = '';
+          if (o.nDuty) chips += '<i class="dc duty">公差 ' + o.nDuty + '</i>';
+          if (o.rest.length) chips += '<i class="dc rest">休 ' + o.rest.length + '</i>';
+          if (o.stay.length) chips += '<i class="dc stay">留 ' + o.stay.length + '</i>';
+          if (o.mon.length) chips += '<i class="dc mon">監 ' + o.mon.length + '</i>';
+          var no = 0; Object.keys(o.out).forEach(function (w) { no += o.out[w].length; });
+          if (no) chips += '<i class="dc out">外勤 ' + no + '</i>';
+          h += '<button class="dcell' + (inM ? '' : ' dim') + (k === tk ? ' today' : '') + (info.off ? ' off' : '') + '" data-k="' + k + '"><b>' + d.getDate() + '</b>' + chips + '</button>';
+        }
+        $('dutyGrid').innerHTML = h;
+      }
+      function dutyRemove(k, why, names) {
+        names.forEach(function (n) {
+          dutyAll[k] = (dutyAll[k] || []).filter(function (x) { return !(x.n === n && x.why === why); });
+          enqueue(function () { return apiCall({ action: 'removeDuty', date: k, name: n, why: why, token: prefs.dutyPw }); });
+        });
+        renderDutyMon(); showToast('已刪除「' + why + '」' + names.length + ' 人', null, null, 2400);
+      }
+      function dutyOpen(k) {
+        var o = dutyDayOf(k), info = dayInfo(k), body = '', acts = [];
+        function sec(title, arr, cls) { if (arr.length) body += '<div class="dsec ' + cls + '"><b>' + title + '（' + arr.length + '）</b><div>' + esc(arr.join('、')) + '</div></div>'; }
+        Object.keys(o.duty).forEach(function (w) {
+          sec('公差：' + w, o.duty[w], 'duty');
+          if (dutyEditor()) acts.push({ label: '刪除「' + w + '」', fn: function () { dutyRemove(k, w, o.duty[w].slice()); } });
+        });
+        sec('休假', o.rest, 'rest'); sec('留守', o.stay, 'stay'); sec('監控', o.mon, 'mon');
+        Object.keys(o.out).forEach(function (w) { sec('外勤：' + w, o.out[w], 'out'); });
+        if (!body) body = '<div class="dsec"><div>這天沒有任何標記</div></div>';
+        openSheet({ title: mdLabel(k) + '（' + wkOf(k) + '）' + (info.label ? ' ' + info.label : ''), sub: '當天所有同仁', body: body, actions: acts });
+      }
+      function dutyLoad() {
+        if (!dutyYM) renderDutyMon();
+        var y = dutyYM[0], m = dutyYM[1], pre = y + '-' + pad(m);
+        fetchPeriod(y, m).then(function () { rebuildView(); renderDutyMon(); }).catch(function () { /* 忽略 */ });
+        apiCall({ action: 'getDuty', year: y, month: m }).then(function (res) {
+          if (!res || !res.ok) return;
+          Object.keys(dutyAll).forEach(function (k) { if (k.indexOf(pre) === 0) delete dutyAll[k]; });
+          (res.items || []).forEach(function (it) { (dutyAll[it.date] = dutyAll[it.date] || []).push({ n: it.name, why: it.why }); });
+          renderDutyMon();
+        }).catch(function () { /* 忽略 */ });
+      }
+      function dutyUnlock() {
+        var pw = $('dutyPwIn').value.trim(); if (!pw) return;
+        $('dutyPwMsg').textContent = '';
+        apiCall({ action: 'auth', token: pw }).then(function (res) {
+          if (!res || !res.ok || res.role !== '彈射') { $('dutyPwMsg').textContent = '這個密碼不能編輯公差勤務'; return; }
+          prefs.dutyPw = pw; savePrefs(); $('dutyPwRow').hidden = true; $('dutyPwIn').value = ''; renderDutyMon();
+        }).catch(function (e) { $('dutyPwMsg').textContent = '無法驗證：' + e.message; });
+      }
+      function showDuty() {
+        $('idGate').classList.remove('show');
+        $('dutyPage').classList.add('show');
+        renderDutyMon(); dutyLoad();
+      }
+      function hideDuty() { $('dutyPage').classList.remove('show'); }
       function goLogin() { showGate(); }
       function needGate() { return !forcedRO && !prefs.chosen && !prefs.pw; }
       function showGate() {
@@ -1578,13 +1854,14 @@ td.cell.hint { opacity: .36; }
           if (!res || !res.ok) { $('idMsg').textContent = (res && /密碼/.test(res.msg || '')) ? '密碼錯誤' : '無法驗證：' + ((res && res.msg) || '未知錯誤') + '（後端是否已更新？）'; return; }
           if (!res.role) { if (gateWant === '股總') { $('idMsg').textContent = '後端還是舊版，股總密碼不能用，請先更新後端。'; return; } res.role = '彈射'; }
           if (res.role !== gateWant) { $('idMsg').textContent = '這個密碼不是' + gateWant + '的，請確認有選對身分。'; return; }
-          prefs.pw = pw; prefs.role = res.role; finishGate();
+          prefs.duty = false; hideDuty(); prefs.pw = pw; prefs.role = res.role; finishGate();
         }).catch(function (e) { $('idOk').disabled = false; $('idMsg').textContent = '無法驗證：' + e.message; });
       }
       function bindGate() {
         $('idGate').addEventListener('click', function (ev) {
           var b = ev.target.closest('button'); if (!b) return;
-          if (b.dataset.id === 'guest') { prefs.pw = ''; prefs.role = ''; finishGate(); return; }
+          if (b.dataset.id === 'duty') { prefs.pw = ''; prefs.role = ''; prefs.duty = true; prefs.chosen = true; savePrefs(); showDuty(); return; }
+          if (b.dataset.id === 'guest') { prefs.duty = false; hideDuty(); prefs.pw = ''; prefs.role = ''; finishGate(); return; }
           if (b.dataset.id === 'ban' || b.dataset.id === 'arm' || b.dataset.id === 'gu') {
             gateWant = b.dataset.id === 'ban' ? '彈射' : (b.dataset.id === 'arm' ? '軍械' : '股總');
             $('idPwFor').textContent = '請輸入' + gateWant + '密碼'; $('idPw').hidden = false; $('idMsg').textContent = '';
@@ -1594,6 +1871,33 @@ td.cell.hint { opacity: .36; }
           if (b.id === 'idOk') gateLogin();
         });
         $('idPwInput').addEventListener('keydown', function (ev) { if (ev.key === 'Enter') gateLogin(); });
+        $('dutyEditBtn').addEventListener('click', function () {
+          if (dutyEditor()) { prefs.dutyPw = ''; savePrefs(); renderDutyMon(); return; }
+          $('dutyPwRow').hidden = !$('dutyPwRow').hidden; $('dutyPwMsg').textContent = '';
+          if (!$('dutyPwRow').hidden) setTimeout(function () { try { $('dutyPwIn').focus(); } catch (x) { /* 忽略 */ } }, 100);
+        });
+        $('dutyPwOk').addEventListener('click', dutyUnlock);
+        $('dutyPwIn').addEventListener('keydown', function (ev) { if (ev.key === 'Enter') dutyUnlock(); });
+        $('dutyPrev').addEventListener('click', function () { dutyYM = dutyYM[1] === 1 ? [dutyYM[0] - 1, 12] : [dutyYM[0], dutyYM[1] - 1]; renderDutyMon(); dutyLoad(); });
+        $('dutyNext').addEventListener('click', function () { dutyYM = dutyYM[1] === 12 ? [dutyYM[0] + 1, 1] : [dutyYM[0], dutyYM[1] + 1]; renderDutyMon(); dutyLoad(); });
+        $('dutyGrid').addEventListener('click', function (ev) { var b = ev.target.closest('.dcell'); if (b) dutyOpen(b.dataset.k); });
+        $('qkOpen').addEventListener('click', function () { $('qkText').value = ''; qkEv = []; qkRender(); $('quickPage').classList.add('show'); });
+        $('qkClose').addEventListener('click', function () { $('quickPage').classList.remove('show'); });
+        $('qkText').addEventListener('input', qkAnalyze);
+        $('qkList').addEventListener('click', function (ev) {
+          var b = ev.target.closest('.qkchip'); if (!b || b.classList.contains('no')) return;
+          var e = qkEv[+b.dataset.e]; if (!e) return;
+          if (b.dataset.d !== undefined) e.dates[+b.dataset.d].on = !e.dates[+b.dataset.d].on; else e.people[+b.dataset.p].on = !e.people[+b.dataset.p].on;
+          qkRender();
+        });
+        $('qkList').addEventListener('input', function (ev) { var t = ev.target; if (t.classList.contains('qkwhy')) qkEv[+t.dataset.e].why = t.value; });
+        $('qkList').addEventListener('change', function (ev) {
+          var t = ev.target; if (!t.classList.contains('qkadd') || !t.value) return;
+          var e = qkEv[+t.dataset.e]; if (!e.dates.some(function (x) { return x.k === t.value; })) { e.dates.push({ k: t.value, on: true }); e.dates.sort(function (a, b) { return a.k < b.k ? -1 : 1; }); }
+          qkRender();
+        });
+        $('qkGo').addEventListener('click', qkApply);
+        $('dutyBack').addEventListener('click', function () { hideDuty(); prefs.duty = false; prefs.chosen = false; savePrefs(); showGate(); });
         $('swId').addEventListener('click', function () {
           prefs.chosen = false; prefs.pw = ''; prefs.role = ''; editing = false; armEdit(); savePrefs();
           rebuildView(); applyRO(); renderAll(); showGate();
@@ -3104,6 +3408,7 @@ td.cell.hint { opacity: .36; }
         var btns = document.querySelectorAll('.tabbar button');
         for (var i = 0; i < btns.length; i++) btns[i].style.display = vis[btns[i].dataset.t] === false ? 'none' : '';
         document.body.classList.toggle('guest', id === 'guest');
+
         var ig = (groups.length && id !== 'guest' && id !== 'gu') ? idGroup() : null;
         function setLbl(t, txt) { var bt = document.querySelector('.tabbar button[data-t="' + t + '"]'); if (bt) { bt.lastChild.textContent = txt; bt.setAttribute('aria-label', txt); } }
         setLbl('sched', ig ? ig.name : '彈射班'); setLbl('gu', '全部');
@@ -3726,7 +4031,7 @@ td.cell.hint { opacity: .36; }
         renderAll();
         ensureData(false);
         updateBanner();
-        if (needGate()) showGate(); else if (!prefs.seen) setTimeout(showGuide, 700);
+        if (prefs.duty && !forcedRO) showDuty(); else if (needGate()) showGate(); else if (!prefs.seen) setTimeout(showGuide, 700);
       });
     })();
   
