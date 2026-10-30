@@ -919,6 +919,12 @@ td.cell.cmpx::after { content: "!"; position: absolute; top: 2px; right: 3px; wi
 .lw.gu { background: var(--pm); }
 td.cell.fromgu { outline: 2px dashed rgba(30,42,74,.55); outline-offset: -4px; }
 
+/* ===== 不再切換：班表在上、股表在下 ===== */
+.appbar .right { margin-left: auto; }
+.fullbar { justify-content: flex-end; }
+table.grid tr.secrow td { height: 22px; padding: 0 6px; background: var(--card2); border-top: 2px solid var(--edge2); border-bottom: 1px solid var(--line); font-size: 12px; font-weight: 800; letter-spacing: 2px; color: var(--muted); text-align: left; }
+table.grid tr.secrow td.namecol { background: var(--card2); }
+
   </style>
 </head>
 <body>
@@ -926,7 +932,6 @@ td.cell.fromgu { outline: 2px dashed rgba(30,42,74,.55); outline-offset: -4px; }
 
   <header class="appbar">
     <div class="today" id="todayLbl"></div>
-    <div class="gseg2" id="groupSeg" role="group" aria-label="切換名冊" style="display:none"></div>
     <div class="right">
       <span id="sync" aria-live="polite"></span>
       <button class="editbtn" id="editBtn" aria-label="編輯鎖"></button>
@@ -934,16 +939,12 @@ td.cell.fromgu { outline: 2px dashed rgba(30,42,74,.55); outline-offset: -4px; }
     </div>
   </header>
 
-  <div class="gbar" id="gbar" style="display:none">
-    <div class="ghint" id="gHint">↑ 點上面可以切換班表／股表，兩邊的休假紀錄會同步</div>
-  </div>
   <div id="banner" role="status"></div>
 
   <main>
     <!-- ===== 班表 ===== -->
     <section class="page" id="page-sched" aria-label="班表">
       <div class="fullbar" id="fullBar">
-        <div class="gseg2" id="fGroup" role="group" aria-label="切換名冊"></div>
         <button class="editbtn" id="editBtn2" aria-label="編輯鎖"></button>
         <button class="pill-btn" id="fExit">✕ 退出</button>
       </div>
@@ -976,7 +977,7 @@ td.cell.fromgu { outline: 2px dashed rgba(30,42,74,.55); outline-offset: -4px; }
       <div id="cmpCard"></div>
       <div class="box duty" id="dutyCard">
         <div class="dutyhead">
-          <b>當週留守</b><span class="muted" id="dutySub"></span>
+          <b>當週留守</b>
           <div class="seg" id="dutyWeek" role="group" aria-label="這次或下一次假日"><button data-v="0" class="on">這次</button><button data-v="1">下一次</button></div>
         </div>
         <div id="dutyBody"></div>
@@ -986,7 +987,7 @@ td.cell.fromgu { outline: 2px dashed rgba(30,42,74,.55); outline-offset: -4px; }
         </div>
       </div>
       <div class="dayshead">
-        <b>每日情況</b><span class="muted">往下滑看更多天</span>
+        <b>每日情況</b>
         <button class="pill-btn" id="dToday">回到今天</button>
       </div>
       <div id="daysBody"></div>
@@ -1140,7 +1141,7 @@ td.cell.fromgu { outline: 2px dashed rgba(30,42,74,.55); outline-offset: -4px; }
             <summary>快速上手</summary>
             <div class="dbody2">
               <ol>
-                <li>最上面的<b>班表｜股表</b>按鈕，點一下就切換名冊。兩邊的休假紀錄是同一份，在班表點了，股表會跟著變。</li>
+                <li>名單分兩段：上面是<b>班表</b>，下面是<b>股表</b>其他同仁，不用切換，一眼看完。</li>
                 <li><b>首頁</b>：最上面是<b>當週留守</b>（即將到來的假日，連假整段都算），按「複製留守」就能貼到 Juiker；按「排留守」可以一次幫好幾個人排。下面是每天的情況，往下滑看更多天。</li>
                 <li><b>班表</b>：每個人每天一格，空白＝還沒點假單，用來記休假。最上面一行是假日的留守和未點，點一下展開細節；顏色看不懂就按右上的「ⓘ」。</li>
                 <li><b>產出</b>：複製「假日留守」「人員情況」「加班」的文字，貼到 Juiker 群組。</li>
@@ -1192,7 +1193,7 @@ td.cell.fromgu { outline: 2px dashed rgba(30,42,74,.55); outline-offset: -4px; }
               <ul>
                 <li><b>排留守</b>：選哪幾天、選留守／監控／休假／救災／出差／受訓，再點人員，按「套用」一次完成。已經排好的人會先打勾，取消勾選就是取消那筆。</li>
                 <li><b>首頁每日卡片</b>：假日只列留守；「未點」收成一個按鈕，點開看名單。</li>
-                <li><b>產出</b>固定用「股表」全部人員，不受上面切換影響。選「假日留守」＋「本週」就是這週誰留守。</li>
+                <li><b>產出</b>固定用「股表」全部人員。選「假日留守」＋「本週」就是這週誰留守。</li>
                 <li><b>加班</b>：選日期、督導、時間、事由、點人員，文字會自動排好，按「複製文字」貼出去。事由會記住最近用過的。</li>
               </ul>
               <div class="kbd" style="white-space:pre-line;font-weight:600;line-height:1.7">今日(10／29)夜間加班人員：
@@ -1384,40 +1385,23 @@ td.cell.fromgu { outline: 2px dashed rgba(30,42,74,.55); outline-offset: -4px; }
       function pickGroup() {
         if (!groups.length) return;
         var g = null;
-        groups.forEach(function (x) { if (x.name === prefs.group) g = x; });
-        if (!g) { g = groups[0]; prefs.group = g.name; }
-        employees = g.employees || [];
+        var seenN = {}, all = [];
+        groups.forEach(function (gg) {
+          (gg.employees || []).forEach(function (e) {
+            if (seenN[e.name]) return; seenN[e.name] = 1;
+            var o = {}; for (var kk in e) o[kk] = e[kk];
+            o.sec = gg.name; all.push(o);
+          });
+        });
+        employees = all; return;
       }
-      function renderGroupSeg() {
-        var bar = $('gbar'), box = $('groupSeg');
-        var show = groups.length > 1 && (tab === 'sched' || tab === 'days' || tab === 'ana');
-        var hintOn = show && !prefs.gHint;
-        box.style.display = show ? '' : 'none';
-        bar.style.display = hintOn ? '' : 'none';
-        document.body.classList.toggle('hasg', hintOn);
-        if (!show) return;
-        var sig = groups.map(function (g) { return g.name + (g.employees || []).length; }).join('|') + '#' + prefs.group;
-        if (box.dataset.sig !== sig) {
-          box.innerHTML = groups.map(function (g) {
-            return '<button data-g="' + esc(g.name) + '"' + (g.name === prefs.group ? ' class="on"' : '') + '>' + esc(g.name) +
-              '<small>' + (g.employees || []).length + '</small></button>';
-          }).join('');
-          box.dataset.sig = sig;
-        }
-      }
+      function renderGroupSeg() { document.body.classList.remove('hasg'); }
       function gTag() { return ''; }
       function allNames() {
         var seen = {}, out = [];
         groups.forEach(function (g) { (g.employees || []).forEach(function (e) { if (!seen[e.name]) { seen[e.name] = 1; out.push(e); } }); });
         return out.length ? out : employees;
       }
-      function setGroup(name) {
-        if (name === prefs.group) return;
-        prefs.group = name; prefs.gHint = true; savePrefs(); pickGroup();
-        renderGroupSeg(); renderAll(); ensureData(false);
-        showToast('已切換到「' + name + '」', null, null, 1800);
-      }
-
       // ====== 設定（只存在這支手機） ======
       function loadPrefs() {
         try {
@@ -1586,7 +1570,7 @@ td.cell.fromgu { outline: 2px dashed rgba(30,42,74,.55); outline-offset: -4px; }
         if (!role || !cfg.splitFrom || !employees.length || !isReady(cmpMonthIds())) { box.innerHTML = ''; return; }
         var other = role === '班長' ? '股總' : '班長', list = cmpList();
         var urgent = list.filter(function (c) { return c.urgent; }), wait = list.filter(function (c) { return !c.urgent; });
-        if (!list.length) { box.innerHTML = '<div class="cmpok">✓ 和' + other + '的紀錄一致</div>'; return; }
+        if (!list.length) { box.innerHTML = ''; return; }
         var h = '<div class="cmp ' + (urgent.length ? 'urgent' : 'calm') + '"><button class="cmphead" data-cact="toggle">' +
           '<span class="cmpi">' + (urgent.length ? '!' : '…') + '</span><span class="cmpt">' +
           (urgent.length ? '有 <b>' + urgent.length + '</b> 筆和' + other + '不一致' : '') +
@@ -2290,7 +2274,8 @@ td.cell.fromgu { outline: 2px dashed rgba(30,42,74,.55); outline-offset: -4px; }
         });
         h += '</tr></thead><tbody>';
 
-        employees.forEach(function (emp) {
+        employees.forEach(function (emp, ei) {
+          if (ei > 0 && groups.length > 1 && emp.sec !== employees[ei - 1].sec) h += '<tr class="secrow"><td class="namecol">' + esc(emp.sec) + '</td><td colspan="' + keys.length + '"></td></tr>';
           h += '<tr><td class="namecol' + (prefs.me && emp.name === prefs.me ? ' me' : '') + '">' + esc(emp.name) + '</td>';
           keys.forEach(function (k, idx) {
             var inf = infos[idx];
@@ -2337,7 +2322,7 @@ td.cell.fromgu { outline: 2px dashed rgba(30,42,74,.55); outline-offset: -4px; }
         var foot = tbl.tFoot ? tbl.tFoot.offsetHeight : 0;
         var avail = wrap.clientHeight - 4 - head - foot;
         var lo = view === 'month' ? 34 : 40, hi = view === 'month' ? 64 : 92;
-        var rh = Math.max(lo, Math.min(hi, Math.floor(avail / employees.length)));
+        var rh = Math.max(lo, Math.min(hi, Math.floor(avail / (employees.length + (groups.length > 1 ? 0.6 : 0)))));
         wrap.style.setProperty('--rowh', rh + 'px');
         wrap.style.setProperty('--wh', (wrap.clientHeight - 4) + 'px');
       }
@@ -2438,8 +2423,6 @@ td.cell.fromgu { outline: 2px dashed rgba(30,42,74,.55); outline-offset: -4px; }
         var hc = hiddenCount();
         $('sInfo').innerHTML = '顯示' + (hc ? '<span class="hdot">' + hc + '</span>' : '');
         $('sInfo').classList.toggle('on', !!hc);
-        $('fGroup').innerHTML = $('groupSeg').innerHTML;
-        $('fGroup').style.display = groups.length > 1 ? '' : 'none';
         var keys = schedKeys();
         if (view === 'week') {
           $('sTitle').innerHTML = mdLabel(keys[0]) + '–' + (keys[0].slice(5, 7) === keys[6].slice(5, 7) ? String(+keys[6].slice(8, 10)) : mdLabel(keys[6]));
@@ -2499,7 +2482,6 @@ td.cell.fromgu { outline: 2px dashed rgba(30,42,74,.55); outline-offset: -4px; }
         var segs = $('dutyWeek').querySelectorAll('button');
         for (var i = 0; i < segs.length; i++) segs[i].classList.toggle('on', +segs[i].dataset.v === dutyWeek);
         var box = $('dutyBody'), keys = dutyKeys();
-        if ($('dutySub')) $('dutySub').textContent = keys.length ? mdLabel(keys[0]) + (keys.length > 1 ? '–' + mdLabel(keys[keys.length - 1]) + '・共 ' + keys.length + ' 天' : '') : '';
         if (!employees.length && !groups.length) { box.innerHTML = '<div class="muted">讀取中…</div>'; return; }
         if (!isReady(idsOfKeys(keys))) { box.innerHTML = '<div class="muted">讀取中…</div>'; return; }
         box.innerHTML = withStay(function () {
@@ -2638,7 +2620,6 @@ td.cell.fromgu { outline: 2px dashed rgba(30,42,74,.55); outline-offset: -4px; }
           }
           h += dayCard(k, tk);
         });
-        h += '<div class="muted" style="text-align:center;padding:14px 0 6px">繼續往下滑會自動載入更多</div>';
         $('daysBody').innerHTML = h;
       }
 
@@ -2830,9 +2811,9 @@ td.cell.fromgu { outline: 2px dashed rgba(30,42,74,.55); outline-offset: -4px; }
         if (anaPerson && employees.length && !employees.some(function (e) { return e.name === anaPerson; })) anaPerson = '';
         $('aTitle').textContent = anaYear + ' 年 ' + anaMonth + ' 月';
         var pp = $('anaPeople');
-        var psig = employees.map(function (e) { return e.name; }).join('|') + '#' + anaPerson + '#' + prefs.group;
+        var psig = employees.map(function (e) { return e.name; }).join('|') + '#' + anaPerson;
         if (pp.dataset.sig !== psig) {
-          var ph = '<button data-p=""' + (!anaPerson ? ' class="on"' : '') + '>' + (groups.length > 1 && prefs.group ? '全' + esc(prefs.group) : '全體') + '</button>';
+          var ph = '<button data-p=""' + (!anaPerson ? ' class="on"' : '') + '>' + '全體' + '</button>';
           employees.forEach(function (e) {
             ph += '<button data-p="' + esc(e.name) + '"' + (e.name === anaPerson ? ' class="on"' : '') + '>' + esc(e.name) + '</button>';
           });
@@ -3056,7 +3037,7 @@ td.cell.fromgu { outline: 2px dashed rgba(30,42,74,.55); outline-offset: -4px; }
         openSheet({
           title: '歡迎使用同仁班表',
           sub: '30 秒看懂怎麼用',
-          body: '<ol><li>最上面的<b>班表｜股表</b>按鈕，點一下切換名冊，兩邊紀錄同步。</li>' +
+          body: '<ol><li>名單分兩段：上面是<b>班表</b>，下面是<b>股表</b>其他同仁，不用切換。</li>' +
             '<li><b>班表</b>最上面一行是假日留守和未點，點一下展開；顏色說明在右上「ⓘ」。</li>' +
             '<li><b>每日</b>往下滑可以一直看到之後每一天。</li>' +
             '<li><b>產出</b>複製留守、人員情況、加班名單，貼到群組。</li>' +
@@ -3484,15 +3465,10 @@ td.cell.fromgu { outline: 2px dashed rgba(30,42,74,.55); outline-offset: -4px; }
           else if (t.dataset.go === 'help') { goHelp(); }
         });
 
-        $('groupSeg').addEventListener('click', function (ev) {
-          var b = ev.target.closest('button'); if (!b) return;
-          setGroup(b.dataset.g);
-        });
         $('sInfo').addEventListener('click', openShow);
         $('sFull').addEventListener('click', function () { setFull(true); });
         $('fExit').addEventListener('click', function () { setFull(false); });
         $('editBtn2').addEventListener('click', function () { $('editBtn').click(); });
-        $('fGroup').addEventListener('click', function (ev) { var b = ev.target.closest('button'); if (b && b.dataset.g) setGroup(b.dataset.g); });
         $('sheet').addEventListener('change', function (ev) {
           var i = ev.target;
           if (!i || !i.dataset || !i.dataset.show) return;
