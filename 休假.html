@@ -1704,6 +1704,7 @@ td.cell.hint { opacity: .36; }
             if (k < cfg.splitFrom) return;
             Object.keys(m[k]).forEach(function (n) {
               if (!banMap[n]) return;
+              if (isOwn(myRole()) && banMap[n] !== myRole()) return;
               var id = k + '|' + n; if (seen[id]) return; seen[id] = 1;
               var a = (recsA[k] || {})[n] || null, b = (recsB[k] || {})[n] || null;
               var sa = sigOf(a), sb = sigOf(b);
@@ -2830,12 +2831,11 @@ td.cell.hint { opacity: .36; }
       // 產出固定使用「股」的全部人員，不受右上角切換影響
       function stockGroup() {
         if (groups.length < 2) return groups[0] || null;
-        var seenS = {}, allS = [];
-        groups.forEach(function (gg) {
+        var seenS = {}, allS = [], order = [groups[groups.length - 1]];
+        groups.forEach(function (gg) { if (gg !== order[0]) order.push(gg); });
+        order.forEach(function (gg) {
           (gg.employees || []).forEach(function (e) {
-            if (seenS[e.name]) return; seenS[e.name] = 1;
-            var o = {}; for (var kk in e) o[kk] = e[kk];
-            o.sec = gg.name; allS.push(o);
+            if (seenS[e.name]) return; seenS[e.name] = 1; allS.push(e);
           });
         });
         return { name: groups[groups.length - 1].name, employees: allS };
