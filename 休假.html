@@ -873,7 +873,7 @@ td.cell.unc::after { content: ''; position: absolute; top: 3px; right: 3px; widt
 .idfor { font-weight: 800; margin-bottom: 8px; }
 .idpw input { width: 100%; min-height: 48px; font-size: 20px; text-align: center; letter-spacing: 6px; }
 .idmsg { min-height: 22px; margin: 6px 0; color: var(--red); font-size: 14px; font-weight: 700; }
-body.guest .editbtn:not(#dutyEditBtn):not(#verBack):not(#guideBack):not(#qkClose):not(#dutyDayBack), body.guest #floatBar #editBtnF, body.guest #dutyPlan { display: none !important; }
+body.guest .editbtn:not(#dutyEditBtn):not([id$="Back"]):not(#qkClose), body.guest #floatBar #editBtnF, body.guest #dutyPlan { display: none !important; }
 .cmpsec { display: flex; align-items: center; justify-content: space-between; gap: 8px; flex-wrap: wrap; }
 .cmpbulk { min-height: 38px; padding: 0 12px; font-size: 14px; }/* ===== 這週還沒點假單 ===== */
 
@@ -1190,7 +1190,6 @@ td.cell.hint { opacity: .36; }/* ===== 分析頁精簡 ===== */
 
 #idGate { overflow-y: auto; -webkit-overflow-scrolling: touch; padding: calc(16px + env(safe-area-inset-top)) 16px calc(16px + env(safe-area-inset-bottom)); }
 #idGate.show { align-items: safe center; }
-.idpw:not([hidden]) { position: fixed; left: 16px; right: 16px; top: calc(env(safe-area-inset-top) + 70px); max-width: 420px; margin: 0 auto; z-index: 5; box-shadow: 0 0 0 100vmax rgba(14,20,38,.5), 0 14px 40px rgba(0,0,0,.35); }
 /* 還沒點的格子：很淡的小點；蓋章動畫 */
 td.cell:not(.full):not(.am):not(.pm):not(.stay):not(.mon):not(.off):not(.away) { background-image: radial-gradient(var(--dots) 1.2px, transparent 1.4px); background-size: 9px 9px; }
 @keyframes stampin { 0% { transform: scale(1.9) rotate(-14deg); opacity: 0; } 55% { transform: scale(.88) rotate(2deg); opacity: 1; } 78% { transform: scale(1.06) rotate(-1deg); } 100% { transform: none; } }
@@ -1223,10 +1222,7 @@ td.cell.stampin::before { animation: stampin .34s cubic-bezier(.3,.9,.4,1) both;
 #quickPage > .appbar, #guidePage > .appbar, #dutyDay > .appbar, #verPage > .appbar { position: fixed; top: 0; left: 0; right: 0; z-index: 20; margin: 0; }
 #quickPage, #guidePage, #dutyDay, #verPage { padding-top: calc(env(safe-area-inset-top) + 66px) !important; }
 
-/* 密碼框：關閉時只是看不見，仍在畫面上，這樣 iOS 才能在點按當下叫出鍵盤 */
-.idpw { -webkit-text-security: none; }
-.idpw input { -webkit-text-security: disc; text-security: disc; }
-.idpw[hidden] { display: block !important; position: fixed; left: 16px; right: 16px; top: calc(env(safe-area-inset-top) + 70px); max-width: 420px; margin: 0 auto; opacity: 0; pointer-events: none; z-index: -1; box-shadow: none; }
+.idpw[hidden] { display: none; }
 
 .dayunlock { margin: 12px 0; text-align: center; }
 .dayunlock #dayPwRow { margin-top: 10px; display: flex; flex-wrap: wrap; gap: 8px; }
@@ -1295,6 +1291,28 @@ td.cell.stampin::before { animation: stampin .34s cubic-bezier(.3,.9,.4,1) both;
 .evnote > div { flex: 1; min-width: 0; } .evnote .ghost { margin-top: 8px; }
 .evpre { white-space: pre-wrap; word-break: break-word; flex: 1; min-width: 0; }
 .dl.note .dln.nt { white-space: pre-wrap; }
+
+#evtPage > .appbar { justify-content: flex-start; gap: 12px; }
+#evtPage > .appbar .editbtn { order: -1; display: inline-flex !important; align-items: center; min-width: 44px; min-height: 40px; }
+
+.idpw input { -webkit-text-security: none; }
+
+.tl.plan .tlbar { background: repeating-linear-gradient(to bottom, #2f8fa5 0 6px, transparent 6px 10px); }
+.tl.plan .tlb { background: #2f8fa5; }
+.tl.plan .tlm > b { font-size: 18px; }
+.tl.plan .tln { font-weight: 600; }
+.plannote { font-size: 12.5px; color: var(--muted); text-align: center; margin: 6px 0 14px; }
+
+.otip[hidden] { display: none !important; }
+.otip { margin-top: 12px; align-items: flex-start; }
+.duty-add { width: 100%; display: flex; align-items: center; gap: 12px; margin-top: 10px; padding: 12px 14px; background: #7a4bc2; color: #fff; border: 2px solid var(--ink); border-radius: 14px; box-shadow: 0 3px 0 var(--ink); text-align: left; cursor: pointer; min-height: 62px; }
+.duty-add:active { transform: translateY(2px); box-shadow: 0 1px 0 var(--ink); }
+.duty-add .dai { font-size: 26px; line-height: 1; }
+.duty-add .dat { flex: 1; min-width: 0; display: flex; flex-direction: column; gap: 2px; }
+.duty-add .dat b { font-size: 18px; font-weight: 800; }
+.duty-add .dat small { font-size: 12.5px; opacity: .9; line-height: 1.35; }
+.duty-add .dac { font-size: 28px; font-weight: 800; }
+.duty-add:not(.pulse) { }
 
   </style>
 </head>
@@ -1430,7 +1448,8 @@ td.cell.stampin::before { animation: stampin .34s cubic-bezier(.3,.9,.4,1) both;
             <div class="pick" id="otPpl"></div>
             <label class="chk"><input type="checkbox" id="otShort"> 人員只寫名字（不寫姓）</label>
           </div>
-          <button class="ghost big" id="otToDuty" style="width:100%">＋ 加入勤務月曆（日期、事由、人員）</button>
+          <div class="tip otip" id="otTip" data-tip="otduty"><span class="tip-i">新功能</span><span class="tip-t">名單排好後有兩個出口：<b>① 複製文字</b>貼到群組　<b>② 加入勤務月曆</b>把這批人寫進公差勤務，大家在月曆就看得到（要用彈射密碼）。</span><button class="tip-x" aria-label="關閉提示">知道了</button></div>
+          <button class="duty-add" id="otToDuty"><span class="dai">📅</span><span class="dat"><b>加入勤務月曆</b><small>把上面的日期、事由、時間、人員寫進公差勤務</small></span><span class="dac">›</span></button>
         </div>
 
         <label class="sr" for="outText">產出的文字</label>
@@ -1535,7 +1554,7 @@ td.cell.stampin::before { animation: stampin .34s cubic-bezier(.3,.9,.4,1) both;
   </div>
 
   <div id="evtPage" role="dialog" aria-label="公差詳細">
-    <header class="appbar"><div class="today"><b>詳細</b><small>點「返回」回當天</small></div><div class="right"><button class="editbtn" id="evtBack">‹ 返回</button></div></header>
+    <header class="appbar"><button class="editbtn" id="evtBack" aria-label="返回">‹ 返回</button><div class="today"><b>詳細</b><small>公差內容</small></div></header>
     <div id="evtBody"></div>
   </div>
 
@@ -1636,7 +1655,7 @@ td.cell.stampin::before { animation: stampin .34s cubic-bezier(.3,.9,.4,1) both;
                 <li><b>排留守</b>：選哪幾天、選留守／監控／休假／救災／出差／受訓，再點人員，按「套用」一次完成。已經排好的人會先打勾，取消勾選就是取消那筆。</li>
                 <li><b>首頁每日卡片</b>：假日只列留守；「未點」收成一個按鈕，點開看名單。</li>
                 <li><b>產出</b>：彈射、軍械各用自己班，股總用全部人員。選「假日留守」＋「本週」就是這週誰留守。</li>
-                <li><b>加班</b>：選日期、督導、時間、事由、點人員，文字會自動排好，按「複製文字」貼出去。事由會記住最近用過的。</li>
+                <li><b>加班</b>：選日期、督導、時間、事由、點人員，文字會自動排好，按「複製文字」貼出去；也可以按紫色的「加入勤務月曆」，這批人會寫進公差勤務，大家都看得到（要彈射密碼）。事由會記住最近用過的。</li>
               </ul>
               <div class="kbd" style="white-space:pre-line;font-weight:600;line-height:1.7">今日(10／29)夜間加班人員：
 督導：何謙
@@ -1772,7 +1791,7 @@ td.cell.stampin::before { animation: stampin .34s cubic-bezier(.3,.9,.4,1) both;
       <button class="verbtn idver" data-verbtn></button>
       <div class="idpw" id="idPw" hidden>
         <div class="idfor" id="idPwFor"></div>
-        <input type="text" id="idPwInput" inputmode="numeric" pattern="[0-9]*" autocomplete="off" autocapitalize="off" autocorrect="off" spellcheck="false" enterkeyhint="go" placeholder="密碼" aria-label="密碼">
+        <input type="password" id="idPwInput" inputmode="numeric" autocomplete="off" placeholder="密碼" aria-label="密碼">
         <div class="idmsg" id="idMsg" role="alert"></div>
         <div class="btnrow"><button class="ghost" id="idBack">返回</button><button class="primary" id="idOk">進入</button></div>
       </div>
@@ -2270,6 +2289,7 @@ td.cell.stampin::before { animation: stampin .34s cubic-bezier(.3,.9,.4,1) both;
         renderDutyToday();
       }
       var dutyDayK = null;
+      var PLAN_TM = { '擴大FO': { a: '07:40', b: '09:00', s: 740 }, '查庫': { a: '09:00', b: '10:00', s: 900 } };
       function renderDutyToday() { if ($('dutyDay').classList.contains('show')) renderDutyDay(); }
       function renderDutyDay() {
         var k = dutyDayK, o = dutyDayOf(k), h = '', info = dayInfo(k), tk = todayKey();
@@ -2306,16 +2326,16 @@ td.cell.stampin::before { animation: stampin .34s cubic-bezier(.3,.9,.4,1) both;
         tl('stay', ALLD, '留守', o.stay, '', '', 'stay'); tl('mon', ALLD, '監控', o.mon, '', '', 'mon');
         Object.keys(o.out).forEach(function (w) { tl('out', ALLD, '外勤：' + w, o.out[w], '', '', 'out:' + w); });
         var dl = Object.keys(o.duty).map(function (lab) { return { lab: lab, g: o.duty[lab], t: tmOf(o.duty[lab].time) }; });
+        Object.keys(o.plan).forEach(function (it) {
+          var pt = PLAN_TM[it] || { a: '時間未定', b: '', s: 99998 };
+          dl.push({ plan: it, t: pt, names: o.plan[it].map(function (p) { return p.n + (p.away ? '（當天休假）' : '') + (p.est ? '（預估）' : ''); }) });
+        });
         dl.sort(function (x, y) { return x.t.s - y.t.s; });
-        dl.forEach(function (x) { tl('duty', x.t, x.g.why, x.g.names, '', wiOf(x.g.why), 'duty:' + x.lab); });
-        var pk = Object.keys(o.plan);
-        if (pk.length) {
-          h += '<div class="dl plan"><div class="dlh"><b>輪值預排</b><i>' + (o.est ? '含預估（依實際為主）' : '表定參考（依實際為主）') + '</i></div>';
-          pk.forEach(function (it) {
-            h += '<div class="dpl"><span class="pi' + (it === '查庫' ? ' pi-ware' : it === '擴大FO' ? ' pi-radio' : '') + '">' + esc(it) + '</span><div>' + o.plan[it].map(function (p) { return '<em' + (p.away ? ' class="away"' : '') + '>' + esc(p.n) + (p.est ? '<small>預估</small>' : '') + (p.away ? '<small class="aw">當天休假</small>' : '') + '</em>'; }).join('') + '</div></div>';
-          });
-          h += '</div>';
-        }
+        dl.forEach(function (x) {
+          if (x.plan) tl('plan', x.t, x.plan + '（表定）', x.names, '', '', 'plan:' + x.plan);
+          else tl('duty', x.t, x.g.why, x.g.names, '', wiOf(x.g.why), 'duty:' + x.lab);
+        });
+        if (Object.keys(o.plan).length) h += '<div class="plannote">' + (o.est ? '含預估（依實際為主）' : '表定參考（依實際為主）') + '：虛線的是輪值表排的，不是正式公差</div>';
         if (dutyEditor()) h += '<div class="dl note"><div class="dlh"><b>備註</b><i>大家都看得到</i></div><textarea id="noteIn" rows="3" maxlength="400" placeholder="例：帶雨具、集合地點…">' + esc(o.note) + '</textarea><button class="ghost" id="noteSave">儲存備註</button></div>';
         else if (o.note) h += '<div class="dl note"><div class="dlh"><b>備註</b></div><div class="dln nt">' + esc(o.note) + '</div></div>';
         $('dutyDayBody').innerHTML = h || '<div class="dnone">這天沒有任何標記</div>';
@@ -2338,6 +2358,7 @@ td.cell.stampin::before { animation: stampin .34s cubic-bezier(.3,.9,.4,1) both;
         else if (kind === 'stay') { names = o.stay; title = '留守'; }
         else if (kind === 'mon') { names = o.mon; title = '監控'; }
         else if (kind === 'out') { names = o.out[lab] || []; title = '外勤：' + lab; }
+        else if (kind === 'plan') { names = (o.plan[lab] || []).map(function (p) { return p.n + (p.away ? '（當天休假）' : '') + (p.est ? '（預估）' : ''); }); title = lab + '（輪值表定）'; tm = PLAN_TM[lab] || { a: '未定', b: '' }; }
         var y = +k.slice(0, 4), md = mdLabel(k), full = y + '年' + md.replace('/', '月') + '日 週' + wkOf(k);
         var h = '<div class="evtt">' + esc(title) + '</div>';
         if (tm.b) h += '<div class="evtime"><div><small>' + esc(full) + '</small><b>' + esc(tm.a) + '</b></div><span class="evarrow">›</span><div class="evend"><small>' + esc(full) + '</small><b>' + esc(tm.b) + '</b></div></div>';
@@ -2583,11 +2604,9 @@ td.cell.stampin::before { animation: stampin .34s cubic-bezier(.3,.9,.4,1) both;
           if (b.dataset.id === 'guest') { prefs.duty = false; hideDuty(); prefs.pw = ''; prefs.role = ''; finishGate(); return; }
           if (b.dataset.id === 'ban' || b.dataset.id === 'arm' || b.dataset.id === 'gu') {
             gateWant = b.dataset.id === 'ban' ? '彈射' : (b.dataset.id === 'arm' ? '軍械' : '股總');
-            $('idPwFor').textContent = '請輸入' + gateWant + '密碼'; $('idMsg').textContent = '';
+            $('idPwFor').textContent = '請輸入' + gateWant + '密碼'; $('idPw').hidden = false; $('idMsg').textContent = '';
             try { $('idPwInput').focus(); } catch (e) { /* 忽略 */ }
-            $('idPw').hidden = false;
-            try { $('idPwInput').focus(); $('idPwInput').click(); } catch (e) { /* 忽略 */ }
-            setTimeout(function () { try { if (document.activeElement !== $('idPwInput')) $('idPwInput').focus(); } catch (e) { /* 忽略 */ } }, 60); return;
+            setTimeout(function () { try { $('idPw').scrollIntoView({ block: 'center' }); } catch (e) { /* 忽略 */ } }, 300); return;
           }
           if (b.id === 'idBack') { $('idPw').hidden = true; return; }
           if (b.id === 'idOk') gateLogin();
@@ -4298,6 +4317,10 @@ td.cell.stampin::before { animation: stampin .34s cubic-bezier(.3,.9,.4,1) both;
         $('idInst').hidden = instStandalone() || no || !mobile;
       }
       var CHANGELOG = [
+        { v: 'v10.34', d: '10/31', t: ['加班頁「加入勤務月曆」改成醒目的紫色大按鈕，第一次使用會跳出說明；使用導覽也補上說明'] },
+        { v: 'v10.33', d: '10/31', t: ['輪值預排（擴大FO 0740–0900、查庫 0900–1000）併進當天時間軸，用虛線標示表定'] },
+        { v: 'v10.32', d: '10/31', t: ['密碼輸入框還原成原本的排法（主畫面版本鍵盤才正常），不再浮在畫面上'] },
+        { v: 'v10.31', d: '10/31', t: ['修正公差詳細頁左上「返回」按不到（沒解鎖時被藏起來），並移到左上角'] },
         { v: 'v10.30', d: '10/31', t: ['備註改成最多 400 字，可以貼通知文字；詳細頁可直接編輯備註（後端 v20 才會存超過 120 字）'] },
         { v: 'v10.29', d: '10/31', t: ['時間軸每一項可以點進去：大字起訖時間、全部人員、當天備註，並可在裡面編輯或刪除'] },
         { v: 'v10.28', d: '10/31', t: ['當天詳細改成時間軸：休假、留守、監控放最上面，公差依時間由上往下排，左邊顯示開始／結束時間，右邊顯示人數'] },
@@ -4783,6 +4806,7 @@ td.cell.stampin::before { animation: stampin .34s cubic-bezier(.3,.9,.4,1) both;
           var b = ev.target.closest('button'); if (!b) return;
           prefs.ot.why = b.dataset.why; $('otWhy').value = prefs.ot.why; savePrefs(); renderOut();
         });
+        (function () { var tp = $('otTip'); if (tp && prefs.tips && prefs.tips.otduty) tp.hidden = true; tp && tp.addEventListener('click', function (ev) { if (ev.target.closest('.tip-x')) setTimeout(function () { tp.hidden = true; }, 200); }); })();
         $('otToDuty').addEventListener('click', function () {
           var k = otDateKey(), why = (prefs.ot.why || '').trim().slice(0, 10);
           if (!otPpl.length) { showToast('先在上面點人員', null, null, 2200); return; }
@@ -4800,6 +4824,7 @@ td.cell.stampin::before { animation: stampin .34s cubic-bezier(.3,.9,.4,1) both;
             dutyCacheSave(); statAll = null;
             apiCall({ action: 'addDuty', token: prefs.dutyPw, items: JSON.stringify(arr) }).then(function (res) {
               if (!res || !res.ok) throw new Error((res && res.msg) || '新增失敗');
+              prefs.tips.otduty = 1; savePrefs(); if ($('otTip')) $('otTip').hidden = true; $('otToDuty').classList.remove('pulse');
               $('okCatTxt').textContent = '已加入勤務月曆 ' + arr.length + ' 筆'; $('okCat').classList.add('show'); setTimeout(function () { $('okCat').classList.remove('show'); }, 1500);
             }).catch(function (err) {
               try { dutyAll = JSON.parse(snap); } catch (e) { /* 忽略 */ } dutyCacheSave();
