@@ -924,6 +924,27 @@ td.cell.fromgu { outline: 2px dashed rgba(30,42,74,.55); outline-offset: -4px; }
 .fullbar { justify-content: flex-end; }
 table.grid tr.secrow td { height: 22px; padding: 0 6px; background: var(--card2); border-top: 2px solid var(--edge2); border-bottom: 1px solid var(--line); font-size: 12px; font-weight: 800; letter-spacing: 2px; color: var(--muted); text-align: left; }
 table.grid tr.secrow td.namecol { background: var(--card2); }
+.fullbar { justify-content: space-between; }
+.ftitle { font-size: 18px; letter-spacing: 2px; margin-right: auto; }
+.tabbar button { font-size: 13px; letter-spacing: 0; }
+
+/* ===== 可收起的上方列 ===== */
+body.ht .appbar { display: none; }
+body.ht #page-sched { padding-top: calc(6px + env(safe-area-inset-top)); }
+body.hb .toolbar { display: none; }
+body.hbr #brief { display: none; }
+#editBtnT { display: none; background: var(--card); color: var(--text); border-color: var(--edge2); }
+#editBtnT.on { background: var(--yellow); color: #1E2A4A; }
+body.ht:not(.hb) #editBtnT { display: inline-flex; align-items: center; }
+body.ht #sFull { display: none; }
+#page-sched { position: relative; }
+.floatbar { display: none; position: absolute; top: 16px; left: 9px; z-index: 6; gap: 4px; }
+body.hb .floatbar { display: flex; }
+.floatbar .pill-btn, .floatbar .editbtn { width: 29px; min-height: 29px; height: 29px; padding: 0; font-size: 0; display: inline-flex; align-items: center; justify-content: center; border-radius: 10px; background: var(--card); border: 1.5px solid var(--edge2); color: var(--text); }
+.floatbar .pill-btn { font-size: 20px; font-weight: 800; }
+.floatbar .editbtn.on { background: var(--yellow); }
+.floatbar .eic { margin: 0; }
+body:not(.ht) .floatbar #editBtnF { display: none; }
 
   </style>
 </head>
@@ -945,9 +966,11 @@ table.grid tr.secrow td.namecol { background: var(--card2); }
     <!-- ===== 班表 ===== -->
     <section class="page" id="page-sched" aria-label="班表">
       <div class="fullbar" id="fullBar">
+        <b class="ftitle" id="fTitle"></b>
         <button class="editbtn" id="editBtn2" aria-label="編輯鎖"></button>
         <button class="pill-btn" id="fExit">✕ 退出</button>
       </div>
+      <div class="floatbar" id="floatBar"><button class="editbtn" id="editBtnF" aria-label="編輯鎖"></button><button class="pill-btn" id="fInfo" aria-label="顯示設定">≡</button></div>
       <div class="modebar" id="modeBar"></div>
       <div class="toolbar">
         <div class="seg" id="viewSeg" role="group" aria-label="檢視方式">
@@ -961,6 +984,7 @@ table.grid tr.secrow td.namecol { background: var(--card2); }
         </div>
         <button class="pill-btn" id="sToday">今天</button>
         <button class="pill-btn" id="sInfo" aria-label="顯示設定與顏色說明">顯示</button>
+        <button class="editbtn" id="editBtnT" aria-label="編輯鎖"></button>
         <button class="pill-btn ibtn" id="sFull" aria-label="滿版" title="表格滿版">⛶</button>
       </div>
       <div id="yearNote"></div>
@@ -1141,7 +1165,7 @@ table.grid tr.secrow td.namecol { background: var(--card2); }
             <summary>快速上手</summary>
             <div class="dbody2">
               <ol>
-                <li>名單分兩段：上面是<b>班表</b>，下面是<b>股表</b>其他同仁，不用切換，一眼看完。</li>
+                <li>最下面有<b>班表</b>和<b>股表</b>兩個分頁，首頁和分析是全部人一起看。兩邊的休假紀錄是同一份。</li>
                 <li><b>首頁</b>：最上面是<b>當週留守</b>（即將到來的假日，連假整段都算），按「複製留守」就能貼到 Juiker；按「排留守」可以一次幫好幾個人排。下面是每天的情況，往下滑看更多天。</li>
                 <li><b>班表</b>：每個人每天一格，空白＝還沒點假單，用來記休假。最上面一行是假日的留守和未點，點一下展開細節；顏色看不懂就按右上的「ⓘ」。</li>
                 <li><b>產出</b>：複製「假日留守」「人員情況」「加班」的文字，貼到 Juiker 群組。</li>
@@ -1254,6 +1278,7 @@ table.grid tr.secrow td.namecol { background: var(--card2); }
   <nav class="tabbar" aria-label="主選單">
     <button data-t="days" class="on" aria-label="首頁"><span class="icw"><span class="ic week"></span></span>首頁</button>
     <button data-t="sched" aria-label="班表"><span class="icw"><span class="ic sched"></span></span>班表</button>
+    <button data-t="gu" id="tabGu" aria-label="股表"><span class="icw"><span class="ic sched"></span></span>股表</button>
     <button data-t="out" aria-label="產出"><span class="icw"><span class="ic out"></span></span>產出</button>
     <button data-t="ana" aria-label="分析"><span class="icw"><span class="ic ana"></span></span>分析</button>
     <button data-t="more" aria-label="更多"><span class="icw"><span class="ic more"></span></span>更多</button>
@@ -1382,6 +1407,16 @@ table.grid tr.secrow td.namecol { background: var(--card2); }
       function $(id) { return document.getElementById(id); }
 
       // ====== 名冊分組（彈射／股…） ======
+      var empAll = [], schedGroup = 'ban';
+      function useEmps() {
+        var g = null;
+        if (tab === 'sched' && groups.length > 1) {
+          if (schedGroup === 'gu') g = outGroupObj();
+          else groups.forEach(function (x) { if (x.name === (cfg.banGroup || '班表')) g = x; });
+          if (!g && schedGroup === 'ban') g = groups[0];
+        }
+        employees = g ? (g.employees || []) : empAll;
+      }
       function pickGroup() {
         if (!groups.length) return;
         var g = null;
@@ -1393,7 +1428,7 @@ table.grid tr.secrow td.namecol { background: var(--card2); }
             o.sec = gg.name; all.push(o);
           });
         });
-        employees = all; return;
+        empAll = all; useEmps(); return;
       }
       function renderGroupSeg() { document.body.classList.remove('hasg'); }
       function gTag() { return ''; }
@@ -1434,7 +1469,7 @@ table.grid tr.secrow td.namecol { background: var(--card2); }
         showToast(msg || (editing ? '編輯中：點一下＝全天休，長按＝更多選項' : '已鎖回唯讀，只能查看'), null, null, 2600);
       }
       function renderEditBtn() {
-        setTimeout(function () { var a = $('editBtn'), b2 = $('editBtn2'); if (a && b2) { b2.className = a.className; b2.innerHTML = a.innerHTML; b2.disabled = a.disabled; } }, 0);
+        setTimeout(function () { var a = $('editBtn'); ['editBtn2', 'editBtnT', 'editBtnF'].forEach(function (id) { var b2 = $(id); if (a && b2) { b2.className = a.className; b2.innerHTML = a.innerHTML; b2.disabled = a.disabled; } }); }, 0);
         var b = $('editBtn');
         if (forcedRO) { b.className = 'editbtn ro'; b.textContent = '唯讀連結'; b.disabled = true; return; }
         b.disabled = false;
@@ -2388,14 +2423,14 @@ table.grid tr.secrow td.namecol { background: var(--card2); }
       function catOn(r) {
         var s = prefs.show || {};
         var c = isLeave(r) ? 'leave' : (isAway(r) ? 'away' : (r.period === '留守' ? 'stay' : 'mon'));
-        return s[c] !== false;
+        return true;
       }
-      var SHOW_ITEMS = [['leave', '休假（全天、上午、下午）'], ['stay', '留守'], ['mon', '監控'], ['away', '救災／出差／受訓'], ['foot', '最下面的休假人數'], ['cmp', '核對標記（和對方不一樣的格子標 !）']];
+      var SHOW_ITEMS = [['top', '最上面的日期列'], ['bar', '週／月、換週的按鈕列'], ['brief', '假日留守摘要列'], ['foot', '最下面的休假人數'], ['cmp', '核對標記（和對方不一樣的格子標 !）']];
       function hiddenCount() { var s = prefs.show || {}, n = 0; SHOW_ITEMS.forEach(function (x) { if (x[0] !== 'cmp' && s[x[0]] === false) n++; }); return n; }
       function openShow() {
         var s = prefs.show || {};
         openSheet({
-          title: '表格要顯示什麼', sub: '不勾的先隱藏，表格比較單純，也比較好點',
+          title: '要顯示哪些', sub: '不勾的先收起來，最後可以只剩一張表；要用再回來勾',
           body: '<div class="chk-list">' + SHOW_ITEMS.map(function (x) {
             if (x[0] === 'cmp' && !myRole()) return '';
             var on = x[0] === 'cmp' ? !!s.cmp : s[x[0]] !== false;
@@ -2409,16 +2444,23 @@ table.grid tr.secrow td.namecol { background: var(--card2); }
             '<span><i style="background:var(--mon)"></i>監控</span>' +
             '<span><i style="background:var(--away)"></i>救災／出差／受訓</span>' +
             '<span><i style="background:var(--card);border:1.5px solid var(--ink)"></i>空白＝還沒點</span></div>',
-          actions: [{ label: '全部顯示', fn: function () { prefs.show = {}; savePrefs(); renderSched(); } }, { label: '看完整使用說明', fn: goHelp }]
+          actions: [{ label: '只留表格', fn: function () { var o = {}; for (var kk in (prefs.show || {})) o[kk] = prefs.show[kk]; o.top = o.bar = o.brief = o.foot = false; prefs.show = o; savePrefs(); renderSched(); showToast('已收起，左上角的小按鈕可以再打開', null, null, 2400); } }, { label: '全部顯示', fn: function () { prefs.show = {}; savePrefs(); renderSched(); } }, { label: '看完整使用說明', fn: goHelp }]
         });
       }
-      function applyFull() { document.body.classList.toggle('full', !!prefs.full && tab === 'sched'); }
+      function applyFull() {
+        var sc = tab === 'sched', sh = prefs.show || {}, bc = document.body.classList;
+        bc.toggle('full', !!prefs.full && sc);
+        bc.toggle('ht', sc && sh.top === false);
+        bc.toggle('hb', sc && sh.bar === false);
+        bc.toggle('hbr', sc && sh.brief === false);
+      }
       function setFull(on) {
         prefs.full = !!on; savePrefs(); applyFull(); renderSched();
         if (on) showToast('已滿版，右上「退出」可以回來', null, null, 2200);
       }
       function renderSched() {
         applyFull();
+        $('fTitle').textContent = schedGroup === 'gu' ? '股表' : '班表';
         $('gridWrap').classList.toggle('nofoot', (prefs.show || {}).foot === false);
         var hc = hiddenCount();
         $('sInfo').innerHTML = '顯示' + (hc ? '<span class="hdot">' + hc + '</span>' : '');
@@ -2880,6 +2922,8 @@ table.grid tr.secrow td.namecol { background: var(--card2); }
       }
       // ====== 總繪製 ======
       function renderAll() {
+        useEmps(); applyFull();
+        $('tabGu').style.display = groups.length > 1 ? '' : 'none';
         records = (tab === 'out' || tab === 'ana') ? recordsPub : recordsMy;
         var d = new Date();
         $('todayLbl').innerHTML = '<b>' + (d.getMonth() + 1) + '/' + d.getDate() + '</b><small>週' + WK[d.getDay()] + '</small>';
@@ -2892,14 +2936,16 @@ table.grid tr.secrow td.namecol { background: var(--card2); }
       }
 
       function setTab(t) {
+        if (t === 'gu') { schedGroup = 'gu'; t = 'sched'; } else if (t === 'sched') schedGroup = 'ban';
+        var key = t === 'sched' ? (schedGroup === 'gu' ? 'gu' : 'sched') : t;
         tab = t;
         $('toast').classList.remove('show');
         var pages = { sched: 'page-sched', days: 'page-days', out: 'page-out', ana: 'page-ana', more: 'page-more' };
         Object.keys(pages).forEach(function (n) { $(pages[n]).classList.toggle('active', n === t); });
         var btns = document.querySelectorAll('.tabbar button');
         for (var i = 0; i < btns.length; i++) {
-          btns[i].classList.toggle('on', btns[i].dataset.t === t);
-          btns[i].setAttribute('aria-current', btns[i].dataset.t === t ? 'page' : 'false');
+          btns[i].classList.toggle('on', btns[i].dataset.t === key);
+          btns[i].setAttribute('aria-current', btns[i].dataset.t === key ? 'page' : 'false');
         }
         document.querySelector('main').classList.toggle('sched', t === 'sched');
         document.querySelector('main').scrollTop = 0;
@@ -3037,7 +3083,7 @@ table.grid tr.secrow td.namecol { background: var(--card2); }
         openSheet({
           title: '歡迎使用同仁班表',
           sub: '30 秒看懂怎麼用',
-          body: '<ol><li>名單分兩段：上面是<b>班表</b>，下面是<b>股表</b>其他同仁，不用切換。</li>' +
+          body: '<ol><li>最下面有<b>班表</b>和<b>股表</b>兩個分頁，首頁和分析是全部人。</li>' +
             '<li><b>班表</b>最上面一行是假日留守和未點，點一下展開；顏色說明在右上「ⓘ」。</li>' +
             '<li><b>每日</b>往下滑可以一直看到之後每一天。</li>' +
             '<li><b>產出</b>複製留守、人員情況、加班名單，貼到群組。</li>' +
@@ -3468,7 +3514,8 @@ table.grid tr.secrow td.namecol { background: var(--card2); }
         $('sInfo').addEventListener('click', openShow);
         $('sFull').addEventListener('click', function () { setFull(true); });
         $('fExit').addEventListener('click', function () { setFull(false); });
-        $('editBtn2').addEventListener('click', function () { $('editBtn').click(); });
+        ['editBtn2', 'editBtnT', 'editBtnF'].forEach(function (id) { $(id).addEventListener('click', function () { $('editBtn').click(); }); });
+        $('fInfo').addEventListener('click', openShow);
         $('sheet').addEventListener('change', function (ev) {
           var i = ev.target;
           if (!i || !i.dataset || !i.dataset.show) return;
