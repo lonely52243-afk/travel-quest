@@ -1058,6 +1058,22 @@ td.cell.hint { opacity: .36; }
 .idgrid3 .idbtn[data-id="ban"] { border-top-color: var(--full); }
 .idgrid3 .idbtn[data-id="arm"] { border-top-color: #5aa469; }
 .idgrid3 .idbtn[data-id="gu"] { border-top-color: var(--yellow); }
+#dutyToday { background: var(--card); border: 2px solid var(--ink); border-radius: 16px; padding: 10px 14px 6px; margin-bottom: 14px; box-shadow: var(--shadow); }
+#dutyToday .thead { display: flex; align-items: center; justify-content: space-between; margin-bottom: 6px; }
+#dutyToday .thead b { font-size: 18px; }
+#dutyToday .tseg button { padding: 4px 12px; margin-left: 4px; border: 2px solid var(--ink); border-radius: 999px; background: var(--card); color: var(--text); font: inherit; font-size: 13px; }
+#dutyToday .tseg button.on { background: var(--yellow); font-weight: 800; }
+#dutyToday .tl { padding: 6px 0 6px 10px; border-left: 6px solid var(--ink); margin-bottom: 8px; line-height: 1.5; }
+#dutyToday .tl b { display: block; font-size: 14px; }
+#dutyToday .tl span { font-size: 16px; }
+#dutyToday .tl.duty { border-color: #7a4bc2; } #dutyToday .tl.stay { border-color: #cc3a3a; } #dutyToday .tl.mon { border-color: #1d2a4a; } #dutyToday .tl.out { border-color: #d9548a; } #dutyToday .tl.rest { border-color: #2a68c8; }
+#dutyToday .tl.none { border: 0; color: var(--muted); }
+.dcell .dc { overflow: hidden; text-overflow: ellipsis; white-space: nowrap; padding: 1px 2px; }
+.dc.more { background: transparent; color: var(--muted); }
+.dcell .dots { display: flex; justify-content: center; gap: 3px; margin-top: 2px; }
+.dot { display: inline-block; width: 7px; height: 7px; border-radius: 50%; }
+.dot.stay { background: #cc3a3a; } .dot.mon { background: #1d2a4a; } .dot.out { background: #d9548a; }
+.dpw[hidden], #qkOpen[hidden], #dutyPage [hidden] { display: none !important; }
 
   </style>
 </head>
@@ -1401,6 +1417,7 @@ td.cell.hint { opacity: .36; }
     <div class="dhead"><b>公差勤務</b><span></span><button class="ghost" id="dutyEditBtn">編輯</button><button class="ghost" id="dutyBack">換身分</button></div>
     <div id="dutyPwRow" class="dpw" hidden><input type="password" id="dutyPwIn" inputmode="numeric" autocomplete="off" placeholder="編輯密碼" aria-label="編輯密碼"><button class="primary small" id="dutyPwOk">確定</button><div id="dutyPwMsg" class="idmsg"></div></div>
     <button class="primary" id="qkOpen" hidden style="width:100%;margin-bottom:10px">貼上文字快速標記公差</button>
+    <div id="dutyToday"></div>
     <div class="dnav"><button class="ghost" id="dutyPrev" aria-label="上個月">‹</button><div id="dutyTitle"></div><button class="ghost" id="dutyNext" aria-label="下個月">›</button></div>
     <div id="dutyGrid"></div>
     <div class="dtip">點日期看當天所有同仁</div>
@@ -1635,7 +1652,7 @@ td.cell.hint { opacity: .36; }
         else { b.className = 'editbtn'; b.innerHTML = '<i class="eic lock"></i>唯讀'; }
       }
       var gateWant = '';
-      var QK_WHY = ['打靶', '趕修作業', '救災', '出差', '受訓', '演習', '訓練', '比賽', '會議', '教育', '校閱', '檢查', '支援', '防水監', '公差', '監工'];
+      var QK_WHY = ['打靶', '趕修作業', '救災', '出差', '受訓', '演習', '訓練', '比賽', '會議', '教育', '校閱', '檢查', '支援', '防水監', '公差', '監工', '擴大FO'];
       var qkEv = [];
       function qkMk(y, m, d) { return y + '-' + pad(m) + '-' + pad(d); }
       function qkDatesIn(txt) {
@@ -1796,15 +1813,29 @@ td.cell.hint { opacity: .36; }
           var d = new Date(start.getFullYear(), start.getMonth(), start.getDate() + i), k = keyOf(d);
           if (i >= 35 && d.getMonth() !== m - 1) break;
           var inM = d.getMonth() === m - 1, o = dutyDayOf(k), info = dayInfo(k), chips = '';
-          if (o.nDuty) chips += '<i class="dc duty">公差 ' + o.nDuty + '</i>';
-          if (o.rest.length) chips += '<i class="dc rest">休 ' + o.rest.length + '</i>';
-          if (o.stay.length) chips += '<i class="dc stay">留 ' + o.stay.length + '</i>';
-          if (o.mon.length) chips += '<i class="dc mon">監 ' + o.mon.length + '</i>';
+          var ws = Object.keys(o.duty);
+          ws.slice(0, 2).forEach(function (w) { chips += '<i class="dc duty">' + esc(w) + '</i>'; });
+          if (ws.length > 2) chips += '<i class="dc more">＋' + (ws.length - 2) + '</i>';
           var no = 0; Object.keys(o.out).forEach(function (w) { no += o.out[w].length; });
-          if (no) chips += '<i class="dc out">外勤 ' + no + '</i>';
+          var dots = (o.stay.length ? '<u class="dot stay"></u>' : '') + (o.mon.length ? '<u class="dot mon"></u>' : '') + (no ? '<u class="dot out"></u>' : '');
+          if (dots) chips += '<span class="dots">' + dots + '</span>';
           h += '<button class="dcell' + (inM ? '' : ' dim') + (k === tk ? ' today' : '') + (info.off ? ' off' : '') + '" data-k="' + k + '"><b>' + d.getDate() + '</b>' + chips + '</button>';
         }
         $('dutyGrid').innerHTML = h;
+        renderDutyToday();
+      }
+      var dutyTodayK = null;
+      function renderDutyToday() {
+        var tk = todayKey(); if (!dutyTodayK) dutyTodayK = tk;
+        var k = dutyTodayK, o = dutyDayOf(k), h = '', info = dayInfo(k);
+        function line(cls, title, names) { if (names.length) h += '<div class="tl ' + cls + '"><b>' + esc(title) + '</b><span>' + esc(names.join('、')) + '</span></div>'; }
+        Object.keys(o.duty).forEach(function (w) { line('duty', '公差：' + w + (o.dutyT[w] ? ' ' + o.dutyT[w] : ''), o.duty[w]); });
+        line('stay', '留守', o.stay); line('mon', '監控', o.mon);
+        Object.keys(o.out).forEach(function (w) { line('out', '外勤：' + w, o.out[w]); });
+        line('rest', '休假', o.rest);
+        if (!h) h = '<div class="tl none">這天沒有任何標記</div>';
+        $('dutyToday').innerHTML = '<div class="thead"><b>' + mdLabel(k) + '（' + wkOf(k) + '）' + (info.label ? ' ' + esc(info.label) : '') + '</b>' +
+          '<span class="tseg"><button data-d="0"' + (k === tk ? ' class="on"' : '') + '>今天</button><button data-d="1"' + (k === addDays(tk, 1) ? ' class="on"' : '') + '>明天</button></span></div>' + h;
       }
       function dutyRemove(k, why, names) {
         names.forEach(function (n) {
@@ -1899,6 +1930,7 @@ td.cell.hint { opacity: .36; }
         $('dutyPwIn').addEventListener('keydown', function (ev) { if (ev.key === 'Enter') dutyUnlock(); });
         $('dutyPrev').addEventListener('click', function () { dutyYM = dutyYM[1] === 1 ? [dutyYM[0] - 1, 12] : [dutyYM[0], dutyYM[1] - 1]; renderDutyMon(); dutyLoad(); });
         $('dutyNext').addEventListener('click', function () { dutyYM = dutyYM[1] === 12 ? [dutyYM[0] + 1, 1] : [dutyYM[0], dutyYM[1] + 1]; renderDutyMon(); dutyLoad(); });
+        $('dutyToday').addEventListener('click', function (ev) { var b = ev.target.closest('button[data-d]'); if (!b) return; dutyTodayK = addDays(todayKey(), +b.dataset.d); renderDutyToday(); });
         $('dutyGrid').addEventListener('click', function (ev) { var b = ev.target.closest('.dcell'); if (b) dutyOpen(b.dataset.k); });
         $('qkOpen').addEventListener('click', function () { $('qkText').value = ''; qkEv = []; qkRender(); $('quickPage').classList.add('show'); });
         $('qkClose').addEventListener('click', function () { $('quickPage').classList.remove('show'); });
