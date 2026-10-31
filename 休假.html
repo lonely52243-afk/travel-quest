@@ -1475,6 +1475,43 @@ td.cell.stampin::before { animation: stampin .34s cubic-bezier(.3,.9,.4,1) both;
 #statBody .scard .slast small { display: block; font-size: 10.5px; color: #6f5fb8; font-weight: 800; }
 #statCopy { min-height: 34px; padding: 6px 4px; }
 
+/* v10.49 每日到班 */
+.idwide { display: flex; align-items: center; gap: 12px; width: 100%; margin-top: 12px; padding: 14px 16px; background: var(--card); border: 2px solid var(--ink); border-radius: 18px; box-shadow: 0 4px 0 var(--ink); color: var(--text); text-align: left; cursor: pointer; }
+.idwide:active { transform: translateY(2px); box-shadow: 0 2px 0 var(--ink); }
+.idwide .iwi { font-size: 30px; line-height: 1; }
+.idwide .iwt { flex: 1; display: flex; flex-direction: column; } .idwide .iwt b { font-size: 20px; font-weight: 900; } .idwide .iwt small { font-size: 12.5px; color: var(--muted); }
+.idwide .iwc { font-size: 28px; font-weight: 800; color: var(--muted); }
+#attPage { display: none; position: fixed; top: 0; right: 0; bottom: 0; left: 0; z-index: 10055; background: var(--bg); overflow-y: auto; overscroll-behavior-y: contain; padding: calc(env(safe-area-inset-top) + 72px) 14px calc(28px + env(safe-area-inset-bottom)); }
+#attPage.show { display: block; animation: sheetup .24s cubic-bezier(.2,.8,.2,1); }
+#attPage > .appbar { position: fixed; top: 0; left: 0; right: 0; z-index: 20; margin: 0; justify-content: flex-start; gap: 12px; }
+#attPage > .appbar #attBack { order: -1; display: inline-flex !important; align-items: center; min-height: 40px; }
+#attPage > .appbar .right { margin-left: auto; }
+.attnav { display: flex; align-items: center; justify-content: space-between; gap: 8px; margin-bottom: 8px; }
+.attnav .ghost { min-width: 48px; min-height: 44px; font-size: 22px; }
+#attTitle { font-size: 22px; font-weight: 900; text-align: center; }
+#attTitle em { font-style: normal; font-size: 12px; background: var(--yellow); border-radius: 999px; padding: 1px 8px; vertical-align: middle; }
+#attTitle small { display: block; font-size: 12.5px; color: #b8564b; font-weight: 700; }
+.attweek { display: grid; grid-template-columns: repeat(7, 1fr); gap: 4px; margin-bottom: 12px; }
+.attweek button { display: flex; flex-direction: column; align-items: center; gap: 1px; padding: 6px 0; min-height: 58px; border: 1.5px solid var(--line, #e0d7c3); border-radius: 10px; background: var(--card); color: var(--text); }
+.attweek button span { font-size: 11px; color: var(--muted); } .attweek button b { font-size: 16px; } .attweek button i { font-style: normal; font-size: 10.5px; color: var(--muted); font-weight: 700; }
+.attweek button.off b { color: #c8433a; } .attweek button.td { border-color: var(--ink); }
+.attweek button.on { background: var(--ink); color: var(--bg); border-color: var(--ink); } .attweek button.on span, .attweek button.on i { color: var(--bg); opacity: .85; } .attweek button.on.off b { color: #ffb4a8; }
+.attsum { display: flex; gap: 8px; margin-bottom: 12px; }
+.attsum > div { flex: 1; background: var(--card); border: 1.5px solid var(--line, #e0d7c3); border-radius: 12px; padding: 10px 6px; text-align: center; }
+.attsum b { display: block; font-size: 26px; font-weight: 900; line-height: 1.1; } .attsum span { font-size: 12px; color: var(--muted); }
+.attsum .ok b { color: #2f7a4a; } .attsum .no b { color: #b8564b; }
+.asec { background: var(--card); border: 1.5px solid var(--line, #e0d7c3); border-left: 5px solid #9aa3b5; border-radius: 12px; padding: 10px 12px; margin-bottom: 8px; }
+.asec.rest { border-left-color: #6b8fd6; } .asec.out { border-left-color: #d98aa8; } .asec.stay { border-left-color: #d9786b; } .asec.mon { border-left-color: #5b6b8c; } .asec.duty { border-left-color: #9d90d6; } .asec.here { border-left-color: #7fbf94; }
+.ash { display: flex; align-items: baseline; justify-content: space-between; margin-bottom: 6px; } .ash b { font-size: 16px; } .ash i { font-style: normal; font-size: 13px; color: var(--muted); }
+.achs { display: flex; flex-wrap: wrap; gap: 6px; }
+.ach { display: inline-flex; align-items: baseline; gap: 4px; font-size: 15px; font-weight: 700; padding: 4px 10px; border-radius: 999px; background: var(--bg); border: 1.5px solid transparent; }
+.ach small { font-size: 11.5px; color: var(--muted); font-weight: 700; }
+.ach.rest { background: #e6eefb; } .ach.out { background: #f8e6ee; } .ach.stay { background: #fbe7e3; } .ach.mon { background: #e5e8f0; } .ach.duty { background: #ece8f8; } .ach.here { background: #e6f3ea; }
+.ach.un { border: 1.5px dashed #b0905a; }
+.adl { display: flex; gap: 8px; align-items: flex-start; margin-top: 4px; } .adl > span { flex-shrink: 0; font-size: 13px; color: var(--muted); font-weight: 700; padding-top: 6px; min-width: 4.5em; }
+.anote { font-size: 12.5px; color: var(--muted); margin: 6px 2px; }
+[data-theme="dark"] .ach.rest { background: #23314d; } [data-theme="dark"] .ach.out { background: #43283a; } [data-theme="dark"] .ach.stay { background: #46292a; } [data-theme="dark"] .ach.mon { background: #2a3040; } [data-theme="dark"] .ach.duty { background: #322c4a; } [data-theme="dark"] .ach.here { background: #233a2b; }
+
   </style>
 </head>
 <body>
@@ -1639,7 +1676,7 @@ td.cell.stampin::before { animation: stampin .34s cubic-bezier(.3,.9,.4,1) both;
       <details class="box fold" id="adminBox" open>
         <summary>身分與編輯鎖</summary>
         <p class="hint" id="idNow" style="margin:0 0 10px"></p>
-        <div class="btnrow" style="margin-bottom:12px"><button class="ghost" id="swId">換身分</button><button class="ghost" id="goDuty">公差勤務</button></div>
+        <div class="btnrow" style="margin-bottom:12px"><button class="ghost" id="swId">換身分</button><button class="ghost" id="goDuty">公差勤務</button><button class="ghost" id="goAtt">每日到班</button></div>
         <div id="adminLocked" style="display:none">
           <p class="hint" style="margin:0 0 10px">目前只能查看。輸入管理者密碼後，才能新增或修改休假紀錄。</p>
           <div class="pwrow"><input type="password" id="pwInput" inputmode="numeric" autocomplete="off" placeholder="管理者密碼" aria-label="管理者密碼"><button class="primary small" id="pwBtn">登入</button></div>
@@ -1725,6 +1762,13 @@ td.cell.stampin::before { animation: stampin .34s cubic-bezier(.3,.9,.4,1) both;
     <input type="search" id="logQ" placeholder="搜尋姓名或事由" aria-label="搜尋">
     <div id="logList"></div>
     <button class="ghost" id="logMore" hidden style="width:100%;margin-top:10px">再載入更早的紀錄</button>
+  </div>
+
+  <div id="attPage" role="dialog" aria-label="每日到班">
+    <header class="appbar"><button class="editbtn" id="attBack" aria-label="返回">‹ 返回</button><div class="today"><b>每日到班</b><small>全員・股總有記以股總為準</small></div><div class="right"><button class="icon-btn" id="attRefresh" aria-label="重新整理">⟳</button></div></header>
+    <div class="attnav"><button class="ghost" id="attPrev" aria-label="前一天">‹</button><div id="attTitle"></div><button class="ghost" id="attNext" aria-label="後一天">›</button></div>
+    <div class="attweek" id="attWeek"></div>
+    <div id="attBody"></div>
   </div>
 
   <div id="dutyPage" role="dialog" aria-label="公差勤務">
@@ -1980,6 +2024,7 @@ td.cell.stampin::before { animation: stampin .34s cubic-bezier(.3,.9,.4,1) both;
           <button class="idbtn" data-id="leave"><b>休假班表</b><span id="gLeaveSub">看全部同仁</span></button>
           <button class="idbtn" data-id="duty"><b>公差勤務</b><span id="gDutySub">月曆總覽</span></button>
         </div>
+        <button class="idwide" id="gAtt"><span class="iwi">👥</span><span class="iwt"><b>每日到班</b><small>全員總覽・股總有記以股總為準</small></span><span class="iwc">›</span></button>
         <button class="linkbtn glog" id="gLog" hidden>📋 看編輯紀錄</button>
       </div>
       <div class="idinst" id="idInst" hidden><span>加到主畫面，之後一點就開</span><button class="primary" id="instGo">怎麼加</button><button class="linkbtn" id="instNo" aria-label="不再提醒">✕</button></div>
@@ -3061,7 +3106,7 @@ td.cell.stampin::before { animation: stampin .34s cubic-bezier(.3,.9,.4,1) both;
         // 安卓返回鍵／左滑返回：先關最上層的頁面，而不是直接離開
         var histOn = false;
         function histArm() { if (histOn) return; try { history.pushState({ bm: 1 }, ''); histOn = true; } catch (e) { /* 忽略 */ } }
-        var BACK_STACK = [['pinPad', function () { pinClose(); }], ['logPage', 'logBack'], ['tourMask', function () { closeTour(); }], ['verPage', 'verBack'], ['guidePage', 'guideBack'], ['sheetMask', function () { closeSheet(); }], ['quickPage', 'qkClose'], ['evtPage', 'evtBack'], ['dutyDay', 'dutyDayBack'], ['dutyPage', 'dutyBack']];
+        var BACK_STACK = [['pinPad', function () { pinClose(); }], ['attPage', 'attBack'], ['logPage', 'logBack'], ['tourMask', function () { closeTour(); }], ['verPage', 'verBack'], ['guidePage', 'guideBack'], ['sheetMask', function () { closeSheet(); }], ['quickPage', 'qkClose'], ['evtPage', 'evtBack'], ['dutyDay', 'dutyDayBack'], ['dutyPage', 'dutyBack']];
         window.addEventListener('popstate', function () {
           histOn = false;
           for (var i = 0; i < BACK_STACK.length; i++) {
@@ -4785,6 +4830,7 @@ td.cell.stampin::before { animation: stampin .34s cubic-bezier(.3,.9,.4,1) both;
         $('idInst').hidden = instStandalone() || no || !mobile;
       }
       var CHANGELOG = [
+        { v: 'v10.49', d: '10/31', t: ['新增「每日到班」：封面和「更多」都能開，看全部人員當天誰到班、休假、外勤、留守、監控、公差', '股總有記就以股總為準，股總還沒記先顯示彈射／軍械記的（名字加虛線框）', '可左右滑換天、看整週到班人數、一鍵複製人員情況'] },
         { v: 'v10.48', d: '10/31', t: ['紀錄一律最新的在最上面（後端第二十五版改成依時間排序，試算表被手動排過也不會亂）'] },
         { v: 'v10.47', d: '10/31', t: ['相容性：較舊的 iPhone 全螢幕頁也能正常蓋滿畫面；安卓主畫面圖示、狀態列顏色跟著主題；iPhone 複製文字更穩定'] },
         { v: 'v10.46', d: '10/31', t: ['公差統計改版：拿掉「最少」「比平均」「排名」等不公平的比較，只列每個人實際出了幾次', '新增實用分析：每月派出人次（直方圖）、公差種類占比（點一下看誰做過）、星期分布', '可選期間（本月／近 3 個月／今年／全部）和排序（名冊順序／次數多／最久沒派）'] },
@@ -4912,6 +4958,76 @@ td.cell.stampin::before { animation: stampin .34s cubic-bezier(.3,.9,.4,1) both;
         });
       }
       function showGuide() { return showTour(); }
+      // ── 每日到班 ──
+      var attK = null, attDutyAsked = {};
+      function attOf(k) {
+        var day = recordsPub[k] || {}, a = recsA[k] || {}, b = recsB[k] || {}, info = dayInfo(k);
+        var o = { rest: [], out: [], stay: [], mon: [], here: [], duty: {}, off: info.off, label: info.label, unsure: {} };
+        dutyEmps().forEach(function (e) {
+          var n = e.name, r = day[n];
+          if (r && a[n] === r && !b[n] && cfg.splitFrom && k >= cfg.splitFrom) o.unsure[n] = 1;
+          if (!r) { if (!info.off) o.here.push(n); return; }
+          if (r.period === '全天' || r.period === '上午' || r.period === '下午') o.rest.push({ n: n, t: r.period === '全天' ? '' : r.period });
+          else if (r.period === '外勤') o.out.push({ n: n, t: r.type || '外勤' });
+          else if (r.period === '留守') o.stay.push({ n: n });
+          else if (r.period === '監控') o.mon.push({ n: n });
+          else if (!info.off) o.here.push(n);
+        });
+        (dutyAll[k] || []).forEach(function (x) { (o.duty[x.why] = o.duty[x.why] || []).push(x.n); });
+        return o;
+      }
+      function attCount(k) { var o = attOf(k); return o.off ? o.stay.length + o.mon.length : o.here.length + o.stay.length + o.mon.length + o.rest.filter(function (x) { return x.t; }).length; }
+      function openAtt(k) {
+        attK = k || todayKey();
+        $('attPage').classList.add('show'); $('attPage').scrollTop = 0;
+        renderAtt(); attEnsure();
+      }
+      function attEnsure() {
+        var ym = attK.slice(0, 7), y = +ym.slice(0, 4), m = +ym.slice(5, 7);
+        var need = [[y, m]]; var wk = addDays(attK, -parseKey(attK).getDay()); if (wk.slice(0, 7) !== ym) need.push([+wk.slice(0, 4), +wk.slice(5, 7)]);
+        var we = addDays(wk, 6); if (we.slice(0, 7) !== ym) need.push([+we.slice(0, 4), +we.slice(5, 7)]);
+        need.forEach(function (p) { var id = p[0] + '-' + pad(p[1]); if (!loaded[id]) fetchPeriod(p[0], p[1]).then(function () { if ($('attPage').classList.contains('show')) renderAtt(); }).catch(function (e) { $('attBody').innerHTML = '<div class="dnone">讀取失敗：' + esc(e.message) + '</div>'; }); });
+        if (!attDutyAsked[ym]) { attDutyAsked[ym] = 1; apiCall({ action: 'getDuty', year: y, month: m }).then(function (res) { if (res && res.ok) { dutyFill(y, m, res); if ($('attPage').classList.contains('show')) renderAtt(); } }).catch(function () {}); }
+      }
+      function renderAtt() {
+        var k = attK, tk = todayKey(), info = dayInfo(k);
+        $('attTitle').innerHTML = mdLabel(k) + '（' + wkOf(k) + '）' + (k === tk ? ' <em>今天</em>' : '') + (info.label ? ' <small>' + esc(info.label) + '</small>' : (info.off ? ' <small>假日</small>' : ''));
+        var wk = addDays(k, -parseKey(k).getDay()), w = '';
+        for (var i = 0; i < 7; i++) {
+          var d = addDays(wk, i), ok = !!loaded[d.slice(0, 7)], di = dayInfo(d);
+          w += '<button class="' + (d === k ? 'on' : '') + (di.off ? ' off' : '') + (d === tk ? ' td' : '') + '" data-k="' + d + '"><span>' + '日一二三四五六'.charAt(i) + '</span><b>' + (+d.slice(8)) + '</b><i>' + (ok ? (di.off ? '假' : '到 ' + attCount(d)) : '…') + '</i></button>';
+        }
+        $('attWeek').innerHTML = w;
+        if (!loaded[k.slice(0, 7)]) { $('attBody').innerHTML = '<div class="dloading">讀取中…</div>'; return; }
+        var o = attOf(k), total = dutyEmps().length, h = '';
+        var half = o.rest.filter(function (x) { return x.t; }).length, fullRest = o.rest.length - half;
+        var present = o.off ? o.stay.length + o.mon.length : o.here.length + o.stay.length + o.mon.length + half;
+        h += '<div class="attsum">' + (o.off
+          ? '<div><b>' + present + '</b><span>假日在營（留守＋監控）</span></div>'
+          : '<div><b>' + total + '</b><span>應到</span></div><div class="ok"><b>' + present + '</b><span>實到' + (half ? '（含半天 ' + half + '）' : '') + '</span></div><div class="no"><b>' + (fullRest + o.out.length) + '</b><span>不在</span></div>') + '</div>';
+        function chip(x, cls) { var n = typeof x === 'string' ? x : x.n, t = typeof x === 'string' ? '' : (x.t || ''); return '<span class="ach ' + (cls || '') + (o.unsure[n] ? ' un' : '') + '">' + esc(n) + (t ? '<small>' + esc(t) + '</small>' : '') + '</span>'; }
+        function sec(title, cls, list, c2) { if (!list.length) return; h += '<div class="asec ' + cls + '"><div class="ash"><b>' + title + '</b><i>' + list.length + ' 人</i></div><div class="achs">' + list.map(function (x) { return chip(x, c2); }).join('') + '</div></div>'; }
+        sec('休假', 'rest', o.rest, 'rest');
+        sec('外勤', 'out', o.out, 'out');
+        sec('留守', 'stay', o.stay, 'stay');
+        sec('監控', 'mon', o.mon, 'mon');
+        var dk = Object.keys(o.duty);
+        if (dk.length) h += '<div class="asec duty"><div class="ash"><b>公差</b><i>' + dk.length + ' 項</i></div>' + dk.map(function (w) { return '<div class="adl"><span>' + esc(w) + '</span><div class="achs">' + o.duty[w].map(function (n) { return chip(n, 'duty'); }).join('') + '</div></div>'; }).join('') + '</div>';
+        if (!o.off) sec('到班', 'here', o.here, 'here');
+        if (Object.keys(o.unsure).length) h += '<div class="anote"><span class="ach un">名字</span> 有虛線框的：股總還沒記，先顯示彈射／軍械記的</div>';
+        h += '<button class="primary" id="attCopy" style="width:100%;margin-top:12px">複製這天人員情況</button>';
+        $('attBody').innerHTML = h;
+      }
+      function attText() {
+        var k = attK, o = attOf(k), total = dutyEmps().length;
+        var half = o.rest.filter(function (x) { return x.t; }).length, fullRest = o.rest.length - half;
+        var L = [mdLabel(k) + '（' + wkOf(k) + '）人員情況'];
+        if (!o.off) L.push('應到 ' + total + '　實到 ' + (o.here.length + o.stay.length + o.mon.length + half) + '　不在 ' + (fullRest + o.out.length));
+        function line(t, list) { if (list.length) L.push(t + '：' + list.map(function (x) { return typeof x === 'string' ? x : x.n + (x.t ? '（' + x.t + '）' : ''); }).join('、')); }
+        line('休假', o.rest); line('外勤', o.out); line('留守', o.stay); line('監控', o.mon);
+        Object.keys(o.duty).forEach(function (w) { L.push('公差（' + w + '）：' + o.duty[w].join('、')); });
+        return L.join('\n');
+      }
       var logAll = [], logLimit = 100, logKind = '', logRole = '';
       var logTab = 'add';
       function logOp(a) { return /^新增/.test(a) ? 'add' : 'chg'; }
@@ -5471,6 +5587,18 @@ td.cell.stampin::before { animation: stampin .34s cubic-bezier(.3,.9,.4,1) both;
         }
         $('cmpCard').addEventListener('click', function (ev) { var b = ev.target.closest('button'); if (b && b.dataset.cact) cmpAct(b); });
         $('openLog').addEventListener('click', openLog);
+        $('gAtt').addEventListener('click', function () { openAtt(); });
+        $('goAtt').addEventListener('click', function () { openAtt(); });
+        $('attBack').addEventListener('click', function () { $('attPage').classList.remove('show'); });
+        $('attRefresh').addEventListener('click', function () { var ym = attK.slice(0, 7); fetchPeriod(+ym.slice(0, 4), +ym.slice(5, 7)).then(renderAtt).catch(function () {}); attDutyAsked = {}; attEnsure(); showToast('更新中…', null, null, 1200); });
+        $('attPrev').addEventListener('click', function () { attK = addDays(attK, -1); renderAtt(); attEnsure(); });
+        $('attNext').addEventListener('click', function () { attK = addDays(attK, 1); renderAtt(); attEnsure(); });
+        $('attWeek').addEventListener('click', function (ev) { var b = ev.target.closest('button'); if (!b) return; attK = b.dataset.k; renderAtt(); });
+        $('attBody').addEventListener('click', function (ev) { if (ev.target.closest('#attCopy')) copyText(attText()); });
+        (function () { var x0 = 0, y0 = 0, on = false, el = $('attPage');
+          el.addEventListener('touchstart', function (ev) { var t = ev.touches[0]; x0 = t.clientX; y0 = t.clientY; on = ev.touches.length === 1; }, { passive: true });
+          el.addEventListener('touchend', function (ev) { if (!on) return; on = false; var t = ev.changedTouches[0], dx = t.clientX - x0, dy = t.clientY - y0; if (Math.abs(dx) > 60 && Math.abs(dx) > Math.abs(dy) * 1.5) { attK = addDays(attK, dx < 0 ? 1 : -1); renderAtt(); attEnsure(); } }, { passive: true });
+        })();
         $('gLog').addEventListener('click', openLog);
         $('dutyTabLog').addEventListener('click', openLog);
         $('logBack').addEventListener('click', function () { $('logPage').classList.remove('show'); });
