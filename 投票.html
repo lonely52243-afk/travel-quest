@@ -113,6 +113,10 @@ a { color: inherit; }
 .rep summary { cursor: pointer; padding: 10px 12px; font-size: 13px; font-weight: 700; }
 .rep .report { margin: 0 10px 10px; padding: 8px 10px; border: 1px solid var(--line); border-radius: 8px; background: var(--soft); white-space: pre-wrap; overflow-wrap: anywhere; font-size: 13px; line-height: 1.7; user-select: text; -webkit-user-select: text; }
 
+.how { margin: 0; padding: 10px 12px; border-radius: 10px; background: var(--navy); color: #fff; text-align: center; font-size: 16px; font-weight: 800; letter-spacing: 0.04em; }
+.how b { color: #f6c453; }
+.sec { margin: 0 0 6px; font-size: 14px; font-weight: 800; color: var(--navy); }
+.sec + .grid { margin-bottom: 12px; }
 .fine { margin: 2px 0 0; text-align: center; font-size: 12px; color: var(--muted); }
 .fine button { border: 0; background: none; padding: 6px 8px; font-size: 12px; color: var(--muted); text-decoration: underline; cursor: pointer; }
 
@@ -245,27 +249,8 @@ body.nounit .keepoff { display: none; }
     <button id="cHome" class="btn" type="button" style="width:100%;margin-top:8px">回到預設單位</button>
   </section>
 
-  <section class="card keepoff" aria-label="統計">
-    <div id="sum" class="sum"></div>
-    <p id="sumline" class="sumline"></p>
-  </section>
-
-  <div id="me" class="me keepoff" hidden></div>
-
-  <div class="tabs keepoff" role="tablist">
-    <button id="tabTodo" type="button" role="tab" aria-selected="true">未報</button>
-    <button id="tabDone" type="button" role="tab" aria-selected="false">已報</button>
-  </div>
-
-  <section class="card listcard keepoff" aria-label="名單">
-    <div class="lhead"><span id="lhint"></span><button id="copyTodo" type="button" hidden>複製未報名單</button></div>
-    <div id="list"></div>
-  </section>
-
-  <details class="card rep keepoff">
-    <summary>回報文字預覽</summary>
-    <div id="report" class="report"></div>
-  </details>
+  <p class="how keepoff"><b>①</b> 點自己的名字　<b>②</b> 點你的狀態</p>
+  <section class="card listcard keepoff" aria-label="名單"><div id="list"></div></section>
 
   <p class="fine"><button id="help" type="button">使用說明</button>　·　吱吱製作</p>
 </main>
@@ -302,7 +287,7 @@ body.nounit .keepoff { display: none; }
         <button id="helpAdmin" class="btn" type="button" style="width:100%;margin-top:8px">幹部怎麼用？看說明</button>
       </div>
       <div id="adminBody" hidden>
-        <div class="note" style="margin:0 0 10px">已解鎖：未報名單會顯示電話和撥打鍵，點任何人的名字可以代他報班。</div>
+        <div class="note" style="margin:0 0 10px">已解鎖：點任何人的名字，可以代他報班或更改。</div>
         <div class="rowb"><button id="aLogout" class="btn" type="button">登出幹部模式</button><button id="helpAdmin2" class="btn" type="button">幹部說明</button></div>
 
         <p class="sub">設定</p>
@@ -310,7 +295,7 @@ body.nounit .keepoff { display: none; }
         <div class="field"><label for="aOptions">狀態選項</label><input type="text" id="aOptions" autocomplete="off"><small>2～6 個，用頓號分開，例：休假、留守、救災、到班</small></div>
         <div class="field"><label for="aNote">說明（可空白）</label><input type="text" id="aNote" autocomplete="off"></div>
         <div class="field"><label for="aCutoff">每天截止時間（投票日前一天，可空白）</label><input type="time" id="aCutoff"></div>
-        <div class="field"><label for="aRoster">同仁名單與電話</label><textarea id="aRoster" autocomplete="off" placeholder="每行一人：姓名 電話&#10;例：王小明 0912345678"></textarea><small>每行「姓名 電話」，電話可不填。同仁只看得到名字，電話只有幹部看得到。</small></div>
+        <div class="field"><label for="aRoster">同仁名單</label><textarea id="aRoster" autocomplete="off" placeholder="每行一個名字&#10;例：王小明"></textarea><small>每行一個名字，貼上就好。</small></div>
         <div class="field"><label for="aPin2">這個單位的管理密碼</label><input type="password" id="aPin2" autocomplete="new-password" placeholder="不改請留空"><small>4～20 個字。沒設定的單位，用程式裡的 ADMIN_PIN 當密碼。</small></div>
         <label class="checkrow"><input type="checkbox" id="aShort"> 回報文字只留名字，省略姓氏</label>
         <div class="rowb">
@@ -349,24 +334,24 @@ body.nounit .keepoff { display: none; }
     </div>
     <div class="sheet-body">
       <div class="panel" data-panel="vote">
-        <p class="lead2">只要 2 下，不用登入、不用打字，約 5 秒完成。</p>
-        <div class="step"><span class="no">1</span><div><b>點自己的名字</b><p>在「未報」的名單裡找到自己的名字點一下。常用的手機會自動記住你，上方直接出現「報班」按鈕。名單沒有你時，點最後的「其他人員」，自己輸入全名。</p></div></div>
+        <p class="lead2">只要點 2 下，不用打字，5 秒完成。</p>
+        <div class="step"><span class="no">1</span><div><b>點自己的名字</b><p>在「還沒報」的名單裡找到自己的名字點一下。名單沒有你時，點最後的「其他人員」，自己輸入全名。</p></div></div>
         <div class="step"><span class="no">2</span><div><b>點你的狀態</b><p>跳出的視窗點一下「休假」「留守」等，點了就直接登記，不用再按送出。看到「已登記」就完成了。</p></div></div>
         <h3>常見問題</h3>
         <details class="faq"><summary>選錯了，可以改嗎？</summary><p>可以。再點一次自己的名字（已報的人在「已報」分頁），重新選正確的狀態就會蓋掉。截止之前都可以改。</p></details>
         <details class="faq"><summary>我要報別天的怎麼辦？</summary><p>最上面日期兩旁有左右箭頭，按一下換一天；點中間的日期也可以直接選。</p></details>
         <details class="faq"><summary>為什麼點了沒反應？</summary><p>可能已經過了截止時間，或是那一天已經結束，這時只能查看。有需要請找幹部。</p></details>
-        <details class="faq"><summary>別人看得到我選什麼嗎？</summary><p>看得到，名字會列在你選的狀態下面。但電話號碼只有幹部看得到，一般同仁看不到。</p></details>
+        <details class="faq"><summary>別人看得到我選什麼嗎？</summary><p>看得到，名字會列在你選的狀態下面。</p></details>
         <details class="faq"><summary>換手機會有影響嗎？</summary><p>不會。資料存在雲端，在任何手機點同一個名字就是同一個人。</p></details>
       </div>
       <div class="panel" data-panel="admin" hidden>
         <p class="lead2">給負責整理的幹部。平常只要做這 3 件事。</p>
         <h3>每天要做的事</h3>
         <div class="step"><span class="no">1</span><div><b>發連結給大家</b><p>按最下面的「分享」，選 Juiker 貼到群組。</p></div></div>
-        <div class="step"><span class="no">2</span><div><b>看誰還沒報，直接打給他</b><p>右上角按「幹部」輸入密碼解鎖。「未報」名單每個人旁邊會出現電話和綠色「撥打」鍵，按一下就打出去。也可以按「報班」直接幫他選狀態。</p></div></div>
+        <div class="step"><span class="no">2</span><div><b>看誰還沒報</b><p>畫面上方「還沒報」就是還沒回報的人。可以在群組提醒他們，或右上角按「幹部」輸入密碼解鎖後，點他的名字直接幫他選狀態。</p></div></div>
         <div class="step"><span class="no">3</span><div><b>複製回報文字</b><p>按最下面的「複製回報文字」，貼到 Juiker 就是成品。要提醒大家時，可以按「複製未報名單」。</p></div></div>
         <h3>第一次設定（只做一次）</h3>
-        <div class="step"><span class="no">1</span><div><b>貼上同仁名單</b><p>幹部解鎖後，在「同仁名單與電話」每行貼一人：「姓名 電話」。同仁就只要點自己的名字，不用打字。</p></div></div>
+        <div class="step"><span class="no">1</span><div><b>貼上同仁名單</b><p>幹部解鎖後，在「同仁名單」每行貼一個名字。同仁就只要點自己的名字，不用打字。</p></div></div>
         <div class="step"><span class="no">2</span><div><b>改成自己單位的樣子</b><p>改「單位名稱」和「狀態選項」（2～6 個，用頓號分開），需要的話設定截止時間。</p></div></div>
         <div class="step"><span class="no">3</span><div><b>按「儲存設定」</b><p>看到「已儲存」就完成，大家重新整理就會看到新的設定。</p></div></div>
         <h3>其他功能</h3>
@@ -374,7 +359,7 @@ body.nounit .keepoff { display: none; }
         <details class="faq"><summary>想看這個月誰休了幾天？</summary><p>在幹部畫面的「統計」按「近 7 天」「近 30 天」或「本月」，可以複製成文字。</p></details>
         <details class="faq"><summary>其他單位也想用？</summary><p>由總管理者在「給其他單位使用」輸入單位代號和該單位密碼，按「建立單位」，再按「複製網址」，把網址和密碼交給對方。對方解鎖後照上面「第一次設定」做一次，資料不會跟別人混在一起。</p></details>
         <details class="faq"><summary>忘記管理密碼怎麼辦？</summary><p>請總管理者用「總管理密碼」解鎖你們單位，在「這個單位的管理密碼」設定新密碼，按「儲存設定」。總管理密碼放在 Apps Script 程式最上面的 ADMIN_PIN，改掉後重新部署即可。</p></details>
-        <p class="note">提醒：電話在試算表裡也看得到，請不要把這份試算表分享給無關的人；管理密碼不要貼在群組。</p>
+        <p class="note">提醒：管理密碼不要貼在群組。</p>
       </div>
       <div class="panel" data-panel="home" hidden>
         <p class="lead2">加到手機桌面後，點一下圖示就能直接報班。</p>
@@ -578,7 +563,8 @@ body.nounit .keepoff { display: none; }
   var curDate = START_DATE, fetchedAt = 0;
   var helpPending = false, noUnit = false, skew = 0, loading = false, again = false, loaded = false, failCount = 0;
   var tab = "todo", ME = "", toastTimer = 0, confirmClear = false, clearTimer = 0;
-  var pin = "", adminMode = false, adminDirty = false, PHONES = {};
+  function nameOnly(t) { return String(t || "").replace(/[ \t]*\+?\d[\d\- ]{6,13}\d/g, ""); }
+  var pin = "", adminMode = false, adminDirty = false;
   var pkFrom = "", pkBusy = false;
 
   function nowMs() { return Date.now() + skew; }
@@ -686,42 +672,6 @@ body.nounit .keepoff { display: none; }
     $("modeTag").hidden = !adminMode;
     $("adminBtn").textContent = adminMode ? "幹部設定" : "幹部";
   }
-  function updateSum() {
-    var box = $("sum"); box.textContent = "";
-    var R = roster();
-    OPTS.forEach(function (o, i) {
-      var c = el("div", "cell"); c.dataset.i = String(i);
-      c.appendChild(el("b", "", loaded ? String(votersOf(o).length) : "–"));
-      c.appendChild(el("span", "", o));
-      box.appendChild(c);
-    });
-    if (R.length) {
-      var c2 = el("div", "cell"); c2.dataset.i = "x";
-      c2.appendChild(el("b", "", loaded ? String(notVoted().length) : "–"));
-      c2.appendChild(el("span", "", "未報"));
-      box.appendChild(c2);
-    }
-    var line = $("sumline");
-    if (!loaded) { line.textContent = "讀取中…"; return; }
-    var t = new Date(fetchedAt || Date.now());
-    var tm = pad(t.getHours()) + ":" + pad(t.getMinutes());
-    line.textContent = R.length
-      ? "應報 " + R.length + "　已報 " + R.filter(function (n) { return findVote(n); }).length + "　未報 " + notVoted().length + "　· " + tm + " 更新"
-      : "已報 " + S.votes.length + " 人　· " + tm + " 更新";
-  }
-  function updateMe() {
-    var box = $("me");
-    if (!loaded || !ME || !NAME_RE.test(ME)) { box.hidden = true; return; }
-    var v = findVote(ME);
-    box.textContent = "";
-    box.dataset.k = v ? "ok" : "none";
-    box.dataset.i = v ? String(optIndex(v.status)) : "0";
-    var t = el("div", "mt", v ? ME + "　已報：" + v.status : ME + "　尚未報班");
-    t.appendChild(el("small", "", v ? "要更改請按右邊" : "請按右邊報班"));
-    var b = el("button", "", v ? "更改" : "報班"); b.type = "button"; b.dataset.name = ME; b.id = "meBtn";
-    box.appendChild(t); box.appendChild(b);
-    box.hidden = false;
-  }
   function chip(name, cls) {
     var b = el("button", "nm" + (cls ? " " + cls : ""), name);
     b.type = "button"; b.dataset.name = name;
@@ -730,54 +680,31 @@ body.nounit .keepoff { display: none; }
   }
   function updateList() {
     var box = $("list"); box.textContent = "";
-    $("tabTodo").setAttribute("aria-selected", String(tab === "todo"));
-    $("tabDone").setAttribute("aria-selected", String(tab === "done"));
+    if (!loaded) { box.appendChild(el("p", "empty", "讀取中…")); return; }
     var R = roster(), todo = notVoted();
-    $("tabTodo").textContent = "未報" + (loaded && R.length ? "　" + todo.length : "");
-    $("tabDone").textContent = "已報" + (loaded ? "　" + S.votes.length : "");
-    $("copyTodo").hidden = !(tab === "todo" && loaded && todo.length);
-    if (!loaded) { $("lhint").textContent = "讀取中…"; return; }
-    if (tab === "todo") {
-      $("lhint").textContent = R.length ? (todo.length ? "點自己的名字報班" : "") : "";
-      if (R.length && !todo.length) box.appendChild(el("p", "empty", "全員已報班 ✓"));
-      if (adminMode && todo.length) {
-        todo.forEach(function (n) {
-          var row = el("div", "row");
-          var left = el("div", ""); left.appendChild(el("div", "rn", n));
-          left.appendChild(el("div", "ph", PHONES[n] ? PHONES[n] : "未留電話"));
-          var call = el("a", "rbtn call" + (PHONES[n] ? "" : " off"), "撥打");
-          if (PHONES[n]) call.href = "tel:" + PHONES[n];
-          var rep = el("button", "rbtn", "報班"); rep.type = "button"; rep.dataset.name = n;
-          row.appendChild(left); row.appendChild(call); row.appendChild(rep);
-          box.appendChild(row);
-        });
-        var g2 = el("div", "grid"); g2.style.marginTop = "8px";
-        var add2 = chip("＋ 其他人員", "add"); add2.dataset.name = ""; g2.appendChild(add2); box.appendChild(g2);
-      } else {
-        var g = el("div", "grid");
-        todo.forEach(function (n) { g.appendChild(chip(n)); });
-        var add = chip("＋ 其他人員", "add"); add.dataset.name = ""; g.appendChild(add);
-        box.appendChild(g);
-        if (!R.length) $("lhint").textContent = "尚未設定同仁名單，請點「其他人員」輸入全名";
-      }
-    } else {
-      $("lhint").textContent = S.votes.length ? "點名字可更改" : "";
-      var any = false;
+    if (R.length) {
+      box.appendChild(el("h3", "sec", "還沒報　" + todo.length + " 人"));
+      if (!todo.length) box.appendChild(el("p", "empty", "全員已報班 ✓"));
+      else { var g = el("div", "grid"); todo.forEach(function (n) { g.appendChild(chip(n)); }); box.appendChild(g); }
+    }
+    var ga = el("div", "grid"), add = chip("＋ 其他人員", "add"); add.dataset.name = ""; ga.appendChild(add);
+    box.appendChild(ga);
+    if (!R.length) box.insertBefore(el("p", "empty", "尚未設定名單，請點「其他人員」輸入全名"), ga);
+    if (S.votes.length) {
+      var h = el("h3", "sec", "已報　" + S.votes.length + " 人（點名字可更改）"); h.style.marginTop = "14px"; box.appendChild(h);
       OPTS.forEach(function (o, i) {
         var a = votersOf(o);
         if (!a.length) return;
-        any = true;
         var g3 = el("div", "grp"); g3.dataset.i = String(i);
         g3.appendChild(el("h3", "", o + "　" + a.length));
         var gg = el("div", "grid");
         a.forEach(function (n) { gg.appendChild(chip(n)); });
         g3.appendChild(gg); box.appendChild(g3);
       });
-      if (!any) box.appendChild(el("p", "empty", "還沒有人報班"));
     }
   }
-  function updateReport() { $("report").textContent = buildReport(); }
-  function updateAll() { ensureOpts(); updateHeader(); updateSum(); updateMe(); updateList(); updateReport(); }
+  function updateReport() {}
+  function updateAll() { ensureOpts(); updateHeader(); updateList(); }
 
   var optsKey = "";
   function ensureOpts() {
@@ -891,13 +818,6 @@ body.nounit .keepoff { display: none; }
     openPicker(name);
   }
   $("list").addEventListener("click", onPick);
-  $("me").addEventListener("click", onPick);
-  $("tabTodo").addEventListener("click", function () { tab = "todo"; updateList(); });
-  $("tabDone").addEventListener("click", function () { tab = "done"; updateList(); });
-  $("copyTodo").addEventListener("click", function () {
-    var t = notVoted();
-    if (t.length) copyText((S.cfg.unit || "") + "（" + md(curDate) + "）尚未報班：" + t.length + "員（" + t.join("、") + "）", "已複製未報名單");
-  });
 
   /* ---------- 載入 ---------- */
   function refresh() {
@@ -1009,7 +929,7 @@ body.nounit .keepoff { display: none; }
     $("adminLogin").hidden = true; $("adminBody").hidden = false;
     adminMsg("", "");
     return call("adminRoster", { pin: pin }).then(function (r) {
-      if (r && r.ok) { PHONES = r.phones || {}; if (!adminDirty) $("aRoster").value = r.text || ""; }
+      if (r && r.ok) { if (!adminDirty) $("aRoster").value = nameOnly(r.text); }
     }).catch(function () {}).then(function () { syncAdmin(); updateAll(); });
   }
   $("unlock").addEventListener("click", function () {
@@ -1021,7 +941,7 @@ body.nounit .keepoff { display: none; }
   });
   $("aPin").addEventListener("keydown", function (e) { if (e.key === "Enter") { e.preventDefault(); $("unlock").click(); } });
   $("aLogout").addEventListener("click", function () {
-    adminMode = false; pin = ""; PHONES = {};
+    adminMode = false; pin = "";
     $("adminBody").hidden = true; $("adminLogin").hidden = false;
     $("adminSheet").hidden = true; updateAll(); toast("已登出幹部模式");
   });
@@ -1047,7 +967,7 @@ body.nounit .keepoff { display: none; }
       if (r && r.ok) {
         adminDirty = false;
         if ($("aPin2").value) { pin = $("aPin2").value; $("aPin2").value = ""; }
-        return call("adminRoster", { pin: pin }).then(function (rr) { if (rr && rr.ok) { PHONES = rr.phones || {}; $("aRoster").value = rr.text || ""; } }).then(function () { adminMsg("已儲存。", "ok"); });
+        return call("adminRoster", { pin: pin }).then(function (rr) { if (rr && rr.ok) { $("aRoster").value = nameOnly(rr.text); } }).then(function () { adminMsg("已儲存。", "ok"); });
       }
       adminMsg((r && r.msg) || "儲存失敗。", "err");
     }).catch(function () { adminMsg("儲存失敗，請再試一次。", "err"); }).then(refresh);
