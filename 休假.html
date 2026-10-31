@@ -1314,6 +1314,12 @@ td.cell.stampin::before { animation: stampin .34s cubic-bezier(.3,.9,.4,1) both;
 .duty-add .dac { font-size: 28px; font-weight: 800; }
 .duty-add:not(.pulse) { }
 
+/* v10.36 小按鈕加大點擊範圍（外觀不變） */
+#dutyToday, #otClear, .tip-x, .verbtn, #dutySync { min-height: 34px; padding-top: 6px; padding-bottom: 6px; }
+.tip-x, .verbtn { min-width: 44px; }
+/* 全螢幕頁：捲到頂不要觸發安卓下拉重新整理、不連動背景捲動 */
+#idGate, #dutyDay, #evtPage, #quickPage, #guidePage, #verPage, #dutyPage .dmain, #sheetMask { overscroll-behavior-y: contain; }
+
   </style>
 </head>
 <body>
@@ -2371,7 +2377,7 @@ td.cell.stampin::before { animation: stampin .34s cubic-bezier(.3,.9,.4,1) both;
         if (inRest.length) h += '<div class="evrow warn"><span class="evk">注意</span><span>' + esc(inRest.join('、')) + ' 當天有休假紀錄</span></div>';
         if (kind === 'duty') {
           if (dutyEditor()) h += '<div class="evbtns"><button class="primary" id="evEdit">編輯（事由、時間、增減人員）</button><button class="ghost" id="evDel">刪除這項</button></div>';
-          else h += '<div class="muted" style="text-align:center;margin-top:16px">要修改請回上一頁，按「解鎖編輯」</div>';
+          else h += '<div class="evbtns"><button class="ghost" id="evUnlock">✎ 解鎖編輯（彈射／軍械／股總密碼）</button></div>';
         } else h += '<div class="muted" style="text-align:center;margin-top:16px">休假、留守、監控請到「休假班表」修改</div>';
         evtCur = { lab: lab, why: why, kind: kind };
         $('evtBody').innerHTML = h; $('evtPage').classList.add('show'); $('evtPage').scrollTop = 0;
@@ -2632,8 +2638,27 @@ td.cell.stampin::before { animation: stampin .34s cubic-bezier(.3,.9,.4,1) both;
         $('dutyPrev').addEventListener('click', function () { dutyYM = dutyYM[1] === 1 ? [dutyYM[0] - 1, 12] : [dutyYM[0], dutyYM[1] - 1]; renderDutyMon(); dutyLoad(); });
         $('dutyNext').addEventListener('click', function () { dutyYM = dutyYM[1] === 12 ? [dutyYM[0] + 1, 1] : [dutyYM[0], dutyYM[1] + 1]; renderDutyMon(); dutyLoad(); });
         $('evtBack').addEventListener('click', function () { $('evtPage').classList.remove('show'); });
+        // 安卓返回鍵／左滑返回：先關最上層的頁面，而不是直接離開
+        var histOn = false;
+        function histArm() { if (histOn) return; try { history.pushState({ bm: 1 }, ''); histOn = true; } catch (e) { /* 忽略 */ } }
+        var BACK_STACK = [['tourMask', function () { closeTour(); }], ['verPage', 'verBack'], ['guidePage', 'guideBack'], ['sheetMask', function () { closeSheet(); }], ['quickPage', 'qkClose'], ['evtPage', 'evtBack'], ['dutyDay', 'dutyDayBack'], ['dutyPage', 'dutyBack']];
+        window.addEventListener('popstate', function () {
+          histOn = false;
+          for (var i = 0; i < BACK_STACK.length; i++) {
+            var el = $(BACK_STACK[i][0]);
+            if (el && el.classList.contains('show')) {
+              var a = BACK_STACK[i][1];
+              if (typeof a === 'function') a(); else if ($(a)) $(a).click();
+              histArm(); return;
+            }
+          }
+        });
+        document.addEventListener('click', function () { setTimeout(function () {
+          for (var i = 0; i < BACK_STACK.length; i++) { var el = $(BACK_STACK[i][0]); if (el && el.classList.contains('show')) { histArm(); return; } }
+        }, 0); }, true);
         $('evtBody').addEventListener('click', function (ev) {
           if (!evtCur) return;
+          if (ev.target.closest('#evUnlock')) { $('evtPage').classList.remove('show'); var ub = $('dayUnlock'); if (ub) { ub.click(); setTimeout(function () { var r = $('dayPwRow'); if (r && !r.hidden) r.scrollIntoView({ block: 'center' }); }, 250); } return; }
           if (ev.target.closest('#evNoteSave')) { noteSave(); return; }
           var g = dutyDayOf(dutyDayK).duty[evtCur.lab] || { why: '', names: [] }; if (evtCur.kind !== 'duty') return;
           if (ev.target.closest('#evNoteSave')) { noteSave(); return; }
@@ -4317,6 +4342,7 @@ td.cell.stampin::before { animation: stampin .34s cubic-bezier(.3,.9,.4,1) both;
         $('idInst').hidden = instStandalone() || no || !mobile;
       }
       var CHANGELOG = [
+        { v: 'v10.36', d: '10/31', t: ['整體檢查：安卓返回鍵改成先關掉目前頁面，不會直接跳出', '小按鈕（回到本月、全部取消、知道了、版本號）加大好按', '公差詳細頁沒解鎖時可直接解鎖', '全螢幕頁往下拉不會觸發瀏覽器重新整理', '後端第二十二版：防止輸入「=」開頭被試算表當公式、沒登入不能亂填名冊外的名字'] },
         { v: 'v10.35', d: '10/31', t: ['彈射、軍械、股總的密碼都可以新增／編輯／刪除公差、寫備註、加班加入勤務月曆（後端第二十一版）'] },
         { v: 'v10.34', d: '10/31', t: ['加班頁「加入勤務月曆」改成醒目的紫色大按鈕，第一次使用會跳出說明；使用導覽也補上說明'] },
         { v: 'v10.33', d: '10/31', t: ['輪值預排（擴大FO 0740–0900、查庫 0900–1000）併進當天時間軸，用虛線標示表定'] },
