@@ -378,8 +378,8 @@ body.nounit .keepoff { display: none; }
 <div id="gate" class="gate" hidden>
   <div class="gate-box">
     <h1>報班投票</h1>
-    <p>請輸入進入密碼</p>
-    <input type="password" id="gateCode" inputmode="numeric" autocomplete="off" aria-label="進入密碼">
+    <p>請輸入門禁密碼</p>
+    <input type="password" id="gateCode" inputmode="numeric" autocomplete="off" aria-label="門禁密碼">
     <p id="gateErr" class="gate-err" role="alert"></p>
     <button id="gateBtn" class="btn pri" type="button">進入</button>
   </div>
@@ -878,13 +878,13 @@ body.nounit .keepoff { display: none; }
   });
 
   /* ---------- 進入密碼、感謝 ---------- */
-  var GATE_CODE = "2328", gateOk = false;
+  var GATE_CODE = "1026", gateOk = false;
   function maybeHelp() { if (helpPending && gateOk && loaded && !noUnit) { helpPending = false; showHelp(true); } }
   function tryGate() {
     beep([1], 0.001);
     if ($("gateCode").value.trim() === GATE_CODE) {
       gateOk = true;
-      try { localStorage.setItem("armsStatusGate", "1"); } catch (e5) {}
+      try { localStorage.setItem("armsStatusGate2", "1"); } catch (e5) {}
       $("gate").hidden = true; $("gateErr").textContent = "";
       maybeHelp();
     } else { $("gateErr").textContent = "密碼錯誤，請再輸入一次"; $("gateCode").select(); fbErr(); var gb = document.querySelector(".gate-box"); gb.classList.remove("shake"); void gb.offsetWidth; gb.classList.add("shake"); }
@@ -1085,7 +1085,7 @@ body.nounit .keepoff { display: none; }
     if (saved) ME = normName(saved);
     if (!localStorage.getItem("armsStatusHelp")) helpPending = true;
   } catch (e3) { helpPending = true; }
-  try { gateOk = localStorage.getItem("armsStatusGate") === "1"; } catch (e4) { gateOk = false; }
+  try { gateOk = localStorage.getItem("armsStatusGate2") === "1"; } catch (e4) { gateOk = false; }
   $("gate").hidden = gateOk;
   if (!gateOk) setTimeout(function () { $("gateCode").focus(); }, 50);
 
