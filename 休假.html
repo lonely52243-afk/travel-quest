@@ -1678,6 +1678,7 @@ td.cell.cmpx::after { display: none !important; content: none !important; }
 .rmwk button { min-width: 0; padding: 0; }
 .rmcard { border: 1.5px solid var(--line-strong); border-radius: 12px; padding: 12px; display: flex; flex-direction: column; gap: 10px; }
 .rmsel { display: flex; gap: 8px; } .rmsel select { flex: 1; min-width: 0; min-height: 44px; font-size: 16px; padding: 0 8px; border: 1.5px solid var(--line-strong); border-radius: 10px; background: var(--card); color: var(--text); font-weight: 700; }
+.plannote.warn { color: #b8564b; font-weight: 700; }
 
   </style>
 </head>
@@ -2852,6 +2853,7 @@ td.cell.cmpx::after { display: none !important; content: none !important; }
           if (x.plan) tl('plan', x.t, x.plan + '（表定）', x.names, '', '', 'plan:' + x.plan);
           else tl('duty', x.t, x.g.why, x.g.names, '', wiOf(x.g.why) + (dutyNotes[k + '|' + x.lab] ? ' hasnote' : ''), 'duty:' + x.lab);
         });
+        if (!Object.keys(o.plan).length && !dayInfo(k).off && rosterState && rosterState !== 'ok') h += '<div class="plannote warn">' + (rosterState === 'nocfg' ? '輪值預估需要後端第二十三版以上，請更新後端' : '輪值表' + esc(rosterState) + '，按右上角重新整理再試') + '</div>';
         if (Object.keys(o.plan).length) h += '<div class="plannote">' + (o.est ? '含預估（依實際為主）' : '表定參考（依實際為主）') + '：虛線的是輪值表排的，不是正式公差</div>';
         if (o.note) h += '<div class="dl note"><div class="dlh"><b>舊的整天備註</b>' + (dutyEditor() ? '<button class="linkbtn" id="oldNoteDel">清除</button>' : '') + '</div><div class="dln nt">' + esc(o.note) + '</div></div>';
         if (Object.keys(o.duty).length) h += '<div class="plannote">備註在每個公差裡：點公差進去看或寫</div>';
@@ -2944,14 +2946,16 @@ td.cell.cmpx::after { display: none !important; content: none !important; }
       function dutyCacheSave() { try { localStorage.setItem(DUTY_KEY, JSON.stringify(dutyAll)); } catch (e) { /* 忽略 */ } }
       function dutyCacheLoad() { try { var r = localStorage.getItem(DUTY_KEY); if (r) { var o = JSON.parse(r); if (o && typeof o === 'object') { dutyAll = o; dutyReady = true; } } } catch (e) { /* 忽略 */ } }
       function rosterCacheLoad() { try { var r = localStorage.getItem(ROSTER_KEY); if (r) { var o = JSON.parse(r); if (o && typeof o === 'object') rosterAll = o; } } catch (e) { /* 忽略 */ } }
+      var rosterState = '';
       function rosterLoad() {
         return apiCall({ action: 'getRoster' }).then(function (res) {
-          if (!res || !res.ok) return;
+          if (!res || !res.ok) { rosterState = '讀取失敗：' + ((res && res.msg) || '未知原因'); if ($('dutyDay').classList.contains('show')) renderDutyDay(); return; }
+          rosterState = res.cfg ? 'ok' : 'nocfg';
           var m = {}; (res.items || []).forEach(function (it) { (m[it.date] = m[it.date] || []).push({ item: it.item, n: it.name }); });
           if (res.cfg) { applyCfg(res.cfg); try { localStorage.setItem(CFG_KEY, JSON.stringify(res.cfg)); } catch (e) { /* 忽略 */ } try { if (statAll) renderStat(); } catch (e) { /* 忽略 */ } }
           rosterAll = m; try { localStorage.setItem(ROSTER_KEY, JSON.stringify(m)); } catch (e) { /* 忽略 */ }
           if ($('dutyPage').classList.contains('show')) renderDutyMon();
-        }).catch(function () { /* 忽略 */ });
+        }).catch(function (e) { rosterState = '讀取失敗：' + e.message; if ($('dutyDay').classList.contains('show')) renderDutyDay(); });
       }
       function dutyWarm() {
         rosterLoad(); notesLoad();
@@ -3116,6 +3120,7 @@ td.cell.cmpx::after { display: none !important; content: none !important; }
         }).catch(function (e) { $('dutyPwMsg').textContent = '無法驗證：' + e.message; });
       }
       function showDuty() {
+        if (rosterState !== 'ok') rosterLoad();
         $('idGate').classList.remove('show');
         $('dutyPage').classList.add('show');
         dutyHead(); renderDutyMon(); dutyLoad();
@@ -5032,6 +5037,7 @@ td.cell.cmpx::after { display: none !important; content: none !important; }
         $('idInst').hidden = instStandalone() || no || !mobile;
       }
       var CHANGELOG = [
+        { v: 'v10.64', d: '10/31', t: ['當天詳細：輪值表（擴大FO、查庫）沒讀到時，顯示原因提示', '進入公差勤務、按重新整理時都會重新讀取輪值表'] },
         { v: 'v10.63', d: '10/31', t: ['安全性：密碼改放在請求內容傳送，不再出現在網址（後端第三十版）', '加班常用事由、快速標記事由對照、統計事由合併改由後端設定，可自行調整', '清除停用的程式'] },
         { v: 'v10.62', d: '10/31', t: ['全系統用詞正式化：提醒信改為「未點假單提醒」「核對股總／班長登錄進度」，提示、按鈕、錯誤訊息統一用語'] },
         { v: 'v10.61', d: '10/31', t: ['修正：密碼鍵盤、成功提示的音效沒有響（開了音效的人才會注意到）', '快速標記關閉時一律重置，避免下次打開還停在編輯模式'] },
@@ -5794,7 +5800,7 @@ td.cell.cmpx::after { display: none !important; content: none !important; }
         $('homeBtn').addEventListener('click', function () { $('swId').click(); });
         document.querySelectorAll('[data-verbtn]').forEach(function (b) { b.textContent = APP_VER; b.addEventListener('click', openVer); });
         $('verBack').addEventListener('click', function () { $('verPage').classList.remove('show'); });
-        $('dutyRefresh').addEventListener('click', function () { statAll = null; dutyLoad(); if (!$('dutyStat').hidden) statLoad(); });
+        $('dutyRefresh').addEventListener('click', function () { statAll = null; rosterLoad(); notesLoad(); dutyLoad(); if (!$('dutyStat').hidden) statLoad(); });
         $('dutyTabHelp').addEventListener('click', function () { goHelp('duty'); });
         $('gTour1').addEventListener('click', function () { showTour(); });
         $('gTour2').addEventListener('click', function () { showTour(TOUR_DUTY); });
