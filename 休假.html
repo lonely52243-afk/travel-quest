@@ -3354,7 +3354,7 @@ td.cell.cmpx::after { display: none !important; content: none !important; }
         $('dutyGrid').addEventListener('click', function (ev) { var b = ev.target.closest('.dcell'); if (b) dutyOpen(b.dataset.k); });
         dutyCacheLoad(); rosterCacheLoad(); try { var nr = localStorage.getItem(NOTES_KEY); if (nr) dutyNotes = JSON.parse(nr) || {}; } catch (e) { /* 忽略 */ } setTimeout(dutyWarm, 600);
         $('qkOpen').addEventListener('click', function () { qkMode = null; $('quickPage').classList.remove('qkform'); $('qkTitle').textContent = '快速標記'; $('qkText').value = ''; qkEv = []; qkRender(); $('quickPage').classList.add('show'); });
-        $('qkClose').addEventListener('click', function () { $('quickPage').classList.remove('show'); });
+        $('qkClose').addEventListener('click', function () { $('quickPage').classList.remove('show'); qkMode = null; $('quickPage').classList.remove('qkform'); });
         function swipe(el, left, right) {
           var x0 = 0, y0 = 0, on = false;
           el.addEventListener('touchstart', function (ev) { var t = ev.touches[0]; x0 = t.clientX; y0 = t.clientY; on = ev.touches.length === 1; }, { passive: true });
@@ -4193,7 +4193,9 @@ td.cell.cmpx::after { display: none !important; content: none !important; }
       document.addEventListener('click', function (ev) { var b = ev.target.closest && ev.target.closest('[data-swap]'); if (b && $('sheetMask').classList.contains('show')) qkDoSwap(b.dataset.swap); });
 
       var fxCtx = null;
+      var FX_SEQ = { ok: [[784, 0, 0.12], [1175, 0.09, 0.2]], tap: [[660, 0, 0.05]], del: [[440, 0, 0.1], [330, 0.08, 0.18]], err: [[233, 0, 0.18], [196, 0.14, 0.26]] };
       function fxBeep(seq) {
+        if (typeof seq === 'string') seq = FX_SEQ[seq] || [];
         if (!prefs.sound) return;
         try {
           fxCtx = fxCtx || new (window.AudioContext || window.webkitAudioContext)();
@@ -5011,6 +5013,7 @@ td.cell.cmpx::after { display: none !important; content: none !important; }
         $('idInst').hidden = instStandalone() || no || !mobile;
       }
       var CHANGELOG = [
+        { v: 'v10.61', d: '10/31', t: ['修正：密碼鍵盤、成功提示的音效沒有響（開了音效的人才會注意到）', '快速標記關閉時一律重置，避免下次打開還停在編輯模式'] },
         { v: 'v10.60', d: '10/31', t: ['「更多」新增「假日提醒信」：自己填信箱、選放假前幾天（可複選前 3／2／1 天）、或每週固定哪天、幾點寄，可取消、選信件內容（留守監控、公差），可寄測試信', '彈射、軍械、股總各自設定，名單可任選彈射班、軍械班或全部（後端第二十九版）'] },
         { v: 'v10.59', d: '10/31', t: ['深色模式「監控」顏色調亮，晚上看得清楚', '休假分析的個人月曆也加上形狀標記（休＝圓、留＝方、監＝六角、外勤＝膠囊）', '讀取資料失敗會自動重試，網路不穩也比較不會失敗', '公差統計先顯示上次的結果，背景再更新，不用每次等', '後端第二十八版：假日前一天早上 8 點，自動把還沒點假單的名單寄到信箱'] },
         { v: 'v10.58', d: '10/31', t: ['公差統計的個人列表不列幹部，固定照名冊順序（拿掉排序按鈕）'] },
