@@ -4785,6 +4785,7 @@ td.cell.stampin::before { animation: stampin .34s cubic-bezier(.3,.9,.4,1) both;
         $('idInst').hidden = instStandalone() || no || !mobile;
       }
       var CHANGELOG = [
+        { v: 'v10.48', d: '10/31', t: ['紀錄一律最新的在最上面（後端第二十五版改成依時間排序，試算表被手動排過也不會亂）'] },
         { v: 'v10.47', d: '10/31', t: ['相容性：較舊的 iPhone 全螢幕頁也能正常蓋滿畫面；安卓主畫面圖示、狀態列顏色跟著主題；iPhone 複製文字更穩定'] },
         { v: 'v10.46', d: '10/31', t: ['公差統計改版：拿掉「最少」「比平均」「排名」等不公平的比較，只列每個人實際出了幾次', '新增實用分析：每月派出人次（直方圖）、公差種類占比（點一下看誰做過）、星期分布', '可選期間（本月／近 3 個月／今年／全部）和排序（名冊順序／次數多／最久沒派）'] },
         { v: 'v10.45', d: '10/31', t: ['修正 iPhone 主畫面版點輸入框（例：自己填時間）叫不出鍵盤：返回鍵功能不再在點輸入框時動作'] },
@@ -4938,7 +4939,9 @@ td.cell.stampin::before { animation: stampin .34s cubic-bezier(.3,.9,.4,1) both;
         $('logList').innerHTML = '<div class="dloading">讀取中…</div>'; $('logMore').hidden = true;
         apiCall({ action: 'getLog', token: prefs.pw || prefs.dutyPw, limit: logLimit }).then(function (res) {
           if (!res || !res.ok) { $('logList').innerHTML = '<div class="dnone">' + esc((res && res.msg) || '讀取失敗') + '</div>'; return; }
-          logAll = res.log || []; drawLog(); $('logMore').hidden = logAll.length < logLimit || logLimit >= 300;
+          logAll = (res.log || []).map(function (r, i) { r._i = i; return r; });
+          logAll.sort(function (a, b) { return ((b.ts || 0) - (a.ts || 0)) || (a._i - b._i); });
+          drawLog(); $('logMore').hidden = logAll.length < logLimit || logLimit >= 300;
         }).catch(function (e) { $('logList').innerHTML = '<div class="dnone">' + esc(e.message) + '</div>'; });
       }
       function drawLog() {
