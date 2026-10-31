@@ -1378,6 +1378,51 @@ td.cell.stampin::before { animation: stampin .34s cubic-bezier(.3,.9,.4,1) both;
 .lb { font-size: 15px; line-height: 1.5; margin-top: 2px; word-break: break-word; }
 .lb s { color: var(--muted); }
 
+/* v10.41 公差月曆：一頁看完，不上下滑 */
+#dutyPage .dmain.fit { display: flex; flex-direction: column; overflow: hidden; padding-top: 6px; padding-bottom: 4px; }
+#dutyPage .dmain.fit #dutyCalBox { flex: 1 1 0; min-height: 0; display: flex; flex-direction: column; }
+#dutyPage .dmain.fit #dutyCalBox[hidden] { display: none; }
+#dutyPage .dmain.fit #dutyGrid { flex: 1 1 0; min-height: 0; grid-template-rows: auto; grid-auto-rows: minmax(0, 1fr); gap: 3px; }
+#dutyPage .dmain.fit .dcell { min-height: 0; padding: 3px 2px; gap: 1px; }
+#dutyPage .dmain.fit .dcell b { font-size: 13px; line-height: 1.2; }
+#dutyPage .dmain.fit .dcell .dnm .dc { font-size: 10.5px; line-height: 1.3; }
+#dutyPage .dmain.fit .dbar { margin-bottom: 2px; }
+#dutyPage .dmain.fit #qkOpen { margin-bottom: 6px !important; min-height: 40px; }
+#dutyPage .dmain.fit .dtip { flex-shrink: 0; font-size: 11.5px; margin-top: 4px; line-height: 1.4; }
+.dtip .dot { display: inline-block; width: 7px; height: 7px; border-radius: 50%; vertical-align: 1px; margin: 0 2px 0 4px; }
+
+/* v10.41 紀錄頁：分頁＋白話句子，柔和配色 */
+.logtabs { display: flex; gap: 0; background: var(--card); border: 1.5px solid var(--line, #d9cfb8); border-radius: 14px; padding: 4px; margin-bottom: 6px; }
+.logtabs button { flex: 1; min-height: 44px; border: 0; border-radius: 10px; background: transparent; color: var(--muted); font-size: 16px; font-weight: 800; }
+.logtabs button.on { background: var(--ink); color: var(--bg); }
+.logtabs button i { font-style: normal; font-size: 12px; font-weight: 700; opacity: .75; margin-left: 2px; }
+.loghint { font-size: 13px; color: var(--muted); margin: 2px 4px 8px; }
+.logfil { display: flex; flex-direction: column; gap: 6px; margin-bottom: 8px; }
+.logfil .logroles { margin: 0; }
+.logroles button { min-height: 32px; font-size: 13.5px; border-color: var(--line, #cfc6b3); color: var(--muted); }
+.logroles button.on { background: #5b6b8c; border-color: #5b6b8c; color: #fff; }
+.logday { position: static; font-weight: 800; font-size: 13px; color: var(--muted); padding: 14px 4px 4px; border-bottom: 1px solid var(--line, #e3dac6); }
+.lrow { gap: 12px; padding: 11px 4px; border-bottom: 1px solid rgba(0,0,0,.05); }
+.lhm { color: var(--muted); font-weight: 700; font-size: 13.5px; width: 42px; padding-top: 3px; }
+.lmain { border-left: 0; padding-left: 0; }
+.lh { gap: 8px; font-size: 14px; }
+.lverb { font-size: 12.5px; font-weight: 800; border-radius: 6px; padding: 2px 8px; }
+.lverb.v-add { background: #e3f1e6; color: #2f6b3f; }
+.lverb.v-chg { background: #f6ecd6; color: #7a5a17; }
+.lverb.v-del { background: #f6e1df; color: #8d3a33; }
+.ldate { font-weight: 700; color: var(--text); font-size: 14px; }
+.lwho { margin-left: auto; font-size: 12px; font-weight: 700; color: var(--muted); border: 1px solid var(--line, #d9cfb8); border-radius: 999px; padding: 1px 8px; }
+.lb { font-size: 15.5px; line-height: 1.55; margin-top: 4px; color: var(--text); }
+.lb b { font-weight: 800; }
+.lb s { color: var(--muted); text-decoration-thickness: 1px; }
+.lb em { font-style: normal; font-weight: 800; color: var(--text); background: rgba(245,184,0,.18); border-radius: 4px; padding: 0 3px; }
+.lnote { color: var(--muted); white-space: pre-wrap; }
+[data-theme="dark"] .lverb.v-add { background: #284232; color: #bfe3c8; } [data-theme="dark"] .lverb.v-chg { background: #4a3c1d; color: #f0d79b; } [data-theme="dark"] .lverb.v-del { background: #4b2724; color: #f1bdb7; }
+#dutyPage .dmain.fit { overflow-y: auto; }
+#dutyPage .dmain.fit #dutyGrid { grid-auto-rows: minmax(58px, 1fr); }
+#dutyPage .dmain.fit #dutyCalBox { flex: 1 0 auto; }
+#dutyPage .dmain.fit #dutyGrid { flex: 1 0 auto; }
+
   </style>
 </head>
 <body>
@@ -1620,9 +1665,11 @@ td.cell.stampin::before { animation: stampin .34s cubic-bezier(.3,.9,.4,1) both;
   </div>
 
   <div id="logPage" role="dialog" aria-label="編輯紀錄">
-    <header class="appbar"><button class="editbtn" id="logBack" aria-label="返回">‹ 返回</button><div class="today"><b>編輯紀錄</b><small>誰、什麼時候、改了什麼</small></div><div class="right"><button class="icon-btn" id="logRefresh" aria-label="重新整理">⟳</button></div></header>
-    <div class="seg logseg" id="logKind"><button data-k="" class="on">全部</button><button data-k="leave">休假</button><button data-k="duty">公差</button><button data-k="note">備註</button></div>
-    <div class="logroles" id="logRole"><button data-r="" class="on">全部身分</button><button data-r="彈射">彈射</button><button data-r="軍械">軍械</button><button data-r="股總">股總</button><button data-r="一般">一般</button></div>
+    <header class="appbar"><button class="editbtn" id="logBack" aria-label="返回">‹ 返回</button><div class="today"><b>紀錄</b><small>誰、什麼時候、做了什麼</small></div><div class="right"><button class="icon-btn" id="logRefresh" aria-label="重新整理">⟳</button></div></header>
+    <div class="logtabs" id="logTabs"><button data-t="add" class="on" id="logTabAdd">新增紀錄</button><button data-t="chg" id="logTabChg">異動紀錄</button></div>
+    <div class="loghint" id="logHint"></div>
+    <div class="logfil"><div class="logroles" id="logKind"><button data-k="" class="on">全部</button><button data-k="leave">班表</button><button data-k="duty">勤務</button></div>
+    <div class="logroles" id="logRole"><button data-r="" class="on">全部身分</button><button data-r="彈射">彈射</button><button data-r="軍械">軍械</button><button data-r="股總">股總</button><button data-r="一般">一般</button></div></div>
     <input type="search" id="logQ" placeholder="搜尋姓名或事由" aria-label="搜尋">
     <div id="logList"></div>
     <button class="ghost" id="logMore" hidden style="width:100%;margin-top:10px">再載入更早的紀錄</button>
@@ -1637,7 +1684,7 @@ td.cell.stampin::before { animation: stampin .34s cubic-bezier(.3,.9,.4,1) both;
         <button class="icon-btn" id="dutyBack" aria-label="回入口（換身分）" title="回入口"><svg viewBox="0 0 24 24" width="20" height="20" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M10 4H5v16h5"/><path d="M14 8l4 4-4 4"/><path d="M18 12H9"/></svg></button>
       </div>
     </header>
-    <div class="dmain">
+    <div class="dmain fit">
     <div id="dutyPwRow" class="dpw" hidden><input type="password" id="dutyPwIn" inputmode="numeric" autocomplete="off" placeholder="編輯密碼" aria-label="編輯密碼"><button class="primary small" id="dutyPwOk">確定</button><div id="dutyPwMsg" class="idmsg"></div></div>
     <div id="dutyCalBox">
     <button class="primary" id="qkOpen" hidden style="width:100%;margin-bottom:10px">貼上文字快速標記公差</button>
@@ -1645,7 +1692,7 @@ td.cell.stampin::before { animation: stampin .34s cubic-bezier(.3,.9,.4,1) both;
     <div class="dbar"><button class="linkbtn" id="dutyToday" hidden>回到本月</button><button class="dsync" id="dutySync"></button></div>
     <div id="dutyLoading" class="dloading" hidden>讀取中…</div>
     <div id="dutyGrid"></div>
-    <div class="dtip">點日期看細項（格內是當天有公差的人，藍點＝有備註）<br>左右滑動換月份</div>
+    <div class="dtip">點日期看細項・<u class="dot stay"></u>留守 <u class="dot note"></u>備註・左右滑換月</div>
     </div>
     <div id="dutyStat" hidden><div id="statBody"></div></div>
     </div>
@@ -2266,7 +2313,7 @@ td.cell.stampin::before { animation: stampin .34s cubic-bezier(.3,.9,.4,1) both;
         if (h && qkEv.length) h += '<datalist id="qkWhys">' + wso + '</datalist>';
         $('qkList').innerHTML = h;
         var cnt = qkCount();
-        $('qkGo').textContent = cnt ? '標記 ' + cnt + ' 格' : '標記';
+        $('qkGo').textContent = cnt ? '＋ 新增 ' + cnt + ' 筆公差' : '新增公差';
         $('qkGo').disabled = !cnt;
       }
       function qkApply() {
@@ -2293,16 +2340,35 @@ td.cell.stampin::before { animation: stampin .34s cubic-bezier(.3,.9,.4,1) both;
           var ex = l.filter(function (x) { return x.n === it.name && x.why === it.why; })[0];
           if (ex) { if (it.time) ex.time = it.time; } else l.push({ n: it.name, why: it.why, time: it.time });
         });
-        dutyCacheSave(); statAll = null;
+        dutyCacheSave(); statAll = null; var qkRaw = $('quickPage').classList.contains('qkform') ? '' : ($('qkText').value || '').trim();
         $('quickPage').classList.remove('show'); renderDutyMon(); if ($('dutyDay').classList.contains('show')) renderDutyDay();
         FX.ok(); $('okCatTxt').textContent = '已加入 ' + arr.length + ' 筆'; $('okCat').classList.add('show'); setTimeout(function () { $('okCat').classList.remove('show'); }, 1300);
         (wasEdit ? opQueue.then(function () { return apiCall({ action: 'addDuty', token: prefs.dutyPw, items: JSON.stringify(arr) }); }) : apiCall({ action: 'addDuty', token: prefs.dutyPw, items: JSON.stringify(arr) })).then(function (res) {
           if (!res || !res.ok) throw new Error((res && res.msg) || '新增失敗');
+          qkSaveRaw(arr, qkRaw);
+          showToast('✓ 已寫入 ' + arr.length + ' 筆公差' + (qkNoteN ? '，原始通知已存到當天備註' : ''), null, null, 3200);
+          try { fxBeep('ok'); } catch (e) { /* 忽略 */ }
         }).catch(function (err) {
           try { dutyAll = JSON.parse(snap); } catch (e) { /* 忽略 */ }
           dutyCacheSave(); renderDutyMon();
           showToast('沒有存成功，已還原：' + err.message, null, null, 4200);
         });
+      }
+      var qkNoteN = 0;
+      function qkSaveRaw(arr, raw) {
+        qkNoteN = 0;
+        if (!raw) return;
+        var ds = []; arr.forEach(function (it) { if (ds.indexOf(it.date) < 0) ds.push(it.date); });
+        ds.forEach(function (k) {
+          var old = dutyNotes[k] || '';
+          if (old.indexOf(raw.slice(0, 40)) >= 0) return;
+          var t = (old ? old + '\n――――\n' : '') + '【原始通知】\n' + raw;
+          t = t.slice(0, 400);
+          dutyNotes[k] = t; qkNoteN++;
+          apiCall({ action: 'setNote', token: prefs.dutyPw, date: k, text: t }).then(function (res) { if (!res || !res.ok) throw new Error((res && res.msg) || '備註沒存成功'); })
+            .catch(function (e) { showToast('原始通知沒存到備註：' + e.message, null, null, 3600); });
+        });
+        try { localStorage.setItem(NOTES_KEY, JSON.stringify(dutyNotes)); } catch (e) { /* 忽略 */ }
       }
       var dutyYM = null, dutyAll = {}, dutyFromApp = false, rosterAll = {}, ROSTER_KEY = 'leave_roster_v1', dutyNotes = {}, NOTES_KEY = 'leave_notes_v1', rosterEst = {};
       function dutyEditor() { return !!prefs.dutyPw && !forcedRO; }
@@ -2377,7 +2443,7 @@ td.cell.stampin::before { animation: stampin .34s cubic-bezier(.3,.9,.4,1) both;
           if (i >= 35 && d.getMonth() !== m - 1) break;
           var inM = d.getMonth() === m - 1, o = dutyDayOf(k), info = dayInfo(k), chips = '';
           var ws = [], wsSeen = {}; Object.keys(o.duty).forEach(function (l) { o.duty[l].names.forEach(function (nm) { if (!wsSeen[nm]) { wsSeen[nm] = 1; ws.push(nm.length >= 3 ? nm.slice(1) : nm); } }); });
-          if (ws.length) { chips += '<span class="dnm">'; ws.slice(0, ws.length > 4 ? 3 : 4).forEach(function (w) { chips += '<i class="dc duty">' + esc(w) + '</i>'; }); if (ws.length > 4) chips += '<i class="dc more">＋' + (ws.length - 3) + '</i>'; chips += '</span>'; }
+          if (ws.length) { chips += '<span class="dnm">'; ws.slice(0, ws.length > 3 ? 2 : 3).forEach(function (w) { chips += '<i class="dc duty">' + esc(w) + '</i>'; }); if (ws.length > 3) chips += '<i class="dc more">＋' + (ws.length - 2) + '</i>'; chips += '</span>'; }
           var no = 0; Object.keys(o.out).forEach(function (w) { no += o.out[w].length; });
           var dots = (o.stay.length ? '<u class="dot stay"></u>' : '') + (o.mon.length ? '<u class="dot mon"></u>' : '') + (no ? '<u class="dot out"></u>' : '') + (o.note ? '<u class="dot note"></u>' : '');
           if (dots) chips += '<span class="dots">' + dots + '</span>';
@@ -2648,6 +2714,7 @@ td.cell.stampin::before { animation: stampin .34s cubic-bezier(.3,.9,.4,1) both;
         var st = which === 'stat';
         $('segCal').classList.toggle('on', !st); $('segStat').classList.toggle('on', st);
         $('dutyCalBox').hidden = st; $('dutyStat').hidden = !st; if (st) statAnim = true;
+        document.querySelector('#dutyPage .dmain').classList.toggle('fit', !st);
         if (st) { if (statAll) renderStat(); statLoad(); }
       }
       function dayTryUnlock(pw, cb) {
@@ -3052,6 +3119,7 @@ td.cell.stampin::before { animation: stampin .34s cubic-bezier(.3,.9,.4,1) both;
       function recOrBlank(r) { return r ? recLabel(r) : '（空白）'; }
       var noticeDone = false;
       function maybeNotice(sp) {
+        return;
         if (noticeDone || myRole() !== '股總' || !sp.theirsOnly.length) return;
         noticeDone = true;
         setTimeout(function () {
@@ -3080,6 +3148,7 @@ td.cell.stampin::before { animation: stampin .34s cubic-bezier(.3,.9,.4,1) both;
       }
       function renderCmp() {
         var box = $('cmpCard'); if (!box) return;
+        box.innerHTML = ''; return;
         var role = myRole();
         if (!role || !cfg.splitFrom || !employees.length || !isReady(cmpMonthIds())) { box.innerHTML = ''; return; }
         var other = isOwn(role) ? '股總' : '彈射／軍械', sp = cmpSplit();
@@ -4568,6 +4637,7 @@ td.cell.stampin::before { animation: stampin .34s cubic-bezier(.3,.9,.4,1) both;
         $('idInst').hidden = instStandalone() || no || !mobile;
       }
       var CHANGELOG = [
+        { v: 'v10.41', d: '10/31', t: ['快速標記：按鈕改成「新增 N 筆公差」，寫入成功會提示；貼上的原始通知會自動存到當天備註', '公差勤務月曆縮成一頁看完，不用上下滑，左右滑換月', '拿掉登入後「彈射／軍械已記、你還沒記」的提醒', '編輯紀錄分成「新增紀錄」和「異動紀錄」，改用白話句子（例：某某 從 全天休 改成 留守），顏色調柔和'] },
         { v: 'v10.40', d: '10/31', t: ['新增「編輯紀錄」分頁：依日期列出誰、什麼時候、改了什麼，可依休假／公差／備註、身分篩選和搜尋', '入口：封面、更多、公差勤務下方分頁列（有編輯密碼的人才看得到）'] },
         { v: 'v10.39', d: '10/31', t: ['封面改成直接輸入密碼，系統自動認出身分（彈射／軍械／股總／查看），再選休假班表或公差勤務', '彈射、軍械、股總登入後，公差勤務自動可以編輯，不用再解鎖', '「換身分」改成在封面按「換身分」重新輸入密碼'] },
         { v: 'v10.38', d: '10/31', t: ['新增查看密碼：沒登入的人要先輸入查看密碼才看得到資料（每台手機只要輸入一次）', '幹部、輪值名單移到後端，網頁原始碼不再出現人員姓名（後端第二十三版）'] },
@@ -4688,6 +4758,22 @@ td.cell.stampin::before { animation: stampin .34s cubic-bezier(.3,.9,.4,1) both;
       }
       function showGuide() { return showTour(); }
       var logAll = [], logLimit = 100, logKind = '', logRole = '';
+      var logTab = 'add';
+      function logOp(a) { return /^新增/.test(a) ? 'add' : 'chg'; }
+      function logArea(a) { return /公差|備註/.test(a) ? 'duty' : 'leave'; }
+      function logSentence(r) {
+        var a = r.action, n = r.name && r.name !== '（整天）' ? '<b>' + esc(r.name) + '</b>' : '';
+        var bf = r.before && r.before !== '（空白）' ? r.before : '', af = r.after && r.after !== '（空白）' ? r.after : '';
+        if (a === '新增') return { v: '新增', c: 'add', s: n + ' ' + esc(af) };
+        if (a === '修改') return { v: '修改', c: 'chg', s: n + ' 從 <s>' + esc(bf) + '</s> 改成 <em>' + esc(af) + '</em>' };
+        if (a === '取消') return { v: '取消', c: 'del', s: n + ' 的 <s>' + esc(bf) + '</s> 取消了' };
+        if (a === '新增公差') return { v: '新增公差', c: 'add', s: n + ' ' + esc(af) };
+        if (a === '刪除公差') return { v: '取消公差', c: 'del', s: n + ' 的 <s>' + esc(bf) + '</s> 取消了' };
+        if (a === '公差備註') return { v: '寫備註', c: 'chg', s: '<span class="lnote">' + esc(String(af).slice(0, 60)) + (String(af).length > 60 ? '…' : '') + '</span>' };
+        if (a === '刪除備註') return { v: '刪除備註', c: 'del', s: '當天備註清空了' };
+        if (/^標記|恢復預設/.test(a)) return { v: '改假日', c: 'chg', s: '這天改成 <em>' + esc(af === '預設' ? '一般日' : af) + '</em>' };
+        return { v: a, c: 'chg', s: n + ' ' + (bf ? '<s>' + esc(bf) + '</s> → ' : '') + esc(af) };
+      }
       function logType(a) { return /備註/.test(a) ? 'note' : (/公差/.test(a) ? 'duty' : 'leave'); }
       function logCanView() { return !!(prefs.pw || prefs.dutyPw) && !forcedRO; }
       function openLog() {
@@ -4704,20 +4790,25 @@ td.cell.stampin::before { animation: stampin .34s cubic-bezier(.3,.9,.4,1) both;
       function drawLog() {
         var q = ($('logQ').value || '').trim();
         var list = logAll.filter(function (r) {
-          if (logKind && logType(r.action) !== logKind) return false;
+          var add = logOp(r.action) === 'add';
+          if (logTab === 'add' ? !add : add) return false;
+          if (logKind && logArea(r.action) !== logKind) return false;
           if (logRole && r.role !== logRole) return false;
           if (q && (r.name + r.before + r.after + r.action).indexOf(q) < 0) return false;
           return true;
         });
+        var nAdd = 0, nChg = 0; logAll.forEach(function (r) { if (logOp(r.action) === 'add') nAdd++; else nChg++; });
+        $('logTabAdd').innerHTML = '新增紀錄 <i>' + nAdd + '</i>'; $('logTabChg').innerHTML = '異動紀錄 <i>' + nChg + '</i>';
+        $('logHint').textContent = logTab === 'add' ? '誰新增了什麼（休假、留守、公差）' : '誰修改、取消、刪除了什麼——有人動過資料都看這裡';
         if (!list.length) { $('logList').innerHTML = '<div class="dnone">沒有符合的紀錄</div>'; return; }
         var h = '', last = '';
         list.forEach(function (r) {
           var day = String(r.time || '').split(' ')[0], hm = String(r.time || '').split(' ')[1] || '';
           if (day !== last) { h += '<div class="logday">' + esc(day) + '</div>'; last = day; }
-          var ty = logType(r.action), del = /刪除|取消/.test(r.action);
-          h += '<div class="lrow ' + ty + (del ? ' del' : '') + '"><div class="lhm">' + esc(hm) + '</div><div class="lmain">' +
-            '<div class="lh"><span class="lrole r-' + esc(r.role) + '">' + esc(r.role) + '</span><b>' + esc(r.action) + '</b>' + (r.date ? '<em>' + mdLabel(r.date) + '（' + wkOf(r.date) + '）</em>' : '') + '</div>' +
-            '<div class="lb">' + (r.name ? '<b>' + esc(r.name) + '</b> ' : '') + (r.before ? '<s>' + esc(r.before) + '</s> → ' : '') + '<span>' + esc(r.after || (del ? '（已刪除）' : '')) + '</span></div></div></div>';
+          var x = logSentence(r);
+          h += '<div class="lrow"><div class="lhm">' + esc(hm) + '</div><div class="lmain">' +
+            '<div class="lh"><span class="lverb v-' + x.c + '">' + esc(x.v) + '</span>' + (r.date ? '<span class="ldate">' + mdLabel(r.date) + '（' + wkOf(r.date) + '）</span>' : '') + '<span class="lwho">' + esc(r.role || '') + '</span></div>' +
+            '<div class="lb">' + x.s + '</div></div></div>';
         });
         $('logList').innerHTML = h;
       }
@@ -5229,6 +5320,7 @@ td.cell.stampin::before { animation: stampin .34s cubic-bezier(.3,.9,.4,1) both;
         $('logRefresh').addEventListener('click', loadLog);
         $('logMore').addEventListener('click', function () { logLimit = 300; loadLog(); });
         $('logQ').addEventListener('input', drawLog);
+        $('logTabs').addEventListener('click', function (ev) { var b = ev.target.closest('button'); if (!b) return; logTab = b.dataset.t; [].forEach.call(this.children, function (x) { x.classList.toggle('on', x === b); }); drawLog(); $('logPage').scrollTop = 0; });
         $('logKind').addEventListener('click', function (ev) { var b = ev.target.closest('button'); if (!b) return; logKind = b.dataset.k; [].forEach.call(this.children, function (x) { x.classList.toggle('on', x === b); }); drawLog(); });
         $('logRole').addEventListener('click', function (ev) { var b = ev.target.closest('button'); if (!b) return; logRole = b.dataset.r; [].forEach.call(this.children, function (x) { x.classList.toggle('on', x === b); }); drawLog(); });
         bindMore();
