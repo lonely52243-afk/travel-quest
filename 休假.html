@@ -1730,6 +1730,32 @@ td.cell.cmpx::after { display: none !important; content: none !important; }
 .tsl > div > span { display: flex; align-items: center; white-space: nowrap; }
 .tlt.tlw b { white-space: nowrap; font-size: 12px; }
 .tsl i.tsi { display: inline-block; width: 18px; height: 18px; border-radius: 0; background-color: transparent; background-size: contain; background-position: center; background-repeat: no-repeat; margin-right: 4px; } .tsl i.tsi.ts-all { display: none; }
+.qkunk { margin: 4px 0 8px; padding: 6px 10px; border-radius: 10px; background: #fdf0d8; color: #8a5a12; font-size: 13px; font-weight: 700; }
+.shvw { display: flex; align-items: center; gap: 10px; margin: 2px 0 10px; }
+.shvw > span { font-weight: 800; color: var(--muted, #6b7280); }
+.shvw .seg { display: inline-flex; }
+.shvw .pill-btn { margin-left: auto; }
+body.hb:not(.ht) .floatbar { display: none; }
+.grid th.corner .cornerm { width: 100%; height: 100%; min-height: 40px; display: flex; flex-direction: column; align-items: center; justify-content: center; gap: 0; padding: 2px 0; border: 0; background: transparent; color: var(--text); font: inherit; cursor: pointer; }
+.grid th.corner .cornerm i { font-style: normal; font-size: 18px; font-weight: 800; line-height: 1; padding: 2px 8px; border: 1.5px solid var(--edge2, #c9bfa6); border-radius: 8px; background: var(--card); }
+.grid th.corner .cornerm small { font-size: 11px; font-weight: 800; color: var(--muted, #6b7280); margin-top: 3px; }
+/* 顯示選單 v2 */
+.shv2 { display: flex; flex-direction: column; gap: 14px; padding: 4px 0 6px; }
+.shrow { display: flex; align-items: center; gap: 10px; }
+.shrow.top { align-items: flex-start; }
+.shl { flex: 0 0 2.6em; font-size: 13px; font-weight: 800; color: var(--muted, #6b7280); padding-top: 2px; }
+.shrow .seg { display: inline-flex; }
+.shrow .pill-btn { margin-left: auto; }
+.shchips { display: flex; flex-wrap: wrap; gap: 8px; }
+.shchip input { position: absolute; opacity: 0; pointer-events: none; }
+.shchip span { display: inline-block; padding: 7px 13px; border-radius: 999px; border: 1.5px solid var(--edge2, #c9bfa6); font-size: 14px; font-weight: 700; color: var(--muted, #6b7280); background: var(--card); text-decoration: line-through; }
+.shchip input:checked + span { background: var(--ink, #1E2A4A); border-color: var(--ink, #1E2A4A); color: var(--card, #fff); text-decoration: none; }
+.shlg { display: grid; grid-template-columns: repeat(4, auto); gap: 8px 12px; font-size: 13px; }
+.shlg span { display: inline-flex; align-items: center; gap: 5px; white-space: nowrap; }
+.shlg i.lg-sq { display: inline-block; width: 14px; height: 14px; border-radius: 4px; flex: 0 0 auto; }
+.shlg i.lg-am { background: linear-gradient(to bottom right, var(--am) 50%, transparent 50%); border: 1.5px solid var(--ink); }
+.shlg i.lg-pm { background: linear-gradient(to top left, var(--pm) 50%, transparent 50%); border: 1.5px solid var(--ink); }
+.shlg i.lg-hex { clip-path: polygon(25% 5%, 75% 5%, 100% 50%, 75% 95%, 25% 95%, 0 50%); border-radius: 0; }
 
   </style>
 </head>
@@ -2525,13 +2551,29 @@ td.cell.cmpx::after { display: none !important; content: none !important; }
         }
         return out.sort();
       }
-      function qkAll() { return (stockGroup() ? stockGroup().employees : employees) || []; }
+      function qkAll() {
+        var base = (stockGroup() ? stockGroup().employees : employees) || [], have = {};
+        base.forEach(function (e) { have[qkV(e.name)] = 1; });
+        var extra = (STAT_SKIP || []).filter(function (n) { var v = qkV(n); if (have[v]) return false; have[v] = 1; return true; }).map(function (n) { return { name: n, cadre: true }; });
+        return base.concat(extra);
+      }
+      // 「劉官」→ 幹部中唯一姓劉的人
+      function qkTitle(tok) {
+        var m = qkV(tok).match(/^([一-鿿])(官|長|股長|班長)$/); if (!m) return '';
+        var c = qkAll().filter(function (e) { return e.officer || e.cadre || (STAT_SKIP || []).some(function (n) { return qkV(n) === qkV(e.name); }); }).filter(function (e) { return qkV(e.name)[0] === m[1]; });
+        return c.length === 1 ? c[0].name : '';
+      }
       function qkNames(txt) {
-        var all = qkAll(), hit = {};
+        var all = qkAll(), hit = {}, tv = qkV(txt);
         all.forEach(function (e) {
-          var n = e.name; if (txt.indexOf(n) >= 0) hit[n] = 1;
-          var g = n.slice(1); if (g.length >= 2 && txt.indexOf(g) >= 0) hit[n] = 1;
+          var n = qkV(e.name); if (tv.indexOf(n) >= 0) hit[e.name] = 1;
+          var g = n.slice(1); if (g.length >= 2 && tv.indexOf(g) >= 0) hit[e.name] = 1;
+          if (n.length === 3) { var sh = n[0] + n[2], at = tv.indexOf(sh);
+            while (at >= 0) { var pre = tv.charAt(at - 1), nx = tv.charAt(at + 2);
+              if ((!pre || /[\s、，,:：@;；(（]/.test(pre)) && (!nx || /[\s、，,;；)）。.]/.test(nx))) { hit[e.name] = 1; break; }
+              at = tv.indexOf(sh, at + 1); } }
         });
+        (tv.match(/[一-鿿](?:官|股長|班長)(?=$|[\s、，,;；)）。.])/g) || []).forEach(function (t) { var n = qkTitle(t); if (n) hit[n] = 1; });
         var re = /@~?\s*([^\s@~,，、:：;；（(]+)/g, m;
         while ((m = re.exec(txt))) all.forEach(function (e) { if (m[1] === e.name || (m[1].length >= 2 && e.name.indexOf(m[1]) >= 0)) hit[e.name] = 1; });
         return all.map(function (e) { return e.name; }).filter(function (n) { return hit[n]; });
@@ -2572,9 +2614,9 @@ td.cell.cmpx::after { display: none !important; content: none !important; }
           var rest = ln.replace(rx, ''), names = qkNames(rest);
           if (!names.length && /^[\s（(]*$/.test(rest) && i + 1 < lines.length && /^\s*@/.test(lines[i + 1])) names = qkNames(lines[i + 1]);
           if (!names.length) continue;
-          var lo = qkStrip(rest), why = '';
-          if (!/\d/.test(lo)) { lo = lo.replace(/[^一-鿿A-Za-z]/g, ''); if (lo.length >= 2 && lo.length <= 10) why = lo; }
-          out.push({ k: ds[0], names: names, why: why });
+          var lo = qkStrip(rest), why = '', unk = qkUnk(rest, names);
+          if (!unk.length && !/\d/.test(lo) && (rest.match(/[、，,]/g) || []).length < 1) { lo = lo.replace(/[^一-鿿A-Za-z]/g, ''); if (lo.length >= 2 && lo.length <= 10) why = lo; }
+          out.push({ k: ds[0], names: names, why: why, unk: unk });
         }
         var seen = {}, res = [];
         out.forEach(function (x) { var id = x.k + '|' + x.names.join(','); if (seen[id]) { if (x.why && !seen[id].why) seen[id].why = x.why; return; } seen[id] = x; res.push(x); });
@@ -2589,10 +2631,46 @@ td.cell.cmpx::after { display: none !important; content: none !important; }
           var r = qkStrip(ps[i]);
           if (r.length >= 2 && r.length <= 10 && (/\d{1,2}\s*[月\/]\s*\d{1,2}/.test(ps[i]) || qkNames(ps[i]).length)) return r;
         }
+        var g1 = b.match(/(?:月份?|本[廠股隊中連大])\s*([一-鿿]{2,5}?)(?:時間|人員|名單|時程|梯次)/) || b.match(/^\s*([一-鿿]{2,5}?)(?:承辦人?|業管)?(?:通知|公告)/m);
+        if (g1 && !/^(本|如下|以下|當日)/.test(g1[1])) return g1[1];
         for (var j = 0; j < QK_WHY.length; j++) if (b.indexOf(QK_WHY[j]) >= 0) return QK_WHY[j];
         return '';
       }
+      // 全形數字／符號轉半形，異體字統一（啓→啟…）
+      function qkNorm(t) {
+        return String(t || '').replace(/[０-９]/g, function (c) { return String.fromCharCode(c.charCodeAt(0) - 65248); })
+          .replace(/／/g, '/').replace(/．/g, '.').replace(/～/g, '~');
+      }
+      var QK_VAR = { '啓': '啟', '峯': '峰', '羣': '群', '衞': '衛', '裏': '裡', '着': '著', '綫': '線', '台': '臺', '鉅': '巨', '姍': '珊', '堃': '坤', '喆': '哲' };
+      function qkV(t) { return String(t || '').replace(/[啓峯羣衞裏着綫台鉅姍堃喆]/g, function (c) { return QK_VAR[c]; }); }
+      // 一個詞是不是指這個人：全名、名字（後兩字）、姓＋最後一字（蔡融＝劉蔡融不成立，但王鵬＝王志鵬）
+      function qkIs(tok, n) {
+        tok = qkV(tok); var v = qkV(n);
+        if (tok === v) return true;
+        if (v.length >= 3 && tok === v.slice(1)) return true;
+        if (v.length === 3 && tok.length === 2 && tok === v[0] + v[2]) return true;
+        return qkTitle(tok) === n;
+      }
+      // 「10/7：劉官、啟泰、威幟」這種名單，把沒對到名冊的詞列出來
+      function qkUnk(rest, names) {
+        var toks = qkV(rest).replace(/^[\s:：]+/, '').split(/[、，,;；\s\/]+/).map(function (x) { return x.replace(/[()（）。.]/g, ''); }).filter(function (x) { return /^[一-鿿]{2,4}$/.test(x); });
+        return toks.filter(function (t) { return !names.some(function (n) { return qkIs(t, n) || qkV(t).indexOf(qkV(n)) >= 0; }); });
+      }
+      // 「10/7日1000時」這種只有日期＋時間的行 → 這天的時間
+      function qkDateTime(b, k) {
+        var lines = b.split('\n');
+        for (var i = 0; i < lines.length; i++) {
+          var ln = lines[i]; if (qkNames(ln).length) continue;
+          var ds = qkDatesIn(ln); if (ds.length !== 1 || ds[0] !== k) continue;
+          var rest = ln.replace(/(?:\d{3,4}\s*[.\/年]\s*)?\d{1,2}\s*[月\/]\s*\d{1,2}\s*[日號号]?(?:\s*[（(][^)）]{1,4}[)）])?/, ' ');
+          var v = (rest.match(/\d{1,2}[:：]\d{2}|\d{4}/g) || []).map(function (x) { var m = x.replace(/[:：]/, '').match(/^(\d{1,2})(\d{2})$/); return m && +m[1] < 24 && +m[2] < 60 ? pad(+m[1]) + ':' + m[2] : ''; }).filter(Boolean);
+          if (v.length) return v.length > 1 ? v[0] + '–' + v[v.length - 1] : v[0];
+          if (/上午/.test(rest)) return '上午'; if (/下午/.test(rest)) return '下午'; if (/整天|全天/.test(rest)) return '整天';
+        }
+        return '';
+      }
       function qkParse(txt) {
+        txt = qkNorm(txt);
         var blocks = txt.split(/(?:^|\n)[ \t]*[-－—–]+[ \t]*(?:\n|$)/).map(function (x) { return x.trim(); }).filter(Boolean);
         var evs = [];
         // 日期在上一段、人名在下一段（中間被「-」隔開）→ 合成同一則
@@ -2603,7 +2681,7 @@ td.cell.cmpx::after { display: none !important; content: none !important; }
           var ex = qkExplicit(b);
           if (ex.length) {
             var w0 = qkWhy(b), t0 = qkTime(b);
-            ex.forEach(function (x) { evs.push({ dates: [{ k: x.k, on: true }], people: x.names.map(function (n) { return { n: n, on: true, time: qkPersonTime(b, n) }; }), why: x.why || w0, time: t0 }); });
+            ex.forEach(function (x) { evs.push({ dates: [{ k: x.k, on: true }], people: x.names.map(function (n) { return { n: n, on: true, time: qkPersonTime(b, n) }; }), why: x.why || w0, time: qkDateTime(b, x.k) || t0, unk: x.unk || [], need: x.names.length + (x.unk || []).length }); });
             return;
           }
           evs.push(qkOne(b));
@@ -2687,7 +2765,7 @@ td.cell.cmpx::after { display: none !important; content: none !important; }
           e.dates.forEach(function (d, j) { h += '<button class="qkchip dt' + (d.on ? ' on' : '') + '" data-e="' + i + '" data-d="' + j + '">' + mdLabel(d.k) + '（' + wkOf(d.k) + '）</button>'; });
           h += '<input type="date" class="qkadd" data-e="' + i + '" aria-label="加日期"></div>';
           var nOn = e.people.filter(function (x) { return x.on; }).length;
-          h += '<div class="qkh">人員（點選加入或取消）' + (e.need ? '<span class="qkneed' + (nOn === e.need ? ' ok' : '') + '">需 ' + e.need + ' 人・已選 ' + nOn + ' 人</span>' : '<span class="qkneed">已選 ' + nOn + ' 人</span>') + '</div><div class="qkchips">';
+          h += '<div class="qkh">人員（點選加入或取消）' + (e.need ? '<span class="qkneed' + (nOn === e.need ? ' ok' : '') + '">需 ' + e.need + ' 人・已選 ' + nOn + ' 人</span>' : '<span class="qkneed">已選 ' + nOn + ' 人</span>') + '</div>' + (e.unk && e.unk.length ? '<div class="qkunk">名冊沒有對到：' + e.unk.map(esc).join('、') + '（請在下面手動點選）</div>' : '') + '<div class="qkchips">';
           e.people.forEach(function (p, j) {
             var offs = [], multi = e.dates.filter(function (x) { return x.on; }).length > 1;
             e.dates.forEach(function (d) { if (!d.on) return; var l = offLabel(d.k, p.n); if (l) offs.push(multi ? mdLabel(d.k) + ' ' + l : l);
@@ -3834,7 +3912,7 @@ td.cell.cmpx::after { display: none !important; content: none !important; }
       // 這天完全沒有任何標記的人（＝還沒點假單）
       function unfiledOf(k) {
         var out = [];
-        employees.forEach(function (e) { if (!getRec(k, e.name)) out.push({ name: e.name }); });
+        employees.forEach(function (e) { if (!e.officer && !getRec(k, e.name)) out.push({ name: e.name }); });   // 軍官不列入未點
         return out;
       }
       function fmtStay(s) { return s.period ? s.name + '（' + s.period + '休）' : s.name; }
@@ -4456,7 +4534,8 @@ td.cell.cmpx::after { display: none !important; content: none !important; }
         var infos = keys.map(dayInfo);
         var wk = (view === 'week');
         var cx = (prefs.show || {}).cmp !== false ? cmpIndex() : null;
-        var h = '<table class="grid ' + (wk ? 'wk' : 'mo') + '"><thead><tr><th class="dh corner namecol"></th>';
+        var cmid = keys.length ? keys[Math.floor(keys.length / 2)] : todayKey();
+        var h = '<table class="grid ' + (wk ? 'wk' : 'mo') + '"><thead><tr><th class="dh corner namecol"><button class="cornerm" aria-label="顯示設定、週／月切換"><i>≡</i><small>' + (+cmid.slice(5, 7)) + '月</small></button></th>';
         keys.forEach(function (k, idx) {
           var inf = infos[idx];
           var cls = 'dh' + (inf.off ? ' off' : '') + (k === tk ? ' today' : '');
@@ -4468,6 +4547,7 @@ td.cell.cmpx::after { display: none !important; content: none !important; }
         h += '</tr></thead><tbody>';
 
         employees.forEach(function (emp, ei) {
+          if (emp.officer && (prefs.show || {}).off === false) return;
           if (ei > 0 && groups.length > 1 && emp.sec !== employees[ei - 1].sec) h += '<tr class="secrow"><td class="namecol">' + esc(emp.sec) + '</td><td colspan="' + keys.length + '"></td></tr>';
           h += '<tr><td class="namecol' + (prefs.me && emp.name === prefs.me ? ' me' : '') + '">' + esc(emp.name) + '</td>';
           keys.forEach(function (k, idx) {
@@ -4559,14 +4639,16 @@ td.cell.cmpx::after { display: none !important; content: none !important; }
         var c = isLeave(r) ? 'leave' : (isAway(r) ? 'away' : (r.period === '留守' ? 'stay' : 'mon'));
         return true;
       }
-      var SHOW_ITEMS = [['top', '最上面的日期列'], ['bar', '週／月、換週的按鈕列'], ['brief', '假日留守摘要列'], ['foot', '最下面的休假人數']];
+      var SHOW_ITEMS = [['top', '最上面的日期列'], ['brief', '假日留守摘要列'], ['foot', '最下面的休假人數'], ['off', '軍官（劉庭妤、林謙丞）']];
       function hiddenCount() { var s = prefs.show || {}, n = 0; SHOW_ITEMS.forEach(function (x) { if (x[0] !== 'cmp' && s[x[0]] === false) n++; }); return n; }
       function openShow() {
         var s = prefs.show || {};
         openSheet({
           title: '要顯示哪些', sub: '不勾的先收起來，最後可以只剩一張表；要用再回來勾',
-          body: '<div class="chk-list">' + SHOW_ITEMS.map(function (x) {
+          body: '<div class="shvw"><span>檢視</span><div class="seg">' + [['week', '週'], ['month', '月']].map(function (v) { var cur = $('viewSeg').querySelector('.on'); return '<button data-vw="' + v[0] + '"' + (cur && cur.dataset.v === v[0] ? ' class="on"' : '') + '>' + v[1] + '</button>'; }).join('') + '</div><button class="pill-btn" data-vw="today">回到今天</button></div>' +
+            '<div class="chk-list">' + SHOW_ITEMS.map(function (x) {
             if (x[0] === 'cmp' && !myRole()) return '';
+            if (x[0] === 'off' && !employees.some(function (e) { return e.officer; })) return '';
             var on = s[x[0]] !== false;
             return '<label class="chkrow"><input type="checkbox" data-show="' + x[0] + '"' + (on ? ' checked' : '') + '><span>' + x[1] + '</span></label>';
           }).join('') + '</div><div class="lg-title">顏色說明</div>' +
@@ -4579,14 +4661,31 @@ td.cell.cmpx::after { display: none !important; content: none !important; }
             '<span><i style="background:var(--away);border-radius:999px;width:22px"></i>救災／出差／受訓（膠囊章）</span>' +
             '<span><i style="background:var(--card);border:1.5px solid var(--ink)"></i>空白＝未點</span>' +
             (myRole() ? '<span><i style="background:var(--full);opacity:.35"></i>淡色＝對方已登錄、本人尚未登錄</span>' : '') + '</div>',
-          actions: [{ label: '只留表格', fn: function () { var o = {}; for (var kk in (prefs.show || {})) o[kk] = prefs.show[kk]; o.top = o.bar = o.brief = o.foot = false; prefs.show = o; savePrefs(); renderSched(); showToast('已收起，左上角的小按鈕可以再打開', null, null, 2400); } }, { label: '全部顯示', fn: function () { prefs.show = {}; savePrefs(); renderSched(); } }, { label: '看完整使用說明', fn: goHelp }]
+          actions: [{ label: '只留表格', fn: function () { var o = {}; for (var kk in (prefs.show || {})) o[kk] = prefs.show[kk]; o.top = o.brief = o.foot = false; prefs.show = o; savePrefs(); renderSched(); showToast('已收起，左上角的小按鈕可以再打開', null, null, 2400); } }, { label: '全部顯示', fn: function () { prefs.show = {}; savePrefs(); renderSched(); } }, { label: '看完整使用說明', fn: goHelp }]
+        });
+      }
+      function openShow() {
+        var sh = prefs.show || {}, cur = $('viewSeg').querySelector('.on'), cv = cur ? cur.dataset.v : 'week';
+        var items = [['top', '日期列'], ['brief', '假日摘要'], ['foot', '休假人數']];
+        if (employees.some(function (e) { return e.officer; })) items.push(['off', '軍官']);
+        var lg = [['<i class="lg-sq" style="background:var(--full)"></i>', '全天'], ['<i class="lg-sq lg-am"></i>', '上午'], ['<i class="lg-sq lg-pm"></i>', '下午'],
+          ['<i class="lg-sq" style="background:var(--stay)"></i>', '留守'], ['<i class="lg-sq lg-hex" style="background:var(--mon)"></i>', '監控'], ['<i class="lg-sq" style="background:var(--away);border-radius:999px;width:20px"></i>', '外勤'],
+          ['<i class="lg-sq" style="background:var(--card);border:1.5px solid var(--ink)"></i>', '未點']];
+        if (myRole()) lg.push(['<i class="lg-sq" style="background:var(--full);opacity:.35"></i>', '待我確認']);
+        openSheet({
+          title: '顯示',
+          body: '<div class="shv2">' +
+            '<div class="shrow"><span class="shl">檢視</span><div class="seg">' + [['week', '週'], ['month', '月']].map(function (v) { return '<button data-vw="' + v[0] + '"' + (cv === v[0] ? ' class="on"' : '') + '>' + v[1] + '</button>'; }).join('') + '</div><button class="pill-btn" data-vw="today">今天</button></div>' +
+            '<div class="shrow"><span class="shl">顯示</span><div class="shchips">' + items.map(function (x) { return '<label class="shchip"><input type="checkbox" data-show="' + x[0] + '"' + (sh[x[0]] !== false ? ' checked' : '') + '><span>' + x[1] + '</span></label>'; }).join('') + '</div></div>' +
+            '<div class="shrow top"><span class="shl">顏色</span><div class="shlg">' + lg.map(function (x) { return '<span>' + x[0] + x[1] + '</span>'; }).join('') + '</div></div>' +
+            '</div>'
         });
       }
       function applyFull() {
         var sc = tab === 'sched', sh = prefs.show || {}, bc = document.body.classList;
         bc.toggle('full', !!prefs.full && sc);
         bc.toggle('ht', sc && sh.top === false);
-        bc.toggle('hb', sc && sh.bar === false);
+        bc.toggle('hb', sc);   // 按鈕列固定收起：左右滑動換週，週／月在選單裡切換
         bc.toggle('hbr', sc && sh.brief === false);
       }
       function setFull(on) {
@@ -4823,9 +4922,10 @@ td.cell.cmpx::after { display: none !important; content: none !important; }
 
       // 產出固定使用「股」的全部人員，不受右上角切換影響
       function stockGroup() {
+        var offG = groups.filter(function (g) { return g.officer || g.name === '軍官'; }), norm = groups.filter(function (g) { return offG.indexOf(g) < 0; });
         if (groups.length < 2) return groups[0] || null;
-        var seenS = {}, allS = [], order = [groups[groups.length - 1]];
-        groups.forEach(function (gg) { if (gg !== order[0]) order.push(gg); });
+        var seenS = {}, allS = [], last = norm[norm.length - 1], order = offG.concat(last ? [last] : []);
+        norm.forEach(function (gg) { if (gg !== last) order.push(gg); });
         order.forEach(function (gg) {
           (gg.employees || []).forEach(function (e) {
             if (seenS[e.name]) return; seenS[e.name] = 1; allS.push(e);
@@ -5195,6 +5295,8 @@ td.cell.cmpx::after { display: none !important; content: none !important; }
         $('idInst').hidden = instStandalone() || no || !mobile;
       }
       var CHANGELOG = [
+        { v: 'v10.72', d: '11/1', t: ['表格上方的週／月、換週按鈕列拿掉：左右滑動換週，週／月與回到今天改在表格左上角「≡」', '股總可在表格左上角「≡」隱藏軍官列（休假仍顯示在每日情況）'] },
+        { v: 'v10.71', d: '11/1', t: ['快速標記：看得懂全形「10／7」、簡稱（威幟、同咨、蔡融）與異體字（啓＝啟）', '加入劉庭妤、林謙丞（後端「軍官名冊」分頁）：休假由股總點、到班照常計算，只有未點假單名單與提醒信不列入；需搭配後端第三十一版', '軍官也能派公差，通知寫「劉官」「林官」會自動對到', '一則通知有好幾天、各天時間不同（10/7日1000時）會分開帶入時間', '名冊對不到的名字（例如「劉官」）會列出來提醒手動點選；事由可從「尿篩時間」「本股尿篩人員」推測'] },
         { v: 'v10.70', d: '11/1', t: ['iPhone 編輯公差選日期時選擇器會自動關掉的問題：改成按「完成」才加入日期', '快速標記沒寫年份的日期：補過去約 8 個月內的舊資料，不會再跑到明年；有寫星期（例如 4/10（五））就照星期對年份'] },
         { v: 'v10.69', d: '11/1', t: ['換上新圖示：假日提醒信、搜尋、編輯鎖（上鎖／編輯中）、本期未派人員、時段（上午／下午／晚間）', '公差種類新增圖示：會議、服儀檢查、集合、監工／值勤、運送器材，對不到的事由也有預設圖示'] },
         { v: 'v10.68', d: '11/1', t: ['公差統計重新設計：可選任一月份、季（3 個月）、年，左右切換上一期、下一期，點長條直接看那個月', '新增：與上一期比較（▲▼）、有派到的人數、時段分布（上午／下午／全天／晚間）、本期沒有派到公差的人員', '個人紀錄只列本期，點選可到當天修改；個人分析看累積'] },
@@ -5279,7 +5381,7 @@ td.cell.cmpx::after { display: none !important; content: none !important; }
 
       var TOUR = [
         { ic: '<span class="tic ic-home"></span>', t: '首頁：當週留守', d: '打開就看到<b>即將到來的假日</b>誰留守（連假整段都算）。按<b>「複製留守」</b>直接貼到 Juiker。往下滑是每天的休假情況。' },
-        { ic: '<span class="tic ic-sched"></span>', t: '表格：一人一天一格', d: '<b>空白＝未點假單</b>。左右滑動換週，點格子看詳情。最上面一行是假日摘要，右上 <b>ⓘ</b> 看顏色代表什麼。' },
+        { ic: '<span class="tic ic-sched"></span>', t: '表格：一人一天一格', d: '<b>空白＝未點假單</b>。左右滑動換週，點格子看詳情。最上面一行是假日摘要；表格左上角 <b>≡</b> 切換週／月、看顏色說明。' },
         { ic: '<span class="tic ic-out"></span>', t: '產出：一鍵回報', d: '選<b>假日留守、人員情況或加班</b>，按「複製文字」就能貼到群組。文字框也可以直接改。' },
         { ic: '<span class="tic ic-ana"></span>', t: '分析：看每個人', d: '本月每人<b>平日休幾天、到班幾天</b>，點名字看個人月曆。' },
         { ic: '<span class="tic ic-lock"></span>', t: '唯讀模式，不會誤改資料', d: '一開始先選身分：<b>一般</b>只能看；<b>彈射</b>、<b>軍械</b>、<b>股總</b>輸入密碼後才能記；一般只能新增留守，右上角會顯示<b>「編輯中」</b>；3 分鐘沒動作會自動鎖回。要換身分到「更多」。' }
@@ -5327,7 +5429,7 @@ td.cell.cmpx::after { display: none !important; content: none !important; }
 
       var TIPS = {
         days: '點選姓名可查看詳情；假日卡片按「看名單」可查看未點假單人員。',
-        sched: '左右滑動換週，點格子看詳情。顏色看不懂就按右上「ⓘ」。',
+        sched: '左右滑動換週，點格子看詳情。週／月切換、顏色說明在表格左上角「≡」。',
         out: '選好要回報的內容，按「複製文字」就能貼到 Juiker。',
         ana: '點上面的名字看個人月曆；表格可以左右滑。'
       };
@@ -5936,6 +6038,12 @@ td.cell.cmpx::after { display: none !important; content: none !important; }
         $('fExit').addEventListener('click', function () { setFull(false); });
         ['editBtn2', 'editBtnT', 'editBtnF'].forEach(function (id) { $(id).addEventListener('click', function () { $('editBtn').click(); }); });
         $('fInfo').addEventListener('click', openShow);
+        document.addEventListener('click', function (ev) { if (ev.target.closest && ev.target.closest('.cornerm')) { ev.stopPropagation(); openShow(); } }, true);
+        $('sheet').addEventListener('click', function (ev) {
+          var b = ev.target.closest ? ev.target.closest('[data-vw]') : null; if (!b) return;
+          if (b.dataset.vw === 'today') $('sToday').click(); else { var t = $('viewSeg').querySelector('[data-v="' + b.dataset.vw + '"]'); if (t) t.click(); }
+          closeSheet();
+        });
         $('sheet').addEventListener('change', function (ev) {
           var i = ev.target;
           if (!i || !i.dataset || !i.dataset.show) return;
