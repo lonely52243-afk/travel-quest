@@ -1756,6 +1756,22 @@ body.hb:not(.ht) .floatbar { display: none; }
 .shlg i.lg-am { background: linear-gradient(to bottom right, var(--am) 50%, transparent 50%); border: 1.5px solid var(--ink); }
 .shlg i.lg-pm { background: linear-gradient(to top left, var(--pm) 50%, transparent 50%); border: 1.5px solid var(--ink); }
 .shlg i.lg-hex { clip-path: polygon(25% 5%, 75% 5%, 100% 50%, 75% 95%, 25% 95%, 0 50%); border-radius: 0; }
+/* 收起日期列時：編輯鎖改成一般一列，不再浮到狀態列；選單用表格左上角的 ≡ */
+.floatbar { position: static !important; margin: 0 0 6px; }
+.floatbar #fInfo { display: none !important; }
+body.full .floatbar { display: none !important; }
+.shrow .pill-btn + .pill-btn { margin-left: 0; }
+body:not(.ht) .floatbar { display: none !important; }
+/* 滿版小圓鈕 */
+#zoomBtn { display: none; position: fixed; right: 14px; bottom: calc(env(safe-area-inset-bottom) + 86px); z-index: 60; width: 44px; height: 44px; border-radius: 50%; border: 2px solid var(--ink, #1E2A4A); background: var(--yellow, #F2B705); color: #1E2A4A; box-shadow: 0 3px 10px rgba(0,0,0,.22); padding: 0; align-items: center; justify-content: center; }
+body.onsched #zoomBtn { display: inline-flex; }
+body.full #zoomBtn { bottom: calc(env(safe-area-inset-bottom) + 18px); }
+#zoomBtn svg { width: 22px; height: 22px; fill: none; stroke: currentColor; stroke-width: 2.6; stroke-linecap: round; stroke-linejoin: round; }
+#zoomBtn .zout, body.full #zoomBtn .zin { display: none; }
+body.full #zoomBtn .zout { display: block; }
+body.full .fullbar #fExit, body.full .fullbar .ftitle { display: none; }
+body.full .fullbar { justify-content: flex-start; }
+body.full .fullbar { display: none !important; }
 
   </style>
 </head>
@@ -4684,13 +4700,14 @@ body.hb:not(.ht) .floatbar { display: none; }
       function applyFull() {
         var sc = tab === 'sched', sh = prefs.show || {}, bc = document.body.classList;
         bc.toggle('full', !!prefs.full && sc);
+        bc.toggle('onsched', sc);
         bc.toggle('ht', sc && sh.top === false);
         bc.toggle('hb', sc);   // 按鈕列固定收起：左右滑動換週，週／月在選單裡切換
         bc.toggle('hbr', sc && sh.brief === false);
       }
       function setFull(on) {
         prefs.full = !!on; savePrefs(); applyFull(); renderSched();
-        if (on) showToast('已滿版，右上「退出」可以回來', null, null, 2200);
+        if (on) showToast('已滿版，再點右下角按鈕還原', null, null, 2000);
       }
       function renderSched() {
         applyFull();
@@ -5295,7 +5312,7 @@ body.hb:not(.ht) .floatbar { display: none; }
         $('idInst').hidden = instStandalone() || no || !mobile;
       }
       var CHANGELOG = [
-        { v: 'v10.72', d: '11/1', t: ['表格上方的週／月、換週按鈕列拿掉：左右滑動換週，週／月與回到今天改在表格左上角「≡」', '股總可在表格左上角「≡」隱藏軍官列（休假仍顯示在每日情況）'] },
+        { v: 'v10.72', d: '11/1', t: ['表格右下角新增小圓鈕：一點滿版（上下按鈕列都收起，只剩表格），再點還原', '收起日期列時，左上的編輯鎖不再擠到狀態列', '表格上方的週／月、換週按鈕列拿掉：左右滑動換週，週／月與回到今天改在表格左上角「≡」', '股總可在表格左上角「≡」隱藏軍官列（休假仍顯示在每日情況）'] },
         { v: 'v10.71', d: '11/1', t: ['快速標記：看得懂全形「10／7」、簡稱（威幟、同咨、蔡融）與異體字（啓＝啟）', '加入劉庭妤、林謙丞（後端「軍官名冊」分頁）：休假由股總點、到班照常計算，只有未點假單名單與提醒信不列入；需搭配後端第三十一版', '軍官也能派公差，通知寫「劉官」「林官」會自動對到', '一則通知有好幾天、各天時間不同（10/7日1000時）會分開帶入時間', '名冊對不到的名字（例如「劉官」）會列出來提醒手動點選；事由可從「尿篩時間」「本股尿篩人員」推測'] },
         { v: 'v10.70', d: '11/1', t: ['iPhone 編輯公差選日期時選擇器會自動關掉的問題：改成按「完成」才加入日期', '快速標記沒寫年份的日期：補過去約 8 個月內的舊資料，不會再跑到明年；有寫星期（例如 4/10（五））就照星期對年份'] },
         { v: 'v10.69', d: '11/1', t: ['換上新圖示：假日提醒信、搜尋、編輯鎖（上鎖／編輯中）、本期未派人員、時段（上午／下午／晚間）', '公差種類新增圖示：會議、服儀檢查、集合、監工／值勤、運送器材，對不到的事由也有預設圖示'] },
@@ -6036,11 +6053,18 @@ body.hb:not(.ht) .floatbar { display: none; }
         $('sInfo').addEventListener('click', openShow);
         $('sFull').addEventListener('click', function () { setFull(true); });
         $('fExit').addEventListener('click', function () { setFull(false); });
+        (function () {
+          var zb = document.createElement('button'); zb.id = 'zoomBtn'; zb.setAttribute('aria-label', '滿版／還原');
+          zb.innerHTML = '<svg viewBox="0 0 24 24" class="zin"><path d="M4 9V4h5M20 9V4h-5M4 15v5h5M20 15v5h-5"/></svg><svg viewBox="0 0 24 24" class="zout"><path d="M9 4v5H4M15 4v5h5M9 20v-5H4M15 20v-5h5"/></svg>';
+          zb.addEventListener('click', function () { setFull(!prefs.full); });
+          document.body.appendChild(zb);
+        })();
         ['editBtn2', 'editBtnT', 'editBtnF'].forEach(function (id) { $(id).addEventListener('click', function () { $('editBtn').click(); }); });
         $('fInfo').addEventListener('click', openShow);
         document.addEventListener('click', function (ev) { if (ev.target.closest && ev.target.closest('.cornerm')) { ev.stopPropagation(); openShow(); } }, true);
         $('sheet').addEventListener('click', function (ev) {
           var b = ev.target.closest ? ev.target.closest('[data-vw]') : null; if (!b) return;
+          if (b.dataset.vw === 'full') { closeSheet(); setFull(true); return; }
           if (b.dataset.vw === 'today') $('sToday').click(); else { var t = $('viewSeg').querySelector('[data-v="' + b.dataset.vw + '"]'); if (t) t.click(); }
           closeSheet();
         });
