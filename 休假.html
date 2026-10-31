@@ -1840,7 +1840,7 @@ td.cell.stampin::before { animation: stampin .34s cubic-bezier(.3,.9,.4,1) both;
             <summary>統計與個人分析</summary>
             <div class="dbody2">
               <ul>
-                <li>統計頁最上面是<b>分析</b>：平均每人幾次、最多是誰、最多與最少差幾次、近 90 天合計，以及<b>下次優先</b>（次數最少、最久沒去的前三位）。幹部不計入。</li>
+                <li>統計頁最上面是<b>分析</b>：平均每人幾次、最多是誰、最多與最少差幾次、近 90 天合計。幹部不計入。</li>
                 <li>下面每個人累積幾次，<b>由少到多</b>排列，最少的標「最少」。</li>
                 <li><b>點人名</b>展開個人分析：累積、這個月、近 90 天、最近一次、排第幾、平均幾天一次、最常做的事由、近 6 個月長條圖，再往下是每一次的日期、事由、時間。</li>
                 <li>統計永遠是累積的全部紀錄，派人時當參考，實際由你決定。</li>
@@ -2270,7 +2270,7 @@ td.cell.stampin::before { animation: stampin .34s cubic-bezier(.3,.9,.4,1) both;
       var qkMode = null;
       function qkForm(k, g) {
         var on = g ? g.names : [];
-        qkMode = g ? { date: k, why: g.why, names: g.names.slice() } : null;
+        qkMode = g ? { date: k, why: g.why, lab: g.why + (g.time ? '　' + g.time : ''), names: g.names.slice() } : null;
         $('quickPage').classList.add('qkform');
         $('qkTitle').textContent = g ? '編輯公差' : '新增公差';
         qkEv = [{ dates: [{ k: k, on: true }], why: g ? g.why : '', time: g ? g.time : '',
@@ -2346,7 +2346,12 @@ td.cell.stampin::before { animation: stampin .34s cubic-bezier(.3,.9,.4,1) both;
         (wasEdit ? opQueue.then(function () { return apiCall({ action: 'addDuty', token: prefs.dutyPw, items: JSON.stringify(arr) }); }) : apiCall({ action: 'addDuty', token: prefs.dutyPw, items: JSON.stringify(arr) })).then(function (res) {
           if (!res || !res.ok) throw new Error((res && res.msg) || '新增失敗');
           qkSaveRaw(arr, qkRaw);
-          showToast('✓ 已寫入 ' + arr.length + ' 筆公差' + (qkNoteN ? '，原始通知已存到當天備註' : ''), null, null, 3200);
+          var labOf = function (x) { return x.why + (x.time ? '　' + x.time : ''); };
+          if (wasEdit && arr.length && arr.every(function (x) { return labOf(x) === labOf(arr[0]); }) && (labOf(arr[0]) !== wasEdit.lab || arr[0].date !== wasEdit.date)) {
+            var nt = dutyNotes[wasEdit.date + '|' + wasEdit.lab];
+            if (nt && !dutyNotes[arr[0].date + '|' + labOf(arr[0])]) { noteSaveKey(arr[0].date, labOf(arr[0]), nt, true); noteSaveKey(wasEdit.date, wasEdit.lab, '', true); }
+          }
+          showToast('✓ 已寫入 ' + arr.length + ' 筆公差' + (qkNoteN ? '，原始通知已存到這筆公差的備註' : ''), null, null, 3200);
           try { fxBeep('ok'); } catch (e) { /* 忽略 */ }
         }).catch(function (err) {
           try { dutyAll = JSON.parse(snap); } catch (e) { /* 忽略 */ }
@@ -2358,14 +2363,14 @@ td.cell.stampin::before { animation: stampin .34s cubic-bezier(.3,.9,.4,1) both;
       function qkSaveRaw(arr, raw) {
         qkNoteN = 0;
         if (!raw) return;
-        var ds = []; arr.forEach(function (it) { if (ds.indexOf(it.date) < 0) ds.push(it.date); });
-        ds.forEach(function (k) {
-          var old = dutyNotes[k] || '';
+        var ds = []; arr.forEach(function (it) { var kk = it.date + '|' + it.why + (it.time ? '　' + it.time : ''); if (ds.indexOf(kk) < 0) ds.push(kk); });
+        ds.forEach(function (kk) {
+          var k = kk.split('|')[0], why = kk.slice(k.length + 1), old = dutyNotes[kk] || '';
           if (old.indexOf(raw.slice(0, 40)) >= 0) return;
           var t = (old ? old + '\n――――\n' : '') + '【原始通知】\n' + raw;
           t = t.slice(0, 400);
-          dutyNotes[k] = t; qkNoteN++;
-          apiCall({ action: 'setNote', token: prefs.dutyPw, date: k, text: t }).then(function (res) { if (!res || !res.ok) throw new Error((res && res.msg) || '備註沒存成功'); })
+          dutyNotes[kk] = t; qkNoteN++;
+          apiCall({ action: 'setNote', token: prefs.dutyPw, date: k, why: why, text: t }).then(function (res) { if (!res || !res.ok) throw new Error((res && res.msg) || '備註沒存成功'); })
             .catch(function (e) { showToast('原始通知沒存到備註：' + e.message, null, null, 3600); });
         });
         try { localStorage.setItem(NOTES_KEY, JSON.stringify(dutyNotes)); } catch (e) { /* 忽略 */ }
@@ -2423,6 +2428,7 @@ td.cell.stampin::before { animation: stampin .34s cubic-bezier(.3,.9,.4,1) both;
         });
         o.plan = {};
         o.note = dutyNotes[k] || ''; o.est = false;
+        o.anyNote = !!o.note || Object.keys(dutyNotes).some(function (x) { return x.indexOf(k + '|') === 0; });
         (rosterAll[k] || []).concat(rosterEst[k] || []).forEach(function (x) { if (x.est) o.est = true; (o.plan[x.item] = o.plan[x.item] || []).push({ n: x.n, est: !!x.est, away: !!(day[x.n] && day[x.n].period !== '留守' && day[x.n].period !== '監控') }); });
         (dutyAll[k] || []).forEach(function (x) { var lab = x.why + (x.time ? '　' + x.time : ''); var g = o.duty[lab] || (o.duty[lab] = { why: x.why, time: x.time || '', names: [] }); g.names.push(x.n); o.nDuty++; });
         return o;
@@ -2445,7 +2451,7 @@ td.cell.stampin::before { animation: stampin .34s cubic-bezier(.3,.9,.4,1) both;
           var ws = [], wsSeen = {}; Object.keys(o.duty).forEach(function (l) { o.duty[l].names.forEach(function (nm) { if (!wsSeen[nm]) { wsSeen[nm] = 1; ws.push(nm.length >= 3 ? nm.slice(1) : nm); } }); });
           if (ws.length) { chips += '<span class="dnm">'; ws.slice(0, ws.length > 3 ? 2 : 3).forEach(function (w) { chips += '<i class="dc duty">' + esc(w) + '</i>'; }); if (ws.length > 3) chips += '<i class="dc more">＋' + (ws.length - 2) + '</i>'; chips += '</span>'; }
           var no = 0; Object.keys(o.out).forEach(function (w) { no += o.out[w].length; });
-          var dots = (o.stay.length ? '<u class="dot stay"></u>' : '') + (o.mon.length ? '<u class="dot mon"></u>' : '') + (no ? '<u class="dot out"></u>' : '') + (o.note ? '<u class="dot note"></u>' : '');
+          var dots = (o.stay.length ? '<u class="dot stay"></u>' : '') + (o.mon.length ? '<u class="dot mon"></u>' : '') + (no ? '<u class="dot out"></u>' : '') + (o.anyNote ? '<u class="dot note"></u>' : '');
           if (dots) chips += '<span class="dots">' + dots + '</span>';
           h += '<button class="dcell' + (inM ? '' : ' dim') + (k === tk ? ' today' : '') + (info.off ? ' off' : '') + '" data-k="' + k + '"><b>' + d.getDate() + '</b>' + chips + '</button>';
         }
@@ -2498,11 +2504,11 @@ td.cell.stampin::before { animation: stampin .34s cubic-bezier(.3,.9,.4,1) both;
         dl.sort(function (x, y) { return x.t.s - y.t.s; });
         dl.forEach(function (x) {
           if (x.plan) tl('plan', x.t, x.plan + '（表定）', x.names, '', '', 'plan:' + x.plan);
-          else tl('duty', x.t, x.g.why, x.g.names, '', wiOf(x.g.why), 'duty:' + x.lab);
+          else tl('duty', x.t, x.g.why + (dutyNotes[k + '|' + x.lab] ? '　📝' : ''), x.g.names, '', wiOf(x.g.why), 'duty:' + x.lab);
         });
         if (Object.keys(o.plan).length) h += '<div class="plannote">' + (o.est ? '含預估（依實際為主）' : '表定參考（依實際為主）') + '：虛線的是輪值表排的，不是正式公差</div>';
-        if (dutyEditor()) h += '<div class="dl note"><div class="dlh"><b>備註</b><i>大家都看得到</i></div><textarea id="noteIn" rows="3" maxlength="400" placeholder="例：帶雨具、集合地點…">' + esc(o.note) + '</textarea><button class="ghost" id="noteSave">儲存備註</button></div>';
-        else if (o.note) h += '<div class="dl note"><div class="dlh"><b>備註</b></div><div class="dln nt">' + esc(o.note) + '</div></div>';
+        if (o.note) h += '<div class="dl note"><div class="dlh"><b>舊的整天備註</b>' + (dutyEditor() ? '<button class="linkbtn" id="oldNoteDel">清除</button>' : '') + '</div><div class="dln nt">' + esc(o.note) + '</div></div>';
+        if (Object.keys(o.duty).length) h += '<div class="plannote">備註在每個公差裡：點公差進去看或寫</div>';
         $('dutyDayBody').innerHTML = h || '<div class="dnone">這天沒有任何標記</div>';
       }
       var evtCur = null;
@@ -2530,8 +2536,10 @@ td.cell.stampin::before { animation: stampin .34s cubic-bezier(.3,.9,.4,1) both;
         else h += '<div class="evtime"><div><small>' + esc(full) + '</small><b>' + esc(tm.a) + '</b></div></div>';
         if (tm.raw && /^(上午|下午)/.test(tm.raw)) h += '<div class="evrow"><span class="evk">時段</span><span>' + esc(tm.raw) + '（約略時間，實際依通知）</span></div>';
         h += '<div class="evrow evppl"><span class="evk">人員 ' + names.length + ' 人</span><div class="evchips">' + names.map(function (n) { return '<em>' + esc(n) + '</em>'; }).join('') + '</div></div>';
-        if (dutyEditor()) h += '<div class="evrow evnote"><span class="evk">當天備註</span><div><textarea id="evNote" rows="5" maxlength="400" placeholder="可貼通知文字（時間、地點、人員…），大家都看得到">' + esc(o.note) + '</textarea><button class="ghost" id="evNoteSave">儲存備註</button></div></div>';
-        else if (o.note) h += '<div class="evrow"><span class="evk">當天備註</span><span class="evpre">' + esc(o.note) + '</span></div>';
+        var myNote = kind === 'duty' ? (dutyNotes[k + '|' + lab] || '') : '';
+        if (kind === 'duty' && dutyEditor()) h += '<div class="evrow evnote"><span class="evk">備註</span><div><textarea id="evNote" rows="5" maxlength="400">' + esc(myNote) + '</textarea><button class="ghost" id="evNoteSave">儲存備註</button></div></div>';
+        else if (myNote) h += '<div class="evrow"><span class="evk">備註</span><span class="evpre">' + esc(myNote) + '</span></div>';
+        if (o.note) h += '<div class="evrow"><span class="evk">舊的整天備註</span><span class="evpre">' + esc(o.note) + '</span></div>';
         var inRest = names.filter(function (n) { return kind === 'duty' && o.rest.some(function (r) { return r.split('（')[0] === n; }); });
         if (inRest.length) h += '<div class="evrow warn"><span class="evk">注意</span><span>' + esc(inRest.join('、')) + ' 當天有休假紀錄</span></div>';
         if (kind === 'duty') {
@@ -2541,7 +2549,21 @@ td.cell.stampin::before { animation: stampin .34s cubic-bezier(.3,.9,.4,1) both;
         evtCur = { lab: lab, why: why, kind: kind };
         $('evtBody').innerHTML = h; $('evtPage').classList.add('show'); $('evtPage').scrollTop = 0;
       }
+      function noteSaveKey(k, why, t, quiet) {
+        var key = k + (why ? '|' + why : '');
+        if (t) dutyNotes[key] = t; else delete dutyNotes[key];
+        try { localStorage.setItem(NOTES_KEY, JSON.stringify(dutyNotes)); } catch (e) { /* 忽略 */ }
+        if ($('dutyPage').classList.contains('show')) renderDutyMon();
+        if (!quiet) showToast(t ? '✓ 備註已儲存' : '備註已清除', null, null, 1800);
+        return apiCall({ action: 'setNote', token: prefs.dutyPw, date: k, why: why || '', text: t }).then(function (res) { if (!res || !res.ok) throw new Error((res && res.msg) || '儲存失敗'); })
+          .catch(function (e) { showToast('備註沒存成功：' + e.message, null, null, 3600); notesLoad(); });
+      }
       function noteSave() {
+        if ($('evtPage').classList.contains('show') && evtCur && evtCur.kind === 'duty') {
+          noteSaveKey(dutyDayK, evtCur.lab, ($('evNote').value || '').trim().slice(0, 400));
+          if ($('dutyDay').classList.contains('show')) renderDutyDay();
+          return;
+        }
         var k = dutyDayK, t = (($('evNote') && $('evtPage').classList.contains('show') ? $('evNote') : $('noteIn')).value || '').trim().slice(0, 400);
         if (t) dutyNotes[k] = t; else delete dutyNotes[k];
         try { localStorage.setItem(NOTES_KEY, JSON.stringify(dutyNotes)); } catch (e) { /* 忽略 */ }
@@ -2552,7 +2574,7 @@ td.cell.stampin::before { animation: stampin .34s cubic-bezier(.3,.9,.4,1) both;
       function notesLoad() {
         return apiCall({ action: 'getNotes' }).then(function (res) {
           if (!res || !res.ok) return;
-          var m = {}; (res.items || []).forEach(function (it) { m[it.date] = it.text; }); dutyNotes = m;
+          var m = {}; (res.items || []).forEach(function (it) { m[it.date + (it.why ? '|' + it.why : '')] = it.text; }); dutyNotes = m;
           try { localStorage.setItem(NOTES_KEY, JSON.stringify(m)); } catch (e) { /* 忽略 */ }
           if ($('dutyPage').classList.contains('show')) renderDutyMon();
         }).catch(function () { /* 忽略 */ });
@@ -2697,7 +2719,7 @@ td.cell.stampin::before { animation: stampin .34s cubic-bezier(.3,.9,.4,1) both;
             '<div><b>' + hi.l.length + '</b><span>最多・' + esc(hi.n) + '</span></div>' +
             '<div><b>' + (hi.l.length - lo.l.length) + '</b><span>最多與最少差</span></div>' +
             '<div><b>' + n90 + '</b><span>近 90 天合計</span></div></div>' +
-            '<div class="anat">下次優先</div><div class="anac">' + nx.map(function (r, k) { return '<span class="chp' + (k === 0 ? ' first' : '') + '">' + esc(r.n) + '<em>' + r.l.length + '次</em></span>'; }).join('') + '</div>' + '</div>';
+            '</div>';
         })();
         h += '<div class="sum"><span>累積 ' + total + ' 次，由少到多</span><span>次數　最近一次</span></div>';
         var actRows = rows.filter(function (r) { return STAT_SKIP.indexOf(r.n) < 0 && dutyEmps().some(function (e) { return e.name === r.n; }); });
@@ -2906,7 +2928,7 @@ td.cell.stampin::before { animation: stampin .34s cubic-bezier(.3,.9,.4,1) both;
           dutyPinUnlock();
         });
         $('dutyPwOk').addEventListener('click', dutyUnlock);
-        $('dutyDayBody').addEventListener('click', function (ev) { if (ev.target.id === 'noteSave') noteSave(); });
+        $('dutyDayBody').addEventListener('click', function (ev) { if (ev.target.id === 'oldNoteDel') { noteSaveKey(dutyDayK, '', ''); renderDutyDay(); } });
         $('segCal').addEventListener('click', function () { dutySeg('cal'); });
         $('segStat').addEventListener('click', function () { dutySeg('stat'); });
         $('statBody').addEventListener('click', function (ev) {
@@ -4637,6 +4659,8 @@ td.cell.stampin::before { animation: stampin .34s cubic-bezier(.3,.9,.4,1) both;
         $('idInst').hidden = instStandalone() || no || !mobile;
       }
       var CHANGELOG = [
+        { v: 'v10.43', d: '10/31', t: ['備註改成每個公差各自一則（點公差進去寫），不再整天共用；備註框不再有範例文字', '快速標記貼的原始通知，存到那筆公差自己的備註（後端第二十四版）'] },
+        { v: 'v10.42', d: '10/31', t: ['統計頁拿掉「下次優先」'] },
         { v: 'v10.41', d: '10/31', t: ['快速標記：按鈕改成「新增 N 筆公差」，寫入成功會提示；貼上的原始通知會自動存到當天備註', '公差勤務月曆縮成一頁看完，不用上下滑，左右滑換月', '拿掉登入後「彈射／軍械已記、你還沒記」的提醒', '編輯紀錄分成「新增紀錄」和「異動紀錄」，改用白話句子（例：某某 從 全天休 改成 留守），顏色調柔和'] },
         { v: 'v10.40', d: '10/31', t: ['新增「編輯紀錄」分頁：依日期列出誰、什麼時候、改了什麼，可依休假／公差／備註、身分篩選和搜尋', '入口：封面、更多、公差勤務下方分頁列（有編輯密碼的人才看得到）'] },
         { v: 'v10.39', d: '10/31', t: ['封面改成直接輸入密碼，系統自動認出身分（彈射／軍械／股總／查看），再選休假班表或公差勤務', '彈射、軍械、股總登入後，公差勤務自動可以編輯，不用再解鎖', '「換身分」改成在封面按「換身分」重新輸入密碼'] },
@@ -4702,7 +4726,7 @@ td.cell.stampin::before { animation: stampin .34s cubic-bezier(.3,.9,.4,1) both;
         { ic: '<span class="tic ic-dty"></span>', t: '點日期看細項', d: '點任何一天進<b>當天頁</b>：公差、留守、監控、外勤、休假、輪值預排、備註都在這。左右滑動換前後天。' },
         { ic: '<span class="tic ic-pst"></span>', t: '新增、編輯公差', d: '按右上「編輯」輸入密碼。當天頁有<b>「＋新增這天的公差」</b>，每項也能<b>「編輯這項」</b>改事由、時間、加減人。' },
         { ic: '<span class="tic ic-pst"></span>', t: '快速標記：貼通知就好', d: '月曆頁按<b>「貼上文字快速標記公差」</b>，把通知貼上去，日期、事由、人名、時間會自動找出來，確認後按「標記」。' },
-        { ic: '<span class="tic ic-kl"></span>', t: '統計：派人有依據', d: '統計頁上方是<b>分析</b>和<b>下次優先</b>，下面每個人<b>由少到多</b>。點人名看個人分析和每一次的紀錄。' },
+        { ic: '<span class="tic ic-kl"></span>', t: '統計：派人有依據', d: '統計頁上方是<b>分析</b>，下面每個人<b>由少到多</b>。點人名看個人分析和每一次的紀錄。' },
         { ic: '<span class="tic ic-ok"></span>', t: '就這樣', d: '有輪值預排和每日備註，都在當天頁裡。忘記怎麼用，到入口或「更多」按<b>「使用導覽」</b>。' }
       ];
       var tourI = 0, tourSteps = TOUR;
@@ -4769,8 +4793,8 @@ td.cell.stampin::before { animation: stampin .34s cubic-bezier(.3,.9,.4,1) both;
         if (a === '取消') return { v: '取消', c: 'del', s: n + ' 的 <s>' + esc(bf) + '</s> 取消了' };
         if (a === '新增公差') return { v: '新增公差', c: 'add', s: n + ' ' + esc(af) };
         if (a === '刪除公差') return { v: '取消公差', c: 'del', s: n + ' 的 <s>' + esc(bf) + '</s> 取消了' };
-        if (a === '公差備註') return { v: '寫備註', c: 'chg', s: '<span class="lnote">' + esc(String(af).slice(0, 60)) + (String(af).length > 60 ? '…' : '') + '</span>' };
-        if (a === '刪除備註') return { v: '刪除備註', c: 'del', s: '當天備註清空了' };
+        if (a === '公差備註') return { v: '寫備註', c: 'chg', s: (n ? n + '：' : '') + '<span class="lnote">' + esc(String(af).slice(0, 60)) + (String(af).length > 60 ? '…' : '') + '</span>' };
+        if (a === '刪除備註') return { v: '刪除備註', c: 'del', s: (n ? n + ' 的備註' : '整天備註') + '清空了' };
         if (/^標記|恢復預設/.test(a)) return { v: '改假日', c: 'chg', s: '這天改成 <em>' + esc(af === '預設' ? '一般日' : af) + '</em>' };
         return { v: a, c: 'chg', s: n + ' ' + (bf ? '<s>' + esc(bf) + '</s> → ' : '') + esc(af) };
       }
