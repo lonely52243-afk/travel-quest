@@ -155,7 +155,7 @@
   --focus: #8EB4F5;
   --shadow: 0 3px 0 #070B18;
   --stay: #E5484D;
-  --mon: #4A5E96;
+  --mon: #6478B8;
   --bar-bg: #16203B;
   --bar-text: #FFFDF7;
   --bar-btn: rgba(255,253,247,.14);
@@ -201,7 +201,7 @@
   --focus: #8EB4F5;
   --shadow: 0 3px 0 #070B18;
   --stay: #E5484D;
-  --mon: #4A5E96;
+  --mon: #6478B8;
   --bar-bg: #16203B;
   --bar-text: #FFFDF7;
   --bar-btn: rgba(255,253,247,.14);
@@ -1656,6 +1656,14 @@ body.ui2 table.grid.mo td.cell.away::before { width: 30px !important; height: 22
 td.cell.cmpx::after { display: none !important; content: none !important; }
 .lgrid i.lg-hex { border-radius: 0; clip-path: polygon(25% 3%, 75% 3%, 99% 50%, 75% 97%, 25% 97%, 1% 50%); }
 
+/* v10.59 分析月曆：右上角加形狀小標記 */
+.cc.full::after, .cc.stay::after, .cc.mon::after, .cc.away::after, .cc.am::after, .cc.pm::after { content: ""; position: absolute; top: 4px; right: 4px; width: 9px; height: 9px; background: #fff; box-shadow: 0 0 0 1px rgba(0,0,0,.25); }
+.cc.full::after, .cc.am::after, .cc.pm::after { border-radius: 50%; }
+.cc.am::after, .cc.pm::after { background: var(--full); box-shadow: 0 0 0 1.5px #fff; }
+.cc.stay::after { border-radius: 2px; }
+.cc.mon::after { width: 10px; clip-path: polygon(25% 3%, 75% 3%, 99% 50%, 75% 97%, 25% 97%, 1% 50%); box-shadow: none; }
+.cc.away::after { width: 13px; height: 7px; border-radius: 999px; }
+
   </style>
 </head>
 <body>
@@ -2084,7 +2092,7 @@ td.cell.cmpx::after { display: none !important; content: none !important; }
             <div class="dbody2">
               <ul>
                 <li>統計頁最上面可以選期間：<b>本月／近 3 個月／今年／全部</b>。<b>分析</b>有：公差事項數、派出人次、每月派出人次（直方圖，深色是本月、斜線是已排的未來）、公差種類占比、星期分布。</li>
-                <li>下面列出每個人<b>實際出了幾次</b>和最近一次，可排序：名冊順序、次數多、最久沒派。點公差種類可以只看誰做過那一種。資歷不同累積次數本來就不同，所以不做「最少」這種比較。</li>
+                <li>下面列出每個人<b>實際出了幾次</b>和最近一次，照名冊順序排列，幹部不列入。點公差種類可以只看誰做過那一種。資歷不同累積次數本來就不同，所以不做「最少」這種比較。</li>
                 <li><b>點人名</b>展開個人分析：累積、這個月、近 90 天、最近一次、排第幾、平均幾天一次、最常做的事由、近 6 個月長條圖，再往下是每一次的日期、事由、時間。</li>
                 <li>統計永遠是累積的全部紀錄，派人時當參考，實際由你決定。</li>
               </ul>
@@ -2939,7 +2947,7 @@ td.cell.cmpx::after { display: none !important; content: none !important; }
       // ====== 公差統計 ======
       var STAT_SKIP = [];
       try { var cfg0 = localStorage.getItem(CFG_KEY); if (cfg0) applyCfg(JSON.parse(cfg0)); } catch (e) { /* 忽略 */ }
-      var statAll = null, statRange = 'all', statWhy = '', statOpen = {}, statSort = 'roster';
+      var statAll = null, statRange = 'all', statWhy = '', statOpen = {}, statSort = 'roster'; // 固定名冊順序
       var WHY_ALIAS = { '擦拭槍': '擦槍', '擦拭': '擦槍', '信義樓頂樓防水監工': '頂樓防水監工', '信義樓防水監工': '頂樓防水監工', '防水監工': '頂樓防水監工', '平台監工': '平台監工', '平臺監工': '平台監工' };
       function statPerson(r, act) {
         var n = r.l.length, tk = todayKey(), ym = tk.slice(0, 7), d90 = addDays(tk, -90), skip = STAT_SKIP.indexOf(r.n) >= 0;
@@ -2971,10 +2979,12 @@ td.cell.cmpx::after { display: none !important; content: none !important; }
       }
       function normWhy(w) { w = String(w || '').replace(/\s+/g, ''); return WHY_ALIAS[w] || w; }
       function statLoad() {
+        if (!statAll) { try { var sc = localStorage.getItem('leave_stat_v1'); if (sc) { statAll = JSON.parse(sc); renderStat(); } } catch (e) { statAll = null; } }
         $('statBody').innerHTML = statAll ? $('statBody').innerHTML : '<div class="dloading">讀取中…</div>';
         apiCall({ action: 'getDuty', year: 0, month: 0 }).then(function (res) {
           if (!res || !res.ok) { if (!statAll) $('statBody').innerHTML = '<div class="dnone">讀取失敗，請稍後再試</div>'; return; }
           statAll = res.items || []; renderStat();
+          try { localStorage.setItem('leave_stat_v1', JSON.stringify(statAll)); } catch (e) { /* 忽略 */ }
         }).catch(function () { if (!statAll) $('statBody').innerHTML = '<div class="dnone">讀取失敗，請稍後再試</div>'; });
       }
       function statCut() {
@@ -3025,12 +3035,13 @@ td.cell.cmpx::after { display: none !important; content: none !important; }
         // ── 每個人：只列實際次數 ──
         var per = {}, names = dutyEmps().map(function (e) { return e.name; });
         inR.forEach(function (x) { if (statWhy && normWhy(x.why) !== statWhy) return; (per[x.name] = per[x.name] || []).push(x); if (names.indexOf(x.name) < 0) names.push(x.name); });
+        names = names.filter(function (n) { return STAT_SKIP.indexOf(n) < 0; });
         var rows = names.map(function (n, i) { var l = (per[n] || []).slice().sort(function (a, b) { return a.date < b.date ? 1 : -1; }); return { n: n, l: l, i: i }; });
         if (statSort === 'many') rows.sort(function (a, b) { return b.l.length - a.l.length || a.i - b.i; });
         else if (statSort === 'long') rows.sort(function (a, b) { var la = a.l.length ? a.l[0].date : '', lb = b.l.length ? b.l[0].date : ''; return la < lb ? -1 : la > lb ? 1 : a.i - b.i; });
         var max = 1; rows.forEach(function (r) { if (r.l.length > max) max = r.l.length; });
         h += '<div class="sum2"><span>' + (statWhy ? '「' + esc(statWhy) + '」<button class="linkbtn" data-clr="1">清除</button>' : '每個人實際出了幾次') + '</span><span class="ssort">' +
-          [['roster', '名冊順序'], ['many', '次數多'], ['long', '最久沒派']].map(function (s) { return '<button data-sort="' + s[0] + '"' + (statSort === s[0] ? ' class="on"' : '') + '>' + s[1] + '</button>'; }).join('') + '</span></div>';
+          '</span></div>';
         h += '<div class="shead"><span>姓名</span><span>次數</span><span>最近一次</span></div>';
         rows.forEach(function (r) {
           var open = statOpen[r.n], last = r.l.length ? r.l[0].date : '';
@@ -3696,7 +3707,17 @@ td.cell.cmpx::after { display: none !important; content: none !important; }
         });
         setTimeout(function () { viewAsking = false; }, 1500);
       }
-      function apiCall(params) {
+      var READ_ACTS = { getMonth: 1, getYear: 1, getDuty: 1, getRoster: 1, getNotes: 1, getLog: 1 };
+      function apiCall(params, tries) {
+        // 讀取資料失敗時自動重試（最多 3 次，間隔 1、2 秒）；寫入不重試，避免重複寫入
+        if (READ_ACTS[params.action] && tries === undefined) {
+          var p0 = {}; for (var kk in params) p0[kk] = params[kk];
+          return apiCall(params, 0).catch(function (e) {
+            if (/密碼/.test(e.message || '')) throw e;
+            return new Promise(function (r) { setTimeout(r, 1000); }).then(function () { return apiCall(p0, 1); })
+              .catch(function () { return new Promise(function (r) { setTimeout(r, 2000); }).then(function () { return apiCall(p0, 2); }); });
+          });
+        }
         if (params.view === undefined && params.action !== 'auth') { var vv = prefs.viewPw || prefs.pw || prefs.dutyPw; if (vv) params.view = vv; }
         var qs = Object.keys(params).map(function (k) {
           return encodeURIComponent(k) + '=' + encodeURIComponent(params[k]);
@@ -4953,6 +4974,8 @@ td.cell.cmpx::after { display: none !important; content: none !important; }
         $('idInst').hidden = instStandalone() || no || !mobile;
       }
       var CHANGELOG = [
+        { v: 'v10.59', d: '10/31', t: ['深色模式「監控」顏色調亮，晚上看得清楚', '休假分析的個人月曆也加上形狀標記（休＝圓、留＝方、監＝六角、外勤＝膠囊）', '讀取資料失敗會自動重試，網路不穩也比較不會失敗', '公差統計先顯示上次的結果，背景再更新，不用每次等', '後端第二十八版：假日前一天早上 8 點，自動把還沒點假單的名單寄到信箱'] },
+        { v: 'v10.58', d: '10/31', t: ['公差統計的個人列表不列幹部，固定照名冊順序（拿掉排序按鈕）'] },
         { v: 'v10.57', d: '10/31', t: ['整理：刪除停用的程式、圖片重複的只存一份並壓縮，檔案從約 850KB 降到約 720KB', '後端第二十六版：修改紀錄超過 3000 筆時，舊的自動搬到「修改紀錄封存」分頁，用久不會變慢'] },
         { v: 'v10.56', d: '10/31', t: ['新版介面正式啟用（拿掉試用開關）', '拿掉重複的入口：「更多」裡的每日到班（封面已有）', '使用導覽、顏色說明更新成新版：留守方章、監控六角章、外勤膠囊章、點一下＝選單、分析在「更多」最上面'] },
         { v: 'v10.55', d: '10/31', t: ['班表格子拿掉右上角橘色「!」（兩份記錄不一致的提示）'] },
