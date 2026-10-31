@@ -1664,6 +1664,22 @@ td.cell.cmpx::after { display: none !important; content: none !important; }
 .cc.mon::after { width: 10px; clip-path: polygon(25% 3%, 75% 3%, 99% 50%, 75% 97%, 25% 97%, 1% 50%); box-shadow: none; }
 .cc.away::after { width: 13px; height: 7px; border-radius: 999px; }
 
+/* v10.60 假日提醒信 */
+.gi-mail { background-image: var(--ix-g-caladd); width: 24px; height: 24px; vertical-align: -6px; }
+.rmd { display: flex; flex-direction: column; gap: 12px; }
+.rmsw { display: flex; gap: 10px; align-items: flex-start; } .rmsw input { width: 24px; height: 24px; margin-top: 2px; flex-shrink: 0; }
+.rmsw b { display: block; font-size: 16px; } .rmsw small { color: var(--muted); font-size: 13px; }
+.rmrow { display: flex; flex-direction: column; gap: 6px; }
+.rml { font-size: 13px; font-weight: 800; color: var(--muted); }
+.rmrow .seg { display: flex; } .rmrow .seg button { flex: 1; min-height: 40px; }
+.rmmail { width: 100%; box-sizing: border-box; min-height: 44px; font-size: 16px; padding: 8px 12px; border: 1.5px solid var(--line-strong); border-radius: 10px; background: var(--card); color: var(--text); }
+.rmmsg { font-size: 13.5px; color: #2f7a4a; font-weight: 700; min-height: 18px; } .rmmsg.bad { color: #b8564b; }
+.rmcancel { align-self: flex-start; color: #b8564b !important; min-height: 36px; font-weight: 800; }
+.rmtip { font-size: 12px; color: var(--muted); }
+.rmwk button { min-width: 0; padding: 0; }
+.rmcard { border: 1.5px solid var(--line-strong); border-radius: 12px; padding: 12px; display: flex; flex-direction: column; gap: 10px; }
+.rmsel { display: flex; gap: 8px; } .rmsel select { flex: 1; min-width: 0; min-height: 44px; font-size: 16px; padding: 0 8px; border: 1.5px solid var(--line-strong); border-radius: 10px; background: var(--card); color: var(--text); font-weight: 700; }
+
   </style>
 </head>
 <body>
@@ -1855,6 +1871,26 @@ td.cell.cmpx::after { display: none !important; content: none !important; }
             <div class="seg" id="prefTheme" role="group" aria-label="外觀"><button data-v="light">淺色</button><button data-v="dark">深色</button><button data-v="auto">跟隨</button></div>
           </li>
         </ul>
+      </details>
+
+      <details class="box fold" id="foldRemind" style="display:none">
+        <summary><span><span class="gi gi-mail"></span>假日提醒信</span></summary>
+        <div class="rmd">
+          <div class="rmrow"><span class="rml">寄到這個信箱</span>
+            <input type="email" class="rmmail" id="rmMail" inputmode="email" autocomplete="email" autocapitalize="off" placeholder="例：abc@gmail.com">
+          </div>
+          <div class="rmcard">
+            <label class="rmsw"><input type="checkbox" id="rmMineOn"><span><b>提醒我點假單</b><small id="rmMineTxt">列出我負責的人裡，我還沒記的</small></span></label>
+            <div class="rmsel"><select id="rmMineWhen" aria-label="什麼時候"><option value="d3">放假前 3 天</option><option value="d2">放假前 2 天</option><option value="d1">放假前 1 天</option><option value="w1">每週一</option><option value="w2">每週二</option><option value="w3">每週三</option><option value="w4">每週四</option><option value="w5">每週五</option><option value="w6">每週六</option><option value="w0">每週日</option></select><select id="rmMineHour" aria-label="幾點"><option value="6">早上 6 點</option><option value="7">早上 7 點</option><option value="8">早上 8 點</option><option value="9">早上 9 點</option><option value="10">早上 10 點</option><option value="11">早上 11 點</option><option value="12">中午 12 點</option><option value="13">下午 1 點</option><option value="14">下午 2 點</option><option value="15">下午 3 點</option><option value="16">下午 4 點</option><option value="17">下午 5 點</option><option value="18">下午 6 點</option><option value="19">下午 7 點</option><option value="20">下午 8 點</option><option value="21">下午 9 點</option></select></div>
+          </div>
+          <div class="rmcard">
+            <label class="rmsw"><input type="checkbox" id="rmOtherOn"><span><b id="rmOtherTtl">檢查股總有沒有跟上</b><small id="rmOtherTxt">列出我記了、股總還沒記的人</small></span></label>
+            <div class="rmsel"><select id="rmOtherWhen" aria-label="什麼時候"><option value="d3">放假前 3 天</option><option value="d2">放假前 2 天</option><option value="d1">放假前 1 天</option><option value="w1">每週一</option><option value="w2">每週二</option><option value="w3">每週三</option><option value="w4">每週四</option><option value="w5">每週五</option><option value="w6">每週六</option><option value="w0">每週日</option></select><select id="rmOtherHour" aria-label="幾點"><option value="6">早上 6 點</option><option value="7">早上 7 點</option><option value="8">早上 8 點</option><option value="9">早上 9 點</option><option value="10">早上 10 點</option><option value="11">早上 11 點</option><option value="12">中午 12 點</option><option value="13">下午 1 點</option><option value="14">下午 2 點</option><option value="15">下午 3 點</option><option value="16">下午 4 點</option><option value="17">下午 5 點</option><option value="18">下午 6 點</option><option value="19">下午 7 點</option><option value="20">下午 8 點</option><option value="21">下午 9 點</option></select></div>
+          </div>
+          <div class="btnrow"><button class="primary" id="rmSave">儲存設定</button><button class="ghost" id="rmTest">寄測試信</button></div>
+          <button class="linkbtn rmcancel" id="rmCancel">取消全部提醒</button>
+          <div class="rmmsg" id="rmMsg" role="status"></div>
+        </div>
       </details>
 
       <details class="box fold" id="foldLink">
@@ -4950,6 +4986,7 @@ td.cell.cmpx::after { display: none !important; content: none !important; }
         var handover = (prefs.pw && !cfg.legacy && !cfg.splitFrom) ? '　股總還沒接手：目前彈射、軍械可以記全部人，不做兩份比對。' : '';
         $('adminDesc').textContent = editing ? '已登入' + rl + '，目前是「編輯中」，3 分鐘沒操作會自動鎖回唯讀。' + handover : '已登入' + rl + '。目前是唯讀，要修改請按「開啟編輯」。' + handover;
         $('foldLog').style.display = logCanView() ? '' : 'none';
+        $('foldRemind').style.display = (prefs.pw && !forcedRO) ? '' : 'none';
         $('editToggle').textContent = editing ? '結束編輯' : '開啟編輯';
         $('rowSheet').style.display = (prefs.pw && !forcedRO) ? '' : 'none';
         $('hYears').textContent = HOLIDAY_YEARS.join('、');
@@ -4974,6 +5011,7 @@ td.cell.cmpx::after { display: none !important; content: none !important; }
         $('idInst').hidden = instStandalone() || no || !mobile;
       }
       var CHANGELOG = [
+        { v: 'v10.60', d: '10/31', t: ['「更多」新增「假日提醒信」：自己填信箱、選放假前幾天（可複選前 3／2／1 天）、或每週固定哪天、幾點寄，可取消、選信件內容（留守監控、公差），可寄測試信', '彈射、軍械、股總各自設定，名單可任選彈射班、軍械班或全部（後端第二十九版）'] },
         { v: 'v10.59', d: '10/31', t: ['深色模式「監控」顏色調亮，晚上看得清楚', '休假分析的個人月曆也加上形狀標記（休＝圓、留＝方、監＝六角、外勤＝膠囊）', '讀取資料失敗會自動重試，網路不穩也比較不會失敗', '公差統計先顯示上次的結果，背景再更新，不用每次等', '後端第二十八版：假日前一天早上 8 點，自動把還沒點假單的名單寄到信箱'] },
         { v: 'v10.58', d: '10/31', t: ['公差統計的個人列表不列幹部，固定照名冊順序（拿掉排序按鈕）'] },
         { v: 'v10.57', d: '10/31', t: ['整理：刪除停用的程式、圖片重複的只存一份並壓縮，檔案從約 850KB 降到約 720KB', '後端第二十六版：修改紀錄超過 3000 筆時，舊的自動搬到「修改紀錄封存」分頁，用久不會變慢'] },
@@ -5750,6 +5788,56 @@ td.cell.cmpx::after { display: none !important; content: none !important; }
         }
         $('cmpCard').addEventListener('click', function (ev) { var b = ev.target.closest('button'); if (b && b.dataset.cact) cmpAct(b); });
         $('openLog').addEventListener('click', openLog);
+        function rmMsg(t, bad) { $('rmMsg').textContent = t; $('rmMsg').classList.toggle('bad', !!bad); }
+        function rmWhenTxt(r) { var o = $('rmMineWhen').querySelector('option[value="' + r.when + '"]'), h = $('rmMineHour').querySelector('option[value="' + r.hour + '"]'); return (o ? o.textContent : '') + ' ' + (h ? h.textContent : ''); }
+        function rmStatus(s, trig) {
+          if (trig === false) return '排程還沒啟用：請在 Apps Script 執行一次 setupReminder（只要做一次）。';
+          var a = [];
+          if (s.mine.on) a.push('提醒我點：' + rmWhenTxt(s.mine));
+          if (s.other.on) a.push((prefs.role === '股總' ? '檢查班長' : '檢查股總') + '：' + rmWhenTxt(s.other));
+          return a.length ? '已開啟　' + a.join('　') : '目前沒有開啟提醒';
+        }
+        function rmLoad() {
+          var r = prefs.role || '', gu = r === '股總';
+          $('rmMineTxt').textContent = gu ? '列出全部同仁裡，股總還沒記的' : '列出' + r + '班裡，我還沒記的';
+          $('rmOtherTtl').textContent = gu ? '檢查班長有沒有跟上' : '檢查股總有沒有跟上';
+          $('rmOtherTxt').textContent = gu ? '列出股總記了、彈射／軍械還沒記的人' : '列出我記了、股總還沒記的人';
+          rmMsg('讀取中…');
+          apiCall({ action: 'getRemind', token: prefs.pw }).then(function (res) {
+            if (!res || !res.ok) { rmMsg((res && res.msg) || '讀取失敗（後端要更新到第二十九版）', true); return; }
+            var s = res.setting;
+            $('rmMail').value = (s.emails || [])[0] || '';
+            $('rmMineOn').checked = !!s.mine.on; $('rmMineWhen').value = s.mine.when; $('rmMineHour').value = String(s.mine.hour);
+            $('rmOtherOn').checked = !!s.other.on; $('rmOtherWhen').value = s.other.when; $('rmOtherHour').value = String(s.other.hour);
+            rmMsg(rmStatus(s, res.trigger), res.trigger === false);
+          }).catch(function (e) { rmMsg('讀取失敗：' + e.message, true); });
+        }
+        function rmData() {
+          return { emails: [$('rmMail').value.trim()].filter(function (x) { return x; }),
+            mine: { on: $('rmMineOn').checked, when: $('rmMineWhen').value, hour: +$('rmMineHour').value },
+            other: { on: $('rmOtherOn').checked, when: $('rmOtherWhen').value, hour: +$('rmOtherHour').value } };
+        }
+        $('foldRemind').addEventListener('toggle', function () { if (this.open) rmLoad(); });
+        $('rmSave').addEventListener('click', function () {
+          var d = rmData();
+          if (d.emails[0] && !/^[^@\s]+@[^@\s]+\.[^@\s]+$/.test(d.emails[0])) { rmMsg('信箱格式不對', true); return; }
+          if ((d.mine.on || d.other.on) && !d.emails.length) { rmMsg('要開啟提醒，先填信箱', true); return; }
+          $('rmSave').disabled = true; rmMsg('儲存中…');
+          apiCall({ action: 'setRemind', token: prefs.pw, data: JSON.stringify(d) }).then(function (res) {
+            $('rmSave').disabled = false;
+            if (!res || !res.ok) { rmMsg((res && res.msg) || '儲存失敗', true); return; }
+            showToast('✓ 提醒設定已儲存', null, null, 2000); rmMsg(rmStatus(d, res.trigger), res.trigger === false);
+          }).catch(function (e) { $('rmSave').disabled = false; rmMsg('儲存失敗：' + e.message, true); });
+        });
+        $('rmCancel').addEventListener('click', function () { $('rmMineOn').checked = false; $('rmOtherOn').checked = false; $('rmSave').click(); });
+        $('rmTest').addEventListener('click', function () {
+          $('rmTest').disabled = true; rmMsg('寄送中…（要先按「儲存設定」）');
+          apiCall({ action: 'testRemind', token: prefs.pw }).then(function (res) {
+            $('rmTest').disabled = false;
+            if (!res || !res.ok) { rmMsg((res && res.msg) || '寄送失敗', true); return; }
+            rmMsg('✓ 已寄 2 封測試信到 ' + res.to.join('、') + '（兩種提醒各一封，可能在垃圾郵件）');
+          }).catch(function (e) { $('rmTest').disabled = false; rmMsg('寄送失敗：' + e.message, true); });
+        });
         $('gAtt').addEventListener('click', function () { openAtt(); });
         $('attBack').addEventListener('click', function () { $('attPage').classList.remove('show'); });
         $('attRefresh').addEventListener('click', function () { var ym = attK.slice(0, 7); fetchPeriod(+ym.slice(0, 4), +ym.slice(5, 7)).then(renderAtt).catch(function () {}); attDutyAsked = {}; attEnsure(); showToast('更新中…', null, null, 1200); });
