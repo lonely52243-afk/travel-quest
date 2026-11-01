@@ -2746,7 +2746,7 @@ button.copied { background: #e3f1e6 !important; color: #2f6b3f !important; borde
       // 「10/7：劉官、啟泰、威幟」這種名單，把沒對到名冊的詞列出來
       function qkUnk(rest, names) {
         var toks = qkV(rest).replace(/^[\s:：]+/, '').split(/[、，,;；\s\/]+/).map(function (x) { return x.replace(/[()（）。.]/g, ''); }).filter(function (x) { return /^[一-鿿]{2,4}$/.test(x); });
-        return toks.filter(function (t) { return !names.some(function (n) { return qkIs(t, n) || qkV(t).indexOf(qkV(n)) >= 0; }); });
+        return toks.filter(function (t) { return !/加班|公差|人員|尿篩|留守|監控|名單|時間|如下|報告|值班|集合|支援|作業|本股|同仁/.test(t); }).filter(function (t) { return !names.some(function (n) { return qkIs(t, n) || qkV(t).indexOf(qkV(n)) >= 0; }); });
       }
       // 「10/7日1000時」這種只有日期＋時間的行 → 這天的時間
       function qkDateTime(b, k) {
@@ -2809,6 +2809,12 @@ button.copied { background: #e3f1e6 !important; color: #2f6b3f !important; borde
           if (x.n !== n) return;
           if (x.why === why) return;
           if (qkMode && qkMode.date === k && x.why === qkMode.why) return;
+          var uA = isUrine(why), uB = isUrine(x.why);
+          if (uA || uB) {
+            var oW = uA ? x.why : why, oT = String((uA ? x.time : tm) || '').trim();
+            if (isOT(oW) || (oT && !/^(整天|全天)$/.test(oT))) return;
+            out.push(x.why + (x.time ? ' ' + x.time : '')); return;
+          }
           var b = tmRange(x.time);
           if (a[0] < b[1] && b[0] < a[1]) out.push(x.why + (x.time ? ' ' + x.time : ''));
         });
@@ -2853,8 +2859,8 @@ button.copied { background: #e3f1e6 !important; color: #2f6b3f !important; borde
           h += '<label class="qkl">事由<input type="text" class="qkwhy" data-e="' + i + '" maxlength="10" list="qkWhys" value="' + esc(e.why) + '" placeholder="例：打靶"></label>';
           h += '<label class="qkl">時間（可不填）<input type="text" class="qktime" data-e="' + i + '" maxlength="20" value="' + esc(e.time || '') + '" placeholder="例：14:00 或 08:00–17:00"></label>';
           h += '<div class="qkchips" style="margin-top:6px">';
-          ['整天', '上午', '下午'].forEach(function (t) { h += '<button class="qkchip tp' + (e.time === t ? ' on' : '') + '" data-e="' + i + '" data-t="' + t + '">' + t + '</button>'; });
-          h += '<span class="muted" style="font-size:12px">或自己填時間</span></div>';
+          ['整天', '上午', '下午', '08:00–17:00', '18:00–19:00', '18:00–20:00'].forEach(function (t) { h += '<button class="qkchip tp' + (e.time === t ? ' on' : '') + '" data-e="' + i + '" data-t="' + t + '">' + t + '</button>'; });
+          h += '</div>';
           h += '<div class="qkh">日期（點選可取消）</div><div class="qkchips">';
           e.dates.forEach(function (d, j) { h += '<button class="qkchip dt' + (d.on ? ' on' : '') + '" data-e="' + i + '" data-d="' + j + '">' + mdLabel(d.k) + '（' + wkOf(d.k) + '）</button>'; });
           h += '<input type="date" class="qkadd" data-e="' + i + '" aria-label="加日期"></div>';
@@ -3963,7 +3969,7 @@ button.copied { background: #e3f1e6 !important; color: #2f6b3f !important; borde
         $('qkList').addEventListener('click', function (ev) {
           var b = ev.target.closest('.qkchip'); if (!b || b.classList.contains('no')) return;
           var e = qkEv[+b.dataset.e]; if (!e) return;
-          if (b.dataset.cy) { var pp = e.people[+b.dataset.p], cyc = ['', '上午', '下午', '整天']; pp.time = cyc[(cyc.indexOf(pp.time || '') + 1) % 4]; qkRender(); return; }
+          if (b.dataset.cy) { var pp = e.people[+b.dataset.p], cyc = ['', '上午', '下午', '整天', '08:00–17:00', '18:00–19:00', '18:00–20:00']; pp.time = cyc[(cyc.indexOf(pp.time || '') + 1) % cyc.length]; qkRender(); return; }
           if (b.dataset.t) { e.time = e.time === b.dataset.t ? '' : b.dataset.t; qkRender(); return; }
           if (b.dataset.d !== undefined) e.dates[+b.dataset.d].on = !e.dates[+b.dataset.d].on; else e.people[+b.dataset.p].on = !e.people[+b.dataset.p].on;
           qkRender();
@@ -5557,6 +5563,8 @@ button.copied { background: #e3f1e6 !important; color: #2f6b3f !important; borde
         $('idInst').hidden = instStandalone() || no || !mobile;
       }
       var CHANGELOG = [
+        { v: 'v10.80', d: '11/1', t: ['尿篩不再跟一般公差、加班算時間重疊；只有同一天有「整天」的公差，或當天休假，才會提醒'] },
+        { v: 'v10.79', d: '11/1', t: ['快速標記時間快選多三個：08:00–17:00、18:00–19:00、18:00–20:00', '「6/13 加班：…」這種寫法，「加班」不會再被當成名冊對不到的人名'] },
         { v: 'v10.78', d: '11/1', t: ['加班分平日／假日：週末、國定假日、標成假日的日子自動算假日加班；統計可切「全部／平日／假日」，每人顯示平日、假日各幾小時，複製文字也分開列', '假日加班沒寫開始時間的從 08:00 算（平日從 17:00）'] },
         { v: 'v10.77', d: '11/1', t: ['加班：快速標記貼「今日(1/13)夜間加班人員」這種回報，會依日期分開、事由帶「夜間加班」，「除少瑋及亦宸只至19:00時外，餘人員至2000時」會分別帶入每個人的時間', '公差統計上方多「加班」：選月／季／年，看每個人加班次數與時數，可複製文字；加班不算進公差次數'] },
         { v: 'v10.76', d: '11/1', t: ['輪值表定（查庫、擴大FO）點進去可以「修改人員」，存了會寫回試算表「輪值表」分頁；預估的也能直接改成正式，之後的預估會跟著重算；需搭配後端第三十四版'] },
