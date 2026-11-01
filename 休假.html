@@ -2728,7 +2728,7 @@ button.copied { background: #e3f1e6 !important; color: #2f6b3f !important; borde
       // 全形數字／符號轉半形，異體字統一（啓→啟…）
       function qkNorm(t) {
         return String(t || '').replace(/[０-９]/g, function (c) { return String.fromCharCode(c.charCodeAt(0) - 65248); })
-          .replace(/[0-9#*]\uFE0F?\u20E3/g, ' ').replace(/[\u2460-\u2473\u2776-\u277F]/g, ' ')
+          .replace(/[0-9#*]\uFE0F?\u20E3/g, '\uE000 ').replace(/[\u2460-\u2473\u2776-\u277F]/g, '\uE000 ')
           .replace(/／/g, '/').replace(/．/g, '.').replace(/～/g, '~');
       }
       var QK_VAR = { '啓': '啟', '峯': '峰', '羣': '群', '衞': '衛', '裏': '裡', '着': '著', '綫': '線', '台': '臺', '鉅': '巨', '姍': '珊', '堃': '坤', '喆': '哲' };
@@ -2764,6 +2764,13 @@ button.copied { background: #e3f1e6 !important; color: #2f6b3f !important; borde
       function qkParse(txt) {
         txt = qkNorm(txt);
         var blocks = txt.split(/(?:^|\n)[ \t]*[-－—–]+[ \t]*(?:\n|$)/).map(function (x) { return x.trim(); }).filter(Boolean);
+        blocks = [].concat.apply([], blocks.map(function (b) {
+          var parts = b.split('\uE000'), plain = b.replace(/\uE000/g, '');
+          if (parts.length < 3) return [plain];
+          var head = parts[0], segs = parts.slice(1);
+          if (!qkDatesIn(head).length || segs.some(function (x) { return qkDatesIn(x).length || !qkNames(x).length; })) return [plain];
+          return segs.map(function (x) { return head.trim() + '\n' + x.trim(); });
+        }));
         var evs = [];
         // 日期在上一段、人名在下一段（中間被「-」隔開）→ 合成同一則
         for (var bi = 0; bi < blocks.length - 1; bi++) {
@@ -2803,8 +2810,9 @@ button.copied { background: #e3f1e6 !important; color: #2f6b3f !important; borde
         return v.length > 1 ? [v[0], Math.max(v[0] + 1, v[v.length - 1])] : [v[0], v[0] + 60];
       }
       // 這個人在這天已經有、而且時間重疊的公差（排除正在編輯的那一項）
+      function dayRng(t) { t = String(t || '').trim(); return !t || /^(整天|全天)$/.test(t) ? [480, 1020] : tmRange(t); }
       function dutyClash(k, n, why, tm) {
-        var a = tmRange(tm), out = [];
+        var a = dayRng(tm), out = [];
         (dutyAll[k] || []).forEach(function (x) {
           if (x.n !== n) return;
           if (x.why === why) return;
@@ -2815,7 +2823,7 @@ button.copied { background: #e3f1e6 !important; color: #2f6b3f !important; borde
             if (isOT(oW) || (oT && !/^(整天|全天)$/.test(oT))) return;
             out.push(x.why + (x.time ? ' ' + x.time : '')); return;
           }
-          var b = tmRange(x.time);
+          var b = dayRng(x.time);
           if (a[0] < b[1] && b[0] < a[1]) out.push(x.why + (x.time ? ' ' + x.time : ''));
         });
         return out;
@@ -5570,7 +5578,7 @@ button.copied { background: #e3f1e6 !important; color: #2f6b3f !important; borde
         $('idInst').hidden = instStandalone() || no || !mobile;
       }
       var CHANGELOG = [
-        { v: 'v10.80', d: '11/1', t: ['休假提醒也看時間：上午休／下午休只跟同時段的勤務衝突（例：下午休不影響夜間加班、上午的尿篩）；全天休、出差等外勤照樣提醒', '尿篩不再跟一般公差、加班算時間重疊；只有同一天有「整天」的公差，或當天休假，才會提醒'] },
+        { v: 'v10.80', d: '11/1', t: ['加班通知用 1️⃣2️⃣ 分組（各自的時間、事由、督導、人員）會分成不同事項，督導也會選進去', '沒寫時間或整天的公差當作上班時間（08:00–17:00），不會再跟夜間加班算重疊', '休假提醒也看時間：上午休／下午休只跟同時段的勤務衝突（例：下午休不影響夜間加班、上午的尿篩）；全天休、出差等外勤照樣提醒', '尿篩不再跟一般公差、加班算時間重疊；只有同一天有「整天」的公差，或當天休假，才會提醒'] },
         { v: 'v10.79', d: '11/1', t: ['快速標記時間快選多三個：08:00–17:00、18:00–19:00、18:00–20:00', '「6/13 加班：…」這種寫法，「加班」不會再被當成名冊對不到的人名'] },
         { v: 'v10.78', d: '11/1', t: ['加班分平日／假日：週末、國定假日、標成假日的日子自動算假日加班；統計可切「全部／平日／假日」，每人顯示平日、假日各幾小時，複製文字也分開列', '假日加班沒寫開始時間的從 08:00 算（平日從 17:00）'] },
         { v: 'v10.77', d: '11/1', t: ['加班：快速標記貼「今日(1/13)夜間加班人員」這種回報，會依日期分開、事由帶「夜間加班」，「除少瑋及亦宸只至19:00時外，餘人員至2000時」會分別帶入每個人的時間', '公差統計上方多「加班」：選月／季／年，看每個人加班次數與時數，可複製文字；加班不算進公差次數'] },
