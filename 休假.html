@@ -1847,6 +1847,47 @@ button.copied { background: #e3f1e6 !important; color: #2f6b3f !important; borde
 .ski-roster { background-image: var(--ix-h-roster); width: 22px; height: 22px; }
 .otk .ski { width: 13px; height: 13px; vertical-align: -2px; margin-right: 2px; }
 .qkq::before { content: ""; display: inline-block; width: 18px; height: 18px; vertical-align: -4px; margin-right: 4px; background: var(--ix-h-unk) center / contain no-repeat; }
+/* v10.84 加班統計 */
+.otsum { padding: 14px 16px 12px; }
+.otsh { display: flex; justify-content: space-between; align-items: center; font-size: 13px; font-weight: 800; color: var(--muted); }
+.otbig { display: flex; align-items: baseline; gap: 6px; margin: 2px 0 0; }
+.otbig > b { font-size: 44px; line-height: 1.05; font-weight: 900; color: #5a4b9e; letter-spacing: -.02em; }
+.otbig > small { font-size: 15px; font-weight: 800; color: var(--muted); }
+.otbig .sdel { margin-left: 6px; }
+.otcmp { font-size: 12px; color: var(--muted); margin: 2px 0 10px; }
+.otsplit { display: flex; height: 12px; border-radius: 999px; overflow: hidden; background: var(--card2); }
+.otsplit i, .otrbar i, .otbars .stk i { display: block; }
+.otsplit i.w, .otrbar i.w, .otbars i.w, .otleg i.w, .otdet i.w { background: #7b6bc9; } .otsplit i.h, .otrbar i.h, .otbars i.h, .otleg i.h, .otdet i.h { background: #ee8a6d; }
+.otleg { display: flex; justify-content: space-between; margin: 6px 2px 12px; font-size: 13px; color: var(--muted); }
+.otleg i, .otdet i { display: inline-block; width: 10px; height: 10px; border-radius: 3px; margin-right: 5px; vertical-align: 0; }
+.otleg b { color: var(--text); font-size: 15px; }
+.otkpi { display: grid; grid-template-columns: repeat(4, 1fr); gap: 6px; }
+.otkpi > div { background: var(--card2); border-radius: 12px; padding: 8px 2px 7px; text-align: center; }
+.otkpi b { display: block; font-size: 20px; font-weight: 900; color: var(--text); line-height: 1.15; }
+.otkpi span { font-size: 11px; color: var(--muted); font-weight: 700; }
+.otcard { padding: 12px 14px; }
+.otbars { display: flex; align-items: flex-end; gap: 4px; height: 112px; padding-top: 4px; }
+.otbars > div { flex: 1; min-width: 0; display: flex; flex-direction: column; align-items: center; justify-content: flex-end; gap: 2px; cursor: pointer; }
+.otbars .stk { display: flex; flex-direction: column; width: 70%; max-width: 26px; border-radius: 5px 5px 2px 2px; overflow: hidden; opacity: .55; }
+.otbars .cur .stk { opacity: 1; }
+.otbars b { font-size: 11px; font-weight: 800; color: var(--text); }
+.otbars em { font-style: normal; font-size: 11px; color: var(--muted); }
+.otins > div { display: grid; grid-template-columns: 3em auto 1fr; align-items: baseline; gap: 8px; padding: 7px 0; border-bottom: 1px dashed var(--line); font-size: 14px; }
+.otins > div:last-child { border-bottom: 0; }
+.otins span { font-size: 12px; color: var(--muted); font-weight: 800; }
+.otins em { font-style: normal; font-size: 12.5px; color: var(--muted); text-align: right; }
+.otins .otnone { display: block; }
+.otins .otnone p { margin: 4px 0 0; font-size: 13.5px; line-height: 1.6; color: var(--text); }
+#statBody .scard.otr { padding: 0; }
+.otrb { display: grid; grid-template-columns: 22px 4.6em 1fr auto; align-items: center; gap: 8px; width: 100%; padding: 10px 14px; background: none; border: 0; font: inherit; color: var(--text); text-align: left; cursor: pointer; }
+.otrb .rk { font-style: normal; font-size: 12px; font-weight: 800; color: var(--muted); text-align: center; }
+.otrb > b { font-size: 16px; white-space: nowrap; }
+.otrbar { display: flex; height: 10px; border-radius: 999px; overflow: hidden; background: var(--card2); }
+.otrv { text-align: right; line-height: 1.1; min-width: 3.6em; }
+.otrv b { font-size: 18px; font-weight: 900; } .otrv b small { font-size: 11px; font-weight: 800; color: var(--muted); margin-left: 1px; }
+.otrv > small { display: block; font-size: 11px; color: var(--muted); font-weight: 700; }
+.otdet { display: grid; gap: 4px; font-size: 13.5px; margin: 4px 0 8px; color: var(--muted); }
+.otdet b { color: var(--text); }
 
   </style>
 </head>
@@ -3480,26 +3521,72 @@ button.copied { background: #e3f1e6 !important; color: #2f6b3f !important; borde
         var P = statPeriod(statOff), rows = otRows().filter(function (r) { return r.l.length; });
         return (otFilter || '') + '加班統計（' + P.lab + '，' + mdLabel(todayKey()) + ' 統計）\n' + (rows.length ? rows.map(function (r) { return r.n + '　' + fmtH(r.h) + ' 小時（' + (otFilter ? r.l.length + ' 次' : '平日 ' + r.cw + ' 次 ' + fmtH(r.hw) + 'h、假日 ' + r.ch + ' 次 ' + fmtH(r.hh) + 'h') + '）' + (r.nh ? '・' + r.nh + ' 次未填時間' : ''); }).join('\n') : '這段期間沒有加班');
       }
+      function otAgg(P) {
+        var per = {}, days = {}, tw = 0, th = 0, cnt = 0;
+        (statAll || []).forEach(function (x) {
+          if (!isOT(x.why) || x.date < P.a || x.date > P.b) return;
+          var v = otHours(x.time), hol = otKind(x) === '假日', o = per[x.name] || (per[x.name] = { l: [], hw: 0, hh: 0, cw: 0, ch: 0, nh: 0 });
+          o.l.push(x); cnt++; days[x.date] = 1; if (!v) o.nh++;
+          if (hol) { o.hh += v; o.ch++; th += v; } else { o.hw += v; o.cw++; tw += v; }
+        });
+        return { per: per, tw: tw, th: th, tot: tw + th, cnt: cnt, days: Object.keys(days).length };
+      }
       function renderOT() {
-        var P = statPeriod(statOff), rows = otRows(), tk = todayKey(), h = statKindBar();
+        otFilter = '';
+        var P = statPeriod(statOff), P0 = statRange === 'all' ? null : statPeriod(statOff + 1), tk = todayKey(), h = statKindBar();
         var RNG = [['month', '月'], ['3m', '季'], ['year', '年'], ['all', '全部']];
         h += '<div class="strg">' + RNG.map(function (r) { return '<button class="' + (statRange === r[0] ? 'on' : '') + '" data-r="' + r[0] + '">' + r[1] + '</button>'; }).join('') + '</div>';
         h += '<div class="stnav">' + (statRange === 'all' ? '<span></span>' : '<button class="ghost" data-off="1" aria-label="上一期">‹</button>') + '<b>' + esc(P.lab) + '</b>' +
           (statRange === 'all' ? '<span></span>' : '<button class="ghost" data-off="-1" aria-label="下一期"' + (statOff <= -1 ? ' disabled' : '') + '>›</button>') + '</div>';
-        var tot = 0, cnt = 0, tw = 0, th = 0; rows.forEach(function (r) { tot += r.h; cnt += r.l.length; tw += r.hw; th += r.hh; });
-        h += '<div class="ana st2"><div class="anah">加班<small><button class="linkbtn" data-otcopy="1">複製文字</button></small></div>' +
-          '<div class="otseg">' + [['', '全部'], ['平日', '平日'], ['假日', '假日']].map(function (x) { return '<button class="' + (otFilter === x[0] ? 'on' : '') + '" data-otk="' + x[0] + '">' + x[1] + '</button>'; }).join('') + '</div>' +
-          '<div class="anag3"><div><b>' + fmtH(tot) + '</b><span>總時數・' + cnt + ' 人次</span></div><div><b>' + fmtH(tw) + '</b><span>平日時數</span></div><div><b>' + fmtH(th) + '</b><span>假日時數</span></div></div>' +
-          '<div class="stcmp">週末、國定假日、標成假日的日子算假日加班。時數依登記的起訖時間計算（沒寫開始時間：平日從 17:00、假日從 08:00 算）。加班不算進公差次數。</div></div>';
-        var act = rows.filter(function (r) { return r.l.length; }), mx = 0.1; act.forEach(function (r) { if (r.h > mx) mx = r.h; });
-        if (!act.length) { $('statBody').innerHTML = h + '<div class="dnone">這段期間沒有加班紀錄</div>'; statRowsNow = []; return; }
-        h += '<div class="shead"><span>姓名</span><span>次數</span><span>時數</span></div>';
-        act.forEach(function (r) {
-          var open = statOpen['o:' + r.n];
-          h += '<div class="scard' + (open ? ' open' : '') + '"><button class="sct" data-on="' + esc(r.n) + '"><b>' + esc(r.n) + '</b><span class="sbar otbar"><u style="width:' + Math.round(r.h / mx * 100) + '%"></u></span><span class="scnt">' + r.l.length + '</span><span class="slast"><b class="oth">' + fmtH(r.h) + '</b>' + (!otFilter && r.ch && r.cw ? '<small class="otsp">平 ' + fmtH(r.hw) + '・假 ' + fmtH(r.hh) + '</small>' : (!otFilter && r.ch ? '<small class="otsp">假日</small>' : '')) + (r.nh ? '<small class="urd">' + r.nh + ' 次沒時間</small>' : '') + '</span></button>';
-          if (open) h += '<div class="scd"><div class="anat">加班紀錄（點選可到當天修改）</div>' + r.l.map(function (x) { return '<button class="sdr sdrb" data-k="' + x.date + '"><b>' + mdLabel(x.date) + '</b><span><i class="otk' + (otKind(x) === '假日' ? ' hol' : '') + '"><i class="ski ski-' + (otKind(x) === '假日' ? 'hol' : 'ot') + '"></i>' + otKind(x) + '</i>' + esc(x.why) + (x.date > tk ? '（已排）' : '') + '</span><em>' + esc(fmtTm(x.time)) + '</em><i class="sdrgo">›</i></button>'; }).join('') + '</div>';
+        if (statOff !== 0 && statRange !== 'all') h += '<div class="stback"><button class="linkbtn" data-off0="1">回到' + ({ month: '本月', '3m': '本季', year: '今年' }[statRange]) + '</button></div>';
+        var A = otAgg(P), B = P0 ? otAgg(P0) : null;
+        var ppl = qkAll().map(function (e) { var o = A.per[e.name]; return { n: e.name, o: o, h: o ? o.hw + o.hh : 0 }; });
+        var act = ppl.filter(function (r) { return r.o; }).sort(function (a, b) { return b.h - a.h || b.o.l.length - a.o.l.length; });
+        var none = ppl.filter(function (r) { return !r.o && STAT_SKIP.indexOf(r.n) < 0; });
+        if (!A.cnt) { $('statBody').innerHTML = h + '<div class="dnone">這段期間沒有加班紀錄</div>'; statRowsNow = []; return; }
+        // 總覽
+        var dl = B ? A.tot - B.tot : null;
+        var pw = A.tot ? Math.round(A.tw / A.tot * 100) : 0;
+        h += '<div class="ana otsum"><div class="otsh"><span>加班總時數</span><button class="linkbtn" data-otcopy="1">複製文字</button></div>' +
+          '<div class="otbig"><b>' + fmtH(A.tot) + '</b><small>小時</small>' + (B ? '<i class="sdel ' + (dl > 0 ? 'up' : dl < 0 ? 'dn' : 'eq') + '">' + (dl > 0 ? '▲' + fmtH(dl) : dl < 0 ? '▼' + fmtH(-dl) : '持平') + '</i>' : '') + '</div>' +
+          (B ? '<div class="otcmp">上一期（' + esc(P0.lab) + '）' + fmtH(B.tot) + ' 小時</div>' : '') +
+          '<div class="otsplit"><i class="w" style="width:' + pw + '%"></i><i class="h" style="width:' + (100 - pw) + '%"></i></div>' +
+          '<div class="otleg"><span><i class="w"></i>平日 <b>' + fmtH(A.tw) + '</b> 小時</span><span><i class="h"></i>假日 <b>' + fmtH(A.th) + '</b> 小時</span></div>' +
+          '<div class="otkpi"><div><b>' + A.days + '</b><span>加班天數</span></div><div><b>' + A.cnt + '</b><span>人次</span></div><div><b>' + act.length + '</b><span>有加班的人</span></div><div><b>' + fmtH(act.length ? A.tot / act.length : 0) + '</b><span>平均每人(時)</span></div></div></div>';
+        // 每月趨勢（平日＋假日疊起來）
+        var months = [], endD = parseKey(P.b), nM = statRange === 'year' || statRange === 'all' ? 12 : 6;
+        if (statRange === 'all') { var lastK = (statAll || []).reduce(function (a, x) { return isOT(x.why) && x.date > a ? x.date : a; }, tk); endD = parseKey(lastK); }
+        for (var i = nM - 1; i >= 0; i--) { var dd = new Date(endD.getFullYear(), endD.getMonth() - i, 1); months.push(dd.getFullYear() + '-' + pad(dd.getMonth() + 1)); }
+        var mw = {}, mh = {};
+        (statAll || []).forEach(function (x) { if (!isOT(x.why)) return; var m = x.date.slice(0, 7), v = otHours(x.time); if (otKind(x) === '假日') mh[m] = (mh[m] || 0) + v; else mw[m] = (mw[m] || 0) + v; });
+        var mmax = 1; months.forEach(function (m) { var t = (mw[m] || 0) + (mh[m] || 0); if (t > mmax) mmax = t; });
+        h += '<div class="ana otcard"><div class="anat">每月加班時數</div><div class="otbars">' + months.map(function (m) {
+          var a = mw[m] || 0, b = mh[m] || 0, inP = m + '-01' >= P.a.slice(0, 8) + '01' && m + '-01' <= P.b;
+          return '<div class="' + (inP && statRange !== 'all' && statRange !== 'year' ? 'cur' : '') + '" data-mo="' + m + '"><b>' + (a + b ? fmtH(a + b) : '') + '</b><span class="stk"><i class="h" style="height:' + Math.round(b / mmax * 74) + 'px"></i><i class="w" style="height:' + Math.round(a / mmax * 74) + 'px"></i></span><em>' + (+m.slice(5)) + '月</em></div>';
+        }).join('') + '</div><div class="sttip">點長條可以直接看那個月</div></div>';
+        // 人力分布
+        var mx = act.length ? act[0].h : 0, mn = act.length ? act[act.length - 1].h : 0, avg = act.length ? A.tot / act.length : 0;
+        h += '<div class="ana otcard"><div class="anat">人力分布</div><div class="otins">' +
+          '<div><span>最多</span><b>' + esc(act[0].n) + '</b><em>' + fmtH(mx) + ' 小時' + (act.length > 1 && avg ? '・平均的 ' + (Math.round(mx / avg * 10) / 10) + ' 倍' : '') + '</em></div>' +
+          (act.length > 1 ? '<div><span>最少</span><b>' + esc(act[act.length - 1].n) + '</b><em>' + fmtH(mn) + ' 小時・差 ' + fmtH(mx - mn) + ' 小時</em></div>' : '') +
+          (none.length ? '<div class="otnone"><span>沒有加班</span><p>' + none.map(function (r) { return esc(r.n); }).join('、') + '</p></div>' : '') + '</div></div>';
+        // 個人
+        h += '<div class="sum2"><span>個人加班（' + esc(P.lab) + '，依時數排序）</span></div>';
+        var tmx = mx || 1;
+        act.forEach(function (r, k) {
+          var o = r.o, open = statOpen['o:' + r.n];
+          h += '<div class="scard otr' + (open ? ' open' : '') + '"><button class="otrb" data-on="' + esc(r.n) + '"><em class="rk">' + (k + 1) + '</em><b>' + esc(r.n) + '</b>' +
+            '<span class="otrbar"><i class="w" style="width:' + (o.hw / tmx * 100) + '%"></i><i class="h" style="width:' + (o.hh / tmx * 100) + '%"></i></span>' +
+            '<span class="otrv"><b>' + fmtH(r.h) + '<small>h</small></b><small>' + o.l.length + ' 次</small></span></button>';
+          if (open) {
+            var last = o.l.slice().sort(function (a, b) { return a.date < b.date ? 1 : -1; });
+            h += '<div class="scd"><div class="otdet"><div><i class="w"></i>平日 <b>' + fmtH(o.hw) + '</b> 小時・' + o.cw + ' 次</div><div><i class="h"></i>假日 <b>' + fmtH(o.hh) + '</b> 小時・' + o.ch + ' 次</div>' +
+              '<div>平均每次 <b>' + fmtH(o.l.length - o.nh ? r.h / (o.l.length - o.nh) : 0) + '</b> 小時' + (o.nh ? '・' + o.nh + ' 次沒填時間' : '') + '</div></div>' +
+              '<div class="anat">加班紀錄（點選可到當天修改）</div>' + last.map(function (x) { return '<button class="sdr sdrb" data-k="' + x.date + '"><b>' + mdLabel(x.date) + '</b><span><i class="otk' + (otKind(x) === '假日' ? ' hol' : '') + '">' + otKind(x) + '</i>' + esc(x.why) + (x.date > tk ? '（已排）' : '') + '</span><em>' + esc(fmtTm(x.time)) + '</em><i class="sdrgo">›</i></button>'; }).join('') + '</div>';
+          }
           h += '</div>';
         });
+        h += '<div class="stcmp">週末、國定假日、標成假日的日子算假日加班。時數依登記的起訖時間計算（沒寫開始時間：平日從 17:00、假日從 08:00 算）。加班不算進公差次數。</div>';
         $('statBody').innerHTML = h; statRowsNow = [];
       }
       function renderUrine() {
@@ -3860,7 +3947,7 @@ button.copied { background: #e3f1e6 !important; color: #2f6b3f !important; borde
         $('segCal').addEventListener('click', function () { dutySeg('cal'); });
         $('segStat').addEventListener('click', function () { dutySeg('stat'); });
         $('statBody').addEventListener('click', function (ev) {
-          var mo = ev.target.closest && ev.target.closest('.hbars [data-mo]');
+          var mo = ev.target.closest && ev.target.closest('.hbars [data-mo], .otbars [data-mo]');
           if (mo) { var t0 = new Date(), mk = mo.dataset.mo; statRange = 'month'; statOff = Math.max(0, (t0.getFullYear() - +mk.slice(0, 4)) * 12 + t0.getMonth() + 1 - +mk.slice(5, 7)); statWhy = ''; renderStat(); return; }
           var b = ev.target.closest('button'); if (!b) return;
           if (b.dataset.kind) { statKind = b.dataset.kind; statAnim = true; renderStat(); return; }
@@ -5599,7 +5686,7 @@ button.copied { background: #e3f1e6 !important; color: #2f6b3f !important; borde
         $('idInst').hidden = instStandalone() || no || !mobile;
       }
       var CHANGELOG = [
-        { v: 'v10.80', d: '11/1', t: ['新圖示：尿篩、平日加班、假日加班、復原、對不到的名字、下次建議派、股名冊', '加班通知用 1️⃣2️⃣ 分組（各自的時間、事由、督導、人員）會分成不同事項，督導也會選進去', '沒寫時間或整天的公差當作上班時間（08:00–17:00），不會再跟夜間加班算重疊', '休假提醒也看時間：上午休／下午休只跟同時段的勤務衝突（例：下午休不影響夜間加班、上午的尿篩）；全天休、出差等外勤照樣提醒', '尿篩不再跟一般公差、加班算時間重疊；只有同一天有「整天」的公差，或當天休假，才會提醒'] },
+        { v: 'v10.80', d: '11/1', t: ['加班統計重新設計：總時數與上一期比較、平日／假日比例條、每月加班時數（平日假日疊在一起）、人力分布（最多、最少、差距、沒有加班的人）；個人列表用雙色長條，點開看平日／假日明細與平均每次時數', '新圖示：尿篩、平日加班、假日加班、復原、對不到的名字、下次建議派、股名冊', '加班通知用 1️⃣2️⃣ 分組（各自的時間、事由、督導、人員）會分成不同事項，督導也會選進去', '沒寫時間或整天的公差當作上班時間（08:00–17:00），不會再跟夜間加班算重疊', '休假提醒也看時間：上午休／下午休只跟同時段的勤務衝突（例：下午休不影響夜間加班、上午的尿篩）；全天休、出差等外勤照樣提醒', '尿篩不再跟一般公差、加班算時間重疊；只有同一天有「整天」的公差，或當天休假，才會提醒'] },
         { v: 'v10.79', d: '11/1', t: ['快速標記時間快選多三個：08:00–17:00、18:00–19:00、18:00–20:00', '「6/13 加班：…」這種寫法，「加班」不會再被當成名冊對不到的人名'] },
         { v: 'v10.78', d: '11/1', t: ['加班分平日／假日：週末、國定假日、標成假日的日子自動算假日加班；統計可切「全部／平日／假日」，每人顯示平日、假日各幾小時，複製文字也分開列', '假日加班沒寫開始時間的從 08:00 算（平日從 17:00）'] },
         { v: 'v10.77', d: '11/1', t: ['加班：快速標記貼「今日(1/13)夜間加班人員」這種回報，會依日期分開、事由帶「夜間加班」，「除少瑋及亦宸只至19:00時外，餘人員至2000時」會分別帶入每個人的時間', '公差統計上方多「加班」：選月／季／年，看每個人加班次數與時數，可複製文字；加班不算進公差次數'] },
