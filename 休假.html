@@ -2892,7 +2892,7 @@ button.copied { background: #e3f1e6 !important; color: #2f6b3f !important; borde
       function qkIssues(e, p) {
         var out = [], ds = e.dates.filter(function (x) { return x.on; }), multi = ds.length > 1, why = (e.why || '').trim();
         ds.forEach(function (d) {
-          var pre = multi ? mdLabel(d.k) + ' ' : '', l = offLabel(d.k, p.n);
+          var pre = multi ? mdLabel(d.k) + ' ' : '', l = offClash(d.k, p.n, p.time || e.time, why);
           if (l) out.push(pre + l);
           dutyClash(d.k, p.n, why, p.time || e.time).forEach(function (c) { out.push(pre + '已有' + c); });
           if (why && (dutyAll[d.k] || []).some(function (x) { return x.n === p.n && x.why === why && !(qkMode && qkMode.date === d.k && qkMode.why === why); })) out.push(pre + '已經有了');
@@ -2950,6 +2950,13 @@ button.copied { background: #e3f1e6 !important; color: #2f6b3f !important; borde
         closeSheet(); qkRender(); showToast('已改派：' + qkSwap.from + ' → ' + to, null, null, 2400); qkSwap = null;
       }
       // 這個人在這天是不是休假／外勤：回傳標籤（例：下午休、出差），沒有就回傳空字串
+      function offClash(k, n, tm, why) {
+        var l = offLabel(k, n); if (!l) return '';
+        var r = (recordsPub[k] || {})[n];
+        if (!r || (r.period !== '上午' && r.period !== '下午')) return l;
+        var a = isUrine(why) && !String(tm || '').trim() ? [480, 1020] : tmRange(tm), b = r.period === '上午' ? [480, 720] : [780, 1020];
+        return a[0] < b[1] && b[0] < a[1] ? l : '';
+      }
       function offLabel(k, n) {
         var r = (recordsPub[k] || {})[n];
         if (!r) return '';
@@ -2996,7 +3003,7 @@ button.copied { background: #e3f1e6 !important; color: #2f6b3f !important; borde
           }
         }
         var clash = [];
-        arr.forEach(function (it) { var l = offLabel(it.date, it.name); if (l) clash.push({ it: it, l: l }); });
+        arr.forEach(function (it) { var l = offClash(it.date, it.name, it.time, it.why); if (l) clash.push({ it: it, l: l }); });
         var overlap = [];
         arr.forEach(function (it) { var c = dutyClash(it.date, it.name, it.why, it.time); if (c.length) overlap.push({ it: it, l: '已有' + c.join('、') }); });
         if (!qkForce && overlap.length && !clash.length) {
@@ -3019,7 +3026,7 @@ button.copied { background: #e3f1e6 !important; color: #2f6b3f !important; borde
             body: clash.map(function (c) { return '<div class="sec"><b>' + esc(c.it.name) + '</b>　' + mdLabel(c.it.date) + '（' + wkOf(c.it.date) + '）　<span class="qkoff">' + esc(c.l) + '</span></div>'; }).join('') +
               (clash.length ? (function () {
                 var d0 = clash[0].it.date, used = {}; arr.forEach(function (it) { if (it.date === d0) used[it.name] = 1; });
-                var free = dutyEmps().map(function (e) { return e.name; }).filter(function (n) { return !used[n] && !offLabel(d0, n); });
+                var free = dutyEmps().map(function (e) { return e.name; }).filter(function (n) { return !used[n] && !offClash(d0, n, clash[0].it.time, clash[0].it.why); });
                 qkSwap = { from: clash[0].it.name, date: d0 };
                 return free.length ? '<div class="sec qkfree"><span>' + mdLabel(d0) + ' 可指派人員（點選即改派，取代 ' + esc(clash[0].it.name) + '）：</span>' + free.map(function (n) { return '<button data-swap="' + esc(n) + '">' + esc(n) + '</button>'; }).join('') + '</div>' : '';
               })() : ''),
@@ -3135,7 +3142,7 @@ button.copied { background: #e3f1e6 !important; color: #2f6b3f !important; borde
         o.plan = {};
         o.note = dutyNotes[k] || ''; o.est = false;
         o.anyNote = !!o.note || Object.keys(dutyNotes).some(function (x) { return x.indexOf(k + '|') === 0; });
-        (rosterAll[k] || []).concat(rosterEst[k] || []).forEach(function (x) { if (x.est) o.est = true; (o.plan[x.item] = o.plan[x.item] || []).push({ n: x.n, est: !!x.est, away: !!(day[x.n] && day[x.n].period !== '留守' && day[x.n].period !== '監控') }); });
+        (rosterAll[k] || []).concat(rosterEst[k] || []).forEach(function (x) { if (x.est) o.est = true; (o.plan[x.item] = o.plan[x.item] || []).push({ n: x.n, est: !!x.est, away: !!offClash(k, x.n, PLAN_TM[x.item] ? PLAN_TM[x.item].a + '–' + PLAN_TM[x.item].b : '', x.item) }); });
         (dutyAll[k] || []).forEach(function (x) { var lab = x.why + (x.time ? '　' + x.time : ''); var g = o.duty[lab] || (o.duty[lab] = { why: x.why, time: x.time || '', names: [] }); g.names.push(x.n); o.nDuty++; });
         return o;
       }
@@ -3263,7 +3270,7 @@ button.copied { background: #e3f1e6 !important; color: #2f6b3f !important; borde
         if (kind === 'duty' && dutyEditor()) h += '<div class="evrow evnote"><span class="evk">備註</span><div><textarea id="evNote" rows="5" maxlength="400">' + esc(myNote) + '</textarea><button class="ghost" id="evNoteSave">儲存備註</button></div></div>';
         else if (myNote) h += '<div class="evrow"><span class="evk">備註</span><span class="evpre">' + esc(myNote) + '</span></div>';
         if (o.note) h += '<div class="evrow"><span class="evk">舊的整天備註</span><span class="evpre">' + esc(o.note) + '</span></div>';
-        var inRest = names.filter(function (n) { return kind === 'duty' && o.rest.some(function (r) { return r.split('（')[0] === n; }); });
+        var inRest = names.filter(function (n) { return kind === 'duty' && !!offClash(k, n, g.time, g.why); });
         if (inRest.length) h += '<div class="evrow warn"><span class="evk">注意</span><span>' + esc(inRest.join('、')) + ' 當天有休假紀錄</span></div>';
         if (kind === 'duty') {
           if (dutyEditor()) h += '<div class="evbtns"><button class="primary" id="evEdit">編輯（事由、時間、增減人員）</button><button class="ghost" id="evDel">刪除這項</button></div>';
@@ -5563,7 +5570,7 @@ button.copied { background: #e3f1e6 !important; color: #2f6b3f !important; borde
         $('idInst').hidden = instStandalone() || no || !mobile;
       }
       var CHANGELOG = [
-        { v: 'v10.80', d: '11/1', t: ['尿篩不再跟一般公差、加班算時間重疊；只有同一天有「整天」的公差，或當天休假，才會提醒'] },
+        { v: 'v10.80', d: '11/1', t: ['休假提醒也看時間：上午休／下午休只跟同時段的勤務衝突（例：下午休不影響夜間加班、上午的尿篩）；全天休、出差等外勤照樣提醒', '尿篩不再跟一般公差、加班算時間重疊；只有同一天有「整天」的公差，或當天休假，才會提醒'] },
         { v: 'v10.79', d: '11/1', t: ['快速標記時間快選多三個：08:00–17:00、18:00–19:00、18:00–20:00', '「6/13 加班：…」這種寫法，「加班」不會再被當成名冊對不到的人名'] },
         { v: 'v10.78', d: '11/1', t: ['加班分平日／假日：週末、國定假日、標成假日的日子自動算假日加班；統計可切「全部／平日／假日」，每人顯示平日、假日各幾小時，複製文字也分開列', '假日加班沒寫開始時間的從 08:00 算（平日從 17:00）'] },
         { v: 'v10.77', d: '11/1', t: ['加班：快速標記貼「今日(1/13)夜間加班人員」這種回報，會依日期分開、事由帶「夜間加班」，「除少瑋及亦宸只至19:00時外，餘人員至2000時」會分別帶入每個人的時間', '公差統計上方多「加班」：選月／季／年，看每個人加班次數與時數，可複製文字；加班不算進公差次數'] },
