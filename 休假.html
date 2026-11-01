@@ -1891,6 +1891,15 @@ button.copied { background: #e3f1e6 !important; color: #2f6b3f !important; borde
 .otbig > small { font-size: 17px; }
 .otleg i, .otdet i { width: 12px; height: 12px; vertical-align: -1px; }
 #idPwInput, .qkadd, #evNote, #dayPwIn, #dutyPwIn { font-size: 16px !important; }
+/* 週二、週五擴大FO */
+.dcell.fo { background: #EAF4F5; border-color: #C9E2E5; }
+.dcell.fo.dim { background: #F1F6F6; }
+#dutyGrid .dwk.fo { color: #2E8B9A; font-weight: 800; }
+.dtip .dot.fo { background: #CFE8EB; border: 1px solid #9CCDD3; border-radius: 3px; }
+:root[data-theme="dark"] .dcell.fo { background: rgba(46,139,154,.16); border-color: rgba(46,139,154,.35); }
+@media (prefers-color-scheme: dark) { :root[data-theme="auto"] .dcell.fo { background: rgba(46,139,154,.16); border-color: rgba(46,139,154,.35); } }
+.dcell.fo.today { border-color: var(--ink); }
+.dtip .dot.fo { width: 9px; height: 9px; vertical-align: 0; }
 
   </style>
 </head>
@@ -2195,7 +2204,7 @@ button.copied { background: #e3f1e6 !important; color: #2f6b3f !important; borde
     <div class="dbar"><button class="linkbtn" id="dutyToday" hidden>回到本月</button><button class="dsync" id="dutySync"></button></div>
     <div id="dutyLoading" class="dloading" hidden>讀取中…</div>
     <div id="dutyGrid"></div>
-    <div class="dtip">點日期看細項・<u class="dot stay"></u>留守 <u class="dot note"></u>備註・左右滑換月</div>
+    <div class="dtip">點日期看細項・<u class="dot stay"></u>留守 <u class="dot note"></u>備註 <u class="dot fo"></u>擴大FO・左右滑換月</div>
     </div>
     <div id="dutyStat" hidden><div id="statBody"></div></div>
     </div>
@@ -3258,7 +3267,7 @@ button.copied { background: #e3f1e6 !important; color: #2f6b3f !important; borde
         $('dutyTabLog').hidden = !logCanView();
         $('dutyEditBtn').textContent = dutyEditor() ? '編輯中' : '編輯'; $('dutyEditBtn').classList.toggle('on', dutyEditor());
         var first = new Date(y, m - 1, 1), start = new Date(y, m - 1, 1 - first.getDay()), tk = todayKey(), h = '';
-        ['日', '一', '二', '三', '四', '五', '六'].forEach(function (w) { h += '<div class="dwk">' + w + '</div>'; });
+        ['日', '一', '二', '三', '四', '五', '六'].forEach(function (w) { h += '<div class="dwk' + (w === '二' || w === '五' ? ' fo' : '') + '">' + w + '</div>'; });
         for (var i = 0; i < 42; i++) {
           var d = new Date(start.getFullYear(), start.getMonth(), start.getDate() + i), k = keyOf(d);
           if (i >= 35 && d.getMonth() !== m - 1) break;
@@ -3268,7 +3277,7 @@ button.copied { background: #e3f1e6 !important; color: #2f6b3f !important; borde
           var no = 0; Object.keys(o.out).forEach(function (w) { no += o.out[w].length; });
           var dots = (o.stay.length ? '<u class="dot stay"></u>' : '') + (o.mon.length ? '<u class="dot mon"></u>' : '') + (no ? '<u class="dot out"></u>' : '') + (o.anyNote ? '<u class="dot note"></u>' : '');
           if (dots) chips += '<span class="dots">' + dots + '</span>';
-          h += '<button class="dcell' + (inM ? '' : ' dim') + (k === tk ? ' today' : '') + (info.off ? ' off' : '') + '" data-k="' + k + '"><b>' + d.getDate() + '</b>' + chips + '</button>';
+          h += '<button class="dcell' + (inM ? '' : ' dim') + (k === tk ? ' today' : '') + (info.off ? ' off' : '') + (!info.off && (d.getDay() === 2 || d.getDay() === 5) ? ' fo' : '') + '" data-k="' + k + '"><b>' + d.getDate() + '</b>' + chips + '</button>';
         }
         $('dutyGrid').innerHTML = h;
         var nw = new Date(); $('dutyToday').hidden = (y === nw.getFullYear() && m === nw.getMonth() + 1);
@@ -5713,7 +5722,7 @@ button.copied { background: #e3f1e6 !important; color: #2f6b3f !important; borde
         $('idInst').hidden = instStandalone() || no || !mobile;
       }
       var CHANGELOG = [
-        { v: 'v10.80', d: '11/1', t: ['新手不卡：入口卡片改寫成「誰休假・誰留守」「誰有公差・尿篩・加班」「今天誰在、誰不在」；密碼頁加「不知道請問班長」；快速標記貼了卻找不到東西會說明原因；使用導覽更新成現在的按鈕與功能', 'iPhone 點密碼框、日期框不會再自動放大畫面', '結束編輯後清掉「復原」紀錄，下次編輯不會退到上一輪', '後端第三十五版：第一次建立股名冊欄位、記住簡稱時上鎖，兩人同時操作不會重複', '快速標記加完，下方提示多「復原」：只撤掉這次新加的', '「少瑋只到19時」沒寫其他人時，只改那幾個人的時間', '一人一行的名字同時對到兩個人時，改成讓你手動選，不再猜第一個', '輪值當天有實際排人的項目，不再同時顯示預估', '深色模式的格線調亮一點', '加班個人時間多認幾種寫法：「少瑋、亦宸只到19:00，其餘2000」「至19時」', '產出→加班：時間打錯（例 2500）會擋下；督導或人員當天休假會先提醒；選到還沒讀過的月份會自動讀休假資料', '產出→加班「加入勤務月曆」改成跟快速標記一樣：事由存「夜間加班／假日加班」（照產出頁的夜間／假日），實際工作寫進備註，督導也一起寫入；時間存成 18:00–19:00，加班時數算得到', '快速標記看得懂「啟泰(加班督導)／冠瑜(查庫；彈射座椅趕修作業)」這種一人一行的留守勤務：依日期、工作分組，假日的趕修作業與加班督導算假日加班，假日一律帶 08:00–17:00', '加班統計重新設計：總時數與上一期比較、平日／假日比例條、每月加班時數（平日假日疊在一起）、人力分布（最多、最少、差距、沒有加班的人）；個人列表用雙色長條，點開看平日／假日明細與平均每次時數', '新圖示：尿篩、平日加班、假日加班、復原、對不到的名字、下次建議派、股名冊', '加班通知用 1️⃣2️⃣ 分組（各自的時間、事由、督導、人員）會分成不同事項，督導也會選進去', '沒寫時間或整天的公差當作上班時間（08:00–17:00），不會再跟夜間加班算重疊', '休假提醒也看時間：上午休／下午休只跟同時段的勤務衝突（例：下午休不影響夜間加班、上午的尿篩）；全天休、出差等外勤照樣提醒', '尿篩不再跟一般公差、加班算時間重疊；只有同一天有「整天」的公差，或當天休假，才會提醒'] },
+        { v: 'v10.80', d: '11/1', t: ['公差月曆：週二、週五（擴大FO）的上班日加上淡淡的青色底，放假的日子不加', '新手不卡：入口卡片改寫成「誰休假・誰留守」「誰有公差・尿篩・加班」「今天誰在、誰不在」；密碼頁加「不知道請問班長」；快速標記貼了卻找不到東西會說明原因；使用導覽更新成現在的按鈕與功能', 'iPhone 點密碼框、日期框不會再自動放大畫面', '結束編輯後清掉「復原」紀錄，下次編輯不會退到上一輪', '後端第三十五版：第一次建立股名冊欄位、記住簡稱時上鎖，兩人同時操作不會重複', '快速標記加完，下方提示多「復原」：只撤掉這次新加的', '「少瑋只到19時」沒寫其他人時，只改那幾個人的時間', '一人一行的名字同時對到兩個人時，改成讓你手動選，不再猜第一個', '輪值當天有實際排人的項目，不再同時顯示預估', '深色模式的格線調亮一點', '加班個人時間多認幾種寫法：「少瑋、亦宸只到19:00，其餘2000」「至19時」', '產出→加班：時間打錯（例 2500）會擋下；督導或人員當天休假會先提醒；選到還沒讀過的月份會自動讀休假資料', '產出→加班「加入勤務月曆」改成跟快速標記一樣：事由存「夜間加班／假日加班」（照產出頁的夜間／假日），實際工作寫進備註，督導也一起寫入；時間存成 18:00–19:00，加班時數算得到', '快速標記看得懂「啟泰(加班督導)／冠瑜(查庫；彈射座椅趕修作業)」這種一人一行的留守勤務：依日期、工作分組，假日的趕修作業與加班督導算假日加班，假日一律帶 08:00–17:00', '加班統計重新設計：總時數與上一期比較、平日／假日比例條、每月加班時數（平日假日疊在一起）、人力分布（最多、最少、差距、沒有加班的人）；個人列表用雙色長條，點開看平日／假日明細與平均每次時數', '新圖示：尿篩、平日加班、假日加班、復原、對不到的名字、下次建議派、股名冊', '加班通知用 1️⃣2️⃣ 分組（各自的時間、事由、督導、人員）會分成不同事項，督導也會選進去', '沒寫時間或整天的公差當作上班時間（08:00–17:00），不會再跟夜間加班算重疊', '休假提醒也看時間：上午休／下午休只跟同時段的勤務衝突（例：下午休不影響夜間加班、上午的尿篩）；全天休、出差等外勤照樣提醒', '尿篩不再跟一般公差、加班算時間重疊；只有同一天有「整天」的公差，或當天休假，才會提醒'] },
         { v: 'v10.79', d: '11/1', t: ['快速標記時間快選多三個：08:00–17:00、18:00–19:00、18:00–20:00', '「6/13 加班：…」這種寫法，「加班」不會再被當成名冊對不到的人名'] },
         { v: 'v10.78', d: '11/1', t: ['加班分平日／假日：週末、國定假日、標成假日的日子自動算假日加班；統計可切「全部／平日／假日」，每人顯示平日、假日各幾小時，複製文字也分開列', '假日加班沒寫開始時間的從 08:00 算（平日從 17:00）'] },
         { v: 'v10.77', d: '11/1', t: ['加班：快速標記貼「今日(1/13)夜間加班人員」這種回報，會依日期分開、事由帶「夜間加班」，「除少瑋及亦宸只至19:00時外，餘人員至2000時」會分別帶入每個人的時間', '公差統計上方多「加班」：選月／季／年，看每個人加班次數與時數，可複製文字；加班不算進公差次數'] },
