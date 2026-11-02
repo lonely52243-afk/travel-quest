@@ -14,6 +14,7 @@
     --border-color: #15325c;
     --btn-bg: #15325c;
     --btn-text: #ffffff;
+    --dot-color: #d93025;
   }
   
   * { box-sizing: border-box; }
@@ -92,8 +93,8 @@
   .item-detail { font-size: 14px; color: #555; margin-bottom: 4px; }
 
   /* 分頁標籤 (Tabs) */
-  .tabs { display: flex; background: rgba(255, 255, 255, 0.15); border-radius: 12px; padding: 4px; margin-bottom: 16px; }
-  .tab-btn { flex: 1; background: transparent; color: #ffffff; border: none; padding: 12px 0; border-radius: 8px; font-size: 15px; transition: all 0.3s ease; }
+  .tabs { display: flex; background: rgba(255, 255, 255, 0.15); border-radius: 12px; padding: 4px; margin-bottom: 16px; overflow-x: auto; }
+  .tab-btn { flex: 1; background: transparent; color: #ffffff; border: none; padding: 12px 0; border-radius: 8px; font-size: 15px; transition: all 0.3s ease; white-space: nowrap; }
   .tab-btn.active { background: #ffffff; color: var(--bg-main); box-shadow: 0 2px 8px rgba(0,0,0,0.1); }
 
   #toast {
@@ -124,6 +125,42 @@
   .month-title { background: #f4f6f9; padding: 12px 16px; font-weight: bold; color: var(--text-title); display: flex; justify-content: space-between; cursor: pointer; }
   .month-details { padding: 12px 16px; background: #fff; }
   .month-details table { margin-bottom: 0; }
+
+  /* --- 月曆樣式 --- */
+  .calendar-header { display: flex; justify-content: space-between; align-items: center; margin-bottom: 16px; }
+  .calendar-header button { width: auto; padding: 8px 16px; font-size: 14px; background: #f4f6f9; color: var(--text-title); border: 1px solid #eef2f6; }
+  .calendar-header h4 { margin: 0; font-size: 18px; color: var(--text-title); }
+  
+  .calendar-grid { display: grid; grid-template-columns: repeat(7, 1fr); gap: 4px; text-align: center; }
+  .calendar-day-name { font-size: 12px; color: var(--text-sub); font-weight: bold; margin-bottom: 8px; }
+  
+  .calendar-cell {
+    aspect-ratio: 1;
+    display: flex; flex-direction: column; justify-content: center; align-items: center;
+    border-radius: 8px; cursor: pointer; font-size: 15px; position: relative;
+    transition: all 0.2s;
+  }
+  .calendar-cell:hover { background: #f4f6f9; }
+  .calendar-cell.empty { cursor: default; }
+  
+  /* 有預約的日期 */
+  .calendar-cell.has-event {
+    background: #e8f0fe; color: var(--btn-bg); font-weight: bold;
+  }
+  .calendar-cell.has-event::after {
+    content: ''; position: absolute; bottom: 4px; width: 6px; height: 6px;
+    background: var(--dot-color); border-radius: 50%;
+  }
+  
+  /* 今天的日期 */
+  .calendar-cell.today { border: 2px solid var(--btn-bg); }
+  
+  /* 被選中的日期 */
+  .calendar-cell.selected { background: var(--btn-bg); color: #fff; }
+  .calendar-cell.selected::after { background: #fff; }
+
+  .day-detail-list { margin-top: 16px; }
+  .day-detail-title { font-size: 15px; font-weight: bold; color: var(--text-title); margin-bottom: 12px; padding-bottom: 8px; border-bottom: 1px solid #eee; }
 </style>
 </head>
 <body>
@@ -151,7 +188,8 @@
 
     <div class="tabs">
       <button id="rc-tab-btn-new" class="tab-btn active" onclick="switchReceiverTab('new')">填寫預約</button>
-      <button id="rc-tab-btn-history" class="tab-btn" onclick="switchReceiverTab('history')">我的紀錄</button>
+      <button id="rc-tab-btn-history" class="tab-btn" onclick="switchReceiverTab('history')">紀錄</button>
+      <button id="rc-tab-btn-calendar" class="tab-btn" onclick="switchReceiverTab('calendar')">📅 月曆</button>
     </div>
 
     <div id="rc-tab-content-new" class="tab-content">
@@ -195,6 +233,19 @@
         <div id="rc_list">載入中...</div>
       </div>
     </div>
+
+    <!-- 受檢者月曆分頁 -->
+    <div id="rc-tab-content-calendar" class="tab-content hidden">
+      <div class="card">
+        <div class="calendar-header">
+          <button onclick="changeMonth('rc', -1)">&lt;</button>
+          <h4 id="rc-cal-title">2026年11月</h4>
+          <button onclick="changeMonth('rc', 1)">&gt;</button>
+        </div>
+        <div class="calendar-grid" id="rc-cal-grid"></div>
+        <div class="day-detail-list" id="rc-day-detail"></div>
+      </div>
+    </div>
   </div>
 
   <!-- 檢驗官畫面 -->
@@ -205,9 +256,10 @@
     </div>
 
     <div class="tabs">
-      <button id="tab-btn-analysis" class="tab-btn" onclick="switchTab('analysis')">數據分析</button>
+      <button id="tab-btn-analysis" class="tab-btn" onclick="switchTab('analysis')">分析</button>
       <button id="tab-btn-pending" class="tab-btn" onclick="switchTab('pending')">待檢驗</button>
       <button id="tab-btn-finished" class="tab-btn" onclick="switchTab('finished')">已完畢</button>
+      <button id="tab-btn-calendar" class="tab-btn" onclick="switchTab('calendar')">📅 月曆</button>
     </div>
 
     <div id="tab-content-analysis" class="tab-content hidden">
@@ -230,6 +282,19 @@
         <div id="ins_list_finished">載入中...</div>
       </div>
     </div>
+
+    <!-- 檢驗官月曆分頁 -->
+    <div id="tab-content-calendar" class="tab-content hidden">
+      <div class="card">
+        <div class="calendar-header">
+          <button onclick="changeMonth('ins', -1)">&lt;</button>
+          <h4 id="ins-cal-title">2026年11月</h4>
+          <button onclick="changeMonth('ins', 1)">&gt;</button>
+        </div>
+        <div class="calendar-grid" id="ins-cal-grid"></div>
+        <div class="day-detail-list" id="ins-day-detail"></div>
+      </div>
+    </div>
   </div>
 
 </div>
@@ -237,7 +302,13 @@
 <script>
 const API_URL = 'https://script.google.com/macros/s/AKfycbwy46G8by0ME2KJAgqSZshWB0-gljqoUo3l11qSw9Sf45In07QczcYQ-zfwuWyQLTv9/exec';
 let me = { role: '' };
-let currentInspectorItems = []; // 暫存清單資料以利複製
+let currentInspectorItems = [];
+
+// 月曆狀態
+let calendarState = {
+  rc: { year: new Date().getFullYear(), month: new Date().getMonth(), data: [] },
+  ins: { year: new Date().getFullYear(), month: new Date().getMonth(), data: [] }
+};
 
 window.onload = function() {
   const saved = sessionStorage.getItem('sys_user');
@@ -309,16 +380,137 @@ function logout(){
   location.reload(); 
 }
 
+/* --- 月曆共用邏輯 --- */
+async function loadCalendar(type) {
+  const isIns = type === 'ins';
+  const roleStr = isIns ? '檢驗官' : '受檢者';
+  
+  document.getElementById(type + '-cal-title').innerText = '載入中...';
+  const items = await callAPI('listRepairs', { role: roleStr, filter: '' });
+  
+  calendarState[type].data = items || [];
+  renderCalendar(type);
+}
+
+function changeMonth(type, delta) {
+  const state = calendarState[type];
+  let newMonth = state.month + delta;
+  let newYear = state.year;
+  
+  if (newMonth < 0) { newMonth = 11; newYear--; }
+  if (newMonth > 11) { newMonth = 0; newYear++; }
+  
+  state.month = newMonth;
+  state.year = newYear;
+  renderCalendar(type);
+}
+
+function renderCalendar(type) {
+  const isIns = type === 'ins';
+  const state = calendarState[type];
+  const year = state.year;
+  const month = state.month;
+  const data = state.data;
+
+  const monthNames = ["1月", "2月", "3月", "4月", "5月", "6月", "7月", "8月", "9月", "10月", "11月", "12月"];
+  document.getElementById(type + '-cal-title').innerText = `${year}年${monthNames[month]}`;
+  
+  const grid = document.getElementById(type + '-cal-grid');
+  grid.innerHTML = '';
+  
+  // 星期列
+  const daysOfWeek = ['日', '一', '二', '三', '四', '五', '六'];
+  daysOfWeek.forEach(d => {
+    grid.innerHTML += `<div class="calendar-day-name">${d}</div>`;
+  });
+  
+  const firstDay = new Date(year, month, 1).getDay();
+  const daysInMonth = new Date(year, month + 1, 0).getDate();
+  const today = new Date();
+  const isCurrentMonth = today.getFullYear() === year && today.getMonth() === month;
+  
+  // 空的格子 (月初)
+  for (let i = 0; i < firstDay; i++) {
+    grid.innerHTML += `<div class="calendar-cell empty"></div>`;
+  }
+  
+  // 日期格子
+  for (let d = 1; d <= daysInMonth; d++) {
+    const dateStr = `${year}-${String(month+1).padStart(2,'0')}-${String(d).padStart(2,'0')}`;
+    
+    // 找出這天有沒有預約 (只抓有 inspectTime 的)
+    const dayEvents = data.filter(item => {
+      if (!item.inspectTime) return false;
+      const itemDate = item.inspectTime.slice(0, 10); // YYYY-MM-DD
+      return itemDate === dateStr;
+    });
+    
+    const hasEvent = dayEvents.length > 0;
+    const isToday = isCurrentMonth && today.getDate() === d;
+    
+    let classes = 'calendar-cell';
+    if (hasEvent) classes += ' has-event';
+    if (isToday) classes += ' today';
+    
+    grid.innerHTML += `
+      <div class="${classes}" onclick="selectDate('${type}', '${dateStr}', this)">
+        ${d}
+      </div>
+    `;
+  }
+  
+  // 預設顯示今天或該月1號的資料
+  const defaultDate = isCurrentMonth ? `${year}-${String(month+1).padStart(2,'0')}-${String(today.getDate()).padStart(2,'0')}` : `${year}-${String(month+1).padStart(2,'0')}-01`;
+  const defaultEl = grid.querySelector(`.calendar-cell:not(.empty)`); 
+  if(defaultEl) {
+      // 延遲一下等 DOM 渲染
+      setTimeout(() => {
+          const el = Array.from(grid.children).find(c => c.innerText == parseInt(defaultDate.slice(-2)));
+          if(el) selectDate(type, defaultDate, el);
+      }, 10);
+  }
+}
+
+function selectDate(type, dateStr, el) {
+  // 移除其他選中狀態
+  const grid = document.getElementById(type + '-cal-grid');
+  Array.from(grid.children).forEach(c => c.classList.remove('selected'));
+  el.classList.add('selected');
+  
+  const data = calendarState[type].data;
+  const dayEvents = data.filter(item => {
+    return item.inspectTime && item.inspectTime.slice(0, 10) === dateStr;
+  }).sort((a,b) => a.inspectTime.localeCompare(b.inspectTime));
+  
+  const detailBox = document.getElementById(type + '-day-detail');
+  if (dayEvents.length === 0) {
+    detailBox.innerHTML = `<div class="day-detail-title">${dateStr} 無預約</div>`;
+    return;
+  }
+  
+  detailBox.innerHTML = `<div class="day-detail-title">${dateStr} 共有 ${dayEvents.length} 筆預約</div>` +
+    dayEvents.map(it => `
+      <div class="list-item" style="padding-bottom: 12px; margin-bottom: 12px;">
+        <div class="item-title" style="font-size:15px;">${esc(it.partNo)} | ${esc(it.name)}</div>
+        <div class="item-detail">時間：<b style="color:var(--btn-bg);">${fmt(it.inspectTime).slice(11)}</b></div>
+        <div class="item-detail">序號：${esc(it.serialNo)}</div>
+        <div style="margin-top:4px;">
+          <span class="status-badge ${it.status === '待檢驗' ? 'status-pending' : 'status-done'}">${it.status}</span>
+        </div>
+      </div>
+    `).join('');
+}
+
 /* --- 受檢者功能 --- */
 function switchReceiverTab(tab) {
   document.querySelectorAll('#viewReceiver .tab-btn').forEach(btn => btn.classList.remove('active'));
   document.getElementById('rc-tab-btn-' + tab).classList.add('active');
   
-  document.getElementById('rc-tab-content-new').classList.add('hidden');
-  document.getElementById('rc-tab-content-history').classList.add('hidden');
+  document.querySelectorAll('#viewReceiver .tab-content').forEach(el => el.classList.add('hidden'));
   document.getElementById('rc-tab-content-' + tab).classList.remove('hidden');
 
   if (tab === 'history') { loadReceiverList(); }
+  else if (tab === 'calendar') { loadCalendar('rc'); }
 }
 
 async function loadPartOptions(){
@@ -448,6 +640,7 @@ function switchTab(tabId) {
   if(tabId === 'analysis') { loadStats(); } 
   else if(tabId === 'pending') { loadInspectorList('待檢驗', 'ins_list_pending'); } 
   else if(tabId === 'finished') { loadInspectorList('檢驗完畢', 'ins_list_finished'); }
+  else if(tabId === 'calendar') { loadCalendar('ins'); }
 }
 
 async function loadInspectorList(filter, targetId){
@@ -458,7 +651,7 @@ async function loadInspectorList(filter, targetId){
   
   if(!items || !items.length){ box.innerHTML = '<p style="color:#888;text-align:center;">目前沒有資料</p>'; return; }
   
-  currentInspectorItems = items; // 存起來供複製使用
+  currentInspectorItems = items; 
   
   box.innerHTML = items.map(it=>`
     <div class="list-item">
@@ -483,8 +676,7 @@ async function loadInspectorList(filter, targetId){
             <button onclick="finish('${it.id}', this)" style="background-color: #1e8e3e;">標記完畢</button>
           </div>
           
-          <!-- ★ 新增：複製通知按鈕 ★ -->
-          <button onclick="copyNotification('${it.id}', this)" style="background-color: #ffffff; color: #15325c; border: 2px solid #15325c; padding: 10px;">
+          <button onclick="copyNotification('${it.id}')" style="background-color: #ffffff; color: #15325c; border: 2px solid #15325c; padding: 10px;">
             📋 複製通知內容給當事人
           </button>
         </div>
@@ -525,107 +717,59 @@ async function finish(id, btn){
   }
 }
 
-/* --- ★ 複製通知功能 ★ --- */
-function copyNotification(id, btn) {
-  const item = currentInspectorList.find(i => i.id === id);
+function copyNotification(id) {
+  const item = currentInspectorItems.find(i => i.id === id);
   if (!item) return;
-
-  // 取得目前輸入框裡選定的時間 (如果沒選則顯示未排定)
   const inputTime = document.getElementById('sch_' + id).value;
   const timeStr = inputTime ? fmt(inputTime) : '尚未排定';
-
-  // 組合要複製的文字
   const text = `【交修件檢驗通知】\n料號：${item.partNo}\n名稱：${item.name}\n序號：${item.serialNo}\n預計查看時間：${timeStr}`;
 
-  // 複製到剪貼簿
   if (navigator.clipboard && window.isSecureContext) {
-    navigator.clipboard.writeText(text).then(() => {
-      showToast('✅ 已複製，可直接貼上！');
-    }).catch(() => {
-      fallbackCopy(text);
-    });
-  } else {
-    fallbackCopy(text);
-  }
+    navigator.clipboard.writeText(text).then(() => showToast('✅ 已複製，可直接貼上！')).catch(() => fallbackCopy(text));
+  } else { fallbackCopy(text); }
 }
 
 function fallbackCopy(text) {
   const textArea = document.createElement("textarea");
   textArea.value = text;
-  textArea.style.position = "fixed";
-  textArea.style.top = "0";
-  textArea.style.left = "0";
-  document.body.appendChild(textArea);
-  textArea.focus();
-  textArea.select();
-  try {
-    document.execCommand('copy');
-    showToast('✅ 已複製，可直接貼上！');
-  } catch (err) {
-    showToast('複製失敗，請手動選取', true);
-  }
+  textArea.style.position = "fixed"; textArea.style.top = "0"; textArea.style.left = "0";
+  document.body.appendChild(textArea); textArea.focus(); textArea.select();
+  try { document.execCommand('copy'); showToast('✅ 已複製，可直接貼上！'); } 
+  catch (err) { showToast('複製失敗，請手動選取', true); }
   document.body.removeChild(textArea);
 }
 
 async function loadStats(){
+  // ... 分析程式碼與之前相同，省略部分以節省版面 ...
   const box = document.getElementById('ins_stats');
   box.innerHTML = '載入中...';
-  
   const st = await callAPI('getStats');
-  if(!st) {
-    box.innerHTML = '<p style="color:#888;text-align:center;">無法載入分析資料</p>';
-    return;
-  }
+  if(!st) { box.innerHTML = '<p style="color:#888;text-align:center;">無法載入分析資料</p>'; return; }
   
   let monthHtml = '';
   const months = Object.keys(st.monthlyPartStats || {}).sort().reverse(); 
-  
   if (months.length === 0) {
     monthHtml = '<p style="color:#888;text-align:center;padding:10px;">尚無月份資料</p>';
   } else {
     months.forEach(m => {
       const totalCount = st.byMonth[m] || 0;
       let partRows = '';
-      
       const partsInMonth = Object.entries(st.monthlyPartStats[m] || {}).sort((a,b)=>b[1]-a[1]);
-      partsInMonth.forEach(([part, count]) => {
-        partRows += `<tr><td>${esc(part)}</td><td><strong>${count}</strong> 件</td></tr>`;
-      });
-
+      partsInMonth.forEach(([part, count]) => { partRows += `<tr><td>${esc(part)}</td><td><strong>${count}</strong> 件</td></tr>`; });
       monthHtml += `
         <details class="month-group">
-          <summary class="month-title">
-            <span>📅 ${m}</span>
-            <span style="color:#15325c;">總計 ${totalCount} 件</span>
-          </summary>
-          <div class="month-details">
-            <table>
-              <thead><tr><th>品相 (料號)</th><th>數量</th></tr></thead>
-              <tbody>${partRows}</tbody>
-            </table>
-          </div>
-        </details>
-      `;
+          <summary class="month-title"><span>📅 ${m}</span><span style="color:#15325c;">總計 ${totalCount} 件</span></summary>
+          <div class="month-details"><table><thead><tr><th>品相 (料號)</th><th>數量</th></tr></thead><tbody>${partRows}</tbody></table></div>
+        </details>`;
     });
   }
-
   box.innerHTML = `
     <div class="stats-grid">
-      <div class="stat-box">
-        <span>歷史總筆數</span>
-        <strong>${st.total || 0}</strong>
-      </div>
-      <div class="stat-box">
-        <span>平均等待時間</span>
-        <strong>${st.avgWaitHours || 0} <span style="font-size:14px;font-weight:normal;">小時</span></strong>
-      </div>
+      <div class="stat-box"><span>歷史總筆數</span><strong>${st.total || 0}</strong></div>
+      <div class="stat-box"><span>平均等待時間</span><strong>${st.avgWaitHours || 0} <span style="font-size:14px;font-weight:normal;">小時</span></strong></div>
     </div>
-    
-    <div style="font-size:15px; font-weight:bold; color:#15325c; margin: 20px 0 12px 0;">
-      每月檢驗數量與品相明細 (點擊展開)
-    </div>
-    ${monthHtml}
-  `;
+    <div style="font-size:15px; font-weight:bold; color:#15325c; margin: 20px 0 12px 0;">每月檢驗數量與品相明細 (點擊展開)</div>
+    ${monthHtml}`;
 }
 
 function fmt(iso){
