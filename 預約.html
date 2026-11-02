@@ -1,0 +1,253 @@
+<!DOCTYPE html>
+<html>
+<head>
+<base target="_top">
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<style>
+  body{font-family:sans-serif;margin:16px;max-width:720px}
+  input,select,button{font-size:16px;padding:8px;margin:4px 0;width:100%;box-sizing:border-box}
+  .card{border:1px solid #ccc;border-radius:8px;padding:12px;margin:10px 0}
+  .hidden{display:none}
+  .status{font-weight:bold}
+  h2{margin-top:0}
+  .topbar{display:flex;justify-content:space-between;align-items:center}
+  .topbar button{width:auto;padding:6px 12px}
+  .row{display:flex;gap:6px;align-items:center}
+  .row > *{flex:1}
+  .row button{flex:0 0 auto;width:auto;padding:6px 10px}
+  label{font-size:13px;color:#555}
+</style>
+</head>
+<body>
+
+<div id="viewLogin">
+  <h2>交修件預約檢驗系統</h2>
+  <input id="pwd" type="password" placeholder="請輸入入口密碼">
+  <button onclick="doLogin()">進入</button>
+  <p id="loginMsg" style="color:red"></p>
+</div>
+
+<div id="viewReceiver" class="hidden">
+  <div class="topbar">
+    <h2>受檢者｜登記交修件</h2>
+    <button onclick="logout()">登出</button>
+  </div>
+
+  <div class="card">
+    <h3>新增預約</h3>
+
+    <label>料號</label>
+    <div class="row">
+      <select id="rc_partNoSel" onchange="onPartChange()"></select>
+      <button onclick="toggleNewPart()">＋新料號</button>
+    </div>
+    <input id="rc_partNoNew" class="hidden" placeholder="輸入新料號">
+
+    <label>名稱</label>
+    <div class="row">
+      <select id="rc_nameSel"></select>
+      <button onclick="toggleNewName()">＋新名稱</button>
+    </div>
+    <input id="rc_nameNew" class="hidden" placeholder="輸入新名稱">
+
+    <label>序號</label>
+    <input id="rc_serialNo" placeholder="序號">
+
+    <label>預約檢驗時間</label>
+    <input id="rc_inspectTime" type="datetime-local">
+
+    <label>備註（可略）</label>
+    <input id="rc_remark" placeholder="備註">
+
+    <button onclick="submitRepair()">預約</button>
+  </div>
+
+  <div class="card">
+    <h3>我的登記</h3>
+    <div id="rc_list"></div>
+  </div>
+</div>
+
+<div id="viewInspector" class="hidden">
+  <div class="topbar">
+    <h2>檢驗官｜檢驗管理</h2>
+    <button onclick="logout()">登出</button>
+  </div>
+
+  <div class="card">
+    <h3>篩選</h3>
+    <select id="ins_filter" onchange="loadInspectorList()">
+      <option value="待檢驗">待檢驗</option>
+      <option value="">全部</option>
+      <option value="檢驗完畢">檢驗完畢</option>
+    </select>
+  </div>
+
+  <div class="card">
+    <h3>清單</h3>
+    <div id="ins_list"></div>
+  </div>
+
+  <div class="card">
+    <h3>分析</h3>
+    <button onclick="loadStats()">重新整理</button>
+    <pre id="ins_stats"></pre>
+  </div>
+</div>
+
+<script>
+let me = { role: '' };
+
+function doLogin(){
+  const pwd = document.getElementById('pwd').value;
+  google.script.run.withSuccessHandler(res=>{
+    if(!res.ok){ document.getElementById('loginMsg').textContent = res.msg; return; }
+    me.role = res.role;
+    document.getElementById('viewLogin').classList.add('hidden');
+
+    if(me.role === '受檢者'){
+      document.getElementById('viewReceiver').classList.remove('hidden');
+      loadPartOptions();
+      loadReceiverList();
+    } else {
+      document.getElementById('viewInspector').classList.remove('hidden');
+      loadInspectorList();
+      loadStats();
+    }
+  }).login(pwd);
+}
+
+function logout(){ location.reload(); }
+
+function loadPartOptions(){
+  google.script.run.withSuccessHandler(list=>{
+    const sel = document.getElementById('rc_partNoSel');
+    sel.innerHTML = '<option value="">-- 選擇料號 --</option>' +
+      list.map(p=>`<option value="${esc(p)}">${esc(p)}</option>`).join('');
+  }).getPartOptions();
+}
+
+function onPartChange(){
+  const partNo = getPartValue();
+  const nameSel = document.getElementById('rc_nameSel');
+  if(!partNo){ nameSel.innerHTML = '<option value="">-- 先選料號 --</option>'; return; }
+  google.script.run.withSuccessHandler(list=>{
+    nameSel.innerHTML = '<option value="">-- 選擇名稱 --</option>' +
+      list.map(n=>`<option value="${esc(n)}">${esc(n)}</option>`).join('');
+  }).getNameOptions(partNo);
+}
+
+function getPartValue(){
+  const sel = document.getElementById('rc_partNoSel').value;
+  if(sel) return sel;
+  return document.getElementById('rc_partNoNew').value.trim();
+}
+
+function getNameValue(){
+  const sel = document.getElementById('rc_nameSel').value;
+  if(sel) return sel;
+  return document.getElementById('rc_nameNew').value.trim();
+}
+
+function toggleNewPart(){
+  document.getElementById('rc_partNoNew').classList.toggle('hidden');
+  document.getElementById('rc_partNoSel').value = '';
+}
+
+function toggleNewName(){
+  document.getElementById('rc_nameNew').classList.toggle('hidden');
+  document.getElementById('rc_nameSel').value = '';
+}
+
+function submitRepair(){
+  const payload = {
+    category: '感測',
+    account: '感測',
+    partNo: getPartValue(),
+    name: getNameValue(),
+    serialNo: document.getElementById('rc_serialNo').value.trim(),
+    inspectTime: document.getElementById('rc_inspectTime').value,
+    remark: document.getElementById('rc_remark').value
+  };
+  if(!payload.partNo || !payload.serialNo || !payload.inspectTime){
+    alert('料號、序號、檢驗時間為必填');
+    return;
+  }
+  google.script.run.withSuccessHandler(()=>{
+    alert('已登記');
+    document.getElementById('rc_serialNo').value = '';
+    document.getElementById('rc_inspectTime').value = '';
+    document.getElementById('rc_remark').value = '';
+    document.getElementById('rc_partNoNew').value = '';
+    document.getElementById('rc_nameNew').value = '';
+    document.getElementById('rc_partNoNew').classList.add('hidden');
+    document.getElementById('rc_nameNew').classList.add('hidden');
+    loadPartOptions();
+    loadReceiverList();
+  }).addRepair(payload);
+}
+
+function loadReceiverList(){
+  google.script.run.withSuccessHandler(items=>{
+    const box = document.getElementById('rc_list');
+    if(!items.length){ box.innerHTML = '<p>尚無登記資料</p>'; return; }
+    box.innerHTML = items.map(it=>`
+      <div class="card">
+        <div><b>${esc(it.partNo)}</b>｜${esc(it.name)}｜序號 ${esc(it.serialNo)}</div>
+        <div>預約檢驗：${fmt(it.inspectTime)}</div>
+        <div class="status">狀態：${it.status}</div>
+        ${it.finishedAt ? `<div>完畢時間：${fmt(it.finishedAt)}</div>` : ''}
+        ${it.remark ? `<div>備註：${esc(it.remark)}</div>` : ''}
+      </div>
+    `).join('');
+  }).listRepairs('受檢者', '');
+}
+
+function loadInspectorList(){
+  const filter = document.getElementById('ins_filter').value;
+  google.script.run.withSuccessHandler(items=>{
+    const box = document.getElementById('ins_list');
+    if(!items.length){ box.innerHTML = '<p>沒有資料</p>'; return; }
+    box.innerHTML = items.map(it=>`
+      <div class="card">
+        <div><b>${esc(it.partNo)}</b>｜${esc(it.name)}｜序號 ${esc(it.serialNo)}</div>
+        <div>預約檢驗：${fmt(it.inspectTime)}</div>
+        <div>登記時間：${fmt(it.createdAt)}</div>
+        <div class="status">狀態：${it.status}</div>
+        ${it.status === '待檢驗'
+          ? `<button onclick="finish('${it.id}')">檢驗完畢</button>` : ''}
+      </div>
+    `).join('');
+  }).listRepairs('檢驗官', filter);
+}
+
+function finish(id){
+  google.script.run.withSuccessHandler(()=>{
+    loadInspectorList();
+    loadStats();
+  }).finishRepair(id, me.role);
+}
+
+function loadStats(){
+  google.script.run.withSuccessHandler(st=>{
+    document.getElementById('ins_stats').textContent =
+      '總筆數：' + st.total + '\n' +
+      '平均等待（小時）：' + st.avgWaitHours + '\n\n' +
+      '依料號：\n' + JSON.stringify(st.byPart, null, 2) + '\n\n' +
+      '依預約日期：\n' + JSON.stringify(st.byDate, null, 2);
+  }).getStats();
+}
+
+function fmt(iso){
+  if(!iso) return '';
+  return iso.replace('T',' ').slice(0,16);
+}
+function esc(s){
+  return String(s == null ? '' : s)
+    .replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;')
+    .replace(/"/g,'&quot;').replace(/'/g,'&#39;');
+}
+</script>
+</body>
+</html>
