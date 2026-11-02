@@ -1930,6 +1930,10 @@ button.copied { background: #e3f1e6 !important; color: #2f6b3f !important; borde
 .evpick button.on { background: #6f5fb8; border-color: #6f5fb8; color: #fff; }
 .qkevt { display: block; width: 100%; margin: 6px 0 2px; padding: 8px 12px; border-radius: 12px; border: 1.5px dashed #9d8fd6; background: transparent; color: #5a4b9e; font-size: 14px; font-weight: 800; text-align: left; }
 .qkevt.on { border-style: solid; background: #f1ecfb; }
+.cpfb { width: 100%; min-height: 160px; padding: 10px; font: inherit; font-size: 16px; border: 1.5px solid var(--ink); border-radius: 10px; background: var(--card); color: var(--text); }
+/* 全螢幕頁的返回鈕一律在左上 */
+#dutyDay > .appbar { justify-content: flex-start; gap: 12px; }
+#dutyDay > .appbar .right { order: -1; margin-left: 0 !important; margin-right: 0; flex: none; }
 
   </style>
 </head>
@@ -1942,7 +1946,7 @@ button.copied { background: #e3f1e6 !important; color: #2f6b3f !important; borde
       <span id="sync" aria-live="polite"></span>
       <button class="editbtn" id="editBtn" aria-label="編輯鎖"></button>
       <button class="icon-btn" id="refreshBtn" aria-label="重新整理" title="重新整理"><span class="ico i-refresh"></span></button>
-      <button class="icon-btn" id="homeBtn" aria-label="回入口（換身分）" title="回入口"><svg viewBox="0 0 24 24" width="20" height="20" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M10 4H5v16h5"/><path d="M14 8l4 4-4 4"/><path d="M18 12H9"/></svg></button>
+      <button class="icon-btn" id="homeBtn" aria-label="換身分" title="換身分"><svg viewBox="0 0 24 24" width="20" height="20" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M10 4H5v16h5"/><path d="M14 8l4 4-4 4"/><path d="M18 12H9"/></svg></button>
     </div>
   </header>
 
@@ -2589,7 +2593,7 @@ button.copied { background: #e3f1e6 !important; color: #2f6b3f !important; borde
       var ignoreClick = false;
       var toastTimer = null;
       var cacheTimer = null;
-      var prefs = { theme: 'light', guest: false, view: 'week', me: '', pw: '', group: '', seen: false, chosen: false, gHint: false, briefOpen: false, away: [], tips: {}, show: {}, full: false, role: '', ign: {}, duty: false, dutyPw: '', viewPw: '', sound: false, ui2: true, tapMenu: false,
+      var prefs = { theme: 'light', guest: false, view: 'week', me: '', pw: '', group: '', seen: false, chosen: false, briefOpen: false, away: [], tips: {}, show: {}, full: false, role: '', ign: {}, duty: false, dutyPw: '', viewPw: '', sound: false, ui2: true, tapMenu: false,
         ot: { sup: '', from: '1800', to: '1900', why: '', rec: [], short: true, when: '夜間' } };
       var editing = false, editT = null;
       var daysFrom = todayKey(), daysCount = 21, daysBusy = false;
@@ -2606,7 +2610,7 @@ button.copied { background: #e3f1e6 !important; color: #2f6b3f !important; borde
       function $(id) { return document.getElementById(id); }
 
       // ====== 名冊分組（彈射／股…） ======
-      var empAll = [], schedGroup = 'ban';
+      var empAll = [];
       function myId() { var r = myRole(); return r === '彈射' ? 'ban' : (r === '軍械' ? 'arm' : (r === '股總' ? 'gu' : 'guest')); }
       function idGroup() {
         var g = null;
@@ -4556,7 +4560,7 @@ button.copied { background: #e3f1e6 !important; color: #2f6b3f !important; borde
           method: 'GET', redirect: 'follow', signal: ctrl ? ctrl.signal : undefined
         }).then(function (res) {
           if (timer) clearTimeout(timer);
-          if (!res.ok) throw new Error('HTTP ' + res.status);
+          if (!res.ok) throw new Error(res.status >= 500 ? '伺服器忙線，請稍後再試' : '伺服器回應異常（' + res.status + '）');
           return res.text().then(function (txt) {
             var j;
             try { j = JSON.parse(txt); } catch (e) {
@@ -4652,7 +4656,7 @@ button.copied { background: #e3f1e6 !important; color: #2f6b3f !important; borde
           return '<div class="skeleton">讀取中…</div>';
         }
         if (employees.length === 0) {
-          return '<div class="state"><b>名冊還是空的</b><p>請到 Google 試算表的「員工名冊」分頁加入同仁姓名，再按右上角重新整理。</p></div>';
+          return '<div class="state"><b>名冊還是空的</b><p>' + (myRole() === '股總' ? '請到 Google 試算表的「股名冊」分頁加入同仁姓名與班別，再按右上角重新整理。' : '名冊還沒建立好，請聯絡股總。') + '</p></div>';
         }
         return '';
       }
@@ -5072,7 +5076,7 @@ button.copied { background: #e3f1e6 !important; color: #2f6b3f !important; borde
           var good = false;
           try { good = document.execCommand('copy'); } catch (e) { good = false; }
           ta.remove();
-          if (good) ok(); else window.prompt('請長按全選後複製：', text);
+          if (good) ok(); else openSheet({ title: '請長按文字 → 全選 → 拷貝', body: '<textarea class="cpfb" readonly>' + esc(text) + '</textarea>' });
         }
         if (navigator.clipboard && navigator.clipboard.writeText) {
           navigator.clipboard.writeText(text).then(ok).catch(fallback);
@@ -5738,7 +5742,7 @@ button.copied { background: #e3f1e6 !important; color: #2f6b3f !important; borde
         var sic = document.querySelector('.tabbar button[data-t="sched"] .ic'); if (sic) { sic.classList.toggle('schedg', id === 'arm'); sic.classList.toggle('sched', id !== 'arm'); }
       }
       function setTab(t) {
-        if (t === 'gu') { schedGroup = 'gu'; t = 'sched'; } else if (t === 'sched') schedGroup = 'ban';
+        if (t === 'gu') t = 'sched';
         var key = t === 'sched' ? ((myId() === 'ban' || myId() === 'arm') ? 'sched' : 'gu') : t;
         tab = t;
         $('toast').classList.remove('show');
@@ -5909,11 +5913,14 @@ button.copied { background: #e3f1e6 !important; color: #2f6b3f !important; borde
       ];
       var APP_VER = CHANGELOG[0].v;
       function renderVer() {
-        $('verList').innerHTML = CHANGELOG.map(function (c, i) {
+        var verN = verAll ? CHANGELOG.length : 5;
+        $('verList').innerHTML = CHANGELOG.slice(0, verN).map(function (c, i) {
           return '<div class="vcard' + (i === 0 ? ' now' : '') + '"><div class="vh"><b>' + esc(c.v) + '</b>' + (i === 0 ? '<em>目前版本</em>' : '') + '<i>' + esc(c.d) + '</i></div><ul>' + c.t.map(function (x) { return '<li>' + esc(x) + '</li>'; }).join('') + '</ul></div>';
-        }).join('');
+        }).join('') + (verAll || CHANGELOG.length <= 5 ? '' : '<button class="ghost" id="verMore" style="width:100%;margin-top:10px">看更早的 ' + (CHANGELOG.length - 5) + ' 個版本</button>');
       }
-      function openVer() { renderVer(); $('verPage').classList.add('show'); $('verPage').scrollTop = 0; }
+      var verAll = false;
+      document.addEventListener('click', function (ev) { if (ev.target && ev.target.id === 'verMore') { verAll = true; renderVer(); } });
+      function openVer() { verAll = false; renderVer(); $('verPage').classList.add('show'); $('verPage').scrollTop = 0; }
       function goHelp(sec) {
         $('guidePage').classList.add('show'); $('guidePage').scrollTop = 0;
         var d = $(sec === 'duty' ? 'h-duty' : 'h-start');
@@ -6594,7 +6601,6 @@ button.copied { background: #e3f1e6 !important; color: #2f6b3f !important; borde
         $('dutySync').addEventListener('click', function () { dutyLoad(); });
         $('statBody').addEventListener('click', function (ev) { if (ev.target.id === 'statCopy') copyText(statText()); });
         $('sndTog').checked = !!prefs.sound;
-        prefs.ui2 = true;
         function applyUi2() { document.body.classList.add('ui2'); }
         applyUi2();
         $('openAna').addEventListener('click', function () { setTab('ana'); window.scrollTo(0, 0); });
