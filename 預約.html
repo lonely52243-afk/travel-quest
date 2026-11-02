@@ -23,7 +23,8 @@
 
 <div id="viewLogin">
   <h2>交修件預約檢驗系統</h2>
-  <input id="pwd" type="password" placeholder="請輸入入口密碼">
+  <!-- 提示改為英文輸入 -->
+  <input id="pwd" type="text" placeholder="請輸入密碼 (sp / gc)" style="text-transform: lowercase;">
   <button onclick="doLogin()">進入</button>
   <p id="loginMsg" style="color:red"></p>
 </div>
@@ -100,7 +101,8 @@
 let me = { role: '' };
 
 function doLogin(){
-  const pwd = document.getElementById('pwd').value;
+  // 自動轉小寫並去除空白，避免手機自動大寫導致錯誤
+  const pwd = document.getElementById('pwd').value.trim().toLowerCase();
   google.script.run.withSuccessHandler(res=>{
     if(!res.ok){ document.getElementById('loginMsg').textContent = res.msg; return; }
     me.role = res.role;
