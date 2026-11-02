@@ -1955,6 +1955,16 @@ button.copied { background: #e3f1e6 !important; color: #2f6b3f !important; borde
 .sit.rest { background: var(--chip-full-bg); color: var(--chip-full); } .sit.stay { background: #fde4dc; color: #a8432f; } .sit.mon { background: #e3e7f3; color: #2c3a66; }
 .sit.away { background: #efe6fb; color: #5a3d99; } .sit.duty { background: #fff0b8; color: #6b5200; } .sit.urine { background: #e1f1fb; color: #1d5b80; } .sit.ot { background: #ece8f8; color: #5a4b9e; } .sit.ev { background: #f1ecfb; color: #5a4b9e; }
 #dutyGrid .dcell .dev { font-size: 11px !important; }
+/* v10.82 搜尋頁手機排版 */
+.srchnames { max-height: 128px; -webkit-mask-image: linear-gradient(#000 80%, transparent); mask-image: linear-gradient(#000 80%, transparent); padding-bottom: 8px; }
+.srchnames.hide { display: none; }
+.srwho { display: flex; align-items: center; justify-content: space-between; margin: 12px 0 2px; }
+.srwho b { font-size: 20px; }
+#sheet .srwho button { padding: 5px 12px; border-radius: 999px; border: 1.5px solid var(--line); background: var(--card); color: var(--text); font: inherit; font-size: 13.5px; font-weight: 700; width: auto; height: auto; }
+#sheet .srnav button { width: 36px !important; height: 32px !important; min-height: 0 !important; padding: 0 !important; font-size: 18px; border-radius: 9px; }
+.srnav b { font-size: 15px; color: var(--muted); }
+.srow { grid-template-columns: 4em 1fr; padding: 8px 2px; }
+.sit { word-break: break-all; }
 
   </style>
 </head>
@@ -3091,6 +3101,7 @@ button.copied { background: #e3f1e6 !important; color: #2f6b3f !important; borde
         if (!$('srchNames')) return;
         var ns = srchMatch(srch.q);
         if (!srch.n && ns.length === 1 && srch.q) srch.n = ns[0];
+        $('srchNames').classList.toggle('hide', !!srch.n && !srch.q);
         $('srchNames').innerHTML = ns.map(function (n) { return '<button data-sn="' + esc(n) + '"' + (srch.n === n ? ' class="on"' : '') + '>' + esc(n) + '</button>'; }).join('') || '<span class="muted">名冊裡找不到</span>';
         $('srchRes').innerHTML = srch.n ? srchHtml() : '<div class="muted" style="margin-top:8px">點一個名字看他這個月的紀錄</div>';
       }
@@ -3108,13 +3119,14 @@ button.copied { background: #e3f1e6 !important; color: #2f6b3f !important; borde
           if (items.length) rows.push('<div class="srow' + (dayInfo(k).off ? ' off' : '') + '"><b>' + mdLabel(k) + '<small>' + wkOf(k) + '</small></b><div>' + items.map(function (it) { return '<span class="sit ' + it.c + '">' + esc(it.t) + '</span>'; }).join('') + '</div></div>');
         }
         var sum = [cnt.rest ? '休假 ' + cnt.rest + ' 天' : '', cnt.stay ? '留守 ' + cnt.stay + ' 次' : '', cnt.duty ? '公差 ' + cnt.duty + ' 次' : '', cnt.urine ? '尿篩 ' + cnt.urine + ' 次' : '', cnt.ot ? '加班 ' + fmtH(cnt.ot) + ' 小時' : ''].filter(Boolean).join('・');
-        return '<div class="srnav"><button data-sm="-1" aria-label="上個月">‹</button><b>' + esc(n) + '　' + y + ' 年 ' + m + ' 月</b><button data-sm="1" aria-label="下個月">›</button></div>' +
+        return '<div class="srwho"><b>' + esc(n) + '</b><button data-sx="1">換人</button></div><div class="srnav"><button data-sm="-1" aria-label="上個月">‹</button><b>' + y + ' 年 ' + m + ' 月</b><button data-sm="1" aria-label="下個月">›</button></div>' +
           '<div class="srsum">' + (sum || '這個月沒有紀錄') + '</div>' + (loaded[ym] ? '' : '<div class="muted">休假資料讀取中…</div>') + rows.join('');
       }
       document.addEventListener('input', function (ev) { if (ev.target && ev.target.id === 'srchIn') { srch.q = ev.target.value; srch.n = ''; srchDraw(); } });
       document.addEventListener('click', function (ev) {
-        var b = ev.target.closest && ev.target.closest('#sheet [data-sn], #sheet [data-sm]'); if (!b) return;
-        if (b.dataset.sn) srch.n = srch.n === b.dataset.sn ? '' : b.dataset.sn;
+        var b = ev.target.closest && ev.target.closest('#sheet [data-sn], #sheet [data-sm], #sheet [data-sx]'); if (!b) return;
+        if (b.dataset.sx) { srch.n = ''; srch.q = ''; if ($('srchIn')) $('srchIn').value = ''; }
+        else if (b.dataset.sn) srch.n = srch.n === b.dataset.sn ? '' : b.dataset.sn;
         else { srch.m += +b.dataset.sm; if (srch.m < 1) { srch.m = 12; srch.y--; } if (srch.m > 12) { srch.m = 1; srch.y++; } }
         srchDraw();
       });
@@ -3659,7 +3671,7 @@ button.copied { background: #e3f1e6 !important; color: #2f6b3f !important; borde
         if (!res || !res.ok) return;
         var pre = y + '-' + pad(m);
         Object.keys(dutyAll).forEach(function (k) { if (k.indexOf(pre) === 0) delete dutyAll[k]; });
-        (res.items || []).forEach(function (it) { (dutyAll[it.date] = dutyAll[it.date] || []).push({ n: it.name, why: it.why, time: it.time || '' }); });
+        (res.items || []).forEach(function (it) { (dutyAll[it.date] = dutyAll[it.date] || []).push({ n: it.name, why: it.why, time: tmFix(it.time) }); });
         dutyFetched[pre] = 1; dutyCacheSave();
       }
       var dutySyncAt = 0, dutySyncOk = true;
@@ -3862,8 +3874,13 @@ button.copied { background: #e3f1e6 !important; color: #2f6b3f !important; borde
       }
       try { var cfg0 = localStorage.getItem(CFG_KEY); if (cfg0) applyCfg(JSON.parse(cfg0)); } catch (e) { /* 忽略 */ }
       // 時間顯示統一：空白／整天／全天 → 全天；1000 → 10:00
-      function fmtTm(t) {
+      function tmFix(t) {
         t = String(t || '').trim();
+        var g = t.match(/\b(\d{1,2}):(\d{2}):\d{2} GMT/) || t.match(/T(\d{2}):(\d{2}):\d{2}/);
+        return g ? pad(+g[1]) + ':' + g[2] : t;
+      }
+      function fmtTm(t) {
+        t = tmFix(t);
         if (!t || /^(整天|全天)$/.test(t)) return '全天';
         return t.replace(/(^|[^\d:])(\d{2})(\d{2})(?!\d)/g, '$1$2:$3');
       }
