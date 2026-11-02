@@ -1911,6 +1911,25 @@ button.copied { background: #e3f1e6 !important; color: #2f6b3f !important; borde
 .ski-duty { background-image: var(--ix-e-duty); }
 .ghint::before { content: ""; width: 30px; height: 30px; background: var(--ix-h-key) center / contain no-repeat; flex-shrink: 0; }
 #gRole.guest::before { content: ""; display: inline-block; width: 24px; height: 24px; vertical-align: -5px; margin-right: 4px; background: var(--ix-h-key) center / contain no-repeat; }
+/* 當日行程 */
+.evban { display: grid; gap: 6px; margin: 0 0 10px; }
+.evb { display: flex; align-items: center; gap: 10px; width: 100%; text-align: left; padding: 9px 12px; border-radius: 12px; border: 1.5px solid #c9b8ef; background: #f1ecfb; color: var(--text); font: inherit; }
+.evb .evi { width: 26px; height: 26px; flex-shrink: 0; background: var(--ix-g-caladd) center / contain no-repeat; font-style: normal; }
+.evb span { flex: 1; min-width: 0; display: flex; flex-direction: column; }
+.evb b { font-size: 15.5px; font-weight: 800; }
+.evb small { font-size: 12px; color: var(--muted); font-weight: 700; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+.evb em { font-style: normal; font-size: 12px; font-weight: 800; color: #5a4b9e; }
+.evadd { width: 100%; margin-top: 8px; min-height: 42px; font-weight: 800; }
+.dcell .dev { display: block; margin: 0 1px 1px; padding: 0 2px; border-radius: 5px; background: #6f5fb8; color: #fff; font-size: 10.5px; font-weight: 800; line-height: 15px; text-align: center; white-space: nowrap; overflow: hidden; }
+.daycard .evrow .evtx { display: flex; flex-wrap: wrap; gap: 4px 10px; font-size: 13.5px; }
+.daycard .evrow .evtx b { color: #5a4b9e; } .daycard .evrow .evtx small { margin-left: 4px; color: var(--muted); font-size: 11.5px; }
+.evl { display: block; margin: 10px 0 4px; font-size: 13px; font-weight: 800; color: var(--muted); }
+.evl input { display: block; width: 100%; margin-top: 4px; padding: 9px 12px; font: inherit; font-size: 16px; border: 1.5px solid var(--ink); border-radius: 10px; background: var(--card); color: var(--text); }
+.evchips, .evpick { display: flex; flex-wrap: wrap; gap: 6px; }
+.evchips button, .evpick button { padding: 6px 11px; border-radius: 999px; border: 1.5px solid #c9c2b2; background: var(--card); color: var(--text); font: inherit; font-size: 14px; font-weight: 700; }
+.evpick button.on { background: #6f5fb8; border-color: #6f5fb8; color: #fff; }
+.qkevt { display: block; width: 100%; margin: 6px 0 2px; padding: 8px 12px; border-radius: 12px; border: 1.5px dashed #9d8fd6; background: transparent; color: #5a4b9e; font-size: 14px; font-weight: 800; text-align: left; }
+.qkevt.on { border-style: solid; background: #f1ecfb; }
 
   </style>
 </head>
@@ -2896,6 +2915,8 @@ button.copied { background: #e3f1e6 !important; color: #2f6b3f !important; borde
           var have = {}; e.people.forEach(function (p) { have[p.n] = 1; });
           qkAll().forEach(function (x) { if (!have[x.name]) e.people.push({ n: x.name, on: false, time: '' }); });
         });
+        var evm = txt.match(/(服裝儀容檢查|服儀檢查|服裝儀容|軍士官團[^\s，,。：:]{0,4}|專精訓練|莒光日?|體能測驗|體測|升旗典禮|升旗|集合點名)/);
+        evs.forEach(function (e) { if (evm && (!e.why || evm[1].indexOf(e.why) >= 0)) e.why = evm[1]; if (evKnown(e.why)) e.asEv = true; });
         return evs;
       }
       function qkNeed(b) {
@@ -2955,9 +2976,87 @@ button.copied { background: #e3f1e6 !important; color: #2f6b3f !important; borde
         qkRender(); $('quickPage').classList.add('show');
       }
       function qkAnalyze() { qkEv = qkParse($('qkText').value); qkRender(); }
+      var EVENTS = {}, EV_KEY = 'leave_events_v1', evLoadAt = 0;
+      try { var ev0 = localStorage.getItem(EV_KEY); if (ev0) EVENTS = JSON.parse(ev0) || {}; } catch (e) { EVENTS = {}; }
+      var EV_HINT = /服儀|服裝儀容|軍士官團|專精訓練|莒光|體測|體能測驗|升旗|集合點名/;
+      function eventsOf(k) { return (EVENTS[k] || []).slice().sort(function (a, b) { return (a.time || '99') < (b.time || '99') ? -1 : 1; }); }
+      function evWho(e) { return !e.who || e.who === '全員' ? '全員' : e.who; }
+      function evHas(e, n) { return !e.who || e.who === '全員' || e.who.split(/[、,，\s]+/).indexOf(n) >= 0; }
+      function evKnown(t) { t = String(t || '').trim(); if (!t) return false; if (EV_HINT.test(t)) return true; return Object.keys(EVENTS).some(function (d) { return EVENTS[d].some(function (x) { return x.title === t; }); }); }
+      // 這個人這天、這個時段有沒有行程（只提醒，不擋）
+      function evClash(k, n, tm) { var a = dayRng(tm); return eventsOf(k).filter(function (e) { if (!evHas(e, n)) return false; var b = dayRng(e.time); return a[0] < b[1] && b[0] < a[1]; }).map(function (e) { return e.title; }); }
+      function evBannerHtml(k, edit) {
+        var l = eventsOf(k); if (!l.length) return '';
+        return '<div class="evban">' + l.map(function (e) {
+          return '<button class="evb"' + (edit ? ' data-evk="' + esc(e.title) + '"' : ' tabindex="-1"') + '><i class="evi"></i><span><b>' + (e.time ? esc(e.time) + '　' : '') + esc(e.title) + '</b><small>' + esc(evWho(e)) + '</small></span>' + (edit ? '<em>修改</em>' : '') + '</button>';
+        }).join('') + '</div>';
+      }
+      function evRerender() {
+        try { if ($('dutyPage').classList.contains('show')) renderDutyMon(); if ($('dutyDay').classList.contains('show')) renderDutyDay(); if ($('attPage').classList.contains('show')) renderAtt(); if (tab === 'days') safeRender(); } catch (e) { /* 忽略 */ }
+      }
+      function eventsLoad(force) {
+        if (!force && Date.now() - evLoadAt < 60000) return;
+        evLoadAt = Date.now();
+        return apiCall({ action: 'getEvents' }).then(function (res) {
+          if (!res || !res.ok) return;
+          var m = {}; (res.items || []).forEach(function (it) { (m[it.date] = m[it.date] || []).push({ time: it.time || '', title: it.title, who: it.who || '全員' }); });
+          EVENTS = m; try { localStorage.setItem(EV_KEY, JSON.stringify(m)); } catch (e) { /* 忽略 */ }
+          evRerender();
+        }).catch(function () { /* 忽略 */ });
+      }
+      function evNormTime(t) {
+        t = String(t || '').trim(); if (!t) return '';
+        return t.replace(/(\d{1,2})[:：]?(\d{2})/g, function (m, h, mm) { return +h < 24 && +mm < 60 ? pad(+h) + ':' + mm : m; }).replace(/\s*[-~～至到]\s*/, '–');
+      }
+      function evForm(k, old) {
+        var e = old ? (EVENTS[k] || []).filter(function (x) { return x.title === old; })[0] : null, titles = {};
+        Object.keys(EVENTS).forEach(function (d) { EVENTS[d].forEach(function (x) { titles[x.title] = (titles[x.title] || 0) + 1; }); });
+        ['服裝儀容檢查', '軍士官團活動', '專精訓練'].forEach(function (t) { if (!titles[t]) titles[t] = 0.5; });
+        var tl = Object.keys(titles).sort(function (a, b) { return titles[b] - titles[a]; }).slice(0, 8);
+        var who = e && e.who && e.who !== '全員' ? e.who.split(/[、,，\s]+/) : [];
+        openSheet({
+          title: (e ? '修改' : '新增') + '當日行程　' + mdLabel(k) + '（' + wkOf(k) + '）',
+          sub: '不算公差。有指定的人，派公差時間撞到會提醒',
+          body: '<label class="evl">事項（自己填）<input type="text" id="evTitle" maxlength="20" value="' + esc(e ? e.title : '') + '" placeholder="例：服裝儀容檢查"></label>' +
+            '<div class="evchips">' + tl.map(function (t) { return '<button data-evt="' + esc(t) + '">' + esc(t) + '</button>'; }).join('') + '</div>' +
+            '<label class="evl">時間（可不填，不填＝上班時間）<input type="text" id="evTime" maxlength="20" value="' + esc(e ? e.time : '') + '" placeholder="例：0730-0800"></label>' +
+            '<div class="evl">對象（點人名＝只有這些人；都不點＝全員）</div><div class="evpick"><button data-evall="1"' + (who.length ? '' : ' class="on"') + '>全員</button>' +
+            qkAll().map(function (p) { return '<button data-evp="' + esc(p.name) + '"' + (who.indexOf(p.name) >= 0 ? ' class="on"' : '') + '>' + esc(p.name) + '</button>'; }).join('') + '</div>',
+          actions: [{ label: '儲存', cls: 'main', fn: function () { evSave(k, e ? e.title : '', false); } }].concat(e ? [{ label: '刪除這個行程', fn: function () { evSave(k, e.title, true); } }] : [])
+        });
+      }
+      document.addEventListener('click', function (ev) {
+        var b = ev.target.closest && ev.target.closest('#sheet .evpick button, #sheet .evchips button'); if (!b) return;
+        if (b.dataset.evt) { $('evTitle').value = b.dataset.evt; return; }
+        var box = b.parentNode;
+        if (b.dataset.evall) { box.querySelectorAll('[data-evp]').forEach(function (x) { x.classList.remove('on'); }); b.classList.add('on'); return; }
+        b.classList.toggle('on');
+        var any = !!box.querySelector('[data-evp].on'); box.querySelector('[data-evall]').classList.toggle('on', !any);
+      });
+      function evSave(k, old, del) {
+        var title = del ? '' : ($('evTitle').value || '').trim().slice(0, 20), time = del ? '' : evNormTime($('evTime').value);
+        var sel = [].slice.call(document.querySelectorAll('#sheet .evpick [data-evp].on')).map(function (b) { return b.dataset.evp; });
+        if (!del && !title) { showToast('請填事項', null, null, 2000); return; }
+        evPut(k, old, title, time, sel.length ? sel.join('、') : '全員');
+      }
+      function evPut(k, old, title, time, who) {
+        var snap = JSON.stringify(EVENTS[k] || []), l = (EVENTS[k] || []).filter(function (x) { return x.title !== (old || title); });
+        if (title) l.push({ time: time, title: title, who: who });
+        if (l.length) EVENTS[k] = l; else delete EVENTS[k];
+        try { localStorage.setItem(EV_KEY, JSON.stringify(EVENTS)); } catch (e) { /* 忽略 */ }
+        evRerender();
+        showToast(title ? '✓ 已' + (old ? '修改' : '加入') + '行程：' + mdLabel(k) + ' ' + title : '已刪除行程', null, null, 2200);
+        return apiCall({ action: 'setEvent', token: prefs.dutyPw || prefs.pw, date: k, time: time, title: title, who: who, old: old || '' }).then(function (res) {
+          if (!res || !res.ok) throw new Error((res && res.msg) || '儲存失敗');
+        }).catch(function (err) {
+          try { var o = JSON.parse(snap); if (o.length) EVENTS[k] = o; else delete EVENTS[k]; } catch (e) { /* 忽略 */ }
+          evRerender(); showToast('行程沒有存成功，已還原：' + err.message, null, null, 4000);
+        });
+      }
       function qkCount() {
         var c = 0;
         qkEv.forEach(function (e) {
+          if (e.asEv) return;
           var d = e.dates.filter(function (x) { return x.on; }).length, p = e.people.filter(function (x) { return x.on; }).length;
           c += d * p;
         });
@@ -2968,6 +3067,7 @@ button.copied { background: #e3f1e6 !important; color: #2f6b3f !important; borde
         qkEv.forEach(function (e, i) {
           h += '<div class="qkcard"><div class="qkh">事項 ' + (i + 1) + '</div>';
           h += '<label class="qkl">事由<input type="text" class="qkwhy" data-e="' + i + '" maxlength="10" list="qkWhys" value="' + esc(e.why) + '" placeholder="例：打靶"></label>';
+          if (!qkMode) h += '<button class="qkx qkevt' + (e.asEv ? ' on' : '') + '" data-e="' + i + '" data-asev="1">' + (e.asEv ? '✓ 當日行程（不算公差）' : '這是當日行程？（不算公差）') + '</button>';
           h += '<label class="qkl">時間（可不填）<input type="text" class="qktime" data-e="' + i + '" maxlength="20" value="' + esc(e.time || '') + '" placeholder="例：14:00 或 08:00–17:00"></label>';
           h += '<div class="qkchips" style="margin-top:6px">';
           ['整天', '上午', '下午', '08:00–17:00', '18:00–19:00', '18:00–20:00'].forEach(function (t) { h += '<button class="qkchip tp' + (e.time === t ? ' on' : '') + '" data-e="' + i + '" data-t="' + t + '">' + t + '</button>'; });
@@ -2995,8 +3095,9 @@ button.copied { background: #e3f1e6 !important; color: #2f6b3f !important; borde
         $('qkList').innerHTML = h;
         qkNeedMonths();
         var cnt = qkCount();
-        $('qkGo').textContent = cnt ? '＋ 新增 ' + cnt + ' 筆公差' : '新增公差';
-        $('qkGo').disabled = !cnt;
+        var nev = 0; qkEv.forEach(function (e) { if (e.asEv && !e.asEvDone) nev += e.dates.filter(function (x) { return x.on; }).length; });
+        $('qkGo').textContent = cnt || nev ? '＋ 新增 ' + [cnt ? cnt + ' 筆公差' : '', nev ? nev + ' 個行程' : ''].filter(Boolean).join('、') : '新增公差';
+        $('qkGo').disabled = !cnt && !nev;
       }
       var qkForce = false, qkAsked = {}, qkSwap = null, qkDupOk = false, qkRes = null;
       // 這個人在這個事項的狀況：回傳文字陣列（休假、已有公差、重複、尿篩）
@@ -3006,6 +3107,7 @@ button.copied { background: #e3f1e6 !important; color: #2f6b3f !important; borde
           var pre = multi ? mdLabel(d.k) + ' ' : '', l = offClash(d.k, p.n, p.time || e.time, why);
           if (l) out.push(pre + l);
           dutyClash(d.k, p.n, why, p.time || e.time).forEach(function (c) { out.push(pre + '已有' + c); });
+          if (!e.asEv) evClash(d.k, p.n, p.time || e.time).forEach(function (t) { out.push(pre + '有行程：' + t); });
           if (why && (dutyAll[d.k] || []).some(function (x) { return x.n === p.n && x.why === why && !(qkMode && qkMode.date === d.k && qkMode.why === why); })) out.push(pre + '已經有了');
           else if (isUrine(why)) { var nr = urineNear(p.n, d.k); if (nr) out.push(pre + mdLabel(nr) + ' 已排尿篩'); }
         });
@@ -3085,6 +3187,7 @@ button.copied { background: #e3f1e6 !important; color: #2f6b3f !important; borde
         var arr = [], seen = {}, i;
         for (i = 0; i < qkEv.length; i++) {
           var e = qkEv[i], why = e.why.trim().slice(0, 10);
+          if (e.asEv) continue;
           var ds = e.dates.filter(function (x) { return x.on; }), ps = e.people.filter(function (x) { return x.on; });
           if (!ds.length || !ps.length) continue;
           if (!why) { showToast('事項 ' + (i + 1) + ' 要填事由（例：打靶）', null, null, 2800); return; }
@@ -3093,7 +3196,15 @@ button.copied { background: #e3f1e6 !important; color: #2f6b3f !important; borde
             arr.push({ date: d.k, name: p.n, why: why, time: (p.time || e.time || '').trim() });
           }); });
         }
-        if (!arr.length) { showToast('未選擇任何項目', null, null, 2600); return; }
+        var evN = 0;
+        qkEv.forEach(function (e) {
+          if (!e.asEv || e.asEvDone) return;
+          var t = (e.why || '').trim().slice(0, 20); if (!t) return;
+          var ps = e.people.filter(function (x) { return x.on; }).map(function (x) { return x.n; }), who = !ps.length || ps.length >= qkAll().length ? '全員' : ps.join('、');
+          e.dates.forEach(function (d) { if (!d.on) return; evPut(d.k, '', t, evNormTime(e.time || ''), who); evN++; });
+          e.asEvDone = true;
+        });
+        if (!arr.length) { if (evN) { $('quickPage').classList.remove('show'); renderDutyMon(); showToast('✓ 已加入 ' + evN + ' 個當日行程', null, null, 2400); return; } showToast('未選擇任何項目', null, null, 2600); return; }
         if (!qkForce && !qkDupOk) {
           var dup = [];
           arr.forEach(function (it) {
@@ -3116,7 +3227,7 @@ button.copied { background: #e3f1e6 !important; color: #2f6b3f !important; borde
         var clash = [];
         arr.forEach(function (it) { var l = offClash(it.date, it.name, it.time, it.why); if (l) clash.push({ it: it, l: l }); });
         var overlap = [];
-        arr.forEach(function (it) { var c = dutyClash(it.date, it.name, it.why, it.time); if (c.length) overlap.push({ it: it, l: '已有' + c.join('、') }); });
+        arr.forEach(function (it) { var c = dutyClash(it.date, it.name, it.why, it.time).concat(evClash(it.date, it.name, it.time).map(function (t) { return '行程' + t; })); if (c.length) overlap.push({ it: it, l: '已有' + c.join('、') }); });
         if (!qkForce && overlap.length && !clash.length) {
           openSheet({
             title: '有 ' + overlap.length + ' 人勤務時間重疊', sub: '同一時段已經有其他公差，是否仍要指派？',
@@ -3287,7 +3398,7 @@ button.copied { background: #e3f1e6 !important; color: #2f6b3f !important; borde
         for (var i = 0; i < 42; i++) {
           var d = new Date(start.getFullYear(), start.getMonth(), start.getDate() + i), k = keyOf(d);
           if (i >= 35 && d.getMonth() !== m - 1) break;
-          var inM = d.getMonth() === m - 1, o = dutyDayOf(k), info = dayInfo(k), chips = '';
+          var inM = d.getMonth() === m - 1, o = dutyDayOf(k), info = dayInfo(k), evs = eventsOf(k), chips = evs.length ? '<span class="dev">' + esc(evs[0].title.slice(0, 4)) + (evs.length > 1 ? '＋' : '') + '</span>' : '';
           var ws = [], wsSeen = {}; Object.keys(o.duty).forEach(function (l) { o.duty[l].names.forEach(function (nm) { if (!wsSeen[nm]) { wsSeen[nm] = 1; ws.push(nm.length >= 3 ? nm.slice(1) : nm); } }); });
           if (ws.length) { chips += '<span class="dnm">'; ws.slice(0, ws.length > 3 ? 2 : 3).forEach(function (w) { chips += '<i class="dc duty">' + esc(w) + '</i>'; }); if (ws.length > 3) chips += '<i class="dc more">＋' + (ws.length - 2) + '</i>'; chips += '</span>'; }
           var no = 0; Object.keys(o.out).forEach(function (w) { no += o.out[w].length; });
@@ -3311,7 +3422,8 @@ button.copied { background: #e3f1e6 !important; color: #2f6b3f !important; borde
           for (var i = 0; i < m.length; i++) if (m[i][0].test(w)) return 'w-' + m[i][1];
           return /監工|值勤|值班/.test(w) ? 'w-helmet' : 'w-other';
         }
-        if (dutyEditor()) h += '<button class="primary" id="dayAdd">＋ 新增這天的公差</button>';
+        h += evBannerHtml(k, dutyEditor());
+        if (dutyEditor()) h += '<button class="primary" id="dayAdd">＋ 新增這天的公差</button><button class="ghost evadd" id="evAdd">＋ 當日行程（服儀、軍士官團、專精訓練…）</button>';
         else h += '<div class="dayunlock"><button class="ghost" id="dayUnlock">✎ 要新增／修改／刪除？解鎖編輯</button><div id="dayPwRow" hidden><input type="text" id="dayPwIn" inputmode="numeric" autocomplete="off" placeholder="彈射密碼" style="-webkit-text-security:disc"><button class="primary" id="dayPwOk">解鎖</button><div class="idmsg" id="dayPwMsg"></div></div></div>';
         function hhmm(x) { return x.slice(0, 2) + ':' + x.slice(2); }
         function tmOf(tm) {
@@ -3478,7 +3590,7 @@ button.copied { background: #e3f1e6 !important; color: #2f6b3f !important; borde
         }).catch(function (e) { rosterState = '讀取失敗：' + e.message; if ($('dutyDay').classList.contains('show')) renderDutyDay(); });
       }
       function dutyWarm() {
-        rosterLoad(); notesLoad();
+        rosterLoad(); notesLoad(); eventsLoad(true);
         var d = new Date(), y = d.getFullYear(), m = d.getMonth() + 1, ny = m === 12 ? y + 1 : y, nm = m === 12 ? 1 : m + 1;
         [[y, m], [ny, nm]].forEach(function (a) {
           fetchPeriod(a[0], a[1]).catch(function () {});
@@ -4065,6 +4177,11 @@ button.copied { background: #e3f1e6 !important; color: #2f6b3f !important; borde
           if (ev.target.closest('#evEdit')) { $('evtPage').classList.remove('show'); qkForm(dutyDayK, g); return; }
           if (ev.target.closest('#evDel')) { dutyRemove(dutyDayK, g.why, g.names.slice()); $('evtPage').classList.remove('show'); renderDutyDay(); }
         });
+        $('dutyDay').addEventListener('click', function (ev) {
+          var b = ev.target.closest && ev.target.closest('#evAdd, [data-evk]'); if (!b) return;
+          if (!dutyEditor()) return;
+          evForm(dutyDayK, b.dataset.evk || '');
+        });
         $('dutyDayBack').addEventListener('click', function () { $('dutyDay').classList.remove('show'); });
         $('dutyDayPrev').addEventListener('click', function () { dutyDayK = addDays(dutyDayK, -1); renderDutyDay(); $('dutyDay').scrollTop = 0; });
         $('dutyDayNext').addEventListener('click', function () { dutyDayK = addDays(dutyDayK, 1); renderDutyDay(); $('dutyDay').scrollTop = 0; });
@@ -4128,6 +4245,7 @@ button.copied { background: #e3f1e6 !important; color: #2f6b3f !important; borde
           var b = ev.target.closest('.qkx, .qkpick .qkchip'); if (!b) return;
           var e = qkEv[+b.dataset.e]; if (!e) return;
           ev.stopPropagation();
+          if (b.dataset.asev) { e.asEv = !e.asEv; qkRender(); return; }
           if (b.dataset.pick) { var nO = e.people.some(function (x) { return x.on; }); e.pick = !(e.pick != null ? e.pick : !nO && !(e.unk || []).length); qkRes = null; }
           else if (b.dataset.ptm) e.ptm = !e.ptm;
           else if (b.dataset.unk) { qkRes = qkRes && qkRes.tok === b.dataset.unk ? null : { e: +b.dataset.e, tok: b.dataset.unk }; }
@@ -4579,6 +4697,7 @@ button.copied { background: #e3f1e6 !important; color: #2f6b3f !important; borde
       }
 
       function ensureData(force, quiet) {
+        try { eventsLoad(force); } catch (e) { /* 忽略 */ }
         var needs = neededIds();
         var jobs = [];
         needs.forEach(function (n) {
@@ -5299,7 +5418,7 @@ button.copied { background: #e3f1e6 !important; color: #2f6b3f !important; borde
         var cls = 'daycard' + (inf.off ? ' off' : '') + (k === tk ? ' today' : '') + (k < tk ? ' past' : '') + (quiet ? ' quiet' : '');
         var c = '<div class="' + cls + '" data-date="' + k + '"><div class="dbadge"><b>' + (+k.slice(8, 10)) + '</b><span>週' + wkOf(k) + '</span></div>' +
           '<div class="dbody"><div class="dtitle">' + mdLabel(k) + '（' + wkOf(k) + '）' + (k === tk ? ' <span class="tag now">今天</span>' : '') +
-          (inf.tag ? ' <span class="tag">' + esc(inf.tag) + '</span>' : '') + '</div>';
+          (inf.tag ? ' <span class="tag">' + esc(inf.tag) + '</span>' : '') + '</div>' + (eventsOf(k).length ? '<div class="drow evrow"><span class="lbl">行程</span><div class="evtx">' + eventsOf(k).map(function (e) { return '<span><b>' + (e.time ? esc(e.time) + ' ' : '') + esc(e.title) + '</b>' + (evWho(e) === '全員' ? '' : '<small>' + esc(evWho(e)) + '</small>') + '</span>'; }).join('') + '</div></div>' : '');
         if (!inf.off && !quiet) c += '<div class="drow"><span class="lbl">休假</span><div class="chips">' +
           (lv.length ? lv.map(function (l) { return leaveChip(l, k); }).join('') : '<span class="muted">無</span>') + '</div></div>';
         if (inf.off) {
@@ -5739,6 +5858,7 @@ button.copied { background: #e3f1e6 !important; color: #2f6b3f !important; borde
         $('idInst').hidden = instStandalone() || no || !mobile;
       }
       var CHANGELOG = [
+        { v: 'v10.81', d: '11/2', t: ['新增「當日行程」（服儀檢查、軍士官團、專精訓練…，事項自己填）：不算公差；公差月曆格子有小標籤，當天頁、首頁每日卡、每日到班都看得到；可以指定對象，派公差時間撞到會提醒；快速標記也能切成當日行程；需搭配後端第四十版'] },
         { v: 'v10.80', d: '11/2', t: ['輪值表換上新的擴大FO 輪值表（115.10–116.06）與 11–12 月砲班監工，後端第三十九版部署後自動寫入；監工排完的日子之後會照順序自動預估', '輪值表的「監工」：當天頁顯示 08:00–17:00、安全帽圖示，可以點進去改人員', '股名冊班別可填「股部」：休假由股總點、到班照常算、不提醒未點，跟軍官一樣但分開顯示；需搭配後端第三十八版', '網頁原始碼不再出現任何同仁姓名（說明與範例改用代稱）', '新增門禁密碼：只能查看，不能做任何修改（連新增留守也不行）；需搭配後端第三十六版', '密碼頁精簡：只留「請輸入密碼」與「提示：門禁密碼」', '公差月曆：週二、週五（擴大FO）的上班日加上淡淡的青色底，放假的日子不加', '新手不卡：入口卡片改寫成「誰休假・誰留守」「誰有公差・尿篩・加班」「今天誰在、誰不在」；密碼頁加「不知道請問班長」；快速標記貼了卻找不到東西會說明原因；使用導覽更新成現在的按鈕與功能', 'iPhone 點密碼框、日期框不會再自動放大畫面', '結束編輯後清掉「復原」紀錄，下次編輯不會退到上一輪', '後端第三十五版：第一次建立股名冊欄位、記住簡稱時上鎖，兩人同時操作不會重複', '快速標記加完，下方提示多「復原」：只撤掉這次新加的', '「小瑋只到19時」沒寫其他人時，只改那幾個人的時間', '一人一行的名字同時對到兩個人時，改成讓你手動選，不再猜第一個', '輪值當天有實際排人的項目，不再同時顯示預估', '深色模式的格線調亮一點', '加班個人時間多認幾種寫法：「小瑋、小宸只到19:00，其餘2000」「至19時」', '產出→加班：時間打錯（例 2500）會擋下；督導或人員當天休假會先提醒；選到還沒讀過的月份會自動讀休假資料', '產出→加班「加入勤務月曆」改成跟快速標記一樣：事由存「夜間加班／假日加班」（照產出頁的夜間／假日），實際工作寫進備註，督導也一起寫入；時間存成 18:00–19:00，加班時數算得到', '快速標記看得懂「小強(加班督導)／小瑜(查庫；彈射座椅趕修作業)」這種一人一行的留守勤務：依日期、工作分組，假日的趕修作業與加班督導算假日加班，假日一律帶 08:00–17:00', '加班統計重新設計：總時數與上一期比較、平日／假日比例條、每月加班時數（平日假日疊在一起）、人力分布（最多、最少、差距、沒有加班的人）；個人列表用雙色長條，點開看平日／假日明細與平均每次時數', '新圖示：尿篩、平日加班、假日加班、復原、對不到的名字、下次建議派、股名冊', '加班通知用 1️⃣2️⃣ 分組（各自的時間、事由、督導、人員）會分成不同事項，督導也會選進去', '沒寫時間或整天的公差當作上班時間（08:00–17:00），不會再跟夜間加班算重疊', '休假提醒也看時間：上午休／下午休只跟同時段的勤務衝突（例：下午休不影響夜間加班、上午的尿篩）；全天休、出差等外勤照樣提醒', '尿篩不再跟一般公差、加班算時間重疊；只有同一天有「整天」的公差，或當天休假，才會提醒'] },
         { v: 'v10.79', d: '11/1', t: ['快速標記時間快選多三個：08:00–17:00、18:00–19:00、18:00–20:00', '「6/13 加班：…」這種寫法，「加班」不會再被當成名冊對不到的人名'] },
         { v: 'v10.78', d: '11/1', t: ['加班分平日／假日：週末、國定假日、標成假日的日子自動算假日加班；統計可切「全部／平日／假日」，每人顯示平日、假日各幾小時，複製文字也分開列', '假日加班沒寫開始時間的從 08:00 算（平日從 17:00）'] },
@@ -5946,6 +6066,7 @@ button.copied { background: #e3f1e6 !important; color: #2f6b3f !important; borde
           : '<div><b>' + total + '</b><span>應到</span></div><div class="ok"><b>' + present + '</b><span>實到' + (half ? '（含半天 ' + half + '）' : '') + '</span></div><div class="no"><b>' + (fullRest + o.out.length) + '</b><span>不在</span></div>') + '</div>';
         function chip(x, cls) { var n = typeof x === 'string' ? x : x.n, t = typeof x === 'string' ? '' : (x.t || ''); return '<span class="ach ' + (cls || '') + (o.unsure[n] ? ' un' : '') + '">' + esc(n) + (t ? '<small>' + esc(t) + '</small>' : '') + '</span>'; }
         function sec(title, cls, list, c2) { if (!list.length) return; h += '<div class="asec ' + cls + '"><div class="ash"><b>' + title + '</b><i>' + list.length + ' 人</i></div><div class="achs">' + list.map(function (x) { return chip(x, c2); }).join('') + '</div></div>'; }
+        h += evBannerHtml(k, false);
         sec('休假', 'rest', o.rest, 'rest');
         sec('外勤', 'out', o.out, 'out');
         sec('留守', 'stay', o.stay, 'stay');
@@ -5966,6 +6087,7 @@ button.copied { background: #e3f1e6 !important; color: #2f6b3f !important; borde
         var L = [mdLabel(k) + '（' + wkOf(k) + '）人員情況'];
         if (!o.off) L.push('應到 ' + total + '　實到 ' + (o.here.length + o.stay.length + o.mon.length + half) + '　不在 ' + (fullRest + o.out.length));
         function line(t, list) { if (list.length) L.push(t + '：' + list.map(function (x) { return typeof x === 'string' ? x : x.n + (x.t ? '（' + x.t + '）' : ''); }).join('、')); }
+        eventsOf(k).forEach(function (e) { L.push('行程：' + (e.time ? e.time + ' ' : '') + e.title + '（' + evWho(e) + '）'); });
         line('休假', o.rest); line('外勤', o.out); line('留守', o.stay); line('監控', o.mon);
         Object.keys(o.duty).forEach(function (w) { L.push('公差（' + w + '）：' + o.duty[w].join('、')); });
         try { var pl = dutyDayOf(k).plan; Object.keys(pl).forEach(function (it) { L.push(it + '：' + pl[it].map(function (p) { return p.n; }).join('、')); }); } catch (e) { /* 忽略 */ }
@@ -6530,7 +6652,7 @@ button.copied { background: #e3f1e6 !important; color: #2f6b3f !important; borde
         $('homeBtn').addEventListener('click', function () { $('swId').click(); });
         document.querySelectorAll('[data-verbtn]').forEach(function (b) { b.textContent = APP_VER; b.addEventListener('click', openVer); });
         $('verBack').addEventListener('click', function () { $('verPage').classList.remove('show'); });
-        $('dutyRefresh').addEventListener('click', function () { statAll = null; rosterLoad(); notesLoad(); dutyLoad(); if (!$('dutyStat').hidden) statLoad(); });
+        $('dutyRefresh').addEventListener('click', function () { statAll = null; rosterLoad(); notesLoad(); eventsLoad(true); dutyLoad(); if (!$('dutyStat').hidden) statLoad(); });
         $('dutyTabHelp').addEventListener('click', function () { goHelp('duty'); });
         $('gTour1').addEventListener('click', function () { showTour(); });
         $('gTour2').addEventListener('click', function () { showTour(TOUR_DUTY); });
