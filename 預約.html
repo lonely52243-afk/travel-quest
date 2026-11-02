@@ -6,161 +6,231 @@
 <title>交修件預約檢驗系統</title>
 <style>
   :root {
-    --bg-main: #15325c;
-    --card-bg: #ffffff;
-    --text-title: #15325c;
-    --text-main: #333333;
-    --text-sub: #888888;
-    --border-color: #15325c;
-    --btn-bg: #15325c;
-    --btn-text: #ffffff;
-    --dot-color: #d93025;
+    --bg-main: #FCF9F2;         /* 溫暖米黃背景 */
+    --card-bg: #FFFFFF;         /* 白色卡片 */
+    --text-title: #1A202C;      /* 深黑標題 */
+    --text-main: #4A5568;       /* 一般文字 */
+    --text-sub: #A0AEC0;        /* 淺灰文字 */
+    --border-color: #E2E8F0;    /* 卡片細邊框 */
+    
+    --accent-yellow: #FFC107;   /* 強調黃色 */
+    --accent-border: #1A202C;   /* 強調黑邊框 */
+    
+    --tag-purple: #7E57C2;      /* 標籤紫 */
+    --tag-red: #E53E3E;         /* 標籤紅 */
+    --tag-green: #38A169;       /* 標籤綠 */
+    
+    --notify-bg: #FFF9E6;
+    --notify-border: #FFD54F;
   }
   
   * { box-sizing: border-box; }
   
   body {
-    font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
+    font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, "Helvetica Neue", Arial, sans-serif;
     background-color: var(--bg-main);
     color: var(--text-main);
     margin: 0;
-    padding: 20px;
+    padding: 16px;
     line-height: 1.5;
     min-height: 100vh;
     display: flex;
     flex-direction: column;
   }
 
+  /* 登入畫面 */
   #viewLogin {
     margin: auto; width: 100%; max-width: 400px; text-align: center;
-    padding: 40px 24px; border-radius: 20px; background: var(--card-bg);
-    box-shadow: 0 10px 30px rgba(0,0,0,0.2);
+    padding: 40px 24px; border-radius: 16px; background: var(--card-bg);
+    border: 2px solid var(--border-color); box-shadow: 0 8px 24px rgba(0,0,0,0.04);
   }
 
-  #viewLogin h2 { color: var(--text-title); font-size: 28px; font-weight: bold; margin: 0 0 8px 0; letter-spacing: 2px; }
+  #viewLogin h2 { color: var(--text-title); font-size: 26px; font-weight: 800; margin: 0 0 8px 0; letter-spacing: 1px; }
   #viewLogin p.subtitle { color: var(--text-sub); font-size: 15px; margin-bottom: 24px; }
 
   .container { width: 100%; max-width: 600px; margin: 0 auto; }
 
+  /* 卡片設計：白底 + 細邊框，無陰影 */
   .card {
-    background: var(--card-bg); border-radius: 16px; padding: 24px;
-    margin-bottom: 16px; box-shadow: 0 4px 15px rgba(0,0,0,0.1);
+    background: var(--card-bg); border-radius: 16px; padding: 20px;
+    margin-bottom: 16px; border: 1px solid var(--border-color);
   }
 
-  h2, h3 { color: var(--text-title); margin-top: 0; font-weight: bold; }
-  h2 { font-size: 24px; }
-  h3 { font-size: 18px; margin-bottom: 16px; border-bottom: 2px solid #eef2f6; padding-bottom: 10px; }
+  h2, h3 { color: var(--text-title); margin-top: 0; font-weight: 800; }
+  h2 { font-size: 22px; }
+  h3 { font-size: 18px; margin-bottom: 16px; padding-bottom: 12px; border-bottom: 1px dashed var(--border-color); }
 
-  .topbar { display: flex; justify-content: space-between; align-items: center; margin-bottom: 20px; }
-  .topbar h2 { margin: 0; color: #ffffff; }
+  .topbar { display: flex; justify-content: space-between; align-items: center; margin-bottom: 16px; }
+  .topbar h2 { margin: 0; }
 
-  label { font-size: 14px; font-weight: 600; color: var(--text-title); margin-bottom: 8px; display: block; }
-  
-  input, select {
-    font-size: 16px; width: 100%; padding: 12px 16px;
-    border: 2px solid var(--border-color); border-radius: 10px; margin-bottom: 16px;
-    background-color: #fff; color: var(--text-main); font-family: inherit;
-    appearance: none; -webkit-appearance: none; outline: none;
-  }
-  
-  input:focus, select:focus { box-shadow: 0 0 0 3px rgba(21, 50, 92, 0.2); }
-
+  /* 按鈕設計：黃底黑邊框 */
   button {
-    font-size: 16px; font-weight: bold; width: 100%; padding: 14px;
-    border: none; border-radius: 10px; background-color: var(--btn-bg); color: var(--btn-text);
-    cursor: pointer; transition: all 0.2s; letter-spacing: 1px; font-family: inherit;
+    font-size: 16px; font-weight: 700; width: 100%; padding: 12px;
+    border: 2px solid var(--accent-border); border-radius: 12px; 
+    background-color: var(--accent-yellow); color: var(--accent-border);
+    cursor: pointer; transition: all 0.1s; font-family: inherit;
+    box-shadow: 0 2px 0 var(--accent-border); /* 一點點立體感 */
   }
-  button:active { background-color: #0d213f; transform: scale(0.98); }
+  button:active { background-color: #FFB300; transform: translateY(2px); box-shadow: 0 0 0 var(--accent-border); }
   
   button.btn-secondary {
-    background-color: transparent; border: 2px solid var(--border-color);
-    color: var(--border-color); width: auto; padding: 8px 16px; font-size: 14px;
+    background-color: var(--card-bg); border: 1px solid var(--border-color);
+    color: var(--text-main); width: auto; padding: 8px 16px; font-size: 14px; font-weight: 600;
+    box-shadow: none;
   }
+  button.btn-secondary:active { background-color: #F7FAFC; transform: translateY(1px); }
 
-  .row { display: flex; gap: 10px; align-items: flex-start; }
+  /* 表單元素 */
+  label { font-size: 14px; font-weight: 700; color: var(--text-title); margin-bottom: 6px; display: block; }
+  input, select {
+    font-size: 16px; width: 100%; padding: 12px 14px;
+    border: 1px solid var(--border-color); border-radius: 12px; margin-bottom: 16px;
+    background-color: var(--card-bg); color: var(--text-main); font-family: inherit;
+    outline: none; transition: border 0.2s;
+  }
+  input:focus, select:focus { border-color: var(--text-title); }
+
+  /* 橫向排列 */
+  .row { display: flex; gap: 8px; align-items: flex-start; }
   .row > select { flex: 1; margin-bottom: 0; }
-  .row > button { flex: 0 0 auto; width: auto; padding: 0 16px; height: 50px; margin-bottom: 16px; border-radius: 10px; background-color: #4a6b95; }
+  .row > button { flex: 0 0 auto; width: auto; padding: 0 16px; height: 48px; margin-bottom: 16px; border-radius: 12px; }
   
   .hidden { display: none !important; }
   
-  .status-badge { display: inline-block; padding: 4px 10px; border-radius: 20px; font-size: 13px; font-weight: bold; }
-  .status-pending { background: #ffe5e5; color: #d93025; }
-  .status-done { background: #e6f4ea; color: #1e8e3e; }
-  
-  .list-item { border-bottom: 1px dashed #ddd; padding-bottom: 16px; margin-bottom: 16px; }
+  /* 標籤樣式：類似截圖中的膠囊 */
+  .tag {
+    display: inline-block; padding: 2px 8px; border-radius: 6px; font-size: 13px; font-weight: 600; margin-right: 4px; margin-bottom: 4px;
+    white-space: nowrap; overflow: hidden; text-overflow: ellipsis; max-width: 100%;
+  }
+  .tag-purple { background: var(--tag-purple); color: white; }
+  .tag-red { background: #FFF5F5; color: var(--tag-red); border: 1px solid #FED7D7; }
+  .tag-green { background: #F0FFF4; color: var(--tag-green); border: 1px solid #C6F6D5; }
+
+  /* 清單卡片 */
+  .list-item { border-bottom: 1px solid var(--border-color); padding-bottom: 16px; margin-bottom: 16px; }
   .list-item:last-child { border-bottom: none; padding-bottom: 0; margin-bottom: 0; }
-  .item-title { font-size: 17px; font-weight: bold; color: var(--text-title); margin-bottom: 8px; }
-  .item-detail { font-size: 14px; color: #555; margin-bottom: 4px; }
+  .item-title { font-size: 16px; font-weight: 800; color: var(--text-title); margin-bottom: 8px; display: flex; flex-wrap: wrap; gap: 6px; align-items: center;}
+  .item-detail { font-size: 14px; color: var(--text-main); margin-bottom: 4px; }
+  .item-detail strong { color: var(--text-title); }
 
-  /* 分頁標籤 (Tabs) */
-  .tabs { display: flex; background: rgba(255, 255, 255, 0.15); border-radius: 12px; padding: 4px; margin-bottom: 16px; overflow-x: auto; }
-  .tab-btn { flex: 1; background: transparent; color: #ffffff; border: none; padding: 12px 0; border-radius: 8px; font-size: 15px; transition: all 0.3s ease; white-space: nowrap; }
-  .tab-btn.active { background: #ffffff; color: var(--bg-main); box-shadow: 0 2px 8px rgba(0,0,0,0.1); }
+  /* 分頁標籤 (Tabs) - 類似截圖的膠囊切換 */
+  .tabs { 
+    display: flex; gap: 8px; margin-bottom: 16px; overflow-x: auto; padding-bottom: 4px;
+  }
+  .tab-btn { 
+    flex: 1; background: var(--card-bg); color: var(--text-main); 
+    border: 1px solid var(--border-color); padding: 10px 0; border-radius: 12px; 
+    font-size: 14px; font-weight: 700; white-space: nowrap; transition: all 0.2s;
+    box-shadow: none; width: auto;
+  }
+  /* 選中狀態：黃底黑框 */
+  .tab-btn.active { 
+    background: var(--accent-yellow); color: var(--accent-border); 
+    border: 2px solid var(--accent-border); 
+    box-shadow: 0 2px 0 var(--accent-border);
+  }
+  .tab-btn:active { transform: translateY(2px); box-shadow: none; }
 
+  /* 通知橫幅 */
+  .notification-banner {
+    background: var(--notify-bg); color: var(--text-title);
+    border: 2px solid var(--notify-border); border-radius: 12px;
+    padding: 14px 16px; margin-bottom: 16px; display: flex; align-items: center; justify-content: space-between;
+    cursor: pointer; animation: slideDown 0.3s ease-out;
+  }
+  .notification-banner:active { background: #FFF3CD; }
+  .notify-content { display: flex; align-items: center; gap: 12px; font-weight: 700; font-size: 15px;}
+  .notify-icon { font-size: 20px; }
+  .notify-arrow { font-size: 18px; font-weight: 800; }
+
+  @keyframes slideDown {
+    from { transform: translateY(-10px); opacity: 0; }
+    to { transform: translateY(0); opacity: 1; }
+  }
+
+  /* Toast 提示 */
   #toast {
     position: fixed; top: 20px; left: 50%; transform: translateX(-50%) translateY(-100px);
-    background: #ffffff; color: #333; padding: 12px 24px; border-radius: 30px;
-    font-size: 14px; font-weight: bold; opacity: 0; transition: all 0.3s cubic-bezier(0.68, -0.55, 0.265, 1.55);
-    z-index: 1000; box-shadow: 0 4px 15px rgba(0,0,0,0.3); text-align: center;
+    background: var(--text-title); color: #fff; padding: 12px 24px; border-radius: 30px;
+    font-size: 14px; font-weight: 700; opacity: 0; transition: all 0.3s;
+    z-index: 1000; box-shadow: 0 4px 12px rgba(0,0,0,0.15); text-align: center;
   }
   #toast.show { transform: translateX(-50%) translateY(0); opacity: 1; }
-  #toast.error { background: #d93025; color: white; }
+  #toast.error { background: var(--tag-red); }
 
   #loading {
     position: fixed; top: 0; left: 0; width: 100%; height: 100%;
-    background: rgba(21, 50, 92, 0.8); display: flex; justify-content: center; align-items: center;
-    z-index: 999; font-weight: bold; color: #ffffff; font-size: 18px;
+    background: rgba(252, 249, 242, 0.9); display: flex; justify-content: center; align-items: center;
+    z-index: 999; font-weight: 800; color: var(--text-title); font-size: 18px;
   }
 
-  /* 分析報表 */
+  /* 統計數據格 */
   .stats-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 12px; margin-bottom: 20px; }
-  .stat-box { background: #f4f6f9; padding: 16px; border-radius: 12px; text-align: center; border: 1px solid #eef2f6; }
-  .stat-box span { display: block; font-size: 13px; color: var(--text-sub); margin-bottom: 4px; }
-  .stat-box strong { font-size: 24px; color: var(--text-title); }
-  table { width: 100%; border-collapse: collapse; font-size: 14px; margin-bottom: 16px; }
-  th, td { padding: 10px 8px; text-align: left; border-bottom: 1px solid #eee; }
-  th { color: var(--text-title); font-weight: bold; background-color: #f9f9f9; }
-  
-  .month-group { border: 1px solid #eef2f6; border-radius: 8px; margin-bottom: 12px; overflow: hidden; }
-  .month-title { background: #f4f6f9; padding: 12px 16px; font-weight: bold; color: var(--text-title); display: flex; justify-content: space-between; cursor: pointer; }
-  .month-details { padding: 12px 16px; background: #fff; }
-  .month-details table { margin-bottom: 0; }
+  .stat-box { background: var(--bg-main); padding: 16px; border-radius: 12px; text-align: center; border: 1px solid var(--border-color); }
+  .stat-box span { display: block; font-size: 13px; color: var(--text-sub); margin-bottom: 4px; font-weight: 600;}
+  .stat-box strong { font-size: 24px; color: var(--text-title); font-weight: 800; }
 
-  /* --- 月曆樣式 --- */
+  /* 折疊選單 */
+  summary { list-style: none; outline: none; }
+  summary::-webkit-details-marker { display: none; }
+  
+  /* 月曆樣式 - 完全仿照截圖 */
   .calendar-header { display: flex; justify-content: space-between; align-items: center; margin-bottom: 16px; }
-  .calendar-header button { width: auto; padding: 8px 16px; font-size: 14px; background: #f4f6f9; color: var(--text-title); border: 1px solid #eef2f6; }
-  .calendar-header h4 { margin: 0; font-size: 18px; color: var(--text-title); }
+  .calendar-header button { width: 40px; height: 40px; padding: 0; display: flex; justify-content: center; align-items: center; background: var(--card-bg); color: var(--text-title); border: 1px solid var(--border-color); border-radius: 10px; font-size: 18px; box-shadow: none;}
+  .calendar-header h4 { margin: 0; font-size: 20px; color: var(--text-title); font-weight: 800;}
   
   .calendar-grid { display: grid; grid-template-columns: repeat(7, 1fr); gap: 4px; text-align: center; }
-  .calendar-day-name { font-size: 12px; color: var(--text-sub); font-weight: bold; margin-bottom: 8px; }
+  
+  .calendar-day-name { font-size: 13px; color: var(--text-sub); font-weight: 700; margin-bottom: 8px; }
+  .calendar-day-name.sun { color: var(--tag-red); }
+  .calendar-day-name.sat { color: #3182CE; }
   
   .calendar-cell {
-    aspect-ratio: 1;
-    display: flex; flex-direction: column; justify-content: center; align-items: center;
-    border-radius: 8px; cursor: pointer; font-size: 15px; position: relative;
-    transition: all 0.2s;
+    aspect-ratio: 0.8; /* 讓格子稍微高一點以容納標籤 */
+    display: flex; flex-direction: column; align-items: center;
+    border-radius: 8px; cursor: pointer; font-size: 15px; font-weight: 700; color: var(--text-title);
+    background: var(--card-bg); border: 1px solid var(--border-color);
+    padding: 4px; transition: all 0.2s; overflow: hidden; position: relative;
   }
-  .calendar-cell:hover { background: #f4f6f9; }
-  .calendar-cell.empty { cursor: default; }
+  .calendar-cell.empty { background: transparent; border: none; cursor: default; }
   
-  /* 有預約的日期 */
-  .calendar-cell.has-event {
-    background: #e8f0fe; color: var(--btn-bg); font-weight: bold;
+  /* 週末顏色 */
+  .calendar-cell.sun { color: var(--tag-red); }
+  .calendar-cell.sat { color: #3182CE; }
+  
+  /* 今天 */
+  .calendar-cell.today { border: 2px solid var(--accent-border); }
+  
+  /* 選中 */
+  .calendar-cell.selected { border: 2px solid var(--accent-border); background: #FFF9E6; }
+  
+  /* 日期數字 */
+  .cal-date-num { margin-top: 2px; margin-bottom: 4px; }
+  
+  /* 月曆標籤容器 */
+  .cal-tags { display: flex; flex-direction: column; gap: 2px; width: 100%; overflow: hidden; }
+  .cal-tag { 
+    font-size: 10px; padding: 1px 2px; border-radius: 4px; 
+    background: var(--tag-purple); color: white; 
+    white-space: nowrap; overflow: hidden; text-overflow: ellipsis; text-align: center;
   }
-  .calendar-cell.has-event::after {
-    content: ''; position: absolute; bottom: 4px; width: 6px; height: 6px;
-    background: var(--dot-color); border-radius: 50%;
-  }
-  
-  /* 今天的日期 */
-  .calendar-cell.today { border: 2px solid var(--btn-bg); }
-  
-  /* 被選中的日期 */
-  .calendar-cell.selected { background: var(--btn-bg); color: #fff; }
-  .calendar-cell.selected::after { background: #fff; }
+  .cal-tag-more { font-size: 10px; color: var(--text-sub); font-weight: 600; margin-top: 2px; }
 
   .day-detail-list { margin-top: 16px; }
-  .day-detail-title { font-size: 15px; font-weight: bold; color: var(--text-title); margin-bottom: 12px; padding-bottom: 8px; border-bottom: 1px solid #eee; }
+  .day-detail-title { font-size: 16px; font-weight: 800; color: var(--text-title); margin-bottom: 12px; padding-bottom: 12px; border-bottom: 1px dashed var(--border-color); }
+
+  /* 打勾確認區塊 */
+  .finish-checkbox-area {
+    display: flex; align-items: center; gap: 12px; margin-top: 16px;
+    padding: 14px; background: #F0FFF4; border-radius: 12px; cursor: pointer;
+    border: 1px solid #C6F6D5;
+  }
+  .finish-checkbox-area input[type="checkbox"] {
+    width: 24px; height: 24px; margin: 0; accent-color: var(--tag-green); cursor: pointer;
+  }
+  .finish-checkbox-area span {
+    font-weight: 800; color: var(--tag-green); font-size: 15px; user-select: none;
+  }
 </style>
 </head>
 <body>
@@ -172,7 +242,7 @@
 <div id="viewLogin" class="hidden">
   <h2>交修件預約檢驗</h2>
   <p class="subtitle">請輸入進入密碼</p>
-  <input id="pwd" type="text" placeholder="" autocomplete="off">
+  <input id="pwd" type="text" placeholder="" autocomplete="off" style="text-align: center;">
   <button onclick="doLogin()">進 入</button>
 </div>
 
@@ -183,7 +253,15 @@
   <div id="viewReceiver" class="hidden">
     <div class="topbar">
       <h2>受檢者</h2>
-      <button class="btn-secondary" onclick="logout()" style="border-color:#fff; color:#fff;">登出</button>
+      <button class="btn-secondary" onclick="logout()">登出</button>
+    </div>
+
+    <div id="rc-notify-banner" class="notification-banner hidden" onclick="jumpToReceiverPending()">
+      <div class="notify-content">
+        <span class="notify-icon">📢</span>
+        <span>檢驗官已為您安排時間！點此查看</span>
+      </div>
+      <span class="notify-arrow">➔</span>
     </div>
 
     <div class="tabs">
@@ -234,9 +312,8 @@
       </div>
     </div>
 
-    <!-- 受檢者月曆分頁 -->
     <div id="rc-tab-content-calendar" class="tab-content hidden">
-      <div class="card">
+      <div class="card" style="padding: 16px 12px;">
         <div class="calendar-header">
           <button onclick="changeMonth('rc', -1)">&lt;</button>
           <h4 id="rc-cal-title">2026年11月</h4>
@@ -252,7 +329,15 @@
   <div id="viewInspector" class="hidden">
     <div class="topbar">
       <h2>檢驗官</h2>
-      <button class="btn-secondary" onclick="logout()" style="border-color:#fff; color:#fff;">登出</button>
+      <button class="btn-secondary" onclick="logout()">登出</button>
+    </div>
+
+    <div id="ins-notify-banner" class="notification-banner hidden" onclick="jumpToInspectorPending()">
+      <div class="notify-content">
+        <span class="notify-icon">📢</span>
+        <span id="ins-notify-text">您有新的待檢驗預約！點此處理</span>
+      </div>
+      <span class="notify-arrow">➔</span>
     </div>
 
     <div class="tabs">
@@ -283,9 +368,8 @@
       </div>
     </div>
 
-    <!-- 檢驗官月曆分頁 -->
     <div id="tab-content-calendar" class="tab-content hidden">
-      <div class="card">
+      <div class="card" style="padding: 16px 12px;">
         <div class="calendar-header">
           <button onclick="changeMonth('ins', -1)">&lt;</button>
           <h4 id="ins-cal-title">2026年11月</h4>
@@ -304,7 +388,6 @@ const API_URL = 'https://script.google.com/macros/s/AKfycbwy46G8by0ME2KJAgqSZshW
 let me = { role: '' };
 let currentInspectorItems = [];
 
-// 月曆狀態
 let calendarState = {
   rc: { year: new Date().getFullYear(), month: new Date().getMonth(), data: [] },
   ins: { year: new Date().getFullYear(), month: new Date().getMonth(), data: [] }
@@ -368,16 +451,52 @@ function enterSystem() {
   if(me.role === '受檢者'){
     document.getElementById('viewReceiver').classList.remove('hidden');
     loadPartOptions();
-    switchReceiverTab('new'); 
+    switchReceiverTab('new');
+    checkReceiverNotifications();
   } else {
     document.getElementById('viewInspector').classList.remove('hidden');
     switchTab('pending'); 
+    checkInspectorNotifications(); 
   }
 }
 
 function logout(){ 
   sessionStorage.removeItem('sys_user');
   location.reload(); 
+}
+
+/* --- 受檢者通知檢查 --- */
+async function checkReceiverNotifications() {
+  const items = await callAPI('listRepairs', { role: '受檢者', filter: '' });
+  if (items) {
+    const scheduledItems = items.filter(it => it.inspectTime && it.status === '待檢驗');
+    if (scheduledItems.length > 0) {
+      document.getElementById('rc-notify-banner').classList.remove('hidden');
+    }
+  }
+}
+
+function jumpToReceiverPending() {
+  document.getElementById('rc-notify-banner').classList.add('hidden');
+  switchReceiverTab('history');
+  document.getElementById('rc_history_filter').value = '待檢驗';
+  loadReceiverList();
+}
+
+/* --- 檢驗官通知檢查 --- */
+async function checkInspectorNotifications() {
+  const items = await callAPI('listRepairs', { role: '檢驗官', filter: '待檢驗' });
+  if (items && items.length > 0) {
+    document.getElementById('ins-notify-text').innerText = `您有 ${items.length} 筆新的待檢驗預約！點此處理`;
+    document.getElementById('ins-notify-banner').classList.remove('hidden');
+  } else {
+    document.getElementById('ins-notify-banner').classList.add('hidden');
+  }
+}
+
+function jumpToInspectorPending() {
+  document.getElementById('ins-notify-banner').classList.add('hidden');
+  switchTab('pending'); 
 }
 
 /* --- 月曆共用邏輯 --- */
@@ -406,7 +525,6 @@ function changeMonth(type, delta) {
 }
 
 function renderCalendar(type) {
-  const isIns = type === 'ins';
   const state = calendarState[type];
   const year = state.year;
   const month = state.month;
@@ -418,10 +536,12 @@ function renderCalendar(type) {
   const grid = document.getElementById(type + '-cal-grid');
   grid.innerHTML = '';
   
-  // 星期列
-  const daysOfWeek = ['日', '一', '二', '三', '四', '五', '六'];
+  const daysOfWeek = [
+    { label: '日', cls: 'sun' }, { label: '一', cls: '' }, { label: '二', cls: '' }, 
+    { label: '三', cls: '' }, { label: '四', cls: '' }, { label: '五', cls: '' }, { label: '六', cls: 'sat' }
+  ];
   daysOfWeek.forEach(d => {
-    grid.innerHTML += `<div class="calendar-day-name">${d}</div>`;
+    grid.innerHTML += `<div class="calendar-day-name ${d.cls}">${d.label}</div>`;
   });
   
   const firstDay = new Date(year, month, 1).getDay();
@@ -429,58 +549,57 @@ function renderCalendar(type) {
   const today = new Date();
   const isCurrentMonth = today.getFullYear() === year && today.getMonth() === month;
   
-  // 空的格子 (月初)
   for (let i = 0; i < firstDay; i++) {
     grid.innerHTML += `<div class="calendar-cell empty"></div>`;
   }
   
-  // 日期格子
   for (let d = 1; d <= daysInMonth; d++) {
     const dateStr = `${year}-${String(month+1).padStart(2,'0')}-${String(d).padStart(2,'0')}`;
     
-    // 找出這天有沒有預約 (只抓有 inspectTime 的)
-    const dayEvents = data.filter(item => {
-      if (!item.inspectTime) return false;
-      const itemDate = item.inspectTime.slice(0, 10); // YYYY-MM-DD
-      return itemDate === dateStr;
-    });
-    
-    const hasEvent = dayEvents.length > 0;
+    // 找出這天有排定時間的預約
+    const dayEvents = data.filter(item => item.inspectTime && item.inspectTime.slice(0, 10) === dateStr);
     const isToday = isCurrentMonth && today.getDate() === d;
     
-    let classes = 'calendar-cell';
-    if (hasEvent) classes += ' has-event';
-    if (isToday) classes += ' today';
+    // 判斷星期幾來決定顏色
+    const dayOfWeek = new Date(year, month, d).getDay();
+    let dayCls = dayOfWeek === 0 ? 'sun' : (dayOfWeek === 6 ? 'sat' : '');
+    if (isToday) dayCls += ' today';
+    
+    // 組合標籤 HTML (最多顯示2個，超過顯示 +N)
+    let tagsHtml = '<div class="cal-tags">';
+    if (dayEvents.length > 0) {
+      const showNum = Math.min(dayEvents.length, 2);
+      for(let i=0; i<showNum; i++) {
+        tagsHtml += `<div class="cal-tag">${esc(dayEvents[i].partNo)}</div>`;
+      }
+      if (dayEvents.length > 2) {
+        tagsHtml += `<div class="cal-tag-more">+${dayEvents.length - 2}</div>`;
+      }
+    }
+    tagsHtml += '</div>';
     
     grid.innerHTML += `
-      <div class="${classes}" onclick="selectDate('${type}', '${dateStr}', this)">
-        ${d}
+      <div class="calendar-cell ${dayCls}" onclick="selectDate('${type}', '${dateStr}', this)">
+        <div class="cal-date-num">${d}</div>
+        ${tagsHtml}
       </div>
     `;
   }
   
-  // 預設顯示今天或該月1號的資料
   const defaultDate = isCurrentMonth ? `${year}-${String(month+1).padStart(2,'0')}-${String(today.getDate()).padStart(2,'0')}` : `${year}-${String(month+1).padStart(2,'0')}-01`;
-  const defaultEl = grid.querySelector(`.calendar-cell:not(.empty)`); 
-  if(defaultEl) {
-      // 延遲一下等 DOM 渲染
-      setTimeout(() => {
-          const el = Array.from(grid.children).find(c => c.innerText == parseInt(defaultDate.slice(-2)));
-          if(el) selectDate(type, defaultDate, el);
-      }, 10);
-  }
+  setTimeout(() => {
+      const el = Array.from(grid.children).find(c => !c.classList.contains('empty') && c.querySelector('.cal-date-num').innerText == parseInt(defaultDate.slice(-2)));
+      if(el) selectDate(type, defaultDate, el);
+  }, 10);
 }
 
 function selectDate(type, dateStr, el) {
-  // 移除其他選中狀態
   const grid = document.getElementById(type + '-cal-grid');
   Array.from(grid.children).forEach(c => c.classList.remove('selected'));
   el.classList.add('selected');
   
   const data = calendarState[type].data;
-  const dayEvents = data.filter(item => {
-    return item.inspectTime && item.inspectTime.slice(0, 10) === dateStr;
-  }).sort((a,b) => a.inspectTime.localeCompare(b.inspectTime));
+  const dayEvents = data.filter(item => item.inspectTime && item.inspectTime.slice(0, 10) === dateStr).sort((a,b) => a.inspectTime.localeCompare(b.inspectTime));
   
   const detailBox = document.getElementById(type + '-day-detail');
   if (dayEvents.length === 0) {
@@ -491,11 +610,14 @@ function selectDate(type, dateStr, el) {
   detailBox.innerHTML = `<div class="day-detail-title">${dateStr} 共有 ${dayEvents.length} 筆預約</div>` +
     dayEvents.map(it => `
       <div class="list-item" style="padding-bottom: 12px; margin-bottom: 12px;">
-        <div class="item-title" style="font-size:15px;">${esc(it.partNo)} | ${esc(it.name)}</div>
-        <div class="item-detail">時間：<b style="color:var(--btn-bg);">${fmt(it.inspectTime).slice(11)}</b></div>
+        <div class="item-title">
+          <span class="tag tag-purple">${esc(it.partNo)}</span> 
+          ${esc(it.name)}
+        </div>
+        <div class="item-detail">時間：<strong>${fmt(it.inspectTime).slice(11)}</strong></div>
         <div class="item-detail">序號：${esc(it.serialNo)}</div>
-        <div style="margin-top:4px;">
-          <span class="status-badge ${it.status === '待檢驗' ? 'status-pending' : 'status-done'}">${it.status}</span>
+        <div style="margin-top:6px;">
+          <span class="tag ${it.status === '待檢驗' ? 'tag-red' : 'tag-green'}">${it.status}</span>
         </div>
       </div>
     `).join('');
@@ -612,18 +734,21 @@ async function loadReceiverList(){
   const filter = document.getElementById('rc_history_filter').value;
   const items = await callAPI('listRepairs', { role: '受檢者', filter: filter });
   const box = document.getElementById('rc_list');
-  if(!items || !items.length){ box.innerHTML = '<p style="color:#888;text-align:center;">尚無相關紀錄</p>'; return; }
+  if(!items || !items.length){ box.innerHTML = '<p style="color:var(--text-sub);text-align:center;">尚無相關紀錄</p>'; return; }
   
   box.innerHTML = items.map(it=>`
     <div class="list-item">
-      <div class="item-title">${esc(it.partNo)} <span style="font-weight:normal;font-size:14px;color:#888;">| ${esc(it.name)}</span></div>
-      <div class="item-detail">序號：${esc(it.serialNo)}</div>
-      <div class="item-detail" style="color:#d93025;">預計耗時：${esc(it.estimateTime) || '未填'}</div>
-      <div class="item-detail">排定檢驗：${it.inspectTime ? `<b>${fmt(it.inspectTime)}</b>` : '<span style="color:#aaa;">尚未排定</span>'}</div>
+      <div class="item-title">
+        <span class="tag tag-purple">${esc(it.partNo)}</span>
+        ${esc(it.name)}
+      </div>
+      <div class="item-detail">序號：<strong>${esc(it.serialNo)}</strong></div>
+      <div class="item-detail">預計耗時：<strong style="color:var(--tag-red);">${esc(it.estimateTime) || '未填'}</strong></div>
+      <div class="item-detail">排定檢驗：${it.inspectTime ? `<strong>${fmt(it.inspectTime)}</strong>` : '<span style="color:var(--text-sub);">尚未排定</span>'}</div>
       ${it.remark ? `<div class="item-detail">備註：${esc(it.remark)}</div>` : ''}
       <div style="margin-top:8px;">
-        <span class="status-badge ${it.status === '待檢驗' ? 'status-pending' : 'status-done'}">${it.status}</span>
-        ${it.finishedAt ? `<span style="font-size:12px;color:#888;margin-left:8px;">完畢: ${fmt(it.finishedAt)}</span>` : ''}
+        <span class="tag ${it.status === '待檢驗' ? 'tag-red' : 'tag-green'}">${it.status}</span>
+        ${it.finishedAt ? `<span style="font-size:12px;color:var(--text-sub);">完畢: ${fmt(it.finishedAt)}</span>` : ''}
       </div>
     </div>
   `).join('');
@@ -645,45 +770,73 @@ function switchTab(tabId) {
 
 async function loadInspectorList(filter, targetId){
   const box = document.getElementById(targetId);
-  box.innerHTML = '<p style="color:#888;text-align:center;">載入中...</p>';
+  box.innerHTML = '<p style="color:var(--text-sub);text-align:center;">載入中...</p>';
   
   const items = await callAPI('listRepairs', { role: '檢驗官', filter: filter });
   
-  if(!items || !items.length){ box.innerHTML = '<p style="color:#888;text-align:center;">目前沒有資料</p>'; return; }
+  if(!items || !items.length){ box.innerHTML = '<p style="color:var(--text-sub);text-align:center;">目前沒有資料</p>'; return; }
   
   currentInspectorItems = items; 
   
   box.innerHTML = items.map(it=>`
     <div class="list-item">
-      <div class="item-title">${esc(it.partNo)} <span style="font-weight:normal;font-size:14px;color:#888;">| ${esc(it.name)}</span></div>
-      <div class="item-detail">序號：${esc(it.serialNo)}</div>
-      <div class="item-detail" style="color:#d93025; font-weight:bold;">預計耗時：${esc(it.estimateTime) || '未填'}</div>
+      <div class="item-title">
+        <span class="tag tag-purple">${esc(it.partNo)}</span>
+        ${esc(it.name)}
+      </div>
+      <div class="item-detail">序號：<strong>${esc(it.serialNo)}</strong></div>
+      <div class="item-detail">預計耗時：<strong style="color:var(--tag-red);">${esc(it.estimateTime) || '未填'}</strong></div>
       
-      ${it.inspectTime ? `<div class="item-detail" style="color:#1e8e3e;">已排定：<b>${fmt(it.inspectTime)}</b></div>` : ''}
+      ${it.inspectTime ? `<div class="item-detail">已排定：<strong style="color:var(--tag-green);">${fmt(it.inspectTime)}</strong></div>` : ''}
 
       <div style="margin-top:8px;">
-        <span class="status-badge ${it.status === '待檢驗' ? 'status-pending' : 'status-done'}">${it.status}</span>
+        <span class="tag ${it.status === '待檢驗' ? 'tag-red' : 'tag-green'}">${it.status}</span>
       </div>
       
       ${it.status === '待檢驗'
         ? `
-        <div style="margin-top: 12px; background: #f4f6f9; padding: 12px; border-radius: 8px;">
-          <label style="margin-bottom:4px; font-size:12px; color:#555;">安排要看的時間：</label>
-          <input type="datetime-local" id="sch_${it.id}" value="${it.inspectTime ? it.inspectTime.slice(0,16) : ''}" style="margin-bottom: 8px; padding: 8px;">
+        <div style="margin-top: 16px; background: #F8FAFC; padding: 16px; border-radius: 12px; border: 1px solid var(--border-color);">
+          <label style="margin-bottom:6px; font-size:13px; color:var(--text-main);">安排要看的時間：</label>
+          <input type="datetime-local" id="sch_${it.id}" value="${it.inspectTime ? it.inspectTime.slice(0,16) : ''}" style="margin-bottom: 12px;">
           
-          <div style="display:flex; gap:8px; margin-bottom: 8px;">
-            <button onclick="schedule('${it.id}', this)" style="background-color: #4a6b95;">儲存時間</button>
-            <button onclick="finish('${it.id}', this)" style="background-color: #1e8e3e;">標記完畢</button>
+          <div style="display:flex; gap:8px; margin-bottom: 16px;">
+            <button onclick="schedule('${it.id}', this)">儲存時間</button>
+            <button onclick="copyNotification('${it.id}')" class="btn-secondary">📋 複製</button>
           </div>
-          
-          <button onclick="copyNotification('${it.id}')" style="background-color: #ffffff; color: #15325c; border: 2px solid #15325c; padding: 10px;">
-            📋 複製通知內容給當事人
-          </button>
+
+          <!-- 打勾確認區塊 -->
+          <label class="finish-checkbox-area">
+            <input type="checkbox" id="chk_${it.id}" onchange="confirmFinish('${it.id}', this)">
+            <span>打勾表示檢驗完畢</span>
+          </label>
         </div>
         ` 
         : ''}
     </div>
   `).join('');
+}
+
+function confirmFinish(id, checkbox) {
+  if (!checkbox.checked) return;
+  if (confirm('確定要將此交修件標記為【檢驗完畢】嗎？')) {
+    finish(id, checkbox);
+  } else {
+    checkbox.checked = false; 
+  }
+}
+
+async function finish(id, checkbox){
+  checkbox.disabled = true;
+  const res = await callAPI('finishRepair', { id: id, account: me.role });
+  if(res && res.ok) {
+    showToast('已標記完畢！');
+    loadInspectorList('待檢驗', 'ins_list_pending'); 
+    checkInspectorNotifications(); 
+  } else {
+    showToast('操作失敗', true);
+    checkbox.checked = false;
+    checkbox.disabled = false;
+  }
 }
 
 async function schedule(id, btn){
@@ -699,20 +852,6 @@ async function schedule(id, btn){
   } else {
     showToast('操作失敗', true);
     btn.textContent = '儲存時間';
-    btn.disabled = false;
-  }
-}
-
-async function finish(id, btn){
-  btn.textContent = '處理中...';
-  btn.disabled = true;
-  const res = await callAPI('finishRepair', { id: id, account: me.role });
-  if(res && res.ok) {
-    showToast('已標記完畢！');
-    loadInspectorList('待檢驗', 'ins_list_pending'); 
-  } else {
-    showToast('操作失敗', true);
-    btn.textContent = '標記完畢';
     btn.disabled = false;
   }
 }
@@ -740,36 +879,107 @@ function fallbackCopy(text) {
 }
 
 async function loadStats(){
-  // ... 分析程式碼與之前相同，省略部分以節省版面 ...
   const box = document.getElementById('ins_stats');
   box.innerHTML = '載入中...';
-  const st = await callAPI('getStats');
-  if(!st) { box.innerHTML = '<p style="color:#888;text-align:center;">無法載入分析資料</p>'; return; }
   
+  const items = await callAPI('listRepairs', { role: '檢驗官', filter: '' });
+  if(!items) { box.innerHTML = '<p style="color:var(--text-sub);text-align:center;">無法載入資料</p>'; return; }
+  
+  const finished = items.filter(it => it.status === '檢驗完畢');
+  
+  let totalWaitHr = 0;
+  finished.forEach(it => {
+    if (it.createdAt && it.finishedAt) {
+      totalWaitHr += (new Date(it.finishedAt) - new Date(it.createdAt)) / 36e5;
+    }
+  });
+  const avg = finished.length ? (totalWaitHr / finished.length).toFixed(1) : 0;
+
+  let grouped = {};
+  finished.forEach(it => {
+    if (!it.finishedAt) return;
+    let m = it.finishedAt.slice(0, 7); 
+    if (!grouped[m]) grouped[m] = [];
+    grouped[m].push(it);
+  });
+
   let monthHtml = '';
-  const months = Object.keys(st.monthlyPartStats || {}).sort().reverse(); 
+  const months = Object.keys(grouped).sort().reverse();
+  
   if (months.length === 0) {
-    monthHtml = '<p style="color:#888;text-align:center;padding:10px;">尚無月份資料</p>';
+    monthHtml = '<p style="color:var(--text-sub);text-align:center;padding:10px;">尚無已完畢資料</p>';
   } else {
     months.forEach(m => {
-      const totalCount = st.byMonth[m] || 0;
-      let partRows = '';
-      const partsInMonth = Object.entries(st.monthlyPartStats[m] || {}).sort((a,b)=>b[1]-a[1]);
-      partsInMonth.forEach(([part, count]) => { partRows += `<tr><td>${esc(part)}</td><td><strong>${count}</strong> 件</td></tr>`; });
+      const mItems = grouped[m];
+      let partGrouped = {};
+      mItems.forEach(it => {
+        if (!partGrouped[it.partNo]) partGrouped[it.partNo] = [];
+        partGrouped[it.partNo].push(it);
+      });
+      
+      let partHtml = '';
+      const parts = Object.keys(partGrouped).sort();
+      
+      parts.forEach(p => {
+        const pItems = partGrouped[p];
+        const pName = pItems[0].name || '無名稱';
+        pItems.sort((a,b) => (b.finishedAt || '').localeCompare(a.finishedAt || ''));
+        
+        let detailRows = pItems.map(it => `
+          <div style="padding: 10px 0; border-bottom: 1px dashed var(--border-color);">
+            <div style="font-weight:800; font-size:14px; color:var(--text-title);">序號：${esc(it.serialNo)}</div>
+            <div style="font-size:12px; color:var(--text-sub); margin-top:4px;">完成時間：${fmt(it.finishedAt)}</div>
+            ${it.remark ? `<div style="font-size:12px; color:var(--text-sub);">備註：${esc(it.remark)}</div>` : ''}
+          </div>
+        `).join('');
+        
+        partHtml += `
+          <details style="margin-bottom: 8px; border: 1px solid var(--border-color); border-radius: 12px; background: var(--card-bg); overflow: hidden;">
+            <summary style="padding: 12px; background: #F8FAFC; cursor: pointer; font-weight: 700; display: flex; justify-content: space-between; align-items:center; list-style: none;">
+              <span style="display:flex; gap:8px; align-items:center;">
+                <span class="tag tag-purple">${esc(p)}</span>
+                ${esc(pName)}
+              </span>
+              <span style="color: var(--text-main); font-size:14px;">${pItems.length} 件</span>
+            </summary>
+            <div style="padding: 0 12px 12px 12px;">
+              ${detailRows}
+            </div>
+          </details>
+        `;
+      });
+      
       monthHtml += `
-        <details class="month-group">
-          <summary class="month-title"><span>📅 ${m}</span><span style="color:#15325c;">總計 ${totalCount} 件</span></summary>
-          <div class="month-details"><table><thead><tr><th>品相 (料號)</th><th>數量</th></tr></thead><tbody>${partRows}</tbody></table></div>
-        </details>`;
+        <details style="margin-bottom: 12px; border: 2px solid var(--border-color); border-radius: 12px; overflow: hidden;">
+          <summary style="padding: 14px 16px; background: #FFF9E6; cursor: pointer; font-weight: 800; display: flex; justify-content: space-between; list-style: none; color: var(--text-title);">
+            <span>📅 ${m}</span>
+            <span>總計 ${mItems.length} 件</span>
+          </summary>
+          <div style="padding: 16px; background: var(--bg-main);">
+            ${partHtml}
+          </div>
+        </details>
+      `;
     });
   }
+
   box.innerHTML = `
     <div class="stats-grid">
-      <div class="stat-box"><span>歷史總筆數</span><strong>${st.total || 0}</strong></div>
-      <div class="stat-box"><span>平均等待時間</span><strong>${st.avgWaitHours || 0} <span style="font-size:14px;font-weight:normal;">小時</span></strong></div>
+      <div class="stat-box">
+        <span>歷史已完畢總數</span>
+        <strong>${finished.length}</strong>
+      </div>
+      <div class="stat-box">
+        <span>平均等待時間</span>
+        <strong>${avg} <span style="font-size:14px;font-weight:normal;">小時</span></strong>
+      </div>
     </div>
-    <div style="font-size:15px; font-weight:bold; color:#15325c; margin: 20px 0 12px 0;">每月檢驗數量與品相明細 (點擊展開)</div>
-    ${monthHtml}`;
+    
+    <div style="font-size:15px; font-weight:800; color:var(--text-title); margin: 24px 0 12px 0;">
+      已完成檢驗明細 (點擊展開)
+    </div>
+    ${monthHtml}
+  `;
 }
 
 function fmt(iso){
