@@ -2097,10 +2097,6 @@ button.copied { background: #e3f1e6 !important; color: #2f6b3f !important; borde
         <summary>身分與編輯鎖</summary>
         <p class="hint" id="idNow" style="margin:0 0 10px"></p>
         <div class="btnrow" style="margin-bottom:12px"><button class="ghost" id="swId">換身分</button><button class="ghost" id="goDuty">公差勤務</button></div>
-        <div id="adminLocked" style="display:none">
-          <p class="hint" style="margin:0 0 10px">目前只能查看。輸入管理者密碼後，才能新增或修改休假紀錄。</p>
-          <div class="pwrow"><input type="password" id="pwInput" inputmode="numeric" autocomplete="off" placeholder="管理者密碼" aria-label="管理者密碼"><button class="primary small" id="pwBtn">登入</button></div>
-        </div>
         <div id="adminOn">
           <p class="hint" id="adminDesc" style="margin:0 0 10px"></p>
           <div class="btnrow">
@@ -2477,7 +2473,6 @@ button.copied { background: #e3f1e6 !important; color: #2f6b3f !important; borde
       <div class="idinst" id="idInst" hidden><span>加入主畫面，日後一鍵開啟</span><button class="primary" id="instGo">怎麼加</button><button class="linkbtn" id="instNo" aria-label="不再提醒">✕</button></div>
       <button class="idhelp" id="idHelp">使用導覽</button>
       <button class="verbtn idver" data-verbtn></button>
-      <div hidden><div id="idPw"><div id="idPwFor"></div><input type="password" id="idPwInput" tabindex="-1" aria-hidden="true"><div id="idMsg"></div><button id="idBack" tabindex="-1"></button><button id="idOk" tabindex="-1"></button></div></div>
     </div>
   </div>
 
@@ -3077,15 +3072,6 @@ button.copied { background: #e3f1e6 !important; color: #2f6b3f !important; borde
           h += '<input type="date" class="qkadd" data-e="' + i + '" aria-label="加日期"></div>';
           var nOn = e.people.filter(function (x) { return x.on; }).length;
           h += qkPeopleHtml(e, i, nOn); h += '</div>'; return;
-          h += '<div class="qkh">人員（點選加入或取消）' + (e.need ? '<span class="qkneed' + (nOn === e.need ? ' ok' : '') + '">需 ' + e.need + ' 人・已選 ' + nOn + ' 人</span>' : '<span class="qkneed">已選 ' + nOn + ' 人</span>') + '</div>' + (e.unk && e.unk.length ? '<div class="qkunk">名冊沒有對到：' + e.unk.map(esc).join('、') + '（請在下面手動點選）</div>' : '') + '<div class="qkchips">';
-          e.people.forEach(function (p, j) {
-            var offs = [], multi = e.dates.filter(function (x) { return x.on; }).length > 1;
-            e.dates.forEach(function (d) { if (!d.on) return; var l = offLabel(d.k, p.n); if (l) offs.push(multi ? mdLabel(d.k) + ' ' + l : l);
-              dutyClash(d.k, p.n, (e.why || '').trim(), p.time || e.time).forEach(function (c) { offs.push((multi ? mdLabel(d.k) + ' ' : '') + '已有' + c); }); });
-            h += '<span class="qkp' + (offs.length ? ' off' : '') + '"><button class="qkchip pp' + (p.on ? ' on' : '') + '" data-e="' + i + '" data-p="' + j + '">' + esc(p.n) + (offs.length ? '<i class="qkoff">' + esc(offs.join('、')) + '</i>' : '') + '</button>' +
-              '<button class="qkchip tm' + (p.time ? ' on' : '') + '" data-e="' + i + '" data-p="' + j + '" data-cy="1">' + (p.time || '＋時間') + '</button></span>';
-          });
-          h += '</div></div>';
         });
         if (!h) h = ($('qkText').value || '').trim() ? '<div class="qkunk" style="margin-top:12px">沒找到可以加的公差：請確認通知裡有<b>日期</b>（例：11/12）和<b>人名</b>。也可以關掉，到當天頁按「＋新增這天的公差」手動加。</div>' : '<div class="muted" style="margin-top:12px">貼上文字後，這裡會顯示找到的日期、事由和人名。</div>';
         var wsn = {}, wso = '';
@@ -3260,6 +3246,7 @@ button.copied { background: #e3f1e6 !important; color: #2f6b3f !important; borde
           return;
         }
         var snap = JSON.stringify(dutyAll), wasEdit = qkMode;
+        var oldItems = wasEdit ? (dutyAll[wasEdit.date] || []).filter(function (x) { return x.why === wasEdit.why && wasEdit.names.indexOf(x.n) >= 0; }).map(function (x) { return { date: wasEdit.date, name: x.n, why: x.why, time: x.time || '' }; }) : [];
         if (wasEdit) {
           dutyAll[wasEdit.date] = (dutyAll[wasEdit.date] || []).filter(function (x) { return !(x.why === wasEdit.why && wasEdit.names.indexOf(x.n) >= 0); });
           wasEdit.names.forEach(function (n) { enqueue(function () { return apiCall({ action: 'removeDuty', date: wasEdit.date, name: n, why: wasEdit.why, token: prefs.dutyPw }); }); });
@@ -3295,6 +3282,7 @@ button.copied { background: #e3f1e6 !important; color: #2f6b3f !important; borde
         }).catch(function (err) {
           try { dutyAll = JSON.parse(snap); } catch (e) { /* 忽略 */ }
           dutyCacheSave(); renderDutyMon();
+          if (oldItems.length) enqueue(function () { return apiCall({ action: 'addDuty', token: prefs.dutyPw, items: JSON.stringify(oldItems) }).then(function (r) { dutyLoad(); return r; }); });
           showToast('儲存失敗，已還原：' + err.message, null, null, 4200);
         });
       }
@@ -3544,7 +3532,7 @@ button.copied { background: #e3f1e6 !important; color: #2f6b3f !important; borde
           if ($('dutyDay').classList.contains('show')) renderDutyDay();
           return;
         }
-        var k = dutyDayK, t = (($('evNote') && $('evtPage').classList.contains('show') ? $('evNote') : $('noteIn')).value || '').trim().slice(0, 400);
+        var k = dutyDayK, t = (($('evNote') || {}).value || '').trim().slice(0, 400);
         if (t) dutyNotes[k] = t; else delete dutyNotes[k];
         try { localStorage.setItem(NOTES_KEY, JSON.stringify(dutyNotes)); } catch (e) { /* 忽略 */ }
         renderDutyMon(); showToast(t ? '備註已儲存' : '備註已清除', null, null, 1800);
@@ -3789,8 +3777,6 @@ button.copied { background: #e3f1e6 !important; color: #2f6b3f !important; borde
         var last = r.l[0].date, first = r.l[n - 1].date, gap = Math.round((Date.parse(last) - Date.parse(tk)) / 864e5);
         var lastTxt = last > tk ? '已排 ' + mdLabel(last) : (gap === 0 ? '今天' : (-gap) + ' 天前');
         var itv = n >= 2 ? Math.round((Date.parse(last) - Date.parse(first)) / 864e5 / (n - 1)) : 0;
-        var diff = n - avg, cmp = skip ? '' : (Math.abs(diff) < 0.5 ? '和平均差不多' : (diff > 0 ? '比平均多 ' : '比平均少 ') + Math.abs(diff).toFixed(1) + ' 次');
-        var rk = skip ? 0 : act.filter(function (x) { return x.l.length < n; }).length + 1;
         var months = [], d = new Date(tk.slice(0, 4), +tk.slice(5, 7) - 1, 1), mx = 1, i;
         for (i = 0; i < 6; i++) { var mk = d.getFullYear() + '-' + pad(d.getMonth() + 1); months.unshift(mk); d.setMonth(d.getMonth() - 1); }
         months.forEach(function (m) { if ((bym[m] || 0) > mx) mx = bym[m]; });
@@ -4050,18 +4036,6 @@ button.copied { background: #e3f1e6 !important; color: #2f6b3f !important; borde
           }).catch(function (e) { done('無法驗證：' + e.message); });
         });
       }
-      function gateLogin() {
-        var pw = $('idPwInput').value.trim();
-        if (!pw) { $('idMsg').textContent = '請輸入密碼'; return; }
-        $('idOk').disabled = true;
-        apiCall({ action: 'auth', token: pw }).then(function (res) {
-          $('idOk').disabled = false;
-          if (!res || !res.ok) { $('idMsg').textContent = (res && /密碼/.test(res.msg || '')) ? '密碼錯誤' : '無法驗證：' + ((res && res.msg) || '未知錯誤') + '（後端是否已更新？）'; return; }
-          if (!res.role) { if (gateWant === '股總') { $('idMsg').textContent = '後端還是舊版，股總密碼不能用，請先更新後端。'; return; } res.role = '彈射'; }
-          if (res.role !== gateWant) { $('idMsg').textContent = '這個密碼不是' + gateWant + '的，請確認有選對身分。'; return; }
-          prefs.duty = false; hideDuty(); prefs.pw = pw; prefs.role = res.role; finishGate();
-        }).catch(function (e) { $('idOk').disabled = false; $('idMsg').textContent = '無法驗證：' + e.message; });
-      }
       function bindGate() {
         $('idGate').addEventListener('click', function (ev) {
           var vb = ev.target.closest && ev.target.closest('.idbtn[data-id="guest"], .idbtn[data-id="duty"]');
@@ -4087,10 +4061,7 @@ button.copied { background: #e3f1e6 !important; color: #2f6b3f !important; borde
             gateWant = b.dataset.id === 'ban' ? '彈射' : (b.dataset.id === 'arm' ? '軍械' : '股總');
             askPin('請輸入' + gateWant + '密碼', gateLoginPw); return;
           }
-          if (b.id === 'idBack') { $('idPw').hidden = true; return; }
-          if (b.id === 'idOk') gateLogin();
         });
-        $('idPwInput').addEventListener('keydown', function (ev) { if (ev.key === 'Enter') gateLogin(); });
         $('pinPad').addEventListener('click', function (ev) {
           var b = ev.target.closest('button'); if (!b) { if (ev.target === $('pinPad')) pinClose(); return; }
           if (b.id === 'pinCancel') { pinClose(); return; }
@@ -4202,7 +4173,7 @@ button.copied { background: #e3f1e6 !important; color: #2f6b3f !important; borde
         });
         $('dutyGrid').addEventListener('click', function (ev) { var b = ev.target.closest('.dcell'); if (b) dutyOpen(b.dataset.k); });
         dutyCacheLoad(); rosterCacheLoad(); try { var nr = localStorage.getItem(NOTES_KEY); if (nr) dutyNotes = JSON.parse(nr) || {}; } catch (e) { /* 忽略 */ } setTimeout(dutyWarm, 600);
-        $('qkOpen').addEventListener('click', function () { qkMode = null; $('quickPage').classList.remove('qkform'); $('qkTitle').textContent = '快速標記'; $('qkText').value = ''; qkEv = []; qkRender(); $('quickPage').classList.add('show'); });
+        $('qkOpen').addEventListener('click', function () { qkMode = null; qkRes = null; if (!statAll) try { statLoad(); } catch (e) { /* 忽略 */ } $('quickPage').classList.remove('qkform'); $('qkTitle').textContent = '快速標記'; $('qkText').value = ''; qkEv = []; qkRender(); $('quickPage').classList.add('show'); });
         $('qkClose').addEventListener('click', function () { $('quickPage').classList.remove('show'); qkMode = null; $('quickPage').classList.remove('qkform'); });
         function swipe(el, left, right) {
           var x0 = 0, y0 = 0, on = false;
@@ -5414,7 +5385,7 @@ button.copied { background: #e3f1e6 !important; color: #2f6b3f !important; borde
       }
       function dayCard(k, tk) {
         var inf = dayInfo(k), lv = leavesOf(k);
-        var quiet = !inf.off && !lv.length && !awayGroups(k).length && !monOf(k).length;
+        var quiet = !inf.off && !lv.length && !awayGroups(k).length && !monOf(k).length && !eventsOf(k).length;
         var cls = 'daycard' + (inf.off ? ' off' : '') + (k === tk ? ' today' : '') + (k < tk ? ' past' : '') + (quiet ? ' quiet' : '');
         var c = '<div class="' + cls + '" data-date="' + k + '"><div class="dbadge"><b>' + (+k.slice(8, 10)) + '</b><span>週' + wkOf(k) + '</span></div>' +
           '<div class="dbody"><div class="dtitle">' + mdLabel(k) + '（' + wkOf(k) + '）' + (k === tk ? ' <span class="tag now">今天</span>' : '') +
@@ -6158,28 +6129,7 @@ button.copied { background: #e3f1e6 !important; color: #2f6b3f !important; borde
           var b = ev.target.closest('button'); if (!b) return;
           prefs.theme = b.dataset.v; savePrefs(); applyTheme(); renderMore();
         });
-        function doLogin() {
-          var pw = $('pwInput').value.trim();
-          if (!pw) { showToast('請輸入密碼', null, null, 2000); return; }
-          $('pwBtn').disabled = true;
-          apiCall({ action: 'auth', token: pw }).then(function (res) {
-            $('pwBtn').disabled = false;
-            if (res && res.ok) {
-              prefs.pw = pw; prefs.role = res.role || '彈射'; savePrefs(); $('pwInput').value = ''; rebuildView();
-              setTab('days'); setEditing(true, '已登入，編輯中');
-            } else if (res && /密碼/.test(res.msg || '')) {
-              showToast('密碼錯誤', null, null, 2500);
-            } else {
-              showToast('無法驗證：' + ((res && res.msg) || '未知錯誤') + '（後端是否已更新？）', null, null, 5000);
-            }
-          }).catch(function (e) {
-            $('pwBtn').disabled = false;
-            showToast('無法驗證：' + e.message, null, null, 4000);
-          });
-        }
         bindGate();
-        $('pwBtn').addEventListener('click', doLogin);
-        $('pwInput').addEventListener('keydown', function (ev) { if (ev.key === 'Enter') doLogin(); });
         $('pwOut').addEventListener('click', function () {
           prefs.pw = ''; prefs.role = ''; savePrefs(); rebuildView(); editing = false; armEdit(); applyRO(); renderAll(); showToast('已登出，目前為唯讀', null, null, 2200);
         });
@@ -6596,7 +6546,7 @@ button.copied { background: #e3f1e6 !important; color: #2f6b3f !important; borde
         document.addEventListener('keydown', function (ev) { if (ev.key === 'Escape') { closeSheet(); closeBatch(); } });
 
         // 重新整理
-        $('refreshBtn').addEventListener('click', function () { loadError = ''; ensureData(true); });
+        $('refreshBtn').addEventListener('click', function () { loadError = ''; API_POST = null; ensureData(true); });
 
         // 讀取失敗時的「重新讀取」、內文中的「完整說明」連結
         document.addEventListener('click', function (ev) {
@@ -6740,7 +6690,6 @@ button.copied { background: #e3f1e6 !important; color: #2f6b3f !important; borde
         $('logTabs').addEventListener('click', function (ev) { var b = ev.target.closest('button'); if (!b) return; logTab = b.dataset.t; [].forEach.call(this.children, function (x) { x.classList.toggle('on', x === b); }); drawLog(); $('logPage').scrollTop = 0; });
         $('logKind').addEventListener('click', function (ev) { var b = ev.target.closest('button'); if (!b) return; logKind = b.dataset.k; [].forEach.call(this.children, function (x) { x.classList.toggle('on', x === b); }); drawLog(); });
         $('logRoleSel').addEventListener('change', function () { logRole = this.value; drawLog(); });
-        $('logRole').addEventListener('click', function (ev) { var b = ev.target.closest('button'); if (!b) return; logRole = b.dataset.r; [].forEach.call(this.children, function (x) { x.classList.toggle('on', x === b); }); drawLog(); });
         bindMore();
         bindLifecycle();
 
