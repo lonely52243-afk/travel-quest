@@ -6,19 +6,19 @@
 <title>交修件預約檢驗系統</title>
 <style>
   :root {
-    --bg-main: #FCF9F2;         /* 溫暖米黃背景 */
-    --card-bg: #FFFFFF;         /* 白色卡片 */
-    --text-title: #1A202C;      /* 深黑標題 */
-    --text-main: #4A5568;       /* 一般文字 */
-    --text-sub: #A0AEC0;        /* 淺灰文字 */
-    --border-color: #E2E8F0;    /* 卡片細邊框 */
+    --bg-main: #FCF9F2;
+    --card-bg: #FFFFFF;
+    --text-title: #1A202C;
+    --text-main: #4A5568;
+    --text-sub: #A0AEC0;
+    --border-color: #E2E8F0;
     
-    --accent-yellow: #FFC107;   /* 強調黃色 */
-    --accent-border: #1A202C;   /* 強調黑邊框 */
+    --accent-yellow: #FFC107;
+    --accent-border: #1A202C;
     
-    --tag-purple: #7E57C2;      /* 標籤紫 */
-    --tag-red: #E53E3E;         /* 標籤紅 */
-    --tag-green: #38A169;       /* 標籤綠 */
+    --tag-purple: #7E57C2;
+    --tag-red: #E53E3E;
+    --tag-green: #38A169;
     
     --notify-bg: #FFF9E6;
     --notify-border: #FFD54F;
@@ -38,7 +38,6 @@
     flex-direction: column;
   }
 
-  /* 登入畫面 */
   #viewLogin {
     margin: auto; width: 100%; max-width: 400px; text-align: center;
     padding: 40px 24px; border-radius: 16px; background: var(--card-bg);
@@ -50,7 +49,6 @@
 
   .container { width: 100%; max-width: 600px; margin: 0 auto; }
 
-  /* 卡片設計：白底 + 細邊框，無陰影 */
   .card {
     background: var(--card-bg); border-radius: 16px; padding: 20px;
     margin-bottom: 16px; border: 1px solid var(--border-color);
@@ -63,13 +61,12 @@
   .topbar { display: flex; justify-content: space-between; align-items: center; margin-bottom: 16px; }
   .topbar h2 { margin: 0; }
 
-  /* 按鈕設計：黃底黑邊框 */
   button {
     font-size: 16px; font-weight: 700; width: 100%; padding: 12px;
     border: 2px solid var(--accent-border); border-radius: 12px; 
     background-color: var(--accent-yellow); color: var(--accent-border);
     cursor: pointer; transition: all 0.1s; font-family: inherit;
-    box-shadow: 0 2px 0 var(--accent-border); /* 一點點立體感 */
+    box-shadow: 0 2px 0 var(--accent-border);
   }
   button:active { background-color: #FFB300; transform: translateY(2px); box-shadow: 0 0 0 var(--accent-border); }
   
@@ -80,7 +77,6 @@
   }
   button.btn-secondary:active { background-color: #F7FAFC; transform: translateY(1px); }
 
-  /* 表單元素 */
   label { font-size: 14px; font-weight: 700; color: var(--text-title); margin-bottom: 6px; display: block; }
   input, select {
     font-size: 16px; width: 100%; padding: 12px 14px;
@@ -90,14 +86,12 @@
   }
   input:focus, select:focus { border-color: var(--text-title); }
 
-  /* 橫向排列 */
   .row { display: flex; gap: 8px; align-items: flex-start; }
   .row > select { flex: 1; margin-bottom: 0; }
   .row > button { flex: 0 0 auto; width: auto; padding: 0 16px; height: 48px; margin-bottom: 16px; border-radius: 12px; }
   
   .hidden { display: none !important; }
   
-  /* 標籤樣式：類似截圖中的膠囊 */
   .tag {
     display: inline-block; padding: 2px 8px; border-radius: 6px; font-size: 13px; font-weight: 600; margin-right: 4px; margin-bottom: 4px;
     white-space: nowrap; overflow: hidden; text-overflow: ellipsis; max-width: 100%;
@@ -106,24 +100,13 @@
   .tag-red { background: #FFF5F5; color: var(--tag-red); border: 1px solid #FED7D7; }
   .tag-green { background: #F0FFF4; color: var(--tag-green); border: 1px solid #C6F6D5; }
 
-  /* 清單卡片 */
-  .list-item { border-bottom: 1px solid var(--border-color); padding-bottom: 16px; margin-bottom: 16px; }
-  .list-item:last-child { border-bottom: none; padding-bottom: 0; margin-bottom: 0; }
-  .item-title { font-size: 16px; font-weight: 800; color: var(--text-title); margin-bottom: 8px; display: flex; flex-wrap: wrap; gap: 6px; align-items: center;}
-  .item-detail { font-size: 14px; color: var(--text-main); margin-bottom: 4px; }
-  .item-detail strong { color: var(--text-title); }
-
-  /* 分頁標籤 (Tabs) - 類似截圖的膠囊切換 */
-  .tabs { 
-    display: flex; gap: 8px; margin-bottom: 16px; overflow-x: auto; padding-bottom: 4px;
-  }
+  .tabs { display: flex; gap: 8px; margin-bottom: 16px; overflow-x: auto; padding-bottom: 4px; }
   .tab-btn { 
     flex: 1; background: var(--card-bg); color: var(--text-main); 
     border: 1px solid var(--border-color); padding: 10px 0; border-radius: 12px; 
     font-size: 14px; font-weight: 700; white-space: nowrap; transition: all 0.2s;
     box-shadow: none; width: auto;
   }
-  /* 選中狀態：黃底黑框 */
   .tab-btn.active { 
     background: var(--accent-yellow); color: var(--accent-border); 
     border: 2px solid var(--accent-border); 
@@ -131,7 +114,30 @@
   }
   .tab-btn:active { transform: translateY(2px); box-shadow: none; }
 
-  /* 通知橫幅 */
+  .sub-tabs { display: flex; gap: 8px; margin-bottom: 16px; background: #F8FAFC; padding: 4px; border-radius: 10px; }
+  .sub-tab {
+    flex: 1; background: transparent; color: var(--text-main);
+    border: none; padding: 8px 0; border-radius: 8px; font-size: 14px; font-weight: 600;
+    box-shadow: none; width: auto; transition: all 0.2s;
+  }
+  .sub-tab.active {
+    background: var(--card-bg); color: var(--text-title); border: 1px solid var(--border-color); box-shadow: 0 1px 3px rgba(0,0,0,0.05);
+  }
+
+  .list-item { 
+    padding: 16px; margin-bottom: 12px; border-radius: 12px; 
+    border: 1px solid var(--border-color); background: var(--card-bg);
+    border-left-width: 6px; 
+  }
+  .list-item:last-child { margin-bottom: 0; }
+  .list-item.status-pending { border-left-color: var(--tag-red); }
+  .list-item.status-done { border-left-color: var(--tag-green); }
+  
+  .item-title { font-size: 16px; font-weight: 800; color: var(--text-title); margin-bottom: 10px; display: flex; flex-wrap: wrap; gap: 6px; align-items: center; }
+  .item-row { display: flex; justify-content: space-between; font-size: 14px; margin-bottom: 6px; color: var(--text-main);}
+  .item-row span:first-child { color: var(--text-sub); font-weight: 500;}
+  .item-row span:last-child { font-weight: 700; color: var(--text-title); text-align: right;}
+
   .notification-banner {
     background: var(--notify-bg); color: var(--text-title);
     border: 2px solid var(--notify-border); border-radius: 12px;
@@ -148,7 +154,6 @@
     to { transform: translateY(0); opacity: 1; }
   }
 
-  /* Toast 提示 */
   #toast {
     position: fixed; top: 20px; left: 50%; transform: translateX(-50%) translateY(-100px);
     background: var(--text-title); color: #fff; padding: 12px 24px; border-radius: 30px;
@@ -164,62 +169,41 @@
     z-index: 999; font-weight: 800; color: var(--text-title); font-size: 18px;
   }
 
-  /* 統計數據格 */
   .stats-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 12px; margin-bottom: 20px; }
   .stat-box { background: var(--bg-main); padding: 16px; border-radius: 12px; text-align: center; border: 1px solid var(--border-color); }
   .stat-box span { display: block; font-size: 13px; color: var(--text-sub); margin-bottom: 4px; font-weight: 600;}
   .stat-box strong { font-size: 24px; color: var(--text-title); font-weight: 800; }
 
-  /* 折疊選單 */
   summary { list-style: none; outline: none; }
   summary::-webkit-details-marker { display: none; }
   
-  /* 月曆樣式 - 完全仿照截圖 */
   .calendar-header { display: flex; justify-content: space-between; align-items: center; margin-bottom: 16px; }
   .calendar-header button { width: 40px; height: 40px; padding: 0; display: flex; justify-content: center; align-items: center; background: var(--card-bg); color: var(--text-title); border: 1px solid var(--border-color); border-radius: 10px; font-size: 18px; box-shadow: none;}
   .calendar-header h4 { margin: 0; font-size: 20px; color: var(--text-title); font-weight: 800;}
   
   .calendar-grid { display: grid; grid-template-columns: repeat(7, 1fr); gap: 4px; text-align: center; }
-  
   .calendar-day-name { font-size: 13px; color: var(--text-sub); font-weight: 700; margin-bottom: 8px; }
   .calendar-day-name.sun { color: var(--tag-red); }
   .calendar-day-name.sat { color: #3182CE; }
-  
   .calendar-cell {
-    aspect-ratio: 0.8; /* 讓格子稍微高一點以容納標籤 */
-    display: flex; flex-direction: column; align-items: center;
+    aspect-ratio: 0.8; display: flex; flex-direction: column; align-items: center;
     border-radius: 8px; cursor: pointer; font-size: 15px; font-weight: 700; color: var(--text-title);
     background: var(--card-bg); border: 1px solid var(--border-color);
     padding: 4px; transition: all 0.2s; overflow: hidden; position: relative;
   }
   .calendar-cell.empty { background: transparent; border: none; cursor: default; }
-  
-  /* 週末顏色 */
   .calendar-cell.sun { color: var(--tag-red); }
   .calendar-cell.sat { color: #3182CE; }
-  
-  /* 今天 */
   .calendar-cell.today { border: 2px solid var(--accent-border); }
-  
-  /* 選中 */
   .calendar-cell.selected { border: 2px solid var(--accent-border); background: #FFF9E6; }
-  
-  /* 日期數字 */
   .cal-date-num { margin-top: 2px; margin-bottom: 4px; }
-  
-  /* 月曆標籤容器 */
   .cal-tags { display: flex; flex-direction: column; gap: 2px; width: 100%; overflow: hidden; }
-  .cal-tag { 
-    font-size: 10px; padding: 1px 2px; border-radius: 4px; 
-    background: var(--tag-purple); color: white; 
-    white-space: nowrap; overflow: hidden; text-overflow: ellipsis; text-align: center;
-  }
+  .cal-tag { font-size: 10px; padding: 1px 2px; border-radius: 4px; background: var(--tag-purple); color: white; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; text-align: center; }
   .cal-tag-more { font-size: 10px; color: var(--text-sub); font-weight: 600; margin-top: 2px; }
 
   .day-detail-list { margin-top: 16px; }
   .day-detail-title { font-size: 16px; font-weight: 800; color: var(--text-title); margin-bottom: 12px; padding-bottom: 12px; border-bottom: 1px dashed var(--border-color); }
 
-  /* 打勾確認區塊 */
   .finish-checkbox-area {
     display: flex; align-items: center; gap: 12px; margin-top: 16px;
     padding: 14px; background: #F0FFF4; border-radius: 12px; cursor: pointer;
@@ -273,6 +257,11 @@
     <div id="rc-tab-content-new" class="tab-content">
       <div class="card">
         <h3>新增交修件</h3>
+        
+        <!-- ★ 新增預約人 ★ -->
+        <label>預約人</label>
+        <input id="rc_bookingPerson" placeholder="請輸入您的姓名或單位">
+
         <label>料號</label>
         <div class="row">
           <select id="rc_partNoSel" onchange="onPartChange()"></select>
@@ -303,11 +292,13 @@
     <div id="rc-tab-content-history" class="tab-content hidden">
       <div class="card">
         <h3>我的登記紀錄</h3>
-        <select id="rc_history_filter" onchange="loadReceiverList()" style="margin-bottom: 16px;">
-          <option value="">全部紀錄</option>
-          <option value="待檢驗">只看待檢驗</option>
-          <option value="檢驗完畢">只看已完畢</option>
-        </select>
+        
+        <div class="sub-tabs">
+          <button class="sub-tab active" onclick="switchReceiverSubTab('', this)">全部</button>
+          <button class="sub-tab" onclick="switchReceiverSubTab('待檢驗', this)">待檢驗</button>
+          <button class="sub-tab" onclick="switchReceiverSubTab('檢驗完畢', this)">已完畢</button>
+        </div>
+        
         <div id="rc_list">載入中...</div>
       </div>
     </div>
@@ -387,6 +378,7 @@
 const API_URL = 'https://script.google.com/macros/s/AKfycbwy46G8by0ME2KJAgqSZshWB0-gljqoUo3l11qSw9Sf45In07QczcYQ-zfwuWyQLTv9/exec';
 let me = { role: '' };
 let currentInspectorItems = [];
+let currentRcFilter = ''; 
 
 let calendarState = {
   rc: { year: new Date().getFullYear(), month: new Date().getMonth(), data: [] },
@@ -479,8 +471,8 @@ async function checkReceiverNotifications() {
 function jumpToReceiverPending() {
   document.getElementById('rc-notify-banner').classList.add('hidden');
   switchReceiverTab('history');
-  document.getElementById('rc_history_filter').value = '待檢驗';
-  loadReceiverList();
+  const subTabs = document.querySelectorAll('#rc-tab-content-history .sub-tab');
+  if(subTabs.length > 1) subTabs[1].click();
 }
 
 /* --- 檢驗官通知檢查 --- */
@@ -555,17 +547,13 @@ function renderCalendar(type) {
   
   for (let d = 1; d <= daysInMonth; d++) {
     const dateStr = `${year}-${String(month+1).padStart(2,'0')}-${String(d).padStart(2,'0')}`;
-    
-    // 找出這天有排定時間的預約
     const dayEvents = data.filter(item => item.inspectTime && item.inspectTime.slice(0, 10) === dateStr);
     const isToday = isCurrentMonth && today.getDate() === d;
     
-    // 判斷星期幾來決定顏色
     const dayOfWeek = new Date(year, month, d).getDay();
     let dayCls = dayOfWeek === 0 ? 'sun' : (dayOfWeek === 6 ? 'sat' : '');
     if (isToday) dayCls += ' today';
     
-    // 組合標籤 HTML (最多顯示2個，超過顯示 +N)
     let tagsHtml = '<div class="cal-tags">';
     if (dayEvents.length > 0) {
       const showNum = Math.min(dayEvents.length, 2);
@@ -609,13 +597,14 @@ function selectDate(type, dateStr, el) {
   
   detailBox.innerHTML = `<div class="day-detail-title">${dateStr} 共有 ${dayEvents.length} 筆預約</div>` +
     dayEvents.map(it => `
-      <div class="list-item" style="padding-bottom: 12px; margin-bottom: 12px;">
+      <div class="list-item ${it.status === '待檢驗' ? 'status-pending' : 'status-done'}">
         <div class="item-title">
           <span class="tag tag-purple">${esc(it.partNo)}</span> 
           ${esc(it.name)}
         </div>
-        <div class="item-detail">時間：<strong>${fmt(it.inspectTime).slice(11)}</strong></div>
-        <div class="item-detail">序號：${esc(it.serialNo)}</div>
+        <div class="item-row"><span>預約人</span><span style="color:var(--tag-purple);">${esc(it.bookingPerson) || '未填'}</span></div>
+        <div class="item-row"><span>時間</span><span>${fmt(it.inspectTime).slice(11)}</span></div>
+        <div class="item-row"><span>序號</span><span>${esc(it.serialNo)}</span></div>
         <div style="margin-top:6px;">
           <span class="tag ${it.status === '待檢驗' ? 'tag-red' : 'tag-green'}">${it.status}</span>
         </div>
@@ -631,8 +620,18 @@ function switchReceiverTab(tab) {
   document.querySelectorAll('#viewReceiver .tab-content').forEach(el => el.classList.add('hidden'));
   document.getElementById('rc-tab-content-' + tab).classList.remove('hidden');
 
-  if (tab === 'history') { loadReceiverList(); }
+  if (tab === 'history') { 
+    const subTabs = document.querySelectorAll('#rc-tab-content-history .sub-tab');
+    if(subTabs.length > 0) subTabs[0].click();
+  }
   else if (tab === 'calendar') { loadCalendar('rc'); }
+}
+
+function switchReceiverSubTab(filter, btn) {
+  currentRcFilter = filter;
+  document.querySelectorAll('#rc-tab-content-history .sub-tab').forEach(el => el.classList.remove('active'));
+  btn.classList.add('active');
+  loadReceiverList();
 }
 
 async function loadPartOptions(){
@@ -697,6 +696,7 @@ function toggleNewName(){
 async function submitRepair(){
   const payload = {
     category: '感測', account: '感測',
+    bookingPerson: document.getElementById('rc_bookingPerson').value.trim(), // 取得預約人
     partNo: getPartValue(),
     name: getNameValue(),
     serialNo: document.getElementById('rc_serialNo').value.trim(),
@@ -704,6 +704,10 @@ async function submitRepair(){
     remark: document.getElementById('rc_remark').value
   };
   
+  if(!payload.bookingPerson){
+    showToast('請填寫預約人姓名', true);
+    return;
+  }
   if(!payload.partNo || !payload.serialNo || !payload.estimateTime){
     showToast('請填寫料號、序號與預計耗時', true);
     return;
@@ -731,24 +735,45 @@ async function submitRepair(){
 }
 
 async function loadReceiverList(){
-  const filter = document.getElementById('rc_history_filter').value;
-  const items = await callAPI('listRepairs', { role: '受檢者', filter: filter });
+  const items = await callAPI('listRepairs', { role: '受檢者', filter: currentRcFilter });
   const box = document.getElementById('rc_list');
-  if(!items || !items.length){ box.innerHTML = '<p style="color:var(--text-sub);text-align:center;">尚無相關紀錄</p>'; return; }
+  
+  if(!items || !items.length){ 
+    box.innerHTML = '<p style="color:var(--text-sub);text-align:center;padding:20px 0;">尚無相關紀錄</p>'; 
+    return; 
+  }
   
   box.innerHTML = items.map(it=>`
-    <div class="list-item">
+    <div class="list-item ${it.status === '待檢驗' ? 'status-pending' : 'status-done'}">
       <div class="item-title">
         <span class="tag tag-purple">${esc(it.partNo)}</span>
         ${esc(it.name)}
       </div>
-      <div class="item-detail">序號：<strong>${esc(it.serialNo)}</strong></div>
-      <div class="item-detail">預計耗時：<strong style="color:var(--tag-red);">${esc(it.estimateTime) || '未填'}</strong></div>
-      <div class="item-detail">排定檢驗：${it.inspectTime ? `<strong>${fmt(it.inspectTime)}</strong>` : '<span style="color:var(--text-sub);">尚未排定</span>'}</div>
-      ${it.remark ? `<div class="item-detail">備註：${esc(it.remark)}</div>` : ''}
-      <div style="margin-top:8px;">
+      
+      <!-- 顯示預約人 -->
+      <div class="item-row">
+        <span>預約人</span>
+        <span style="color:var(--tag-purple);">${esc(it.bookingPerson) || '未填'}</span>
+      </div>
+
+      <div class="item-row">
+        <span>序號</span>
+        <span>${esc(it.serialNo)}</span>
+      </div>
+      <div class="item-row">
+        <span>預計耗時</span>
+        <span style="color:var(--tag-red);">${esc(it.estimateTime) || '未填'}</span>
+      </div>
+      <div class="item-row">
+        <span>排定檢驗</span>
+        <span style="color:${it.inspectTime ? 'var(--text-title)' : 'var(--text-sub)'};">${it.inspectTime ? fmt(it.inspectTime) : '尚未排定'}</span>
+      </div>
+      
+      ${it.remark ? `<div class="item-row"><span>備註</span><span>${esc(it.remark)}</span></div>` : ''}
+      
+      <div style="margin-top:12px; display:flex; align-items:center; gap:10px;">
         <span class="tag ${it.status === '待檢驗' ? 'tag-red' : 'tag-green'}">${it.status}</span>
-        ${it.finishedAt ? `<span style="font-size:12px;color:var(--text-sub);">完畢: ${fmt(it.finishedAt)}</span>` : ''}
+        ${it.finishedAt ? `<span style="font-size:12px;color:var(--text-sub);font-weight:600;">完畢: ${fmt(it.finishedAt)}</span>` : ''}
       </div>
     </div>
   `).join('');
@@ -770,26 +795,39 @@ function switchTab(tabId) {
 
 async function loadInspectorList(filter, targetId){
   const box = document.getElementById(targetId);
-  box.innerHTML = '<p style="color:var(--text-sub);text-align:center;">載入中...</p>';
+  box.innerHTML = '<p style="color:var(--text-sub);text-align:center;padding:20px 0;">載入中...</p>';
   
   const items = await callAPI('listRepairs', { role: '檢驗官', filter: filter });
   
-  if(!items || !items.length){ box.innerHTML = '<p style="color:var(--text-sub);text-align:center;">目前沒有資料</p>'; return; }
+  if(!items || !items.length){ box.innerHTML = '<p style="color:var(--text-sub);text-align:center;padding:20px 0;">目前沒有資料</p>'; return; }
   
   currentInspectorItems = items; 
   
   box.innerHTML = items.map(it=>`
-    <div class="list-item">
+    <div class="list-item ${it.status === '待檢驗' ? 'status-pending' : 'status-done'}">
       <div class="item-title">
         <span class="tag tag-purple">${esc(it.partNo)}</span>
         ${esc(it.name)}
       </div>
-      <div class="item-detail">序號：<strong>${esc(it.serialNo)}</strong></div>
-      <div class="item-detail">預計耗時：<strong style="color:var(--tag-red);">${esc(it.estimateTime) || '未填'}</strong></div>
       
-      ${it.inspectTime ? `<div class="item-detail">已排定：<strong style="color:var(--tag-green);">${fmt(it.inspectTime)}</strong></div>` : ''}
+      <!-- 檢驗官最需要看清楚的預約人 -->
+      <div class="item-row">
+        <span>預約人</span>
+        <span style="color:var(--tag-purple);">${esc(it.bookingPerson) || '未填'}</span>
+      </div>
 
-      <div style="margin-top:8px;">
+      <div class="item-row">
+        <span>序號</span>
+        <span>${esc(it.serialNo)}</span>
+      </div>
+      <div class="item-row">
+        <span>預計耗時</span>
+        <span style="color:var(--tag-red);">${esc(it.estimateTime) || '未填'}</span>
+      </div>
+      
+      ${it.inspectTime ? `<div class="item-row"><span>已排定</span><span style="color:var(--tag-green);">${fmt(it.inspectTime)}</span></div>` : ''}
+
+      <div style="margin-top:12px; display:flex; align-items:center; gap:10px;">
         <span class="tag ${it.status === '待檢驗' ? 'tag-red' : 'tag-green'}">${it.status}</span>
       </div>
       
@@ -804,7 +842,6 @@ async function loadInspectorList(filter, targetId){
             <button onclick="copyNotification('${it.id}')" class="btn-secondary">📋 複製</button>
           </div>
 
-          <!-- 打勾確認區塊 -->
           <label class="finish-checkbox-area">
             <input type="checkbox" id="chk_${it.id}" onchange="confirmFinish('${it.id}', this)">
             <span>打勾表示檢驗完畢</span>
@@ -861,7 +898,9 @@ function copyNotification(id) {
   if (!item) return;
   const inputTime = document.getElementById('sch_' + id).value;
   const timeStr = inputTime ? fmt(inputTime) : '尚未排定';
-  const text = `【交修件檢驗通知】\n料號：${item.partNo}\n名稱：${item.name}\n序號：${item.serialNo}\n預計查看時間：${timeStr}`;
+  
+  // 複製內容也加上預約人
+  const text = `【交修件檢驗通知】\n預約人：${item.bookingPerson || '未填'}\n料號：${item.partNo}\n名稱：${item.name}\n序號：${item.serialNo}\n預計查看時間：${timeStr}`;
 
   if (navigator.clipboard && window.isSecureContext) {
     navigator.clipboard.writeText(text).then(() => showToast('✅ 已複製，可直接貼上！')).catch(() => fallbackCopy(text));
@@ -927,8 +966,11 @@ async function loadStats(){
         
         let detailRows = pItems.map(it => `
           <div style="padding: 10px 0; border-bottom: 1px dashed var(--border-color);">
-            <div style="font-weight:800; font-size:14px; color:var(--text-title);">序號：${esc(it.serialNo)}</div>
-            <div style="font-size:12px; color:var(--text-sub); margin-top:4px;">完成時間：${fmt(it.finishedAt)}</div>
+            <div style="display:flex; justify-content:space-between; margin-bottom:4px;">
+                <span style="font-weight:800; font-size:14px; color:var(--text-title);">序號：${esc(it.serialNo)}</span>
+                <span style="font-size:12px; font-weight:700; color:var(--tag-purple);">${esc(it.bookingPerson) || '未填'}</span>
+            </div>
+            <div style="font-size:12px; color:var(--text-sub);">完成時間：${fmt(it.finishedAt)}</div>
             ${it.remark ? `<div style="font-size:12px; color:var(--text-sub);">備註：${esc(it.remark)}</div>` : ''}
           </div>
         `).join('');
