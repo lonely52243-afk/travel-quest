@@ -2044,41 +2044,6 @@ button.copied { background: #e3f1e6 !important; color: #2f6b3f !important; borde
 .plannote { font-size: 12.5px; text-align: center; margin-top: 10px; }
 [data-theme="dark"] .tl.rest .nc { background: rgba(70,130,230,.22); } [data-theme="dark"] .tl.stay .nc { background: rgba(220,80,70,.22); } [data-theme="dark"] .tl.mon .nc { background: rgba(140,160,214,.2); } [data-theme="dark"] .tl.out .nc { background: rgba(217,84,138,.22); } [data-theme="dark"] .tl.plan .nc { background: rgba(47,143,165,.25); } [data-theme="dark"] .tl.duty .nc { background: rgba(122,75,194,.28); }
 @media (prefers-color-scheme: dark) { [data-theme="auto"] .tl.rest .nc { background: rgba(70,130,230,.22); } [data-theme="auto"] .tl.stay .nc { background: rgba(220,80,70,.22); } [data-theme="auto"] .tl.mon .nc { background: rgba(140,160,214,.2); } [data-theme="auto"] .tl.out .nc { background: rgba(217,84,138,.22); } [data-theme="auto"] .tl.plan .nc { background: rgba(47,143,165,.25); } [data-theme="auto"] .tl.duty .nc { background: rgba(122,75,194,.28); } }
-/* v10.89 入口頁 */
-#idGate .idtitle { font-size: 26px; }
-#idGate .idsub { margin: 2px 0 14px; font-weight: 700; }
-.grole { display: block; padding: 10px 14px 12px; margin: 0 0 12px; }
-.grtop { display: flex; align-items: center; gap: 10px; }
-.grtop .linkbtn { margin-left: auto; min-height: 36px; font-weight: 800; }
-.grole .grnote { display: flex; flex-wrap: wrap; gap: 6px; align-items: center; margin: 8px 0 0; }
-.grole .grnote span { font-size: 12.5px; font-weight: 700; color: var(--text); background: var(--card2); border-radius: 8px; padding: 3px 9px; }
-.grole .grnote small { font-size: 12px; color: var(--muted); width: 100%; }
-.idsub2 { grid-template-columns: 1fr !important; gap: 8px; }
-.idtile { min-height: 58px; padding: 8px 14px; }
-.idtile .itx small { font-size: 12.5px; }
-.idtile .chev { margin-left: auto; font-style: normal; font-size: 24px; font-weight: 800; color: var(--muted); }
-.idfoot { display: flex; justify-content: center; align-items: center; gap: 4px; margin-top: 14px; }
-.idfoot .idhelp, .idfoot .idver { margin: 0; display: inline-block; }
-.idfoot .idhelp::after { content: "・"; color: var(--muted); text-decoration: none; display: inline-block; margin-left: 6px; }
-/* v10.90 每日到班 */
-.asec { border-left-width: 1.5px !important; border-left-style: solid !important; border-left-color: var(--line, #e0d7c3) !important; border-radius: 14px; padding: 10px 12px; margin-bottom: 10px; }
-.asec.who { padding: 2px 12px; }
-.arow { display: flex; gap: 10px; align-items: flex-start; padding: 9px 0; }
-.arow + .arow { border-top: 1px dashed var(--line, #e0d7c3); }
-.arow > b { flex-shrink: 0; width: 3.6em; font-size: 14px; padding-top: 4px; display: flex; align-items: baseline; gap: 4px; }
-.arow > b i { font-style: normal; font-size: 12px; color: var(--muted); font-weight: 700; }
-.arow.rest > b { color: #2a68c8; } .arow.stay > b { color: #c0453a; } .arow.out > b { color: #c2457a; } .arow.mon > b { color: #3d4f7c; }
-.ach { font-size: 14.5px; padding: 4px 9px; border-radius: 9px; }
-.aitem { padding: 8px 0 8px 10px; border-left: 3px solid #9d90d6; margin: 6px 0 0; }
-.aitem.plan { border-left: 3px dashed #2f8fa5; }
-.ait { display: flex; align-items: baseline; gap: 6px; flex-wrap: wrap; margin-bottom: 5px; }
-.ait b { font-size: 15px; } .ait small { font-size: 12.5px; color: var(--muted); font-weight: 700; font-variant-numeric: tabular-nums; }
-.ait u { text-decoration: none; font-size: 11px; font-weight: 800; color: #2f8fa5; border: 1.5px solid #2f8fa5; border-radius: 6px; padding: 0 4px; }
-.ach.away { opacity: .55; text-decoration: line-through; }
-.ach.busy { position: relative; }
-.ach.busy::after, .ash em.dot { content: ""; display: inline-block; width: 7px; height: 7px; border-radius: 50%; background: #7a4bc2; }
-.ach.busy::after { position: absolute; top: 3px; right: 3px; }
-.ash em.dot { margin: 0 3px 1px 0; vertical-align: middle; }
 
   </style>
 </head>
@@ -2363,7 +2328,7 @@ button.copied { background: #e3f1e6 !important; color: #2f6b3f !important; borde
   </div>
 
   <div id="attPage" role="dialog" aria-label="每日到班">
-    <header class="appbar"><button class="editbtn" id="attBack" aria-label="返回">‹ 返回</button><div class="today"><b>每日到班</b><small>全員・股總有記以股總為準</small></div><div class="right"><button class="icon-btn" id="attRefresh" aria-label="重新整理" title="重新整理"><span class="ico i-refresh"></span></button></div></header>
+    <header class="appbar"><button class="editbtn" id="attBack" aria-label="返回">‹ 返回</button><div class="today"><b>每日到班</b><small>全員・股總有記以股總為準</small></div><div class="right"><button class="icon-btn" id="attRefresh" aria-label="重新整理">⟳</button></div></header>
     <div class="attnav"><button class="ghost" id="attPrev" aria-label="前一天">‹</button><div id="attTitle"></div><button class="ghost" id="attNext" aria-label="後一天">›</button></div>
     <div class="attweek" id="attWeek"></div>
     <div id="attBody"></div>
@@ -2616,18 +2581,20 @@ button.copied { background: #e3f1e6 !important; color: #2f6b3f !important; borde
         </div>
       </div>
       <div id="gStep2" hidden>
-        <div class="grole"><div class="grtop"><span>目前身分</span><b id="gRole">查看</b><button class="linkbtn" id="gChange">換身分</button></div><div class="grnote" id="gNote"></div></div>
+        <div class="grole"><span>目前身分</span><b id="gRole">查看</b><button class="linkbtn" id="gChange">換身分</button></div>
+        <div class="grnote" id="gNote"></div>
         <div class="idgrid2">
           <button class="idbtn" data-id="leave"><b>休假班表</b><span id="gLeaveSub">看全部同仁</span></button>
           <button class="idbtn" data-id="duty"><b>公差勤務</b><span id="gDutySub">月曆總覽</span></button>
         </div>
         <div class="idsub2" id="gSub">
-          <button class="idtile" id="gAtt"><span class="gi gi-att"></span><span class="itx"><b>每日到班</b><small>今天誰在、誰不在</small></span><i class="chev">›</i></button>
-          <button class="idtile" id="gLog" hidden><span class="gi gi-log"></span><span class="itx"><b>編輯紀錄</b><small>誰改了什麼、什麼時候改的</small></span><i class="chev">›</i></button>
+          <button class="idtile" id="gAtt"><span class="gi gi-att"></span><span class="itx"><b>每日到班</b><small>今天誰在、誰不在</small></span></button>
+          <button class="idtile" id="gLog" hidden><span class="gi gi-log"></span><span class="itx"><b>編輯紀錄</b><small>修改紀錄查詢</small></span></button>
         </div>
       </div>
       <div class="idinst" id="idInst" hidden><span>加入主畫面，日後一鍵開啟</span><button class="primary" id="instGo">怎麼加</button><button class="linkbtn" id="instNo" aria-label="不再提醒">✕</button></div>
-      <div class="idfoot"><button class="idhelp" id="idHelp">使用導覽</button><button class="verbtn idver" data-verbtn></button></div>
+      <button class="idhelp" id="idHelp">使用導覽</button>
+      <button class="verbtn idver" data-verbtn></button>
     </div>
   </div>
 
@@ -4317,13 +4284,13 @@ button.copied { background: #e3f1e6 !important; color: #2f6b3f !important; borde
       }
       function gStep(n) {
         $('gStep1').hidden = n !== 1; $('gStep2').hidden = n !== 2;
-        $('idGate').querySelector('.idsub').textContent = n === 1 ? '請輸入密碼' : mdLabel(todayKey()) + '（' + wkOf(todayKey()) + '）' + (dayInfo(todayKey()).off ? '・放假' : '');
+        $('idGate').querySelector('.idsub').textContent = n === 1 ? '請輸入密碼' : '請選擇功能';
         if (n === 1) { gVal = ''; $('gMsg').textContent = ''; gBusy = false; gRender(); return; }
         var r = prefs.role || (prefs.guest ? '訪客' : '查看');
         $('gRole').textContent = r; $('gRole').classList.toggle('guest', !prefs.pw && !!prefs.guest);
-        $('gNote').innerHTML = (prefs.pw
-          ? ['休假：可登錄' + (r === '股總' ? '全員' : r + '班'), '公差：可新增修改']
-          : (prefs.guest ? ['只能查看'] : ['只能查看', '休假可加留守'])).map(function (t) { return '<span>' + esc(t) + '</span>'; }).join('') + (!prefs.pw && !prefs.guest ? '<small>要修改請按「換身分」</small>' : '');
+        $('gNote').textContent = prefs.pw
+          ? (r === '股總' ? '休假班表：可登錄全體人員；公差勤務：可新增、修改、刪除。' : '休假班表：可登錄' + r + '班；公差勤務：可新增、修改、刪除。')
+          : (prefs.guest ? '只能查看，不能修改任何資料。' : '僅限檢視（休假班表可新增留守）。如需修改，請按「換身分」輸入編輯密碼。');
         $('gLeaveSub').textContent = prefs.pw ? '點假單・' + (r === '股總' ? '全員' : r + '班') : '誰休假・誰留守';
         $('gDutySub').textContent = prefs.pw ? '派公差・尿篩・加班' : '誰有公差・尿篩・加班';
         $('gLog').hidden = !prefs.pw; $('gSub').classList.toggle('solo', !prefs.pw);
@@ -6234,8 +6201,6 @@ button.copied { background: #e3f1e6 !important; color: #2f6b3f !important; borde
         $('idInst').hidden = instStandalone() || no || !mobile;
       }
       var CHANGELOG = [
-        { v: 'v10.90', d: '11/5', t: ['每日到班重新排版：休假、外勤、留守、監控合成一張卡，一列一種', '公差和輪值合成「公差・勤務」一張卡，照時間排，每項標時間；輪值的加「表定」小標記，當天休假的劃線', '到班名單字小一點；當天有公差的人右上角有紫色小點', '右上角重新整理改成和其他頁一樣的圖示'] },
-        { v: 'v10.89', d: '11/5', t: ['入口頁精簡：副標改成今天日期；身分卡裡用小標籤寫可以做什麼，不再一長串文字', '每日到班、編輯紀錄改成整列，字不會斷行；使用導覽和版本號排在同一行'] },
         { v: 'v10.88', d: '11/5', t: ['當天詳細重新排版：休假、留守、監控收進最上面一張狀態卡；公差・勤務照時間排在下面', '人名改成一個一個的小標籤，不會再把名字斷成兩行；當天休假的人劃線＋紅色「休」，預估的標灰色、半天休標橘色', '右邊的大圓圈人數拿掉，改成標題旁的小字；「（表定）」改成小標記', '「＋ 公差」「＋ 當日行程」兩顆按鈕並排；底下說明縮成一行'] },
         { v: 'v10.87', d: '11/5', t: ['新圖示：擴大FO、查庫、車長／駕駛、打草、布置、修繕、冷氣、蓋印章、整理證件、清運、演練、搬水，公差月曆當天頁一眼分得出來', '當日行程、搜尋沒結果、加班分組、已報過加班的提醒也換上新圖示'] },
         { v: 'v10.86', d: '11/4', t: ['用電腦鍵盤打字也算有操作，編輯不會打到一半被 3 分鐘自動鎖回', '安卓返回鍵：關掉最後一層頁面後，不用再多按一次才離開', '儲存失敗時，所有月份都會重新讀取，不只畫面上這個月', '「Failed to fetch」這類連線錯誤改成「連線不穩，請稍後再試」', '快速標記：「下午 14:00-16:00」寫在句子中間也抓得到時間；「上午」下面的名單中間空一行，時間不會掉'] },
@@ -6452,18 +6417,18 @@ button.copied { background: #e3f1e6 !important; color: #2f6b3f !important; borde
           ? '<div><b>' + present + '</b><span>假日在營（留守＋監控）</span></div>'
           : '<div><b>' + total + '</b><span>應到</span></div><div class="ok"><b>' + present + '</b><span>實到' + (half ? '（含半天 ' + half + '）' : '') + '</span></div><div class="no"><b>' + (fullRest + o.out.length) + '</b><span>不在</span></div>') + '</div>';
         function chip(x, cls) { var n = typeof x === 'string' ? x : x.n, t = typeof x === 'string' ? '' : (x.t || ''); return '<span class="ach ' + (cls || '') + (o.unsure[n] ? ' un' : '') + '">' + esc(n) + (t ? '<small>' + esc(t) + '</small>' : '') + '</span>'; }
+        function sec(title, cls, list, c2) { if (!list.length) return; h += '<div class="asec ' + cls + '"><div class="ash"><b>' + title + '</b><i>' + list.length + ' 人</i></div><div class="achs">' + list.map(function (x) { return chip(x, c2); }).join('') + '</div></div>'; }
         h += evBannerHtml(k, false);
-        var rows = '';
-        function row(title, cls, list) { if (!list.length) return; rows += '<div class="arow ' + cls + '"><b>' + title + '<i>' + list.length + '</i></b><div class="achs">' + list.map(function (x) { return chip(x, cls); }).join('') + '</div></div>'; }
-        row('休假', 'rest', o.rest); row('外勤', 'out', o.out); row('留守', 'stay', o.stay); row('監控', 'mon', o.mon);
-        if (rows) h += '<div class="asec who">' + rows + '</div>';
+        sec('休假', 'rest', o.rest, 'rest');
+        sec('外勤', 'out', o.out, 'out');
+        sec('留守', 'stay', o.stay, 'stay');
+        sec('監控', 'mon', o.mon, 'mon');
+        var dk = Object.keys(o.duty);
+        if (dk.length) h += '<div class="asec duty"><div class="ash"><b>公差</b><i>' + dk.length + ' 項</i></div>' + dk.map(function (w) { return '<div class="adl"><span>' + esc(w) + '</span><div class="achs">' + o.duty[w].map(function (n) { return chip(n, 'duty'); }).join('') + '</div></div>'; }).join('') + '</div>';
         try { rosterEstimate(); } catch (e) { /* 忽略 */ }
-        var dk = Object.keys(o.duty), pl = dutyDayOf(k).plan, pk = Object.keys(pl), busy = {}, items = [];
-        dk.forEach(function (w) { o.duty[w].forEach(function (n) { busy[n] = 1; }); var g = (dutyAll[k] || []).filter(function (x) { return x.why === w && x.time; })[0], tm = g ? fmtTm(g.time) : ''; items.push({ t: w, tm: tm, s: g ? tmRange(g.time)[0] : 9998, h: o.duty[w].map(function (n) { return chip(n, 'duty'); }).join('') }); });
-        pk.forEach(function (it) { var tm = planTm(it); items.push({ t: it, plan: 1, tm: tm ? tm.a + '–' + tm.b : '', s: tm ? tmRange(tm.a + '–' + tm.b)[0] : 9999, h: pl[it].map(function (p) { return chip({ n: p.n, t: p.away ? '休' : (p.est ? '預估' : '') }, 'plan' + (p.away ? ' away' : '')); }).join('') }); });
-        items.sort(function (a, b) { return a.s - b.s; });
-        if (items.length) h += '<div class="asec duty"><div class="ash"><b>公差・勤務</b><i>' + items.length + ' 項</i></div>' + items.map(function (x) { return '<div class="aitem' + (x.plan ? ' plan' : '') + '"><div class="ait"><b>' + esc(x.t) + '</b>' + (x.plan ? '<u>表定</u>' : '') + (x.tm ? '<small>' + esc(x.tm) + '</small>' : '') + '</div><div class="achs">' + x.h + '</div></div>'; }).join('') + '</div>';
-        if (!o.off && o.here.length) h += '<div class="asec here"><div class="ash"><b>到班</b><i>' + o.here.length + ' 人' + (Object.keys(busy).length ? '・<em class="dot"></em>有公差' : '') + '</i></div><div class="achs">' + o.here.map(function (x) { var n = typeof x === 'string' ? x : x.n; return chip(x, 'here' + (busy[n] ? ' busy' : '')); }).join('') + '</div></div>';
+        var pl = dutyDayOf(k).plan, pk = Object.keys(pl);
+        if (pk.length) h += '<div class="asec plan"><div class="ash"><b>輪值（表定）</b><i>依實際為主</i></div>' + pk.map(function (it) { var tm = planTm(it); return '<div class="adl"><span>' + esc(it) + (tm ? '<small>' + tm.a + '–' + tm.b + '</small>' : '') + '</span><div class="achs">' + pl[it].map(function (p) { return chip({ n: p.n, t: p.away ? '當天休假' : (p.est ? '預估' : '') }, 'plan'); }).join('') + '</div></div>'; }).join('') + '</div>';
+        if (!o.off) sec('到班', 'here', o.here, 'here');
         if (Object.keys(o.unsure).length) h += '<div class="anote"><span class="ach un">名字</span> 有虛線框的：股總還沒記，先顯示彈射／軍械記的</div>';
         h += '<button class="primary" id="attCopy" style="width:100%;margin-top:12px">複製這天人員情況</button>';
         $('attBody').innerHTML = h;
