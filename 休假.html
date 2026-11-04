@@ -2107,6 +2107,8 @@ button.copied { background: #e3f1e6 !important; color: #2f6b3f !important; borde
 #guidePage #helpList details[open] > summary { color: var(--ink); }
 #guidePage .gh { margin: 18px 4px 8px; }
 #guidePage .dbody2 { padding-bottom: 12px; font-size: 14.5px; line-height: 1.7; }
+.qkaddw { position: relative; display: inline-flex; align-items: center; min-height: 40px; padding: 0 14px; border: 1.5px dashed var(--muted); border-radius: 999px; color: var(--muted); font-weight: 800; font-size: 14px; overflow: hidden; }
+.qkaddw input.qkadd { position: absolute; inset: 0; width: 100%; height: 100%; opacity: 0; margin: 0; border: 0; padding: 0; min-width: 0; }
 
   </style>
 </head>
@@ -3469,7 +3471,7 @@ button.copied { background: #e3f1e6 !important; color: #2f6b3f !important; borde
           h += '</div>';
           h += '<div class="qkh">日期（點選可取消）</div><div class="qkchips">';
           e.dates.forEach(function (d, j) { h += '<button class="qkchip dt' + (d.on ? ' on' : '') + '" data-e="' + i + '" data-d="' + j + '">' + mdLabel(d.k) + '（' + wkOf(d.k) + '）</button>'; });
-          h += '<input type="date" class="qkadd" data-e="' + i + '" aria-label="加日期"></div>';
+          h += '<label class="qkaddw">＋ 加日期<input type="date" class="qkadd" data-e="' + i + '" aria-label="加日期"></label></div>';
           var nOn = e.people.filter(function (x) { return x.on; }).length;
           h += qkPeopleHtml(e, i, nOn); h += '</div>'; return;
         });
@@ -6503,7 +6505,13 @@ button.copied { background: #e3f1e6 !important; color: #2f6b3f !important; borde
         if (rows) h += '<div class="asec who">' + rows + '</div>';
         try { rosterEstimate(); } catch (e) { /* 忽略 */ }
         var dk = Object.keys(o.duty), pl = dutyDayOf(k).plan, pk = Object.keys(pl), busy = {}, items = [];
-        dk.forEach(function (w) { o.duty[w].forEach(function (n) { busy[n] = 1; }); var g = (dutyAll[k] || []).filter(function (x) { return x.why === w && x.time; })[0], tm = g ? fmtTm(g.time) : ''; items.push({ t: w, tm: tm, s: g ? tmRange(g.time)[0] : 9998, h: o.duty[w].map(function (n) { return chip(n, 'duty'); }).join('') }); });
+        dk.forEach(function (w) {
+          var tms = {}, vals = [];
+          (dutyAll[k] || []).forEach(function (x) { if (x.why !== w) return; tms[x.n] = x.time || ''; if (vals.indexOf(tms[x.n]) < 0) vals.push(tms[x.n]); });
+          o.duty[w].forEach(function (n) { busy[n] = 1; });
+          var one = vals.length <= 1, t0 = vals.filter(Boolean)[0] || '';
+          items.push({ t: w, tm: one && t0 ? fmtTm(t0) : '', s: t0 ? tmRange(t0)[0] : 9998, h: o.duty[w].map(function (n) { return chip(one ? n : { n: n, t: tms[n] ? fmtTm(tms[n]) : '' }, 'duty'); }).join('') });
+        });
         pk.forEach(function (it) { var tm = planTm(it); items.push({ t: it, plan: 1, tm: tm ? tm.a + '–' + tm.b : '', s: tm ? tmRange(tm.a + '–' + tm.b)[0] : 9999, h: pl[it].map(function (p) { return chip({ n: p.n, t: p.away ? '休' : (p.est ? '預估' : '') }, 'plan' + (p.away ? ' away' : '')); }).join('') }); });
         items.sort(function (a, b) { return a.s - b.s; });
         if (items.length) h += '<div class="asec duty"><div class="ash"><b>公差・勤務</b><i>' + items.length + ' 項</i></div>' + items.map(function (x) { return '<div class="aitem' + (x.plan ? ' plan' : '') + '"><div class="ait"><b>' + esc(x.t) + '</b>' + (x.plan ? '<u>表定</u>' : '') + (x.tm ? '<small>' + esc(x.tm) + '</small>' : '') + '</div><div class="achs">' + x.h + '</div></div>'; }).join('') + '</div>';
