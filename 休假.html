@@ -2109,6 +2109,7 @@ button.copied { background: #e3f1e6 !important; color: #2f6b3f !important; borde
 #guidePage .dbody2 { padding-bottom: 12px; font-size: 14.5px; line-height: 1.7; }
 .qkaddw { position: relative; display: inline-flex; align-items: center; min-height: 40px; padding: 0 14px; border: 1.5px dashed var(--muted); border-radius: 999px; color: var(--muted); font-weight: 800; font-size: 14px; overflow: hidden; }
 .qkaddw input.qkadd { position: absolute; inset: 0; width: 100%; height: 100%; opacity: 0; margin: 0; border: 0; padding: 0; min-width: 0; }
+.qkhint { display: block; font-size: 11.5px; font-weight: 600; color: var(--muted); margin: 2px 0 4px; }
 
   </style>
 </head>
@@ -3094,9 +3095,11 @@ button.copied { background: #e3f1e6 !important; color: #2f6b3f !important; borde
             pd.concat([ds[0]]).forEach(function (k) { out.push({ k: k, names: sn, why: w2, unk: [], time: secTime(sec) }); }); pd = [];
             i = j - 1; continue;
           }
+          var tw = (rest.match(/^\s*[:：]?\s*(上午|下午|整天|全天)/) || [])[1] || '';
+          if (tw) rest = rest.replace(tw, ' ');
           var lo = qkStrip(rest), why = '', unk = qkUnk(rest, names);
           if (!unk.length && !/\d/.test(lo) && (rest.match(/[、，,]/g) || []).length < 1) { lo = lo.replace(/[^一-鿿A-Za-z]/g, ''); if (lo.length >= 2 && lo.length <= 10 && !/^[一二兩三四五六七八九十]+[員人名位]$|加班|人員|名單|留守|值班/.test(lo)) why = lo; }
-          out.push({ k: ds[0], names: names, why: why, unk: unk });
+          out.push({ k: ds[0], names: names, why: why, unk: unk, time: tw === '全天' ? '整天' : tw });
         }
         if (pend.length >= 2) out = out.concat(pend);
         var seen = {}, res = [];
@@ -3111,6 +3114,8 @@ button.copied { background: #e3f1e6 !important; color: #2f6b3f !important; borde
         function clean(t) { return String(t || '').trim().replace(/^(本廠|本股|指部|執行|協助)/, '').replace(/[\s（(，,。].*$/, '').slice(0, 10); }
         var m = b.match(/(?:目的|事由|內容|任務|用途|理由|使用名稱|使用目的|工作內容|工作項目)\s*[:：][ \t]*([^\n]*)(?:\n[ \t]*([^\n]*))?/);
         if (m) { var t = clean(m[1] || m[2]); if (t.length >= 2) return t; }
+        var re2 = /([一-鿿]{2,10})公差/g, m2;
+        while ((m2 = re2.exec(b))) { var w2 = m2[1].replace(/^.*?(年|月份|月|份|本股|本廠|聯隊|指部)/, ''); if (w2.length >= 2 && !/須|派|需|各|員|人|名|登記|調整|擔任|請|所有|全體|以上|這些|擔/.test(w2)) return (w2 + '公差').slice(0, 10); }
         var known = {}; Object.keys(dutyAll || {}).forEach(function (d) { (dutyAll[d] || []).forEach(function (x) { var w = String(x.why || ''); if (w.length >= 3 && !isOT(w) && !isUrine(w) && !/\d/.test(w)) known[w] = 1; }); });
         var kw = Object.keys(known).filter(function (w) { return b.indexOf(w) >= 0; }).sort(function (a, c) { return c.length - a.length; })[0];
         if (kw) return kw;
@@ -3281,7 +3286,7 @@ button.copied { background: #e3f1e6 !important; color: #2f6b3f !important; borde
         tm = String(tm || '').replace(/\s/g, '');
         if (!tm || /整天|全天/.test(tm)) return [0, 1440];
         if (/^上午/.test(tm)) return [480, 720];
-        if (/^下午/.test(tm)) return [780, 1020];
+        if (/^下午/.test(tm)) return [810, 1020];
         var v = (tm.match(/\d{1,2}[:：]?\d{2}/g) || []).map(function (x) { x = x.replace(/[:：]/, ''); if (x.length === 3) x = '0' + x; return +x.slice(0, 2) * 60 + +x.slice(2); });
         if (!v.length) return [0, 1440];
         return v.length > 1 ? [v[0], Math.max(v[0] + 1, v[v.length - 1])] : [v[0], v[0] + 60];
@@ -3465,7 +3470,7 @@ button.copied { background: #e3f1e6 !important; color: #2f6b3f !important; borde
           h += '<div class="qkcard"><div class="qkh">事項 ' + (i + 1) + '</div>';
           h += '<label class="qkl">事由<input type="text" class="qkwhy" data-e="' + i + '" maxlength="10" list="qkWhys" value="' + esc(e.why) + '" placeholder="例：打靶"></label>';
           if (!qkMode) h += '<button class="qkx qkevt' + (e.asEv ? ' on' : '') + '" data-e="' + i + '" data-asev="1">' + (e.asEv ? '✓ 當日行程（不算公差）' : '這是當日行程？（不算公差）') + '</button>';
-          h += '<label class="qkl">時間（可不填）<input type="text" class="qktime" data-e="' + i + '" maxlength="20" value="' + esc(e.time || '') + '" placeholder="例：14:00 或 08:00–17:00"></label>';
+          h += '<label class="qkl">時間（可不填）<small class="qkhint">上午＝08:00–12:00・下午＝13:30–17:00</small><input type="text" class="qktime" data-e="' + i + '" maxlength="20" value="' + esc(e.time || '') + '" placeholder="例：14:00 或 08:00–17:00"></label>';
           h += '<div class="qkchips" style="margin-top:6px">';
           ['整天', '上午', '下午', '08:00–17:00', '18:00–19:00', '18:00–20:00'].forEach(function (t) { h += '<button class="qkchip tp' + (e.time === t ? ' on' : '') + '" data-e="' + i + '" data-t="' + t + '">' + t + '</button>'; });
           h += '</div>';
@@ -3555,7 +3560,7 @@ button.copied { background: #e3f1e6 !important; color: #2f6b3f !important; borde
         var l = offLabel(k, n); if (!l) return '';
         var r = (recordsPub[k] || {})[n];
         if (!r || (r.period !== '上午' && r.period !== '下午')) return l;
-        var a = isUrine(why) && !String(tm || '').trim() ? [480, 1020] : tmRange(tm), b = r.period === '上午' ? [480, 720] : [780, 1020];
+        var a = isUrine(why) && !String(tm || '').trim() ? [480, 1020] : tmRange(tm), b = r.period === '上午' ? [480, 720] : [810, 1020];
         return a[0] < b[1] && b[0] < a[1] ? l : '';
       }
       function offLabel(k, n) {
@@ -3820,7 +3825,7 @@ button.copied { background: #e3f1e6 !important; color: #2f6b3f !important; borde
           tm = String(tm || '').replace(/\s/g, '');
           if (/整天|全天/.test(tm)) return { a: '全天', b: '', s: -1 };
           if (/^上午/.test(tm)) return { a: '08:00', b: '12:00', s: 800 };
-          if (/^下午/.test(tm)) return { a: '13:00', b: '17:00', s: 1300 };
+          if (/^下午/.test(tm)) return { a: '13:30', b: '17:00', s: 1330 };
           var m = tm.replace(/:/g, '').match(/(\d{4})\D*(\d{4})?/);
           if (m) return { a: hhmm(m[1]), b: m[2] ? hhmm(m[2]) : '', s: +m[1] };
           return { a: '未定', b: '', s: 99999 };
@@ -3871,7 +3876,7 @@ button.copied { background: #e3f1e6 !important; color: #2f6b3f !important; borde
         function hh(x) { return x.slice(0, 2) + ':' + x.slice(2); }
         if (/整天|全天/.test(tm)) return { a: '全天', b: '' };
         if (/^上午/.test(tm)) return { a: '08:00', b: '12:00', est: true };
-        if (/^下午/.test(tm)) return { a: '13:00', b: '17:00', est: true };
+        if (/^下午/.test(tm)) return { a: '13:30', b: '17:00', est: true };
         var m = tm.replace(/:/g, '').match(/(\d{4})\D*(\d{4})?/);
         if (m) return { a: hh(m[1]), b: m[2] ? hh(m[2]) : '' };
         return { a: '未定', b: '' };
@@ -6278,6 +6283,7 @@ button.copied { background: #e3f1e6 !important; color: #2f6b3f !important; borde
         $('idInst').hidden = instStandalone() || no || !mobile;
       }
       var CHANGELOG = [
+        { v: 'v10.93', d: '11/5', t: ['上午＝08:00–12:00、下午＝13:30–17:00：判斷時間重疊、半天休、當天頁顯示都照這個', '每日到班：同一項公差每個人時間不同時，時間寫在各自名字旁', '快速標記「加日期」改成看得懂的「＋ 加日期」'] },
         { v: 'v10.92', d: '11/5', t: ['使用導覽：同一類的問題收成一張清單，右邊改成小箭頭，比較好找', '使用導覽內容更新：加班分組與標記、當天頁新排版、當日行程、搜尋人名、快速標記新規則、股名冊'] },
         { v: 'v10.91', d: '11/5', t: ['統計頁：個人公差次數、尿篩、個人加班改成一張清單，不再一人一張大卡片，每列變矮，一個畫面看得到更多人', '加班說明更正：夜間沒寫開始時間從 18:00 算'] },
         { v: 'v10.90', d: '11/5', t: ['每日到班重新排版：休假、外勤、留守、監控合成一張卡，一列一種', '公差和輪值合成「公差・勤務」一張卡，照時間排，每項標時間；輪值的加「表定」小標記，當天休假的劃線', '到班名單字小一點；當天有公差的人右上角有紫色小點', '右上角重新整理改成和其他頁一樣的圖示'] },
