@@ -1965,6 +1965,21 @@ button.copied { background: #e3f1e6 !important; color: #2f6b3f !important; borde
 .srnav b { font-size: 15px; color: var(--muted); }
 .srow { grid-template-columns: 4em 1fr; padding: 8px 2px; }
 .sit { word-break: break-all; }
+/* v10.83 加班分組 */
+.lblsub { margin-left: 8px; font-size: 12.5px; font-weight: 600; color: var(--muted); }
+.otgrp { display: flex; flex-wrap: wrap; gap: 8px; }
+.otgrp button { display: inline-flex; align-items: center; gap: 6px; min-height: 42px; max-width: 100%; padding: 0 12px 0 8px; border: 2px solid var(--ink); border-radius: 12px; background: var(--card); color: var(--text); font: inherit; font-weight: 800; font-size: 15px; }
+.otgrp button span { overflow: hidden; text-overflow: ellipsis; white-space: nowrap; max-width: 9em; }
+.otgrp button em { font-style: normal; width: 22px; height: 22px; line-height: 22px; border-radius: 50%; background: var(--yellow); color: #1E2A4A; font-size: 13px; text-align: center; flex-shrink: 0; }
+.otgrp button small { font-size: 12px; font-weight: 700; color: var(--muted); }
+.otgrp button.on { background: var(--ink-bar); color: #FFFDF7; }
+.otgrp button.on small { color: #d9d6cc; }
+.otgrp button.add { border-style: dashed; color: var(--muted); padding: 0 14px; }
+.otgrp button.del { border: none; background: none; color: var(--red); font-size: 14px; padding: 0 6px; }
+.otgbody.multi { border: 2px solid var(--ink-bar); border-radius: 14px; padding: 4px 12px 8px; margin-bottom: 10px; }
+.pick button b.og { font-size: 11px; font-weight: 700; color: var(--muted); background: var(--card2); border-radius: 5px; padding: 0 5px; }
+.pick button.on b.og { color: #1E2A4A; background: #d9d6cc; }
+#otSup button.more { border-style: dashed; color: var(--muted); }
 
   </style>
 </head>
@@ -2083,6 +2098,11 @@ button.copied { background: #e3f1e6 !important; color: #2f6b3f !important; borde
             <div class="pick" id="otSup"></div>
           </div>
           <div class="field">
+            <label>分組<small class="lblsub">時間或事由不同，就再分一組</small></label>
+            <div class="otgrp" id="otGrp"></div>
+          </div>
+          <div class="otgbody" id="otGBody">
+          <div class="field">
             <label>時間</label>
             <div class="otrow">
               <input type="text" id="otFrom" inputmode="numeric" maxlength="4" placeholder="1800" aria-label="開始時間">
@@ -2096,12 +2116,13 @@ button.copied { background: #e3f1e6 !important; color: #2f6b3f !important; borde
             <div class="pick small" id="otWhyRec"></div>
           </div>
           <div class="field">
-            <label>人員（可多選，依點選順序）<button class="linkbtn" id="otClear">全部取消</button></label>
+            <label>這組的人員（依點選順序）<button class="linkbtn" id="otClear">這組全部取消</button></label>
             <div class="pick" id="otPpl"></div>
             <label class="chk"><input type="checkbox" id="otShort"> 人員只寫名字（不寫姓）</label>
           </div>
+          </div>
           <div class="tip otip" id="otTip" data-tip="otduty"><span class="tip-i">新功能</span><span class="tip-t">名單完成後可：<b>① 複製文字</b>貼到群組　<b>② 加入勤務月曆</b>把這批人寫進公差勤務，大家在月曆就看得到（彈射、軍械、股總的密碼都可以）。</span><button class="tip-x" aria-label="關閉提示">知道了</button></div>
-          <button class="duty-add" id="otToDuty"><span class="dai gi gi-caladd"></span><span class="dat"><b>加入勤務月曆</b><small>把上面的日期、事由、時間、人員寫進公差勤務</small></span><span class="dac">›</span></button>
+          <button class="duty-add" id="otToDuty"><span class="dai gi gi-caladd"></span><span class="dat"><b>加入勤務月曆</b><small>把每一組的時間、事由、人員都寫進公差勤務</small></span><span class="dac">›</span></button>
         </div>
 
         <label class="sr" for="outText">產出的文字</label>
@@ -2630,7 +2651,19 @@ button.copied { background: #e3f1e6 !important; color: #2f6b3f !important; borde
         ot: { sup: '', from: '1800', to: '1900', why: '', rec: [], short: true, when: '夜間' } };
       var editing = false, editT = null;
       var daysFrom = todayKey(), daysCount = 21, daysBusy = false;
-      var otPpl = [];
+      var otPpl = [], otGroups = null, otCur = 0, otSupAll = false;
+      var OT_NUM = ['1️⃣', '2️⃣', '3️⃣', '4️⃣', '5️⃣', '6️⃣', '7️⃣', '8️⃣', '9️⃣'];
+      function otSync() {
+        if (!otGroups) otGroups = [{}];
+        otGroups[otCur] = { from: prefs.ot.from || '', to: prefs.ot.to || '', why: prefs.ot.why || '', ppl: otPpl.slice() };
+        return otGroups;
+      }
+      function otLoad(i, noSync) {
+        if (!noSync) otSync();
+        otCur = i; var g = otGroups[i];
+        prefs.ot.from = g.from; prefs.ot.to = g.to; prefs.ot.why = g.why; otPpl = g.ppl.slice();
+        $('otFrom').value = g.from; $('otTo').value = g.to; $('otWhy').value = g.why; savePrefs();
+      }
       var forcedRO = false;
       var lastSync = 0;
       var loadError = '';
@@ -5603,12 +5636,17 @@ button.copied { background: #e3f1e6 !important; color: #2f6b3f !important; borde
         var o = prefs.ot, k = otDateKey(), tk = todayKey(), p = k.split('-');
         var md = (+p[1]) + '／' + (+p[2]);
         var head = (k === tk ? '今日(' + md + ')' : md + '（' + wkOf(k) + '）') + (o.when || '') + '加班人員：';
-        var lines = [head];
+        var lines = [head.replace(/：$/, '')], gs = otSync(), multi = gs.length > 1;
         if (o.sup) lines.push('督導：' + o.sup);
-        var f = (o.from || '').trim(), t = (o.to || '').trim();
-        if (f || t) lines.push('時間：' + (f && t ? f + '～' + t : (f || t)));
-        if ((o.why || '').trim()) lines.push('事由：' + o.why.trim());
-        lines.push('人員：' + (otPpl.length ? otPpl.map(otShortName).join('、') : '（請在上面點人員）'));
+        gs.forEach(function (g, i) {
+          var gl = [], f = (g.from || '').trim(), t = (g.to || '').trim(), nm = g.ppl.map(otShortName), rows = [];
+          if (f || t) gl.push('時間：' + (f && t ? f + '～' + t : (f || t)));
+          if ((g.why || '').trim()) gl.push('事由：' + g.why.trim());
+          for (var j = 0; j < nm.length; j += 3) rows.push(nm.slice(j, j + 3).join('、'));
+          gl.push('人員：' + (rows.length ? rows.join('\n') : '（請在上面點人員）'));
+          if (multi) gl[0] = (OT_NUM[i] || (i + 1) + '.') + gl[0];
+          lines = lines.concat(gl);
+        });
         return lines.join('\n');
       }
       var otAsked = {};
@@ -5618,20 +5656,30 @@ button.copied { background: #e3f1e6 !important; color: #2f6b3f !important; borde
         var segW = $('otWhen').querySelectorAll('button');
         for (var i = 0; i < segW.length; i++) segW[i].classList.toggle('on', segW[i].dataset.v === (o.when || ''));
         function tag(n) { return ready && isLeave(getRec(k, n)) ? '<i>休</i>' : ''; }
-        $('otSup').innerHTML = employees.map(function (e) {
-          return '<button data-n="' + esc(e.name) + '"' + (o.sup === e.name ? ' class="on"' : '') + '>' + esc(e.name) + tag(e.name) + '</button>';
-        }).join('');
+        var pm = {}; PEOPLE.forEach(function (x) { pm[x.n] = x; });
+        var supL = employees.map(function (e) { return e.name; }), supFew = PEOPLE.length && !otSupAll;
+        if (supFew) supL = supL.filter(function (n) { return pm[n] && (pm[n].k || pm[n].c === '軍官') || n === o.sup; });
+        supL = ['股長'].concat(supL.filter(function (n) { return n !== '股長'; }));
+        $('otSup').innerHTML = supL.map(function (n) {
+          return '<button data-n="' + esc(n) + '"' + (o.sup === n ? ' class="on"' : '') + '>' + esc(n) + (n === '股長' ? '' : tag(n)) + '</button>';
+        }).join('') + (PEOPLE.length ? '<button class="more" data-more="1">' + (otSupAll ? '收起' : '其他人…') + '</button>' : '');
         otPpl = otPpl.filter(function (n) { return employees.some(function (e) { return e.name === n; }); });
+        var gs = otSync(), oth = {}, tot = {};
+        gs.forEach(function (g, i) { g.ppl.forEach(function (n) { tot[n] = 1; if (i !== otCur) oth[n] = (oth[n] ? oth[n] + '、' : '') + (i + 1); }); });
+        $('otGrp').innerHTML = gs.map(function (g, i) {
+          return '<button data-g="' + i + '"' + (i === otCur ? ' class="on"' : '') + '><em>' + (i + 1) + '</em><span>' + esc((g.why || '').trim() || '未填事由') + '</span><small>' + g.ppl.length + ' 人</small></button>';
+        }).join('') + (gs.length < 9 ? '<button data-g="add" class="add">＋ 再加一組</button>' : '') + (gs.length > 1 ? '<button data-g="del" class="del">刪除第 ' + (otCur + 1) + ' 組</button>' : '');
+        $('otGBody').classList.toggle('multi', gs.length > 1);
         $('otPpl').innerHTML = employees.map(function (e) {
           var ix = otPpl.indexOf(e.name);
-          return '<button data-n="' + esc(e.name) + '"' + (ix >= 0 ? ' class="on"' : '') + '>' + (ix >= 0 ? '<em>' + (ix + 1) + '</em>' : '') + esc(e.name) + tag(e.name) + '</button>';
+          return '<button data-n="' + esc(e.name) + '"' + (ix >= 0 ? ' class="on"' : '') + '>' + (ix >= 0 ? '<em>' + (ix + 1) + '</em>' : '') + esc(e.name) + tag(e.name) + (oth[e.name] ? '<b class="og">第' + oth[e.name] + '組</b>' : '') + '</button>';
         }).join('');
         var WHY_PRE = CFG_WHY_PRE;
         var whyAll = WHY_PRE.concat((o.rec || []).filter(function (x) { return WHY_PRE.indexOf(x) < 0; }));
         $('otWhyRec').innerHTML = whyAll.map(function (r) { return '<button data-why="' + esc(r) + '"' + (r === o.why ? ' class="on"' : '') + '>' + esc(r) + '</button>'; }).join('');
         $('otShort').checked = !!o.short;
         $('outText').value = otText();
-        $('outHint').textContent = '已選 ' + otPpl.length + ' 人・標「休」的人那天有請假・文字框可直接修改';
+        $('outHint').textContent = (gs.length > 1 ? '共 ' + gs.length + ' 組・' : '') + '共 ' + Object.keys(tot).length + ' 人・標「休」的人那天有請假・文字框可直接修改';
       }
       function rememberWhy() {
         var w = (prefs.ot.why || '').trim();
@@ -5917,6 +5965,7 @@ button.copied { background: #e3f1e6 !important; color: #2f6b3f !important; borde
         $('idInst').hidden = instStandalone() || no || !mobile;
       }
       var CHANGELOG = [
+        { v: 'v10.83', d: '11/4', t: ['產出→加班可以分好幾組：每組各自的時間、事由、人員，產出 1️⃣2️⃣ 格式；人員每 3 個換一行；加入勤務月曆時每一組都寫進去', '產出→加班的督導先只列「股長」和幹部／軍官，按「其他人…」才展開全部', '搜尋人名：選好人後名字清單收起來，按「換人」再選；公差時間不會再顯示成一長串日期（需搭配後端第四十一版）'] },
         { v: 'v10.81', d: '11/2', t: ['右上角新增放大鏡「搜尋人名」：打名字（簡稱也可以）就列出他這個月每天的休假、留守、公差、尿篩、加班、行程，可以左右換月', '新增「當日行程」（服儀檢查、軍士官團、專精訓練…，事項自己填）：不算公差；公差月曆格子有小標籤，當天頁、首頁每日卡、每日到班都看得到；可以指定對象，派公差時間撞到會提醒；快速標記也能切成當日行程；需搭配後端第四十版'] },
         { v: 'v10.80', d: '11/2', t: ['輪值表換上新的擴大FO 輪值表（115.10–116.06）與 11–12 月砲班監工，後端第三十九版部署後自動寫入；監工排完的日子之後會照順序自動預估', '輪值表的「監工」：當天頁顯示 08:00–17:00、安全帽圖示，可以點進去改人員', '股名冊班別可填「股部」：休假由股總點、到班照常算、不提醒未點，跟軍官一樣但分開顯示；需搭配後端第三十八版', '網頁原始碼不再出現任何同仁姓名（說明與範例改用代稱）', '新增門禁密碼：只能查看，不能做任何修改（連新增留守也不行）；需搭配後端第三十六版', '密碼頁精簡：只留「請輸入密碼」與「提示：門禁密碼」', '公差月曆：週二、週五（擴大FO）的上班日加上淡淡的青色底，放假的日子不加', '新手不卡：入口卡片改寫成「誰休假・誰留守」「誰有公差・尿篩・加班」「今天誰在、誰不在」；密碼頁加「不知道請問班長」；快速標記貼了卻找不到東西會說明原因；使用導覽更新成現在的按鈕與功能', 'iPhone 點密碼框、日期框不會再自動放大畫面', '結束編輯後清掉「復原」紀錄，下次編輯不會退到上一輪', '後端第三十五版：第一次建立股名冊欄位、記住簡稱時上鎖，兩人同時操作不會重複', '快速標記加完，下方提示多「復原」：只撤掉這次新加的', '「小瑋只到19時」沒寫其他人時，只改那幾個人的時間', '一人一行的名字同時對到兩個人時，改成讓你手動選，不再猜第一個', '輪值當天有實際排人的項目，不再同時顯示預估', '深色模式的格線調亮一點', '加班個人時間多認幾種寫法：「小瑋、小宸只到19:00，其餘2000」「至19時」', '產出→加班：時間打錯（例 2500）會擋下；督導或人員當天休假會先提醒；選到還沒讀過的月份會自動讀休假資料', '產出→加班「加入勤務月曆」改成跟快速標記一樣：事由存「夜間加班／假日加班」（照產出頁的夜間／假日），實際工作寫進備註，督導也一起寫入；時間存成 18:00–19:00，加班時數算得到', '快速標記看得懂「小強(加班督導)／小瑜(查庫；彈射座椅趕修作業)」這種一人一行的留守勤務：依日期、工作分組，假日的趕修作業與加班督導算假日加班，假日一律帶 08:00–17:00', '加班統計重新設計：總時數與上一期比較、平日／假日比例條、每月加班時數（平日假日疊在一起）、人力分布（最多、最少、差距、沒有加班的人）；個人列表用雙色長條，點開看平日／假日明細與平均每次時數', '新圖示：尿篩、平日加班、假日加班、復原、對不到的名字、下次建議派、股名冊', '加班通知用 1️⃣2️⃣ 分組（各自的時間、事由、督導、人員）會分成不同事項，督導也會選進去', '沒寫時間或整天的公差當作上班時間（08:00–17:00），不會再跟夜間加班算重疊', '休假提醒也看時間：上午休／下午休只跟同時段的勤務衝突（例：下午休不影響夜間加班、上午的尿篩）；全天休、出差等外勤照樣提醒', '尿篩不再跟一般公差、加班算時間重疊；只有同一天有「整天」的公差，或當天休假，才會提醒'] },
         { v: 'v10.79', d: '11/1', t: ['快速標記時間快選多三個：08:00–17:00、18:00–19:00、18:00–20:00', '「6/13 加班：…」這種寫法，「加班」不會再被當成名冊對不到的人名'] },
@@ -6536,6 +6585,7 @@ button.copied { background: #e3f1e6 !important; color: #2f6b3f !important; borde
         });
         $('otSup').addEventListener('click', function (ev) {
           var b = ev.target.closest('button'); if (!b) return;
+          if (b.dataset.more) { otSupAll = !otSupAll; renderOut(); return; }
           prefs.ot.sup = (prefs.ot.sup === b.dataset.n) ? '' : b.dataset.n; savePrefs(); renderOut();
         });
         $('otPpl').addEventListener('click', function (ev) {
@@ -6545,6 +6595,18 @@ button.copied { background: #e3f1e6 !important; color: #2f6b3f !important; borde
           renderOut();
         });
         $('otClear').addEventListener('click', function () { otPpl = []; renderOut(); });
+        $('otGrp').addEventListener('click', function (ev) {
+          var b = ev.target.closest('button'); if (!b) return;
+          var g = b.dataset.g, gs = otSync();
+          if (g === 'add') { gs.push({ from: prefs.ot.from || '', to: prefs.ot.to || '', why: '', ppl: [] }); otLoad(gs.length - 1); setTimeout(function () { try { $('otWhy').focus(); } catch (e) { /* 忽略 */ } }, 50); }
+          else if (g === 'del') {
+            var n = otCur, go = function () { otGroups.splice(n, 1); otLoad(Math.max(0, n - 1), true); renderOut(); };
+            if (!gs[n].ppl.length && !(gs[n].why || '').trim()) go();
+            else openSheet({ title: '刪除第 ' + (n + 1) + ' 組？', sub: (gs[n].why || '未填事由') + '・' + gs[n].ppl.length + ' 人', body: '', actions: [{ label: '刪除', cls: 'main', fn: go }, { label: '取消', fn: function () {} }] });
+            return;
+          } else otLoad(+g);
+          renderOut();
+        });
         ['otFrom', 'otTo'].forEach(function (id) {
           $(id).addEventListener('input', function () {
             this.value = this.value.replace(/\D/g, '').slice(0, 4);
@@ -6559,24 +6621,39 @@ button.copied { background: #e3f1e6 !important; color: #2f6b3f !important; borde
         (function () { var tp = $('otTip'); if (tp && prefs.tips && prefs.tips.otduty) tp.hidden = true; tp && tp.addEventListener('click', function (ev) { if (ev.target.closest('.tip-x')) setTimeout(function () { tp.hidden = true; }, 200); }); })();
         var otForce = false;
         $('otToDuty').addEventListener('click', function () {
-          var k = otDateKey(), why = (prefs.ot.why || '').trim().slice(0, 10);
-          if (!otPpl.length) { showToast('請先選擇人員', null, null, 2200); return; }
-          if (!why) { showToast('請先填寫事由', null, null, 2200); return; }
+          var k = otDateKey(), gs = otSync(), multi = gs.length > 1;
+          for (var gi = 0; gi < gs.length; gi++) {
+            var gn = multi ? '第 ' + (gi + 1) + ' 組' : '';
+            if (!gs[gi].ppl.length) { showToast((gn ? gn + '還沒' : '請先') + '選擇人員', null, null, 2200); if (multi) { otLoad(gi); renderOut(); } return; }
+            if (!(gs[gi].why || '').trim()) { showToast((gn ? gn + '還沒' : '請先') + '填寫事由', null, null, 2200); if (multi) { otLoad(gi); renderOut(); } return; }
+          }
           function go() {
-            var f0 = (prefs.ot.from || '').trim(), t0 = (prefs.ot.to || '').trim(), f = qkHM(f0), e2 = qkHM(t0);
-            if ((f0 && !f) || (t0 && !e2)) { showToast('時間格式不對（例：1800、2000）', null, null, 2600); return; }
-            var tm = f && e2 ? f + '–' + e2 : (f || e2 || '');
-            var task = why, otWhy = (prefs.ot.when === '夜間' || prefs.ot.when === '假日' ? prefs.ot.when : (dayInfo(k).off ? '假日' : '')) + '加班';
-            var who = (prefs.ot.sup && otPpl.indexOf(prefs.ot.sup) < 0 ? [prefs.ot.sup] : []).concat(otPpl);
-            var arr = who.map(function (n) { return { date: k, name: n, why: otWhy, time: tm }; });
-            var offs = who.map(function (n) { var l = offClash(k, n, tm, otWhy); return l ? n + '（' + l + '）' : ''; }).filter(Boolean);
+            var otWhy = (prefs.ot.when === '夜間' || prefs.ot.when === '假日' ? prefs.ot.when : (dayInfo(k).off ? '假日' : '')) + '加班';
+            var arr = [], seen = {}, byTm = {}, tms = [], lo = '', hi = '';
+            for (var i = 0; i < gs.length; i++) {
+              var g = gs[i], f0 = (g.from || '').trim(), t0 = (g.to || '').trim(), f = qkHM(f0), e2 = qkHM(t0);
+              if ((f0 && !f) || (t0 && !e2)) { showToast((multi ? '第 ' + (i + 1) + ' 組' : '') + '時間格式不對（例：1800、2000）', null, null, 2600); return; }
+              var tm = f && e2 ? f + '–' + e2 : (f || e2 || '');
+              if (f && (!lo || f < lo)) lo = f; if (e2 && (!hi || e2 > hi)) hi = e2;
+              if (!byTm[tm]) { byTm[tm] = []; tms.push(tm); }
+              byTm[tm].push(g.why.trim());
+              g.ppl.forEach(function (n) { if (!seen[n + '|' + tm]) { seen[n + '|' + tm] = 1; arr.push({ date: k, name: n, why: otWhy, time: tm }); } });
+            }
+            var sup = prefs.ot.sup, supIn = sup && employees.some(function (e) { return e.name === sup; });
+            if (supIn && !arr.some(function (it) { return it.name === sup; })) arr.unshift({ date: k, name: sup, why: otWhy, time: tms.length === 1 ? tms[0] : (lo && hi ? lo + '–' + hi : tms[0]) });
+            var who = [], offs = [];
+            arr.forEach(function (it) { if (who.indexOf(it.name) >= 0) return; who.push(it.name); var l = offClash(k, it.name, it.time, otWhy); if (l) offs.push(it.name + '（' + l + '）'); });
             if (offs.length && !otForce) {
               openSheet({ title: '有 ' + offs.length + ' 人當天休假或外勤', sub: '是否仍要加入？', body: '<div class="sec">' + offs.map(esc).join('<br>') + '</div>',
                 actions: [{ label: '返回修改', cls: 'main', fn: function () {} }, { label: '仍然加入', fn: function () { otForce = true; try { go(); } finally { otForce = false; } } }] });
               return;
             }
-            var nk = k + '|' + otWhy + (tm ? '　' + tm : ''), old = dutyNotes[nk] || '';
-            if (task && old.indexOf(task) < 0) noteSaveKey(k, otWhy + (tm ? '　' + tm : ''), ((old ? old + '\n' : '') + '事由：' + task + (prefs.ot.sup ? '\n督導：' + prefs.ot.sup : '')).slice(0, 400), true);
+            tms.forEach(function (tm) {
+              var nk = k + '|' + otWhy + (tm ? '　' + tm : ''), old = dutyNotes[nk] || '', txt = old;
+              byTm[tm].forEach(function (t) { if (txt.indexOf(t) < 0) txt += (txt ? '\n' : '') + '事由：' + t; });
+              if (sup && txt.indexOf('督導：') < 0) txt += '\n督導：' + sup;
+              if (txt !== old) noteSaveKey(k, otWhy + (tm ? '　' + tm : ''), txt.slice(0, 400), true);
+            });
             var snap = JSON.stringify(dutyAll);
             arr.forEach(function (it) {
               var l = dutyAll[it.date] = dutyAll[it.date] || [];
