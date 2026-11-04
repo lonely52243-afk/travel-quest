@@ -2137,6 +2137,14 @@ button.copied { background: #e3f1e6 !important; color: #2f6b3f !important; borde
 .tlm > b.w-lift::before, .dl.duty .dlh b.w-lift::before { background-image: var(--ix-w-lift); }
 #dutyDayBody .dnone { display: flex; flex-direction: column; align-items: center; gap: 8px; padding: 28px 0; color: var(--muted); font-weight: 700; }
 #dutyDayBody .dnone::before { content: ""; width: 96px; height: 96px; background: var(--ix-h-empty) center / contain no-repeat; }
+/* v10.96 深色模式修正 */
+.nc { color: var(--text); }
+[data-theme="dark"] .attweek button.on { background: var(--yellow); border-color: var(--yellow); color: #1E2A4A; } [data-theme="dark"] .attweek button.on span, [data-theme="dark"] .attweek button.on i, [data-theme="dark"] .attweek button.on b { color: #1E2A4A; }
+@media (prefers-color-scheme: dark) { [data-theme="auto"] .attweek button.on { background: var(--yellow); border-color: var(--yellow); color: #1E2A4A; } [data-theme="auto"] .attweek button.on span, [data-theme="auto"] .attweek button.on i, [data-theme="auto"] .attweek button.on b { color: #1E2A4A; } }
+/* 搜尋人名：統計改成一顆一顆小標籤，不再一長串換行 */
+.srsum { display: flex; flex-wrap: wrap; gap: 6px; background: none !important; padding: 0 !important; }
+.srsum span { background: #f1ecfb; color: #5a4b9e; border-radius: 8px; padding: 4px 9px; font-size: 13px; font-weight: 800; }
+[data-theme="dark"] .srsum span { background: rgba(122,75,194,.28); color: #d8ccf5; }
 
   .sit { display: inline-flex; align-items: center; gap: 5px; }
 .sit .wi { width: 18px; height: 18px; flex-shrink: 0; background: center / contain no-repeat; }
@@ -3514,15 +3522,15 @@ button.copied { background: #e3f1e6 !important; color: #2f6b3f !important; borde
         for (var d = 1; d <= last; d++) {
           var k = ym + '-' + pad(d), items = [];
           var r = (recordsPub[k] || {})[n];
-          if (r) { items.push({ c: isLeave(r) ? 'rest' : (r.period === '留守' ? 'stay' : (r.period === '監控' ? 'mon' : 'away')), t: recLabel(r) }); if (isLeave(r)) cnt.rest += r.period === '全天' ? 1 : 0.5; else if (r.period === '留守') cnt.stay++; }
+          if (r) { items.push({ c: isLeave(r) ? 'rest' : (r.period === '留守' ? 'stay' : (r.period === '監控' ? 'mon' : 'away')), t: recLabel(r) }); if (isLeave(r)) { if (dayInfo(k).off) cnt.offRest = (cnt.offRest || 0) + 1; else cnt.rest += r.period === '全天' ? 1 : 0.5; } else if (r.period === '留守') cnt.stay++; }
           (dutyAll[k] || []).forEach(function (x) { if (x.n !== n) return; var u = isUrine(x.why), o = isOT(x.why); items.push({ c: u ? 'urine' : (o ? 'ot' : 'duty'), t: x.why + (x.time ? '　' + fmtTm(x.time) : ''), ic: whyIcon(x.why) }); if (u) cnt.urine++; else if (o) cnt.ot += otHours(x.time); else cnt.duty++; });
           try { var pl0 = dutyDayOf(k).plan || {}; Object.keys(pl0).forEach(function (it) { pl0[it].forEach(function (p) { if (p.n !== n) return; var pt = planTm(it); items.push({ c: 'plan', t: it + (pt ? '　' + pt.a + '–' + pt.b : '') + (p.est ? '（預估）' : '（表定）'), ic: whyIcon(it) }); cnt.plan = (cnt.plan || 0) + 1; }); }); } catch (e2) { /* 忽略 */ }
           eventsOf(k).forEach(function (e) { if (e.who !== '全員' && evHas(e, n)) items.push({ c: 'ev', t: '行程：' + (e.time ? e.time + ' ' : '') + e.title }); });
           if (items.length) rows.push('<div class="srow' + (dayInfo(k).off ? ' off' : '') + '"><b>' + mdLabel(k) + '<small>' + wkOf(k) + '</small></b><div>' + items.map(function (it) { return '<span class="sit ' + it.c + '">' + (it.ic ? '<i class="wi ' + it.ic + '"></i>' : '') + esc(it.t) + '</span>'; }).join('') + '</div></div>');
         }
-        var sum = [cnt.rest ? '休假 ' + cnt.rest + ' 天' : '', cnt.stay ? '留守 ' + cnt.stay + ' 次' : '', cnt.duty ? '公差 ' + cnt.duty + ' 次' : '', cnt.urine ? '尿篩 ' + cnt.urine + ' 次' : '', cnt.ot ? '加班 ' + fmtH(cnt.ot) + ' 小時' : '', cnt.plan ? '輪值 ' + cnt.plan + ' 次' : ''].filter(Boolean).join('・');
+        var sum = [cnt.rest || cnt.offRest ? '休假 ' + cnt.rest + ' 天' + (cnt.offRest ? '（另假日休 ' + cnt.offRest + ' 天）' : '') : '', cnt.stay ? '留守 ' + cnt.stay + ' 次' : '', cnt.duty ? '公差 ' + cnt.duty + ' 次' : '', cnt.urine ? '尿篩 ' + cnt.urine + ' 次' : '', cnt.ot ? '加班 ' + fmtH(cnt.ot) + ' 小時' : '', cnt.plan ? '輪值 ' + cnt.plan + ' 次' : ''].filter(Boolean).join('・');
         return '<div class="srwho"><b>' + esc(n) + '</b><button data-sx="1">換人</button></div><div class="srnav"><button data-sm="-1" aria-label="上個月">‹</button><b>' + y + ' 年 ' + m + ' 月</b><button data-sm="1" aria-label="下個月">›</button></div>' +
-          (sum ? '<div class="srsum">' + sum + '</div>' : '<div class="srnores">這個月沒有紀錄</div>') + (loaded[ym] ? '' : '<div class="muted">休假資料讀取中…</div>') + rows.join('');
+          (sum ? '<div class="srsum"><span>' + sum.split('・').join('</span><span>') + '</span></div>' : '<div class="srnores">這個月沒有紀錄</div>') + (loaded[ym] ? '' : '<div class="muted">休假資料讀取中…</div>') + rows.join('');
       }
       document.addEventListener('input', function (ev) { if (ev.target && ev.target.id === 'srchIn') { srch.q = ev.target.value; srch.n = ''; srchDraw(); } });
       document.addEventListener('click', function (ev) {
@@ -4299,7 +4307,7 @@ button.copied { background: #e3f1e6 !important; color: #2f6b3f !important; borde
       function fmtTm(t) {
         t = tmFix(t);
         if (!t || /^(整天|全天)$/.test(t)) return '全天';
-        return t.replace(/(^|[^\d:])(\d{2})(\d{2})(?!\d)/g, '$1$2:$3');
+        return t.replace(/(^|[^\d:])(\d{2})(\d{2})(?!\d)/g, '$1$2:$3').replace(/(^|[^\d])(\d):(\d{2})/g, '$10$2:$3');
       }
       function normWhy(w) { w = String(w || '').replace(/\s+/g, ''); return WHY_ALIAS[w] || w; }
       function statLoad() {
@@ -6360,6 +6368,7 @@ button.copied { background: #e3f1e6 !important; color: #2f6b3f !important; borde
         $('idInst').hidden = instStandalone() || no || !mobile;
       }
       var CHANGELOG = [
+        { v: 'v10.96', d: '11/5', t: ['搜尋人名：休假只算平日，假日標的休另外寫「另假日休 N 天」；上方統計改成一顆一顆小標籤', '時間一律補零顯示（8:30 → 08:30）', '深色模式：當天詳細的人名看得清楚；每日到班選到的那天改成黃底'] },
         { v: 'v10.95', d: '11/5', t: ['搜尋人名：公差、尿篩、加班前面加上事由圖示', '搜尋人名：輪值表的監工、查庫、擴大FO 也列出來（虛線青色、標「表定」或「預估」），上方統計多「輪值 N 次」'] },
         { v: 'v10.94', d: '11/5', t: ['快速標記：「8/28日下午郭宗瑋」這種寫法，上午／下午當時間；「11月份會客室公差初版」事由抓「會客室公差」', '新圖示：會客室、慶生餐會、拍照、勝利盃、領物品、修護示範、管路、道路、主檢評鑑、衛教醫務、電梯管制', '當天沒有任何標記時，顯示睡覺小貓'] },
         { v: 'v10.93', d: '11/5', t: ['上午＝08:00–12:00、下午＝13:30–17:00：判斷時間重疊、半天休、當天頁顯示都照這個', '每日到班：同一項公差每個人時間不同時，時間寫在各自名字旁', '快速標記「加日期」改成看得懂的「＋ 加日期」'] },
