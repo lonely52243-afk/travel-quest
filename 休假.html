@@ -2200,6 +2200,22 @@ button.copied { background: #e3f1e6 !important; color: #2f6b3f !important; borde
 .dcell .db.du, .dcell .db.ur, .dcell .db.ot { padding: 1px 2px; }
 .dtip .lgb { display: inline-block; width: 11px; height: 9px; border-radius: 3px; vertical-align: 0; margin: 0 1px 0 4px; }
 .dtip .lgb.du { background: #b9a3ec; } .dtip .lgb.ur { background: #8fc0ee; } .dtip .lgb.ot { background: #f2b06a; } .dtip .lgb.ev { background: #ee9dbb; }
+/* v11.04 加班選人分班 */
+.otsec + .otsec { margin-top: 12px; padding-top: 10px; border-top: 1px dashed var(--line); }
+.otsh { display: flex; align-items: baseline; gap: 8px; margin-bottom: 8px; }
+.otsh b { font-size: 15px; } .otsh small { font-size: 12.5px; color: var(--muted); font-weight: 700; }
+.otsh .otsx { margin-left: auto; min-height: 32px; padding: 0 12px; border-radius: 999px; border: 1.5px dashed var(--muted); background: none; color: var(--muted); font: inherit; font-size: 13.5px; font-weight: 800; }
+/* 股總加班選人：分班顏色 */
+.otsec { border-radius: 14px; padding: 10px 10px 12px; border: 0 !important; margin-top: 10px !important; }
+.otsec.b1 { background: #e6efff; } .otsec.b2 { background: #e3f4e8; } .otsec.b3 { background: #f1ece2; }
+.otsec .otsh b { display: inline-flex; align-items: center; gap: 6px; }
+.otsec .otsh b::before { content: ""; width: 10px; height: 10px; border-radius: 50%; }
+.otsec.b1 .otsh b { color: #2257b8; } .otsec.b1 .otsh b::before { background: #2f6fe0; }
+.otsec.b2 .otsh b { color: #1f7a3c; } .otsec.b2 .otsh b::before { background: #2e9a50; }
+.otsec.b3 .otsh b { color: #6b5b3a; } .otsec.b3 .otsh b::before { background: #9a8660; }
+.otsec.b1 .pick button:not(.on) { border-color: #2f6fe0; } .otsec.b2 .pick button:not(.on) { border-color: #2e9a50; } .otsec.b3 .pick button:not(.on) { border-color: #9a8660; }
+[data-theme="dark"] .otsec.b1 { background: rgba(47,111,224,.16); } [data-theme="dark"] .otsec.b2 { background: rgba(46,154,80,.16); } [data-theme="dark"] .otsec.b3 { background: rgba(154,134,96,.16); }
+[data-theme="dark"] .otsec.b1 .otsh b { color: #9fc0ff; } [data-theme="dark"] .otsec.b2 .otsh b { color: #9fe0b4; } [data-theme="dark"] .otsec.b3 .otsh b { color: #d9c9a6; }
 
   .sit { display: inline-flex; align-items: center; gap: 5px; }
 .sit .wi { width: 18px; height: 18px; flex-shrink: 0; background: center / contain no-repeat; }
@@ -2391,7 +2407,7 @@ td.cell.full.comp::before { background: var(--comp) !important; }
           </div>
           <div class="field">
             <label>這組的人員（依點選順序）<button class="linkbtn" id="otClear">這組全部取消</button></label>
-            <div class="pick" id="otPpl"></div>
+            <div id="otPpl"></div>
             <label class="chk"><input type="checkbox" id="otShort"> 人員只寫名字（不寫姓）</label>
           </div>
           </div>
@@ -6155,16 +6171,28 @@ td.cell.full.comp::before { background: var(--comp) !important; }
         $('otSup').innerHTML = supL.map(function (n) {
           return '<button data-n="' + esc(n) + '"' + (o.sup === n ? ' class="on"' : '') + '>' + esc(n) + (n === '股長' ? '' : tag(n)) + '</button>';
         }).join('') + (PEOPLE.length ? '<button class="more" data-more="1">' + (otSupAll ? '收起' : '其他人…') + '</button>' : '');
-        otPpl = otPpl.filter(function (n) { return employees.some(function (e) { return e.name === n; }); });
+        var otAll0 = ((typeof stockGroup === 'function' && stockGroup()) || {}).employees || employees;
+        otPpl = otPpl.filter(function (n) { return (isOwn(myRole()) ? employees : otAll0).some(function (e) { return e.name === n; }); });
         var gs = otSync(), oth = {}, tot = {};
         gs.forEach(function (g, i) { g.ppl.forEach(function (n) { tot[n] = 1; if (i !== otCur) oth[n] = (oth[n] ? oth[n] + '、' : '') + (i + 1); }); });
         $('otGrp').innerHTML = gs.map(function (g, i) {
           return '<button data-g="' + i + '"' + (i === otCur ? ' class="on"' : '') + '><em>' + (i + 1) + '</em><span>' + esc((g.why || '').trim() || '未填事由') + '</span><small>' + g.ppl.length + ' 人</small></button>';
         }).join('') + (gs.length < 9 ? '<button data-g="add" class="add">＋ 再加一組</button>' : '') + (gs.length > 1 ? '<button data-g="del" class="del">刪除第 ' + (otCur + 1) + ' 組</button>' : '');
         $('otGBody').classList.toggle('multi', gs.length > 1);
-        $('otPpl').innerHTML = employees.map(function (e) {
+        var pbtn = function (e) {
           var ix = otPpl.indexOf(e.name);
           return '<button data-n="' + esc(e.name) + '"' + (ix >= 0 ? ' class="on"' : '') + '>' + (ix >= 0 ? '<em>' + (ix + 1) + '</em>' : '') + esc(e.name) + tag(e.name) + (oth[e.name] ? '<b class="og">第' + oth[e.name] + '組</b>' : '') + '</button>';
+        };
+        var otAllE = ((typeof stockGroup === 'function' && stockGroup()) || {}).employees || employees;
+        var myB = isOwn(myRole()) ? myRole() : '', secs = [['彈射', '彈射班'], ['軍械', '軍械班'], ['', '其他（股部、軍官）']];
+        if (myB === '軍械') secs = [secs[1], secs[0], secs[2]];
+        if (myB) { $('otPpl').innerHTML = '<div class="pick">' + employees.map(pbtn).join('') + '</div>'; } else
+        $('otPpl').innerHTML = secs.map(function (sc) {
+          var list = otAllE.filter(function (e) { return (banMap[e.name] || '') === sc[0]; });
+          if (!list.length) return '';
+          var open = !myB || sc[0] === myB || otOpenB[sc[0]], sel = list.filter(function (e) { return otPpl.indexOf(e.name) >= 0 || oth[e.name]; });
+          return '<div class="otsec ' + ({ '彈射': 'b1', '軍械': 'b2' }[sc[0]] || 'b3') + '"><div class="otsh"><b>' + sc[1] + '</b><small>' + list.length + ' 人</small>' + (myB && sc[0] !== myB ? '<button class="otsx" data-ob="' + sc[0] + '">' + (open ? '收起' : '＋ 支援') + '</button>' : '') + '</div>' +
+            '<div class="pick">' + (open ? list : sel).map(pbtn).join('') + '</div></div>';
         }).join('');
         var WHY_PRE = CFG_WHY_PRE;
         var whyAll = WHY_PRE.concat((o.rec || []).filter(function (x) { return WHY_PRE.indexOf(x) < 0; }));
@@ -6173,7 +6201,7 @@ td.cell.full.comp::before { background: var(--comp) !important; }
         $('outText').value = otText();
         $('outHint').textContent = (gs.length > 1 ? '共 ' + gs.length + ' 組・' : '') + '共 ' + Object.keys(tot).length + ' 人・「休」全天休・「上午休」下午有來・「已報」當天已報過加班';
       }
-      var otDAsked = {};
+      var otDAsked = {}, otOpenB = {};
       function otDone(k, n) { return (dutyAll[k] || []).filter(function (x) { return x.n === n && isOT(x.why); })[0] || null; }
       function rememberWhy() {
         var w = (prefs.ot.why || '').trim();
@@ -6459,6 +6487,7 @@ td.cell.full.comp::before { background: var(--comp) !important; }
         $('idInst').hidden = instStandalone() || no || !mobile;
       }
       var CHANGELOG = [
+        { v: 'v11.04', d: '11/5', t: ['產出→加班選人（股總）：分成彈射班、軍械班、其他（股部、軍官）三區；彈射、軍械身分維持原本'] },
         { v: 'v11.03', d: '11/5', t: ['公差月曆格子改成一件一條色條，條上寫人名（兩字簡稱）：紫＝公差、淺藍＝尿篩、橘＝加班、粉＝當日行程，國定假日是實心紅條；一條最多 3 個名字，其他顯示「＋N」；一格最多 3 條'] },
         { v: 'v11.02', d: '11/5', t: ['快速標記時間重新排：上班一排（整天 08–17、上午 08–12、下午 13:30–17）、加班一排（18–19、18–20、其他自己打）；「整天」和 08:00–17:00 合成一顆', '快速標記選人：每個名字右上角顯示這個月已派公差次數（不含尿篩、加班），最少的標綠色'] },
         { v: 'v11.01', d: '11/5', t: ['時間寫「8:30」「9:00」這種一位數小時，當天頁不再顯示「未定」，會照時間排；存的時候也自動補成 08:30'] },
@@ -7110,6 +7139,7 @@ td.cell.full.comp::before { background: var(--comp) !important; }
         });
         $('otPpl').addEventListener('click', function (ev) {
           var b = ev.target.closest('button'); if (!b) return;
+          if (b.dataset.ob !== undefined) { otOpenB[b.dataset.ob] = !otOpenB[b.dataset.ob]; renderOut(); return; }
           var n = b.dataset.n, ix = otPpl.indexOf(n);
           if (ix >= 0) otPpl.splice(ix, 1); else otPpl.push(n);
           renderOut();
