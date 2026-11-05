@@ -2346,17 +2346,18 @@ td.cell.full.comp::before { background: var(--comp) !important; }
 .fairsug s, .fnew, .ffew { text-decoration: none; font-size: 10px; font-weight: 800; padding: 1px 5px; border-radius: 6px; background: #fff1c7; color: #8a5a00; margin-left: 3px; }
 .ffew { background: #eef0f3; color: #6b7280; }
 .fairl { display: flex; flex-direction: column; }
-.frow { display: grid; grid-template-columns: 22px minmax(0, 1fr) auto; grid-template-areas: "k n r" "k b b" "k s s"; column-gap: 8px; row-gap: 2px; padding: 6px 2px; border-top: 1px solid var(--line, #eef0f3); }
+.frow { display: grid; grid-template-columns: 18px auto minmax(0, 1fr) 40px; align-items: center; column-gap: 8px; padding: 7px 2px; border-top: 1px solid var(--line, #eef0f3); }
 .frow:first-child { border-top: 0; }
-.frk { grid-area: k; font-size: 12px; font-weight: 800; color: var(--muted, #9ca3af); padding-top: 2px; text-align: center; }
-.frn { grid-area: n; min-width: 0; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; } .frn b { font-size: 15px; }
-.frt { grid-area: r; font-size: 18px; font-weight: 800; line-height: 1; } .frt small { font-size: 11px; font-weight: 600; color: var(--muted, #6b7280); margin-left: 2px; }
-.fbar { grid-area: b; height: 6px; border-radius: 3px; background: var(--line, #eef0f3); overflow: hidden; } .fbar u { display: block; height: 100%; border-radius: 3px; background: #9aa5b5; }
-.fsub { grid-area: s; font-size: 12px; color: var(--muted, #6b7280); line-height: 1.4; }
-.frow.low .frt { color: #1f7a3c; } .frow.low .fbar u { background: #2e9a50; }
-.frow.hi .frt { color: #c2410c; } .frow.hi .fbar u { background: #f08a3c; }
+.frk { font-size: 12px; font-weight: 800; color: var(--muted, #9ca3af); text-align: center; }
+.frow.top .frk { background: #2e9a50; color: #fff; border-radius: 50%; width: 18px; height: 18px; line-height: 18px; font-size: 11px; }
+.frn { white-space: nowrap; } .frn b { font-size: 15px; }
+.fsub { font-size: 12px; color: var(--muted, #6b7280); white-space: nowrap; overflow: hidden; text-overflow: ellipsis; text-align: right; }
+.fsub em { font-style: normal; font-size: 10.5px; color: #4f63c9; margin-left: 2px; }
+.frt { font-size: 17px; font-weight: 800; text-align: right; }
+.frow.low .frt { color: #1f7a3c; } .frow.hi .frt { color: #c2410c; }
 .fairall { display: block; margin: 4px auto 0; }
-.fairnote { font-size: 11.5px; color: var(--muted, #6b7280); line-height: 1.55; margin-top: 8px; padding-top: 8px; border-top: 1px dashed var(--line, #e5e7eb); }
+.fairnote { font-size: 12px; color: var(--muted, #6b7280); margin-top: 6px; }
+.fairhow { margin-top: 6px; font-size: 12px; color: var(--muted, #6b7280); } .fairhow summary { cursor: pointer; font-weight: 700; padding: 4px 0; } .fairhow div { line-height: 1.6; padding: 4px 0 2px; }
 .stmore { margin: 10px 0 4px; } .stmore > summary { cursor: pointer; font-weight: 700; font-size: 14px; color: var(--muted, #4b5563); padding: 6px 0; }
 .qkpick .qkchip .fnew { margin-left: 4px; }
 [data-theme="dark"] .fair { background: #1c1f26; border-color: #2c313b; }
@@ -2364,7 +2365,7 @@ td.cell.full.comp::before { background: var(--comp) !important; }
 [data-theme="dark"] .fairsug span { background: #262b34; color: #e8eaee; }
 [data-theme="dark"] .fairsug s, [data-theme="dark"] .fnew { background: rgba(245,184,0,.2); color: #ffd97a; }
 [data-theme="dark"] .ffew { background: #2c313b; color: #aab1bd; }
-[data-theme="dark"] .frow { border-color: #2c313b; } [data-theme="dark"] .fbar { background: #2c313b; }
+[data-theme="dark"] .frow { border-color: #2c313b; } [data-theme="dark"] .fsub em { color: #9fb0ff; }
 [data-theme="dark"] .frow.low .frt { color: #9fe0b4; } [data-theme="dark"] .frow.hi .frt { color: #ffb27a; }
 </style>
 </head>
@@ -4627,20 +4628,23 @@ td.cell.full.comp::before { background: var(--comp) !important; }
           var g = Math.round((Date.parse(tk) - Date.parse(f.last)) / 864e5);
           return '最近 ' + mdLabel(f.last) + (g > 0 ? '（' + g + ' 天前）' : '（今天）');
         }
-        var h = '<div class="fair"><div class="fairh"><b>派公差參考</b><span>近 90 天・平均每 30 天幾次</span></div>';
-        h += '<div class="fairsug"><em>建議先派</em>' + names.slice(0, 5).map(function (n, i) { return '<span><i>' + (i + 1) + '</i>' + esc(n) + (F[n].nw ? '<s>新</s>' : '') + '</span>'; }).join('') + '</div>';
+        var h = '<div class="fair"><div class="fairh"><b>派公差參考</b><span>近 90 天・每 30 天幾次・少的先派</span></div>';
         h += '<div class="fairl">' + show.map(function (n, i) {
           var f = F[n], lv = f.r <= mn + 0.3 ? 'low' : (f.r >= avg * 1.3 && f.r > mn + 0.5 ? 'hi' : 'mid');
-          return '<div class="frow ' + lv + '"><span class="frk">' + (i + 1) + '</span><span class="frn"><b>' + esc(n) + '</b>' +
+          var lt = f.last ? mdLabel(f.last) : (f.nx ? '排 ' + mdLabel(f.nx) : '—');
+          return '<div class="frow ' + lv + (i < 3 ? ' top' : '') + '"><span class="frk">' + (i + 1) + '</span><span class="frn"><b>' + esc(n) + '</b>' +
             (f.nw ? '<s class="fnew">新</s>' : '') + (f.few && !f.nw ? '<s class="ffew">在營少</s>' : '') + '</span>' +
-            '<span class="frt">' + f.r.toFixed(1) + '<small>次</small></span>' +
-            '<span class="fbar"><u style="width:' + Math.max(3, Math.round(f.r / mx * 100)) + '%"></u></span>' +
-            '<span class="fsub">90 天 ' + f.c + ' 次' + (f.fut ? '（含已排 ' + f.fut + '）' : '') + '・在營 ' + (Math.round(f.p * 10) / 10) + '/' + f.w + ' 天' + (f.jd && f.jd > addDays(tk, -(FAIR_D - 1)) ? '・' + mdLabel(f.jd) + ' 報到' : '') + '・' + lastTx(f) + '</span></div>';
+            '<span class="fsub">' + f.c + ' 次' + (f.fut ? '<em>含排' + f.fut + '</em>' : '') + '／' + Math.round(f.p) + ' 天・' + lt + '</span>' +
+            '<span class="frt">' + f.r.toFixed(1) + '</span></div>';
         }).join('') + '</div>';
         if (names.length > 6) h += '<button class="linkbtn fairall" data-fairall="1">' + (all ? '收起' : '顯示全部 ' + names.length + ' 人') + '</button>';
-        h += '<div class="fairnote">' + (ok ? '' : '<b>休假資料讀取中</b>，在營天數暫時還沒扣休假。<br>') +
-          '算法：近 90 天的公差次數（含之後 14 天已排的，不含尿篩、加班；打靶有算）÷ 在營天數 × 30。在營天數＝上班日扣掉休假、外勤（半天休算半天）、報到以前。<br>' +
-          '新進同仁：在股名冊加一欄「報到日」，就會從報到日開始算，2 週內標「新」。</div></div>';
+        if (!ok) h += '<div class="fairnote"><b>休假資料讀取中</b>，在營天數還沒扣休假</div>';
+        h += '<details class="fairhow"><summary>怎麼算？</summary><div>' +
+          '右邊數字＝近 90 天公差次數 ÷ 在營天數 × 30（每 30 天幾次）。<br>' +
+          '次數含之後 14 天已排的；不含尿篩、加班；打靶有算。<br>' +
+          '在營天數＝上班日扣掉休假、外勤（半天休算半天）、報到以前。<br>' +
+          '休假的人：休假那幾天別人先出，回來後不用補，也不會被少派，跟大家照同樣比例輪。<br>' +
+          '新進同仁：股名冊加「報到日」欄，從報到日開始算，2 週內標「新」。</div></details></div>';
         return h;
       }
       function renderStat() {
@@ -6682,7 +6686,7 @@ td.cell.full.comp::before { background: var(--comp) !important; }
         $('idInst').hidden = instStandalone() || no || !mobile;
       }
       var CHANGELOG = [
-        { v: 'v11.10', d: '11/6', t: ['公差統計最上面新增「派公差參考」：近 90 天平均每 30 天幾次（扣掉休假、外勤、報到以前；含已排），少的排前面，前 5 名列「建議先派」', '快速標記選人：右上數字改成同樣的「每 30 天幾次」，綠色＝最少', '新進同仁：股名冊加一欄「報到日」就從報到日開始算，2 週內標「新」（後端第四十二版）', '星期、時段分布收進「星期・時段分布」，要看再點開'] },
+        { v: 'v11.10', d: '11/6', t: ['公差統計最上面新增「派公差參考」：近 90 天平均每 30 天幾次（扣掉休假、外勤、報到以前；含已排），一人一行、少的排前面，前 3 名綠色，「怎麼算？」點開看說明', '快速標記選人：右上數字改成同樣的「每 30 天幾次」，綠色＝最少', '新進同仁：股名冊加一欄「報到日」就從報到日開始算，2 週內標「新」（後端第四十二版）', '星期、時段分布收進「星期・時段分布」，要看再點開'] },
         { v: 'v11.09', d: '11/6', t: ['尿篩、打靶統計重新設計：每人一列，右邊大字寫「幾天」，依天數變色（紅＝90 天以上、橘＝45–89 天、綠＝45 天內、藍＝已排）；建議派的人標順序；上方顯示各顏色人數；修正次數和日期疊在一起'] },
         { v: 'v11.08', d: '11/6', t: ['打靶改成跟尿篩一樣：統計頁看建議下次派誰、次數、最近一次、幾天沒打；派打靶時名單標「N 天沒打」，最久沒打的排前面（不分季）'] },
         { v: 'v11.07', d: '11/6', t: ['新圖示：時間按鈕（整天、上午、下午、夜間加班）、股總加班選人的分班（彈射、軍械、股部軍官）、補休慰休、打靶已打／還沒打、本月最少、季度'] },
