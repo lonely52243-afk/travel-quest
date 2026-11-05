@@ -2168,6 +2168,38 @@ button.copied { background: #e3f1e6 !important; color: #2f6b3f !important; borde
 #statBody .sct { min-height: 42px !important; padding-top: 6px !important; padding-bottom: 6px !important; }
 #statBody .swipehint { text-align: center; font-size: 11.5px; color: var(--muted); margin: -4px 0 8px; }
 [data-theme="dark"] #statBody .scard .slast small { background: rgba(122,75,194,.25); }
+/* v11.02 快速標記：時間兩排、選人顯示本月次數 */
+.tpgrid { display: grid; grid-template-columns: 2.6em repeat(3, minmax(0, 1fr)); gap: 6px; align-items: stretch; margin-top: 6px; }
+.tpl { font-size: 12.5px; font-weight: 800; color: var(--muted); align-self: center; }
+.tpb { display: flex; flex-direction: column; align-items: center; justify-content: center; min-height: 48px; padding: 4px 2px; border: 1.5px solid var(--line); border-radius: 12px; background: var(--card); color: var(--text); font: inherit; }
+.tpb b { font-size: 15.5px; font-weight: 800; line-height: 1.15; }
+.tpb small { font-size: 11px; font-weight: 700; color: var(--muted); }
+.tpb.on { background: var(--yellow); border-color: var(--ink); } .tpb.on small { color: #1E2A4A; } .tpb.on b { color: #1E2A4A; }
+.tpo { display: flex; } .tpo input.qktime { width: 100%; min-width: 0; min-height: 48px; padding: 0 8px; font-size: 14px; border-radius: 12px; border: 1.5px dashed var(--line); text-align: center; }
+.tpo input.qktime.on { border-style: solid; border-color: var(--ink); background: #fff7d6; }
+.qkpick .qkchip { position: relative; }
+.qkpick .qkchip u.mc { position: absolute; top: 3px; right: 5px; text-decoration: none; font-size: 11px; font-weight: 800; min-width: 17px; height: 17px; line-height: 17px; border-radius: 9px; background: var(--card2); color: var(--muted); text-align: center; }
+.qkpick .qkchip u.mc.low { background: #d6f0dd; color: #1f7a3c; }
+[data-theme="dark"] .qkpick .qkchip u.mc.low { background: rgba(60,180,100,.25); color: #9fe0b4; }
+[data-theme="dark"] .tpo input.qktime.on { background: rgba(245,184,0,.15); }
+.qknote .lowtx { color: #1f7a3c; font-weight: 800; }
+/* v11.03 公差月曆：色條 */
+.dcell .dbars { display: flex; flex-direction: column; gap: 2px; margin-top: 1px; min-width: 0; }
+.dcell .db { display: block; font-style: normal; font-size: 10.5px; font-weight: 800; line-height: 15px; padding: 0 3px; border-radius: 4px; white-space: nowrap; overflow: hidden; text-overflow: clip; text-align: center; }
+.db.du { background: #ece4fb; color: #5b3fa6; }
+.db.ur { background: #dcecfb; color: #1f5f9e; }
+.db.ot { background: #fde4c8; color: #9c4f0a; }
+.db.ev { background: #fbe0ea; color: #a8345e; }
+.db.hol { background: #d9443a; color: #fff; }
+.db.more { background: none; color: var(--muted); line-height: 13px; }
+.dcell .dev, .dcell .dnm { display: none !important; }
+[data-theme="dark"] .db.du { background: rgba(122,75,194,.35); color: #e1d4fb; } [data-theme="dark"] .db.ur { background: rgba(60,130,210,.3); color: #cfe4fb; } [data-theme="dark"] .db.ot { background: rgba(230,140,50,.3); color: #fbdcb8; } [data-theme="dark"] .db.ev { background: rgba(214,80,130,.3); color: #fbd0e0; }
+@media (prefers-color-scheme: dark) { [data-theme="auto"] .db.du { background: rgba(122,75,194,.35); color: #e1d4fb; } [data-theme="auto"] .db.ur { background: rgba(60,130,210,.3); color: #cfe4fb; } [data-theme="auto"] .db.ot { background: rgba(230,140,50,.3); color: #fbdcb8; } [data-theme="auto"] .db.ev { background: rgba(214,80,130,.3); color: #fbd0e0; } }
+.dcell .db span { display: block; overflow: hidden; white-space: nowrap; }
+.dcell .db span.pl { font-size: 10px; opacity: .8; }
+.dcell .db.du, .dcell .db.ur, .dcell .db.ot { padding: 1px 2px; }
+.dtip .lgb { display: inline-block; width: 11px; height: 9px; border-radius: 3px; vertical-align: 0; margin: 0 1px 0 4px; }
+.dtip .lgb.du { background: #b9a3ec; } .dtip .lgb.ur { background: #8fc0ee; } .dtip .lgb.ot { background: #f2b06a; } .dtip .lgb.ev { background: #ee9dbb; }
 
   .sit { display: inline-flex; align-items: center; gap: 5px; }
 .sit .wi { width: 18px; height: 18px; flex-shrink: 0; background: center / contain no-repeat; }
@@ -2530,7 +2562,7 @@ td.cell.full.comp::before { background: var(--comp) !important; }
     <div class="dbar"><button class="linkbtn" id="dutyToday" hidden>回到本月</button><button class="dsync" id="dutySync"></button></div>
     <div id="dutyLoading" class="dloading" hidden>讀取中…</div>
     <div id="dutyGrid"></div>
-    <div class="dtip">點日期看細項・<u class="dot stay"></u>留守 <u class="dot note"></u>備註 <u class="dot fo"></u>擴大FO・左右滑換月</div>
+    <div class="dtip"><i class="lgb du"></i>公差 <i class="lgb ur"></i>尿篩 <i class="lgb ot"></i>加班 <i class="lgb ev"></i>行程・<u class="dot stay"></u>留守 <u class="dot note"></u>備註 <u class="dot fo"></u>擴大FO</div>
     </div>
     <div id="dutyStat" hidden><div id="statBody"></div></div>
     </div>
@@ -3589,10 +3621,10 @@ td.cell.full.comp::before { background: var(--comp) !important; }
           h += '<div class="qkcard"><div class="qkh">事項 ' + (i + 1) + '</div>';
           h += '<label class="qkl">事由<input type="text" class="qkwhy" data-e="' + i + '" maxlength="10" list="qkWhys" value="' + esc(e.why) + '" placeholder="例：打靶"></label>';
           if (!qkMode) h += '<button class="qkx qkevt' + (e.asEv ? ' on' : '') + '" data-e="' + i + '" data-asev="1">' + (e.asEv ? '✓ 當日行程（不算公差）' : '這是當日行程？（不算公差）') + '</button>';
-          h += '<label class="qkl">時間（可不填）<small class="qkhint">上午＝08:00–12:00・下午＝13:30–17:00</small><input type="text" class="qktime" data-e="' + i + '" maxlength="20" value="' + esc(e.time || '') + '" placeholder="例：14:00 或 08:00–17:00"></label>';
-          h += '<div class="qkchips" style="margin-top:6px">';
-          ['整天', '上午', '下午', '08:00–17:00', '18:00–19:00', '18:00–20:00'].forEach(function (t) { h += '<button class="qkchip tp' + (e.time === t ? ' on' : '') + '" data-e="' + i + '" data-t="' + t + '">' + t + '</button>'; });
-          h += '</div>';
+          var tcur = e.time === '08:00–17:00' ? '整天' : (e.time || ''), tpb = function (t, sub) { return '<button class="tpb' + (tcur === t ? ' on' : '') + '" data-e="' + i + '" data-t="' + t + '"><b>' + t.replace(/:00/g, '') + '</b>' + (sub ? '<small>' + sub + '</small>' : '') + '</button>'; };
+          var tPre = /^(整天|上午|下午|18:00–19:00|18:00–20:00)$/.test(tcur);
+          h += '<div class="qkh">時間</div><div class="tpgrid"><span class="tpl">上班</span>' + tpb('整天', '08–17') + tpb('上午', '08–12') + tpb('下午', '13:30–17') +
+            '<span class="tpl">加班</span>' + tpb('18:00–19:00', '') + tpb('18:00–20:00', '') + '<span class="tpo"><input type="text" class="qktime' + (tcur && !tPre ? ' on' : '') + '" data-e="' + i + '" maxlength="20" value="' + esc(tcur && !tPre ? tcur : '') + '" placeholder="其他時間" aria-label="其他時間，例 0930"></span></div>';
           h += '<div class="qkh">日期（點選可取消）</div><div class="qkchips">';
           e.dates.forEach(function (d, j) { h += '<button class="qkchip dt' + (d.on ? ' on' : '') + '" data-e="' + i + '" data-d="' + j + '">' + mdLabel(d.k) + '（' + wkOf(d.k) + '）</button>'; });
           h += '<label class="qkaddw">＋ 加日期<input type="date" class="qkadd" data-e="' + i + '" aria-label="加日期"></label></div>';
@@ -3660,11 +3692,14 @@ td.cell.full.comp::before { background: var(--comp) !important; }
         h += '<div class="qktools"><button class="qkx qkadd2' + (pick ? ' on' : '') + '" data-e="' + i + '" data-pick="1">' + (pick ? '收起名單' : '＋ 加人') + '</button>' +
           (on.length ? '<button class="qkx qkptm' + (e.ptm ? ' on' : '') + '" data-e="' + i + '" data-ptm="1">個別時間</button>' : '') + '</div>';
         if (pick) {
-          if (!e.time && !e.ptm) h += '<div class="qknote">選了時間，才會標出跟其他公差、輪值、行程撞到的人</div>';
+          var d0 = (e.dates.filter(function (x) { return x.on; })[0] || e.dates[0] || {}).k || todayKey(), ym0 = d0.slice(0, 7), mc = {};
+          Object.keys(dutyAll).forEach(function (k) { if (k.slice(0, 7) !== ym0) return; (dutyAll[k] || []).forEach(function (x) { if (!isUrine(x.why) && !isOT(x.why)) mc[x.n] = (mc[x.n] || 0) + 1; }); });
+          var mn = Math.min.apply(null, off.map(function (x) { return mc[x.p.n] || 0; }));
+          h += '<div class="qknote">右上數字＝' + (+ym0.slice(5)) + ' 月已派公差次數（不含尿篩、加班），<span class="lowtx">綠色＝最少</span>' + (!e.time && !e.ptm ? '<br>選了時間，才會標出跟其他公差、輪值、行程撞到的人' : '') + '</div>';
           h += (res ? '<div class="qkres">「' + esc(res) + '」是誰？點下面的名字</div>' : '') + '<div class="qkpick">';
           off.forEach(function (x) {
-            var is = qkIssues(e, x.p), hard = is.some(function (t) { return t[0] !== '~'; });
-            h += '<button class="qkchip pp' + (hard ? ' warn' : (is.length ? ' soft' : '')) + '" data-e="' + i + '" data-p="' + x.j + '"><b>' + esc(x.p.n) + '</b>' + (is.length ? '<i>' + esc(qkIsTxt(is[0]).replace(/\s*\d{1,2}:\d{2}.*$/, '').replace(/^已有/, '')) + '</i>' + (is.length > 1 ? '<em>還有 ' + (is.length - 1) + ' 項</em>' : '') : '') + '</button>';
+            var is = qkIssues(e, x.p), hard = is.some(function (t) { return t[0] !== '~'; }), c0 = mc[x.p.n] || 0;
+            h += '<button class="qkchip pp' + (hard ? ' warn' : (is.length ? ' soft' : '')) + '" data-e="' + i + '" data-p="' + x.j + '"><u class="mc' + (c0 === mn ? ' low' : '') + '">' + c0 + '</u><b>' + esc(x.p.n) + '</b>' + (is.length ? '<i>' + esc(qkIsTxt(is[0]).replace(/\s*\d{1,2}:\d{2}.*$/, '').replace(/^已有/, '')) + '</i>' + (is.length > 1 ? '<em>還有 ' + (is.length - 1) + ' 項</em>' : '') : '') + '</button>';
           });
           h += '</div>';
         }
@@ -3719,7 +3754,7 @@ td.cell.full.comp::before { background: var(--comp) !important; }
           if (!why) { showToast('事項 ' + (i + 1) + ' 要填事由（例：打靶）', null, null, 2800); return; }
           ds.forEach(function (d) { ps.forEach(function (p) {
             var id = d.k + '|' + p.n + '|' + why; if (seen[id]) return; seen[id] = 1;
-            arr.push({ date: d.k, name: p.n, why: why, time: (p.time || e.time || '').trim() });
+            arr.push({ date: d.k, name: p.n, why: why, time: tmFix(p.time || e.time || '') });
           }); });
         }
         var evN = 0;
@@ -3928,8 +3963,13 @@ td.cell.full.comp::before { background: var(--comp) !important; }
           var d = new Date(start.getFullYear(), start.getMonth(), start.getDate() + i), k = keyOf(d);
           if (i >= 35 && d.getMonth() !== m - 1) break;
           var inM = d.getMonth() === m - 1, o = dutyDayOf(k), info = dayInfo(k), evs = eventsOf(k), chips = evs.length ? '<span class="dev">' + esc(evs[0].title.slice(0, 3)) + (evs.length > 1 ? '＋' : '') + '</span>' : '';
-          var ws = [], wsSeen = {}; Object.keys(o.duty).forEach(function (l) { o.duty[l].names.forEach(function (nm) { if (!wsSeen[nm]) { wsSeen[nm] = 1; ws.push(nm.length >= 3 ? nm.slice(1) : nm); } }); });
-          var lim = evs.length ? 2 : 3; if (ws.length) { chips += '<span class="dnm">'; ws.slice(0, ws.length > lim ? lim - 1 : lim).forEach(function (w) { chips += '<i class="dc duty">' + esc(w) + '</i>'; }); if (ws.length > lim) chips += '<i class="dc more">＋' + (ws.length - lim + 1) + '</i>'; chips += '</span>'; }
+          chips = '';
+          var bars = [], sn = function (nm) { return nm.length >= 3 ? nm.slice(1) : nm; };
+          if (info.tag && info.off && HOLIDAYS[k]) bars.push({ c: 'hol', t: info.tag, s: -2 });
+          evs.forEach(function (ev) { bars.push({ c: 'ev', t: ev.title, s: -1 }); });
+          Object.keys(o.duty).forEach(function (l) { var w = l.split('　')[0], tm = l.split('　')[1] || ''; var nn = o.duty[l].names.map(sn); bars.push({ c: isUrine(w) ? 'ur' : (isOT(w) ? 'ot' : 'du'), h: nn.slice(0, nn.length > 3 ? 2 : 3).map(function (x) { return '<span>' + esc(x) + '</span>'; }).join('') + (nn.length > 3 ? '<span class="pl">＋' + (nn.length - 2) + '</span>' : ''), s: tm ? tmRange(tm)[0] : 2000, w: w }); });
+          bars.sort(function (a, b) { return a.s - b.s; });
+          if (bars.length) { var lim = bars.length > 3 ? 2 : 3; chips += '<span class="dbars">' + bars.slice(0, lim).map(function (x) { return '<i class="db ' + x.c + '"' + (x.w ? ' title="' + esc(x.w) + '"' : '') + '>' + (x.h || esc(x.t)) + '</i>'; }).join('') + (bars.length > lim ? '<i class="db more">＋' + (bars.length - lim) + '</i>' : '') + '</span>'; }
           var no = 0; Object.keys(o.out).forEach(function (w) { no += o.out[w].length; });
           var dots = (o.stay.length ? '<u class="dot stay"></u>' : '') + (o.mon.length ? '<u class="dot mon"></u>' : '') + (no ? '<u class="dot out"></u>' : '') + (o.anyNote ? '<u class="dot note"></u>' : '');
           if (dots) chips += '<span class="dots">' + dots + '</span>';
@@ -3956,7 +3996,7 @@ td.cell.full.comp::before { background: var(--comp) !important; }
         else acts = '<div class="dayunlock"><button class="ghost" id="dayUnlock">✎ 要新增／修改／刪除？解鎖編輯</button><div id="dayPwRow" hidden><input type="text" id="dayPwIn" inputmode="numeric" autocomplete="off" placeholder="彈射密碼" style="-webkit-text-security:disc"><button class="primary" id="dayPwOk">解鎖</button><div class="idmsg" id="dayPwMsg"></div></div></div>';
         function hhmm(x) { return x.slice(0, 2) + ':' + x.slice(2); }
         function tmOf(tm) {
-          tm = String(tm || '').replace(/\s/g, '');
+          tm = tmFix(String(tm || '')).replace(/\s/g, '');
           if (/整天|全天/.test(tm)) return { a: '全天', b: '', s: -1 };
           if (/^上午/.test(tm)) return { a: '08:00', b: '12:00', s: 800 };
           if (/^下午/.test(tm)) return { a: '13:30', b: '17:00', s: 1330 };
@@ -4351,7 +4391,8 @@ td.cell.full.comp::before { background: var(--comp) !important; }
       function tmFix(t) {
         t = String(t || '').trim();
         var g = t.match(/\b(\d{1,2}):(\d{2}):\d{2} GMT/) || t.match(/T(\d{2}):(\d{2}):\d{2}/);
-        return g ? pad(+g[1]) + ':' + g[2] : t;
+        if (g) return pad(+g[1]) + ':' + g[2];
+        return t.replace(/(^|[^\d])(\d)[:：](\d{2})(?!\d)/g, '$10$2:$3');
       }
       function fmtTm(t) {
         t = tmFix(t);
@@ -4795,9 +4836,10 @@ td.cell.full.comp::before { background: var(--comp) !important; }
           qkRender();
         }, true);
         $('qkList').addEventListener('click', function (ev) {
-          var b = ev.target.closest('.qkchip'); if (!b || b.classList.contains('no')) return;
+          var b = ev.target.closest('.qkchip, .tpb'); if (!b || b.classList.contains('no')) return;
           var e = qkEv[+b.dataset.e]; if (!e) return;
-          if (b.dataset.cy) { var pp = e.people[+b.dataset.p], cyc = ['', '上午', '下午', '整天', '08:00–17:00', '18:00–19:00', '18:00–20:00']; pp.time = cyc[(cyc.indexOf(pp.time || '') + 1) % cyc.length]; qkRender(); return; }
+          if (b.classList.contains('tpb')) { var tv = b.dataset.t, cur = e.time === '08:00–17:00' ? '整天' : e.time; e.time = cur === tv ? '' : tv; qkRender(); return; }
+          if (b.dataset.cy) { var pp = e.people[+b.dataset.p], cyc = ['', '上午', '下午', '整天', '18:00–19:00', '18:00–20:00']; pp.time = cyc[(cyc.indexOf(pp.time || '') + 1) % cyc.length]; qkRender(); return; }
           if (b.dataset.t) { e.time = e.time === b.dataset.t ? '' : b.dataset.t; qkRender(); return; }
           if (b.dataset.d !== undefined) e.dates[+b.dataset.d].on = !e.dates[+b.dataset.d].on; else e.people[+b.dataset.p].on = !e.people[+b.dataset.p].on;
           qkRender();
@@ -6417,6 +6459,9 @@ td.cell.full.comp::before { background: var(--comp) !important; }
         $('idInst').hidden = instStandalone() || no || !mobile;
       }
       var CHANGELOG = [
+        { v: 'v11.03', d: '11/5', t: ['公差月曆格子改成一件一條色條，條上寫人名（兩字簡稱）：紫＝公差、淺藍＝尿篩、橘＝加班、粉＝當日行程，國定假日是實心紅條；一條最多 3 個名字，其他顯示「＋N」；一格最多 3 條'] },
+        { v: 'v11.02', d: '11/5', t: ['快速標記時間重新排：上班一排（整天 08–17、上午 08–12、下午 13:30–17）、加班一排（18–19、18–20、其他自己打）；「整天」和 08:00–17:00 合成一顆', '快速標記選人：每個名字右上角顯示這個月已派公差次數（不含尿篩、加班），最少的標綠色'] },
+        { v: 'v11.01', d: '11/5', t: ['時間寫「8:30」「9:00」這種一位數小時，當天頁不再顯示「未定」，會照時間排；存的時候也自動補成 08:30'] },
         { v: 'v11.00', d: '11/5', t: ['平日全天休自動當成補休／慰休，用綠藍色標示（休假月曆、班表格子、搜尋人名）；假日的休維持藍色，不用另外選', '休假分析的休假月曆可以左右滑動換月'] },
         { v: 'v10.99', d: '11/5', t: ['快速標記：不存在的日期（2/30、非閏年 2/29）不再變成 3 月；「軍械股2員」「各課派十一員」也算得出人數', '加班統計：寫「整天／上午／下午」的加班也算時數（9／4／3.5 小時），不再是 0', '編輯一項公差時把人全部取消，會問要不要刪除這項（原本按了沒反應）', '休假判斷一律以「股總有記以股總為準」為主，選人標記和衝突判斷一致', '統計還沒讀到時顯示「讀取中」，不會整頁空白'] },
         { v: 'v10.98', d: '11/5', t: ['統計頁：左右滑動可以換月份（季、年也是換上一期／下一期）', '統計頁更緊湊：上面兩排切換鈕和月份列變矮；個人清單的「已排」改成日期旁的小標籤，一列只佔一行'] },
