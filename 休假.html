@@ -2216,6 +2216,12 @@ button.copied { background: #e3f1e6 !important; color: #2f6b3f !important; borde
 .otsec.b1 .pick button:not(.on) { border-color: #2f6fe0; } .otsec.b2 .pick button:not(.on) { border-color: #2e9a50; } .otsec.b3 .pick button:not(.on) { border-color: #9a8660; }
 [data-theme="dark"] .otsec.b1 { background: rgba(47,111,224,.16); } [data-theme="dark"] .otsec.b2 { background: rgba(46,154,80,.16); } [data-theme="dark"] .otsec.b3 { background: rgba(154,134,96,.16); }
 [data-theme="dark"] .otsec.b1 .otsh b { color: #9fc0ff; } [data-theme="dark"] .otsec.b2 .otsh b { color: #9fe0b4; } [data-theme="dark"] .otsec.b3 .otsh b { color: #d9c9a6; }
+/* 派打靶：這季打過沒 */
+.qkpick .qkchip s.shx { display: block; width: 100%; text-decoration: none; text-align: center; font-size: 10.5px; font-weight: 800; border-radius: 5px; margin-top: 2px; padding: 0 2px; white-space: nowrap; overflow: hidden; }
+.qkpick .qkchip s.shx.ok { background: #d6f0dd; color: #1f7a3c; }
+.qkpick .qkchip s.shx.no { background: #ffe8c7; color: #9c5a00; }
+.qknote .shok { color: #1f7a3c; font-weight: 800; } .qknote .shno { color: #9c5a00; font-weight: 800; }
+[data-theme="dark"] .qkpick .qkchip s.shx.ok { background: rgba(46,154,80,.25); color: #9fe0b4; } [data-theme="dark"] .qkpick .qkchip s.shx.no { background: rgba(230,140,50,.25); color: #fbd09a; }
 
   .sit { display: inline-flex; align-items: center; gap: 5px; }
 .sit .wi { width: 18px; height: 18px; flex-shrink: 0; background: center / contain no-repeat; }
@@ -2271,6 +2277,19 @@ button.copied { background: #e3f1e6 !important; color: #2f6b3f !important; borde
 td.cell.full.comp::before { background: var(--comp) !important; }
 .sit.rest.comp { background: #dcf1ef !important; color: #0b6b69 !important; }
 [data-theme="dark"] .sit.rest.comp { background: rgba(35,167,162,.25) !important; color: #9fe3dd !important; }
+
+/* v11.05 打靶統計 */
+.ski-shoot { background-image: var(--ix-w-target); }
+#statBody .shead.shh, #statBody .sct.shrow { display: grid !important; grid-template-columns: 4.4em repeat(4, minmax(0, 1fr)) !important; gap: 4px; align-items: center; }
+#statBody .sct.shrow > * { width: auto !important; min-width: 0 !important; margin: 0 !important; flex: none !important; }
+.shead.shh span { text-align: center; } .shead.shh span:first-child { text-align: left; }
+.shq { text-align: center; font-size: 12.5px; font-weight: 800; border-radius: 8px; padding: 4px 0; line-height: 1.15; }
+.shq small { display: block; font-size: 10px; }
+.shq.ok { background: #d6f0dd; color: #1f7a3c; } .shq.fut { background: #e6efff; color: #2257b8; } .shq.miss { background: #fbe1dd; color: #b23b2e; } .shq.now { background: #fff1c9; color: #8a5d00; } .shq.na { color: var(--muted); }
+[data-theme="dark"] .shq.ok { background: rgba(46,154,80,.25); color: #9fe0b4; } [data-theme="dark"] .shq.fut { background: rgba(47,111,224,.25); color: #9fc0ff; } [data-theme="dark"] .shq.miss { background: rgba(214,70,60,.25); color: #ffb1a8; } [data-theme="dark"] .shq.now { background: rgba(245,184,0,.2); color: #ffd97a; }
+.db.sh { background: #d8f0dc; color: #1f6e37; } [data-theme="dark"] .db.sh { background: rgba(46,154,80,.3); color: #bfeccb; }
+.dtip .lgb.sh { background: #86cf97; }
+.sit.shoot { background: #d8f0dc; color: #1f6e37; }
 </style>
 </head>
 <body>
@@ -2578,7 +2597,7 @@ td.cell.full.comp::before { background: var(--comp) !important; }
     <div class="dbar"><button class="linkbtn" id="dutyToday" hidden>回到本月</button><button class="dsync" id="dutySync"></button></div>
     <div id="dutyLoading" class="dloading" hidden>讀取中…</div>
     <div id="dutyGrid"></div>
-    <div class="dtip"><i class="lgb du"></i>公差 <i class="lgb ur"></i>尿篩 <i class="lgb ot"></i>加班 <i class="lgb ev"></i>行程・<u class="dot stay"></u>留守 <u class="dot note"></u>備註 <u class="dot fo"></u>擴大FO</div>
+    <div class="dtip"><i class="lgb du"></i>公差 <i class="lgb ur"></i>尿篩 <i class="lgb sh"></i>打靶 <i class="lgb ot"></i>加班 <i class="lgb ev"></i>行程・<u class="dot stay"></u>留守 <u class="dot note"></u>備註 <u class="dot fo"></u>擴大FO</div>
     </div>
     <div id="dutyStat" hidden><div id="statBody"></div></div>
     </div>
@@ -3226,7 +3245,7 @@ td.cell.full.comp::before { background: var(--comp) !important; }
         return '';
       }
       // 「上午／@某人／下午／@某人」「0600-0800／@某人」：標記行下面那個人的時間
-      var QK_MAP0, QK_MAP = QK_MAP0 = [[/防水/, '頂樓防水監工'], [/平[台臺]監工|共構平[台臺]/, '平台監工'], [/小木屋|招待所/, '小木屋'], [/性別主流/, '性別主流講習'], [/球類競賽|慶球/, '球類競賽支援'], [/靶勤|靶溝/, '打靶'], [/體能戰技|鑑測/, '體測支援'], [/清運/, '清運公差'], [/桶裝水/, '搬桶裝水'], [/私章|印章/, '蓋印章'], [/衛生教育/, '衛生教育'], [/送校/, '裝備送校'], [/擴大\s*FO/i, '擴大FO'], [/無人機/, '無人機監工'], [/報廢/, '報廢公差'], [/擦槍/, '擦槍'], [/觀禮/, '觀禮'], [/打靶/, '打靶']];
+      var QK_MAP0, QK_MAP = QK_MAP0 = [[/輕兵器|射擊訓練|射擊預習|射手/, '打靶'], [/防水/, '頂樓防水監工'], [/平[台臺]監工|共構平[台臺]/, '平台監工'], [/小木屋|招待所/, '小木屋'], [/性別主流/, '性別主流講習'], [/球類競賽|慶球/, '球類競賽支援'], [/靶勤|靶溝/, '打靶'], [/體能戰技|鑑測/, '體測支援'], [/清運/, '清運公差'], [/桶裝水/, '搬桶裝水'], [/私章|印章/, '蓋印章'], [/衛生教育/, '衛生教育'], [/送校/, '裝備送校'], [/擴大\s*FO/i, '擴大FO'], [/無人機/, '無人機監工'], [/報廢/, '報廢公差'], [/擦槍/, '擦槍'], [/觀禮/, '觀禮'], [/打靶/, '打靶']];
       function qkExplicit(b) {
         var lines = b.split('\n'), out = [], pend = [], pd = [], rx = QK_DRX;
         function secTime(ls) {
@@ -3605,7 +3624,7 @@ td.cell.full.comp::before { background: var(--comp) !important; }
           var k = ym + '-' + pad(d), items = [];
           var r = (recordsPub[k] || {})[n];
           if (r) { var cp = isLeave(r) && r.period === '全天' && !dayInfo(k).off; items.push({ c: isLeave(r) ? 'rest' + (cp ? ' comp' : '') : (r.period === '留守' ? 'stay' : (r.period === '監控' ? 'mon' : 'away')), t: cp ? '補休／慰休' : recLabel(r) }); if (isLeave(r)) { if (dayInfo(k).off) cnt.offRest = (cnt.offRest || 0) + 1; else cnt.rest += r.period === '全天' ? 1 : 0.5; } else if (r.period === '留守') cnt.stay++; }
-          (dutyAll[k] || []).forEach(function (x) { if (x.n !== n) return; var u = isUrine(x.why), o = isOT(x.why); items.push({ c: u ? 'urine' : (o ? 'ot' : 'duty'), t: x.why + (x.time ? '　' + fmtTm(x.time) : ''), ic: whyIcon(x.why) }); if (u) cnt.urine++; else if (o) cnt.ot += otHours(x.time); else cnt.duty++; });
+          (dutyAll[k] || []).forEach(function (x) { if (x.n !== n) return; var u = isUrine(x.why), o = isOT(x.why); items.push({ c: u ? 'urine' : (o ? 'ot' : (isShoot(x.why) ? 'shoot' : 'duty')), t: x.why + (x.time ? '　' + fmtTm(x.time) : ''), ic: whyIcon(x.why) }); if (u) cnt.urine++; else if (o) cnt.ot += otHours(x.time); else cnt.duty++; });
           try { var pl0 = dutyDayOf(k).plan || {}; Object.keys(pl0).forEach(function (it) { pl0[it].forEach(function (p) { if (p.n !== n) return; var pt = planTm(it); items.push({ c: 'plan', t: it + (pt ? '　' + pt.a + '–' + pt.b : '') + (p.est ? '（預估）' : '（表定）'), ic: whyIcon(it) }); cnt.plan = (cnt.plan || 0) + 1; }); }); } catch (e2) { /* 忽略 */ }
           eventsOf(k).forEach(function (e) { if (e.who !== '全員' && evHas(e, n)) items.push({ c: 'ev', t: '行程：' + (e.time ? e.time + ' ' : '') + e.title }); });
           if (items.length) rows.push('<div class="srow' + (dayInfo(k).off ? ' off' : '') + '"><b>' + mdLabel(k) + '<small>' + wkOf(k) + '</small></b><div>' + items.map(function (it) { return '<span class="sit ' + it.c + '">' + (it.ic ? '<i class="wi ' + it.ic + '"></i>' : '') + esc(it.t) + '</span>'; }).join('') + '</div></div>');
@@ -3711,11 +3730,20 @@ td.cell.full.comp::before { background: var(--comp) !important; }
           var d0 = (e.dates.filter(function (x) { return x.on; })[0] || e.dates[0] || {}).k || todayKey(), ym0 = d0.slice(0, 7), mc = {};
           Object.keys(dutyAll).forEach(function (k) { if (k.slice(0, 7) !== ym0) return; (dutyAll[k] || []).forEach(function (x) { if (!isUrine(x.why) && !isOT(x.why)) mc[x.n] = (mc[x.n] || 0) + 1; }); });
           var mn = Math.min.apply(null, off.map(function (x) { return mc[x.p.n] || 0; }));
+          var shI = null;
+          if (typeof isShoot === 'function' && isShoot(e.why)) {
+            shI = {}; var qOf = function (k) { return k.slice(0, 4) + 'Q' + Math.ceil(+k.slice(5, 7) / 3); }, q0 = qOf(d0), seenS = {};
+            var addS = function (n, k) { if (k === d0 || seenS[n + k]) return; seenS[n + k] = 1; var o = shI[n] = shI[n] || { q: '', last: '' }; if (qOf(k) === q0) o.q = o.q && o.q > k ? o.q : k; if (k < d0 && k > o.last) o.last = k; };
+            (statAll || []).forEach(function (x) { if (isShoot(x.why)) addS(x.name, x.date); });
+            Object.keys(dutyAll).forEach(function (k) { (dutyAll[k] || []).forEach(function (x) { if (isShoot(x.why)) addS(x.n, k); }); });
+            off.sort(function (a, b) { return (shI[a.p.n] && shI[a.p.n].q ? 1 : 0) - (shI[b.p.n] && shI[b.p.n].q ? 1 : 0); });
+            h += '<div class="qknote"><span class="shok">綠＝第 ' + q0.slice(5) + ' 季已打</span>・<span class="shno">橘＝這季還沒打</span>（排前面，寫上次日期）</div>';
+          }
           h += '<div class="qknote">右上數字＝' + (+ym0.slice(5)) + ' 月已派公差次數（不含尿篩、加班），<span class="lowtx">綠色＝最少</span>' + (!e.time && !e.ptm ? '<br>選了時間，才會標出跟其他公差、輪值、行程撞到的人' : '') + '</div>';
           h += (res ? '<div class="qkres">「' + esc(res) + '」是誰？點下面的名字</div>' : '') + '<div class="qkpick">';
           off.forEach(function (x) {
             var is = qkIssues(e, x.p), hard = is.some(function (t) { return t[0] !== '~'; }), c0 = mc[x.p.n] || 0;
-            h += '<button class="qkchip pp' + (hard ? ' warn' : (is.length ? ' soft' : '')) + '" data-e="' + i + '" data-p="' + x.j + '"><u class="mc' + (c0 === mn ? ' low' : '') + '">' + c0 + '</u><b>' + esc(x.p.n) + '</b>' + (is.length ? '<i>' + esc(qkIsTxt(is[0]).replace(/\s*\d{1,2}:\d{2}.*$/, '').replace(/^已有/, '')) + '</i>' + (is.length > 1 ? '<em>還有 ' + (is.length - 1) + ' 項</em>' : '') : '') + '</button>';
+            h += '<button class="qkchip pp' + (hard ? ' warn' : (is.length ? ' soft' : '')) + '" data-e="' + i + '" data-p="' + x.j + '"><u class="mc' + (c0 === mn ? ' low' : '') + '">' + c0 + '</u><b>' + esc(x.p.n) + '</b>' + (shI ? (function (o) { o = o || {}; return o.q ? '<s class="shx ok">本季 ' + mdLabel(o.q) + (o.q > todayKey() ? ' 已排' : ' 已打') + '</s>' : '<s class="shx no">' + (o.last ? '上次 ' + mdLabel(o.last) : '沒有紀錄') + '</s>'; })(shI[x.p.n]) : '') + (is.length ? '<i>' + esc(qkIsTxt(is[0]).replace(/\s*\d{1,2}:\d{2}.*$/, '').replace(/^已有/, '')) + '</i>' + (is.length > 1 ? '<em>還有 ' + (is.length - 1) + ' 項</em>' : '') : '') + '</button>';
           });
           h += '</div>';
         }
@@ -3983,7 +4011,7 @@ td.cell.full.comp::before { background: var(--comp) !important; }
           var bars = [], sn = function (nm) { return nm.length >= 3 ? nm.slice(1) : nm; };
           if (info.tag && info.off && HOLIDAYS[k]) bars.push({ c: 'hol', t: info.tag, s: -2 });
           evs.forEach(function (ev) { bars.push({ c: 'ev', t: ev.title, s: -1 }); });
-          Object.keys(o.duty).forEach(function (l) { var w = l.split('　')[0], tm = l.split('　')[1] || ''; var nn = o.duty[l].names.map(sn); bars.push({ c: isUrine(w) ? 'ur' : (isOT(w) ? 'ot' : 'du'), h: nn.slice(0, nn.length > 3 ? 2 : 3).map(function (x) { return '<span>' + esc(x) + '</span>'; }).join('') + (nn.length > 3 ? '<span class="pl">＋' + (nn.length - 2) + '</span>' : ''), s: tm ? tmRange(tm)[0] : 2000, w: w }); });
+          Object.keys(o.duty).forEach(function (l) { var w = l.split('　')[0], tm = l.split('　')[1] || ''; var nn = o.duty[l].names.map(sn); bars.push({ c: isUrine(w) ? 'ur' : (isOT(w) ? 'ot' : (isShoot(w) ? 'sh' : 'du')), h: nn.slice(0, nn.length > 3 ? 2 : 3).map(function (x) { return '<span>' + esc(x) + '</span>'; }).join('') + (nn.length > 3 ? '<span class="pl">＋' + (nn.length - 2) + '</span>' : ''), s: tm ? tmRange(tm)[0] : 2000, w: w }); });
           bars.sort(function (a, b) { return a.s - b.s; });
           if (bars.length) { var lim = bars.length > 3 ? 2 : 3; chips += '<span class="dbars">' + bars.slice(0, lim).map(function (x) { return '<i class="db ' + x.c + '"' + (x.w ? ' title="' + esc(x.w) + '"' : '') + '>' + (x.h || esc(x.t)) + '</i>'; }).join('') + (bars.length > lim ? '<i class="db more">＋' + (bars.length - lim) + '</i>' : '') + '</span>'; }
           var no = 0; Object.keys(o.out).forEach(function (w) { no += o.out[w].length; });
@@ -4246,8 +4274,9 @@ td.cell.full.comp::before { background: var(--comp) !important; }
         });
       }
       function isUrine(w) { return /尿篩|尿液/.test(String(w || '')); }
+      function isShoot(w) { w = String(w || ''); return /打靶|射擊|輕兵器|靶勤|靶溝/.test(w) && !/擦槍|打草|保養|清潔|除草/.test(w); }
       var statKind = 'duty';
-      function statKindBar() { return '<div class="strg stkind">' + [['duty', '公差', 'duty'], ['urine', '尿篩', 'urine'], ['ot', '加班', 'ot']].map(function (k) { return '<button class="' + (statKind === k[0] ? 'on' : '') + '" data-kind="' + k[0] + '">' + (k[2] ? '<i class="ski ski-' + k[2] + '"></i>' : '') + k[1] + '</button>'; }).join('') + '</div>'; }
+      function statKindBar() { return '<div class="strg stkind">' + [['duty', '公差', 'duty'], ['urine', '尿篩', 'urine'], ['shoot', '打靶', 'shoot'], ['ot', '加班', 'ot']].map(function (k) { return '<button class="' + (statKind === k[0] ? 'on' : '') + '" data-kind="' + k[0] + '">' + (k[2] ? '<i class="ski ski-' + k[2] + '"></i>' : '') + k[1] + '</button>'; }).join('') + '</div>'; }
       // 尿篩：不是公差，是每個人定期要去 → 看每個人去過幾次、最近一次、隔多久了
       function urineRows() {
         var tk = todayKey(), per = {};
@@ -4356,6 +4385,39 @@ td.cell.full.comp::before { background: var(--comp) !important; }
         h += '<div class="stcmp">週末、國定假日、標成假日的日子算假日加班。時數依登記的起訖時間計算（沒寫開始時間：夜間從 18:00、假日從 08:00 算）。加班不算進公差次數。</div>';
         $('statBody').innerHTML = h; statRowsNow = [];
       }
+      var shootY = 0;
+      // 打靶：每季每個人都要有成績；只要有出去（射手、EMT、小導師、駕駛）都算
+      function renderShoot() {
+        var tk = todayKey(), y = shootY || +tk.slice(0, 4), cq = y === +tk.slice(0, 4) ? Math.ceil(+tk.slice(5, 7) / 3) : (y < +tk.slice(0, 4) ? 5 : 0);
+        if (!shootY) shootY = y;
+        var per = {};
+        (statAll || []).forEach(function (x) { if (!isShoot(x.why) || x.date.slice(0, 4) !== String(y)) return; var q = Math.ceil(+x.date.slice(5, 7) / 3); ((per[x.name] = per[x.name] || {})[q] = per[x.name][q] || []).push(x.date); });
+        var rows = qkAll().map(function (e) {
+          var p = per[e.name] || {}, qs = [1, 2, 3, 4].map(function (q) { var l = (p[q] || []).filter(function (v, i, a) { return a.indexOf(v) === i; }).sort(); return { q: q, l: l, done: l.some(function (d) { return d <= tk; }), fut: l.filter(function (d) { return d > tk; })[0] || '' }; });
+          var miss = qs.filter(function (x) { return x.q <= Math.min(cq, 4) && !x.done && !x.fut; }).length;
+          return { n: e.name, qs: qs, miss: miss, now: cq >= 1 && cq <= 4 ? qs[cq - 1] : null };
+        });
+        rows.sort(function (a, b) { var an = a.now && (a.now.done || a.now.fut) ? 1 : 0, bn = b.now && (b.now.done || b.now.fut) ? 1 : 0; return an - bn || b.miss - a.miss; });
+        var h = statKindBar();
+        h += '<div class="stnav"><button data-sy="-1" aria-label="上一年">‹</button><b>' + y + ' 年（民國 ' + (y - 1911) + ' 年）</b><button data-sy="1" aria-label="下一年">›</button></div>';
+        if (cq >= 1 && cq <= 4) {
+          var need = rows.filter(function (r) { return !r.now.done && !r.now.fut; });
+          h += '<div class="ana st2"><div class="anah"><i class="ski ski-point"></i>第 ' + cq + ' 季還沒打<small>' + need.length + ' 人</small></div>' +
+            '<div class="ursug">' + (need.length ? need.map(function (r) { return '<span><b>' + esc(r.n) + '</b>' + (r.miss > 1 ? '<em>今年缺 ' + r.miss + ' 季</em>' : '') + '</span>'; }).join('') : '<em>這季大家都有成績了</em>') + '</div>' +
+            '<div class="stcmp">只要有出去（射手、EMT、小導師、駕駛）都算有打。打靶一樣算公差次數，這裡另外看每季有沒有成績。</div></div>';
+        }
+        h += '<div class="shead shh"><span>姓名</span><span>第1季</span><span>第2季</span><span>第3季</span><span>第4季</span></div>';
+        rows.forEach(function (r) {
+          var open = statOpen['s:' + r.n];
+          h += '<div class="scard' + (open ? ' open' : '') + '"><button class="sct shrow" data-sn2="' + esc(r.n) + '"><b>' + esc(r.n) + '</b>' + r.qs.map(function (x) {
+            var c = x.done ? 'ok' : (x.fut ? 'fut' : (x.q < cq ? 'miss' : (x.q === cq ? 'now' : 'na')));
+            return '<span class="shq ' + c + '">' + (x.done ? mdLabel(x.l.filter(function (d) { return d <= tk; }).pop()) : (x.fut ? mdLabel(x.fut) + '<small>已排</small>' : (c === 'miss' ? '沒打' : (c === 'now' ? '還沒' : '—')))) + '</span>';
+          }).join('') + '</button>';
+          if (open) { var all = [].concat.apply([], r.qs.map(function (x) { return x.l; })); h += '<div class="scd"><div class="anat">' + y + ' 年打靶紀錄（點選可到當天修改）</div>' + (all.length ? all.map(function (d) { return '<button class="sdr sdrb" data-k="' + d + '"><b>' + mdLabel(d) + '</b><span>第 ' + Math.ceil(+d.slice(5, 7) / 3) + ' 季' + (d > tk ? '・已排' : '') + '</span></button>'; }).join('') : '<div class="muted">今年沒有紀錄</div>') + '</div>'; }
+          h += '</div>';
+        });
+        $('statBody').innerHTML = h; statRowsNow = [];
+      }
       function renderUrine() {
         var rows = urineRows(), tk = todayKey(), h = statKindBar();
         var todo = rows.filter(function (r) { return !r.fut; }), maxD = 1;
@@ -4456,6 +4518,7 @@ td.cell.full.comp::before { background: var(--comp) !important; }
       function renderStat() {
         if (!statAll) { $('statBody').innerHTML = '<div class="dnone">統計讀取中…</div>'; if (!renderStat.asked) { renderStat.asked = 1; try { statLoad(); } catch (e) { /* 忽略 */ } } return; }
         if (statKind === 'urine') { renderUrine(); return; }
+        if (statKind === 'shoot') { renderShoot(); return; }
         if (statKind === 'ot') { renderOT(); return; }
         var SA = statAll.filter(function (x) { return !isUrine(x.why) && !isOT(x.why); });   // 尿篩、加班不算公差
         var tk = todayKey(), P = statPeriod(statOff), P0 = statRange === 'all' ? null : statPeriod(statOff + 1);
@@ -4710,6 +4773,8 @@ td.cell.full.comp::before { background: var(--comp) !important; }
           if (b.dataset.ucopy) { copyText(urineText()); return; }
           if (b.dataset.otcopy) { copyText(otStatText()); return; }
           if (b.dataset.on) { statOpen['o:' + b.dataset.on] = !statOpen['o:' + b.dataset.on]; renderStat(); return; }
+          if (b.dataset.sn2) { statOpen['s:' + b.dataset.sn2] = !statOpen['s:' + b.dataset.sn2]; renderStat(); return; }
+          if (b.dataset.sy) { shootY += +b.dataset.sy; renderStat(); return; }
           if (b.dataset.un) { statOpen['u:' + b.dataset.un] = !statOpen['u:' + b.dataset.un]; renderStat(); return; }
           if (b.dataset.sort) { statSort = b.dataset.sort; renderStat(); }
           else if (b.dataset.clr) { statWhy = ''; renderStat(); }
@@ -6487,6 +6552,8 @@ td.cell.full.comp::before { background: var(--comp) !important; }
         $('idInst').hidden = instStandalone() || no || !mobile;
       }
       var CHANGELOG = [
+        { v: 'v11.06', d: '11/6', t: ['派打靶時（事由是打靶），選人名單會標：綠＝這季已打（寫日期）、橘＝這季還沒打（寫上次日期），還沒打的排前面'] },
+        { v: 'v11.05', d: '11/6', t: ['打靶另外統計（一樣算公差次數）：統計頁多一顆「打靶」，依第 1～4 季看每個人有沒有打；只要有出去（射手、EMT、小導師、駕駛）都算', '上方列出「這季還沒打」的人，今年缺好幾季的會標出來；舊的打靶紀錄也算', '公差月曆的打靶改成綠色條；快速標記看到「輕兵器射擊訓練」會自動填打靶'] },
         { v: 'v11.04', d: '11/5', t: ['產出→加班選人（股總）：分成彈射班、軍械班、其他（股部、軍官）三區；彈射、軍械身分維持原本'] },
         { v: 'v11.03', d: '11/5', t: ['公差月曆格子改成一件一條色條，條上寫人名（兩字簡稱）：紫＝公差、淺藍＝尿篩、橘＝加班、粉＝當日行程，國定假日是實心紅條；一條最多 3 個名字，其他顯示「＋N」；一格最多 3 條'] },
         { v: 'v11.02', d: '11/5', t: ['快速標記時間重新排：上班一排（整天 08–17、上午 08–12、下午 13:30–17）、加班一排（18–19、18–20、其他自己打）；「整天」和 08:00–17:00 合成一顆', '快速標記選人：每個名字右上角顯示這個月已派公差次數（不含尿篩、加班），最少的標綠色'] },
