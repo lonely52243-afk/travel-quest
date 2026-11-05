@@ -2145,6 +2145,29 @@ button.copied { background: #e3f1e6 !important; color: #2f6b3f !important; borde
 .srsum { display: flex; flex-wrap: wrap; gap: 6px; background: none !important; padding: 0 !important; }
 .srsum span { background: #f1ecfb; color: #5a4b9e; border-radius: 8px; padding: 4px 9px; font-size: 13px; font-weight: 800; }
 [data-theme="dark"] .srsum span { background: rgba(122,75,194,.28); color: #d8ccf5; }
+/* v10.97 快速標記名單：三欄等寬、不再超出框；衝突只顯示第一項＋「還有 N 項」；半天休是提示色 */
+.qkpick { grid-template-columns: repeat(3, minmax(0, 1fr)) !important; }
+.qkpick .qkchip { min-width: 0; padding: 7px 6px !important; justify-content: center; }
+.qkpick .qkchip b { font-weight: 700; white-space: nowrap; }
+.qkpick .qkchip i { display: block; width: 100%; text-align: center; }
+.qkpick .qkchip em { font-style: normal; font-size: 10px; font-weight: 700; color: #9a3d33; opacity: .8; }
+.qkpick .qkchip.soft { background: #fff6e6; border-color: #ecc98a; }
+.qkpick .qkchip.soft i { color: #9a6a12; }
+.qknote { font-size: 12.5px; color: var(--muted); font-weight: 600; margin-top: 8px; }
+[data-theme="dark"] .qkpick .qkchip.soft { background: rgba(232,163,58,.15); border-color: rgba(232,163,58,.5); }
+/* v10.98 統計頁更緊湊 */
+#statBody .strg { padding: 3px !important; margin-bottom: 8px !important; }
+#statBody .strg button { min-height: 36px !important; padding: 0 4px !important; font-size: 14.5px !important; }
+#statBody .strg button .ico, #statBody .strg button img, #statBody .strg button i { width: 22px !important; height: 22px !important; }
+#statBody .stnav { margin: 2px 0 8px !important; }
+#statBody .stnav button { min-width: 40px !important; min-height: 36px !important; padding: 0 !important; font-size: 20px !important; border-radius: 10px !important; }
+#statBody .stnav b { font-size: 18px !important; }
+#statBody .scard .slast { flex-direction: row !important; align-items: center !important; justify-content: flex-end !important; gap: 4px; white-space: nowrap; }
+#statBody .scard .slast small { display: inline-block !important; font-size: 10.5px !important; padding: 1px 5px; border-radius: 6px; background: #efe9fa; line-height: 1.4; }
+#statBody .scard .slast small.urd { background: #fbe9e6; }
+#statBody .sct { min-height: 42px !important; padding-top: 6px !important; padding-bottom: 6px !important; }
+#statBody .swipehint { text-align: center; font-size: 11.5px; color: var(--muted); margin: -4px 0 8px; }
+[data-theme="dark"] #statBody .scard .slast small { background: rgba(122,75,194,.25); }
 
   .sit { display: inline-flex; align-items: center; gap: 5px; }
 .sit .wi { width: 18px; height: 18px; flex-shrink: 0; background: center / contain no-repeat; }
@@ -2989,7 +3012,7 @@ button.copied { background: #e3f1e6 !important; color: #2f6b3f !important; borde
       var QK_DRX = /^\s*(?:\d{3,4}\s*[.\/年]\s*)?\d{1,2}\s*[月\/]\s*\d{1,2}\s*[日號号]?(?:\s*[（(]\s*(?:週|周|星期|禮拜)?\s*[一二三四五六日天]\s*[)）])?/;
       var QK_VERB = /(搬|打掃|清掃|掃|佈置|布置|整理|清運|修繕|安裝|打草|監工|保養|擦槍|私章|印章|送校|檢整|復原|講習|驗測|鑑測|管制|引導|拆除|繳廢|領取|運送)/;
       var QK_CN = { '一': 1, '二': 2, '兩': 2, '三': 3, '四': 4, '五': 5, '六': 6, '七': 7, '八': 8, '九': 9, '十': 10 };
-      function qkNum(t) { return /^\d+$/.test(t) ? +t : (QK_CN[t] || 0); }
+      function qkNum(t) { t = String(t || ''); if (/^\d+$/.test(t)) return +t; var m = t.match(/^([一二兩三四五六七八九])?十([一二三四五六七八九])?$/); if (m) return (m[1] ? QK_CN[m[1]] : 1) * 10 + (m[2] ? QK_CN[m[2]] : 0); return QK_CN[t] || 0; }
       // 今日／明天／下週一 → 日期
       function qkRel(b) {
         var tk = todayKey(), dw = new Date(tk + 'T00:00:00').getDay(), mon = addDays(tk, -((dw + 6) % 7));
@@ -3038,10 +3061,13 @@ button.copied { background: #e3f1e6 !important; color: #2f6b3f !important; borde
         });
         return any && mine.length && mine.length < ds.length ? mine : ds;
       }
+      function qkIsTxt(t) { return t[0] === '~' ? t.slice(1) : t; }
+      // 這個人這天要注意的事：全天休、已經有同一項、尿篩太近 → 不管時間都會標；
+      // 跟其他公差、輪值（擴大FO／監工／查庫）、當日行程撞時間 → 選了時間才標；半天休沒選時間只提示（~ 開頭＝提示，不算衝突）
       function qkMk(y, m, d) { return y + '-' + pad(m) + '-' + pad(d); }
       function qkDatesIn(txt) {
         var out = [], y0 = new Date().getFullYear(), tk = todayKey();
-        function add(k) { if (out.indexOf(k) < 0) out.push(k); }
+        function add(k) { var q = k.split('-'), dt = new Date(+q[0], +q[1] - 1, +q[2]); if (dt.getMonth() !== +q[1] - 1) return; if (out.indexOf(k) < 0) out.push(k); }
         var s = txt.replace(/(^|[^\d])(\d{3,4})\s*[.\/年]\s*(\d{1,2})\s*[.\/月]\s*(\d{1,2})\s*[日號号]?/g, function (all, pre, a, b, c) {
           var yy = +a; if (yy < 1911) yy += 1911;
           if (+b >= 1 && +b <= 12 && +c >= 1 && +c <= 31) add(qkMk(yy, +b, +c));
@@ -3350,7 +3376,7 @@ button.copied { background: #e3f1e6 !important; color: #2f6b3f !important; borde
         return evs;
       }
       function qkNeed(b) {
-        var m = b.match(/軍械\s*[:：]?\s*(\d{1,2}|[一二兩三四五六七八九十])\s*[員人名個位]?/);
+        var m = b.match(/軍械(?:股(?=\s*[:：]?\s*[\d一二兩三四五六七八九十]))?\s*[:：]?\s*(\d{1,2}(?!\d)|[一二兩三四五六七八九]?十[一二三四五六七八九]?|[一二兩三四五六七八九])\s*[員人名個位]?/);
         if (m) return qkNum(m[1]);
         m = b.match(/(?:^|[、，,（(\s日：:])軍\s*(\d{1,2})(?![\d月\/])/m);
         if (m) return +m[1];
@@ -3580,14 +3606,27 @@ button.copied { background: #e3f1e6 !important; color: #2f6b3f !important; borde
       var qkForce = false, qkAsked = {}, qkSwap = null, qkDupOk = false, qkRes = null;
       // 這個人在這個事項的狀況：回傳文字陣列（休假、已有公差、重複、尿篩）
       function qkIssues(e, p) {
-        var out = [], ds = e.dates.filter(function (x) { return x.on; }), multi = ds.length > 1, why = (e.why || '').trim();
+        var out = [], ds = e.dates.filter(function (x) { return x.on; }), multi = ds.length > 1, why = (e.why || '').trim(), tm = p.time || e.time || '';
         ds.forEach(function (d) {
-          var pre = multi ? mdLabel(d.k) + ' ' : '', l = offClash(d.k, p.n, p.time || e.time, why);
-          if (l) out.push(pre + l);
-          dutyClash(d.k, p.n, why, p.time || e.time).forEach(function (c) { out.push(pre + '已有' + c); });
-          if (!e.asEv) evClash(d.k, p.n, p.time || e.time).forEach(function (t) { out.push(pre + '有行程：' + t); });
+          var pre = multi ? mdLabel(d.k) + ' ' : '';
           if (why && (dutyAll[d.k] || []).some(function (x) { return x.n === p.n && x.why === why && !(qkMode && qkMode.date === d.k && qkMode.why === why); })) out.push(pre + '已經有了');
-          else if (isUrine(why)) { var nr = urineNear(p.n, d.k); if (nr) out.push(pre + mdLabel(nr) + ' 已排尿篩'); }
+          if (!tm) {
+            var r = (recordsPub[d.k] || {})[p.n] || null;
+            if (isLeave(r) || isAway(r)) { if (r.period === '全天' || isAway(r)) out.push(pre + (isAway(r) ? (r.type || '外勤') : '全天休')); else out.push('~' + pre + r.period + '休'); }
+          } else {
+            var l = offClash(d.k, p.n, tm, why); if (l) out.push(pre + l);
+            dutyClash(d.k, p.n, why, tm).forEach(function (c) { out.push(pre + '已有' + c); });
+            try {
+              var pl = dutyDayOf(d.k).plan || {}, a = dayRng(tm);
+              Object.keys(pl).forEach(function (it) {
+                if (!pl[it].some(function (q) { return q.n === p.n && !q.away; })) return;
+                var pt = planTm(it), b = pt ? dayRng(pt.a + '–' + pt.b) : dayRng('');
+                if (a[0] < b[1] && b[0] < a[1]) out.push(pre + '輪值' + it + (pt ? ' ' + pt.a + '–' + pt.b : ''));
+              });
+            } catch (er) { /* 忽略 */ }
+            if (!e.asEv) evClash(d.k, p.n, tm).forEach(function (t) { out.push(pre + '有行程：' + t); });
+          }
+          if (isUrine(why)) { var nr = urineNear(p.n, d.k); if (nr) out.push(pre + mdLabel(nr) + ' 已排尿篩'); }
         });
         return out;
       }
@@ -3601,22 +3640,23 @@ button.copied { background: #e3f1e6 !important; color: #2f6b3f !important; borde
         var probs = [];
         h += '<div class="qksel">';
         on.forEach(function (x) {
-          var is = qkIssues(e, x.p); if (is.length) probs.push('<b>' + esc(x.p.n) + '</b>　' + esc(is.join('、')));
-          h += '<span class="qkp' + (is.length ? ' off' : '') + '"><button class="qkchip pp on" data-e="' + i + '" data-p="' + x.j + '">' + esc(x.p.n) + (x.p.time && !e.ptm ? '<small> ' + esc(x.p.time) + '</small>' : '') + '<i class="qkx0">×</i></button>' +
+          var is = qkIssues(e, x.p), hard = is.some(function (t) { return t[0] !== '~'; }); if (is.length) probs.push((hard ? '⚠ ' : 'ⓘ ') + '<b>' + esc(x.p.n) + '</b>　' + esc(is.map(qkIsTxt).join('、')));
+          h += '<span class="qkp' + (hard ? ' off' : '') + '"><button class="qkchip pp on" data-e="' + i + '" data-p="' + x.j + '">' + esc(x.p.n) + (x.p.time && !e.ptm ? '<small> ' + esc(x.p.time) + '</small>' : '') + '<i class="qkx0">×</i></button>' +
             (e.ptm ? '<button class="qkchip tm' + (x.p.time ? ' on' : '') + '" data-e="' + i + '" data-p="' + x.j + '" data-cy="1">' + (x.p.time || '時間') + '</button>' : '') + '</span>';
         });
         unk.forEach(function (t) { h += '<button class="qkx qkq' + (res === t ? ' on' : '') + '" data-e="' + i + '" data-unk="' + esc(t) + '">' + esc(t) + '？</button>'; });
         if (!on.length && !unk.length) h += '<span class="muted" style="font-size:13px">還沒選人</span>';
         h += '</div>';
         if (unk.length) h += '<div class="qkunk">「' + unk.map(esc).join('」「') + '」名冊對不到：點它，再從名單選是誰，下次會自動對到</div>';
-        if (probs.length) h += '<div class="qkprob">' + probs.map(function (t) { return '<div>⚠ ' + t + '</div>'; }).join('') + '</div>';
+        if (probs.length) h += '<div class="qkprob">' + probs.map(function (t) { return '<div>' + t + '</div>'; }).join('') + '</div>';
         h += '<div class="qktools"><button class="qkx qkadd2' + (pick ? ' on' : '') + '" data-e="' + i + '" data-pick="1">' + (pick ? '收起名單' : '＋ 加人') + '</button>' +
           (on.length ? '<button class="qkx qkptm' + (e.ptm ? ' on' : '') + '" data-e="' + i + '" data-ptm="1">個別時間</button>' : '') + '</div>';
         if (pick) {
+          if (!e.time && !e.ptm) h += '<div class="qknote">選了時間，才會標出跟其他公差、輪值、行程撞到的人</div>';
           h += (res ? '<div class="qkres">「' + esc(res) + '」是誰？點下面的名字</div>' : '') + '<div class="qkpick">';
           off.forEach(function (x) {
-            var is = qkIssues(e, x.p);
-            h += '<button class="qkchip pp' + (is.length ? ' warn' : '') + '" data-e="' + i + '" data-p="' + x.j + '">' + esc(x.p.n) + (is.length ? '<i>' + esc(is[0]) + '</i>' : '') + '</button>';
+            var is = qkIssues(e, x.p), hard = is.some(function (t) { return t[0] !== '~'; });
+            h += '<button class="qkchip pp' + (hard ? ' warn' : (is.length ? ' soft' : '')) + '" data-e="' + i + '" data-p="' + x.j + '"><b>' + esc(x.p.n) + '</b>' + (is.length ? '<i>' + esc(qkIsTxt(is[0]).replace(/\s*\d{1,2}:\d{2}.*$/, '').replace(/^已有/, '')) + '</i>' + (is.length > 1 ? '<em>還有 ' + (is.length - 1) + ' 項</em>' : '') : '') + '</button>';
           });
           h += '</div>';
         }
@@ -3682,6 +3722,7 @@ button.copied { background: #e3f1e6 !important; color: #2f6b3f !important; borde
           e.dates.forEach(function (d) { if (!d.on) return; evPut(d.k, '', t, evNormTime(e.time || ''), who); evN++; });
           e.asEvDone = true;
         });
+        if (!arr.length && !evN && qkMode && qkMode.names && qkMode.names.length) { var qm = qkMode; openSheet({ title: '人都取消了', sub: '要刪除「' + qm.why + '」這項公差嗎？（' + mdLabel(qm.date) + '・' + qm.names.length + ' 人）', body: '', actions: [{ label: '刪除這項', cls: 'main', fn: function () { dutyRemove(qm.date, qm.why, qm.names.slice()); qkMode = null; $('quickPage').classList.remove('show'); renderDutyMon(); try { renderDutyDay(); } catch (e) { /* 忽略 */ } } }, { label: '返回', fn: function () {} }] }); return; }
         if (!arr.length) { if (evN) { $('quickPage').classList.remove('show'); renderDutyMon(); showToast('✓ 已加入 ' + evN + ' 個當日行程', null, null, 2400); return; } showToast('未選擇任何項目', null, null, 2600); return; }
         if (!qkForce && !qkDupOk) {
           var dup = [];
@@ -3752,7 +3793,7 @@ button.copied { background: #e3f1e6 !important; color: #2f6b3f !important; borde
         });
         dutyCacheSave(); statAll = null; var qkRaw = $('quickPage').classList.contains('qkform') ? '' : ($('qkText').value || '').trim();
         $('quickPage').classList.remove('show'); renderDutyMon(); if ($('dutyDay').classList.contains('show')) renderDutyDay();
-        FX.ok(); $('okCatTxt').textContent = '已加入 ' + arr.length + ' 筆'; $('okCat').classList.add('show'); setTimeout(function () { $('okCat').classList.remove('show'); }, 1300);
+        FX.ok(); $('okCatTxt').textContent = '已加入 ' + arr.length + ' 筆'; $('okCat').classList.add('show'); clearTimeout(window.okCatT); window.okCatT = setTimeout(function () { $('okCat').classList.remove('show'); }, 1300);
         (wasEdit ? opQueue.then(function () { return apiCall({ action: 'addDuty', token: prefs.dutyPw, items: JSON.stringify(arr) }); }) : apiCall({ action: 'addDuty', token: prefs.dutyPw, items: JSON.stringify(arr) })).then(function (res) {
           if (!res || !res.ok) throw new Error((res && res.msg) || '新增失敗');
           qkSaveRaw(arr, qkRaw);
@@ -4168,7 +4209,7 @@ button.copied { background: #e3f1e6 !important; color: #2f6b3f !important; borde
         }).join('\n');
       }
       // 加班：時數（「17:00–20:00」＝3 小時；沒寫起訖的算 0，另外標示）
-      function otHours(t) { var r = tmRange(t); return /[–~～\-至]/.test(String(t || '')) && r[1] > r[0] && !(r[0] === 0 && r[1] === 1440) ? (r[1] - r[0]) / 60 : 0; }
+      function otHours(t) { var t0 = String(t || '').trim(); if (/^(整天|全天)$/.test(t0)) return 9; if (/^上午/.test(t0)) return 4; if (/^下午/.test(t0)) return 3.5; var r = tmRange(t); return /[–~～\-至]/.test(String(t || '')) && r[1] > r[0] && !(r[0] === 0 && r[1] === 1440) ? (r[1] - r[0]) / 60 : 0; }
       function otKind(x) { return dayInfo(x.date).off || /假日/.test(x.why) ? '假日' : '平日'; }
       function otRows() {
         var P = statPeriod(statOff), per = {};
@@ -4348,7 +4389,7 @@ button.copied { background: #e3f1e6 !important; color: #2f6b3f !important; borde
       }
       function statDelta(a, b) { if (b === null) return ''; var d = a - b; return '<i class="sdel ' + (d > 0 ? 'up' : d < 0 ? 'dn' : 'eq') + '">' + (d > 0 ? '▲' + d : d < 0 ? '▼' + (-d) : '持平') + '</i>'; }
       function renderStat() {
-        if (!statAll) return;
+        if (!statAll) { $('statBody').innerHTML = '<div class="dnone">統計讀取中…</div>'; if (!renderStat.asked) { renderStat.asked = 1; try { statLoad(); } catch (e) { /* 忽略 */ } } return; }
         if (statKind === 'urine') { renderUrine(); return; }
         if (statKind === 'ot') { renderOT(); return; }
         var SA = statAll.filter(function (x) { return !isUrine(x.why) && !isOT(x.why); });   // 尿篩、加班不算公差
@@ -6051,7 +6092,7 @@ button.copied { background: #e3f1e6 !important; color: #2f6b3f !important; borde
         var ym0 = ymOf(k);
         if (!otDAsked[ym0]) { otDAsked[ym0] = 1; apiCall({ action: 'getDuty', year: +k.slice(0, 4), month: +k.slice(5, 7) }).then(function (res) { dutyFill(+k.slice(0, 4), +k.slice(5, 7), res); if (tab === 'out') renderOut(); }).catch(function () {}); }
         function tag(n) {
-          var h = '', r = ready ? getRec(k, n) : null;
+          var h = '', r = ready ? ((recordsPub[k] || {})[n] || null) : null;
           if (isLeave(r)) h += r.period === '全天' ? '<i>休</i>' : '<i class="half">' + r.period + '休</i>';
           else if (isAway(r)) h += '<i>' + esc(r.type || '外勤') + '</i>';
           var d = otDone(k, n); if (d) h += '<i class="dup">已報' + (d.time ? ' ' + esc(d.time.replace(/:00/g, '')) : '') + '</i>';
@@ -6368,6 +6409,9 @@ button.copied { background: #e3f1e6 !important; color: #2f6b3f !important; borde
         $('idInst').hidden = instStandalone() || no || !mobile;
       }
       var CHANGELOG = [
+        { v: 'v10.99', d: '11/5', t: ['快速標記：不存在的日期（2/30、非閏年 2/29）不再變成 3 月；「軍械股2員」「各課派十一員」也算得出人數', '加班統計：寫「整天／上午／下午」的加班也算時數（9／4／3.5 小時），不再是 0', '編輯一項公差時把人全部取消，會問要不要刪除這項（原本按了沒反應）', '休假判斷一律以「股總有記以股總為準」為主，選人標記和衝突判斷一致', '統計還沒讀到時顯示「讀取中」，不會整頁空白'] },
+        { v: 'v10.98', d: '11/5', t: ['統計頁：左右滑動可以換月份（季、年也是換上一期／下一期）', '統計頁更緊湊：上面兩排切換鈕和月份列變矮；個人清單的「已排」改成日期旁的小標籤，一列只佔一行'] },
+        { v: 'v10.97', d: '11/5', t: ['快速標記選人：也會判斷輪值表的擴大FO、監工、查庫有沒有撞時間', '快速標記選人：還沒選時間只標全天休、外勤、已經有同一項；選了時間才標跟其他公差、輪值、行程撞到的人；半天休沒選時間用橘色提示', '快速標記名單三欄等寬，不再超出框；有好幾項衝突時只顯示第一項＋「還有 N 項」，選進來後下方會列出全部'] },
         { v: 'v10.96', d: '11/5', t: ['搜尋人名：休假只算平日，假日標的休另外寫「另假日休 N 天」；上方統計改成一顆一顆小標籤', '時間一律補零顯示（8:30 → 08:30）', '深色模式：當天詳細的人名看得清楚；每日到班選到的那天改成黃底'] },
         { v: 'v10.95', d: '11/5', t: ['搜尋人名：公差、尿篩、加班前面加上事由圖示', '搜尋人名：輪值表的監工、查庫、擴大FO 也列出來（虛線青色、標「表定」或「預估」），上方統計多「輪值 N 次」'] },
         { v: 'v10.94', d: '11/5', t: ['快速標記：「8/28日下午郭宗瑋」這種寫法，上午／下午當時間；「11月份會客室公差初版」事由抓「會客室公差」', '新圖示：會客室、慶生餐會、拍照、勝利盃、領物品、修護示範、管路、道路、主檢評鑑、衛教醫務、電梯管制', '當天沒有任何標記時，顯示睡覺小貓'] },
@@ -7087,7 +7131,7 @@ button.copied { background: #e3f1e6 !important; color: #2f6b3f !important; borde
             apiCall({ action: 'addDuty', token: prefs.dutyPw, items: JSON.stringify(arr) }).then(function (res) {
               if (!res || !res.ok) throw new Error((res && res.msg) || '新增失敗');
               prefs.tips.otduty = 1; savePrefs(); if ($('otTip')) $('otTip').hidden = true; $('otToDuty').classList.remove('pulse');
-              $('okCatTxt').textContent = '已加入勤務月曆 ' + arr.length + ' 筆'; $('okCat').classList.add('show'); setTimeout(function () { $('okCat').classList.remove('show'); }, 1500);
+              $('okCatTxt').textContent = '已加入勤務月曆 ' + arr.length + ' 筆'; $('okCat').classList.add('show'); clearTimeout(window.okCatT); window.okCatT = setTimeout(function () { $('okCat').classList.remove('show'); }, 1500);
             }).catch(function (err) {
               try { dutyAll = JSON.parse(snap); } catch (e) { /* 忽略 */ } dutyCacheSave();
               showToast('儲存失敗：' + err.message, null, null, 4200);
@@ -7270,6 +7314,11 @@ button.copied { background: #e3f1e6 !important; color: #2f6b3f !important; borde
         (function () { var x0 = 0, y0 = 0, on = false, el = $('attPage');
           el.addEventListener('touchstart', function (ev) { var t = ev.touches[0]; x0 = t.clientX; y0 = t.clientY; on = ev.touches.length === 1; }, { passive: true });
           el.addEventListener('touchend', function (ev) { if (!on) return; on = false; var t = ev.changedTouches[0], dx = t.clientX - x0, dy = t.clientY - y0; if (Math.abs(dx) > 60 && Math.abs(dx) > Math.abs(dy) * 1.5) { attK = addDays(attK, dx < 0 ? 1 : -1); renderAtt(); attEnsure(); } }, { passive: true });
+        })();
+        (function () { var x0 = 0, y0 = 0, on = false, el = $('dutyStat');
+          el.addEventListener('touchstart', function (ev) { var t = ev.touches[0]; x0 = t.clientX; y0 = t.clientY; on = ev.touches.length === 1 && !ev.target.closest('.stbars, .ottrend, input, textarea'); }, { passive: true });
+          el.addEventListener('touchend', function (ev) { if (!on) return; on = false; var t = ev.changedTouches[0], dx = t.clientX - x0, dy = t.clientY - y0;
+            if (Math.abs(dx) > 60 && Math.abs(dx) > Math.abs(dy) * 1.5) { var b = $('statBody').querySelector('.stnav button[data-off="' + (dx < 0 ? '-1' : '1') + '"]'); if (b && !b.disabled) b.click(); } }, { passive: true });
         })();
         $('gLog').addEventListener('click', openLog);
         $('dutyTabLog').addEventListener('click', openLog);
