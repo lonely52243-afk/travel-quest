@@ -2335,6 +2335,37 @@ td.cell.full.comp::before { background: var(--comp) !important; }
 .db.sh { background: #d8f0dc; color: #1f6e37; } [data-theme="dark"] .db.sh { background: rgba(46,154,80,.3); color: #bfeccb; }
 .dtip .lgb.sh { background: #86cf97; }
 .sit.shoot { background: #d8f0dc; color: #1f6e37; }
+
+.fair { background: var(--card, #fff); border: 1px solid var(--line, #e5e7eb); border-radius: 14px; padding: 12px 12px 10px; margin: 10px 0 12px; }
+.fairh { display: flex; align-items: baseline; gap: 8px; flex-wrap: wrap; margin-bottom: 8px; }
+.fairh b { font-size: 16px; } .fairh span { font-size: 12px; color: var(--muted, #6b7280); }
+.fairsug { display: flex; flex-wrap: wrap; gap: 6px; align-items: center; padding: 8px; border-radius: 10px; background: #e8f6ec; margin-bottom: 8px; }
+.fairsug em { font-style: normal; font-weight: 800; font-size: 12px; color: #1f7a3c; margin-right: 2px; }
+.fairsug span { display: inline-flex; align-items: center; gap: 4px; background: #fff; border-radius: 999px; padding: 3px 9px 3px 4px; font-weight: 700; font-size: 14px; }
+.fairsug span i { font-style: normal; width: 18px; height: 18px; border-radius: 50%; background: #2e9a50; color: #fff; font-size: 11px; display: inline-flex; align-items: center; justify-content: center; }
+.fairsug s, .fnew, .ffew { text-decoration: none; font-size: 10px; font-weight: 800; padding: 1px 5px; border-radius: 6px; background: #fff1c7; color: #8a5a00; margin-left: 3px; }
+.ffew { background: #eef0f3; color: #6b7280; }
+.fairl { display: flex; flex-direction: column; }
+.frow { display: grid; grid-template-columns: 22px minmax(0, 1fr) auto; grid-template-areas: "k n r" "k b b" "k s s"; column-gap: 8px; row-gap: 2px; padding: 6px 2px; border-top: 1px solid var(--line, #eef0f3); }
+.frow:first-child { border-top: 0; }
+.frk { grid-area: k; font-size: 12px; font-weight: 800; color: var(--muted, #9ca3af); padding-top: 2px; text-align: center; }
+.frn { grid-area: n; min-width: 0; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; } .frn b { font-size: 15px; }
+.frt { grid-area: r; font-size: 18px; font-weight: 800; line-height: 1; } .frt small { font-size: 11px; font-weight: 600; color: var(--muted, #6b7280); margin-left: 2px; }
+.fbar { grid-area: b; height: 6px; border-radius: 3px; background: var(--line, #eef0f3); overflow: hidden; } .fbar u { display: block; height: 100%; border-radius: 3px; background: #9aa5b5; }
+.fsub { grid-area: s; font-size: 12px; color: var(--muted, #6b7280); line-height: 1.4; }
+.frow.low .frt { color: #1f7a3c; } .frow.low .fbar u { background: #2e9a50; }
+.frow.hi .frt { color: #c2410c; } .frow.hi .fbar u { background: #f08a3c; }
+.fairall { display: block; margin: 4px auto 0; }
+.fairnote { font-size: 11.5px; color: var(--muted, #6b7280); line-height: 1.55; margin-top: 8px; padding-top: 8px; border-top: 1px dashed var(--line, #e5e7eb); }
+.stmore { margin: 10px 0 4px; } .stmore > summary { cursor: pointer; font-weight: 700; font-size: 14px; color: var(--muted, #4b5563); padding: 6px 0; }
+.qkpick .qkchip .fnew { margin-left: 4px; }
+[data-theme="dark"] .fair { background: #1c1f26; border-color: #2c313b; }
+[data-theme="dark"] .fairsug { background: rgba(46,154,80,.16); } [data-theme="dark"] .fairsug em { color: #9fe0b4; }
+[data-theme="dark"] .fairsug span { background: #262b34; color: #e8eaee; }
+[data-theme="dark"] .fairsug s, [data-theme="dark"] .fnew { background: rgba(245,184,0,.2); color: #ffd97a; }
+[data-theme="dark"] .ffew { background: #2c313b; color: #aab1bd; }
+[data-theme="dark"] .frow { border-color: #2c313b; } [data-theme="dark"] .fbar { background: #2c313b; }
+[data-theme="dark"] .frow.low .frt { color: #9fe0b4; } [data-theme="dark"] .frow.hi .frt { color: #ffb27a; }
 </style>
 </head>
 <body>
@@ -3773,7 +3804,8 @@ td.cell.full.comp::before { background: var(--comp) !important; }
           (on.length ? '<button class="qkx qkptm' + (e.ptm ? ' on' : '') + '" data-e="' + i + '" data-ptm="1">個別時間</button>' : '') + '</div>';
         if (pick) {
           var d0 = (e.dates.filter(function (x) { return x.on; })[0] || e.dates[0] || {}).k || todayKey(), ym0 = d0.slice(0, 7), mc = {};
-          Object.keys(dutyAll).forEach(function (k) { if (k.slice(0, 7) !== ym0) return; (dutyAll[k] || []).forEach(function (x) { if (!isUrine(x.why) && !isOT(x.why)) mc[x.n] = (mc[x.n] || 0) + 1; }); });
+          var FR = fairCalc(d0), fOk = fairReady(function () { if ($('quickPage').classList.contains('show')) qkRender(); });
+          off.forEach(function (x) { var f = FR[x.p.n]; mc[x.p.n] = f ? f.r : 0; });
           var mn = Math.min.apply(null, off.map(function (x) { return mc[x.p.n] || 0; }));
           var shI = null;
           if (typeof isShoot === 'function' && isShoot(e.why)) {
@@ -3785,11 +3817,11 @@ td.cell.full.comp::before { background: var(--comp) !important; }
             off.sort(function (a, b) { return shK(a.p.n) - shK(b.p.n); });
             h += '<div class="qknote"><span class="shno">橘＝多久沒打</span>（最久沒打的排前面）・<span class="shok">綠＝已經排了</span></div>';
           }
-          h += '<div class="qknote">右上數字＝' + (+ym0.slice(5)) + ' 月已派公差次數（不含尿篩、加班），<span class="lowtx">綠色＝最少</span>' + (!e.time && !e.ptm ? '<br>選了時間，才會標出跟其他公差、輪值、行程撞到的人' : '') + '</div>';
+          h += '<div class="qknote">右上數字＝近 90 天平均每 30 天幾次公差（扣掉休假、外勤；含已排，不含尿篩、加班），<span class="lowtx">綠色＝最少</span>' + (fOk ? '' : '・休假資料讀取中') + (!e.time && !e.ptm ? '<br>選了時間，才會標出跟其他公差、輪值、行程撞到的人' : '') + '</div>';
           h += (res ? '<div class="qkres">「' + esc(res) + '」是誰？點下面的名字</div>' : '') + '<div class="qkpick">';
           off.forEach(function (x) {
             var is = qkIssues(e, x.p), hard = is.some(function (t) { return t[0] !== '~'; }), c0 = mc[x.p.n] || 0;
-            h += '<button class="qkchip pp' + (hard ? ' warn' : (is.length ? ' soft' : '')) + '" data-e="' + i + '" data-p="' + x.j + '"><u class="mc' + (c0 === mn ? ' low' : '') + '">' + c0 + '</u><b>' + esc(x.p.n) + '</b>' + (shI ? (function (o) { o = o || {}; return o.fut ? '<s class="shx ok">已排 ' + mdLabel(o.fut) + '</s>' : '<s class="shx no">' + (o.last ? Math.round((Date.parse(todayKey()) - Date.parse(o.last)) / 864e5) + ' 天沒打' : '沒有紀錄') + '</s>'; })(shI[x.p.n]) : '') + (is.length ? '<i>' + esc(qkIsTxt(is[0]).replace(/\s*\d{1,2}:\d{2}.*$/, '').replace(/^已有/, '')) + '</i>' + (is.length > 1 ? '<em>還有 ' + (is.length - 1) + ' 項</em>' : '') : '') + '</button>';
+            h += '<button class="qkchip pp' + (hard ? ' warn' : (is.length ? ' soft' : '')) + '" data-e="' + i + '" data-p="' + x.j + '"><u class="mc' + (c0 <= mn + 0.3 ? ' low' : '') + '">' + c0.toFixed(1) + '</u><b>' + esc(x.p.n) + '</b>' + (FR[x.p.n] && FR[x.p.n].nw ? '<s class="fnew">新</s>' : '') + (shI ? (function (o) { o = o || {}; return o.fut ? '<s class="shx ok">已排 ' + mdLabel(o.fut) + '</s>' : '<s class="shx no">' + (o.last ? Math.round((Date.parse(todayKey()) - Date.parse(o.last)) / 864e5) + ' 天沒打' : '沒有紀錄') + '</s>'; })(shI[x.p.n]) : '') + (is.length ? '<i>' + esc(qkIsTxt(is[0]).replace(/\s*\d{1,2}:\d{2}.*$/, '').replace(/^已有/, '')) + '</i>' + (is.length > 1 ? '<em>還有 ' + (is.length - 1) + ' 項</em>' : '') : '') + '</button>';
           });
           h += '</div>';
         }
@@ -4535,6 +4567,82 @@ td.cell.full.comp::before { background: var(--comp) !important; }
         return '跨上下午';
       }
       function statDelta(a, b) { if (b === null) return ''; var d = a - b; return '<i class="sdel ' + (d > 0 ? 'up' : d < 0 ? 'dn' : 'eq') + '">' + (d > 0 ? '▲' + d : d < 0 ? '▼' + (-d) : '持平') + '</i>'; }
+      // 派公差參考：近 90 天（含之後 14 天已排的），扣掉休假、外勤、報到前的天數，換算成「每 30 天幾次」
+      var FAIR_D = 90, FAIR_F = 14;
+      function fairJoin(n) { for (var i = 0; i < PEOPLE.length; i++) if (PEOPLE[i].n === n) return PEOPLE[i].d || ''; return ''; }
+      function fairMonths() {
+        var tk = todayKey(), a = addDays(tk, -(FAIR_D - 1)), d = parseKey(a), out = [];
+        d.setDate(1);
+        while (keyOf(d) <= tk) { out.push(d.getFullYear() + '-' + pad(d.getMonth() + 1)); d.setMonth(d.getMonth() + 1); }
+        return out;
+      }
+      // 休假資料還沒讀的月份，背景讀完再重畫；回傳是否都讀好了
+      function fairReady(cb) {
+        var miss = fairMonths().filter(function (ym) { return !loaded[ym]; });
+        if (!miss.length) return true;
+        if (!fairReady.busy) {
+          fairReady.busy = 1;
+          Promise.all(miss.map(function (ym) { return fetchPeriod(+ym.slice(0, 4), +ym.slice(5, 7)).catch(function () {}); }))
+            .then(function () { fairReady.busy = 0; if (cb) cb(); }, function () { fairReady.busy = 0; });
+        }
+        return false;
+      }
+      function fairCalc(skipK) {
+        var tk = todayKey(), a = addDays(tk, -(FAIR_D - 1)), b = addDays(tk, FAIR_F), cnt = {}, last = {}, fut = {}, nx = {}, seen = {};
+        function add(n, k, w) {
+          if (!n || k < a || k > b || k === skipK || isUrine(w) || isOT(w)) return;
+          var key = n + '|' + k + '|' + normWhy(w); if (seen[key]) return; seen[key] = 1;
+          cnt[n] = (cnt[n] || 0) + 1;
+          if (k > tk) { fut[n] = (fut[n] || 0) + 1; if (!nx[n] || k < nx[n]) nx[n] = k; } else if (!last[n] || k > last[n]) last[n] = k;
+        }
+        (statAll || []).forEach(function (x) { add(x.name, x.date, x.why); });
+        Object.keys(dutyAll).forEach(function (k) { (dutyAll[k] || []).forEach(function (x) { add(x.n, k, x.why); }); });
+        var work = [];
+        for (var k = a; k <= tk; k = addDays(k, 1)) if (!dayInfo(k).off) work.push(k);
+        var out = {};
+        dutyEmps().forEach(function (e) {
+          var n = e.name, jd = fairJoin(n), p = 0;
+          work.forEach(function (k) {
+            if (jd && k < jd) return;
+            var r = (recordsPub[k] || {})[n], v = 1;
+            if (r) { if (r.period === '全天' || r.period === '外勤') v = 0; else if (r.period === '上午' || r.period === '下午') v = 0.5; }
+            p += v;
+          });
+          var c = cnt[n] || 0;
+          out[n] = { c: c, p: p, w: work.length, r: p > 0 ? Math.round(c / p * 300) / 10 : 0, last: last[n] || '', fut: fut[n] || 0, nx: nx[n] || '',
+            jd: jd, nw: !!jd && jd > addDays(tk, -14), few: p < 15 };
+        });
+        return out;
+      }
+      function fairHtml() {
+        var tk = todayKey(), ok = fairReady(function () { if ($('dutyStat') && !$('dutyStat').hidden && statKind === 'duty') renderStat(); });
+        var F = fairCalc(), names = dutyEmps().map(function (e) { return e.name; }).filter(function (n) { return STAT_SKIP.indexOf(n) < 0 && F[n]; });
+        if (!names.length) return '';
+        names.sort(function (x, y) { var a = F[x], b = F[y]; if (a.r !== b.r) return a.r - b.r; var la = a.last || '0', lb = b.last || '0'; return la < lb ? -1 : (la > lb ? 1 : 0); });
+        var rs = names.map(function (n) { return F[n].r; }), mn = rs[0], mx = Math.max.apply(null, rs) || 1, avg = rs.reduce(function (a, b) { return a + b; }, 0) / rs.length;
+        var all = !!statOpen['fair:all'], show = all ? names : names.slice(0, 6);
+        function lastTx(f) {
+          if (f.nx && !f.last) return '下次已排 ' + mdLabel(f.nx);
+          if (!f.last) return '近 90 天沒派';
+          var g = Math.round((Date.parse(tk) - Date.parse(f.last)) / 864e5);
+          return '最近 ' + mdLabel(f.last) + (g > 0 ? '（' + g + ' 天前）' : '（今天）');
+        }
+        var h = '<div class="fair"><div class="fairh"><b>派公差參考</b><span>近 90 天・平均每 30 天幾次</span></div>';
+        h += '<div class="fairsug"><em>建議先派</em>' + names.slice(0, 5).map(function (n, i) { return '<span><i>' + (i + 1) + '</i>' + esc(n) + (F[n].nw ? '<s>新</s>' : '') + '</span>'; }).join('') + '</div>';
+        h += '<div class="fairl">' + show.map(function (n, i) {
+          var f = F[n], lv = f.r <= mn + 0.3 ? 'low' : (f.r >= avg * 1.3 && f.r > mn + 0.5 ? 'hi' : 'mid');
+          return '<div class="frow ' + lv + '"><span class="frk">' + (i + 1) + '</span><span class="frn"><b>' + esc(n) + '</b>' +
+            (f.nw ? '<s class="fnew">新</s>' : '') + (f.few && !f.nw ? '<s class="ffew">在營少</s>' : '') + '</span>' +
+            '<span class="frt">' + f.r.toFixed(1) + '<small>次</small></span>' +
+            '<span class="fbar"><u style="width:' + Math.max(3, Math.round(f.r / mx * 100)) + '%"></u></span>' +
+            '<span class="fsub">90 天 ' + f.c + ' 次' + (f.fut ? '（含已排 ' + f.fut + '）' : '') + '・在營 ' + (Math.round(f.p * 10) / 10) + '/' + f.w + ' 天' + (f.jd && f.jd > addDays(tk, -(FAIR_D - 1)) ? '・' + mdLabel(f.jd) + ' 報到' : '') + '・' + lastTx(f) + '</span></div>';
+        }).join('') + '</div>';
+        if (names.length > 6) h += '<button class="linkbtn fairall" data-fairall="1">' + (all ? '收起' : '顯示全部 ' + names.length + ' 人') + '</button>';
+        h += '<div class="fairnote">' + (ok ? '' : '<b>休假資料讀取中</b>，在營天數暫時還沒扣休假。<br>') +
+          '算法：近 90 天的公差次數（含之後 14 天已排的，不含尿篩、加班；打靶有算）÷ 在營天數 × 30。在營天數＝上班日扣掉休假、外勤（半天休算半天）、報到以前。<br>' +
+          '新進同仁：在股名冊加一欄「報到日」，就會從報到日開始算，2 週內標「新」。</div></div>';
+        return h;
+      }
       function renderStat() {
         if (!statAll) { $('statBody').innerHTML = '<div class="dnone">統計讀取中…</div>'; if (!renderStat.asked) { renderStat.asked = 1; try { statLoad(); } catch (e) { /* 忽略 */ } } return; }
         if (statKind === 'urine') { renderUrine(); return; }
@@ -4545,7 +4653,7 @@ td.cell.full.comp::before { background: var(--comp) !important; }
         var inR = SA.filter(function (x) { return x.date >= P.a && x.date <= P.b; });
         var prv = P0 ? SA.filter(function (x) { return x.date >= P0.a && x.date <= P0.b; }) : null;
         var RNG = [['month', '月'], ['3m', '季'], ['year', '年'], ['all', '全部']];
-        var h = statKindBar() + '<div class="strg">' + RNG.map(function (r) { return '<button class="' + (statRange === r[0] ? 'on' : '') + '" data-r="' + r[0] + '">' + r[1] + '</button>'; }).join('') + '</div>';
+        var h = statKindBar() + fairHtml() + '<div class="strg">' + RNG.map(function (r) { return '<button class="' + (statRange === r[0] ? 'on' : '') + '" data-r="' + r[0] + '">' + r[1] + '</button>'; }).join('') + '</div>';
         h += '<div class="stnav">' + (statRange === 'all' ? '<span></span>' : '<button class="ghost" data-off="1" aria-label="上一期">‹</button>') + '<b>' + esc(P.lab) + '</b>' +
           (statRange === 'all' ? '<span></span>' : '<button class="ghost" data-off="-1" aria-label="下一期"' + (statOff <= -1 ? ' disabled' : '') + '>›</button>') + '</div>';
         if (statOff !== 0 && statRange !== 'all') h += '<div class="stback"><button class="linkbtn" data-off0="1">回到' + ({ month: '本月', '3m': '本季', year: '今年' }[statRange]) + '</button></div>';
@@ -4578,8 +4686,9 @@ td.cell.full.comp::before { background: var(--comp) !important; }
         // 星期＋時段
         var wd = [0, 0, 0, 0, 0, 0, 0]; inR.forEach(function (x) { wd[parseKey(x.date).getDay()]++; }); var wdmax = Math.max.apply(null, wd) || 1;
         var TS = ['上午', '下午', '跨上下午', '全天', '晚間'], ts = {}; inR.forEach(function (x) { var k2 = statTm(x.time); ts[k2] = (ts[k2] || 0) + 1; });
-        h += '<div class="st2col"><div><div class="anat">星期分布</div><div class="hbars wk">' + [1, 2, 3, 4, 5, 6, 0].map(function (i) { var c = wd[i]; return '<div class="' + (i === 0 || i === 6 ? 'we' : '') + '"><b>' + c + '</b><i style="height:' + Math.max(3, Math.round(c / wdmax * 46)) + 'px"></i><span>' + '日一二三四五六'.charAt(i) + '</span></div>'; }).join('') + '</div></div>' +
+        h += '<details class="stmore"><summary>星期・時段分布</summary><div class="st2col"><div><div class="anat">星期分布</div><div class="hbars wk">' + [1, 2, 3, 4, 5, 6, 0].map(function (i) { var c = wd[i]; return '<div class="' + (i === 0 || i === 6 ? 'we' : '') + '"><b>' + c + '</b><i style="height:' + Math.max(3, Math.round(c / wdmax * 46)) + 'px"></i><span>' + '日一二三四五六'.charAt(i) + '</span></div>'; }).join('') + '</div></div>' +
           '<div><div class="anat">時段分布</div><div class="tsl">' + TS.filter(function (k2) { return ts[k2]; }).map(function (k2) { return '<div><span><i class="tsi ts-' + ({ '上午': 'am', '下午': 'pm', '晚間': 'eve' }[k2] || 'all') + '"></i>' + k2 + '</span><b>' + ts[k2] + '</b><i style="width:' + Math.round(ts[k2] / nPer * 100) + '%"></i></div>'; }).join('') + '</div></div></div>';
+        h += '</details>';
         // 本期沒派到
         h += '<div class="anat"><span class="gi gi-none"></span>本期沒有派到公差（' + zero.length + ' 人）</div><div class="zch">' + (zero.length ? zero.map(function (n) { return '<span>' + esc(n) + '</span>'; }).join('') : '<em>全部人員都有派到</em>') + '</div>';
         h += '</div>';
@@ -4793,6 +4902,7 @@ td.cell.full.comp::before { background: var(--comp) !important; }
           if (b.dataset.ucopy) { if (b.dataset.ucopy === 'shoot') { urKind = 'shoot'; try { copyText(urineText().replace(/^尿篩/, '打靶').replace(/最久沒去/, '最久沒打')); } finally { urKind = 'urine'; } } else copyText(urineText()); return; }
           if (b.dataset.otcopy) { copyText(otStatText()); return; }
           if (b.dataset.on) { statOpen['o:' + b.dataset.on] = !statOpen['o:' + b.dataset.on]; renderStat(); return; }
+          if (b.dataset.fairall) { statOpen['fair:all'] = !statOpen['fair:all']; renderStat(); return; }
           if (b.dataset.sn2) { statOpen['s:' + b.dataset.sn2] = !statOpen['s:' + b.dataset.sn2]; renderStat(); return; }
           if (b.dataset.sy) { shootY += +b.dataset.sy; renderStat(); return; }
           if (b.dataset.un) { var uk = (statKind === 'shoot' ? 's:' : 'u:') + b.dataset.un; statOpen[uk] = !statOpen[uk]; renderStat(); return; }
@@ -6572,6 +6682,7 @@ td.cell.full.comp::before { background: var(--comp) !important; }
         $('idInst').hidden = instStandalone() || no || !mobile;
       }
       var CHANGELOG = [
+        { v: 'v11.10', d: '11/6', t: ['公差統計最上面新增「派公差參考」：近 90 天平均每 30 天幾次（扣掉休假、外勤、報到以前；含已排），少的排前面，前 5 名列「建議先派」', '快速標記選人：右上數字改成同樣的「每 30 天幾次」，綠色＝最少', '新進同仁：股名冊加一欄「報到日」就從報到日開始算，2 週內標「新」（後端第四十二版）', '星期、時段分布收進「星期・時段分布」，要看再點開'] },
         { v: 'v11.09', d: '11/6', t: ['尿篩、打靶統計重新設計：每人一列，右邊大字寫「幾天」，依天數變色（紅＝90 天以上、橘＝45–89 天、綠＝45 天內、藍＝已排）；建議派的人標順序；上方顯示各顏色人數；修正次數和日期疊在一起'] },
         { v: 'v11.08', d: '11/6', t: ['打靶改成跟尿篩一樣：統計頁看建議下次派誰、次數、最近一次、幾天沒打；派打靶時名單標「N 天沒打」，最久沒打的排前面（不分季）'] },
         { v: 'v11.07', d: '11/6', t: ['新圖示：時間按鈕（整天、上午、下午、夜間加班）、股總加班選人的分班（彈射、軍械、股部軍官）、補休慰休、打靶已打／還沒打、本月最少、季度'] },
