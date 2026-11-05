@@ -2216,6 +2216,13 @@ button.copied { background: #e3f1e6 !important; color: #2f6b3f !important; borde
 .sit .wi.w-helmet { background-image: var(--ix-w-helmet); }
 .sit .wi.w-other { background-image: var(--ix-w-other); }
 .sit.plan { background: #e2f1f4; color: #1f6676; border: 1.5px dashed #2f8fa5; }
+:root { --comp: #0E8C8C; }
+:root[data-theme="dark"] { --comp: #23A7A2; }
+@media (prefers-color-scheme: dark) { :root[data-theme="auto"] { --comp: #23A7A2; } }
+.cc.full.comp { background: var(--comp) !important; border-color: var(--comp) !important; }
+td.cell.full.comp::before { background: var(--comp) !important; }
+.sit.rest.comp { background: #dcf1ef !important; color: #0b6b69 !important; }
+[data-theme="dark"] .sit.rest.comp { background: rgba(35,167,162,.25) !important; color: #9fe3dd !important; }
 </style>
 </head>
 <body>
@@ -2587,6 +2594,7 @@ button.copied { background: #e3f1e6 !important; color: #2f6b3f !important; borde
             <summary>看懂顏色和標記</summary>
             <div class="dbody2">
               <ul>
+                <li><span class="sw" style="background:var(--comp);border-radius:50%"></span>綠藍色圓章「休」＝平日全天休（補休、慰休）；藍色＝假日休。</li>
                 <li><span class="sw" style="background:var(--full);border-radius:50%"></span>藍色圓章「休」＝全天休假（形狀也不同：休＝圓、留＝方、監＝六角、外勤＝膠囊）</li>
                 <li><span class="sw am"></span>黃色半格＝上午休　<span class="sw pm"></span>綠色半格＝下午休</li>
                 <li><span class="sw" style="background:var(--stay);border-radius:4px"></span>紅色方章「留」＝留守　<span class="sw" style="background:var(--mon)"></span>深藍六角章「監」＝監控（這兩種不算休假）</li>
@@ -3548,7 +3556,7 @@ button.copied { background: #e3f1e6 !important; color: #2f6b3f !important; borde
         for (var d = 1; d <= last; d++) {
           var k = ym + '-' + pad(d), items = [];
           var r = (recordsPub[k] || {})[n];
-          if (r) { items.push({ c: isLeave(r) ? 'rest' : (r.period === '留守' ? 'stay' : (r.period === '監控' ? 'mon' : 'away')), t: recLabel(r) }); if (isLeave(r)) { if (dayInfo(k).off) cnt.offRest = (cnt.offRest || 0) + 1; else cnt.rest += r.period === '全天' ? 1 : 0.5; } else if (r.period === '留守') cnt.stay++; }
+          if (r) { var cp = isLeave(r) && r.period === '全天' && !dayInfo(k).off; items.push({ c: isLeave(r) ? 'rest' + (cp ? ' comp' : '') : (r.period === '留守' ? 'stay' : (r.period === '監控' ? 'mon' : 'away')), t: cp ? '補休／慰休' : recLabel(r) }); if (isLeave(r)) { if (dayInfo(k).off) cnt.offRest = (cnt.offRest || 0) + 1; else cnt.rest += r.period === '全天' ? 1 : 0.5; } else if (r.period === '留守') cnt.stay++; }
           (dutyAll[k] || []).forEach(function (x) { if (x.n !== n) return; var u = isUrine(x.why), o = isOT(x.why); items.push({ c: u ? 'urine' : (o ? 'ot' : 'duty'), t: x.why + (x.time ? '　' + fmtTm(x.time) : ''), ic: whyIcon(x.why) }); if (u) cnt.urine++; else if (o) cnt.ot += otHours(x.time); else cnt.duty++; });
           try { var pl0 = dutyDayOf(k).plan || {}; Object.keys(pl0).forEach(function (it) { pl0[it].forEach(function (p) { if (p.n !== n) return; var pt = planTm(it); items.push({ c: 'plan', t: it + (pt ? '　' + pt.a + '–' + pt.b : '') + (p.est ? '（預估）' : '（表定）'), ic: whyIcon(it) }); cnt.plan = (cnt.plan || 0) + 1; }); }); } catch (e2) { /* 忽略 */ }
           eventsOf(k).forEach(function (e) { if (e.who !== '全員' && evHas(e, n)) items.push({ c: 'ev', t: '行程：' + (e.time ? e.time + ' ' : '') + e.title }); });
@@ -5678,7 +5686,7 @@ button.copied { background: #e3f1e6 !important; color: #2f6b3f !important; borde
               if (gr0) { rec = gr0; ghost = true; cls += ' hint'; }
             }
             if (isLeave(rec)) {
-              cls += ' ' + periodClass(rec); txt = '休';
+              cls += ' ' + periodClass(rec) + (!inf.off && rec.period === '全天' ? ' comp' : ''); txt = '休';
             } else if (isAway(rec)) {
               cls += ' away'; txt = (rec.type || '外').charAt(0);
             } else if (isDuty(rec)) {
@@ -6194,7 +6202,7 @@ button.copied { background: #e3f1e6 !important; color: #2f6b3f !important; borde
           var k = y + '-' + pad(m) + '-' + pad(d);
           var inf = dayInfo(k);
           var r = getRec(k, name);
-          var cls = 'cc' + (inf.off ? ' off' : '') + (r ? ' ' + periodClass(r) : '') + (k === tk ? ' today' : '');
+          var cls = 'cc' + (inf.off ? ' off' : '') + (r ? ' ' + periodClass(r) : '') + (r && !inf.off && isLeave(r) && r.period === '全天' ? ' comp' : '') + (k === tk ? ' today' : '');
           h += '<div class="' + cls + '"><span class="n">' + d + '</span>';
           if (!mini) {
             if (inf.tag) h += '<span class="t">' + esc(inf.tag) + '</span>';
@@ -6270,7 +6278,7 @@ button.copied { background: #e3f1e6 !important; color: #2f6b3f !important; borde
           kpi(fmtNum(P.rest), '假日休息(天)') +
           kpi(P.stayN + ' / ' + P.monN, '留守／監控(次)') + '</div></div>';
         h += '<div class="box"><h3>休假月曆</h3>' + calHtml(anaYear, anaMonth, P.name, false) +
-          '<div class="legend" style="margin-top:10px"><span><i style="background:var(--full)"></i>全天休</span>' +
+          '<div class="legend" style="margin-top:10px"><span><i style="background:var(--comp)"></i>補休／慰休（平日）</span><span><i style="background:var(--full)"></i>假日休</span>' +
           '<span><i class="lg-am"></i>上午休</span><span><i class="lg-pm"></i>下午休</span>' +
           '<span><i style="background:var(--stay)"></i>留守</span><span><i style="background:var(--mon)"></i>監控</span>' +
           '<span><i style="background:var(--away)"></i>外勤</span>' +
@@ -6409,6 +6417,7 @@ button.copied { background: #e3f1e6 !important; color: #2f6b3f !important; borde
         $('idInst').hidden = instStandalone() || no || !mobile;
       }
       var CHANGELOG = [
+        { v: 'v11.00', d: '11/5', t: ['平日全天休自動當成補休／慰休，用綠藍色標示（休假月曆、班表格子、搜尋人名）；假日的休維持藍色，不用另外選', '休假分析的休假月曆可以左右滑動換月'] },
         { v: 'v10.99', d: '11/5', t: ['快速標記：不存在的日期（2/30、非閏年 2/29）不再變成 3 月；「軍械股2員」「各課派十一員」也算得出人數', '加班統計：寫「整天／上午／下午」的加班也算時數（9／4／3.5 小時），不再是 0', '編輯一項公差時把人全部取消，會問要不要刪除這項（原本按了沒反應）', '休假判斷一律以「股總有記以股總為準」為主，選人標記和衝突判斷一致', '統計還沒讀到時顯示「讀取中」，不會整頁空白'] },
         { v: 'v10.98', d: '11/5', t: ['統計頁：左右滑動可以換月份（季、年也是換上一期／下一期）', '統計頁更緊湊：上面兩排切換鈕和月份列變矮；個人清單的「已排」改成日期旁的小標籤，一列只佔一行'] },
         { v: 'v10.97', d: '11/5', t: ['快速標記選人：也會判斷輪值表的擴大FO、監工、查庫有沒有撞時間', '快速標記選人：還沒選時間只標全天休、外勤、已經有同一項；選了時間才標跟其他公差、輪值、行程撞到的人；半天休沒選時間用橘色提示', '快速標記名單三欄等寬，不再超出框；有好幾項衝突時只顯示第一項＋「還有 N 項」，選進來後下方會列出全部'] },
@@ -7154,6 +7163,10 @@ button.copied { background: #e3f1e6 !important; color: #2f6b3f !important; borde
           if (anaMonth < 1) { anaMonth = 12; anaYear--; }
           renderAll(); ensureData(false);
         }
+        (function () { var x0 = 0, y0 = 0, on = false, el = $('anaBody');
+          el.addEventListener('touchstart', function (ev) { var t = ev.touches[0]; x0 = t.clientX; y0 = t.clientY; on = ev.touches.length === 1 && !!ev.target.closest('.cal'); }, { passive: true });
+          el.addEventListener('touchend', function (ev) { if (!on) return; on = false; var t = ev.changedTouches[0], dx = t.clientX - x0, dy = t.clientY - y0; if (Math.abs(dx) > 50 && Math.abs(dx) > Math.abs(dy) * 1.5) anaMove(dx < 0 ? 1 : -1); }, { passive: true });
+        })();
         $('aPrev').onclick = function () { anaMove(-1); };
         $('aNext').onclick = function () { anaMove(1); };
         $('aToday').onclick = function () { var n = new Date(); anaYear = n.getFullYear(); anaMonth = n.getMonth() + 1; renderAll(); ensureData(false); };
