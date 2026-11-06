@@ -2453,6 +2453,19 @@ td.cell.full.comp::before { background: var(--comp) !important; }
 [data-theme="dark"] #sheet .sh-btn.clr { background: rgba(220,60,50,.16); border-color: rgba(220,60,50,.45); color: #ffb1a8; }
 [data-theme="dark"] #sheet .sh-btn.on { outline-color: #e8eaee; }
 
+.bmiss { padding: 6px 12px !important; }
+.bmiss .bmh { flex-wrap: nowrap; align-items: center; } .bmiss .bmh b { font-size: 14px; white-space: nowrap; } .bmiss .bmd { font-size: 12px; white-space: nowrap; }
+.bmiss .bmn { margin-left: auto; }
+.bmiss:not(.ok) { display: flex; align-items: center; gap: 8px; }
+.bmiss:not(.ok) .bmh { flex: none; } .bmiss:not(.ok) .bmd { display: none; }
+.bmiss .bmc { flex: 1; min-width: 0; flex-wrap: nowrap; overflow-x: auto; margin-top: 0 !important; scrollbar-width: none; } .bmiss .bmc::-webkit-scrollbar { display: none; }
+.bmiss .bmc .mchip { white-space: nowrap; padding: 3px 9px; font-size: 13px; }
+.bmiss:not(.ok) .bmn { display: none; }
+table.grid.wk td.cell::before { width: var(--bd, 34px) !important; height: var(--bd, 34px) !important; margin: calc(var(--bd, 34px) / -2) 0 0 calc(var(--bd, 34px) / -2) !important; }
+table.grid.wk td.cell.away::before { width: calc(var(--bd, 34px) + 6px) !important; height: calc(var(--bd, 34px) - 6px) !important; margin: calc((var(--bd, 34px) - 6px) / -2) 0 0 calc((var(--bd, 34px) + 6px) / -2) !important; }
+table.grid.wk td.cell { font-size: calc(var(--bd, 34px) * .48); }
+.shv2 .glg { border: 0; padding: 0; margin: 0; background: none; }
+
 .glg > summary { cursor: pointer; font-weight: 700; font-size: 12px; color: var(--muted, #6b7280); }
 .glg[open] > summary { margin-bottom: 4px; }
 .glb { display: flex; flex-wrap: wrap; gap: 4px 10px; align-items: center; }
@@ -2461,7 +2474,7 @@ td.cell.full.comp::before { background: var(--comp) !important; }
 .gl { display: inline-flex; align-items: center; justify-content: center; width: 18px; height: 18px; border-radius: 50%; font-style: normal; font-size: 10.5px; font-weight: 800; color: #fff; }
 .gl.hol { background: #2563c9; } .gl.comp { background: var(--comp, #0E8C8C); } .gl.half { background: #3fae6a; } .gl.stay { background: #e2572b; border-radius: 5px; } .gl.away { background: #7b4fbf; border-radius: 9px; width: 22px; }
 .gl.none { background: repeating-radial-gradient(circle at 3px 3px, #d8d2c2 0 1px, transparent 1px 6px); border: 1px solid #e5dfcf; border-radius: 4px; }
-.gl.gh { background: #2563c9; opacity: .35; }
+.gl.glgh { background: #2563c9; opacity: .35; }
 .glhow { flex-basis: 100%; font-size: 12px; color: var(--text, #374151); padding-top: 4px; border-top: 1px dashed var(--line, #e5e7eb); margin-top: 2px; } .glhow b { color: #b8860b; }
 [data-theme="dark"] .glg { background: #1c1f26; border-color: #2c313b; } [data-theme="dark"] .glhow { color: #c8ced8; } [data-theme="dark"] .glhow b { color: #f5c542; }
 </style>
@@ -6062,19 +6075,18 @@ td.cell.full.comp::before { background: var(--comp) !important; }
       // 表格上方的圖例：第一次用的人一眼知道每個顏色、字代表什麼
       function gridLegend() {
         var ed = !isRO(), sp = myRole() && cfg.splitFrom;
-        return '<details class="glg"' + (prefs.glgOff ? '' : ' open') + '><summary>圖例・怎麼用</summary><div class="glb"><span><i class="gl hol">休</i>假日休</span><span><i class="gl comp">休</i>平日休（補休／慰休）</span><span><i class="gl half">上</i><i class="gl half">下</i>上午／下午休</span>' +
+        return '<div class="glb"><span><i class="gl hol">休</i>假日休</span><span><i class="gl comp">休</i>平日休（補休／慰休）</span><span><i class="gl half">上</i><i class="gl half">下</i>上午／下午休</span>' +
           '<span><i class="gl stay">留</i>留守</span><span><i class="gl away">差</i>出差</span><span><i class="gl away">公</i>公假</span><span><i class="gl away">受</i>受訓</span><span><i class="gl away">救</i>救災</span><span><i class="gl none"></i>空白＝上班</span>' +
-          (sp ? '<span><i class="gl gh">休</i>淡色＝另一邊記的</span>' : '') +
-          (ed ? '<div class="glhow"><b>點一下</b>＝全天休，再點取消　<b>按住</b>＝上午／下午、留守、清除</div>' : '') + '</div></details>';
+          (sp ? '<span><i class="gl glgh">休</i>淡色＝另一邊記的</span>' : '') +
+          (ed ? '<div class="glhow"><b>點一下</b>＝全天休，再點取消　<b>按住</b>＝上午／下午、留守、清除</div>' : '') + '</div>';
       }
-      document.addEventListener('toggle', function (ev) { var t = ev.target; if (t.classList && t.classList.contains('glg')) { prefs.glgOff = !t.open; savePrefs(); } }, true);
       function awayCh(t) { t = t || '外'; return t === '出差' ? '差' : t.charAt(0); }
       function gridHtml(keys) {
         var tk = todayKey();
         var infos = keys.map(dayInfo);
         var wk = (view === 'week');
         var cmid = keys.length ? keys[Math.floor(keys.length / 2)] : todayKey();
-        var h = gridLegend() + '<table class="grid ' + (wk ? 'wk' : 'mo') + '"><thead><tr><th class="dh corner namecol"><button class="cornerm" aria-label="顯示設定、週／月切換"><i>≡</i><small>' + (+cmid.slice(5, 7)) + '月</small></button></th>';
+        var h = '<table class="grid ' + (wk ? 'wk' : 'mo') + '"><thead><tr><th class="dh corner namecol"><button class="cornerm" aria-label="顯示設定、週／月切換"><i>≡</i><small>' + (+cmid.slice(5, 7)) + '月</small></button></th>';
         keys.forEach(function (k, idx) {
           var inf = infos[idx];
           var cls = 'dh' + (inf.off ? ' off' : '') + (k === tk ? ' today' : '');
@@ -6136,9 +6148,10 @@ td.cell.full.comp::before { background: var(--comp) !important; }
         var head = tbl.tHead ? tbl.tHead.offsetHeight : 0;
         var foot = tbl.tFoot ? tbl.tFoot.offsetHeight : 0;
         var avail = wrap.clientHeight - 4 - head - foot;
-        var lo = view === 'month' ? 34 : 40, hi = view === 'month' ? 64 : 92;
+        var lo = view === 'month' ? 30 : 34, hi = view === 'month' ? 56 : 64;
         var rh = Math.max(lo, Math.min(hi, Math.floor(avail / (employees.length + (groups.length > 1 ? 0.6 : 0)))));
         wrap.style.setProperty('--rowh', rh + 'px');
+        wrap.style.setProperty('--bd', Math.max(24, Math.min(34, rh - 8)) + 'px');
         wrap.style.setProperty('--wh', (wrap.clientHeight - 4) + 'px');
       }
 
@@ -6160,12 +6173,12 @@ td.cell.full.comp::before { background: var(--comp) !important; }
           unfiledOf(k).forEach(function (x) { if (!map[x.name]) { map[x.name] = []; miss.push(x.name); } map[x.name].push(k); });
         });
         var lab = offs.length > 1 ? mdLabel(offs[0]) + '–' + mdLabel(offs[offs.length - 1]) : mdLabel(offs[0]);
-        var h = '<div class="bmiss' + (miss.length ? '' : ' ok') + '"><div class="bmh"><b>' + (miss.length ? '本週未點假單' : '本週已全數點假單 ✓') + '</b><span class="bmd">假日 ' + lab + '</span>' +
+        var h = '<div class="bmiss' + (miss.length ? '' : ' ok') + '"><div class="bmh"><b>' + (miss.length ? '未點假單' : '✓ 假單都點了') + '</b><span class="bmd">假日 ' + lab + '</span>' +
           (miss.length ? '<span class="bmn">' + miss.length + ' 人</span>' : '') + '</div>';
-        var LIM = 8, more = miss.length > LIM && !prefs.briefOpen, shown = more ? miss.slice(0, LIM) : miss;
+        var LIM = 99, more = false, shown = miss;
         if (miss.length) h += '<div class="bmc">' + shown.map(function (n) {
           var ds = map[n];
-          return '<span class="mchip">' + esc(n) + (ds.length < offs.length ? '<i>' + ds.map(function (d) { return mdLabel(d); }).join('、') + '</i>' : '') + '</span>';
+          return '<span class="mchip">' + esc(n) + (ds.length < offs.length ? '<i>' + ds.map(function (d) { return (+d.slice(8, 10)); }).join('、') + '</i>' : '') + '</span>';
         }).join('') + (miss.length > LIM ? '<button class="mmore" data-btoggle="1">' + (more ? '還有 ' + (miss.length - LIM) + ' 人 ▾' : '收起 ▴') + '</button>' : '') + '</div>';
         box.innerHTML = h + '</div>';
       }
@@ -6185,7 +6198,7 @@ td.cell.full.comp::before { background: var(--comp) !important; }
           body: '<div class="shv2">' +
             '<div class="shrow"><span class="shl">檢視</span><div class="seg">' + [['week', '週'], ['month', '月']].map(function (v) { return '<button data-vw="' + v[0] + '"' + (cv === v[0] ? ' class="on"' : '') + '>' + v[1] + '</button>'; }).join('') + '</div><button class="pill-btn" data-vw="today">今天</button></div>' +
             '<div class="shrow"><span class="shl">顯示</span><div class="shchips">' + items.map(function (x) { return '<label class="shchip"><input type="checkbox" data-show="' + x[0] + '"' + (sh[x[0]] !== false ? ' checked' : '') + '><span>' + x[1] + '</span></label>'; }).join('') + '</div></div>' +
-            '<div class="shrow top"><span class="shl">顏色</span><div class="shlg">' + lg.map(function (x) { return '<span>' + x[0] + x[1] + '</span>'; }).join('') + '</div></div>' +
+            '<div class="shrow top"><span class="shl">圖例</span><div class="glg">' + gridLegend() + '</div></div>' +
             '</div>'
         });
       }
@@ -6856,7 +6869,7 @@ td.cell.full.comp::before { background: var(--comp) !important; }
         $('idInst').hidden = instStandalone() || no || !mobile;
       }
       var CHANGELOG = [
-        { v: 'v11.14', d: '11/7', t: ['班表上方加圖例：每個顏色、字代表什麼，還有「點一下＝全天休、按住＝更多」', '上午休、下午休在表格裡改寫「上」「下」，不用再猜半圓', '出差在表格裡寫「差」', '長按名字的選單分成「休假／在營勤務／不在營」三區，上午休、下午休寫上時間，一眼看懂', '選單最上面寫「現在：…」', '新增「清除（恢復沒請假）」：班長和股總兩邊的紀錄一起刪掉（後端第四十三版）'] },
+        { v: 'v11.14', d: '11/7', t: ['班表重新整理，一頁看到更多人：上方假日摘要縮成一行（點完只剩「✓ 假單都點了」，沒點的人名排一排可左右滑），列高跟徽章縮小', '圖例放進左上角「≡」選單：每個顏色、字代表什麼，還有「點一下＝全天休、按住＝更多」', '上午休、下午休在表格裡改寫「上」「下」，不用再猜半圓', '出差在表格裡寫「差」', '長按名字的選單分成「休假／在營勤務／不在營」三區，上午休、下午休寫上時間，一眼看懂', '選單最上面寫「現在：…」', '新增「清除（恢復沒請假）」：班長和股總兩邊的紀錄一起刪掉（後端第四十三版）'] },
         { v: 'v11.13', d: '11/6', t: ['尿篩、打靶改成「誰該去尿篩？／誰該去打靶？」：每人標「該去了／快了／最近去過／已排」，右邊大字寫幾天沒去', '快速標記貼尿篩、打靶通知時，「幫我選」改成挑最久沒去、時間沒撞到的人', '加班統計最上面一句話：這期幾小時、比上一期多少、誰最多、幾人還沒加班；每月趨勢收進「更多」', '股總加班產出：上面列出 1 日期 → 2 督導 → 3 時間 → 4 事由 → 5 人員，還差哪一步直接寫出來，點一下跳過去', '產出頁每種回報類型下面多一行說明在做什麼'] },
         { v: 'v11.12', d: '11/6', t: ['分析改成一看就懂：上面一句話總結（幾件公差、幾人次、比上一期多少、幾人還沒派到）', '「還沒派到」移到最前面，標「可以先派」；派最多的人會提醒「可以先讓他休息」', '每月趨勢、星期、時段收進「更多」', '快速標記：人數可以用 −／＋ 直接改，「幫我選」跟著改'] },
         { v: 'v11.11', d: '11/6', t: ['「派公差參考」改成「誰該先派？」：每人直接標「該派了／普通／最近派多」，數字改成「每月幾次」，上面寫大家平均', '點名字可以看算式（幾次 ÷ 在營幾天）和扣掉的休假天數', '快速標記選人：新增「幫我選 N 人」，一鍵選最該派、時間沒撞到的人；名單顏色跟統計一樣（綠＝該派了、橘＝最近派多）'] },
