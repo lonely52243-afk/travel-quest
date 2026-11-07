@@ -331,7 +331,7 @@ tfoot td{font-weight:700;background:var(--soft)}
 .first{background:color-mix(in srgb,var(--accent) 8%,var(--card));border:1px solid color-mix(in srgb,var(--accent) 35%,var(--line));border-radius:16px;padding:14px;margin:0 0 14px}
 .first b{font-size:17px}
 .first ol{margin:8px 0 10px;padding-left:22px;line-height:1.9}
-.qa{display:grid;grid-template-columns:repeat(3,1fr);gap:10px;margin:0 0 14px}
+.qa{display:grid;grid-template-columns:repeat(2,1fr);gap:10px;margin:0 0 14px}
 .qa button{background:var(--card);border:1px solid var(--line);border-radius:16px;padding:12px 4px;display:flex;flex-direction:column;align-items:center;gap:6px;font-weight:700;min-height:84px;box-shadow:var(--shadow)}
 .qa .mi{width:38px;height:38px;border-radius:12px;background:var(--soft);color:var(--accent);display:flex;align-items:center;justify-content:center}
 .qa .mi svg{width:22px;height:22px}
@@ -359,6 +359,10 @@ body.ro [data-act]:not([data-act="history"]):not([data-act="log"]),body.ro [data
 .undo1{margin-top:6px}
 @media (forced-colors:active){.nb,.chip,.btn{border:2px solid ButtonText}}
 .ytab .roc{display:block;font-size:13px;font-weight:700}.ytab.on .roc{color:var(--accent-t)}.rocd{color:var(--mute);font-size:12.5px;margin-left:4px}.kv .rocd{white-space:nowrap}
+.mx th{text-align:center;padding:10px 2px;font-size:13px;color:var(--text);border-top:4px solid var(--tc,var(--line))}.mx th:first-child,.mx th:last-child{border-top-color:var(--line)}.mx th i{display:none}.mx td{text-align:center;padding:8px 2px}.mx td:first-child{text-align:left;padding-left:12px;line-height:1.2}.mx td:first-child small{display:block;color:var(--mute);font-size:12px}.mx .nb{min-width:44px}
+.sup th{text-align:left}.sup td{text-align:left;vertical-align:middle;padding:9px 6px}.sup td:first-child{padding-left:12px;white-space:nowrap}.sup td.rt{text-align:right;padding-right:12px;min-width:112px}.sup .rt b{font-size:18px}.sup .rbar{height:6px;margin:3px 0 2px}.sup .rs{font-size:12.5px;line-height:1.3}.sup .lk{font-size:12.5px;padding:2px 0}
+.chips[style*=grid] .chip{padding:9px 2px;text-align:center;font-size:14px}
+.qa button{flex-direction:row!important;justify-content:center;gap:12px!important;min-height:72px!important;font-size:17px}.qa .qt{text-align:left;line-height:1.25}.qa .qt small{display:block;font-size:12.5px;font-weight:600;color:var(--mute)}
 </style>
 </head>
 <body>
@@ -1164,10 +1168,11 @@ function viewHome() {
   if (!lsGet('seatAsset.hint', 0)) h += '<div class="first"><b>三步驟，馬上會用</b><ol><li>在上面框框<b>輸入序號數字</b>（例如 72）</li><li>點結果，看在哪個單位、哪天屆期</li><li>需要時按<b>進廠／出廠</b>，或到「作業」一次處理多張</li></ol><button class="btn pri" data-hint="1">知道了</button></div>';
   h += '<div class="hl3">' + tl('服役中', ['一修', '三修'], 'cell|all|一修,三修|0', 'var(--ua)') + tl('待修庫', ['待修庫'], 'cell|all|待修庫|0', 'var(--uc)') + tl('指部', ['指部工廠'], 'cell|all|指部工廠|0', 'var(--ud)') + '</div>';
   h += '<div class="hsum">共 ' + D.total + ' 張　點數字看是哪幾張</div>';
-  const todos = todoItems();
+  const todos = todoItems().filter(x => x.c !== 'c' && x.c !== 'd');
   h += '<div class="todo"><h3>今天要看的</h3>' + (todos.length ? todos.map(x => '<button class="td" ' + x.attr + '><span class="ic ' + x.c + '">' + x.n + '</span><span class="tx">' + esc(x.t) + '<small>' + esc(x.s) + '</small></span><span class="go" aria-hidden="true">›</span></button>').join('') : '<div class="td ok"><span class="ic g">✓</span><span class="tx">目前沒有要處理的事<small>一切正常</small></span></div>') + '</div>';
-  const q = (ic, lab, attr) => '<button ' + attr + '><span class="mi">' + ICON[ic] + '</span>' + lab + '</button>';
-  h += '<div class="qa" role="group" aria-label="常用作業">' + q('down', '進廠', 'data-work="wait"') + q('tool', '出廠', 'data-work="fac"') + q('flag', '新增座椅', 'data-act="add"') + '</div>';
+  const nW = sumLocs(['待修庫']), nF = sumLocs(['指部工廠']);
+  const q = (ic, lab, sub, attr) => '<button ' + attr + '><span class="mi">' + ICON[ic] + '</span><span class="qt">' + lab + '<small>' + sub + '</small></span></button>';
+  h += '<div class="qa" role="group" aria-label="常用作業">' + q('down', '進廠', nW + ' 張待進廠', 'data-work="wait"') + q('tool', '出廠', nF + ' 張在指部', 'data-work="fac"') + '</div>';
   const recent = lsGet('seatAsset.recent', []).filter(s => D.map[s]);
   if (recent.length) h += '<h2>最近查過</h2><div class="chips">' + recent.map(s => '<button class="chip" data-go="' + esc(s) + '">' + esc(s) + '</button>').join('') + '</div>';
   return h;
@@ -1176,7 +1181,7 @@ function viewMore() {
   const ro = state.role === 'view';
   let h = '<div class="rolebox' + (ro ? ' ro' : '') + '"><i></i><div><b>' + (ro ? '目前身分：只能查看' : '目前身分：可以修改') + '</b><div class="note" style="margin:0">' + (CONFIG.API_URL ? '資料來源：試算表（' + (state.source === 'live' ? '已連線' : '離線，顯示舊資料') + '）' : '示範模式：資料是假的，操作不會寫入') + '</div></div></div>';
   h += '<div class="card">' + toolRows() + (ro ? '' : '<button class="mrow" data-act="aircraft"><span class="mi">' + ICON.tool + '</span><span>修改飛機數<small>支援度用的飛機數量</small></span></button>') +
-    '<button class="mrow" data-tool="lock"><span class="mi">' + ICON.lock + '</span><span>鎖定<small>離開前按這個</small></span></button></div>';
+    (ro ? '' : '<button class="mrow" data-act="add"><span class="mi">' + ICON.flag + '</span><span>新增座椅<small>登記一張新的座椅</small></span></button>') + '<button class="mrow" data-tool="lock"><span class="mi">' + ICON.lock + '</span><span>鎖定<small>離開前按這個</small></span></button></div>';
   return h;
 }
 
@@ -1189,15 +1194,18 @@ function supportRows(H) {
   });
 }
 function supportCards(H) {
-  return supportRows(H).map(x => {
+  const rows = supportRows(H);
+  let h = '<div class="card"><table class="sup"><thead><tr><th>單位 型別</th><th>座椅／飛機</th><th>支援度</th></tr></thead><tbody>';
+  rows.forEach(x => {
     const cls = rateCls(x.rate), s = x.s, w = Math.max(0, Math.min(100, x.rate || 0));
     const seatSpec = H ? 'keep|' + s.type + '|' + s.loc + '|' + H : 'cell|' + s.type + '|' + s.loc + '|0';
-    let f = '<span>座椅 ' + nb(x.left, seatSpec) + ' ／ 飛機 <b>' + s.ac + '</b></span>';
-    if (H) f += x.out ? '<button class="lk" data-dr="cell|' + esc(s.type) + '|' + esc(s.loc) + '|' + H + '">−' + x.out + ' 張屆期（點看）</button>' : '<span class="good">沒有屆期</span>';
-    else f += '<span>90 天後 <b class="' + rateCls(s.proj) + '">' + pct(s.proj) + '</b> ' + (s.exp90 ? '<button class="lk" data-dr="cell|' + esc(s.type) + '|' + esc(s.loc) + '|90">−' + s.exp90 + ' 張屆期</button>' : '') + '</span>';
-    return '<div class="scard"><div class="sc-h"><span class="u u-' + (UCLS[s.loc] || 'x') + '">' + esc(LD(s.loc)) + '</span><b>' + esc(s.type) + '</b><span class="md">' + esc(CONFIG.MODEL[s.type] || '') + '</span><span class="sc-rate ' + cls + '">' + pct(x.rate) + '</span></div>' +
-      '<div class="rbar ' + cls + '"><i style="width:' + w + '%"></i></div><div class="sc-f">' + f + '</div></div>';
-  }).join('');
+    let sub;
+    if (H) sub = x.out ? '<button class="lk" data-dr="cell|' + esc(s.type) + '|' + esc(s.loc) + '|' + H + '">−' + x.out + ' 張屆期</button>' : '<span class="good">沒有屆期</span>';
+    else sub = '<span class="mute">90 天後 </span><b class="' + rateCls(s.proj) + '">' + pct(s.proj) + '</b>' + (s.exp90 ? ' <button class="lk" data-dr="cell|' + esc(s.type) + '|' + esc(s.loc) + '|90">−' + s.exp90 + '</button>' : '');
+    h += '<tr><td><span class="u u-' + (UCLS[s.loc] || 'x') + '">' + esc(LD(s.loc)) + '</span> <b>' + esc(s.type) + '</b></td><td>' + nb(x.left, seatSpec) + ' <span class="mute">／ ' + s.ac + '</span></td>' +
+      '<td class="rt"><b class="' + cls + '">' + pct(x.rate) + '</b><div class="rbar ' + cls + '"><i style="width:' + w + '%"></i></div><div class="rs">' + sub + '</div></td></tr>';
+  });
+  return h + '</tbody></table></div>';
 }
 function todoItems() {
   const D = state.D, R = state.records, out = [];
@@ -1225,12 +1233,14 @@ function viewCount() {
   if (D.unknown.length) h += '<div class="note" style="margin:-6px 2px 12px">另有 ' + D.unknown.length + ' 張型別或位置不在清單內，沒有算進下面的數字（見資料提醒）。</div>';
 
   h += '<h2>各型別在哪裡　<span class="mute" style="font-weight:400;font-size:13px">點數字看序號</span></h2>';
-  const tile = (ty, l, n) => '<' + (n ? 'button' : 'div') + ' class="tile' + (n ? '' : ' z') + '" style="--tc:' + LCOLOR[l] + '"' + (n ? ' data-dr="cell|' + ty + '|' + l + '|0" aria-label="' + esc(ty + ' ' + LD(l) + ' ' + n + ' 張') + '"' : '') + '><span class="tn">' + n + '</span><span class="tl">' + esc(LD(l)) + '</span></' + (n ? 'button' : 'div') + '>';
+  const cell = (ty, l, n, bold) => '<td>' + nb(n, 'cell|' + ty + '|' + l + '|0', bold) + '</td>';
+  let mx = '<div class="card"><table class="mx"><thead><tr><th>型別</th>' + LOCS.map(l => '<th style="--tc:' + LCOLOR[l] + '"><i></i>' + esc(LD(l)) + '</th>').join('') + '<th>合計</th></tr></thead><tbody>';
   TYPES.forEach(ty => {
-    const m = M[ty], tot = LOCS.reduce((s, l) => s + m[l], 0), svc = m['一修'] + m['三修'];
-    h += '<div class="tcard"><div class="tc-h"><b>' + esc(ty) + '</b><span class="md">' + esc(CONFIG.MODEL[ty] || '') + '　服役 ' + svc + '</span>' + nb(tot, 'cell|' + ty + '|all|0', true) + '</div><div class="tiles">' + LOCS.map(l => tile(ty, l, m[l])).join('') + '</div></div>';
+    const m = M[ty], tot = LOCS.reduce((s, l) => s + m[l], 0);
+    mx += '<tr><td><b>' + esc(ty) + '</b><small>' + esc(CONFIG.MODEL[ty] || '') + '</small></td>' + LOCS.map(l => cell(ty, l, m[l])).join('') + cell(ty, 'all', tot, true) + '</tr>';
   });
-  h += '<div class="tcard"><div class="tc-h"><b>合計</b><span class="md">全部型別</span>' + nb(D.total, 'cell|all|all|0', true) + '</div><div class="tiles">' + LOCS.map(l => tile('all', l, sumLocs([l]))).join('') + '</div></div>';
+  mx += '</tbody><tfoot><tr><td>合計</td>' + LOCS.map(l => cell('all', l, sumLocs([l]))).join('') + cell('all', 'all', D.total, true) + '</tr></tfoot></table></div>';
+  h += mx;
   h += '<div class="note" style="margin:0 2px 14px">流程：服役 → 三線屆期 → 待修庫 → 進廠到指部翻修 → 出廠回一修／三修（出廠日 = 生效日，三線屆期 = 出廠日 + 6 年）</div>';
 
   h += secBar();
@@ -1296,7 +1306,7 @@ function viewAnalysis() {
   let h = secBar();
   const H = state.anH;
   const rows = supportRows(H), low = rows.filter(x => x.rate != null && x.rate < 90).sort((a, b) => a.rate - b.rate);
-  let b1 = '<div class="chips">' + [[0, '現在'], [90, '90 天後'], [180, '180 天後'], [365, '1 年後']].map(c => '<button class="chip' + (H === c[0] ? ' on' : '') + '" data-anh="' + c[0] + '">' + c[1] + '</button>').join('') + '</div>';
+  let b1 = '<div class="chips" style="display:grid;grid-template-columns:repeat(4,1fr)">' + [[0, '現在'], [90, '90 天後'], [180, '180 天後'], [365, '1 年後']].map(c => '<button class="chip' + (H === c[0] ? ' on' : '') + '" data-anh="' + c[0] + '">' + c[1] + '</button>').join('') + '</div>';
   b1 += low.length ? '<div class="note warn" style="margin:0 0 10px"><b>不到 90%：</b>' + low.map(x => LD(x.s.loc) + ' ' + x.s.type + '（' + pct(x.rate) + '）').join('、') + '</div>' : '<div class="note" style="margin:0 0 10px"><b class="good">所有單位型別都在 90% 以上</b></div>';
   b1 += supportCards(H) + '<div class="note">座椅 = 到那天三線還沒過期、還在該單位的張數；待修庫、指部和之後修好回來的都不算。</div>';
   h += sec('a-fc', '支援度預測', low.length ? '<span class="bad">' + low.length + ' 項不到 90%</span>' : '全部 90% 以上', b1, true);
