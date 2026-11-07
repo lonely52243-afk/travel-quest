@@ -515,7 +515,8 @@ function seatTransfer(rows, p, now) {
 function seatAdd(rows, p, now) {
   const m = String(p.serial == null ? '' : p.serial).toUpperCase().replace(/\s+/g, '').match(/^(?:SL)?(\d{1,4})$/);
   if (!m) throw new Error('序號請輸入數字（例如 72）');
-  const serial = 'SL' + (m[1].length === 4 ? m[1] : m[1].padStart(3, '0'));
+  const nz = m[1].replace(/^0+/, '') || '0';
+  const serial = 'SL' + (nz.length >= 4 ? nz : nz.padStart(3, '0'));
   if (seatFind(rows, serial)) throw new Error(serial + ' 已經存在');
   const type = seatType(p.type);
   if (SEAT.TYPES.indexOf(type) < 0) throw new Error('型別要是 -3、-4、-5 或 -6');
@@ -744,6 +745,7 @@ function parseDate(v) {
     return null;
   }
   const s = String(v).trim();
+  if (/^\d{5}$/.test(s)) return parseDate(+s);
   // Apps Script 常把日期輸出成 UTC 的 ISO 字串，要換回本地日期
   if (/^\d{4}-\d{2}-\d{2}T/.test(s)) { const d = new Date(s); return isNaN(d) ? null : new Date(d.getFullYear(), d.getMonth(), d.getDate()); }
   const m = s.match(/^(\d{2,4})[\/\-.年](\d{1,2})[\/\-.月](\d{1,2})/);
@@ -1193,7 +1195,7 @@ function supportRows(H) {
     return { s, left, out: s.seats - left, rate: s.ac ? left / s.ac * 100 : null };
   });
 }
-function supportCards(H) {
+function supportCards(H, warn) {
   const rows = supportRows(H);
   let h = '<div class="card"><table class="sup"><thead><tr><th>單位 型別</th><th>座椅／飛機</th><th>支援度</th></tr></thead><tbody>';
   rows.forEach(x => {
@@ -1201,6 +1203,7 @@ function supportCards(H) {
     const seatSpec = H ? 'keep|' + s.type + '|' + s.loc + '|' + H : 'cell|' + s.type + '|' + s.loc + '|0';
     let sub;
     if (H) sub = x.out ? '<button class="lk" data-dr="cell|' + esc(s.type) + '|' + esc(s.loc) + '|' + H + '">−' + x.out + ' 張屆期</button>' : '<span class="good">沒有屆期</span>';
+    else if (!warn) sub = '<span class="mute">目前</span>';
     else sub = '<span class="mute">90 天後 </span><b class="' + rateCls(s.proj) + '">' + pct(s.proj) + '</b>' + (s.exp90 ? ' <button class="lk" data-dr="cell|' + esc(s.type) + '|' + esc(s.loc) + '|90">−' + s.exp90 + '</button>' : '');
     h += '<tr><td><span class="u u-' + (UCLS[s.loc] || 'x') + '">' + esc(LD(s.loc)) + '</span> <b>' + esc(s.type) + '</b></td><td>' + nb(x.left, seatSpec) + ' <span class="mute">／ ' + s.ac + '</span></td>' +
       '<td class="rt"><b class="' + cls + '">' + pct(x.rate) + '</b><div class="rbar ' + cls + '"><i style="width:' + w + '%"></i></div><div class="rs">' + sub + '</div></td></tr>';
@@ -1246,7 +1249,7 @@ function viewCount() {
   h += secBar();
   const lowN = D.support.filter(s => s.proj != null && s.proj < 90).length;
   h += sec('c-support', '飛機支援度', lowN ? '<span class="bad">' + lowN + ' 項 90 天後不到 90%</span>' : '目前正常',
-    '<div class="bar"><span class="mute">座椅 ÷ 飛機</span><button class="btn" data-act="aircraft">修改飛機數</button></div>' + supportCards(0) +
+    '<div class="bar"><span class="mute">座椅 ÷ 飛機</span><button class="btn" data-act="aircraft">修改飛機數</button></div>' + supportCards(0, true) +
     '<div class="note">100% 以上正常、90–99% 橘色、不到 90% 紅色。90 天後 = 扣掉 90 天內三線屆期（含已逾期）的張數。</div>', true);
 
   let t4 = '<div class="card">';
@@ -1613,9 +1616,6 @@ function settingsHTML() {
     '<div class="note">設定只存在這支手機，下次開啟還是一樣。</div><div class="mbtn"><button class="btn pri" data-mcancel="1">完成</button></div>';
 }
 function openSettings() { openSheet(settingsHTML()); }
-function openMenu() {
-  openSheet('<h3>更多</h3>' + toolRows() + '<button class="mrow" data-tool="lock"><span class="mi">' + ICON.lock + '</span><span>鎖定<small>離開前按這個</small></span></button><div class="mbtn"><button class="btn" data-mcancel="1">關閉</button></div>');
-}
 
 /* ---------- 匯出 ---------- */
 function csvText() {
@@ -1648,10 +1648,6 @@ function openTour(i) {
   i = i || 0; state.tour = i; const s = TOUR[i], last = i === TOUR.length - 1;
   openSheet('<div class="tour"><div class="tbig">' + ICON[s.ic] + '</div><h3>' + s.t + '</h3>' + s.b + '<div class="tdots">' + TOUR.map((_, k) => '<i class="' + (k === i ? 'on' : '') + '"></i>').join('') + '</div></div>' +
     '<div class="mbtn">' + (i ? '<button class="btn" data-tour="prev">上一步</button>' : '<button class="btn" data-tour="skip">略過</button>') + '<button class="btn pri" data-tour="' + (last ? 'done' : 'next') + '">' + (last ? '開始使用' : '下一步') + '</button></div>');
-}
-function maybeTour() {
-  return;
-  if (state.D && !state.tourShown && !lsGet('seatAsset.tour', 0) && $('#lock').classList.contains('hide')) { state.tourShown = true; openTour(0); }
 }
 
 /* ---------- 使用說明 ---------- */
@@ -1693,7 +1689,7 @@ function viewWork() {
   h += '<div class="seg" role="tablist" aria-label="作業類型">' +
     [['wait', '待進廠', wait.length], ['fac', '指部中', fac.length], ['log', '紀錄', '']].map(x => '<button role="tab" aria-selected="' + (k === x[0]) + '" data-wk="' + x[0] + '">' + x[1] + '<small>' + (x[2] !== '' ? x[2] + ' 張' : '誰改了什麼') + '</small></button>').join('') + '</div>';
   if (k === 'log') {
-    if (!state.logs) { h += '<div class="card"><div class="empty">讀取中…</div></div>'; fetchLog().then(l => { state.logs = l; if (state.view === 'work' && state.wk === 'log') render(); }).catch(e => { if (e.auth) return lock('密碼錯誤'); state.logs = []; toast('讀取紀錄失敗：' + (e.message || ''), 3000); render(); }); }
+    if (!state.logs) { h += '<div class="card"><div class="empty">讀取中…</div></div>'; if (!state.logLoading) { state.logLoading = true; fetchLog().then(l => { state.logs = l; }).catch(e => { if (e.auth) return lock('密碼錯誤'); state.logs = []; toast('讀取紀錄失敗：' + (e.message || ''), 3000); }).finally(() => { state.logLoading = false; if (state.view === 'work' && state.wk === 'log') render(); }); } }
     else h += '<div class="card">' + logHTML(state.logs) + '</div><div class="note">只列最近 40 筆。單張的完整歷史，在該座椅按「歷史紀錄」。</div>';
     return h;
   }
@@ -1790,7 +1786,7 @@ let idleTimer = null;
 function lock(msg) {
   try { sessionStorage.removeItem(AUTH_KEY); } catch (e) { }
   try { localStorage.removeItem(CONFIG.CACHE_KEY); } catch (e) { }
-  state.key = ''; state.role = 'edit'; state.sel = {}; document.body.classList.remove('ro'); state.records = []; state.D = null; state.source = 'none'; state.q = ''; state.dr = null; state.logs = null; state.tourShown = false; resetLayers();
+  state.key = ''; state.role = 'edit'; state.sel = {}; document.body.classList.remove('ro'); state.records = []; state.D = null; state.source = 'none'; state.q = ''; state.dr = null; state.logs = null; resetLayers();
   $('#q').value = ''; $('#qclear').hidden = true; $('#view').innerHTML = ''; $('#badgeExp').hidden = true;
   $('#lock').classList.remove('hide'); $('#pw').value = '';
   $('#lockErr').textContent = (typeof msg === 'string') ? msg : '';
@@ -1801,7 +1797,7 @@ function bumpIdle() {
   clearTimeout(idleTimer); idleTimer = setTimeout(lock, CONFIG.AUTO_LOCK_MIN * 60000);
 }
 ['click', 'keydown', 'touchstart', 'scroll'].forEach(ev => document.addEventListener(ev, bumpIdle, { passive: true }));
-function showApp() { $('#lock').classList.add('hide'); bumpIdle(); maybeTour(); }
+function showApp() { $('#lock').classList.add('hide'); bumpIdle(); }
 $('#lockForm').addEventListener('submit', async e => {
   e.preventDefault();
   const pw = $('#pw').value, btn = $('#lockForm .go');
