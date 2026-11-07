@@ -1,5 +1,5 @@
 <!doctype html>
-<html lang="zh-Hant">
+<html lang="zh-Hant-TW">
 <head>
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
@@ -306,9 +306,62 @@ tfoot td{font-weight:700;background:var(--soft)}
 .tdots i.on{background:var(--accent);width:22px}
 .hlp{margin:0 0 6px;border-bottom:1px solid var(--line)}.hlp summary{font-weight:700;padding:12px 0;cursor:pointer}.hlp p,.hlp li{margin:4px 0;font-size:15px;line-height:1.65}.hlp ul,.hlp ol{margin:4px 0 10px;padding-left:20px}
 .hicon{display:flex;gap:12px;align-items:center;padding:6px 0 10px}.hicon img{width:64px;height:64px;border-radius:15px}
+
+/* ===== v3：無障礙、人體工學、新版元件 ===== */
+:root{--pa:#1d4ed8;--pb:#0f766e;--pc:#b45309;--pd:#be123c}
+.u-a{background:var(--pa)}.u-b{background:var(--pb)}.u-c{background:var(--pc)}.u-d{background:var(--pd)}
+.skip{position:absolute;left:8px;top:-60px;z-index:200;background:var(--accent);color:var(--accent-t);padding:10px 16px;border-radius:10px;font-weight:700}
+.skip:focus{top:8px}
+.ibtn{width:46px;height:46px}
+.chip{min-height:44px;padding:9px 16px}
+.btn{min-height:46px}
+.secbar .btn{min-height:40px}
+.search input{height:60px;font-size:23px;border-radius:16px;padding-left:50px}
+.search svg{top:18px;width:24px;height:24px}
+.qclear{width:56px;height:56px;top:2px}
+.nav .wrap{grid-template-columns:repeat(5,1fr)}
+.nav button{min-height:60px;font-size:13px}
+.nav button.on::before{height:4px}
+.hl3{display:grid;grid-template-columns:repeat(3,1fr);gap:10px;margin:6px 0 14px}
+.hl3 button{background:var(--card);border:1px solid var(--line);border-top:5px solid var(--tc);border-radius:16px;padding:12px 6px 10px;box-shadow:var(--shadow);display:flex;flex-direction:column;align-items:center;min-height:96px}
+.hl3 b{font-size:34px;line-height:1.1;font-variant-numeric:tabular-nums}
+.hl3 span{font-size:14px;color:var(--mute);font-weight:600}
+.hl3 button:active{background:var(--soft)}
+.hsum{margin:-6px 2px 12px;font-size:13px;color:var(--mute);text-align:center}
+.first{background:color-mix(in srgb,var(--accent) 8%,var(--card));border:1px solid color-mix(in srgb,var(--accent) 35%,var(--line));border-radius:16px;padding:14px;margin:0 0 14px}
+.first b{font-size:17px}
+.first ol{margin:8px 0 10px;padding-left:22px;line-height:1.9}
+.qa{display:grid;grid-template-columns:repeat(3,1fr);gap:10px;margin:0 0 14px}
+.qa button{background:var(--card);border:1px solid var(--line);border-radius:16px;padding:12px 4px;display:flex;flex-direction:column;align-items:center;gap:6px;font-weight:700;min-height:84px;box-shadow:var(--shadow)}
+.qa .mi{width:38px;height:38px;border-radius:12px;background:var(--soft);color:var(--accent);display:flex;align-items:center;justify-content:center}
+.qa .mi svg{width:22px;height:22px}
+.qa button:active{background:var(--soft)}
+.seg{display:grid;grid-template-columns:repeat(3,1fr);gap:4px;background:var(--soft);padding:4px;border-radius:14px;margin:0 0 12px}
+.seg button{min-height:52px;border-radius:11px;font-weight:700;color:var(--mute);display:flex;flex-direction:column;align-items:center;justify-content:center;line-height:1.25}
+.seg button small{font-weight:600;font-size:12px}
+.seg button[aria-selected="true"]{background:var(--card);color:var(--accent);box-shadow:var(--shadow)}
+.chk{flex:none;width:48px;height:48px;display:flex;align-items:center;justify-content:center;margin-left:2px}
+.chk i{width:26px;height:26px;border:2.5px solid var(--mute);border-radius:8px;display:flex;align-items:center;justify-content:center;color:transparent;font-style:normal;font-weight:900;font-size:17px;background:var(--card)}
+.chk[aria-checked="true"] i{background:var(--accent);border-color:var(--accent);color:var(--accent-t)}
+.wr .itm{padding-left:2px}
+.selbar{position:fixed;left:0;right:0;bottom:calc(60px + var(--safe-b));z-index:40;background:var(--text);color:var(--bg);box-shadow:0 -4px 18px rgba(0,0,0,.25)}
+.selbar .wrap{display:flex;align-items:center;gap:8px;padding-top:8px;padding-bottom:8px}
+.selbar .n{flex:1;font-weight:700}
+.selbar .btn{background:transparent;color:var(--bg);border-color:color-mix(in srgb,var(--bg) 40%,transparent);min-height:46px}
+.selbar .btn.pri{background:var(--accent);color:var(--accent-t);border-color:var(--accent)}
+.selgap{height:70px}
+.toast.act{pointer-events:auto;display:flex;align-items:center;gap:12px;padding:8px 8px 8px 16px}
+.toast .tu{background:var(--bg);color:var(--accent);font-weight:800;padding:8px 14px;border-radius:9px;min-height:44px}
+body.ro [data-act]:not([data-act="history"]):not([data-act="log"]),body.ro [data-sel],body.ro .qa,body.ro .selbar,body.ro [data-selall],body.ro [data-undo-one]{display:none!important}
+.rolebox{padding:12px 14px;border:1px solid var(--line);border-radius:14px;background:var(--card);margin:0 0 12px;display:flex;gap:10px;align-items:center}
+.rolebox i{width:10px;height:10px;border-radius:50%;background:var(--green);flex:none}
+.rolebox.ro i{background:var(--orange)}
+.undo1{margin-top:6px}
+@media (forced-colors:active){.nb,.chip,.btn{border:2px solid ButtonText}}
 </style>
 </head>
 <body>
+<a class="skip" href="#view">跳到主要內容</a>
 
 <div class="lock" id="lock">
   <form id="lockForm" autocomplete="off">
@@ -326,33 +379,33 @@ tfoot td{font-weight:700;background:var(--soft)}
   <div class="wrap">
     <div class="hdr-top">
       <div class="ttl"><b>小記</b><small id="status">載入中…</small></div>
-      <button class="ibtn" id="btnRefresh" aria-label="重新整理資料"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M20 11a8 8 0 1 0-2.3 5.7M20 4v7h-7"/></svg></button>
+      <button class="ibtn" id="btnRefresh" aria-label="重新整理資料" title="重新整理"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M20 11a8 8 0 1 0-2.3 5.7M20 4v7h-7"/></svg></button>
       <button class="ibtn" id="btnLock" aria-label="鎖定"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="5" y="11" width="14" height="10" rx="2"/><path d="M8 11V8a4 4 0 0 1 8 0v3"/></svg></button>
-      <button class="ibtn" id="btnMore" aria-label="更多"><svg viewBox="0 0 24 24" fill="currentColor"><circle cx="5" cy="12" r="2"/><circle cx="12" cy="12" r="2"/><circle cx="19" cy="12" r="2"/></svg></button>
     </div>
-    <div class="search">
+    <div class="search" id="sp" role="search">
       <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><circle cx="11" cy="11" r="7"/><path d="M20 20l-3.5-3.5"/></svg>
-      <input id="q" type="text" inputmode="numeric" placeholder="輸入序號，例如 72" autocomplete="off" spellcheck="false" enterkeyhint="search" aria-label="輸入序號">
+      <input id="q" type="text" inputmode="numeric" placeholder="輸入序號數字，例如 72" autocomplete="off" spellcheck="false" enterkeyhint="search" aria-label="查座椅：輸入序號數字">
       <button class="qclear" id="qclear" hidden aria-label="清除">×</button>
     </div>
   </div>
 </header>
 
-<main class="wrap" id="view"></main>
+<main class="wrap" id="view" tabindex="-1"></main>
 
 <nav class="nav" aria-label="主選單">
   <div class="wrap">
-    <button data-nav="count" class="on"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="3" width="7" height="9" rx="1.5"/><rect x="14" y="3" width="7" height="5" rx="1.5"/><rect x="14" y="12" width="7" height="9" rx="1.5"/><rect x="3" y="16" width="7" height="5" rx="1.5"/></svg><span>總覽</span></button>
-    <button data-nav="lookup"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><circle cx="11" cy="11" r="7"/><path d="M20 20l-3.5-3.5"/></svg><span>查序號</span></button>
-    <button data-nav="analysis"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M4 20V10M10 20V4M16 20v-8M22 20H2"/></svg><span>屆期分析</span><span class="badge" id="badgeExp" hidden></span></button>
-    <button data-nav="work"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M14.7 6.3a4 4 0 0 0-5 5L3 18l3 3 6.7-6.7a4 4 0 0 0 5-5l-2.4 2.4-2.6-.6-.6-2.6z"/></svg><span>作業</span><span class="badge" id="badgeWork" hidden></span></button>
+    <button data-nav="home" class="on" aria-current="page"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M3 11l9-8 9 8"/><path d="M5 10v10h14V10"/></svg><span>首頁</span></button>
+    <button data-nav="count"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><rect x="3" y="3" width="7" height="9" rx="1.5"/><rect x="14" y="3" width="7" height="5" rx="1.5"/><rect x="14" y="12" width="7" height="9" rx="1.5"/><rect x="3" y="16" width="7" height="5" rx="1.5"/></svg><span>數量</span></button>
+    <button data-nav="analysis"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M4 20V10M10 20V4M16 20v-8M22 20H2"/></svg><span>屆期</span><span class="badge" id="badgeExp" hidden></span></button>
+    <button data-nav="work"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M14.7 6.3a4 4 0 0 0-5 5L3 18l3 3 6.7-6.7a4 4 0 0 0 5-5l-2.4 2.4-2.6-.6-.6-2.6z"/></svg><span>作業</span><span class="badge" id="badgeWork" hidden></span></button>
+    <button data-nav="more"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><circle cx="5" cy="12" r="1.6"/><circle cx="12" cy="12" r="1.6"/><circle cx="19" cy="12" r="1.6"/></svg><span>更多</span></button>
   </div>
 </nav>
 
-<div class="toast" id="toast"></div>
+<div class="toast" id="toast" role="status" aria-live="polite"></div>
 
-<div class="drawer" id="drawer" hidden><div class="dsheet" id="dsheet"></div></div>
-<div class="modal" id="modal" hidden><div class="sheet" id="sheet"></div></div>
+<div class="drawer" id="drawer" hidden role="dialog" aria-modal="true" aria-label="座椅清單"><div class="dsheet" id="dsheet" tabindex="-1"></div></div>
+<div class="modal" id="modal" hidden role="dialog" aria-modal="true" aria-label="操作視窗"><div class="sheet" id="sheet" tabindex="-1"></div></div>
 
 <script>
 /* ===== 共用規則（Apps Script 與網頁示範模式共用，兩邊一模一樣）===== */
@@ -536,7 +589,16 @@ function seatCleanAircraft(a) {
   return { obj: obj, list: list };
 }
 
-function seatApply(rows, req, now) {
+/* ===== 復原用的快照、批次、復原 ===== */
+const SEAT_SNAP_FIELDS = ['型別', '位置', '狀態', '生效日', '三線屆期', '二線屆期', '進廠日', '循環次數', '備註'];
+const SEAT_UNDOABLE = ['進廠', '出廠', '調撥', '修改'];
+function seatSnap(r) {
+  const o = {};
+  SEAT_SNAP_FIELDS.forEach(function (k) { o[k] = r[k] == null ? '' : r[k]; });
+  return JSON.stringify(o);
+}
+
+function seatApplyOne(rows, req, now) {
   switch (req.action) {
     case 'checkin': return seatCheckin(rows, req, now);
     case 'checkout': return seatCheckout(rows, req, now);
@@ -545,6 +607,66 @@ function seatApply(rows, req, now) {
     case 'edit': return seatEdit(rows, req, now);
     default: throw new Error('不明的動作：' + req.action);
   }
+}
+
+/* 批次進廠／出廠：任何一張有問題，整批都不會動 */
+function seatBatch(rows, req, now) {
+  const items = req.items;
+  if (!Array.isArray(items) || !items.length) throw new Error('沒有選任何座椅');
+  if (items.length > 60) throw new Error('一次最多 60 張');
+  const seen = {}, out = { rows: [], logs: [], msg: '' };
+  items.forEach(function (it) {
+    if (it.action !== 'checkin' && it.action !== 'checkout') throw new Error('批次只支援進廠與出廠');
+    const k = seatKey(it.serial);
+    if (seen[k]) throw new Error(it.serial + ' 重複了');
+    seen[k] = 1;
+    const res = seatApply(rows, it, now);
+    res.rows.forEach(function (r) { out.rows.push(r); });
+    res.logs.forEach(function (l) { out.logs.push(l); });
+  });
+  out.msg = '已' + (items[0].action === 'checkin' ? '進廠 ' : '出廠 ') + items.length + ' 張';
+  return out;
+}
+
+/* 復原：只能復原「那張座椅最新的一筆」進廠／出廠／調撥／修改；logs 是該座椅最近的紀錄（新的在前） */
+function seatUndo(rows, req, now, logs) {
+  const items = req.items;
+  if (!Array.isArray(items) || !items.length) throw new Error('沒有要復原的項目');
+  const out = { rows: [], logs: [], msg: '' };
+  items.forEach(function (it) {
+    const k = seatKey(it.serial);
+    let latest = null;
+    for (let i = 0; i < logs.length; i++) { if (seatKey(logs[i]['序號']) === k) { latest = logs[i]; break; } }
+    if (!latest) throw new Error(it.serial + ' 沒有紀錄可以復原');
+    if (String(latest['時間']) !== String(it.time) || latest['動作'] !== it.expect) throw new Error(it.serial + ' 之後又有新的異動，不能復原（請用「修改資料」調整）');
+    if (SEAT_UNDOABLE.indexOf(latest['動作']) < 0 || !latest['復原資料']) throw new Error(it.serial + ' 的「' + latest['動作'] + '」不能復原');
+    let snap;
+    try { snap = JSON.parse(latest['復原資料']); } catch (e) { throw new Error('復原資料損毀，不能復原'); }
+    const r = seatNeed(rows, it.serial), from = r['位置'];
+    SEAT_SNAP_FIELDS.forEach(function (f) { r[f] = snap[f] == null ? '' : snap[f]; });
+    r['更新時間'] = seatFmtTime(now);
+    out.rows.push(r);
+    out.logs.push(seatLog(now, '復原', r, from, r['位置'], '復原「' + latest['動作'] + '」（' + latest['時間'] + '）'));
+  });
+  out.msg = '已復原 ' + items.length + ' 張';
+  return out;
+}
+
+function seatApply(rows, req, now) {
+  if (req.action === 'batch') return seatBatch(rows, req, now);
+  let snap = null;
+  if (SEAT_UNDOABLE.indexOf({ checkin: '進廠', checkout: '出廠', transfer: '調撥', edit: '修改' }[req.action]) >= 0) {
+    const pre = seatFind(rows, req.serial);
+    if (pre) snap = seatSnap(pre);
+  }
+  const res = seatApplyOne(rows, req, now);
+  if (snap && res.logs.length) res.logs[0]['復原資料'] = snap;
+  return res;
+}
+/* 給網頁：這次異動哪些可以復原 */
+function seatUndoable(logs) {
+  return (logs || []).filter(function (l) { return l['復原資料'] && SEAT_UNDOABLE.indexOf(l['動作']) >= 0; })
+    .map(function (l) { return { serial: l['序號'], time: l['時間'], expect: l['動作'] }; });
 }
 
 /* =====================================================================
@@ -587,7 +709,7 @@ const CONFIG = {
 };
 
 /* 示範資料（API_URL 留空時使用；內容是你提供的試算表） */
-const SAMPLE = "序號\t型別\t位置\t狀態\t生效日\t三線屆期\t二線屆期\t循環次數\t進廠日\t備註\t更新時間\nSL169\t-3\t一修\t服役中\t2020/10/20\t2026/10/20\t2023/10/20\t1\t\t示範資料\t\nSL005\t-3\t一修\t服役中\t2020/11/10\t2026/11/10\t2023/11/10\t1\t\t示範資料\t\nSL006\t-3\t一修\t服役中\t2020/11/23\t2026/11/23\t2023/11/23\t1\t\t示範資料\t\nSL133\t-3\t一修\t服役中\t2020/12/28\t2026/12/28\t2023/12/28\t1\t\t示範資料\t\nSL041\t-3\t一修\t服役中\t2022/07/25\t2028/07/25\t2025/07/25\t1\t\t示範資料\t\nSL010\t-3\t一修\t服役中\t2023/03/06\t2029/03/06\t2026/03/06\t1\t\t示範資料\t\nSL143\t-3\t一修\t服役中\t2024/11/17\t2030/11/17\t2027/11/17\t1\t\t示範資料\t\nSL064\t-3\t一修\t服役中\t2022/07/03\t2028/07/03\t2025/07/03\t1\t\t示範資料\t\nSL033\t-3\t一修\t服役中\t2025/01/14\t2031/01/14\t2028/01/14\t1\t\t示範資料\t\nSL136\t-3\t一修\t服役中\t2021/08/12\t2027/08/12\t2024/08/12\t1\t\t示範資料\t\nSL159\t-3\t一修\t服役中\t2025/09/03\t2031/09/03\t2028/09/03\t1\t\t示範資料\t\nSL081\t-3\t一修\t服役中\t2022/06/16\t2028/06/16\t2025/06/16\t1\t\t示範資料\t\nSL060\t-3\t一修\t服役中\t2022/09/21\t2028/09/21\t2025/09/21\t1\t\t示範資料\t\nSL126\t-3\t一修\t服役中\t2022/09/26\t2028/09/26\t2025/09/26\t1\t\t示範資料\t\nSL095\t-3\t一修\t服役中\t2024/09/08\t2030/09/08\t2027/09/08\t1\t\t示範資料\t\nSL171\t-3\t三修\t服役中\t2025/09/11\t2031/09/11\t2028/09/11\t1\t\t示範資料\t\nSL105\t-3\t三修\t服役中\t2022/09/24\t2028/09/24\t2025/09/24\t1\t\t示範資料\t\nSL124\t-3\t三修\t服役中\t2025/01/12\t2031/01/12\t2028/01/12\t1\t\t示範資料\t\nSL022\t-3\t三修\t服役中\t2024/04/22\t2030/04/22\t2027/04/22\t1\t\t示範資料\t\nSL007\t-3\t三修\t服役中\t2023/12/17\t2029/12/17\t2026/12/17\t1\t\t示範資料\t\nSL122\t-3\t三修\t服役中\t2024/03/08\t2030/03/08\t2027/03/08\t1\t\t示範資料\t\nSL138\t-3\t三修\t服役中\t2025/12/14\t2031/12/14\t2028/12/14\t1\t\t示範資料\t\nSL018\t-3\t三修\t服役中\t2025/06/23\t2031/06/23\t2028/06/23\t1\t\t示範資料\t\nSL047\t-3\t三修\t服役中\t2025/04/26\t2031/04/26\t2028/04/26\t1\t\t示範資料\t\nSL154\t-3\t三修\t服役中\t2024/11/03\t2030/11/03\t2027/11/03\t1\t\t示範資料\t\nSL054\t-3\t三修\t服役中\t2025/01/03\t2031/01/03\t2028/01/03\t1\t\t示範資料\t\nSL168\t-3\t三修\t服役中\t2023/01/27\t2029/01/27\t2026/01/27\t1\t\t示範資料\t\nSL028\t-3\t待修庫\t待進廠\t\t\t\t1\t\t示範資料\t\nSL057\t-3\t待修庫\t待進廠\t\t\t\t1\t\t示範資料\t\nSL140\t-3\t指部工廠\t交修中\t\t\t\t1\t\t示範資料\t\nSL102\t-3\t指部工廠\t交修中\t\t\t\t1\t\t示範資料\t\nSL091\t-3\t指部工廠\t交修中\t\t\t\t1\t\t示範資料\t\nSL031\t-4\t一修\t服役中\t2026/06/12\t2032/06/12\t2029/06/12\t1\t\t示範資料\t\nSL062\t-4\t一修\t服役中\t2021/08/11\t2027/08/11\t2024/08/11\t1\t\t示範資料\t\nSL084\t-4\t一修\t服役中\t2023/10/07\t2029/10/07\t2026/10/07\t1\t\t示範資料\t\nSL121\t-4\t一修\t服役中\t2025/12/09\t2031/12/09\t2028/12/09\t1\t\t示範資料\t\nSL008\t-4\t一修\t服役中\t2024/08/14\t2030/08/14\t2027/08/14\t1\t\t示範資料\t\nSL012\t-4\t一修\t服役中\t2023/10/14\t2029/10/14\t2026/10/14\t1\t\t示範資料\t\nSL056\t-4\t一修\t服役中\t2023/11/12\t2029/11/12\t2026/11/12\t1\t\t示範資料\t\nSL001\t-4\t一修\t服役中\t2024/05/20\t2030/05/20\t2027/05/20\t1\t\t示範資料\t\nSL002\t-4\t一修\t服役中\t2024/02/05\t2030/02/05\t2027/02/05\t1\t\t示範資料\t\nSL039\t-4\t一修\t服役中\t2021/05/22\t2027/05/22\t2024/05/22\t1\t\t示範資料\t\nSL172\t-4\t一修\t服役中\t2023/02/18\t2029/02/18\t2026/02/18\t1\t\t示範資料\t\nSL065\t-4\t一修\t服役中\t2026/05/09\t2032/05/09\t2029/05/09\t1\t\t示範資料\t\nSL096\t-4\t一修\t服役中\t2026/07/26\t2032/07/26\t2029/07/26\t1\t\t示範資料\t\nSL139\t-4\t三修\t服役中\t2024/10/27\t2030/10/27\t2027/10/27\t1\t\t示範資料\t\nSL026\t-4\t三修\t服役中\t2025/07/06\t2031/07/06\t2028/07/06\t1\t\t示範資料\t\nSL042\t-4\t三修\t服役中\t2024/08/02\t2030/08/02\t2027/08/02\t1\t\t示範資料\t\nSL040\t-4\t三修\t服役中\t2021/11/04\t2027/11/04\t2024/11/04\t1\t\t示範資料\t\nSL051\t-4\t三修\t服役中\t2023/01/31\t2029/01/31\t2026/01/31\t1\t\t示範資料\t\nSL114\t-4\t三修\t服役中\t2021/02/09\t2027/02/09\t2024/02/09\t1\t\t示範資料\t\nSL128\t-4\t三修\t服役中\t2023/10/10\t2029/10/10\t2026/10/10\t1\t\t示範資料\t\nSL038\t-4\t三修\t服役中\t2021/03/13\t2027/03/13\t2024/03/13\t1\t\t示範資料\t\nSL162\t-4\t三修\t服役中\t2021/11/21\t2027/11/21\t2024/11/21\t1\t\t示範資料\t\nSL129\t-4\t三修\t服役中\t2025/12/02\t2031/12/02\t2028/12/02\t1\t\t示範資料\t\nSL089\t-4\t三修\t服役中\t2026/04/15\t2032/04/15\t2029/04/15\t1\t\t示範資料\t\nSL118\t-4\t三修\t服役中\t2024/01/19\t2030/01/19\t2027/01/19\t1\t\t示範資料\t\nSL109\t-4\t三修\t服役中\t2021/08/18\t2027/08/18\t2024/08/18\t1\t\t示範資料\t\nSL032\t-4\t三修\t服役中\t2026/03/23\t2032/03/23\t2029/03/23\t1\t\t示範資料\t\nSL024\t-4\t待修庫\t待進廠\t\t\t\t1\t\t示範資料\t\nSL125\t-4\t待修庫\t待進廠\t\t\t\t1\t\t示範資料\t\nSL117\t-4\t待修庫\t待進廠\t\t\t\t1\t\t示範資料\t\nSL107\t-4\t待修庫\t待進廠\t\t\t\t1\t\t示範資料\t\nSL082\t-4\t指部工廠\t交修中\t\t\t\t1\t\t示範資料\t\nSL156\t-4\t指部工廠\t交修中\t\t\t\t1\t\t示範資料\t\nSL087\t-5\t三修\t服役中\t2026/02/21\t2032/02/21\t2029/02/21\t1\t\t示範資料\t\nSL123\t-5\t三修\t服役中\t2023/06/11\t2029/06/11\t2026/06/11\t1\t\t示範資料\t\nSL050\t-5\t三修\t服役中\t2022/05/07\t2028/05/07\t2025/05/07\t1\t\t示範資料\t\nSL020\t-5\t三修\t服役中\t2024/02/08\t2030/02/08\t2027/02/08\t1\t\t示範資料\t\nSL045\t-5\t三修\t服役中\t2023/10/24\t2029/10/24\t2026/10/24\t1\t\t示範資料\t\nSL113\t-5\t三修\t服役中\t2022/02/22\t2028/02/22\t2025/02/22\t1\t\t示範資料\t\nSL177\t-5\t三修\t服役中\t2024/08/27\t2030/08/27\t2027/08/27\t1\t\t示範資料\t\nSL152\t-5\t待修庫\t待進廠\t\t\t\t1\t\t示範資料\t\nSL061\t-6\t一修\t服役中\t2022/12/10\t2028/12/10\t2025/12/10\t1\t\t示範資料\t\nSL073\t-6\t一修\t服役中\t2021/02/24\t2027/02/24\t2024/02/24\t1\t\t示範資料\t\nSL160\t-6\t一修\t服役中\t2021/03/29\t2027/03/29\t2024/03/29\t1\t\t示範資料\t\nSL074\t-6\t一修\t服役中\t2026/01/08\t2032/01/08\t2029/01/08\t1\t\t示範資料\t\nSL148\t-6\t一修\t服役中\t2021/06/16\t2027/06/16\t2024/06/16\t1\t\t示範資料\t\nSL179\t-6\t一修\t服役中\t2021/10/10\t2027/10/10\t2024/10/10\t1\t\t示範資料\t\nSL115\t-6\t一修\t服役中\t2025/11/01\t2031/11/01\t2028/11/01\t1\t\t示範資料\t\nSL083\t-6\t一修\t服役中\t2026/06/02\t2032/06/02\t2029/06/02\t1\t\t示範資料\t\nSL153\t-6\t一修\t服役中\t2024/12/08\t2030/12/08\t2027/12/08\t1\t\t示範資料\t\nSL048\t-6\t一修\t服役中\t2021/03/13\t2027/03/13\t2024/03/13\t1\t\t示範資料\t\nSL134\t-6\t一修\t服役中\t2022/07/17\t2028/07/17\t2025/07/17\t1\t\t示範資料\t\nSL067\t-6\t一修\t服役中\t2026/03/09\t2032/03/09\t2029/03/09\t1\t\t示範資料\t\nSL071\t-6\t一修\t服役中\t2025/10/12\t2031/10/12\t2028/10/12\t1\t\t示範資料\t\nSL078\t-6\t一修\t服役中\t2022/09/17\t2028/09/17\t2025/09/17\t1\t\t示範資料\t\nSL131\t-6\t一修\t服役中\t2021/09/26\t2027/09/26\t2024/09/26\t1\t\t示範資料\t\nSL059\t-6\t一修\t服役中\t2024/11/03\t2030/11/03\t2027/11/03\t1\t\t示範資料\t\nSL098\t-6\t一修\t服役中\t2021/05/14\t2027/05/14\t2024/05/14\t1\t\t示範資料\t\nSL043\t-6\t一修\t服役中\t2021/09/01\t2027/09/01\t2024/09/01\t1\t\t示範資料\t\nSL178\t-6\t一修\t服役中\t2025/10/17\t2031/10/17\t2028/10/17\t1\t\t示範資料\t\nSL086\t-6\t一修\t服役中\t2025/08/17\t2031/08/17\t2028/08/17\t1\t\t示範資料\t\nSL029\t-6\t一修\t服役中\t2024/09/29\t2030/09/29\t2027/09/29\t1\t\t示範資料\t\nSL116\t-6\t一修\t服役中\t2022/05/29\t2028/05/29\t2025/05/29\t1\t\t示範資料\t\nSL058\t-6\t一修\t服役中\t2024/02/23\t2030/02/23\t2027/02/23\t1\t\t示範資料\t\nSL011\t-6\t一修\t服役中\t2023/10/24\t2029/10/24\t2026/10/24\t1\t\t示範資料\t\nSL037\t-6\t一修\t服役中\t2021/07/04\t2027/07/04\t2024/07/04\t1\t\t示範資料\t\nSL075\t-6\t一修\t服役中\t2022/12/16\t2028/12/16\t2025/12/16\t1\t\t示範資料\t\nSL090\t-6\t一修\t服役中\t2024/08/31\t2030/08/31\t2027/08/31\t1\t\t示範資料\t\nSL088\t-6\t一修\t服役中\t2024/05/11\t2030/05/11\t2027/05/11\t1\t\t示範資料\t\nSL132\t-6\t一修\t服役中\t2023/06/19\t2029/06/19\t2026/06/19\t1\t\t示範資料\t\nSL063\t-6\t一修\t服役中\t2021/09/22\t2027/09/22\t2024/09/22\t1\t\t示範資料\t\nSL077\t-6\t一修\t服役中\t2023/05/09\t2029/05/09\t2026/05/09\t1\t\t示範資料\t\nSL135\t-6\t一修\t服役中\t2026/05/28\t2032/05/28\t2029/05/28\t1\t\t示範資料\t\nSL093\t-6\t一修\t服役中\t2024/09/18\t2030/09/18\t2027/09/18\t1\t\t示範資料\t\nSL137\t-6\t一修\t服役中\t2021/12/15\t2027/12/15\t2024/12/15\t1\t\t示範資料\t\nSL176\t-6\t一修\t服役中\t2024/01/03\t2030/01/03\t2027/01/03\t1\t\t示範資料\t\nSL052\t-6\t一修\t服役中\t2026/06/15\t2032/06/15\t2029/06/15\t1\t\t示範資料\t\nSL106\t-6\t一修\t服役中\t2025/11/03\t2031/11/03\t2028/11/03\t1\t\t示範資料\t\nSL174\t-6\t一修\t服役中\t2022/09/24\t2028/09/24\t2025/09/24\t1\t\t示範資料\t\nSL066\t-6\t一修\t服役中\t2023/02/09\t2029/02/09\t2026/02/09\t1\t\t示範資料\t\nSL009\t-6\t一修\t服役中\t2022/11/29\t2028/11/29\t2025/11/29\t1\t\t示範資料\t\nSL085\t-6\t一修\t服役中\t2023/10/21\t2029/10/21\t2026/10/21\t1\t\t示範資料\t\nSL151\t-6\t一修\t服役中\t2024/11/09\t2030/11/09\t2027/11/09\t1\t\t示範資料\t\nSL166\t-6\t一修\t服役中\t2025/03/25\t2031/03/25\t2028/03/25\t1\t\t示範資料\t\nSL150\t-6\t一修\t服役中\t2023/10/09\t2029/10/09\t2026/10/09\t1\t\t示範資料\t\nSL019\t-6\t一修\t服役中\t2026/07/05\t2032/07/05\t2029/07/05\t1\t\t示範資料\t\nSL149\t-6\t一修\t服役中\t2021/06/26\t2027/06/26\t2024/06/26\t1\t\t示範資料\t\nSL004\t-6\t一修\t服役中\t2023/07/25\t2029/07/25\t2026/07/25\t1\t\t示範資料\t\nSL157\t-6\t一修\t服役中\t2022/03/09\t2028/03/09\t2025/03/09\t1\t\t示範資料\t\nSL142\t-6\t一修\t服役中\t2026/03/29\t2032/03/29\t2029/03/29\t1\t\t示範資料\t\nSL167\t-6\t一修\t服役中\t2025/01/18\t2031/01/18\t2028/01/18\t1\t\t示範資料\t\nSL049\t-6\t一修\t服役中\t2021/07/17\t2027/07/17\t2024/07/17\t1\t\t示範資料\t\nSL069\t-6\t一修\t服役中\t2024/10/11\t2030/10/11\t2027/10/11\t1\t\t示範資料\t\nSL147\t-6\t三修\t服役中\t2024/03/23\t2030/03/23\t2027/03/23\t1\t\t示範資料\t\nSL120\t-6\t三修\t服役中\t2022/06/08\t2028/06/08\t2025/06/08\t1\t\t示範資料\t\nSL164\t-6\t三修\t服役中\t2025/02/15\t2031/02/15\t2028/02/15\t1\t\t示範資料\t\nSL119\t-6\t三修\t服役中\t2024/11/14\t2030/11/14\t2027/11/14\t1\t\t示範資料\t\nSL146\t-6\t三修\t服役中\t2024/06/18\t2030/06/18\t2027/06/18\t1\t\t示範資料\t\nSL013\t-6\t三修\t服役中\t2021/02/23\t2027/02/23\t2024/02/23\t1\t\t示範資料\t\nSL016\t-6\t三修\t服役中\t2025/01/16\t2031/01/16\t2028/01/16\t1\t\t示範資料\t\nSL094\t-6\t三修\t服役中\t2024/06/02\t2030/06/02\t2027/06/02\t1\t\t示範資料\t\nSL035\t-6\t三修\t服役中\t2021/04/24\t2027/04/24\t2024/04/24\t1\t\t示範資料\t\nSL034\t-6\t三修\t服役中\t2025/07/23\t2031/07/23\t2028/07/23\t1\t\t示範資料\t\nSL025\t-6\t三修\t服役中\t2022/03/04\t2028/03/04\t2025/03/04\t1\t\t示範資料\t\nSL017\t-6\t三修\t服役中\t2022/10/14\t2028/10/14\t2025/10/14\t1\t\t示範資料\t\nSL021\t-6\t三修\t服役中\t2024/10/23\t2030/10/23\t2027/10/23\t1\t\t示範資料\t\nSL175\t-6\t三修\t服役中\t2024/04/02\t2030/04/02\t2027/04/02\t1\t\t示範資料\t\nSL144\t-6\t三修\t服役中\t2024/12/03\t2030/12/03\t2027/12/03\t1\t\t示範資料\t\nSL027\t-6\t三修\t服役中\t2025/01/20\t2031/01/20\t2028/01/20\t1\t\t示範資料\t\nSL145\t-6\t三修\t服役中\t2023/06/30\t2029/06/30\t2026/06/30\t1\t\t示範資料\t\nSL173\t-6\t三修\t服役中\t2024/10/05\t2030/10/05\t2027/10/05\t1\t\t示範資料\t\nSL070\t-6\t三修\t服役中\t2021/08/14\t2027/08/14\t2024/08/14\t1\t\t示範資料\t\nSL023\t-6\t三修\t服役中\t2023/11/25\t2029/11/25\t2026/11/25\t1\t\t示範資料\t\nSL158\t-6\t三修\t服役中\t2025/05/19\t2031/05/19\t2028/05/19\t1\t\t示範資料\t\nSL046\t-6\t三修\t服役中\t2021/08/03\t2027/08/03\t2024/08/03\t1\t\t示範資料\t\nSL072\t-6\t三修\t服役中\t2021/07/11\t2027/07/11\t2024/07/11\t1\t\t示範資料\t\nSL161\t-6\t三修\t服役中\t2022/03/24\t2028/03/24\t2025/03/24\t1\t\t示範資料\t\nSL044\t-6\t三修\t服役中\t2023/11/26\t2029/11/26\t2026/11/26\t1\t\t示範資料\t\nSL130\t-6\t三修\t服役中\t2026/02/24\t2032/02/24\t2029/02/24\t1\t\t示範資料\t\nSL097\t-6\t三修\t服役中\t2024/07/28\t2030/07/28\t2027/07/28\t1\t\t示範資料\t\nSL055\t-6\t三修\t服役中\t2022/05/05\t2028/05/05\t2025/05/05\t1\t\t示範資料\t\nSL099\t-6\t三修\t服役中\t2021/12/27\t2027/12/27\t2024/12/27\t1\t\t示範資料\t\nSL100\t-6\t三修\t服役中\t2021/10/18\t2027/10/18\t2024/10/18\t1\t\t示範資料\t\nSL053\t-6\t三修\t服役中\t2024/01/12\t2030/01/12\t2027/01/12\t1\t\t示範資料\t\nSL141\t-6\t三修\t服役中\t2025/07/30\t2031/07/30\t2028/07/30\t1\t\t示範資料\t\nSL076\t-6\t三修\t服役中\t2025/08/11\t2031/08/11\t2028/08/11\t1\t\t示範資料\t\nSL014\t-6\t三修\t服役中\t2023/11/20\t2029/11/20\t2026/11/20\t1\t\t示範資料\t\nSL079\t-6\t三修\t服役中\t2026/02/02\t2032/02/02\t2029/02/02\t1\t\t示範資料\t\nSL003\t-6\t三修\t服役中\t2021/04/23\t2027/04/23\t2024/04/23\t1\t\t示範資料\t\nSL163\t-6\t三修\t服役中\t2024/01/10\t2030/01/10\t2027/01/10\t1\t\t示範資料\t\nSL112\t-6\t待修庫\t待進廠\t\t\t\t1\t\t示範資料\t\nSL101\t-6\t待修庫\t待進廠\t\t\t\t1\t\t示範資料\t\nSL127\t-6\t待修庫\t待進廠\t\t\t\t1\t\t示範資料\t\nSL111\t-6\t待修庫\t待進廠\t\t\t\t1\t\t示範資料\t\nSL080\t-6\t待修庫\t待進廠\t\t\t\t1\t\t示範資料\t\nSL170\t-6\t指部工廠\t交修中\t\t\t\t1\t\t示範資料\t\nSL015\t-6\t指部工廠\t交修中\t\t\t\t1\t\t示範資料\t\nSL165\t-6\t指部工廠\t交修中\t\t\t\t1\t\t示範資料\t\nSL068\t-6\t指部工廠\t交修中\t\t\t\t1\t\t示範資料\t\nSL036\t-6\t指部工廠\t交修中\t\t\t\t1\t\t示範資料\t\nSL110\t-6\t指部工廠\t交修中\t\t\t\t1\t\t示範資料\t\nSL103\t-6\t指部工廠\t交修中\t\t\t\t1\t\t示範資料\t\nSL030\t-6\t指部工廠\t交修中\t\t\t\t1\t\t示範資料\t\nSL104\t-6\t指部工廠\t交修中\t\t\t\t1\t\t示範資料\t\nSL155\t-6\t指部工廠\t交修中\t\t\t\t1\t\t示範資料\t\nSL092\t-6\t指部工廠\t交修中\t\t\t\t1\t\t示範資料\t\nSL108\t-6\t指部工廠\t交修中\t\t\t\t1\t\t示範資料\t";
+const SAMPLE = "序號\t型別\t位置\t狀態\t生效日\t三線屆期\t二線屆期\t循環次數\t進廠日\t備註\t更新時間\nSL169\t-3\t一修\t服役中\t2020/10/20\t2026/10/20\t2022/10/20\t1\t\t示範資料\t\nSL005\t-3\t一修\t服役中\t2020/11/10\t2026/11/10\t2022/11/10\t1\t\t示範資料\t\nSL006\t-3\t一修\t服役中\t2020/11/23\t2026/11/23\t2022/11/23\t1\t\t示範資料\t\nSL133\t-3\t一修\t服役中\t2020/12/28\t2026/12/28\t2022/12/28\t1\t\t示範資料\t\nSL041\t-3\t一修\t服役中\t2022/07/25\t2028/07/25\t2024/07/25\t1\t\t示範資料\t\nSL010\t-3\t一修\t服役中\t2023/03/06\t2029/03/06\t2025/03/06\t1\t\t示範資料\t\nSL143\t-3\t一修\t服役中\t2024/11/17\t2030/11/17\t2026/11/17\t1\t\t示範資料\t\nSL064\t-3\t一修\t服役中\t2022/07/03\t2028/07/03\t2024/07/03\t1\t\t示範資料\t\nSL033\t-3\t一修\t服役中\t2025/01/14\t2031/01/14\t2027/01/14\t1\t\t示範資料\t\nSL136\t-3\t一修\t服役中\t2021/08/12\t2027/08/12\t2023/08/12\t1\t\t示範資料\t\nSL159\t-3\t一修\t服役中\t2025/09/03\t2031/09/03\t2027/09/03\t1\t\t示範資料\t\nSL081\t-3\t一修\t服役中\t2022/06/16\t2028/06/16\t2024/06/16\t1\t\t示範資料\t\nSL060\t-3\t一修\t服役中\t2022/09/21\t2028/09/21\t2024/09/21\t1\t\t示範資料\t\nSL126\t-3\t一修\t服役中\t2022/09/26\t2028/09/26\t2024/09/26\t1\t\t示範資料\t\nSL095\t-3\t一修\t服役中\t2024/09/08\t2030/09/08\t2026/09/08\t1\t\t示範資料\t\nSL171\t-3\t三修\t服役中\t2025/09/11\t2031/09/11\t2027/09/11\t1\t\t示範資料\t\nSL105\t-3\t三修\t服役中\t2022/09/24\t2028/09/24\t2024/09/24\t1\t\t示範資料\t\nSL124\t-3\t三修\t服役中\t2025/01/12\t2031/01/12\t2027/01/12\t1\t\t示範資料\t\nSL022\t-3\t三修\t服役中\t2024/04/22\t2030/04/22\t2026/04/22\t1\t\t示範資料\t\nSL007\t-3\t三修\t服役中\t2023/12/17\t2029/12/17\t2025/12/17\t1\t\t示範資料\t\nSL122\t-3\t三修\t服役中\t2024/03/08\t2030/03/08\t2026/03/08\t1\t\t示範資料\t\nSL138\t-3\t三修\t服役中\t2025/12/14\t2031/12/14\t2027/12/14\t1\t\t示範資料\t\nSL018\t-3\t三修\t服役中\t2025/06/23\t2031/06/23\t2027/06/23\t1\t\t示範資料\t\nSL047\t-3\t三修\t服役中\t2025/04/26\t2031/04/26\t2027/04/26\t1\t\t示範資料\t\nSL154\t-3\t三修\t服役中\t2024/11/03\t2030/11/03\t2026/11/03\t1\t\t示範資料\t\nSL054\t-3\t三修\t服役中\t2025/01/03\t2031/01/03\t2027/01/03\t1\t\t示範資料\t\nSL168\t-3\t三修\t服役中\t2023/01/27\t2029/01/27\t2025/01/27\t1\t\t示範資料\t\nSL028\t-3\t待修庫\t待進廠\t\t\t\t1\t\t示範資料\t\nSL057\t-3\t待修庫\t待進廠\t\t\t\t1\t\t示範資料\t\nSL140\t-3\t指部工廠\t交修中\t\t\t\t1\t\t示範資料\t\nSL102\t-3\t指部工廠\t交修中\t\t\t\t1\t\t示範資料\t\nSL091\t-3\t指部工廠\t交修中\t\t\t\t1\t\t示範資料\t\nSL031\t-4\t一修\t服役中\t2026/06/12\t2032/06/12\t2028/06/12\t1\t\t示範資料\t\nSL062\t-4\t一修\t服役中\t2021/08/11\t2027/08/11\t2023/08/11\t1\t\t示範資料\t\nSL084\t-4\t一修\t服役中\t2023/10/07\t2029/10/07\t2025/10/07\t1\t\t示範資料\t\nSL121\t-4\t一修\t服役中\t2025/12/09\t2031/12/09\t2027/12/09\t1\t\t示範資料\t\nSL008\t-4\t一修\t服役中\t2024/08/14\t2030/08/14\t2026/08/14\t1\t\t示範資料\t\nSL012\t-4\t一修\t服役中\t2023/10/14\t2029/10/14\t2025/10/14\t1\t\t示範資料\t\nSL056\t-4\t一修\t服役中\t2023/11/12\t2029/11/12\t2025/11/12\t1\t\t示範資料\t\nSL001\t-4\t一修\t服役中\t2024/05/20\t2030/05/20\t2026/05/20\t1\t\t示範資料\t\nSL002\t-4\t一修\t服役中\t2024/02/05\t2030/02/05\t2026/02/05\t1\t\t示範資料\t\nSL039\t-4\t一修\t服役中\t2021/05/22\t2027/05/22\t2023/05/22\t1\t\t示範資料\t\nSL172\t-4\t一修\t服役中\t2023/02/18\t2029/02/18\t2025/02/18\t1\t\t示範資料\t\nSL065\t-4\t一修\t服役中\t2026/05/09\t2032/05/09\t2028/05/09\t1\t\t示範資料\t\nSL096\t-4\t一修\t服役中\t2026/07/26\t2032/07/26\t2028/07/26\t1\t\t示範資料\t\nSL139\t-4\t三修\t服役中\t2024/10/27\t2030/10/27\t2026/10/27\t1\t\t示範資料\t\nSL026\t-4\t三修\t服役中\t2025/07/06\t2031/07/06\t2027/07/06\t1\t\t示範資料\t\nSL042\t-4\t三修\t服役中\t2024/08/02\t2030/08/02\t2026/08/02\t1\t\t示範資料\t\nSL040\t-4\t三修\t服役中\t2021/11/04\t2027/11/04\t2023/11/04\t1\t\t示範資料\t\nSL051\t-4\t三修\t服役中\t2023/01/31\t2029/01/31\t2025/01/31\t1\t\t示範資料\t\nSL114\t-4\t三修\t服役中\t2021/02/09\t2027/02/09\t2023/02/09\t1\t\t示範資料\t\nSL128\t-4\t三修\t服役中\t2023/10/10\t2029/10/10\t2025/10/10\t1\t\t示範資料\t\nSL038\t-4\t三修\t服役中\t2021/03/13\t2027/03/13\t2023/03/13\t1\t\t示範資料\t\nSL162\t-4\t三修\t服役中\t2021/11/21\t2027/11/21\t2023/11/21\t1\t\t示範資料\t\nSL129\t-4\t三修\t服役中\t2025/12/02\t2031/12/02\t2027/12/02\t1\t\t示範資料\t\nSL089\t-4\t三修\t服役中\t2026/04/15\t2032/04/15\t2028/04/15\t1\t\t示範資料\t\nSL118\t-4\t三修\t服役中\t2024/01/19\t2030/01/19\t2026/01/19\t1\t\t示範資料\t\nSL109\t-4\t三修\t服役中\t2021/08/18\t2027/08/18\t2023/08/18\t1\t\t示範資料\t\nSL032\t-4\t三修\t服役中\t2026/03/23\t2032/03/23\t2028/03/23\t1\t\t示範資料\t\nSL024\t-4\t待修庫\t待進廠\t\t\t\t1\t\t示範資料\t\nSL125\t-4\t待修庫\t待進廠\t\t\t\t1\t\t示範資料\t\nSL117\t-4\t待修庫\t待進廠\t\t\t\t1\t\t示範資料\t\nSL107\t-4\t待修庫\t待進廠\t\t\t\t1\t\t示範資料\t\nSL082\t-4\t指部工廠\t交修中\t\t\t\t1\t\t示範資料\t\nSL156\t-4\t指部工廠\t交修中\t\t\t\t1\t\t示範資料\t\nSL087\t-5\t三修\t服役中\t2026/02/21\t2032/02/21\t2028/02/21\t1\t\t示範資料\t\nSL123\t-5\t三修\t服役中\t2023/06/11\t2029/06/11\t2025/06/11\t1\t\t示範資料\t\nSL050\t-5\t三修\t服役中\t2022/05/07\t2028/05/07\t2024/05/07\t1\t\t示範資料\t\nSL020\t-5\t三修\t服役中\t2024/02/08\t2030/02/08\t2026/02/08\t1\t\t示範資料\t\nSL045\t-5\t三修\t服役中\t2023/10/24\t2029/10/24\t2025/10/24\t1\t\t示範資料\t\nSL113\t-5\t三修\t服役中\t2022/02/22\t2028/02/22\t2024/02/22\t1\t\t示範資料\t\nSL177\t-5\t三修\t服役中\t2024/08/27\t2030/08/27\t2026/08/27\t1\t\t示範資料\t\nSL152\t-5\t待修庫\t待進廠\t\t\t\t1\t\t示範資料\t\nSL061\t-6\t一修\t服役中\t2022/12/10\t2028/12/10\t2024/12/10\t1\t\t示範資料\t\nSL073\t-6\t一修\t服役中\t2021/02/24\t2027/02/24\t2023/02/24\t1\t\t示範資料\t\nSL160\t-6\t一修\t服役中\t2021/03/29\t2027/03/29\t2023/03/29\t1\t\t示範資料\t\nSL074\t-6\t一修\t服役中\t2026/01/08\t2032/01/08\t2028/01/08\t1\t\t示範資料\t\nSL148\t-6\t一修\t服役中\t2021/06/16\t2027/06/16\t2023/06/16\t1\t\t示範資料\t\nSL179\t-6\t一修\t服役中\t2021/10/10\t2027/10/10\t2023/10/10\t1\t\t示範資料\t\nSL115\t-6\t一修\t服役中\t2025/11/01\t2031/11/01\t2027/11/01\t1\t\t示範資料\t\nSL083\t-6\t一修\t服役中\t2026/06/02\t2032/06/02\t2028/06/02\t1\t\t示範資料\t\nSL153\t-6\t一修\t服役中\t2024/12/08\t2030/12/08\t2026/12/08\t1\t\t示範資料\t\nSL048\t-6\t一修\t服役中\t2021/03/13\t2027/03/13\t2023/03/13\t1\t\t示範資料\t\nSL134\t-6\t一修\t服役中\t2022/07/17\t2028/07/17\t2024/07/17\t1\t\t示範資料\t\nSL067\t-6\t一修\t服役中\t2026/03/09\t2032/03/09\t2028/03/09\t1\t\t示範資料\t\nSL071\t-6\t一修\t服役中\t2025/10/12\t2031/10/12\t2027/10/12\t1\t\t示範資料\t\nSL078\t-6\t一修\t服役中\t2022/09/17\t2028/09/17\t2024/09/17\t1\t\t示範資料\t\nSL131\t-6\t一修\t服役中\t2021/09/26\t2027/09/26\t2023/09/26\t1\t\t示範資料\t\nSL059\t-6\t一修\t服役中\t2024/11/03\t2030/11/03\t2026/11/03\t1\t\t示範資料\t\nSL098\t-6\t一修\t服役中\t2021/05/14\t2027/05/14\t2023/05/14\t1\t\t示範資料\t\nSL043\t-6\t一修\t服役中\t2021/09/01\t2027/09/01\t2023/09/01\t1\t\t示範資料\t\nSL178\t-6\t一修\t服役中\t2025/10/17\t2031/10/17\t2027/10/17\t1\t\t示範資料\t\nSL086\t-6\t一修\t服役中\t2025/08/17\t2031/08/17\t2027/08/17\t1\t\t示範資料\t\nSL029\t-6\t一修\t服役中\t2024/09/29\t2030/09/29\t2026/09/29\t1\t\t示範資料\t\nSL116\t-6\t一修\t服役中\t2022/05/29\t2028/05/29\t2024/05/29\t1\t\t示範資料\t\nSL058\t-6\t一修\t服役中\t2024/02/23\t2030/02/23\t2026/02/23\t1\t\t示範資料\t\nSL011\t-6\t一修\t服役中\t2023/10/24\t2029/10/24\t2025/10/24\t1\t\t示範資料\t\nSL037\t-6\t一修\t服役中\t2021/07/04\t2027/07/04\t2023/07/04\t1\t\t示範資料\t\nSL075\t-6\t一修\t服役中\t2022/12/16\t2028/12/16\t2024/12/16\t1\t\t示範資料\t\nSL090\t-6\t一修\t服役中\t2024/08/31\t2030/08/31\t2026/08/31\t1\t\t示範資料\t\nSL088\t-6\t一修\t服役中\t2024/05/11\t2030/05/11\t2026/05/11\t1\t\t示範資料\t\nSL132\t-6\t一修\t服役中\t2023/06/19\t2029/06/19\t2025/06/19\t1\t\t示範資料\t\nSL063\t-6\t一修\t服役中\t2021/09/22\t2027/09/22\t2023/09/22\t1\t\t示範資料\t\nSL077\t-6\t一修\t服役中\t2023/05/09\t2029/05/09\t2025/05/09\t1\t\t示範資料\t\nSL135\t-6\t一修\t服役中\t2026/05/28\t2032/05/28\t2028/05/28\t1\t\t示範資料\t\nSL093\t-6\t一修\t服役中\t2024/09/18\t2030/09/18\t2026/09/18\t1\t\t示範資料\t\nSL137\t-6\t一修\t服役中\t2021/12/15\t2027/12/15\t2023/12/15\t1\t\t示範資料\t\nSL176\t-6\t一修\t服役中\t2024/01/03\t2030/01/03\t2026/01/03\t1\t\t示範資料\t\nSL052\t-6\t一修\t服役中\t2026/06/15\t2032/06/15\t2028/06/15\t1\t\t示範資料\t\nSL106\t-6\t一修\t服役中\t2025/11/03\t2031/11/03\t2027/11/03\t1\t\t示範資料\t\nSL174\t-6\t一修\t服役中\t2022/09/24\t2028/09/24\t2024/09/24\t1\t\t示範資料\t\nSL066\t-6\t一修\t服役中\t2023/02/09\t2029/02/09\t2025/02/09\t1\t\t示範資料\t\nSL009\t-6\t一修\t服役中\t2022/11/29\t2028/11/29\t2024/11/29\t1\t\t示範資料\t\nSL085\t-6\t一修\t服役中\t2023/10/21\t2029/10/21\t2025/10/21\t1\t\t示範資料\t\nSL151\t-6\t一修\t服役中\t2024/11/09\t2030/11/09\t2026/11/09\t1\t\t示範資料\t\nSL166\t-6\t一修\t服役中\t2025/03/25\t2031/03/25\t2027/03/25\t1\t\t示範資料\t\nSL150\t-6\t一修\t服役中\t2023/10/09\t2029/10/09\t2025/10/09\t1\t\t示範資料\t\nSL019\t-6\t一修\t服役中\t2026/07/05\t2032/07/05\t2028/07/05\t1\t\t示範資料\t\nSL149\t-6\t一修\t服役中\t2021/06/26\t2027/06/26\t2023/06/26\t1\t\t示範資料\t\nSL004\t-6\t一修\t服役中\t2023/07/25\t2029/07/25\t2025/07/25\t1\t\t示範資料\t\nSL157\t-6\t一修\t服役中\t2022/03/09\t2028/03/09\t2024/03/09\t1\t\t示範資料\t\nSL142\t-6\t一修\t服役中\t2026/03/29\t2032/03/29\t2028/03/29\t1\t\t示範資料\t\nSL167\t-6\t一修\t服役中\t2025/01/18\t2031/01/18\t2027/01/18\t1\t\t示範資料\t\nSL049\t-6\t一修\t服役中\t2021/07/17\t2027/07/17\t2023/07/17\t1\t\t示範資料\t\nSL069\t-6\t一修\t服役中\t2024/10/11\t2030/10/11\t2026/10/11\t1\t\t示範資料\t\nSL147\t-6\t三修\t服役中\t2024/03/23\t2030/03/23\t2026/03/23\t1\t\t示範資料\t\nSL120\t-6\t三修\t服役中\t2022/06/08\t2028/06/08\t2024/06/08\t1\t\t示範資料\t\nSL164\t-6\t三修\t服役中\t2025/02/15\t2031/02/15\t2027/02/15\t1\t\t示範資料\t\nSL119\t-6\t三修\t服役中\t2024/11/14\t2030/11/14\t2026/11/14\t1\t\t示範資料\t\nSL146\t-6\t三修\t服役中\t2024/06/18\t2030/06/18\t2026/06/18\t1\t\t示範資料\t\nSL013\t-6\t三修\t服役中\t2021/02/23\t2027/02/23\t2023/02/23\t1\t\t示範資料\t\nSL016\t-6\t三修\t服役中\t2025/01/16\t2031/01/16\t2027/01/16\t1\t\t示範資料\t\nSL094\t-6\t三修\t服役中\t2024/06/02\t2030/06/02\t2026/06/02\t1\t\t示範資料\t\nSL035\t-6\t三修\t服役中\t2021/04/24\t2027/04/24\t2023/04/24\t1\t\t示範資料\t\nSL034\t-6\t三修\t服役中\t2025/07/23\t2031/07/23\t2027/07/23\t1\t\t示範資料\t\nSL025\t-6\t三修\t服役中\t2022/03/04\t2028/03/04\t2024/03/04\t1\t\t示範資料\t\nSL017\t-6\t三修\t服役中\t2022/10/14\t2028/10/14\t2024/10/14\t1\t\t示範資料\t\nSL021\t-6\t三修\t服役中\t2024/10/23\t2030/10/23\t2026/10/23\t1\t\t示範資料\t\nSL175\t-6\t三修\t服役中\t2024/04/02\t2030/04/02\t2026/04/02\t1\t\t示範資料\t\nSL144\t-6\t三修\t服役中\t2024/12/03\t2030/12/03\t2026/12/03\t1\t\t示範資料\t\nSL027\t-6\t三修\t服役中\t2025/01/20\t2031/01/20\t2027/01/20\t1\t\t示範資料\t\nSL145\t-6\t三修\t服役中\t2023/06/30\t2029/06/30\t2025/06/30\t1\t\t示範資料\t\nSL173\t-6\t三修\t服役中\t2024/10/05\t2030/10/05\t2026/10/05\t1\t\t示範資料\t\nSL070\t-6\t三修\t服役中\t2021/08/14\t2027/08/14\t2023/08/14\t1\t\t示範資料\t\nSL023\t-6\t三修\t服役中\t2023/11/25\t2029/11/25\t2025/11/25\t1\t\t示範資料\t\nSL158\t-6\t三修\t服役中\t2025/05/19\t2031/05/19\t2027/05/19\t1\t\t示範資料\t\nSL046\t-6\t三修\t服役中\t2021/08/03\t2027/08/03\t2023/08/03\t1\t\t示範資料\t\nSL072\t-6\t三修\t服役中\t2021/07/11\t2027/07/11\t2023/07/11\t1\t\t示範資料\t\nSL161\t-6\t三修\t服役中\t2022/03/24\t2028/03/24\t2024/03/24\t1\t\t示範資料\t\nSL044\t-6\t三修\t服役中\t2023/11/26\t2029/11/26\t2025/11/26\t1\t\t示範資料\t\nSL130\t-6\t三修\t服役中\t2026/02/24\t2032/02/24\t2028/02/24\t1\t\t示範資料\t\nSL097\t-6\t三修\t服役中\t2024/07/28\t2030/07/28\t2026/07/28\t1\t\t示範資料\t\nSL055\t-6\t三修\t服役中\t2022/05/05\t2028/05/05\t2024/05/05\t1\t\t示範資料\t\nSL099\t-6\t三修\t服役中\t2021/12/27\t2027/12/27\t2023/12/27\t1\t\t示範資料\t\nSL100\t-6\t三修\t服役中\t2021/10/18\t2027/10/18\t2023/10/18\t1\t\t示範資料\t\nSL053\t-6\t三修\t服役中\t2024/01/12\t2030/01/12\t2026/01/12\t1\t\t示範資料\t\nSL141\t-6\t三修\t服役中\t2025/07/30\t2031/07/30\t2027/07/30\t1\t\t示範資料\t\nSL076\t-6\t三修\t服役中\t2025/08/11\t2031/08/11\t2027/08/11\t1\t\t示範資料\t\nSL014\t-6\t三修\t服役中\t2023/11/20\t2029/11/20\t2025/11/20\t1\t\t示範資料\t\nSL079\t-6\t三修\t服役中\t2026/02/02\t2032/02/02\t2028/02/02\t1\t\t示範資料\t\nSL003\t-6\t三修\t服役中\t2021/04/23\t2027/04/23\t2023/04/23\t1\t\t示範資料\t\nSL163\t-6\t三修\t服役中\t2024/01/10\t2030/01/10\t2026/01/10\t1\t\t示範資料\t\nSL112\t-6\t待修庫\t待進廠\t\t\t\t1\t\t示範資料\t\nSL101\t-6\t待修庫\t待進廠\t\t\t\t1\t\t示範資料\t\nSL127\t-6\t待修庫\t待進廠\t\t\t\t1\t\t示範資料\t\nSL111\t-6\t待修庫\t待進廠\t\t\t\t1\t\t示範資料\t\nSL080\t-6\t待修庫\t待進廠\t\t\t\t1\t\t示範資料\t\nSL170\t-6\t指部工廠\t交修中\t\t\t\t1\t\t示範資料\t\nSL015\t-6\t指部工廠\t交修中\t\t\t\t1\t\t示範資料\t\nSL165\t-6\t指部工廠\t交修中\t\t\t\t1\t\t示範資料\t\nSL068\t-6\t指部工廠\t交修中\t\t\t\t1\t\t示範資料\t\nSL036\t-6\t指部工廠\t交修中\t\t\t\t1\t\t示範資料\t\nSL110\t-6\t指部工廠\t交修中\t\t\t\t1\t\t示範資料\t\nSL103\t-6\t指部工廠\t交修中\t\t\t\t1\t\t示範資料\t\nSL030\t-6\t指部工廠\t交修中\t\t\t\t1\t\t示範資料\t\nSL104\t-6\t指部工廠\t交修中\t\t\t\t1\t\t示範資料\t\nSL155\t-6\t指部工廠\t交修中\t\t\t\t1\t\t示範資料\t\nSL092\t-6\t指部工廠\t交修中\t\t\t\t1\t\t示範資料\t\nSL108\t-6\t指部工廠\t交修中\t\t\t\t1\t\t示範資料\t";
 
 /* =====================================================================
    工具
@@ -633,7 +755,12 @@ function normSerial(v) {
   return m ? (/^SL/.test(s) ? s : 'SL' + m[1].padStart(3, '0')) : s;
 }
 function serialDigits(s) { return String(s).replace(/\D/g, '').replace(/^0+/, ''); }
-function toast(msg, ms) { const t = $('#toast'); t.textContent = msg; t.classList.add('on'); clearTimeout(toast._t); toast._t = setTimeout(() => t.classList.remove('on'), ms || 1800); }
+function toast(msg, ms, undo) {
+  const t = $('#toast'); t.classList.toggle('act', !!undo);
+  t.innerHTML = esc(msg) + (undo ? '<button class="tu" data-undo="1">復原</button>' : '');
+  state.undo = undo || null;
+  t.classList.add('on'); clearTimeout(toast._t); toast._t = setTimeout(() => { t.classList.remove('on', 'act'); state.undo = null; }, undo ? 9000 : (ms || 1800));
+}
 async function copyText(text) {
   try { if (navigator.clipboard && window.isSecureContext) { await navigator.clipboard.writeText(text); toast('已複製'); return; } } catch (e) { }
   const ta = document.createElement('textarea'); ta.value = text; ta.style.position = 'fixed'; ta.style.opacity = '0';
@@ -650,7 +777,7 @@ function lsSet(k, v) { try { localStorage.setItem(k, JSON.stringify(v)); } catch
 const state = {
   records: [], aircraft: JSON.parse(JSON.stringify(CONFIG.AIRCRAFT)),
   source: 'none', updatedAt: null, loading: false, error: '',
-  view: 'count', key: '', logs: null, demo: null, anH: 90, xp: {}, open: {}, dr: null, drSort: 'days', drType: 'all', set: {}, tour: null, tourShown: false, year: null, yList: null, q: '', horizon: 90, expType: 'all', list: null, D: null
+  view: 'home', role: 'edit', sel: {}, wk: 'wait', undo: null, key: '', logs: null, demo: null, anH: 90, xp: {}, open: {}, dr: null, drSort: 'days', drType: 'all', set: {}, tour: null, tourShown: false, year: null, yList: null, q: '', horizon: 90, expType: 'all', list: null, D: null
 };
 
 /* =====================================================================
@@ -701,10 +828,10 @@ function parseResponse(text) {
   try { json = JSON.parse(text); } catch (e) { }
   if (json != null && typeof json === 'object') {
     if (!Array.isArray(json) && json.error) { const er = new Error(json.error); er.auth = (json.code === 'AUTH'); throw er; }
-    return { rows: extractRows(json), aircraft: (!Array.isArray(json) && json.aircraft && typeof json.aircraft === 'object') ? json.aircraft : null };
+    return { rows: extractRows(json), role: (!Array.isArray(json) && json.role) || '', aircraft: (!Array.isArray(json) && json.aircraft && typeof json.aircraft === 'object') ? json.aircraft : null };
   }
   if (/^\s*</.test(text)) throw new Error('回傳的是網頁而不是資料（可能是權限沒設為「任何人」）');
-  return { rows: rowsToObjects(parseTable(text)), aircraft: null };
+  return { rows: rowsToObjects(parseTable(text)), role: '', aircraft: null };
 }
 function normalize(rows) {
   const F = CONFIG.FIELD_MAP;
@@ -738,6 +865,7 @@ async function fetchLive(key) {
 function applyData(text, source, ts) {
   const p = parseResponse(text);
   state.records = normalize(p.rows);
+  state.role = p.role === 'view' ? 'view' : 'edit'; document.body.classList.toggle('ro', state.role === 'view');
   state.aircraft = p.aircraft || JSON.parse(JSON.stringify(CONFIG.AIRCRAFT));
   state.source = source; state.updatedAt = ts;
   state.D = compute();
@@ -810,7 +938,7 @@ function compute() {
 function renderStatus() {
   const el = $('#status'); el.className = '';
   if (state.loading && !state.records.length) el.textContent = '更新中…';
-  else if (state.source === 'live') el.textContent = '資料：即時　' + fmtTime(state.updatedAt);
+  else if (state.source === 'live') el.textContent = (state.role === 'view' ? '只能查看　' : '已連線試算表　') + fmtTime(state.updatedAt);
   else if (state.source === 'cache') { el.textContent = (state.error ? '離線，顯示舊資料　' : '快取資料　') + fmtTime(state.updatedAt); el.className = state.error ? 'bad' : 'warn'; }
   else if (state.source === 'demo') { el.textContent = '示範資料（尚未設定試算表網址）'; el.className = 'warn'; }
   else { el.textContent = state.error || '沒有資料'; el.className = 'bad'; }
@@ -819,7 +947,8 @@ function renderStatus() {
 function render() {
   renderStatus();
   const D = state.D, v = $('#view');
-  document.querySelectorAll('.nav button').forEach(b => b.classList.toggle('on', b.dataset.nav === state.view));
+  document.querySelectorAll('.nav button').forEach(b => { const on = b.dataset.nav === state.view; b.classList.toggle('on', on); if (on) b.setAttribute('aria-current', 'page'); else b.removeAttribute('aria-current'); });
+  $('#sp').hidden = state.view !== 'home';
   if (!D) {
     v.innerHTML = state.loading ? '<div class="skel"></div><div class="skel"></div><div class="skel"></div>' :
       '<div class="card"><div class="empty"><b>沒有資料</b>' + esc(state.error || '還沒有讀到資料') + '<br><br><button class="btn pri" data-retry="1">再試一次</button></div></div>';
@@ -828,9 +957,9 @@ function render() {
   const n = D.withDays.filter(r => r.days <= 30 && (r.days >= 0 || SERVICE.includes(r.loc))).length, be = $('#badgeExp');
   be.hidden = !n; be.textContent = n;
   const bw = $('#badgeWork'); bw.hidden = !D.overdue.length; bw.textContent = D.overdue.length;
-  v.innerHTML = ({ lookup: viewLookup, analysis: viewAnalysis, count: viewCount, work: viewWork })[state.view]() +
-    '<div class="foot">共 ' + D.total + ' 張　基準日 ' + fmtDate(today()) + '</div>';
-  renderDrawer(); maybeTour();
+  v.innerHTML = ({ home: viewHome, analysis: viewAnalysis, count: viewCount, work: viewWork, more: viewMore })[state.view]() +
+    '<div class="foot">共 ' + D.total + ' 張　基準日 ' + fmtDate(today()) + '</div>' + (state.view === 'work' ? selBar() : '');
+  renderDrawer();
 }
 
 /* ---------- 共用元件 ---------- */
@@ -940,7 +1069,8 @@ function cardHTML(r) {
 function itemHTML(r, o) {
   o = o || {};
   const open = !!state.xp[r.serial];
-  return '<div class="it' + (open ? ' on' : '') + '"><div class="ith"><button class="itm" data-exp="1" aria-expanded="' + open + '"><span class="s">' + esc(r.serial) + '</span>' +
+  const sel = o.sel ? '<button class="chk" role="checkbox" aria-checked="' + !!state.sel[r.serial] + '" data-sel="' + esc(r.serial) + '" aria-label="選取 ' + esc(r.serial) + '"><i>✓</i></button>' : '';
+  return '<div class="it' + (open ? ' on' : '') + (o.sel ? ' wr' : '') + '"><div class="ith">' + sel + '<button class="itm" data-exp="1" aria-expanded="' + open + '"><span class="s">' + esc(r.serial) + '</span>' +
     '<span class="m">' + (o.act ? '' : '<span class="u u-' + (UCLS[r.loc] || 'x') + '">' + esc(LD(r.loc) || '?') + '</span> ') + esc(r.type) + ' 型' + (r.third && !o.act ? ' · ' + fmtDate(r.third) : '') + (o.act && r.enter ? ' · 進廠 ' + fmtDate(r.enter) : '') + '</span>' +
     '<span class="d ' + daysCls(r.days) + '">' + (r.days == null || o.act ? '' : daysText(r.days)) + '</span><span class="chev"></span></button>' +
     (o.act ? '<button class="btn pri" data-act="' + o.act + '" data-serial="' + esc(r.serial) + '">' + o.label + '</button>' : '') +
@@ -973,9 +1103,11 @@ function drView(spec) {
   L.sort(by[state.drSort] || by.days);
   return { x, L, types };
 }
+let drRet = null;
 function renderDrawer() {
-  const el = $('#drawer');
-  if (!state.dr || !state.D) { el.hidden = true; document.body.classList.remove('noscroll'); return; }
+  const el = $('#drawer'), wasHidden = el.hidden;
+  if (!state.dr || !state.D) { el.hidden = true; document.body.classList.remove('noscroll'); if (!wasHidden) { bgInert(false); if (drRet && drRet.isConnected) { try { drRet.focus({ preventScroll: true }); } catch (e) { } } drRet = null; } return; }
+  if (wasHidden) { drRet = document.activeElement; bgInert(true); }
   const { x, L, types } = drView(state.dr), ds = $('#dsheet'), keep = ds.scrollTop;
   const grp = f => { const m = {}, o = []; L.forEach(r => { const k = f(r); if (!(k in m)) { m[k] = 0; o.push(k); } m[k]++; }); return o.map(k => k + ' ' + m[k]).join('　'); };
   ds.innerHTML = '<div class="grab"></div><div class="dhead"><div class="dtt"><b>' + esc(x.title) + '</b><span class="mute">共 ' + L.length + ' 張</span></div><div class="dbtns"><button class="btn" data-copy-dr="1">複製</button><button class="btn pri" data-drclose="1">關閉</button></div></div>' +
@@ -984,7 +1116,7 @@ function renderDrawer() {
     (L.length ? '<div class="dsum">' + esc(grp(r => r.type + ' 型')) + '<br>' + esc(grp(r => LD(r.loc))) + '</div>' : '') +
     (x.extra ? '<div class="note" style="margin:0 0 8px">' + x.extra.map(esc).join('<br>') + '</div>' : '') +
     '<div class="card">' + listHTML(L) + '</div><div class="note" style="text-align:center">點序號展開詳細資料與操作</div>';
-  el.hidden = false; document.body.classList.add('noscroll'); ds.scrollTop = keep;
+  el.hidden = false; document.body.classList.add('noscroll'); ds.scrollTop = keep; if (wasHidden) { try { ds.focus({ preventScroll: true }); } catch (e) { } }
 }
 function openDr(spec) {
   if (!state.dr) pushLayer('dr');
@@ -1012,16 +1144,31 @@ function viewLookup() {
     h += '<div class="bar"><b>符合的序號（' + f.list.length + '）</b><span class="mute">再多打幾碼可縮小</span></div><div class="card">' + listHTML(f.list.slice(0, 30)) + '</div>';
     if (f.list.length > 30) h += '<div class="note">只列前 30 筆，請多輸入幾碼</div>';
   } else if (f.digits) h += '<div class="card"><div class="empty"><b>找不到序號 ' + esc(f.digits) + '</b>確認數字有沒有打錯。要新增這張，到「作業」按「新增座椅」。</div></div>';
-  else {
-    if (D.overdue.length) h += '<button class="notice" data-nav="work"><span>三線已逾期 ' + D.overdue.length + ' 張，點這裡處理</span></button>';
-    h += '<div class="card"><div class="empty"><b>輸入序號就能查</b>只打數字，例如 72 或 188。<br>會顯示在哪個單位、什麼時候屆期，也能直接進廠、出廠、調撥。</div></div>';
-    const recent = lsGet('seatAsset.recent', []).filter(s => D.map[s]);
-    if (recent.length) h += '<h2>最近查過</h2><div class="chips">' + recent.map(s => '<button class="chip" data-go="' + esc(s) + '">' + esc(s) + '</button>').join('') + '</div>';
-    const W = state.records.filter(r => r.loc === '待修庫').length, F = state.records.filter(r => r.loc === '指部工廠').length;
-    h += '<h2>快速入口</h2><div class="card"><button class="td" data-dr="cell|all|待修庫|0"><span class="ic c">' + W + '</span><span class="tx">待修庫<small>等進廠的座椅</small></span><span class="go">›</span></button>' +
-      '<button class="td" data-dr="cell|all|指部工廠|0"><span class="ic d">' + F + '</span><span class="tx">指部<small>翻修中的座椅</small></span><span class="go">›</span></button>' +
-      '<button class="td" data-dr="soon|30|all|all"><span class="ic o">' + soonFor(30, 'all', 'all').length + '</span><span class="tx">30 天內屆期<small>快要轉待修庫</small></span><span class="go">›</span></button></div>';
-  }
+  return h;
+}
+
+function viewHome() {
+  if (serialDigits(state.q)) return viewLookup();
+  const D = state.D, M = D.matrix;
+  const sumLocs = ls => CONFIG.TYPES.reduce((s, ty) => s + ls.reduce((s2, l) => s2 + M[ty][l], 0), 0);
+  const tl = (lab, ls, spec, col) => '<button style="--tc:' + col + '" data-dr="' + spec + '"><b>' + sumLocs(ls) + '</b><span>' + lab + '</span></button>';
+  let h = '';
+  if (!lsGet('seatAsset.hint', 0)) h += '<div class="first"><b>三步驟，馬上會用</b><ol><li>在上面框框<b>輸入序號數字</b>（例如 72）</li><li>點結果，看在哪個單位、哪天屆期</li><li>需要時按<b>進廠／出廠</b>，或到「作業」一次處理多張</li></ol><button class="btn pri" data-hint="1">知道了</button></div>';
+  h += '<div class="hl3">' + tl('服役中', ['一修', '三修'], 'cell|all|一修,三修|0', 'var(--ua)') + tl('待修庫', ['待修庫'], 'cell|all|待修庫|0', 'var(--uc)') + tl('指部', ['指部工廠'], 'cell|all|指部工廠|0', 'var(--ud)') + '</div>';
+  h += '<div class="hsum">共 ' + D.total + ' 張　點數字看是哪幾張</div>';
+  const todos = todoItems();
+  h += '<div class="todo"><h3>今天要看的</h3>' + (todos.length ? todos.map(x => '<button class="td" ' + x.attr + '><span class="ic ' + x.c + '">' + x.n + '</span><span class="tx">' + esc(x.t) + '<small>' + esc(x.s) + '</small></span><span class="go" aria-hidden="true">›</span></button>').join('') : '<div class="td ok"><span class="ic g">✓</span><span class="tx">目前沒有要處理的事<small>一切正常</small></span></div>') + '</div>';
+  const q = (ic, lab, attr) => '<button ' + attr + '><span class="mi">' + ICON[ic] + '</span>' + lab + '</button>';
+  h += '<div class="qa" role="group" aria-label="常用作業">' + q('down', '進廠', 'data-work="wait"') + q('tool', '出廠', 'data-work="fac"') + q('flag', '新增座椅', 'data-act="add"') + '</div>';
+  const recent = lsGet('seatAsset.recent', []).filter(s => D.map[s]);
+  if (recent.length) h += '<h2>最近查過</h2><div class="chips">' + recent.map(s => '<button class="chip" data-go="' + esc(s) + '">' + esc(s) + '</button>').join('') + '</div>';
+  return h;
+}
+function viewMore() {
+  const ro = state.role === 'view';
+  let h = '<div class="rolebox' + (ro ? ' ro' : '') + '"><i></i><div><b>' + (ro ? '目前身分：只能查看' : '目前身分：可以修改') + '</b><div class="note" style="margin:0">' + (CONFIG.API_URL ? '資料來源：試算表（' + (state.source === 'live' ? '已連線' : '離線，顯示舊資料') + '）' : '示範模式：資料是假的，操作不會寫入') + '</div></div></div>';
+  h += '<div class="card">' + toolRows() + (ro ? '' : '<button class="mrow" data-act="aircraft"><span class="mi">' + ICON.tool + '</span><span>修改飛機數<small>支援度用的飛機數量</small></span></button>') +
+    '<button class="mrow" data-tool="lock"><span class="mi">' + ICON.lock + '</span><span>鎖定<small>離開前按這個</small></span></button></div>';
   return h;
 }
 
@@ -1062,11 +1209,9 @@ function viewCount() {
   const D = state.D, M = D.matrix, LOCS = CONFIG.LOCS, TYPES = CONFIG.TYPES;
   const sumLocs = ls => TYPES.reduce((s, ty) => s + ls.reduce((s2, l) => s2 + M[ty][l], 0), 0);
   const svcN = sumLocs(['一修', '三修']), wN = sumLocs(['待修庫']), fN = sumLocs(['指部工廠']);
-  let h = '<div class="hero"><button class="hero-main" data-dr="cell|all|all|0"><span class="hl">座椅總資產</span><span class="hn">' + D.total + '<small>張</small></span><span class="hs">基準日 ' + fmtDate(today()) + '　點我看全部清單</span></button>' +
+  let h = '<div class="hero"><button class="hero-main" data-dr="cell|all|all|0"><span class="hl">全部座椅</span><span class="hn">' + D.total + '<small>張</small></span><span class="hs">基準日 ' + fmtDate(today()) + '　點我看全部清單</span></button>' +
     '<div class="sbar">' + LOCS.map(l => { const n = sumLocs([l]); return n ? '<button style="flex:' + n + ';background:' + LCOLOR[l] + '" data-dr="cell|all|' + l + '|0" aria-label="' + esc(LD(l)) + ' ' + n + ' 張">' + n + '</button>' : ''; }).join('') + '</div>' +
     '<div class="hstats"><button data-dr="cell|all|一修,三修|0"><span class="a"><i></i>服役中</span><span class="b">' + svcN + '</span></button><button data-dr="cell|all|待修庫|0"><span class="a"><i></i>待修庫</span><span class="b">' + wN + '</span></button><button data-dr="cell|all|指部工廠|0"><span class="a"><i></i>指部</span><span class="b">' + fN + '</span></button></div></div>';
-  const todos = todoItems();
-  h += '<div class="todo"><h3>今天要看的</h3>' + (todos.length ? todos.map(t => '<button class="td" ' + t.attr + '><span class="ic ' + t.c + '">' + t.n + '</span><span class="tx">' + esc(t.t) + '<small>' + esc(t.s) + '</small></span><span class="go">›</span></button>').join('') : '<div class="td ok"><span class="ic g">✓</span><span class="tx">目前沒有要處理的事<small>一切正常</small></span></div>') + '</div>';
   if (D.unknown.length) h += '<div class="note" style="margin:-6px 2px 12px">另有 ' + D.unknown.length + ' 張型別或位置不在清單內，沒有算進下面的數字（見資料提醒）。</div>';
 
   h += '<h2>各型別在哪裡　<span class="mute" style="font-weight:400;font-size:13px">點數字看序號</span></h2>';
@@ -1090,8 +1235,6 @@ function viewCount() {
   t4 += '</div>';
   h += sec('c-issues', '資料提醒', D.issues.length ? D.issues.length + ' 項' : '沒有問題', t4, D.issues.some(i => i.cls === 'bad'));
 
-  h += sec('c-tools', '工具與設定', '匯出、設定、說明',
-    '<div class="card">' + toolRows() + '</div>', false);
   return h;
 }
 function toolRows() {
@@ -1152,10 +1295,10 @@ function saveRecent(s) {
 }
 function go(serial) {
   const s = (state.D && state.D.map[serial]) ? serial : normSerial(serial); if (!s) return;
-  $('#q').value = serialDigits(s); state.q = $('#q').value; state.view = 'lookup';
+  $('#q').value = serialDigits(s); state.q = $('#q').value; $('#qclear').hidden = false; state.view = 'home';
   saveRecent(s); $('#q').blur(); render(); window.scrollTo({ top: 0 });
 }
-function nav(v) { state.view = v; render(); window.scrollTo({ top: 0 }); $('#hdr').classList.remove('hide'); }
+function nav(v) { state.view = v; if (v !== 'work') state.sel = {}; render(); window.scrollTo({ top: 0 }); $('#hdr').classList.remove('hide'); }
 function cardText(r) {
   return r.serial + '｜' + r.type + '型｜' + LD(r.loc) + '｜' + r.status + '\n三線屆期 ' + fmtDate(r.third) + (r.days != null ? '（' + daysText(r.days) + '）' : '') +
     '｜二線 ' + fmtDate(r.second) + '｜生效 ' + fmtDate(r.effective) + '｜進廠 ' + fmtDate(r.enter);
@@ -1176,10 +1319,14 @@ function selHTML(id, opts, val, ph) {
 }
 function dateIn(id, d) { return '<input type="date" id="' + id + '" value="' + dateVal(d) + '">'; }
 
+function bgInert(on) { ['hdr', 'view'].forEach(id => { const e = document.getElementById(id); if (e) { if (on) e.setAttribute('inert', ''); else e.removeAttribute('inert'); } }); const n = document.querySelector('.nav'); if (n) { if (on) n.setAttribute('inert', ''); else n.removeAttribute('inert'); } }
+let retFocus = null;
 function openSheet(html) {
   $('#sheet').innerHTML = '<div class="grab"></div>' + html;
-  if ($('#modal').hidden) { $('#modal').hidden = false; pushLayer('modal'); }
+  if ($('#modal').hidden) { retFocus = document.activeElement; $('#modal').hidden = false; pushLayer('modal'); bgInert(true); }
   $('#sheet').scrollTop = 0;
+  const h3 = $('#sheet h3'); if (h3) $('#modal').setAttribute('aria-label', h3.textContent);
+  try { $('#sheet').focus({ preventScroll: true }); } catch (e) { }
 }
 function openModal(title, body, okText, onOk) {
   openSheet('<h3>' + esc(title) + '</h3>' + body + '<div class="merr" id="merr" role="alert"></div><div class="mbtn"><button class="btn" data-mcancel="1">' + (okText ? '取消' : '關閉') + '</button>' +
@@ -1188,17 +1335,22 @@ function openModal(title, body, okText, onOk) {
   if (ok) ok.onclick = async () => { const me = $('#merr'); if (me) me.textContent = ''; ok.disabled = true; const old = ok.textContent; ok.textContent = '處理中…'; try { await onOk(); } finally { if (ok.isConnected) { ok.disabled = false; ok.textContent = old; } } };
 }
 function closeModal() { popLayerUI('modal'); }
-function domCloseModal() { $('#modal').hidden = true; $('#sheet').innerHTML = ''; }
+function domCloseModal() { const was = !$('#modal').hidden; $('#modal').hidden = true; $('#sheet').innerHTML = ''; if (was) { bgInert(!!state.dr); if (retFocus && retFocus.isConnected && !state.dr) { try { retFocus.focus({ preventScroll: true }); } catch (e) { } } retFocus = null; } }
 function modalErr(msg) { const el = $('#merr'); if (el) el.textContent = msg; }
 
 /* ---------- 送出：示範模式在本機模擬，連線模式 POST 到 Apps Script ---------- */
 function demoApply(req) {
   const dm = state.demo, now = new Date();
   if (req.action === 'setAircraft') { const c = seatCleanAircraft(req.aircraft); dm.aircraft = c.obj; return { ok: true, msg: '飛機數已更新（示範模式，沒有真的寫入）' }; }
-  const res = req.action === 'autoMove' ? seatAutoMove(dm.rows, now, '網頁') : seatApply(dm.rows, req, now);
-  if (res.isNew) dm.rows.push(res.rows[0]);
+  const trial = dm.rows.map(r => Object.assign({}, r));   // 先在複本上做，失敗就不會弄髒資料
+  let res;
+  if (req.action === 'autoMove') res = seatAutoMove(trial, now, '網頁');
+  else if (req.action === 'undo') res = seatUndo(trial, req, now, dm.logs.slice().reverse());
+  else res = seatApply(trial, req, now);
+  if (res.isNew) trial.push(res.rows[0]);
+  dm.rows = trial;
   res.logs.forEach(l => dm.logs.push(l));
-  return { ok: true, msg: res.msg + '（示範模式，沒有真的寫入）' };
+  return { ok: true, msg: res.msg + '（示範模式，沒有真的寫入）', undo: seatUndoable(res.logs) };
 }
 async function apiPost(action, params) {
   const req = Object.assign({ action }, params);
@@ -1215,7 +1367,8 @@ async function apiPost(action, params) {
 async function doAction(action, params) {
   try {
     const j = await apiPost(action, params);
-    closeModal(); toast(j.msg || '完成', 3500);
+    closeModal(); state.sel = {};
+    toast('✓ ' + (j.msg || '完成') + (CONFIG.API_URL ? '（已寫入試算表）' : ''), 4000, (j.undo && j.undo.length) ? j.undo : null);
     await loadData(false);
     return true;
   } catch (e) {
@@ -1224,10 +1377,40 @@ async function doAction(action, params) {
     return false;
   }
 }
+async function doUndo(items) {
+  try {
+    const j = await apiPost('undo', { items });
+    toast('✓ ' + (j.msg || '已復原') + (CONFIG.API_URL ? '（已寫入試算表）' : ''), 3500);
+    state.logs = null; await loadData(false);
+  } catch (e) {
+    if (e.auth) return lock('密碼錯誤');
+    toast('復原失敗：' + (e.message || ''), 5000);
+  }
+}
+function openBatch(k) {
+  const L = selList(); if (!L.length) return;
+  const chips = '<div class="its">' + L.map(r => '<span>' + esc(r.serial) + '</span>').join('') + '</div>';
+  if (k === 'wait') {
+    return openModal('進廠 ' + L.length + ' 張', '<div class="mtxt">待修庫 → 指部（開始翻修）</div>' + chips + fld('進廠日', dateIn('f_date', today())), '確認進廠 ' + L.length + ' 張',
+      () => { const date = slash($('#f_date').value); if (!date) { modalErr('請填進廠日'); return; } return doAction('batch', { items: L.map(r => ({ action: 'checkin', serial: r.serial, date })) }); });
+  }
+  openModal('出廠 ' + L.length + ' 張', '<div class="mtxt">指部 → 一修或三修（翻修完成）。三線屆期 = 出廠日 + 6 年，二線 = + 2 年，自動計算。</div>' + chips +
+    fld('出廠日（也是新的生效日）', dateIn('f_date', today())) + fld('回到哪個單位', selHTML('f_loc', CONFIG.SERVICE_LOCS, '', '請選擇')) + '<div class="mtxt" id="f_prev"></div>', '確認出廠 ' + L.length + ' 張',
+    () => {
+      const loc = $('#f_loc').value, date = slash($('#f_date').value);
+      if (!loc) { modalErr('請選擇回到一修或三修'); return; }
+      if (!date) { modalErr('請填出廠日'); return; }
+      return doAction('batch', { items: L.map(r => ({ action: 'checkout', serial: r.serial, loc, date })) });
+    });
+  const upd = () => { const d = seatParse($('#f_date').value); $('#f_prev').innerHTML = d ? '新的三線屆期：<b>' + seatFmt(seatAddYears(d, SEAT.LIFE_YEARS)) + '</b>' : ''; };
+  $('#f_date').addEventListener('input', upd); upd();
+}
 async function fetchLog(serial) {
   if (!CONFIG.API_URL) {
     const L = (state.demo ? state.demo.logs : []).slice().reverse();
-    return (serial ? L.filter(x => seatKey(x['序號']) === seatKey(serial)) : L).slice(0, serial ? 200 : 40);
+    return (serial ? L.filter(x => seatKey(x['序號']) === seatKey(serial)) : L).slice(0, serial ? 200 : 40).map(x => {
+      const o = Object.assign({}, x); o['可復原'] = !!(o['復原資料'] && ['進廠', '出廠', '調撥', '修改'].indexOf(o['動作']) >= 0); delete o['復原資料']; return o;
+    });
   }
   const url = CONFIG.API_URL + (CONFIG.API_URL.indexOf('?') >= 0 ? '&' : '?') + 'key=' + encodeURIComponent(state.key) + '&what=log' + (serial ? '&serial=' + encodeURIComponent(serial) : '');
   const res = await fetch(url, { cache: 'no-store', redirect: 'follow' });
@@ -1237,11 +1420,17 @@ async function fetchLog(serial) {
 }
 function logHTML(list) {
   if (!list.length) return '<div class="empty">還沒有異動紀錄</div>';
-  return list.map(x => '<div class="issue"><b>' + esc(x['動作']) + (x['序號'] ? '　' + esc(x['序號']) : '') + '</b><div class="note">' + esc(x['時間']) + (x['來源'] ? '　' + esc(x['來源']) : '') + '</div><div>' + esc(x['說明'] || '') + '</div></div>').join('');
+  const seen = {};
+  return list.map(x => {
+    const k = seatKey(x['序號']), first = !seen[k]; seen[k] = 1;
+    const u = (first && x['可復原'] && state.role !== 'view') ? '<button class="btn undo1" data-undo-one="' + esc(x['序號'] + '|' + x['時間'] + '|' + x['動作']) + '">復原這一步</button>' : '';
+    return '<div class="issue"><b>' + esc(x['動作']) + (x['序號'] ? '　' + esc(x['序號']) : '') + '</b><div class="note">' + esc(x['時間']) + (x['來源'] ? '　' + esc(x['來源']) : '') + '</div><div>' + esc(x['說明'] || '') + '</div>' + u + '</div>';
+  }).join('');
 }
 
 /* ---------- 各種作業的表單 ---------- */
 function openAct(act, serial) {
+  if (state.role === 'view' && act !== 'history' && act !== 'log') return toast('這組密碼只能查看，不能修改');
   const D = state.D, r = serial ? D.map[serial] : null;
   if (serial && !r) return toast('找不到 ' + serial);
   const head = r ? '<div class="mtxt"><b>' + esc(r.serial) + '</b>　' + esc(r.type) + ' 型　目前在 ' + esc(LD(r.loc)) + '</div>' : '';
@@ -1354,12 +1543,12 @@ function loadSettings() { state.set = Object.assign({ theme: 'auto', font: 'm', 
 function applySettings() {
   const s = state.set, r = document.documentElement;
   if (s.theme === 'auto') r.removeAttribute('data-theme'); else r.setAttribute('data-theme', s.theme);
-  r.style.setProperty('--zoom', s.font === 'l' ? '1.12' : '1');
+  r.style.setProperty('--zoom', s.font === 'xl' ? '1.25' : s.font === 'l' ? '1.12' : '1');
   CONFIG.AUTO_LOCK_MIN = s.lock;
 }
 function settingsHTML() {
   const g = (k, title, opts) => '<div class="setgrp"><b>' + title + '</b><div class="chips">' + opts.map(o => '<button class="chip' + (String(state.set[k]) === String(o[0]) ? ' on' : '') + '" data-set="' + k + ':' + o[0] + '">' + o[1] + '</button>').join('') + '</div></div>';
-  return '<h3>設定</h3>' + g('theme', '顏色', [['auto', '跟隨手機'], ['light', '淺色'], ['dark', '深色']]) + g('font', '文字大小', [['m', '標準'], ['l', '大']]) +
+  return '<h3>設定</h3>' + g('theme', '顏色', [['auto', '跟隨手機'], ['light', '淺色'], ['dark', '深色']]) + g('font', '文字大小', [['m', '標準'], ['l', '大'], ['xl', '特大']]) +
     g('lock', '閒置多久自動鎖定', [[5, '5 分鐘'], [15, '15 分鐘'], [30, '30 分鐘'], [0, '不鎖']]) +
     '<div class="note">設定只存在這支手機，下次開啟還是一樣。</div><div class="mbtn"><button class="btn pri" data-mcancel="1">完成</button></div>';
 }
@@ -1390,10 +1579,10 @@ function copyAll() {
 
 /* ---------- 新手導覽 ---------- */
 const TOUR = [
-  { ic: 'home', t: '歡迎使用小記', b: '<p>記錄每一張座椅現在在哪個單位、什麼時候屆期，並算出各單位的飛機支援度。</p><p>底下四個分頁：</p><ul><li><b>總覽</b>：今天要看的事、各型別在哪裡</li><li><b>查序號</b>：輸入數字找單張</li><li><b>屆期分析</b>：支援度預測、年度屆期</li><li><b>作業</b>：進廠、出廠、新增</li></ul>' },
+  { ic: 'home', t: '歡迎使用小記', b: '<p>記錄每一張座椅現在在哪個單位、什麼時候屆期，並算出各單位的飛機支援度。</p><p>底下五個分頁：</p><ul><li><b>首頁</b>：輸入序號數字就能查，下面是今天要看的事</li><li><b>數量</b>：各型別在各單位的張數、飛機支援度</li><li><b>屆期</b>：未來哪些座椅要屆期</li><li><b>作業</b>：進廠、出廠，可以勾選多張一次處理</li><li><b>更多</b>：設定、備份、說明、鎖定</li></ul>' },
   { ic: 'search', t: '畫面上的數字都能點', b: '<p>點數字會跳出清單，列出是哪幾張。</p><p>點清單裡的序號，可以展開看型別、單位、三線屆期、剩餘天數，並直接進廠、出廠、調撥。清單可以排序、篩選型別，也能一鍵複製。</p>' },
   { ic: 'tool', t: '進廠、出廠怎麼做', b: '<ul><li>三線屆期一到，系統每天凌晨 1 點自動搬到待修庫</li><li>待修庫按「進廠」→ 到指部</li><li>修好後在指部按「出廠」，選回一修或三修，系統自動算新的三線屆期（+6 年）</li></ul><p>舊日期不會消失，會記在異動紀錄。</p>' },
-  { ic: 'down', t: '加到手機主畫面', b: '<p>iPhone：Safari 按分享 →「加入主畫面」。<br>Android：選單 →「加到主畫面」。</p><p>右上角「⋯」可以調深淺色與字體、下載備份、重看說明。</p>' }
+  { ic: 'down', t: '加到手機主畫面', b: '<p>iPhone：Safari 按分享 →「加入主畫面」。<br>Android：選單 →「加到主畫面」。</p><p>「更多」分頁可以調深淺色與字體、下載備份、重看說明。</p>' }
 ];
 function openTour(i) {
   i = i || 0; state.tour = i; const s = TOUR[i], last = i === TOUR.length - 1;
@@ -1401,6 +1590,7 @@ function openTour(i) {
     '<div class="mbtn">' + (i ? '<button class="btn" data-tour="prev">上一步</button>' : '<button class="btn" data-tour="skip">略過</button>') + '<button class="btn pri" data-tour="' + (last ? 'done' : 'next') + '">' + (last ? '開始使用' : '下一步') + '</button></div>');
 }
 function maybeTour() {
+  return;
   if (state.D && !state.tourShown && !lsGet('seatAsset.tour', 0) && $('#lock').classList.contains('hide')) { state.tourShown = true; openTour(0); }
 }
 
@@ -1409,7 +1599,8 @@ function helpHTML() {
   const D = (t, body, open) => '<details class="hlp"' + (open ? ' open' : '') + '><summary>' + t + '</summary>' + body + '</details>';
   return '<h3>使用說明</h3>' +
     D('這是做什麼的', '<p>記錄每一張座椅現在在哪裡、什麼時候屆期，並算出各單位的飛機支援度。資料存在 Google 試算表，這個頁面負責看和操作。</p><p>流程：一修／三修服役 → 三線屆期 → 待修庫 → 進廠到指部翻修 → 出廠回一修／三修（出廠日就是新的生效日，三線屆期 = 出廠日 + 6 年）。</p>', true) +
-    D('四個分頁', '<ul><li><b>總覽</b>：「今天要看的」會列出該處理的事；下面是各型別在各單位的張數和飛機支援度。</li><li><b>查序號</b>：上面輸入框只打數字（例如 72 或 188），看那張的完整資料和操作。</li><li><b>屆期分析</b>：支援度預測（現在／90／180 天／1 年後）、近期屆期、年度屆期（一修＋三修）、未來 12 個月進待修庫的量。</li><li><b>作業</b>：待修庫進廠、指部出廠、新增座椅、異動紀錄。</li></ul>', true) +
+    D('五個分頁', '<ul><li><b>首頁</b>：上面框框只打數字（例如 72 或 188），看那張的完整資料和操作；下面是三個數字和「今天要看的」。</li><li><b>數量</b>：各型別在各單位的張數、飛機支援度、資料提醒。</li><li><b>屆期</b>：支援度預測、近期屆期、年度屆期、未來 12 個月。</li><li><b>作業</b>：待進廠、指部中、異動紀錄。勾選多張可以一次進廠或出廠。</li><li><b>更多</b>：設定、下載備份、說明、鎖定。</li></ul>') +
+    D('做錯了怎麼辦', '<p>進廠、出廠、調撥、修改完成後，畫面下方會出現「復原」按鈕（約 9 秒）。錯過了也可以到「作業 → 紀錄」或該座椅的「歷史紀錄」，按最新一筆的「復原這一步」。若那張座椅之後又有新的異動，就不能復原，請用「修改資料」調整。</p>') +
     D('點數字看清單', '<p>畫面上所有數字都可以點，會跳出清單列出是哪幾張。清單可以「依屆期／依序號／依單位」排序、篩選型別，右上「複製」可貼到通訊軟體。點序號展開詳細資料與操作按鈕。</p>') +
     D('區塊收折', '<p>每個區塊標題點一下就收起或展開；「全部展開／全部收折」一次處理。你的收折狀態會記住。</p>') +
     D('進廠、出廠、調撥', '<ul><li><b>進廠</b>：待修庫的座椅按「進廠」，選進廠日，搬到指部。</li><li><b>出廠</b>：指部的座椅按「出廠」，選出廠日與回到一修或三修；系統自動把出廠日當生效日、三線屆期設為 6 年後。出廠日不能早於進廠日。</li><li><b>調撥</b>：一修與三修互相調。</li><li><b>修改資料</b>：改型別、位置、日期、備註。</li><li><b>新增座椅</b>：作業頁按「新增座椅」。</li></ul><p>舊的日期不會消失，會記在試算表「異動紀錄」分頁，座椅的「歷史紀錄」可以看。</p>') +
@@ -1417,24 +1608,39 @@ function helpHTML() {
     D('飛機支援度', '<p>支援度 = 座椅數 ÷ 飛機數。100% 以上正常、90–99% 橘色、不到 90% 紅色。飛機數有變動：總覽「修改飛機數」。</p>') +
     D('設定與備份', '<p>右上「⋯」→ 設定：深淺色、文字大小、自動鎖定時間。「下載全部資料（CSV）」可當備份，用 Excel 開啟。</p>') +
     D('加到手機主畫面', '<div class="hicon"><img alt="" src="data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAALQAAAC0CAIAAACyr5FlAAANqklEQVR4AeydCVQUVxaGuxtowMjWgIoIuOCGuIBb3DAyGkVU1OMS9bjEZGZ0ZqLGJQYcVDQGTRA1cbJ41DjOxMQtGrNoJujEFVHBBXBFlB1BdlDWZt7ICTRNVUsVVf1udV3PO23Vfe++d+9/v1NVTXdVq/qPGYkNFWBUQKXAf6gAiwIIB4swaFYoEA6kgFUBhINVGuxAOJABVgUQDlZpsAPh4MGAXFwQDrlUmkeeCAcP0eTignDIpdI88kQ4eIgmFxeEQy6V5pEnwsFDNLm4IBxyqTSPPAWFg8f66AJYAYQDcHFoh4Zw0K4A4PURDsDFoR0awkG7AoDXRzgAF4d2aAgH7QoAXh/hoF0cwOsjHICLQzs0hIN2BQCvj3AALg7t0BAO2hUAvD7CAbg4tENDOGhXAPD6CAfg4tAODRYcLs5OsyYFblqxbM+WD/ZFhNe1f0aE/ysyfP/WcLKxL+JDvbZt/Tqpt/CQ4IUzZw7x9bVt3Zo2D43WhwKHnU3rbaHBW9esmujv18nNxdrSQm2uqmsW5iozlcrcTEU21OZmes3H21vqjWAxb/o0gsj3X+1d8tZCKyvLRiWitwMCjomjR32+cW1bR3t6OoBYWalUTg0I2BcZ2dPTE0JA9OEY4usza8I4haIWghwQYmjXps0nGzd08fCgHgxlOCwtLf869w3qKkALwMLCIvidv5mbm9MNjDIcYcveUSnpKgB0dc+OHclVKt3gaMKhUqncXdrQzR/y6lMCxpGrEIoR0oTDx9sLLzUM1N7aysqtfXsDA5p2CWuhCkcvAoew6ZjabOTkQjElmnB4uru3PPPaWlN+m+PuKtcjR3VNTcvhoHtWbnn8hmcgl2WGB4jaS/PIIWpiOHnLFUA4Wq6hyc6AcJhsaVueGMLRcg1NdgaZwGGy9RM1MYRDVHmlPTnCIe36iRo9wiGqvNKeHCgc5O+ed5KSfzxz9tyV2ILiEmlrLNnogcKx+Ys9G3d+eeDEz18cOPTuxs2JD5Ikq7CEA4cIx+2kh/H3HtSLWllV/cPpc/W7uGE0BSDCkfEkRy//zCYWvQG4K4ICCohwONjY6KXaytpKz4K7RlAAIhydPdzsGt/BMbhfb35aFBcXpqUmg2rpacklJUX80jGyF0Q4NHZ2a5cu7tOjq5Xaso2jZmbguMlj/HnoUliQl3DrGigySDCpKcnxN6+WFBfyyMjILhDhIBK4ODu9v+jtvR9t2B66OmjMKH5f2igvf06mgtmePyuDGZhuVEDh0A2R97ajk7O9vYa3u3iO9g6ODk4S+Ga1KcNhYWHp5e07dPhoaM2rl4+FuYV48Ak1synDIZRGsp0H4eBeetl4IByyKTX3RBEO7prJxgPhkE2puSeKcHDXTDYeCIdsSs09UYSDu2ay8UA4ZFNq7okKCQf31dEDtAIIB+jy0A0O4aCrP+jVEQ7Q5aEbHFA48NYEuljUrQ4UDrw1oa48dF8hwnHr7gO8NYEuFnWrQ4QjIzu7Lrj6VxO+NaE+R4AbEOFw1jjoKeXsqG/RG8C4q9XWpKc9SkyITYgH1BIT4jLSHjMGDM0IEY7e3bt17djwoEFzlSrgtRE8hMvLy0lNeVhUWFBcBKgVFeanpCTlPdW/cYtHgmK7QITD0lId8pc/zggc6+PVY+SgAaFLFg/w9uIhhFKh5OGFLvUKQISDBGepVk8e47/qT2/+efb0rjpHEdLV/KZxdHb36GJn72BrB6jZ2Ws8PDwd8dvnzS+kGCNVKrMObp16eff37g2o9fL2dXXrKEa+gs8J9MgheJ44IQ8FEA4eosnFBSwccikA5DwRDsjVoRwbwkG5AJCXRzggV4dybAgH5QJAXh7hgFwdyrEhHJQLAHl5hANydbjGJvB4hENgQU1pOoTDlKopcC4Ih8CCmtJ0CIcpVVPgXIDCUVBc/N0vUR/v+urLA4evxSfWmvSPxwpcUuGmgwjHs/LytZE7j5z89frtu2evXIvcsz/q0mXhUsaZmqsARDhu30/KK2z0AOjL1281NyEcJ5wCEOHIzS/QSzA3T9+iN4Bxt6qy4nZC3KULUZcuRIn9evNGTGlpMWMY0jVChEOoWxPy8nILC/ONU5uy0pLsrHTjrGW0VSDCIdStCdbWrYymI1nIyMuRFcVuEOGouzVhTlDg1LGjSeN9a4Kdvca7zwA3985GaD28+rp2kMbXhpuPFEQ4SPSWanXgKL9pAWNI431rApnH1tbeCGSQJTQaZ4XJ/QMKh8npzJxQVlnhwQcx5zLuMnfTtiIc1CrwWXzU9FM7P731a8jlI4t/25dfXkotFJaFEQ4WYcQ0kz/4hkQfPnC/4S978Xnpy85/XVZVIeayHOdWgPwBQM5JSM3hHwmnz2Xe04s6uTj3WPI1PSPdXTxyGFv/48mx3+ocM3SXJ8cP3V3q2wiHUUtwMetBxPWTbEt62DqxdVGxIxzGk/1eQVbo5aNs6zlZ2cztNoytl4od4TCS7NllhcsvHKjUVjOuZ2VmsXX4LBs1rN9WRjgYiyWwkbwNWXr+66JK5p8yVSmU4UNmdLED93uRKoFlwOmaKFCtrXnv0sGMMtYPloMHTBjYtlMTP/oGhINzDbg6bLj6/c2nqWxec7oNCfDoy9ZL145wiKv/rsTfzqTfZlvDr333Rd7+bL3U7QiHiCU4mXJz/90LbAt4aVzDBk9VKpVsA6jbEQ6xSnD1yaPwaz+yze76ikPEsDcsVGZsAyDYEQ5RqvCwKCc4+pBWUcs4u53aeseIObZqa8ZeOEagcEj61oTc58XkU7TymirGMqtV5pHDZ7d7xZ6xF5QRIhx0b01IK82/X6D/8PXm1+xZdeXKi98WVJSxuYQNntLdwYWtF5QdIhy3m9yacP5KrBFUyygtmB+1a9Yvny08szvop+1xOZyfUF5Tqw2JPkTOKWzRrvIZP6J9d7ZeaHYB4RAstcycXL25Mp/oW/QGtHz3ybOit8/sqa9rXnkpOTX8N/0Op5nJFeg1dqSmew4K6uzLaUK6gyHC4dnkedbdOnuILVPkjVMlVeW6q5DLydCYo1FpibpGA9v77p4/lXqLbQA5YCzt+zpbL0w7RDi8PLuM8xtar5fG3m7OpMD6XZE2ruemMM68/sqx0+kv5+M/aQm7E88yzkCMPexd1g2aTDak1SDCQRScNzVo7ZJFsyeNXzR7Rvh7S13btSVGUZtba0e2+cNijhs+v9zITdl09QSbe9tWdhHDZ5HPXdkGgLUDhYPo1aNzpwn+I/0G9bdp9QrZFbvN7zmcbQlyflkX8x0bHyklT8nnauRSlNHdxsKK/EnD3tKot1cxRsLDCBcOHsm0xIV8zDGZ/WqR8EGuP5p+SpJfXrriwjfk7Svb0luGzezQWsPWC9yOcDQUaHm/gDFu3g37TbbWxxzTPX5U1FSRdzTZzxo9EEDXadOr0/o4uulapLWNcDTUS6VUhg4MMsAHOX6Q88uFzPvER1tbuyb6SHIx63vsxd7+I117kJEGG+hOhKNReQgf5G3F6+zHD8LH+9GHzmfei7h+8vKTh42cdXYCPPrM6d7whkunR0qbCAdDtdYOmjzWvTdDx++m4OjDJx7F/b6n//+Qdp5rBkzSt0pwH+FgLhqproHzC7PPC2tnW+cNg6e+2JT8C8LBXEJyfjF8/cHo5mRls33EHGtzNWOv5IwIB2vJCB+Grz/0PFuZq7eNmK2xaq1nl+4uwvGS2q0ZOOm1ZrzpMFOqPho6s5Ot80umk1Q3wvGScpGqf/DqtNFuvQyPCxkwoZ+z6J8OGo5B8F6ocAieaMsmJNcfBo4fC738xrr3adkKEL0RjmZVhRw/wgZPZeTDv4PXwp5+zZpFaoMQjuZWjPBBzi8TO/noOgxz6Woyb1x186rbRjjqdGju62rfQELDHzr0GtG++yqf8VuGzmyupwTHIRyci0bOI2GDp4QPmS6t7/xxzlNB9bFP+QWFPCKWlcvjNJpPRaZ55Ii/9/+PN2VVbK7JJj1+zNVFwPE04Yi5cVPATExvqoqKirTMTA55CT2UJhzFpaWpWazfhxA6U+nNd/Tnk7VUf4WIJhykXOu2f6plvp+UdMq6PUxJ2XvwIF0JKMNBjpyf/5uyBHQLwLh6VVXVph2fVFczP0CM0UUMI2U4SEoXY+P2HD6uUCgV+O+FAtk5OUtC1yansj4M6MUoY7zQh4Nkefpi9OLQDdm8fo6JuJtMI1cYx06dWrB8+Z2kJAhJgYCDCFFUUrp84+YVmz7+4cy5R2lZzyuqKqu1da2qWluj1VbXaKuqayqbtOsJCVJv0XFx+w8fCQ7fHPTmwh2795SXQ3kCOhQ4CB+kZeU+/ebET2u2bn9r9d8XrAyua/NXBs9dHjxvRfD8lSELmrR314dJvQV/GE6uPaNjY8nbNyICnAYLDpF0wWn5KYBw8NNNFl4IhyzKzC9JhIOfbrLwQjhkUWZ+SSIc/HSThRfCIYsy80sS4eCnm+l7kQwRDiICNmYFEA5mXdBKFEA4iAjYmBVAOJh1QStRAOEgImBjVgDhYNYFrUQBhIOIgI1ZAYSDWRd2q4x6EA4ZFZtrqggHV8VkNB7hkFGxuaaKcHBVTEbjEQ4ZFZtrqggHV8VkNB7hkFGxuaYqHBxcV8bx4BVAOMCXiF6ACAc97cGvjHCALxG9ABEOetqDXxnhAF8iegH+DwAA///NDevhAAAABklEQVQDACjMG41xbrecAAAAAElFTkSuQmCC"><span>iPhone：Safari 按分享 →「加入主畫面」。Android：選單 →「加到主畫面」。圖示與名稱就是這個。</span></div>') +
-    D('密碼與安全', '<p>密碼存在 Apps Script 的指令碼屬性 KEY，網頁裡不放密碼。閒置一段時間自動鎖定，離開前可按右上角鎖頭。</p>') +
+    D('密碼與安全', '<p>密碼存在 Apps Script 的指令碼屬性：KEY 是管理密碼（可查看、可修改）；若另外設了 VIEW_KEY，用那組密碼登入就只能查看。網頁裡不放密碼。閒置一段時間自動鎖定，離開前可到「更多」按鎖定。</p>') +
     D('常見狀況', '<ul><li>顯示「示範資料」：尚未設定試算表網址，畫面是假資料。</li><li>資料沒更新：按右上角重新整理。</li><li>按了進廠／出廠但逾時：先重新整理確認有沒有成功，再決定要不要重做。</li><li>手機按返回鍵：會先關閉視窗，不會直接離開。</li></ul>') +
     '<div class="mbtn"><button class="btn pri" data-mcancel="1">關閉</button></div>';
 }
 function openHelp() { openSheet(helpHTML()); }
 
-/* ---------- 作業頁 ---------- */
+/* ---------- 作業頁：待進廠 / 指部中 / 紀錄，可多選一次處理 ---------- */
+function workList(k) {
+  const loc = k === 'wait' ? '待修庫' : '指部工廠';
+  return state.records.filter(r => r.loc === loc).sort((a, b) => a.type < b.type ? -1 : a.type > b.type ? 1 : a.serial < b.serial ? -1 : 1);
+}
+function selList() { const k = state.wk; return k === 'log' ? [] : workList(k).filter(r => state.sel[r.serial]); }
+function selBar() {
+  const L = selList(); if (!L.length || state.role === 'view') return '<div class="selgap"></div>';
+  const lab = state.wk === 'wait' ? '進廠' : '出廠';
+  return '<div class="selgap"></div><div class="selbar" role="region" aria-label="批次作業"><div class="wrap"><span class="n">已選 ' + L.length + ' 張</span><button class="btn" data-selclear="1">取消</button><button class="btn pri" data-batch="' + state.wk + '">' + lab + ' ' + L.length + ' 張</button></div></div>';
+}
 function viewWork() {
-  const D = state.D;
-  const by = loc => state.records.filter(r => r.loc === loc).sort((a, b) => a.type < b.type ? -1 : a.type > b.type ? 1 : a.serial < b.serial ? -1 : 1);
-  const wait = by('待修庫'), fac = by('指部工廠');
+  const D = state.D, wait = workList('wait'), fac = workList('fac'), k = state.wk, ro = state.role === 'view';
   let h = '';
   if (!CONFIG.API_URL) h += '<div class="note" style="margin:0 0 12px"><b>示範模式：</b>這裡的操作只在畫面上模擬，不會寫進試算表。</div>';
   if (D.overdue.length) h += '<div class="alertbox"><b>三線已逾期 ' + D.overdue.length + ' 張，還在一修／三修</b><div class="note">系統每天凌晨 1 點會自動搬到待修庫，也可以現在手動搬。</div><button class="btn pri" data-act="automove">立即搬到待修庫（' + D.overdue.length + '）</button></div>';
-  h += '<div class="chips"><button class="btn pri" data-act="add">＋ 新增座椅</button><button class="btn" data-act="log">看異動紀錄</button></div>' + secBar();
-  h += sec('w-wait', '待修庫', wait.length + ' 張　按「進廠」', '<div class="card">' + (wait.length ? wait.map(r => itemHTML(r, { act: 'checkin', label: '進廠' })).join('') : '<div class="empty"><b>待修庫是空的</b>三線屆期的座椅會自動來這裡</div>') + '</div>', true);
-  h += sec('w-fac', '指部', fac.length + ' 張　修好按「出廠」', '<div class="card">' + (fac.length ? fac.map(r => itemHTML(r, { act: 'checkout', label: '出廠' })).join('') : '<div class="empty"><b>指部沒有座椅</b>待修庫的座椅進廠後會在這裡</div>') + '</div>', true);
-  if (state.logs) h += sec('w-log', '最近的異動紀錄', state.logs.length + ' 筆', '<div class="card">' + logHTML(state.logs) + '</div>', true);
+  h += '<div class="seg" role="tablist" aria-label="作業類型">' +
+    [['wait', '待進廠', wait.length], ['fac', '指部中', fac.length], ['log', '紀錄', '']].map(x => '<button role="tab" aria-selected="' + (k === x[0]) + '" data-wk="' + x[0] + '">' + x[1] + '<small>' + (x[2] !== '' ? x[2] + ' 張' : '誰改了什麼') + '</small></button>').join('') + '</div>';
+  if (k === 'log') {
+    if (!state.logs) { h += '<div class="card"><div class="empty">讀取中…</div></div>'; fetchLog().then(l => { state.logs = l; if (state.view === 'work' && state.wk === 'log') render(); }).catch(e => { if (e.auth) return lock('密碼錯誤'); state.logs = []; toast('讀取紀錄失敗：' + (e.message || ''), 3000); render(); }); }
+    else h += '<div class="card">' + logHTML(state.logs) + '</div><div class="note">只列最近 40 筆。單張的完整歷史，在該座椅按「歷史紀錄」。</div>';
+    return h;
+  }
+  const L = k === 'wait' ? wait : fac, lab = k === 'wait' ? '進廠' : '出廠';
+  if (!ro) h += '<div class="bar"><span class="mute">' + (L.length ? '勾選多張可一次' + lab + '，或按右邊按鈕' : '') + '</span>' + (L.length ? '<button class="btn" data-selall="' + k + '">全選 ' + L.length + '</button>' : '') + '</div>';
+  h += '<div class="card">' + (L.length ? L.map(r => itemHTML(r, { act: k === 'wait' ? 'checkin' : 'checkout', label: lab, sel: !ro })).join('') :
+    (k === 'wait' ? '<div class="empty"><b>待修庫是空的</b>三線屆期的座椅會自動來這裡</div>' : '<div class="empty"><b>指部沒有座椅</b>待修庫的座椅進廠後會在這裡</div>')) + '</div>';
   return h;
 }
 
@@ -1444,10 +1650,19 @@ document.addEventListener('toggle', e => {
   if (d && d.dataset && d.dataset.sec) { state.open[d.dataset.sec] = d.open; lsSet('seatAsset.open', state.open); }
 }, true);
 document.addEventListener('click', e => {
-  const t = e.target.closest('[data-go],[data-nav],[data-h],[data-dr],[data-drclose],[data-drsort],[data-drtype],[data-copy-dr],[data-exp],[data-secall],[data-copy-card],[data-anh],[data-act],[data-mcancel],[data-year],[data-tool],[data-set],[data-tour],[data-retry]');
+  const t = e.target.closest('[data-go],[data-nav],[data-h],[data-dr],[data-drclose],[data-drsort],[data-drtype],[data-copy-dr],[data-exp],[data-secall],[data-copy-card],[data-anh],[data-act],[data-mcancel],[data-year],[data-tool],[data-set],[data-tour],[data-retry],[data-work],[data-wk],[data-sel],[data-selall],[data-selclear],[data-batch],[data-hint],[data-undo],[data-undo-one]');
   if (!t) { if (e.target.id === 'modal') closeModal(); else if (e.target.id === 'drawer') closeDr(); return; }
   const d = t.dataset;
   if (d.mcancel) return closeModal();
+  if (d.hint) { lsSet('seatAsset.hint', 1); return render(); }
+  if (d.work) { state.wk = d.work; return nav('work'); }
+  if (d.wk) { state.wk = d.wk; state.sel = {}; if (d.wk === 'log') state.logs = null; return render(); }
+  if (d.sel) { if (state.sel[d.sel]) delete state.sel[d.sel]; else state.sel[d.sel] = 1; return render(); }
+  if (d.selall) { workList(d.selall).forEach(r => { state.sel[r.serial] = 1; }); return render(); }
+  if (d.selclear) { state.sel = {}; return render(); }
+  if (d.batch) return openBatch(d.batch);
+  if (d.undo) { const u = state.undo; $('#toast').classList.remove('on', 'act'); state.undo = null; return u && doUndo(u); }
+  if (d.undoOne) { const p = d.undoOne.split('|'); closeModal(); return doUndo([{ serial: p[0], time: p[1], expect: p[2] }]); }
   if (d.exp) {
     const it = t.closest('.it'), on = !it.classList.contains('on'), s = it.querySelector('.s').textContent;
     it.classList.toggle('on', on); it.querySelector('.itd').hidden = !on; t.setAttribute('aria-expanded', on); state.xp[s] = on; return;
@@ -1480,7 +1695,7 @@ document.addEventListener('click', e => {
   if (d.year) { state.year = +d.year; return render(); }
   if (d.act) return openAct(d.act, d.serial);
   if (d.go) return go(d.go);
-  if (d.nav) return nav(d.nav);
+  if (d.nav) { if (d.nav === 'home' && state.view === 'home' && state.q) { $('#qclear').click(); return; } return nav(d.nav); }
   if (d.h) { state.horizon = +d.h; return render(); }
   if (d.copyCard) { const r = state.D.map[d.copyCard]; if (r) return copyText(cardText(r)); }
 });
@@ -1493,7 +1708,7 @@ window.addEventListener('scroll', () => {
   lastY = y;
 }, { passive: true });
 setInterval(() => { if (!document.hidden && CONFIG.API_URL && state.D && !state.loading && $('#modal').hidden && !state.dr && Date.now() - state.updatedAt > 10 * 60000) loadData(false); }, 60000);
-$('#q').addEventListener('input', () => { state.q = $('#q').value; $('#qclear').hidden = !state.q; state.view = 'lookup'; render(); });
+$('#q').addEventListener('input', () => { state.q = $('#q').value; $('#qclear').hidden = !state.q; state.view = 'home'; render(); });
 $('#q').addEventListener('keydown', e => {
   if (e.key !== 'Enter') return;
   e.preventDefault();
@@ -1502,7 +1717,6 @@ $('#q').addEventListener('keydown', e => {
   if (s) saveRecent(s.serial);
   $('#q').blur();
 });
-$('#btnMore').addEventListener('click', openMenu);
 $('#pwshow').addEventListener('click', () => { const i = $('#pw'), s = i.type === 'password'; i.type = s ? 'text' : 'password'; $('#pwshow').textContent = s ? '隱藏' : '顯示'; });
 $('#qclear').addEventListener('click', () => { $('#q').value = ''; state.q = ''; $('#qclear').hidden = true; render(); $('#q').focus(); });
 $('#btnRefresh').addEventListener('click', () => { if (!state.loading) loadData(true); });
@@ -1514,7 +1728,7 @@ let idleTimer = null;
 function lock(msg) {
   try { sessionStorage.removeItem(AUTH_KEY); } catch (e) { }
   try { localStorage.removeItem(CONFIG.CACHE_KEY); } catch (e) { }
-  state.key = ''; state.records = []; state.D = null; state.source = 'none'; state.q = ''; state.dr = null; state.logs = null; state.tourShown = false; resetLayers();
+  state.key = ''; state.role = 'edit'; state.sel = {}; document.body.classList.remove('ro'); state.records = []; state.D = null; state.source = 'none'; state.q = ''; state.dr = null; state.logs = null; state.tourShown = false; resetLayers();
   $('#q').value = ''; $('#qclear').hidden = true; $('#view').innerHTML = ''; $('#badgeExp').hidden = true;
   $('#lock').classList.remove('hide'); $('#pw').value = '';
   $('#lockErr').textContent = (typeof msg === 'string') ? msg : '';
