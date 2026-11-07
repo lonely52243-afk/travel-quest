@@ -224,7 +224,7 @@ function applyData(ev,ros){
   const m={};D.forEach(e=>m[e.ty]=(m[e.ty]||0)+e.k+e.f+e.j+1e-3);TYPES=Object.keys(m).sort((a,b)=>m[b]-m[a]);calcWeights();
   MIN=D.length?D[0].d:ANCHOR;MAX=D.length?D[D.length-1].d:ANCHOR}
 const G=[{k:'k',n:'快砲',c:'var(--s1)'},{k:'f',n:'飛彈',c:'var(--s2)'},{k:'j',n:'軍械',c:'var(--s3)'}];
-const S={sort:'new',rt:'',from:'',to:'',types:new Set(),show:{k:1,f:1,j:1},metric:'ppl',q:'',tab:'overview',tbl:false,heads:{k:1,f:1,j:1},drill:null,lm:'month',person:null,pn:15,pm:'all',
+const S={jp:null,sort:'new',rt:'',from:'',to:'',types:new Set(),show:{k:1,f:1,j:1},metric:'ppl',q:'',tab:'overview',tbl:false,heads:{k:1,f:1,j:1},drill:null,lm:'month',person:null,pn:15,pm:'all',
   cmp:{preset:'6',aF:'',aT:'',bF:'',bT:''},more:200};
 const $=s=>document.querySelector(s);
 const esc=s=>String(s).replace(/[&<>"']/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));
@@ -298,9 +298,9 @@ const IMG={"f9m": "iVBORw0KGgoAAAANSUhEUgAAAEAAAABACAMAAACdt4HsAAAASFBMVEX+/v4AA
 const pic=(k,z)=>`<img class="gi" alt="" width="${z||24}" height="${z||24}" src="data:image/png;base64,${IMG[k]}">`;
 const mk=k=>`<i class="mi" style="--m:url(data:image/png;base64,${IMG[k]})"></i>`;
 const GI={k:pic('kgun',24),f:pic('f9m',24),j:pic('jseat',24)};
-const TABS=[['overview','總覽'],['trend','時間趨勢'],['types','種類比較'],['rot','輪替分析'],['fc','預測'],['ppl','人員比較'],['hot','聚集偵測'],['cmp','兩期比較'],['list','明細'],['sync','資料同步']];
-const GROUPS=[['home','總覽','overview',['overview','list']],['ana','分析','trend',['trend','types','rot','hot','cmp','fc']],['ppl','人員','ppl',['ppl']],['set','設定','sync',['sync']]];
-const SUBL={overview:'總覽',list:'明細',trend:'時間趨勢',types:'種類比較',rot:'輪替分析',hot:'聚集偵測',cmp:'兩期比較',fc:'預測',ppl:'人員比較',sync:'資料同步'};
+const TABS=[['overview','總覽'],['trend','時間趨勢'],['types','種類比較'],['rot','輪替分析'],['fc','預測'],['ppl','人員比較'],['jx','軍械專區'],['hot','聚集偵測'],['cmp','兩期比較'],['list','明細'],['sync','資料同步']];
+const GROUPS=[['home','總覽','overview',['overview','list']],['ana','分析','trend',['trend','types','rot','hot','cmp','fc']],['ppl','人員','ppl',['ppl','jx']],['set','設定','sync',['sync']]];
+const SUBL={overview:'總覽',list:'明細',trend:'時間趨勢',types:'種類比較',rot:'輪替分析',hot:'聚集偵測',cmp:'兩期比較',fc:'預測',ppl:'人員比較',jx:'軍械專區',sync:'資料同步'};
 const ICK={home:'overview',ana:'trend',ppl:'ppl',set:'sync'};
 function renderNav(){const g=GROUPS.find(x=>x[3].includes(S.tab))||GROUPS[0];S.last=S.last||{};S.last[g[0]]=S.tab;
   const tb=$('#tabs');tb.innerHTML=g[3].length>1?g[3].map(t=>`<button class="tab" role="tab" data-tab="${t}" aria-selected="${t===S.tab}">${SUBL[t]}</button>`).join(''):'';tb.style.display=g[3].length>1?'':'none';
@@ -342,6 +342,7 @@ function viewClick(e){
   const go=e.target.closest('[data-go]');if(go){S.tab=go.dataset.go;render();scrollTo({top:0});return}
   const lm=e.target.closest('[data-lm]');if(lm){S.lm=lm.dataset.lm;render();return}
   const cp=e.target.closest('[data-cp]');if(cp){S.cmp.preset=cp.dataset.cp;render();return}
+  const jp=e.target.closest('[data-jp]');if(jp){S.jp=S.jp===jp.dataset.jp?null:jp.dataset.jp;render();return}
   const pr=e.target.closest('[data-person]');if(pr){if(S.tab!=='ppl'){S.tab='ppl';S.person=pr.dataset.person}else S.person=S.person===pr.dataset.person?null:pr.dataset.person;render();return}
   const pn=e.target.closest('[data-pn]');if(pn){S.pn=+pn.dataset.pn;render();return}
   const so=e.target.closest('[data-sort]');if(so){S.sort=so.dataset.sort;render();scrollTo(0,0);return}
@@ -503,6 +504,57 @@ function rankCard(P){if(!Object.keys(RANKS).length)return '';
   Object.entries(MW).forEach(([nm,m])=>{const g=grp[m.note]||(grp[m.note]={n:0,did:0,t:0,w:m.w,ban:m.ban});g.n++;const c=cnt[nm]||0;g.t+=c;if(c)g.did++});
   const rows=Object.entries(grp).sort((a,b)=>b[1].w-a[1].w||b[1].n-a[1].n);
   return `<div class="card"><h2>各階級出勤情況</h2><div class="note">用來驗證規則：階級高的人是不是真的比較少出。權重＝計算公平時這類人算幾個人；0＝不納入。</div><div style="overflow:auto;margin-top:6px"><table><thead><tr><th>組別</th><th>人數</th><th>出過</th><th>總次數</th><th>人均</th><th>權重</th></tr></thead><tbody>${rows.map(([k,g])=>`<tr><td>${esc(k)}${g.ban.length?`<br><small class="note">不出：${esc(g.ban.join('、'))}</small>`:''}</td><td>${g.n}</td><td>${g.did}</td><td>${g.t}</td><td>${(g.t/Math.max(1,g.n)).toFixed(1)}</td><td>${g.w}</td></tr>`).join('')}</tbody></table></div></div>`}
+/* ---------- 軍械專區 ---------- */
+const WD=['日','一','二','三','四','五','六'];
+function tmSlot(tm){const t=(tm||'').match(/(\d{2}):?(\d{2})/g);if(!t)return '未註明';const hh=x=>+x.replace(':','').slice(0,2)*60+ +x.replace(':','').slice(2);const a=hh(t[0]),b=t.length>1?hh(t[t.length-1]):null;
+  if(b!=null&&a<720&&b>=780&&b-a>=300)return '整天';return a<720?'上午':'下午'}
+function jxData(rows){
+  const sv=S.show;S.show={k:1,f:1,j:1};const pp=people(rows);S.show=sv;   // 沿用原本的人員統計與階級規則（MW）
+  const ev=rows.filter(e=>e.j>0||(e.n&&e.n.j&&e.n.j.length));let slots=0,named=0;
+  ev.forEach(e=>{slots++;if(e.n&&e.n.j&&e.n.j.length)named++});
+  const P=pp.P.filter(p=>p.g.k==='j').map(p=>{const o={nm:p.nm,c:p.c,last:p.last,types:p.types,evs:p.evs,w:p.w,note:p.note,h:0,wd:[0,0,0,0,0,0,0],sl:{},g:p.g,key:p.key,x:RSET[p.nm]==='j'?0:1};
+    p.evs.forEach(e=>{const d=durH(e);if(d)o.h+=d;o.wd[new Date(e.d+'T00:00:00Z').getUTCDay()]++;const sl=tmSlot(e.tm);o.sl[sl]=(o.sl[sl]||0)+1});return o});
+  return{ev,P,slots,named}}
+function vJx(rows){
+  const {ev,P,slots,named}=jxData(rows);const c3=G[2].c;
+  if(!ev.length)return hl('','沒有資料','這段期間沒有軍械股的公差','');
+  const all=P.slice().sort((a,b)=>b.c-a.c||b.last.localeCompare(a.last));const mx=Math.max(1,...all.map(p=>p.c));
+  const did=all.filter(p=>p.c>0),none=all.filter(p=>p.c===0&&!p.x);const totalN=did.reduce((a,p)=>a+p.c,0);
+  const g=gini(all.map(p=>p.c));const top3=did.slice(0,3).reduce((a,p)=>a+p.c,0);
+  const cov=slots?named/slots:0;const t1=all[0];
+  const hd=hl(cov<.5?'warn':'ok','軍械股',`${ev.length} 件、${slots} 人次；出最多：${t1&&t1.c?esc(t1.nm)+' '+t1.c+' 次':'—'}`,`人名涵蓋 ${pct(cov)}（${named}／${slots} 件有名單）。名單來自你在軍械股群組 @ 的人和班長回覆。`,cov<.5?'人名涵蓋不到一半，個人次數會偏低。可到「資料同步」上傳軍械股群組檔補人名。':'長條越長＝出越多次。點名字看他做過什麼。');
+  const kp=`<div class="kpis"><div class="kpi"><b>${ev.length}</b><span>件</span></div><div class="kpi"><b>${slots}</b><span>人次</span></div><div class="kpi"><b>${did.length}／${all.filter(p=>!p.x).length}</b><span>出過／名冊</span></div><div class="kpi"><b>${pct(totalN?top3/totalN:0)}</b><span>前三名占比</span></div></div>`;
+  const bars=`<div class="hb">${all.filter(p=>p.c>0).map(p=>`<div class="r" data-jp="${esc(p.nm)}" tabindex="0" role="button" style="cursor:pointer"><div class="lab"><span>${esc(p.nm)}${p.note&&p.note!=='一般'?` <small class="note">${esc(p.note)}</small>`:''}</span><small>${p.c} 次｜${p.h?p.h.toFixed(1)+' 小時｜':''}最近 ${p.last.slice(2)}</small></div><div class="bars" style="display:flex;height:20px"><i style="flex:${p.c} 1 0;background:${c3}" data-tip="${esc(p.nm)}：${p.c} 次">${p.c/mx>.12?p.c:''}</i><i style="flex:${Math.max(0,mx-p.c)} 1 0;background:transparent"></i></div></div>`).join('')}</div>`;
+  const noneH=none.length?`<div class="note" style="margin-top:8px"><b>這段期間沒出過（${none.length} 人）</b></div><div>${none.map(p=>`<span class="badge" data-jp="${esc(p.nm)}" style="cursor:pointer;margin:2px">${esc(p.nm)}</span>`).join('')}</div>`:'';
+  // 種類
+  const T={};ev.forEach(e=>{const t=T[e.ty]||(T[e.ty]={ty:e.ty,n:0,s:0,who:{}});t.n++;t.s+=e.j||((e.n&&e.n.j)||[]).length;((e.n&&e.n.j)||[]).forEach(nm=>t.who[nm]=(t.who[nm]||0)+1)});
+  const TL=Object.values(T).sort((a,b)=>b.s-a.s);const tmx=Math.max(1,...TL.map(t=>t.s));
+  const typeH=`<div class="hb">${TL.map(t=>{const w=Object.entries(t.who).sort((a,b)=>b[1]-a[1])[0];return `<div class="r"><div class="lab"><span>${esc(t.ty)}</span><small>${t.n} 件｜${t.s} 人次${w?'｜最多 '+esc(w[0])+' '+w[1]:''}</small></div><div class="bars" style="display:flex;height:20px"><i style="flex:${t.s} 1 0;background:${c3}">${t.s/tmx>.12?t.s:''}</i><i style="flex:${tmx-t.s} 1 0;background:transparent"></i></div></div>`}).join('')}</div>`;
+  const tcols=TL.slice(0,5).map(t=>t.ty);const hp=did.slice(0,12);const hm=Math.max(1,...hp.flatMap(p=>tcols.map(t=>p.types[t]||0)));
+  const heat=`<div style="overflow:auto"><table><thead><tr><th>姓名</th>${tcols.map(t=>`<th style="font-size:12px">${esc(t.split('/')[0])}</th>`).join('')}</tr></thead><tbody>${hp.map(p=>`<tr><td>${esc(p.nm)}</td>${tcols.map(t=>{const n=p.types[t]||0;return `<td style="text-align:center;background:${n?`color-mix(in srgb,${c3} ${Math.round(18+n/hm*70)}%,transparent)`:'transparent'}">${n||''}</td>`}).join('')}</tr>`).join('')}</tbody></table></div>`;
+  // 時間
+  const ms=[...new Set(ev.map(e=>e.d.slice(0,7)))].sort();const mon=ms.map(m=>ev.filter(e=>e.d.startsWith(m)).reduce((a,e)=>a+(e.j||((e.n&&e.n.j)||[]).length),0));
+  const monC=colStack(ms,[{g:G[2],vals:mon}],{aria:'軍械股每月人次',fmt:m=>m.slice(2)});
+  const wd=[1,2,3,4,5,6,0].map(d=>({l:'週'+WD[d],n:ev.filter(e=>new Date(e.d+'T00:00:00Z').getUTCDay()===d).reduce((a,e)=>a+(e.j||((e.n&&e.n.j)||[]).length),0)}));const wmx=Math.max(1,...wd.map(x=>x.n));
+  const wdH=`<div class="hb">${wd.map(x=>`<div class="r"><div class="lab"><span>${x.l}</span><small>${x.n} 人次</small></div><div class="bars" style="display:flex;height:16px"><i style="flex:${x.n} 1 0;background:${c3}"></i><i style="flex:${wmx-x.n} 1 0;background:transparent"></i></div></div>`).join('')}</div>`;
+  const SL={};ev.forEach(e=>{const k=tmSlot(e.tm);SL[k]=(SL[k]||0)+1});
+  const hrs=ev.map(durH).filter(x=>x);const avgH=hrs.length?hrs.reduce((a,b)=>a+b,0)/hrs.length:null;
+  const slH=['上午','下午','整天','未註明'].filter(k=>SL[k]).map(k=>`<span class="badge" style="margin:2px">${k} ${SL[k]} 件</span>`).join('');
+  // 下一輪
+  const nxt=all.filter(p=>!p.x&&p.w>=.5).sort((a,b)=>a.c-b.c||(a.last||'').localeCompare(b.last||'')).slice(0,8);
+  const nxtH=nxt.map(p=>`<span class="badge" data-jp="${esc(p.nm)}" style="cursor:pointer;margin:2px">${esc(p.nm)} ${p.c}次${p.last?'・'+daysBetween(p.last,ANCHOR)+'天前':'・沒出過'}</span>`).join('');
+  let h=hd+kp+`<div class="card"><h2>誰出最多次</h2><div class="note">每人每次公差算 1 次。點名字看個人明細。</div>${bars}${noneH}</div>
+  <div class="card"><h2>公差種類</h2><div class="note">軍械股各類公差的人次，以及該類出最多的人。</div>${typeH}<h3 style="margin-top:12px">誰常做哪一類</h3><div class="note">顏色越深＝次數越多（前 12 名、前 5 類）。</div>${heat}</div>
+  <div class="card"><h2>時間分布</h2><div class="note">每月人次</div>${monC}<h3 style="margin-top:12px">星期幾最常派</h3>${wdH}<h3 style="margin-top:12px">時段</h3><div>${slH}</div>${avgH?`<div class="note" style="margin-top:6px">有註明起訖的公差，平均 ${avgH.toFixed(1)} 小時。</div>`:''}</div>
+  ${rankCard(P)}<div class="card"><h2>集中度</h2><div class="note">集中度 ${g.toFixed(2)}（0＝完全平均，越高越集中在少數人）。前三名共占 ${pct(totalN?top3/totalN:0)}。</div></div>
+  <div class="card"><h2>下一輪候選</h2><div class="note">跟「人員比較」同一套規則：依階級權重排除股長／軍官，出最少、最久沒出的排前面。</div>${nxtH}</div>`;
+  if(S.jp){const p=all.find(x=>x.nm===S.jp);if(p){const tl=Object.entries(p.types).sort((a,b)=>b[1]-a[1]);
+    h+=`<div class="card"><h2><i class="dot" style="background:${c3}"></i> ${esc(p.nm)}　<button class="btn" data-jp="${esc(p.nm)}" style="min-height:36px">取消選取</button></h2>
+    <div class="kpis" style="grid-template-columns:repeat(3,1fr)"><div class="kpi"><b>${p.c}</b><span>次</span></div><div class="kpi"><b style="font-size:17px;line-height:1.6">${p.last?p.last.slice(2):'—'}</b><span>最近一次</span></div><div class="kpi"><b>${p.h?p.h.toFixed(1):'—'}</b><span>累計小時</span></div></div>
+    <h3 style="margin-top:10px">做過哪些類型</h3>${tl.map(([k,n])=>`<div style="display:flex;justify-content:space-between;padding:4px 0;border-bottom:1px solid var(--line)"><span>${esc(k)}</span><b>${n}</b></div>`).join('')||'<div class="note">沒有紀錄</div>'}
+    <h3 style="margin-top:10px">星期分布</h3><div class="note">${[1,2,3,4,5,6,0].map(d=>'週'+WD[d]+' '+p.wd[d]).join('　')}</div>
+    <h3 style="margin-top:10px">全部紀錄</h3>${evList(p.evs.slice().reverse())}</div>`}}
+  return h}
 function vPeople(rows){
   const {P,slots,named}=people(rows);const v=vis();
   const all=P.slice().sort((a,b)=>b.c-a.c||b.last.localeCompare(a.last));
@@ -645,7 +697,7 @@ function render(keepFocus){
   syncControls();renderNav();const rows=filt(S.from,S.to);
   $('#sub').textContent=`${rows.length} 件符合｜資料 ${D.length?MIN.slice(0,7)+' ～ '+MAX.slice(0,7):'尚無'}｜${DB.mode==='remote'?'已連線':'預覽'}`;
   const v=$('#view');let h='';
-  if(S.tab==='overview')h=vOverview(rows);else if(S.tab==='trend')h=vTrend(rows);else if(S.tab==='types')h=vTypes(rows);else if(S.tab==='ppl')h=vPeople(rows);else if(S.tab==='hot')h=vHot(rows);else if(S.tab==='rot')h=vRot(rows);else if(S.tab==='fc')h=vFc();else if(S.tab==='cmp')h=vCmp();else if(S.tab==='sync')h=vSync();else h=vList(rows);
+  if(S.tab==='overview')h=vOverview(rows);else if(S.tab==='trend')h=vTrend(rows);else if(S.tab==='types')h=vTypes(rows);else if(S.tab==='ppl')h=vPeople(rows);else if(S.tab==='jx')h=vJx(rows);else if(S.tab==='hot')h=vHot(rows);else if(S.tab==='rot')h=vRot(rows);else if(S.tab==='fc')h=vFc();else if(S.tab==='cmp')h=vCmp();else if(S.tab==='sync')h=vSync();else h=vList(rows);
   const y=scrollY;v.innerHTML=h;if(keepFocus)scrollTo(0,y);
   ['aF','aT','bF','bT'].forEach(id=>{const el=$('#'+id);if(el)el.onchange=e=>{S.cmp[id]=e.target.value;render()}});
   if(S.tab==='sync')wireSync();
@@ -814,7 +866,37 @@ function pairNames(events,msgs,roster,opt){
       pick.got[q0].push(...nm.slice(0,room));matched++})});
   evs.forEach(x=>{const n={};['k','f','j'].forEach(g=>{if(x.got[g].length)n[g]=x.got[g]});if(Object.keys(n).length)x.e.n=n;else delete x.e.n});
   return matched}
-return{parseChat,extractEvents,pairNames,classify,parseNames,rosterMaps}
+/* ---------- 7. 本股自己的群組：派公差後 @ 出勤人名 ---------- */
+function ownGroup(text){const m=text.slice(0,120).match(/(快砲|飛彈|軍械)股/);return m?STK[m[1]]:null}
+function nameFromOwn(pool,msgs,roster,g){
+  // 匯出檔看不到「引用回覆」原文，所以用：1) 一則訊息內的 1./2. 項目各自歸名；2) 短回覆（「打掃兩員 @A @B」）依關鍵字或缺額，補到最近幾則公差
+  const RO=rosterMaps(roster.filter(r=>r[1]===g));const ms=t=>new Date(t.replace(' ','T')+':00').getTime();
+  const full=s=>{s=s.replace(/^軍電廠-|^[快飛軍]\S{1,2}股-/,'');return RO[s]?RO[s][0]:null};
+  const grab=(b,out)=>{(b.match(/@~?[^\s@：:，,、]+/g)||[]).forEach(t=>{const n=full(t.replace(/^@~?/,''));if(n&&!out.includes(n))out.push(n)});return out};
+  const items=[];
+  msgs.forEach((m,i)=>{
+    if(!/日期[：:]/.test(m.body))return;
+    const parts=m.body.split(/\n(?=\s*\d+\s*[\.、．]\s*公差)/);
+    parts.forEach(pt=>{const e=extractEvents([{dt:m.dt,sender:m.sender,body:pt}])[0];if(!e)return;items.push({i,sender:m.sender,t:ms(m.dt),ev:e,raw:pt,names:grab(pt,[])})})});
+  const need=it=>it.ev.u?1:it.ev[g];
+  msgs.forEach((m,i)=>{
+    if(/日期[：:]/.test(m.body))return;
+    const nm=grab(m.body,[]);if(!nm.length)return;
+    const txt=m.body.replace(/@~?\S+/g,'').replace(/\s/g,'');if(txt.length>12)return;
+    const t=ms(m.dt);const cand=items.filter(it=>it.i<i&&it.sender===m.sender&&t-it.t<=3*864e5).slice(-6);if(!cand.length)return;
+    const kws=[...new Set((txt.replace(/[0-9一二兩三四五六七八九十員人位名]/g,'').match(/[一-鿿]{2}/g)||[]))];
+    const sc=it=>(kws.some(k=>it.raw.includes(k))?3:0)+(it.names.length<need(it)?2:0)+(t-it.t<=20*6e4?1:0);
+    const best=cand.map((it,k)=>({it,s:sc(it),k})).sort((a,b)=>b.s-a.s||b.k-a.k)[0];
+    if(best.s>=2)nm.forEach(n=>{if(!best.it.names.includes(n))best.it.names.push(n)})});
+  const res=[],unm=[];
+  items.forEach(it=>{const e=it.ev,nm=it.names;if(!nm.length)return;
+    const c=pool.filter(x=>x.st!=='刪除'&&x.d===e.d&&(x[g]>0||x.u)).map(x=>({x,s:(x.p===e.p&&e.p?3:0)+(x.tm===e.tm?1:0)+(x[g]===e[g]?1:0)+(x[g]>0?1:0)})).sort((a,b)=>b.s-a.s);
+    if(!c.length||c[0].s<2||(c.length>1&&c[1].s===c[0].s&&c[0].s<3)){unm.push({d:e.d,p:e.p,names:nm,why:'對不到'});return}
+    const t=c[0].x,nd=t.u?nm.length:t[g];
+    if(nm.length>Math.max(nd,1)){unm.push({d:e.d,p:e.p,names:nm,why:'人名多於人數'});return}
+    res.push({ev:t,names:nm})});
+  return{res,unm}}
+return{parseChat,extractEvents,pairNames,classify,parseNames,rosterMaps,ownGroup,nameFromOwn}
 })();
 if(typeof module!=='undefined')module.exports=Ingest;
 
@@ -871,6 +953,14 @@ async function reloadAll(keepRange){const f=S.from,t=S.to,wasAll=(S.from===MIN&&
   S.heads={...RHEAD};buildControls();['k','f','j'].forEach(k=>{$('#h_'+k).value=RHEAD[k]});render()}
 
 /* ---------- 上傳群組檔 → 增量同步 ---------- */
+async function doOwn(text,g){
+  const st=$('#syncMsg');const say=t=>{if(st)st.textContent=t};
+  const roster=ROSTER.map(r=>[r[0],r[1]]);const msgs=Ingest.parseChat(text);
+  const {res,unm}=Ingest.nameFromOwn(ALL,msgs,roster,g);
+  const up=[];res.forEach(({ev,names})=>{const cur=(ev.n&&ev.n[g])||[];if(cur.join()===names.join())return;ev.n=Object.assign({},ev.n,{[g]:names});const r=toRow(ev);up.push({id:ev.id,nk:r.nk,nf:r.nf,nj:r.nj})});
+  const nm=GN[g]||g;const sum=`${nm}自己群組：對到 ${res.length} 件公差，更新人名 ${up.length} 件；另有 ${unm.length} 件對不到武系課的公差或人名多於人數，沒有動它。`;
+  if(DB.mode==='remote'){try{say('寫入試算表中…');if(up.length)await apiPost('updateNames',{items:up});await reloadAll(true);const s2=$('#syncMsg');if(s2)s2.textContent='完成。'+sum}catch(e){say('寫入失敗：'+e.message)}}
+  else{applyData(ALL,ROSTER);render();const s2=$('#syncMsg');if(s2)s2.textContent='（預覽模式，未保存）'+sum}}
 async function doSync(text,full){
   const st=$('#syncMsg');const say=t=>{if(st)st.textContent=t};
   const roster=ROSTER.map(r=>[r[0],r[1]]);
@@ -948,7 +1038,7 @@ function wireSync(){
   if(el('cInf'))el('cInf').onclick=async()=>{const m=$('#syncMsg')||el('cInf');try{const ref=DB.lastMsg||ALL.reduce((a,e)=>e.m>a?e.m:a,'0000');const n=await applyInfer(ALL,ref);if(DB.mode==='remote')await reloadAll(true);else{applyData(ALL,ROSTER);render()}alert(n?`已依回覆人名補上 ${n} 件。`:'沒有需要補的。')}catch(er){alert('失敗：'+er.message)}};
   if(el('cOut'))el('cOut').onclick=()=>{pwClear();location.reload()};
   if(el('fUp'))el('fUp').onchange=async e=>{const f=e.target.files[0];if(!f)return;const t=await f.text();
-    if(/\.json$/i.test(f.name)||t.trim().startsWith('{'))await importSeed(t,el('syncMsg'));else await doSync(t,el('fFull').checked)};
+    if(/\.json$/i.test(f.name)||t.trim().startsWith('{'))await importSeed(t,el('syncMsg'));else{const og=Ingest.ownGroup(t);if(og)await doOwn(t,og);else await doSync(t,el('fFull').checked)}};
   if(el('fSeed'))el('fSeed').onchange=async e=>{const f=e.target.files[0];if(!f)return;await importSeed(await f.text(),el('seedMsg'))};
   v.querySelectorAll('.rv').forEach(row=>{const id=row.dataset.id;
     row.querySelector('.rs').onclick=async()=>{const e0=ALL.find(x=>x.id===id);const k=+row.querySelector('.rk').value||0,f=+row.querySelector('.rf').value||0,j=+row.querySelector('.rj').value||0;const ty=row.querySelector('.rt').value;
