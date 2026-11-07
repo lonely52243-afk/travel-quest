@@ -2397,6 +2397,34 @@ i.att { background: #3fae6a; } i.days { background: var(--comp, #0E8C8C); } i.aw
 .tdvs { flex-direction: column; align-items: stretch; gap: 3px; } .tdvs span { display: block; }
 .tdvs em { font-size: 11px; font-weight: 800; color: #d93a2b; align-self: flex-start; padding-left: 10px; } .tdvs em::before { content: '⇅ '; font-size: 13px; }
 .tdc.soft .tdvs em { color: #b07d00; }
+/* v11.22 加班產出排版 */
+.otsec { border: 1.5px solid var(--line, #e5dfcf); border-radius: 14px; padding: 10px 12px 4px; margin-bottom: 12px; background: var(--card, #fff); }
+.otsh { display: flex; align-items: baseline; gap: 8px; margin: 0 0 8px; } .otsh b { font-size: 16px; } .otsh span { font-size: 12px; color: var(--muted, #6b7280); }
+.otsec.grp { padding-bottom: 10px; } .otsec.grp .otgrp { margin-bottom: 0; }
+.otsec.grp .otgbody { border: 2px solid #1f2a44; border-radius: 12px; padding: 8px 10px 2px; margin-top: 8px; background: #fffdf6; }
+.otsec .field { margin-bottom: 12px; } .otsec .field > label { display: flex; align-items: center; gap: 4px; flex-wrap: wrap; } .otsec .field > label .linkbtn { margin-left: auto; }
+.otsh.otout { margin-top: 4px; align-items: center; } .otsh.otout .chk { margin: 0 0 0 auto; font-size: 13px; }
+.otsteps { padding: 6px 8px !important; margin-bottom: 10px !important; }
+.otsteps .otstl { gap: 4px; } .otsteps .otstl button { min-height: 34px; }
+.otsteps .otstl button.no { background: #fff; box-shadow: inset 0 0 0 1.5px #e0a19a; color: #b3261e; }
+.otsteps .otsth { margin: 6px 0 0; font-size: 13px; } .otsteps .otsth::before { display: none; }
+.otsteps.done { background: #eef8f1; border-color: #bfe3c9; }
+.otduty2 { margin-top: 10px; }
+#otBox .otip { margin-bottom: 8px; }
+[data-theme="dark"] .otsec { background: #1c1f26; border-color: #2c313b; } [data-theme="dark"] .otsec.grp .otgbody { background: #20242c; border-color: #8b93a3; }
+[data-theme="dark"] .otsteps .otstl button.no { background: #1c1f26; color: #ffb1a8; } [data-theme="dark"] .otsteps.done { background: rgba(46,154,80,.14); }
+.otlast { display: grid; grid-template-columns: auto 1fr; grid-template-areas: "b s" "m m"; column-gap: 10px; align-items: center; width: 100%; text-align: left; margin: 0 0 10px; padding: 10px 14px; border-radius: 14px; border: 0; background: #2e9a50; color: #fff; font: inherit; cursor: pointer; min-height: 56px; box-shadow: 0 3px 0 #1f6e37; }
+.otlast b { grid-area: b; font-size: 16px; } .otlast b::before { content: ''; display: inline-block; width: 22px; height: 22px; vertical-align: -5px; margin-right: 4px; background: var(--ix-n-pick) center / contain no-repeat; }
+.otlast span { grid-area: s; font-weight: 700; font-size: 14.5px; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; } .otlast small { grid-area: m; font-size: 11.5px; opacity: .85; }
+.otlast:active { transform: translateY(2px); box-shadow: 0 1px 0 #1f6e37; }
+.otlast[hidden] { display: none !important; }
+/* v11.23 選人分區 */
+.qkgh { display: flex; align-items: center; gap: 8px; margin: 10px 2px 6px; font-size: 13px; } .qkgh b { font-size: 13.5px; } .qkgh span { color: var(--muted, #6b7280); font-size: 12px; }
+.qkgh::before { content: ''; width: 10px; height: 10px; border-radius: 50%; flex: none; }
+.qkgh.g0::before { background: #2e9a50; } .qkgh.g1::before { background: #e5b53b; } .qkgh.g2::before { background: #d93a2b; }
+.qkgh.g2 { margin-top: 14px; } .qkpick.g2 { opacity: .6; }
+.qknote .qkt { color: #b07d00; }
+.qkadd2.on { background: none !important; color: var(--muted, #4b5563) !important; border: 1.5px solid var(--line, #d8d2c2) !important; min-height: 36px; font-size: 13.5px; }
 
   .sit { display: inline-flex; align-items: center; gap: 5px; }
 .sit .wi { width: 18px; height: 18px; flex-shrink: 0; background: center / contain no-repeat; }
@@ -2820,53 +2848,57 @@ table.grid.wk td.cell { font-size: calc(var(--bd, 34px) * .48); }
         </div>
 
         <div id="otBox">
+          <button class="otlast" id="otLast" hidden></button>
           <div class="otsteps" id="otSteps"></div>
-          <div class="field">
-            <label><b class="stn">1</b>哪天加班</label>
-            <div class="otrow">
-              <input type="date" id="otDate" aria-label="加班日期">
-              <div class="seg big" id="otWhen" role="group" aria-label="時段">
-                <button data-v="夜間" class="on">夜間</button>
-                <button data-v="假日">假日</button>
-                <button data-v="">不寫</button>
+          <section class="otsec">
+            <div class="otsh"><b>共用</b><span>整張回報都一樣</span></div>
+            <div class="field">
+              <label><b class="stn">1</b>哪天加班</label>
+              <div class="otrow">
+                <input type="date" id="otDate" aria-label="加班日期">
+                <div class="seg big" id="otWhen" role="group" aria-label="時段">
+                  <button data-v="夜間" class="on">夜間</button>
+                  <button data-v="假日">假日</button>
+                  <button data-v="">不寫</button>
+                </div>
               </div>
             </div>
-          </div>
-          <div class="field">
-            <label><b class="stn">2</b>督導（點一個）</label>
-            <div class="pick" id="otSup"></div>
-          </div>
-          <div class="field">
-            <label><i class="lbic grp"></i>分組<small class="lblsub">時間或事由不同，就再分一組</small></label>
-            <div class="otgrp" id="otGrp"></div>
-          </div>
-          <div class="otgbody" id="otGBody">
-          <div class="field">
-            <label><b class="stn">3</b>時間</label>
-            <div class="otrow">
-              <input type="text" id="otFrom" inputmode="numeric" maxlength="4" placeholder="1800" aria-label="開始時間">
-              <span>～</span>
-              <input type="text" id="otTo" inputmode="numeric" maxlength="4" placeholder="1900" aria-label="結束時間">
+            <div class="field">
+              <label><b class="stn">2</b>督導（點一個）</label>
+              <div class="pick" id="otSup"></div>
             </div>
-          </div>
-          <div class="field">
-            <label><b class="stn">4</b>事由</label>
-            <input type="text" id="otWhy" placeholder="例如：彈射座椅趕修作業" aria-label="事由" style="width:100%">
-            <div class="pick small" id="otWhyRec"></div>
-          </div>
-          <div class="field">
-            <label><b class="stn">5</b>誰加班（依點選順序）<button class="linkbtn" id="otClear">這組全部取消</button></label>
-            <div id="otPpl"></div>
-            <label class="chk"><input type="checkbox" id="otShort"> 人員只寫名字（不寫姓）</label>
-          </div>
-          </div>
+          </section>
+          <section class="otsec grp">
+            <div class="otsh"><b>分組</b><span>事由或時間不同，就再加一組</span></div>
+            <div class="otgrp" id="otGrp"></div>
+            <div class="otgbody" id="otGBody">
+              <div class="field">
+                <label><b class="stn">3</b>做什麼（事由）</label>
+                <input type="text" id="otWhy" placeholder="例如：彈射座椅趕修作業" aria-label="事由" style="width:100%">
+                <div class="pick small" id="otWhyRec"></div>
+              </div>
+              <div class="field">
+                <label><b class="stn">4</b>幾點到幾點</label>
+                <div class="otrow">
+                  <input type="text" id="otFrom" inputmode="numeric" maxlength="4" placeholder="1800" aria-label="開始時間">
+                  <span>～</span>
+                  <input type="text" id="otTo" inputmode="numeric" maxlength="4" placeholder="1900" aria-label="結束時間">
+                </div>
+              </div>
+              <div class="field">
+                <label><b class="stn">5</b>誰加班<small class="lblsub">依點選順序</small><button class="linkbtn" id="otClear">這組全部取消</button></label>
+                <div id="otPpl"></div>
+              </div>
+            </div>
+          </section>
+          <div class="otsh otout"><b>產出</b><label class="chk"><input type="checkbox" id="otShort"> 人員只寫名字（不寫姓）</label></div>
           <div class="tip otip" id="otTip" data-tip="otduty"><span class="tip-i">新功能</span><span class="tip-t">名單完成後可：<b>① 複製文字</b>貼到群組　<b>② 加入勤務月曆</b>把這批人寫進公差勤務，大家在月曆就看得到（彈射、軍械、股總的密碼都可以）。</span><button class="tip-x" aria-label="關閉提示">知道了</button></div>
-          <button class="duty-add" id="otToDuty"><span class="dai gi gi-caladd"></span><span class="dat"><b>加入勤務月曆</b><small>把每一組的時間、事由、人員都寫進公差勤務</small></span><span class="dac">›</span></button>
         </div>
 
         <label class="sr" for="outText">產出的文字</label>
         <textarea id="outText" spellcheck="false"></textarea>
         <button class="primary big" id="outCopy"><span class="ico i-copy"></span>複製文字</button>
+        <button class="duty-add otduty2" id="otToDuty"><span class="dai gi gi-caladd"></span><span class="dat"><b>加入勤務月曆</b><small>把每一組的時間、事由、人員寫進公差勤務</small></span><span class="dac">›</span></button>
         <div class="muted" id="outHint" style="text-align:center;margin-top:8px"></div>
       </div>
     </section>
@@ -4127,6 +4159,9 @@ table.grid.wk td.cell { font-size: calc(var(--bd, 34px) * .48); }
           if (!tm) {
             var r = (recordsPub[d.k] || {})[p.n] || null;
             if (isLeave(r) || isAway(r)) { if (r.period === '全天' || isAway(r)) out.push(pre + (isAway(r) ? (r.type || '外勤') : '全天休')); else out.push('~' + pre + r.period + '休'); }
+            // 還沒選時間：當天有輪值或其他公差先提示（不算衝突），幫我選會排到後面
+            try { var pl0 = dutyDayOf(d.k).plan || {}; Object.keys(pl0).forEach(function (it) { if (it !== why && pl0[it].some(function (q) { return q.n === p.n && !q.away; })) { var pt0 = planTm(it); out.push('~' + pre + it + (pt0 ? ' ' + pt0.a + '–' + pt0.b : '')); } }); } catch (er0) { /* 忽略 */ }
+            (dutyAll[d.k] || []).forEach(function (x) { if (x.n === p.n && x.why !== why && !isOT(x.why) && !(qkMode && qkMode.date === d.k && qkMode.why === x.why)) out.push('~' + pre + '已有' + x.why + (x.time ? ' ' + fmtTm(x.time) : '')); });
           } else {
             var l = offClash(d.k, p.n, tm, why); if (l) out.push(pre + l);
             dutyClash(d.k, p.n, why, tm).forEach(function (c) { out.push(pre + '已有' + c); });
@@ -4164,7 +4199,7 @@ table.grid.wk td.cell { font-size: calc(var(--bd, 34px) * .48); }
         h += '</div>';
         if (unk.length) h += '<div class="qkunk">「' + unk.map(esc).join('」「') + '」名冊對不到：點它，再從名單選是誰，下次會自動對到</div>';
         if (probs.length) h += '<div class="qkprob">' + probs.map(function (t) { return '<div>' + t + '</div>'; }).join('') + '</div>';
-        h += '<div class="qktools"><button class="qkx qkadd2' + (pick ? ' on' : '') + '" data-e="' + i + '" data-pick="1">' + (pick ? '收起名單' : '＋ 加人') + '</button>' +
+        h += '<div class="qktools"><button class="qkx qkadd2' + (pick ? ' on' : '') + '" data-e="' + i + '" data-pick="1">' + (pick ? '收起名單 ▴' : '＋ 加人') + '</button>' +
           (on.length ? '<button class="qkx qkptm' + (e.ptm ? ' on' : '') + '" data-e="' + i + '" data-ptm="1">個別時間</button>' : '') + '</div>';
         if (pick) {
           var d0 = (e.dates.filter(function (x) { return x.on; })[0] || e.dates[0] || {}).k || todayKey(), ym0 = d0.slice(0, 7), mc = {};
@@ -4180,7 +4215,9 @@ table.grid.wk td.cell { font-size: calc(var(--bd, 34px) * .48); }
             Object.keys(dutyAll).forEach(function (k) { (dutyAll[k] || []).forEach(function (x) { sAdd(x.n, k, x.why); }); });
           }
           var sPool = fNm.filter(function (n) { var x = off.filter(function (o) { return o.p.n === n; })[0]; return !qkIssues(e, x.p).some(function (t) { return t[0] !== '~'; }); });
-          var sugg = (sKind ? sPool.filter(function (n) { return sLast[n] !== '9'; }).sort(function (a, b) { var x = sLast[a] || '0', y = sLast[b] || '0'; return x < y ? -1 : (x > y ? 1 : 0); }) : fairSort(FR, sPool)).slice(0, need0);
+          var sSoft = {}; sPool.forEach(function (n) { var x = off.filter(function (o) { return o.p.n === n; })[0]; if (qkIssues(e, x.p).length) sSoft[n] = 1; });
+          var sugg = (sKind ? sPool.filter(function (n) { return sLast[n] !== '9'; }).sort(function (a, b) { var x = sLast[a] || '0', y = sLast[b] || '0'; return x < y ? -1 : (x > y ? 1 : 0); }) : fairSort(FR, sPool));
+          sugg = sugg.filter(function (n) { return !sSoft[n]; }).concat(sugg.filter(function (n) { return sSoft[n]; })).slice(0, need0);
           var shI = null;
           if (typeof isShoot === 'function' && isShoot(e.why)) {
             shI = {}; var seenS = {};
@@ -4192,13 +4229,19 @@ table.grid.wk td.cell { font-size: calc(var(--bd, 34px) * .48); }
             h += '<div class="qknote"><span class="shno">橘＝多久沒打</span>（最久沒打的排前面）・<span class="shok">綠＝已經排了</span></div>';
           }
           if (sugg.length && !res) h += '<button class="qkx qkauto" data-e="' + i + '" data-auto="' + sugg.map(function (n) { return off.filter(function (o) { return o.p.n === n; })[0].j; }).join(',') + '"><b>幫我選 ' + sugg.length + ' 人</b><span>' + sugg.map(esc).join('、') + '</span><small>' + (sKind ? '最久沒' + (sKind === isShoot ? '打' : '去') + '、沒撞到的' : '最該派、沒撞到的') + '</small></button>';
-          h += '<div class="qknote fq"><span class="fql low">綠＝該派了</span><span class="fql hi">橘＝最近派多</span>數字＝每月幾次（近 3 個月）' + (fOk ? '' : '・休假資料讀取中') + (!e.time && !e.ptm ? '<br>先選時間，撞到的人會標出來' : '') + '</div>';
-          h += (res ? '<div class="qkres">「' + esc(res) + '」是誰？點下面的名字</div>' : '') + '<div class="qkpick">';
-          off.forEach(function (x) {
+          h += '<div class="qknote fq"><span class="fql low">綠＝該派</span><span class="fql hi">橘＝派多</span>右上＝每月幾次' + (fOk ? '' : '・休假資料讀取中') + (!e.time && !e.ptm ? '<br><b class="qkt">還沒選時間</b>：只先擋休假，選了時間才檢查撞時間' : '') + '</div>';
+          h += (res ? '<div class="qkres">「' + esc(res) + '」是誰？點下面的名字</div>' : '') ;
+          var G3 = [[], [], []], GL = ['可以派', '當天有事（只是提醒，可以選）', '不能派（休假、外勤或撞時間）'];
+          off.forEach(function (x) { var is0 = qkIssues(e, x.p); G3[is0.some(function (t) { return t[0] !== '~'; }) ? 2 : (is0.length ? 1 : 0)].push(x); });
+          G3.forEach(function (grp, gi) {
+          if (!grp.length) return;
+          h += '<div class="qkgh g' + gi + '"><b>' + GL[gi] + '</b><span>' + grp.length + ' 人</span></div><div class="qkpick g' + gi + '">';
+          grp.forEach(function (x) {
             var is = qkIssues(e, x.p), hard = is.some(function (t) { return t[0] !== '~'; }), c0 = mc[x.p.n] || 0;
             h += '<button class="qkchip pp' + (hard ? ' warn' : (is.length ? ' soft' : '')) + '" data-e="' + i + '" data-p="' + x.j + '"><u class="mc' + (FR[x.p.n] && STAT_SKIP.indexOf(x.p.n) < 0 ? ' ' + fairLv(c0, mn, fAvg) : '') + '">' + c0.toFixed(1) + '</u><b>' + esc(x.p.n) + '</b>' + (FR[x.p.n] && FR[x.p.n].nw ? '<s class="fnew">新</s>' : '') + (shI ? (function (o) { o = o || {}; return o.fut ? '<s class="shx ok">已排 ' + mdLabel(o.fut) + '</s>' : '<s class="shx no">' + (o.last ? Math.round((Date.parse(todayKey()) - Date.parse(o.last)) / 864e5) + ' 天沒打' : '沒有紀錄') + '</s>'; })(shI[x.p.n]) : '') + (is.length ? '<i>' + esc(qkIsTxt(is[0]).replace(/\s*\d{1,2}:\d{2}.*$/, '').replace(/^已有/, '')) + '</i>' + (is.length > 1 ? '<em>還有 ' + (is.length - 1) + ' 項</em>' : '') : '') + '</button>';
           });
           h += '</div>';
+          });
         }
         return h;
       }
@@ -5307,6 +5350,7 @@ table.grid.wk td.cell { font-size: calc(var(--bd, 34px) * .48); }
         if ($('otSteps')) {
           $('otSteps').addEventListener('click', function (ev) { var b = ev.target.closest('[data-go]'); if (!b) return; var t = $(b.dataset.go); if (!t) return; t.scrollIntoView({ block: 'center', behavior: 'smooth' }); if (t.tagName === 'INPUT' && t.type === 'text') setTimeout(function () { t.focus(); }, 350); });
           $('otBox').addEventListener('input', function () { setTimeout(otStepsDraw, 0); });
+          $('otLast').addEventListener('click', function () { otUseLast(); });
           $('otBox').addEventListener('click', function () { setTimeout(otStepsDraw, 0); });
         }
         $('statBody').addEventListener('toggle', function (ev) { var t = ev.target; if (t.classList && t.classList.contains('stmore')) statOpen[t.classList.contains('otmore') ? 'ot:more' : 'an:more'] = t.open; }, true);
@@ -6735,9 +6779,9 @@ table.grid.wk td.cell { font-size: calc(var(--bd, 34px) * .48); }
         var segT = $('outTypeSeg').querySelectorAll('button');
         for (var i = 0; i < segT.length; i++) segT[i].classList.toggle('on', segT[i].dataset.v === outType);
         var isOt = (outType === 'ot');
-        $('outDesc').textContent = { stay: '週末、假日誰留守 → 複製文字貼到 Juiker', status: '每天誰休假、幾人到班 → 複製文字貼到 Juiker', ot: '照 1 → 5 填完，複製文字貼到 Juiker' }[outType] || '';
+        $('outDesc').textContent = { stay: '週末、假日誰留守 → 複製文字貼到 Juiker', status: '每天誰休假、幾人到班 → 複製文字貼到 Juiker', ot: '先填共用（日期、督導），再填每一組（事由、時間、人員），最後複製' }[outType] || '';
         $('outDutyBox').style.display = isOt ? 'none' : '';
-        $('otBox').style.display = isOt ? '' : 'none';
+        $('otBox').style.display = isOt ? '' : 'none'; $('otToDuty').style.display = isOt ? '' : 'none';
         if (isOt) { renderOt(); return; }
         var segR = $('outRangeSeg').querySelectorAll('button');
         for (var j = 0; j < segR.length; j++) {
@@ -6841,14 +6885,38 @@ table.grid.wk td.cell { font-size: calc(var(--bd, 34px) * .48); }
       }
       var otDAsked = {}, otOpenB = {};
       // 加班產出：上面列出 1～5 步，還差哪一步一眼看到，點一下跳過去
+      function otLastDraw() {
+        var b = $('otLast'), L = prefs.otLast; if (!b) return;
+        if (!L || !L.g || !L.g.length) { b.hidden = true; return; }
+        var np = 0; L.g.forEach(function (g) { np += g.ppl.length; });
+        var g0 = L.g[0], tm = g0.from ? g0.from + (g0.to ? '–' + g0.to : '') : '';
+        b.hidden = false;
+        b.innerHTML = '<b>照上次</b><span>' + esc(g0.why || '（沒寫事由）') + (L.g.length > 1 ? ' 等 ' + L.g.length + ' 組' : '') + '・' + np + ' 人' + (tm ? '・' + esc(tm) : '') + '</span><small>' + mdLabel(L.at) + ' 複製的，一鍵帶入再改</small>';
+      }
+      function otUseLast() {
+        var L = prefs.otLast; if (!L) return;
+        var k = otDateKey(), gone = [];
+        otGroups = L.g.map(function (g) {
+          return { from: g.from || '', to: g.to || '', why: g.why || '', ppl: g.ppl.filter(function (n) {
+            var r = (recordsPub[k] || {})[n];
+            if (r && (r.period === '全天' || r.period === '外勤')) { gone.push(n); return false; }
+            return true;
+          }) };
+        });
+        prefs.ot.sup = L.sup || prefs.ot.sup;
+        otLoad(0, true); renderOut();
+        showToast('已帶入上次的名單' + (gone.length ? '（拿掉今天不在的：' + gone.join('、') + '）' : ''), null, null, 2400);
+      }
       function otStepsDraw() {
+        otLastDraw();
         var el = $('otSteps'); if (!el || outType !== 'ot') return;
         var o = prefs.ot || {}, gs = otSync(), np = 0; gs.forEach(function (g) { np += g.ppl.length; });
-        var st = [['日期', !!($('otDate').value), 'otDate'], ['督導', !!o.sup, 'otSup'], ['時間', !!String($('otFrom').value || '').trim() || o.when === '', 'otFrom'],
-          ['事由', gs.every(function (g) { return String(g.why || '').trim(); }), 'otWhy'], ['人員', np > 0, 'otPpl']];
-        var left = st.filter(function (x) { return !x[1]; }).map(function (x) { return x[0]; });
-        el.innerHTML = '<div class="otsth' + (left.length ? '' : ' done') + '">' + (left.length ? '還差 <b>' + left.join('、') + '</b>' : '<b>都填好了</b>，按最下面「複製文字」貼到 Juiker') + '</div>' +
-          '<div class="otstl">' + st.map(function (x, i) { return '<button data-go="' + x[2] + '" class="' + (x[1] ? 'ok' : '') + '"><em>' + (x[1] ? '✓' : (i + 1)) + '</em>' + x[0] + '</button>'; }).join('') + '</div>';
+        var st = [['日期', !!($('otDate').value), 'otDate'], ['督導', !!o.sup, 'otSup'], ['事由', gs.every(function (g) { return String(g.why || '').trim(); }), 'otWhy'],
+          ['時間', !!String($('otFrom').value || '').trim() || o.when === '', 'otFrom'], ['人員', np > 0, 'otPpl']];
+        var left = st.filter(function (x) { return !x[1]; }).length;
+        el.className = 'otsteps' + (left ? '' : ' done');
+        el.innerHTML = '<div class="otstl">' + st.map(function (x, i) { return '<button data-go="' + x[2] + '" class="' + (x[1] ? 'ok' : 'no') + '"><em>' + (x[1] ? '✓' : (i + 1)) + '</em>' + x[0] + '</button>'; }).join('') + '</div>' +
+          (left ? '' : '<div class="otsth done"><b>都填好了</b>，往下按「複製文字」</div>');
       }
 
       function otDone(k, n) { return (dutyAll[k] || []).filter(function (x) { return x.n === n && isOT(x.why); })[0] || null; }
@@ -7137,6 +7205,8 @@ table.grid.wk td.cell { font-size: calc(var(--bd, 34px) * .48); }
         $('idInst').hidden = instStandalone() || no || !mobile;
       }
       var CHANGELOG = [
+        { v: 'v11.23', d: '11/7', t: ['快速標記選人：名單分成「可以派／當天有事／不能派」三區，不能派的放最下面變淡，一眼看到誰能選', '說明縮短成一行；還沒選時間會直接寫「只先擋休假」'] },
+        { v: 'v11.22', d: '11/7', t: ['股總加班產出重新排：「共用」（日期、督導）→「分組」（每組的事由、時間、人員都在組卡片裡）→「產出」', '上方步驟條縮成一行，還沒填的紅框，點一下跳過去', '「加入勤務月曆」移到「複製文字」下面', '最上面「⚡ 照上次」：一鍵帶入上次複製的督導、每組事由、時間、人員（今天休假、外勤的人自動拿掉），確認後直接複製'] },
         { v: 'v11.21', d: '11/7', t: ['休假統計簡化：只看平日休、假日休（有外勤才顯示外勤），一人一列；入口放回「更多」最上面，頁面上方有「‹ 回更多」', '公差、尿篩、打靶、加班次數統一在「公差勤務 → 統計」看'] },
         { v: 'v11.20', d: '11/7', t: ['統計重新設計：上面一句話總結；每人一列（照名冊，不排名），長條看到班／平日休／外勤，下面寫這個月公差、尿篩、打靶次數', '個人頁：上班日、假日各一條長條，一眼看出到班、休、外勤、留守、監控、還沒標；顏色說明收起來', '更多頁整理：休假統計在最上面，身分、個人設定直接展開；試算表、分享、更新收在一起'] },
         { v: 'v11.19', d: '11/7', t: ['入口頁新增「待處理」：勤務時間重疊（全員）、假單還沒點（自己班），分這週／下週／之後，紅色數字＝這週要處理的', '重疊每筆寫清楚誰、哪天、撞到什麼，按「看公差・換人」或「改假」直接處理', '假單還沒點：點名字直接跳出標記選單；可複製提醒文字貼到 Juiker', '時間未定、跟行程同時段的放在「提醒」，可以按「沒問題」不再提醒', '重疊也會抓輪值（擴大FO、監工、查庫）：公差撞輪值、休假撞輪值', '待處理換上專用圖示（收件匣、撞期、未簽假單、換人、改假、讚、大聲公、歡呼貓、進度條）', '上方進度條：已處理幾件／共幾件；打開時自動跳到有事的那一週；唯讀時直接按名字會先開編輯'] },
@@ -7145,7 +7215,7 @@ table.grid.wk td.cell { font-size: calc(var(--bd, 34px) * .48); }
         { v: 'v11.16', d: '11/7', t: ['統計（公差、尿篩、打靶、加班）精簡：每人一列變薄、數字跟單位放同一行，一個畫面看得到更多人；字和按鈕維持好按的大小'] },
         { v: 'v11.15', d: '11/7', t: ['首頁精簡：當週留守、每日情況的卡片變薄，字和按鈕維持好按的大小，一個畫面看到更多天', '「複製留守」放大、「排留守」縮小；「看前 7 天」改成小字連結'] },
         { v: 'v11.14', d: '11/7', t: ['班表重新整理，一頁看到更多人：上方假日摘要縮成一行（點完只剩「✓ 假單都點了」，沒點的人名排一排可左右滑），列高跟徽章縮小', '圖例放進左上角「≡」選單：每個顏色、字代表什麼，還有「點一下＝全天休、按住＝更多」', '上午休、下午休在表格裡改寫「上」「下」，不用再猜半圓', '出差在表格裡寫「差」、受訓寫「訓」', '長按名字的選單分成「休假／在營勤務／不在營」三區，上午休、下午休寫上時間，一眼看懂', '選單最上面寫「現在：…」', '新增「清除（恢復沒請假）」：班長和股總兩邊的紀錄一起刪掉（後端第四十三版）'] },
-        { v: 'v11.13', d: '11/6', t: ['尿篩、打靶改成「誰該去尿篩？／誰該去打靶？」：每人標「該去了／快了／最近去過／已排」，右邊大字寫幾天沒去', '快速標記貼尿篩、打靶通知時，「幫我選」改成挑最久沒去、時間沒撞到的人', '加班統計最上面一句話：這期幾小時、比上一期多少、誰最多、幾人還沒加班；每月趨勢收進「更多」', '股總加班產出：上面列出 1 日期 → 2 督導 → 3 時間 → 4 事由 → 5 人員，還差哪一步直接寫出來，點一下跳過去', '產出頁每種回報類型下面多一行說明在做什麼'] },
+        { v: 'v11.13', d: '11/6', t: ['尿篩、打靶改成「誰該去尿篩？／誰該去打靶？」：每人標「該去了／快了／最近去過／已排」，右邊大字寫幾天沒去', '快速標記貼尿篩、打靶通知時，「幫我選」改成挑最久沒去、時間沒撞到的人', '還沒選時間時，當天有輪值（擴大FO、監工、查庫）或其他公差的人會先標出來，「幫我選」把他們排到最後', '加班統計最上面一句話：這期幾小時、比上一期多少、誰最多、幾人還沒加班；每月趨勢收進「更多」', '股總加班產出：上面列出 1 日期 → 2 督導 → 3 時間 → 4 事由 → 5 人員，還差哪一步直接寫出來，點一下跳過去', '產出頁每種回報類型下面多一行說明在做什麼'] },
         { v: 'v11.12', d: '11/6', t: ['分析改成一看就懂：上面一句話總結（幾件公差、幾人次、比上一期多少、幾人還沒派到）', '「還沒派到」移到最前面，標「可以先派」；派最多的人會提醒「可以先讓他休息」', '每月趨勢、星期、時段收進「更多」', '快速標記：人數可以用 −／＋ 直接改，「幫我選」跟著改'] },
         { v: 'v11.11', d: '11/6', t: ['「派公差參考」改成「誰該先派？」：每人直接標「該派了／普通／最近派多」，數字改成「每月幾次」，上面寫大家平均', '點名字可以看算式（幾次 ÷ 在營幾天）和扣掉的休假天數', '快速標記選人：新增「幫我選 N 人」，一鍵選最該派、時間沒撞到的人；名單顏色跟統計一樣（綠＝該派了、橘＝最近派多）'] },
         { v: 'v11.10', d: '11/6', t: ['公差統計最上面新增「派公差參考」：近 90 天平均每 30 天幾次（扣掉休假、外勤、報到以前；含已排），一人一行、少的排前面，前 3 名綠色，「怎麼算？」點開看說明', '快速標記選人：右上數字改成同樣的「每 30 天幾次」，綠色＝最少', '新進同仁：股名冊加一欄「報到日」就從報到日開始算，2 週內標「新」（後端第四十二版）', '星期、時段分布收進「星期・時段分布」，要看再點開'] },
@@ -7908,7 +7978,7 @@ table.grid.wk td.cell { font-size: calc(var(--bd, 34px) * .48); }
         $('outFrom').addEventListener('change', function () { renderOut(); ensureData(false); });
         $('outTo').addEventListener('change', function () { renderOut(); ensureData(false); });
         $('outCopy').addEventListener('click', function () {
-          if (outType === 'ot') rememberWhy();
+          if (outType === 'ot') { rememberWhy(); try { prefs.otLast = { at: todayKey(), sup: prefs.ot.sup || '', g: JSON.parse(JSON.stringify(otSync())) }; savePrefs(); } catch (e) { /* 忽略 */ } }
           copyText($('outText').value);
         });
 
