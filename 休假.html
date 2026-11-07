@@ -2450,6 +2450,11 @@ details.tds > summary.tdh > span { margin-right: auto; }
 [data-theme="dark"] .dstatw > summary { background: #1c1f26; border-color: #2c313b; }
 .planoff button { flex: none; white-space: nowrap; } .planoff em { font-style: normal; font-weight: 800; color: #0E8C8C; }
 .planoff.sub { border-color: #8fcfcf; background: rgba(14,140,140,.06); } .planoff.sub b { text-decoration: none; }
+.planoff2 { font-size: 12.5px; color: var(--muted, #9ca3af); margin: 8px 4px; display: flex; flex-wrap: wrap; gap: 4px 10px; align-items: center; } .planoff2 span { text-decoration: none; } .planoff2 .linkbtn { font-size: 12.5px; margin-left: 4px; min-height: 32px; }
+.nc.sub { background: #dff3f3 !important; color: #0b6b6b !important; } .nc.sub i { background: #0E8C8C !important; color: #fff !important; }
+.subf label { display: block; font-weight: 700; font-size: 14px; } .subf label input { margin-top: 4px; }
+.subh { font-size: 12.5px; color: var(--muted, #6b7280); margin: 10px 0 6px; line-height: 1.5; }
+.subr { display: grid; grid-template-columns: 80px 18px 1fr; align-items: center; gap: 6px; margin-bottom: 6px; } .subr span { font-weight: 800; font-size: 15px; } .subr i { font-style: normal; color: #9ca3af; }
 
   .sit { display: inline-flex; align-items: center; gap: 5px; }
 .sit .wi { width: 18px; height: 18px; flex-shrink: 0; background: center / contain no-repeat; }
@@ -4513,7 +4518,7 @@ table.grid.wk td.cell { font-size: calc(var(--bd, 34px) * .48); }
         o.note = dutyNotes[k] || ''; o.est = false;
         o.anyNote = !!o.note || Object.keys(dutyNotes).some(function (x) { return x.indexOf(k + '|') === 0; });
         var realIt = {}; o.planOff = {}; o.planSub = {}; (rosterAll[k] || []).forEach(function (x) { realIt[x.item] = 1; if (x.n === '停') o.planOff[x.item] = 1; else if (/^代[:：]/.test(x.n)) o.planSub[x.item] = x.n.slice(2); });
-        (rosterAll[k] || []).filter(function (x) { return x.n !== '停' && !/^代[:：]/.test(x.n); }).concat((rosterEst[k] || []).filter(function (x) { return !realIt[x.item]; })).forEach(function (x) { if (x.est) o.est = true; (o.plan[x.item] = o.plan[x.item] || []).push({ n: x.n, est: !!x.est, away: !!offClash(k, x.n, planTm(x.item) ? planTm(x.item).a + '–' + planTm(x.item).b : '', x.item) }); });
+        (rosterAll[k] || []).filter(function (x) { return x.n !== '停'; }).map(function (x) { return /^代[:：]/.test(x.n) ? { item: x.item, n: x.n.slice(2), sub: 1 } : x; }).concat((rosterEst[k] || []).filter(function (x) { return !realIt[x.item]; })).forEach(function (x) { if (x.est) o.est = true; (o.plan[x.item] = o.plan[x.item] || []).push({ n: x.n, est: !!x.est, sub: !!x.sub, away: !x.sub && !!offClash(k, x.n, planTm(x.item) ? planTm(x.item).a + '–' + planTm(x.item).b : '', x.item) }); });
         (dutyAll[k] || []).forEach(function (x) { var lab = x.why + (x.time ? '　' + x.time : ''); var g = o.duty[lab] || (o.duty[lab] = { why: x.why, time: x.time || '', names: [] }); g.names.push(x.n); o.nDuty++; });
         return o;
       }
@@ -4575,8 +4580,8 @@ table.grid.wk td.cell { font-size: calc(var(--bd, 34px) * .48); }
         }
         function chips(names) {
           return names.map(function (n) {
-            var m = String(n).match(/^(.*?)（(當天休假|預估|上午|下午)）$/), t = m ? m[2] : '', nm = m ? m[1] : n;
-            var c = t === '當天休假' ? ' off' : (t === '預估' ? ' est' : (t ? ' half' : ''));
+            var m = String(n).match(/^(.*?)（(當天休假|預估|上午|下午|代理)）$/), t = m ? m[2] : '', nm = m ? m[1] : n;
+            var c = t === '當天休假' ? ' off' : (t === '預估' ? ' est' : (t === '代理' ? ' sub' : (t ? ' half' : '')));
             return '<span class="nc' + c + '">' + esc(nm) + (t ? '<i>' + (t === '當天休假' ? '休' : t) + '</i>' : '') + '</span>';
           }).join('');
         }
@@ -4598,21 +4603,16 @@ table.grid.wk td.cell { font-size: calc(var(--bd, 34px) * .48); }
         var dl = Object.keys(o.duty).map(function (lab) { return { lab: lab, g: o.duty[lab], t: tmOf(o.duty[lab].time) }; });
         Object.keys(o.plan).forEach(function (it) {
           var pt = planTm(it) || { a: '未定', b: '', s: 99998 };
-          dl.push({ plan: it, t: pt, names: o.plan[it].map(function (p) { return p.n + (p.away ? '（當天休假）' : '') + (p.est ? '（預估）' : ''); }) });
+          dl.push({ plan: it, t: pt, names: o.plan[it].map(function (p) { return p.n + (p.sub ? '（代理）' : '') + (p.away ? '（當天休假）' : '') + (p.est ? '（預估）' : ''); }) });
         });
         dl.sort(function (x, y) { return x.t.s - y.t.s; });
         dl.forEach(function (x) {
           if (x.plan) tl('plan', x.t, x.plan, x.names, '', x.plan === '查庫' ? 'w-ware' : (/FO/i.test(x.plan) ? 'w-fo' : (/監工/.test(x.plan) ? 'w-helmet' : '')), 'plan:' + x.plan);
           else tl('duty', x.t, x.g.why, x.g.names, '', wiOf(x.g.why) + (dutyNotes[k + '|' + x.lab] ? ' hasnote' : ''), 'duty:' + x.lab);
         });
-        Object.keys(o.planSub || {}).forEach(function (it) {
-          var pt = planTm(it);
-          h += '<div class="planoff sub" data-kind="plan" data-lab="' + esc(it) + '"><span><b>' + esc(it) + '</b>' + (pt ? pt.a + '–' + pt.b + '　' : '') + '別單位代理：<em>' + esc(o.planSub[it]) + '</em></span>' + (dutyEditor() ? '<button class="ghost" data-planon="' + esc(it) + '">恢復</button>' : '') + '</div>';
-        });
-        Object.keys(o.planOff || {}).forEach(function (it) {
-          h += '<div class="planoff"><span><b>' + esc(it) + '</b>這天不用出（已取消）</span>' + (dutyEditor() ? '<button class="ghost" data-planon="' + esc(it) + '">恢復</button>' : '') + '</div>';
-        });
-        if (!Object.keys(o.plan).length && !Object.keys(o.planOff || {}).length && !Object.keys(o.planSub || {}).length && !dayInfo(k).off && rosterState && rosterState !== 'ok') h += '<div class="plannote warn">' + (rosterState === 'nocfg' ? '輪值預估需要後端第二十三版以上，請更新後端' : '輪值表' + esc(rosterState) + '，按右上角重新整理再試') + '</div>';
+        var offL = Object.keys(o.planOff || {});
+        if (offL.length) h += '<div class="planoff2">已取消：' + offL.map(function (it) { return '<span>' + esc(it) + (dutyEditor() ? '<button class="linkbtn" data-planon="' + esc(it) + '">恢復</button>' : '') + '</span>'; }).join('') + '</div>';
+        if (!Object.keys(o.plan).length && !offL.length && !dayInfo(k).off && rosterState && rosterState !== 'ok') h += '<div class="plannote warn">' + (rosterState === 'nocfg' ? '輪值預估需要後端第二十三版以上，請更新後端' : '輪值表' + esc(rosterState) + '，按右上角重新整理再試') + '</div>';
         var legend = [];
         if (Object.keys(o.plan).length) legend.push('虛線＝輪值表' + (o.est ? '（含預估）' : '') + '，依實際為主');
         if (o.note) h += '<div class="dl note"><div class="dlh"><b>舊的整天備註</b>' + (dutyEditor() ? '<button class="linkbtn" id="oldNoteDel">清除</button>' : '') + '</div><div class="dln nt">' + esc(o.note) + '</div></div>';
@@ -4639,7 +4639,7 @@ table.grid.wk td.cell { font-size: calc(var(--bd, 34px) * .48); }
         try { localStorage.setItem(ROSTER_KEY, JSON.stringify(rosterAll)); } catch (e) { /* 忽略 */ }
         planEdit = null; if ($('evtPage').classList.contains('show')) evtOpen('plan:' + lab); renderDutyMon(); if ($('dutyDay').classList.contains('show')) renderDutyDay();
         try { if ($('todoPage').classList.contains('show')) renderTodo(); if ($('attPage').classList.contains('show')) renderAtt(); } catch (e) { /* 忽略 */ }
-        showToast(/^代[:：]/.test(names[0] || '') ? lab + ' ' + mdLabel(k) + ' 由 ' + names[0].slice(2) + ' 代理' : names[0] === '停' ? lab + ' ' + mdLabel(k) + ' 已取消（不用出）' : (!names.length ? lab + ' ' + mdLabel(k) + ' 已恢復照輪值' : '已更新輪值表：' + lab + ' ' + names.join('、')), null, null, 2400);
+        showToast(names.some(function (n) { return /^代[:：]/.test(n); }) ? lab + ' ' + mdLabel(k) + '：' + names.map(function (n) { return /^代[:：]/.test(n) ? n.slice(2) + '（代理）' : n; }).join('、') : names[0] === '停' ? lab + ' ' + mdLabel(k) + ' 已取消（不用出）' : (!names.length ? lab + ' ' + mdLabel(k) + ' 已恢復照輪值' : '已更新輪值表：' + lab + ' ' + names.join('、')), null, null, 2400);
         apiCall({ action: 'setRoster', token: prefs.dutyPw, date: k, item: lab, names: names.join('、') }).then(function (res) {
           if (!res || !res.ok) throw new Error((res && res.msg) || '儲存失敗');
         }).catch(function (err) {
@@ -4655,7 +4655,7 @@ table.grid.wk td.cell { font-size: calc(var(--bd, 34px) * .48); }
         else if (kind === 'stay') { names = o.stay; title = '留守'; }
         else if (kind === 'mon') { names = o.mon; title = '監控'; }
         else if (kind === 'out') { names = o.out[lab] || []; title = '外勤：' + lab; }
-        else if (kind === 'plan') { names = (o.plan[lab] || []).map(function (p) { return p.n + (p.away ? '（當天休假）' : '') + (p.est ? '（預估）' : ''); }); title = lab + '（輪值表定）'; tm = planTm(lab) || { a: '未定', b: '' }; }
+        else if (kind === 'plan') { names = (o.plan[lab] || []).map(function (p) { return p.n + (p.sub ? '（代理）' : '') + (p.away ? '（當天休假）' : '') + (p.est ? '（預估）' : ''); }); title = lab + '（輪值表定）'; tm = planTm(lab) || { a: '未定', b: '' }; }
         var y = +k.slice(0, 4), md = mdLabel(k), full = y + '年' + md.replace('/', '月') + '日 週' + wkOf(k);
         var h = '<div class="evtt">' + esc(title) + '</div>';
         if (tm.b) h += '<div class="evtime"><div><small>' + esc(full) + '</small><b>' + esc(tm.a) + '</b></div><span class="evarrow">›</span><div class="evend"><small>' + esc(full) + '</small><b>' + esc(tm.b) + '</b></div></div>';
@@ -4672,7 +4672,7 @@ table.grid.wk td.cell { font-size: calc(var(--bd, 34px) * .48); }
           if (dutyEditor()) h += '<div class="evbtns"><button class="primary" id="evEdit">編輯（事由、時間、增減人員）</button><button class="ghost" id="evDel">刪除這項</button></div>';
           else h += '<div class="evbtns"><button class="ghost" id="evUnlock">✎ 解鎖編輯（彈射／軍械／股總密碼）</button></div>';
         } else if (kind === 'plan') {
-          var pl0 = (o.plan[lab] || []).map(function (p) { return p.n; }), isEst = (o.plan[lab] || []).some(function (p) { return p.est; });
+          var pl0 = (o.plan[lab] || []).map(function (p) { return (p.sub ? '代:' : '') + p.n; }), isEst = (o.plan[lab] || []).some(function (p) { return p.est; });
           if (planEdit && planEdit.k === k && planEdit.lab === lab) {
             h += '<div class="evrow"><span class="evk">改成 ' + planEdit.names.length + ' 人</span><div class="planpick">' + dutyEmps().map(function (e) {
               var on = planEdit.names.indexOf(e.name) >= 0, off = offLabel(k, e.name);
@@ -4680,7 +4680,7 @@ table.grid.wk td.cell { font-size: calc(var(--bd, 34px) * .48); }
             }).join('') + '</div></div>';
             h += '<div class="evbtns"><button class="primary" id="planSave">儲存到輪值表</button><button class="ghost" id="planCancel">取消</button></div>';
           } else if (dutyEditor()) {
-            h += '<div class="evbtns"><button class="primary" id="planEdit">修改人員' + (isEst ? '（預估改成正式）' : '') + '</button><button class="ghost" id="planSubBtn">別單位代理</button><button class="ghost danger" id="planStop">這天不用出（取消）</button></div>';
+            h += '<div class="evbtns"><button class="primary" id="planEdit">修改人員' + (isEst ? '（預估改成正式）' : '') + '</button>' + ((o.plan[lab] || []).some(function (p) { return p.sub; }) ? '<button class="ghost" id="planUnsub">改回我們的人（取消代理）</button>' : '<button class="ghost" id="planSubBtn">' + ((o.plan[lab] || []).length ? '改成別單位代理' : '別單位代理') + '</button>') + '<button class="ghost danger" id="planStop">這天不用出（取消）</button></div>';
             h += '<div class="muted" style="text-align:center;margin-top:10px">' + (isEst ? '目前是依輪值順序推算的預估；改完會寫進「輪值表」，之後的預估也會跟著重算' : '改完會寫回試算表的「輪值表」分頁') + '</div>';
           } else h += '<div class="evbtns"><button class="ghost" id="evUnlock">✎ 解鎖編輯（彈射／軍械／股總密碼）</button></div>';
           evtCur = { lab: lab, why: why, kind: kind, plan: pl0 };
@@ -5451,8 +5451,21 @@ table.grid.wk td.cell { font-size: calc(var(--bd, 34px) * .48); }
         $('evtBody').addEventListener('click', function (ev) {
           if (!evtCur || evtCur.kind !== 'plan') return;
           var b = ev.target.closest('button'); if (!b) return;
-          if (b.id === 'planSubBtn') { var lb2 = evtCur.lab, k2 = dutyDayK; openSheet({ title: lb2 + ' ' + mdLabel(k2) + ' 由誰代理？', sub: '填別單位同仁，例如：飛彈股 王小明', body: '<input id="planSubIn" class="awayin" type="text" maxlength="20" placeholder="單位＋姓名">', actions: [{ label: '儲存', cls: 'main', fn: function () { var v = ($('planSubIn').value || '').trim().replace(/[、,，\s]+/g, '・'); if (!v) { showToast('請填代理人', null, null, 1800); return; } planEdit = { k: k2, lab: lb2, names: ['代:' + v] }; planSave(); $('evtPage').classList.remove('show'); } }] }); setTimeout(function () { try { $('planSubIn').focus(); } catch (e) { /* 忽略 */ } }, 120); return; }
-          if (b.id === 'planStop') { var lb = evtCur.lab; openSheet({ title: lb + ' ' + mdLabel(dutyDayK) + ' 不用出？', sub: '輪值表會記「停」；之後的順序往後順延，不會跳過人', actions: [{ label: '確定取消這天', cls: 'danger', fn: function () { planEdit = { k: dutyDayK, lab: lb, names: ['停'] }; planSave(); $('evtPage').classList.remove('show'); } }] }); return; }
+          if (b.id === 'planUnsub') { planEdit = { k: dutyDayK, lab: evtCur.lab, names: [] }; planSave(); return; }
+          if (b.id === 'planSubBtn') {
+            var lb2 = evtCur.lab, k2 = dutyDayK, cur2 = (dutyDayOf(k2).plan[lb2] || []).filter(function (p) { return !p.sub; }).map(function (p) { return p.n; });
+            if (!cur2.length) cur2 = [''];
+            var bd = '<div class="subf"><label>代理單位<input id="subUnit" class="awayin" type="text" maxlength="10" placeholder="例如：感測"></label>' +
+              '<div class="subh">一個換一個：右邊填代理人（空著＝還是原本的人）</div>' + cur2.map(function (n, i) { return '<div class="subr"><span>' + (n ? esc(n) : '第 ' + (i + 1) + ' 位') + '</span><i>→</i><input class="awayin subn" data-i="' + i + '" type="text" maxlength="10" placeholder="代理人姓名"></div>'; }).join('') +
+              '<div class="subh">不知道是誰？只填代理單位、下面不填，就整項寫成「感測代理」</div></div>';
+            openSheet({ title: lb2 + ' ' + mdLabel(k2) + ' 別單位代理', body: bd, actions: [{ label: '儲存', cls: 'main', fn: function () {
+              var u = ($('subUnit').value || '').trim().replace(/[、,，\s]+/g, ''), ins = Array.prototype.slice.call(document.querySelectorAll('.subn')), out = [], any = false;
+              ins.forEach(function (el) { var v = (el.value || '').trim().replace(/[、,，\s]+/g, ''), orig = cur2[+el.dataset.i]; if (v) { any = true; out.push('代:' + (u ? u + '・' : '') + v); } else if (orig) out.push(orig); });
+              if (!any) { if (!u) { showToast('請填代理單位或代理人', null, null, 1800); return; } out = ['代:' + u + '代理']; }
+              planEdit = { k: k2, lab: lb2, names: out }; planSave(); $('evtPage').classList.remove('show');
+            } }] });
+            setTimeout(function () { try { $('subUnit').focus(); } catch (e) { /* 忽略 */ } }, 120); return; }
+          if (b.id === 'planStop') { var lb = evtCur.lab; openSheet({ title: lb + ' ' + mdLabel(dutyDayK) + ' 不用出？', sub: '這項會從當天拿掉；之後的順序往後順延，不會跳過人', actions: [{ label: '確定取消這天', cls: 'danger', fn: function () { var kk = dutyDayK, prevN = (rosterAll[kk] || []).filter(function (x) { return x.item === lb; }).map(function (x) { return x.n; }); planEdit = { k: kk, lab: lb, names: ['停'] }; planSave(); $('evtPage').classList.remove('show'); var un = undoPush(lb + ' 已取消', function () { planEdit = { k: kk, lab: lb, names: prevN }; planSave(); }); showToast(lb + ' ' + mdLabel(kk) + ' 已取消，從當天移除', '復原', un); } }] }); return; }
           if (b.id === 'planEdit') { planEdit = { k: dutyDayK, lab: evtCur.lab, names: evtCur.plan.slice() }; evtOpen('plan:' + evtCur.lab); }
           else if (b.id === 'planCancel') { planEdit = null; evtOpen('plan:' + evtCur.lab); }
           else if (b.id === 'planSave') planSave();
@@ -7247,7 +7260,7 @@ table.grid.wk td.cell { font-size: calc(var(--bd, 34px) * .48); }
         $('idInst').hidden = instStandalone() || no || !mobile;
       }
       var CHANGELOG = [
-        { v: 'v11.26', d: '11/7', t: ['當天詳細：上面的休假、留守、外勤收成一列「當天情況 休假 6・留守 3」，可以收起來並記住', '輪值（擴大FO、監工、查庫）可以「這天不用出」或「別單位代理」（填單位＋姓名）：之後的順序往後順延不跳人；當天顯示「已取消」或「別單位代理：○○」，按「恢復」就回到照輪值', '取消和代理的輪值，不會再算進時間重疊、選人提醒、每日到班'] },
+        { v: 'v11.26', d: '11/7', t: ['當天詳細：上面的休假、留守、外勤收成一列「當天情況 休假 6・留守 3」，可以收起來並記住', '輪值（擴大FO、監工、查庫）可以「這天不用出」或「別單位代理」（填單位＋姓名）：之後的順序往後順延不跳人；當天顯示「已取消」或「別單位代理：○○」，按「恢復」就回到照輪值', '取消＝這項從當天消失（下面小字可恢復）；代理＝這項照樣顯示，人員換成代理人並標「代理」', '別單位代理一個換一個：填代理單位＋每位的代理人（空著＝還是原本的人）；不知道是誰就只填單位', '取消和代理的輪值，不會再算我們的人時間重疊、選人提醒、每日到班'] },
         { v: 'v11.25', d: '11/7', t: ['讀取失敗（網路不穩）後會自動重試，不會一直卡在「讀取中」：搜尋、加班產出、每日到班、休假統計、待處理、公差統計', '加班產出：換身分再換回來，已選的人不會消失', '快速標記：換貼新通知時，上一則「這是誰？」的狀態會清掉', '公差統計的「季」改名「近3月」（本來就是最近 3 個月）', '拿掉重複的圖片資料，檔案變小'] },
         { v: 'v11.24', d: '11/7', t: ['待處理：重疊、行程、時間未定合成一區「時間重疊」，照日期排', '每張卡片兩行各標「休假／公差／輪值／行程」色塊，一看就知道誰撞誰', '兩區都可以收起來並記住（不負責派公差的人可以把重疊收起來）；每區開頭一句話說明怎麼處理'] },
         { v: 'v11.23', d: '11/7', t: ['快速標記選人：名單分成「可以派／當天有事／不能派」三區，不能派的放最下面變淡，一眼看到誰能選', '說明縮短成一行；還沒選時間會直接寫「只先擋休假」'] },
