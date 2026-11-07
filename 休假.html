@@ -2425,6 +2425,21 @@ i.att { background: #3fae6a; } i.days { background: var(--comp, #0E8C8C); } i.aw
 .qkgh.g2 { margin-top: 14px; } .qkpick.g2 { opacity: .6; }
 .qknote .qkt { color: #b07d00; }
 .qkadd2.on { background: none !important; color: var(--muted, #4b5563) !important; border: 1.5px solid var(--line, #d8d2c2) !important; min-height: 36px; font-size: 13.5px; }
+/* v11.24 待處理合併、可收折 */
+details.tds { margin-bottom: 14px; } details.tds > summary { list-style: none; cursor: pointer; display: flex; align-items: center; min-height: 44px; margin-bottom: 6px; } details.tds > summary::-webkit-details-marker { display: none; }
+.tdfo { font-style: normal; margin-left: auto; font-size: 12.5px; font-weight: 700; color: var(--muted, #6b7280); border: 1.5px solid var(--line, #d8d2c2); border-radius: 999px; padding: 4px 12px; background: var(--card, #fff); }
+.tdc { padding: 9px 11px; } .tdct b small { font-size: 11.5px; font-weight: 600; color: var(--muted, #6b7280); margin-left: 3px; }
+.tdvs { gap: 0 !important; margin: 6px 0 8px !important; border-radius: 10px; overflow: hidden; background: #f5f1e6; }
+.tdvs span { background: none !important; border-radius: 0 !important; padding: 6px 10px !important; font-size: 13.5px; }
+.tdvs span + span { border-top: 1.5px dashed #e0a19a; } .tdc.soft .tdvs span + span { border-top-color: #e5c66a; }
+.tdvs em { display: none !important; }
+.tdact button { min-height: 38px !important; padding: 4px 12px !important; font-size: 13.5px !important; }
+.tdseg { box-shadow: 0 -30px 0 var(--bg); }
+[data-theme="dark"] .tdvs { background: #262b34; } [data-theme="dark"] .tdfo { background: #1c1f26; border-color: #2c313b; }
+.tdhint { font-size: 12.5px; color: var(--muted, #4b5563); margin: -2px 2px 8px; line-height: 1.5; }
+.tdk { font-style: normal; display: inline-block; min-width: 36px; text-align: center; font-size: 11px; font-weight: 800; padding: 1px 6px; border-radius: 6px; margin-right: 8px; vertical-align: 1px; color: #fff; }
+.tdk.k-休假 { background: var(--full, #2563c9); } .tdk.k-外勤 { background: var(--away, #7b4fbf); } .tdk.k-公差 { background: #c2410c; } .tdk.k-輪值 { background: #0E8C8C; } .tdk.k-行程 { background: #b07d00; }
+details.tds > summary.tdh > span { margin-right: auto; }
 
   .sit { display: inline-flex; align-items: center; gap: 5px; }
 .sit .wi { width: 18px; height: 18px; flex-shrink: 0; background: center / contain no-repeat; }
@@ -7205,11 +7220,12 @@ table.grid.wk td.cell { font-size: calc(var(--bd, 34px) * .48); }
         $('idInst').hidden = instStandalone() || no || !mobile;
       }
       var CHANGELOG = [
+        { v: 'v11.24', d: '11/7', t: ['待處理：重疊、行程、時間未定合成一區「時間重疊」，照日期排', '每張卡片兩行各標「休假／公差／輪值／行程」色塊，一看就知道誰撞誰', '兩區都可以收起來並記住（不負責派公差的人可以把重疊收起來）；每區開頭一句話說明怎麼處理'] },
         { v: 'v11.23', d: '11/7', t: ['快速標記選人：名單分成「可以派／當天有事／不能派」三區，不能派的放最下面變淡，一眼看到誰能選', '說明縮短成一行；還沒選時間會直接寫「只先擋休假」'] },
         { v: 'v11.22', d: '11/7', t: ['股總加班產出重新排：「共用」（日期、督導）→「分組」（每組的事由、時間、人員都在組卡片裡）→「產出」', '上方步驟條縮成一行，還沒填的紅框，點一下跳過去', '「加入勤務月曆」移到「複製文字」下面', '最上面「⚡ 照上次」：一鍵帶入上次複製的督導、每組事由、時間、人員（今天休假、外勤的人自動拿掉），確認後直接複製'] },
         { v: 'v11.21', d: '11/7', t: ['休假統計簡化：只看平日休、假日休（有外勤才顯示外勤），一人一列；入口放回「更多」最上面，頁面上方有「‹ 回更多」', '公差、尿篩、打靶、加班次數統一在「公差勤務 → 統計」看'] },
         { v: 'v11.20', d: '11/7', t: ['統計重新設計：上面一句話總結；每人一列（照名冊，不排名），長條看到班／平日休／外勤，下面寫這個月公差、尿篩、打靶次數', '個人頁：上班日、假日各一條長條，一眼看出到班、休、外勤、留守、監控、還沒標；顏色說明收起來', '更多頁整理：休假統計在最上面，身分、個人設定直接展開；試算表、分享、更新收在一起'] },
-        { v: 'v11.19', d: '11/7', t: ['入口頁新增「待處理」：勤務時間重疊（全員）、假單還沒點（自己班），分這週／下週／之後，紅色數字＝這週要處理的', '重疊每筆寫清楚誰、哪天、撞到什麼，按「看公差・換人」或「改假」直接處理', '假單還沒點：點名字直接跳出標記選單；可複製提醒文字貼到 Juiker', '時間未定、跟行程同時段的放在「提醒」，可以按「沒問題」不再提醒', '重疊也會抓輪值（擴大FO、監工、查庫）：公差撞輪值、休假撞輪值', '待處理換上專用圖示（收件匣、撞期、未簽假單、換人、改假、讚、大聲公、歡呼貓、進度條）', '上方進度條：已處理幾件／共幾件；打開時自動跳到有事的那一週；唯讀時直接按名字會先開編輯'] },
+        { v: 'v11.19', d: '11/7', t: ['入口頁新增「待處理」：勤務時間重疊（全員）、假單還沒點（自己班），分這週／下週／之後，紅色數字＝這週要處理的', '重疊每筆寫清楚誰、哪天、撞到什麼，按「看公差・換人」或「改假」直接處理', '假單還沒點：點名字直接跳出標記選單；可複製提醒文字貼到 Juiker', '重疊和行程、時間未定合成一區「時間重疊」，照日期排；只是提醒的可以按「沒問題」不再出現', '「時間重疊」「假單還沒點」兩區都可以收起來，會記住（不負責派公差的人可以把重疊收起來）', '重疊也會抓輪值（擴大FO、監工、查庫）：公差撞輪值、休假撞輪值', '待處理換上專用圖示（收件匣、撞期、未簽假單、換人、改假、讚、大聲公、歡呼貓、進度條）', '上方進度條：已處理幾件／共幾件；打開時自動跳到有事的那一週；唯讀時直接按名字會先開編輯'] },
         { v: 'v11.18', d: '11/7', t: ['加上新圖示：誰該先派、幫我選、新進、已排、長按選單每個按鈕（上午／下午／全天休、留守、監控、出差、公假、受訓、救災、清除）、加班統計各區標題、步驟、說明'] },
         { v: 'v11.17', d: '11/7', t: ['加班統計重新設計：只統計、不比較人', '這個月幾小時、幾天、幾人次，旁邊直接寫上個月和差多少', '今年每個月加班長條圖（平日／假日、加班天數），點長條跳到那個月', '每個人：這個月、上個月、差多少；點名字看每天做什麼、幾點到幾點、幾小時，還有他今年每個月的小圖', '這個月做什麼（事由、時數）和每天明細'] },
         { v: 'v11.16', d: '11/7', t: ['統計（公差、尿篩、打靶、加班）精簡：每人一列變薄、數字跟單位放同一行，一個畫面看得到更多人；字和按鈕維持好按的大小'] },
@@ -7500,14 +7516,14 @@ table.grid.wk td.cell { font-size: calc(var(--bd, 34px) * .48); }
       }
       function todoBadge() {
         if (!$('gTodoN') || !employees.length) return;
-        var r = todoRanges()[0], t = todoScan(r.a, r.b), n = t.hard.length + t.nm;
+        var r = todoRanges()[0], t = todoScan(r.a, r.b), n = t.hard.length + t.soft.length + t.nm;
         $('gTodoN').hidden = !n; $('gTodoN').textContent = n;
-        $('gTodoSub').textContent = n ? (t.hard.length ? '重疊 ' + t.hard.length + ' 件' : '') + (t.hard.length && t.nm ? '・' : '') + (t.nm ? '假單未點 ' + t.nm + ' 人次' : '') : '這週都處理好了';
+        $('gTodoSub').textContent = n ? (t.hard.length + t.soft.length ? '重疊 ' + (t.hard.length + t.soft.length) + ' 件' : '') + (t.hard.length + t.soft.length && t.nm ? '・' : '') + (t.nm ? '假單未點 ' + t.nm + ' 人次' : '') : '這週都處理好了';
       }
       function openTodo() {
         $('idGate').classList.remove('show'); $('todoPage').classList.add('show'); $('todoPage').scrollTop = 0;
         var R3 = todoRanges(); todoW = 0;
-        for (var i = 0; i < 3; i++) { var t = todoScan(R3[i].a, R3[i].b); if (t.hard.length + t.nm) { todoW = i; break; } }
+        for (var i = 0; i < 3; i++) { var t = todoScan(R3[i].a, R3[i].b); if (t.hard.length + t.soft.length + t.nm) { todoW = i; break; } }
         todoStart = {}; renderTodo(); todoEnsure();
       }
       var todoStart = {};
@@ -7515,30 +7531,33 @@ table.grid.wk td.cell { font-size: calc(var(--bd, 34px) * .48); }
       function renderTodo() {
         var R3 = todoRanges(), sc = R3.map(function (r) { return todoScan(r.a, r.b); }), cur = sc[todoW], rg = R3[todoW], ro = isRO();
         $('todoSub').textContent = '勤務重疊：全員・假單：' + (prefs.role === '股總' ? '全員' : (prefs.role || '') + '班');
-        $('todoSeg').innerHTML = R3.map(function (r, i) { var n = sc[i].hard.length + sc[i].nm; return '<button class="' + (i === todoW ? 'on' : '') + '" data-tw="' + i + '">' + r.lab + (n ? '<i>' + n + '</i>' : '<i class="z">✓</i>') + '<small>' + mdLabel(r.a) + '–' + mdLabel(r.b) + '</small></button>'; }).join('');
-        var h = '', nNow = cur.hard.length + cur.nm;
+        $('todoSeg').innerHTML = R3.map(function (r, i) { var n = sc[i].hard.length + sc[i].soft.length + sc[i].nm; return '<button class="' + (i === todoW ? 'on' : '') + '" data-tw="' + i + '">' + r.lab + (n ? '<i>' + n + '</i>' : '<i class="z">✓</i>') + '<small>' + mdLabel(r.a) + '–' + mdLabel(r.b) + '</small></button>'; }).join('');
+        var h = '', nNow = cur.hard.length + cur.soft.length + cur.nm;
         if (todoStart[todoW] === undefined || nNow > todoStart[todoW]) todoStart[todoW] = nNow;
         var n0 = todoStart[todoW];
         if (n0) h += '<div class="tdprog"><div><b>' + (nNow ? '還剩 ' + nNow + ' 件' : '全部處理好了') + '</b><span>' + rg.lab + '已處理 ' + (n0 - nNow) + ' / ' + n0 + '</span></div><i><u style="width:' + Math.round((n0 - nNow) / n0 * 100) + '%"></u></i></div>';
         if (ro) h += '<div class="tdro"><span>唯讀中・直接點名字會先開編輯</span><button class="primary" data-tdedit="1">開始編輯</button></div>';
         if (!todoReady()) h += '<div class="tdload">資料讀取中…</div>';
+        var LAB = { off: ['休假', '公差'], away: ['外勤', '公差'], duty: ['公差', '公差'], ev: ['行程', '公差'], plan: ['輪值', '公差'], leaveplan: ['休假', '輪值'] };
+        function lab(it, i) { var t = (LAB[it.kind] || ['', ''])[i]; return t ? '<i class="tdk k-' + t + '">' + t + '</i>' : ''; }
         function card(it, soft) {
-          return '<div class="tdc ' + (soft ? 'soft' : 'hard') + '"><div class="tdct"><b>' + mdLabel(it.k) + '（' + wkOf(it.k) + '）</b><span class="tdn">' + esc(it.n) + '</span><i class="tdty">' + todoTypeTx(it) + '</i></div>' +
-            '<div class="tdvs"><span>' + esc(it.a) + '</span><em>同時段</em><span>' + esc(it.b) + '</span></div>' + (it.note ? '<div class="tdnote">' + esc(it.note) + '</div>' : '') +
+          return '<div class="tdc ' + (soft ? 'soft' : 'hard') + '"><div class="tdct"><b>' + mdLabel(it.k) + '<small>' + wkOf(it.k) + '</small></b><span class="tdn">' + esc(it.n) + '</span><i class="tdty">' + todoTypeTx(it) + (it.note && it.kind !== 'ev' ? '・時間未定' : '') + '</i></div>' +
+            '<div class="tdvs"><span>' + lab(it, 0) + esc(String(it.a).replace(/^輪值 /, '')) + '</span><span>' + lab(it, 1) + esc(String(it.b).replace(/^輪值 /, '')) + '</span></div>' +
             '<div class="tdact"><button class="primary" data-tdduty="' + it.k + '">看公差・換人</button>' + (it.kind === 'off' || it.kind === 'away' || it.kind === 'leaveplan' ? '<button data-tdcell="' + it.k + '" data-tdname="' + esc(it.n) + '">改假</button>' : '') +
             (soft ? '<button class="ghost" data-tdok="' + esc(it.id) + '">沒問題</button>' : '') + '</div></div>';
         }
-        h += '<section class="tds"><div class="tdh red"><b>勤務時間重疊</b><span>' + (cur.hard.length ? cur.hard.length + ' 件要處理' : '沒有') + '</span></div>';
-        h += cur.hard.length ? cur.hard.map(function (it) { return card(it, false); }).join('') : '<div class="tdok">✓ ' + rg.lab + '沒有重疊</div>';
-        if (cur.soft.length) h += '<details class="tdsoft"' + (statOpen['td:soft'] ? ' open' : '') + '><summary>提醒 ' + cur.soft.length + ' 件（時間未定、行程）</summary>' + cur.soft.map(function (it) { return card(it, true); }).join('') + '</details>';
-        h += '</section>';
-        h += '<section class="tds"><div class="tdh org"><b>假單還沒點</b><span>' + (cur.nm ? cur.nm + ' 人次・點名字直接標' : '沒有') + '</span></div>';
+        var fold = prefs.todoFold || {}, all = cur.hard.map(function (x) { x._s = 0; return x; }).concat(cur.soft.map(function (x) { x._s = 1; return x; }));
+        all.sort(function (p, q) { return p.k < q.k ? -1 : (p.k > q.k ? 1 : p._s - q._s); });
+        h += '<details class="tds" data-fold="dup"' + (fold.dup ? '' : ' open') + '><summary class="tdh red"><b>時間重疊</b><span>' + (all.length ? all.length + ' 件' : '沒有') + '</span></summary><div class="tdhint">同一個人、同一時間排了兩件事。按「看公差・換人」換掉一個；只是提醒的按「沒問題」。</div>';
+        h += all.length ? all.map(function (it) { return card(it, !!it._s); }).join('') : '<div class="tdok">✓ ' + rg.lab + '沒有重疊</div>';
+        h += '</details>';
+        h += '<details class="tds" data-fold="miss"' + (fold.miss ? '' : ' open') + '><summary class="tdh org"><b>假單還沒點</b><span>' + (cur.nm ? cur.nm + ' 人次' : '沒有') + '</span></summary>' + (cur.nm ? '<div class="tdhint">假日還沒標的人。點名字直接幫他標，或按最下面複製提醒貼到群組。</div>' : '');
         if (cur.miss.length) {
           h += cur.miss.map(function (d) { return '<div class="tdm"><div class="tdmd"><b>' + mdLabel(d.k) + '</b><small>' + wkOf(d.k) + (dayInfo(d.k).label ? '・' + esc(dayInfo(d.k).label) : '') + '</small></div><div class="tdmn">' + d.l.map(function (n) { return '<button data-tdcell="' + d.k + '" data-tdname="' + esc(n) + '">' + esc(n) + '</button>'; }).join('') + '</div></div>'; }).join('');
           h += '<button class="tdcopy" data-tdcopy="1">複製提醒文字（貼到 Juiker）</button>';
         } else h += '<div class="tdok">✓ ' + rg.lab + '假日假單都點了</div>';
-        h += '</section>';
-        if (!cur.hard.length && !cur.nm && todoReady()) h += '<div class="tdall"><span class="gi gi-cheer"></span><b>' + rg.lab + '都處理好了</b></div>';
+        h += '</details>';
+        if (!cur.hard.length && !cur.soft.length && !cur.nm && todoReady()) h += '<div class="tdall"><span class="gi gi-cheer"></span><b>' + rg.lab + '都處理好了</b></div>';
         $('todoBody').innerHTML = h;
         todoBadge();
       }
@@ -8260,7 +8279,7 @@ table.grid.wk td.cell { font-size: calc(var(--bd, 34px) * .48); }
         $('todoBack').addEventListener('click', function () { $('todoPage').classList.remove('show'); showGate(); });
         $('todoRefresh').addEventListener('click', function () { todoAsked = {}; todoMonths().forEach(function (ym) { delete loaded[ym]; }); todoEnsure(); renderTodo(); showToast('重新整理中…', null, null, 1200); });
         $('todoSeg').addEventListener('click', function (ev) { var b = ev.target.closest('[data-tw]'); if (!b) return; todoW = +b.dataset.tw; renderTodo(); });
-        $('todoBody').addEventListener('toggle', function (ev) { if (ev.target.classList && ev.target.classList.contains('tdsoft')) statOpen['td:soft'] = ev.target.open; }, true);
+        $('todoBody').addEventListener('toggle', function (ev) { var t = ev.target; if (t.dataset && t.dataset.fold) { prefs.todoFold = prefs.todoFold || {}; prefs.todoFold[t.dataset.fold] = !t.open; savePrefs(); } }, true);
         $('todoBody').addEventListener('click', function (ev) {
           var b = ev.target.closest('button'); if (!b) return;
           if (b.dataset.tdedit) { $('editBtn').click(); setTimeout(renderTodo, 600); return; }
