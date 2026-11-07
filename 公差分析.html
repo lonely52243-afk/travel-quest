@@ -161,9 +161,9 @@ header.top{padding-top:env(safe-area-inset-top)}#fbtn{min-height:44px;padding:0 
 <div id="gUrlRow" hidden><label class="f">後端網址（Apps Script）<input type="url" id="gUrl" placeholder="https://script.google.com/macros/s/…/exec"></label></div>
 <label class="f" style="margin-top:8px">密碼<input type="password" id="gPw" autocomplete="current-password"></label>
 <label style="font-size:13px;display:block;margin:8px 0"><input type="checkbox" id="gRem"> 記住這台裝置</label>
-<button class="btn on" id="gBtn" type="submit" style="width:100%">進入</button><div class="err" id="gateErr" role="alert"></div></form></div>
+<button class="btn on" id="gBtn" type="submit" style="width:100%">進入</button><div class="err" id="gateErr" role="alert"></div><div class="sub" style="opacity:.7;font-size:12px;margin-top:10px;text-align:center">版本 2026-11-07 23:58</div></form></div>
 <header class="top" id="topbar">
-  <div class="tb1"><div><h1 id="pg">總覽</h1><div class="sub" id="sub"></div></div><button class="btn" id="fbtn" aria-haspopup="dialog">篩選</button></div>
+  <div class="tb1"><div><h1 id="pg">總覽</h1><div class="sub" id="sub"></div><div class="sub" id="ver" style="opacity:.7;font-size:12px"></div></div><button class="btn" id="fbtn" aria-haspopup="dialog">篩選</button></div>
   <div class="seg qrow" id="quick" role="group" aria-label="時間範圍"></div>
 </header>
 <main>
@@ -852,8 +852,9 @@ function wireDur(e){const m=$('#dhm');if(!m)return;
 let vlRaf=0;addEventListener('scroll',()=>{if(S.tab!=='list'||vlRaf)return;vlRaf=requestAnimationFrame(()=>{vlRaf=0;vlPaint()})},{passive:true});
 addEventListener('resize',()=>{const el=document.getElementById('vl');if(el){el.dataset.k='';vlPaint()}});
 
+const VER='2026-11-07 23:58';
 function render(keepFocus){
-  syncControls();renderNav();const rows=filt(S.from,S.to);
+  syncControls();renderNav();const _v=$('#ver');if(_v)_v.textContent='版本 '+VER;const rows=filt(S.from,S.to);
   $('#sub').textContent=`${rows.length} 件符合｜資料 ${D.length?MIN.slice(0,7)+' ～ '+MAX.slice(0,7):'尚無'}｜${DB.mode==='remote'?'已連線':'預覽'}`;
   const v=$('#view');let h='';
   if(S.tab==='overview')h=vOverview(rows);else if(S.tab==='trend')h=vTrend(rows);else if(S.tab==='types')h=vTypes(rows);else if(S.tab==='ppl')h=vPeople(rows);else if(S.tab==='load')h=vLoad(rows);else if(S.tab==='jx')h=vJx(rows.concat(filtJ(S.from,S.to)));else if(S.tab==='hot')h=vHot(rows);else if(S.tab==='rot')h=vRot(rows);else if(S.tab==='fc')h=vFc();else if(S.tab==='cmp')h=vCmp();else if(S.tab==='sync')h=vSync();else h=vList(rows);
