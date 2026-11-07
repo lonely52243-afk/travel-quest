@@ -2459,6 +2459,12 @@ details.tds > summary.tdh > span { margin-right: auto; }
 [data-theme="dark"] #page-ana .toolbar .nav button { background: #1c1f26 !important; border-color: #3a404c !important; color: #e8eaee; } [data-theme="dark"] #page-ana .toolbar .nav button .chev { stroke: #e8eaee; }
 [data-theme="dark"] .anrv b, [data-theme="dark"] .anr2 .anrn, [data-theme="dark"] .anatop b { color: #e8eaee; }
 [data-theme="dark"] .tdseg button.on small { color: #4b5563; }
+/* v11.28 衛哨 */
+.tlm > b.w-guard::before { content: ""; background-image: var(--ix-n-guard); }
+.gdset { margin-left: 8px; }
+.gdtip { font-size: 13px; color: var(--muted, #4b5563); line-height: 1.6; margin: 4px 0 12px; } .gdtip b { color: var(--stay, #e2572b); }
+.gdsec { margin-bottom: 16px; } .gdsec > b { font-size: 15px; } .gdsec > small { font-size: 12px; color: var(--muted, #6b7280); margin-left: 8px; } .gdsec .planpick { margin-top: 8px; }
+.gdrow { display: grid; grid-template-columns: 1fr 76px 16px 76px; align-items: center; gap: 6px; margin-top: 8px; } .gdrow span { font-weight: 700; font-size: 14px; } .gdrow input { min-height: 40px; text-align: center; font-size: 16px; } .gdrow i { font-style: normal; text-align: center; color: #9ca3af; }
 
   .sit { display: inline-flex; align-items: center; gap: 5px; }
 .sit .wi { width: 18px; height: 18px; flex-shrink: 0; background: center / contain no-repeat; }
@@ -3098,7 +3104,7 @@ table.grid.wk td.cell { font-size: calc(var(--bd, 34px) * .48); }
     <div id="dutyCalBox">
     <button class="primary" id="qkOpen" hidden style="width:100%;margin-bottom:10px">貼上文字快速標記公差</button>
     <div class="dnav"><button class="ghost" id="dutyPrev" aria-label="上個月">‹</button><div id="dutyTitle"></div><button class="ghost" id="dutyNext" aria-label="下個月">›</button></div>
-    <div class="dbar"><button class="linkbtn" id="dutyToday" hidden>回到本月</button><button class="dsync" id="dutySync"></button></div>
+    <div class="dbar"><button class="linkbtn" id="dutyToday" hidden>回到本月</button><button class="linkbtn gdset" id="guardSet" hidden>衛哨設定</button><button class="dsync" id="dutySync"></button></div>
     <div id="dutyLoading" class="dloading" hidden>讀取中…</div>
     <div id="dutyGrid"></div>
     <div class="dtip"><i class="lgb du"></i>公差 <i class="lgb ur"></i>尿篩 <i class="lgb sh"></i>打靶 <i class="lgb ot"></i>加班 <i class="lgb ev"></i>行程・<u class="dot stay"></u>留守 <u class="dot note"></u>備註 <u class="dot fo"></u>擴大FO</div>
@@ -4195,7 +4201,7 @@ table.grid.wk td.cell { font-size: calc(var(--bd, 34px) * .48); }
             var r = (recordsPub[d.k] || {})[p.n] || null;
             if (isLeave(r) || isAway(r)) { if (r.period === '全天' || isAway(r)) out.push(pre + (isAway(r) ? (r.type || '外勤') : '全天休')); else out.push('~' + pre + r.period + '休'); }
             // 還沒選時間：當天有輪值或其他公差先提示（不算衝突），幫我選會排到後面
-            try { var pl0 = dutyDayOf(d.k).plan || {}; Object.keys(pl0).forEach(function (it) { if (it !== why && pl0[it].some(function (q) { return q.n === p.n && !q.away; })) { var pt0 = planTm(it); out.push('~' + pre + it + (pt0 ? ' ' + pt0.a + '–' + pt0.b : '')); } }); } catch (er0) { /* 忽略 */ }
+            try { var pl0 = dutyDayOf(d.k).plan || {}; Object.keys(pl0).forEach(function (it) { if (it !== why && pl0[it].some(function (q) { return q.n === p.n && !q.away; })) { var pt0 = planTm(it, d.k); out.push('~' + pre + it + (pt0 ? ' ' + pt0.a + '–' + pt0.b : '')); } }); } catch (er0) { /* 忽略 */ }
             (dutyAll[d.k] || []).forEach(function (x) { if (x.n === p.n && x.why !== why && !isOT(x.why) && !(qkMode && qkMode.date === d.k && qkMode.why === x.why)) out.push('~' + pre + '已有' + x.why + (x.time ? ' ' + fmtTm(x.time) : '')); });
           } else {
             var l = offClash(d.k, p.n, tm, why); if (l) out.push(pre + l);
@@ -4204,8 +4210,8 @@ table.grid.wk td.cell { font-size: calc(var(--bd, 34px) * .48); }
               var pl = dutyDayOf(d.k).plan || {}, a = dayRng(tm);
               Object.keys(pl).forEach(function (it) {
                 if (!pl[it].some(function (q) { return q.n === p.n && !q.away; })) return;
-                var pt = planTm(it), b = pt ? dayRng(pt.a + '–' + pt.b) : dayRng('');
-                if (a[0] < b[1] && b[0] < a[1]) out.push(pre + '輪值' + it + (pt ? ' ' + pt.a + '–' + pt.b : ''));
+                var pt = planTm(it, d.k), b = pt ? dayRng(pt.a + '–' + pt.b) : dayRng('');
+                if (a[0] < b[1] && b[0] < a[1]) out.push((it === '衛哨' ? '~' : '') + pre + (it === '衛哨' ? '衛哨（其中一人去）' : '輪值' + it) + (pt ? ' ' + pt.a + '–' + pt.b : ''));
               });
             } catch (er) { /* 忽略 */ }
             if (!e.asEv) evClash(d.k, p.n, tm).forEach(function (t) { out.push(pre + '有行程：' + t); });
@@ -4462,6 +4468,7 @@ table.grid.wk td.cell { font-size: calc(var(--bd, 34px) * .48); }
         if (!c || typeof c !== 'object') return;
         if (Array.isArray(c.estCK)) EST_CK = c.estCK;
         if (Array.isArray(c.estFO)) EST_FO = c.estFO;
+        if (c.guard && typeof c.guard === 'object') guardCfg = { ppl: c.guard.ppl || [], tm: c.guard.tm || {} };
         if (Array.isArray(c.estJG)) EST_JG = c.estJG;
         if (Array.isArray(c.skip)) STAT_SKIP = c.skip;
         if (Array.isArray(c.people)) PEOPLE = c.people;
@@ -4510,6 +4517,7 @@ table.grid.wk td.cell { font-size: calc(var(--bd, 34px) * .48); }
         rosterEst = est;
       }
       function dutyDayOf(k) {
+        planK = k;
         var day = recordsPub[k] || {}, o = { rest: [], stay: [], mon: [], out: {}, duty: {}, nDuty: 0 };
         dutyEmps().forEach(function (e) {
           var r = day[e.name]; if (!r) return;
@@ -4522,7 +4530,11 @@ table.grid.wk td.cell { font-size: calc(var(--bd, 34px) * .48); }
         o.note = dutyNotes[k] || ''; o.est = false;
         o.anyNote = !!o.note || Object.keys(dutyNotes).some(function (x) { return x.indexOf(k + '|') === 0; });
         var realIt = {}; o.planOff = {}; o.planSub = {}; (rosterAll[k] || []).forEach(function (x) { realIt[x.item] = 1; if (x.n === '停') o.planOff[x.item] = 1; else if (/^代[:：]/.test(x.n)) o.planSub[x.item] = x.n.slice(2); });
-        (rosterAll[k] || []).filter(function (x) { return x.n !== '停'; }).map(function (x) { return /^代[:：]/.test(x.n) ? { item: x.item, n: x.n.slice(2), sub: 1 } : x; }).concat((rosterEst[k] || []).filter(function (x) { return !realIt[x.item]; })).forEach(function (x) { if (x.est) o.est = true; (o.plan[x.item] = o.plan[x.item] || []).push({ n: x.n, est: !!x.est, sub: !!x.sub, away: !x.sub && !!offClash(k, x.n, planTm(x.item) ? planTm(x.item).a + '–' + planTm(x.item).b : '', x.item) }); });
+        (rosterAll[k] || []).filter(function (x) { return x.n !== '停'; }).map(function (x) { return /^代[:：]/.test(x.n) ? { item: x.item, n: x.n.slice(2), sub: 1 } : x; }).concat((rosterEst[k] || []).filter(function (x) { return !realIt[x.item]; })).forEach(function (x) { if (x.est) o.est = true; (o.plan[x.item] = o.plan[x.item] || []).push({ n: x.n, est: !!x.est, sub: !!x.sub, away: !x.sub && !!offClash(k, x.n, planTm(x.item, k) ? planTm(x.item, k).a + '–' + planTm(x.item, k).b : '', x.item) }); });
+        if (!realIt['衛哨'] && (guardCfg.ppl || []).length && guardTmOf(k)) {
+          var gn = o.stay.filter(function (n) { return guardCfg.ppl.indexOf(n) >= 0; });
+          if (gn.length) o.plan['衛哨'] = gn.map(function (n) { return { n: n, est: false, sub: false, away: false, guard: true }; });
+        }
         (dutyAll[k] || []).forEach(function (x) { var lab = x.why + (x.time ? '　' + x.time : ''); var g = o.duty[lab] || (o.duty[lab] = { why: x.why, time: x.time || '', names: [] }); g.names.push(x.n); o.nDuty++; });
         return o;
       }
@@ -4534,6 +4546,7 @@ table.grid.wk td.cell { font-size: calc(var(--bd, 34px) * .48); }
         $('dutyBack').innerHTML = dutyFromApp ? '<svg viewBox="0 0 24 24" width="20" height="20" fill="none" stroke="currentColor" stroke-width="2.6" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M15 5l-7 7 7 7"/></svg>' : '<svg viewBox="0 0 24 24" width="20" height="20" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M10 4H5v16h5"/><path d="M14 8l4 4-4 4"/><path d="M18 12H9"/></svg>';
         $('dutyBack').setAttribute('aria-label', dutyFromApp ? '返回' : '回入口（換身分）');
         $('dutyTabLog').hidden = !logCanView();
+        $('guardSet').hidden = !dutyEditor();
         $('dutyEditBtn').textContent = dutyEditor() ? '編輯中' : '編輯'; $('dutyEditBtn').classList.toggle('on', dutyEditor());
         var first = new Date(y, m - 1, 1), start = new Date(y, m - 1, 1 - first.getDay()), tk = todayKey(), h = '';
         ['日', '一', '二', '三', '四', '五', '六'].forEach(function (w) { h += '<div class="dwk' + (w === '二' || w === '五' ? ' fo' : '') + '">' + w + '</div>'; });
@@ -4559,10 +4572,18 @@ table.grid.wk td.cell { font-size: calc(var(--bd, 34px) * .48); }
       }
       var dutyDayK = null;
       var PLAN_TM = { '擴大FO': { a: '07:40', b: '09:00', s: 740 }, '查庫': { a: '09:00', b: '10:00', s: 900 } };
-      function planTm(it) { return PLAN_TM[it] || (/監工/.test(it || '') ? { a: '08:00', b: '17:00', s: 800 } : null); }
+      var guardCfg = { ppl: [], tm: {} }, planK = '';
+      // 這天的衛哨時間：當月有設定用當月，沒有就沿用之前最近一個月
+      function guardTmOf(k) {
+        if (!k) return null;
+        var ym = k.slice(0, 7), ks = Object.keys(guardCfg.tm || {}).filter(function (x) { return x <= ym; }).sort(), t = ks.length ? guardCfg.tm[ks[ks.length - 1]] : '';
+        var m = String(t).match(/^(\d{2})(\d{2})-(\d{2})(\d{2})$/);
+        return m ? { a: m[1] + ':' + m[2], b: m[3] + ':' + m[4], s: +(m[1] + m[2]) } : null;
+      }
+      function planTm(it, k) { if (it === '衛哨') return guardTmOf(k || planK); return PLAN_TM[it] || (/監工/.test(it || '') ? { a: '08:00', b: '17:00', s: 800 } : null); }
       function renderDutyToday() { if ($('dutyDay').classList.contains('show')) renderDutyDay(); }
       function renderDutyDay() {
-        var k = dutyDayK, o = dutyDayOf(k), h = '', info = dayInfo(k), tk = todayKey();
+        var k = dutyDayK, o = dutyDayOf(k), h = '', info = dayInfo(k), tk = todayKey(); planK = k;
         $('dutyDayTitle').innerHTML = mdLabel(k) + '（' + wkOf(k) + '）' + (k === tk ? ' <em>今天</em>' : '') + (info.label ? ' <small>' + esc(info.label) + '</small>' : '');
         function wiOf(w) {
           var m = [[/尿篩|尿液/, 'urine'], [/假日加班/, 'hol'], [/加班/, 'ot'], [/會客/, 'desk'], [/慶生|餐會/, 'cake'], [/拍照|攝影/, 'cam'], [/勝利盃|獎盃/, 'cup'], [/領取|領物|領塑|^領/, 'box'], [/示範/, 'demo'], [/管路|化糞池|水管/, 'pipe'], [/外環道|道路|馬路/, 'road'], [/主檢|評鑑|檢整|場地復原/, 'insp'], [/衛教|衛生|醫務|愛滋|菸害|EMT|救護/, 'med'], [/電梯/, 'lift'], [/擴大\s*FO/i, 'fo'], [/查庫/, 'ware'], [/車長|駕駛/, 'jeep'], [/打草|除草|割草/, 'mower'], [/冷氣/, 'ac'], [/布置|佈置|揮[毫臺]/, 'deco'], [/修繕|維修|安裝|拆除/, 'fix'], [/印章|私章|鋼印|蓋章/, 'stamp'], [/軍證|證件/, 'card'], [/清運|油庫|油桶/, 'barrel'], [/演練|演習|管制|引導/, 'cone'], [/桶裝水|搬水/, 'water'], [/打靶/, 'target'], [/擦槍|擦拭/, 'clean'], [/觀禮/, 'flag'], [/小木屋/, 'cabin'], [/運送|載運|送裝備|器材/, 'truck'], [/搬運|搬/, 'cart'], [/會議|座談|開會/, 'meet'], [/服儀|服裝|儀容/, 'uniform'], [/集合|點名/, 'whistle'], [/講習|教育/, 'book'], [/打掃|掃/, 'broom'], [/防水/, 'roof'], [/無人機/, 'drone'], [/球類|EMT/, 'ball'], [/平[台臺]/, 'plat'], [/報廢/, 'scrap']];
@@ -4611,7 +4632,7 @@ table.grid.wk td.cell { font-size: calc(var(--bd, 34px) * .48); }
         });
         dl.sort(function (x, y) { return x.t.s - y.t.s; });
         dl.forEach(function (x) {
-          if (x.plan) tl('plan', x.t, x.plan, x.names, '', x.plan === '查庫' ? 'w-ware' : (/FO/i.test(x.plan) ? 'w-fo' : (/監工/.test(x.plan) ? 'w-helmet' : '')), 'plan:' + x.plan);
+          if (x.plan) tl('plan', x.t, x.plan === '衛哨' && x.names.length > 1 ? '衛哨（其中一人去）' : x.plan, x.names, '', x.plan === '查庫' ? 'w-ware' : (/FO/i.test(x.plan) ? 'w-fo' : (/監工/.test(x.plan) ? 'w-helmet' : (x.plan === '衛哨' ? 'w-guard' : ''))), 'plan:' + x.plan);
           else tl('duty', x.t, x.g.why, x.g.names, '', wiOf(x.g.why) + (dutyNotes[k + '|' + x.lab] ? ' hasnote' : ''), 'duty:' + x.lab);
         });
         var offL = Object.keys(o.planOff || {});
@@ -4635,6 +4656,39 @@ table.grid.wk td.cell { font-size: calc(var(--bd, 34px) * .48); }
         if (m) return { a: hh(m[1]), b: m[2] ? hh(m[2]) : '' };
         return { a: '未定', b: '' };
       }
+      // ====== 衛哨設定畫面（借用詳細頁）======
+      var guardEdit = null;
+      function guardMonths() { var d = new Date(), out = []; for (var i = -1; i <= 3; i++) { var x = new Date(d.getFullYear(), d.getMonth() + i, 1); out.push(x.getFullYear() + '-' + pad(x.getMonth() + 1)); } return out; }
+      function guardOpen() {
+        guardEdit = { ppl: (guardCfg.ppl || []).slice(), tm: JSON.parse(JSON.stringify(guardCfg.tm || {})) };
+        guardDraw(); $('evtPage').classList.add('show'); $('evtPage').scrollTop = 0;
+      }
+      function guardDraw() {
+        var h = '<div class="evtt">衛哨設定</div><div class="gdtip">駐廠的人<b>留守</b>那天，會自動多一項「衛哨」（時間照下面當月設定），選人、時間重疊都會一起判斷。</div>';
+        h += '<div class="gdsec"><b>駐廠名單</b><small>點選＝駐廠（已選 ' + guardEdit.ppl.length + ' 人）</small><div class="planpick">' + dutyEmps().map(function (e) {
+          return '<button class="' + (guardEdit.ppl.indexOf(e.name) >= 0 ? 'on' : '') + '" data-gp="' + esc(e.name) + '">' + esc(e.name) + '</button>'; }).join('') + '</div></div>';
+        h += '<div class="gdsec"><b>每月衛哨時間</b><small>空著＝沿用上個月</small>' + guardMonths().map(function (ym) {
+          var t = (guardEdit.tm[ym] || '').split('-'), inh = !guardEdit.tm[ym] ? guardTmOf(ym + '-01') : null;
+          return '<div class="gdrow"><span>' + ym.slice(0, 4) + ' 年 ' + (+ym.slice(5)) + ' 月</span><input type="text" inputmode="numeric" maxlength="4" data-gm="' + ym + '" data-gi="0" value="' + esc(t[0] || '') + '" placeholder="' + (inh ? inh.a.replace(':', '') : '1400') + '"><i>～</i><input type="text" inputmode="numeric" maxlength="4" data-gm="' + ym + '" data-gi="1" value="' + esc(t[1] || '') + '" placeholder="' + (inh ? inh.b.replace(':', '') : '1600') + '"></div>';
+        }).join('') + '</div>';
+        h += '<div class="evbtns"><button class="primary" id="guardSave">儲存設定</button></div><div class="muted" style="text-align:center;margin-top:8px">存在後端，大家看到的都一樣</div>';
+        $('evtBody').innerHTML = h;
+      }
+      function guardSave() {
+        document.querySelectorAll('#evtBody [data-gm]').forEach(function (el) {
+          var ym = el.dataset.gm, other = document.querySelector('#evtBody [data-gm="' + ym + '"][data-gi="' + (el.dataset.gi === '0' ? 1 : 0) + '"]');
+          var a = (el.dataset.gi === '0' ? el : other).value.replace(/\D/g, ''), b = (el.dataset.gi === '0' ? other : el).value.replace(/\D/g, '');
+          if (a.length === 3) a = '0' + a; if (b.length === 3) b = '0' + b;
+          if (a.length === 4 && b.length === 4) guardEdit.tm[ym] = a + '-' + b; else delete guardEdit.tm[ym];
+        });
+        var old = JSON.stringify(guardCfg); guardCfg = { ppl: guardEdit.ppl.slice(), tm: guardEdit.tm };
+        renderDutyMon(); if ($('dutyDay').classList.contains('show')) renderDutyDay();
+        try { if ($('todoPage').classList.contains('show')) renderTodo(); } catch (e) { /* 忽略 */ }
+        $('evtPage').classList.remove('show'); showToast('衛哨設定已更新', null, null, 1800);
+        apiCall({ action: 'setGuard', token: prefs.dutyPw, data: JSON.stringify(guardCfg) }).then(function (res) {
+          if (!res || !res.ok) throw new Error((res && res.msg) || '儲存失敗');
+        }).catch(function (err) { guardCfg = JSON.parse(old); renderDutyMon(); showToast('衛哨設定沒有存成功，已還原：' + err.message + '（後端要第四十四版）', null, null, 4200); });
+      }
       var planEdit = null;   // 正在改輪值人員：{k, lab, names}
       function planSave() {
         var k = planEdit.k, lab = planEdit.lab, names = planEdit.names.slice(), snap = JSON.stringify(rosterAll[k] || []);
@@ -4653,7 +4707,7 @@ table.grid.wk td.cell { font-size: calc(var(--bd, 34px) * .48); }
         });
       }
       function evtOpen(key) {
-        var k = dutyDayK, o = dutyDayOf(k), kind = key.split(':')[0], lab = key.slice(kind.length + 1), g = null, names = [], title = '', tm = { a: '全天', b: '' }, why = '';
+        var k = dutyDayK, o = dutyDayOf(k); planK = k; var kind = key.split(':')[0], lab = key.slice(kind.length + 1), g = null, names = [], title = '', tm = { a: '全天', b: '' }, why = '';
         if (kind === 'duty') { g = o.duty[lab]; if (!g) return; names = g.names; title = g.why; why = g.why; tm = evtTm(g.time); if (g.time) tm.raw = g.time; }
         else if (kind === 'rest') { names = o.rest; title = '休假'; }
         else if (kind === 'stay') { names = o.stay; title = '留守'; }
@@ -4684,7 +4738,7 @@ table.grid.wk td.cell { font-size: calc(var(--bd, 34px) * .48); }
             }).join('') + '</div></div>';
             h += '<div class="evbtns"><button class="primary" id="planSave">儲存到輪值表</button><button class="ghost" id="planCancel">取消</button></div>';
           } else if (dutyEditor()) {
-            h += '<div class="evbtns"><button class="primary" id="planEdit">修改人員' + (isEst ? '（預估改成正式）' : '') + '</button>' + ((o.plan[lab] || []).some(function (p) { return p.sub; }) ? '<button class="ghost" id="planUnsub">改回我們的人（取消代理）</button>' : '<button class="ghost" id="planSubBtn">' + ((o.plan[lab] || []).length ? '改成別單位代理' : '別單位代理') + '</button>') + '<button class="ghost danger" id="planStop">這天不用出（取消）</button></div>';
+            h += '<div class="evbtns"><button class="primary" id="planEdit">修改人員' + (isEst ? '（預估改成正式）' : '') + '</button>' + ((o.plan[lab] || []).some(function (p) { return p.sub; }) ? '<button class="ghost" id="planUnsub">改回我們的人（取消代理）</button>' : '<button class="ghost" id="planSubBtn">' + ((o.plan[lab] || []).length ? '改成別單位代理' : '別單位代理') + '</button>') + '<button class="ghost danger" id="planStop">這天不用出（取消）</button>' + (lab === '衛哨' ? '<button class="ghost" id="guardSet2">衛哨設定（駐廠名單、每月時間）</button>' : '') + '</div>';
             h += '<div class="muted" style="text-align:center;margin-top:10px">' + (isEst ? '目前是依輪值順序推算的預估；改完會寫進「輪值表」，之後的預估也會跟著重算' : '改完會寫回試算表的「輪值表」分頁') + '</div>';
           } else h += '<div class="evbtns"><button class="ghost" id="evUnlock">✎ 解鎖編輯（彈射／軍械／股總密碼）</button></div>';
           evtCur = { lab: lab, why: why, kind: kind, plan: pl0 };
@@ -5427,6 +5481,13 @@ table.grid.wk td.cell { font-size: calc(var(--bd, 34px) * .48); }
         $('dutyPrev').addEventListener('click', function () { dutyYM = dutyYM[1] === 1 ? [dutyYM[0] - 1, 12] : [dutyYM[0], dutyYM[1] - 1]; renderDutyMon(); dutyLoad(); });
         $('dutyNext').addEventListener('click', function () { dutyYM = dutyYM[1] === 12 ? [dutyYM[0] + 1, 1] : [dutyYM[0], dutyYM[1] + 1]; renderDutyMon(); dutyLoad(); });
         $('evtBack').addEventListener('click', function () { planEdit = null; $('evtPage').classList.remove('show'); });
+        $('guardSet').addEventListener('click', function () { guardOpen(); });
+        $('evtBody').addEventListener('click', function (ev) {
+          var b = ev.target.closest ? ev.target.closest('button') : null; if (!b) return;
+          if (b.id === 'guardSet2') { guardOpen(); return; }
+          if (b.dataset.gp) { var i = guardEdit.ppl.indexOf(b.dataset.gp); if (i >= 0) guardEdit.ppl.splice(i, 1); else guardEdit.ppl.push(b.dataset.gp); guardDraw(); return; }
+          if (b.id === 'guardSave') { guardSave(); return; }
+        }, true);
         $('dutyDayBody').addEventListener('click', function (ev) { var b = ev.target.closest ? ev.target.closest('[data-planon]') : null; if (!b) return; ev.stopPropagation(); planEdit = { k: dutyDayK, lab: b.dataset.planon, names: [] }; planSave(); }, true);
         $('dutyDayBody').addEventListener('toggle', function (ev) { if (ev.target.classList && ev.target.classList.contains('dstatw')) { prefs.dstatFold = !ev.target.open; savePrefs(); } }, true);
         // 安卓返回鍵／左滑返回：先關最上層的頁面，而不是直接離開
@@ -7266,6 +7327,7 @@ table.grid.wk td.cell { font-size: calc(var(--bd, 34px) * .48); }
         $('idInst').hidden = instStandalone() || no || !mobile;
       }
       var CHANGELOG = [
+        { v: 'v11.28', d: '11/7', t: ['新增衛哨：駐廠的人留守那天自動產生「衛哨」，時間照當月設定（沒設定沿用上個月）', '公差月曆上方「衛哨設定」：點選駐廠名單、填每月時間（要編輯中）；後端第四十四版', '衛哨跟擴大FO、查庫一樣：選人提醒、時間重疊、每日到班都會一起判斷；也能取消或別單位代理'] },
         { v: 'v11.27', d: '11/7', t: ['從當天詳細按「＋公差」選人時，「每月幾次」改用完整的 3 個月紀錄（之前可能只算到已讀的月份）'] },
         { v: 'v11.26', d: '11/7', t: ['當天詳細：上面的休假、留守、外勤收成一列「當天情況 休假 6・留守 3」，可以收起來並記住', '輪值（擴大FO、監工、查庫）可以「這天不用出」或「別單位代理」（填單位＋姓名）：之後的順序往後順延不跳人；當天顯示「已取消」或「別單位代理：○○」，按「恢復」就回到照輪值', '取消＝這項從當天消失（下面小字可恢復）；代理＝這項照樣顯示，人員換成代理人並標「代理」', '別單位代理一個換一個：填代理單位＋每位的代理人（空著＝還是原本的人）；不知道是誰就只填單位', '取消和代理的輪值，不會再算我們的人時間重疊、選人提醒、每日到班'] },
         { v: 'v11.25', d: '11/7', t: ['讀取失敗（網路不穩）後會自動重試，不會一直卡在「讀取中」：搜尋、加班產出、每日到班、休假統計、待處理、公差統計', '加班產出：換身分再換回來，已選的人不會消失', '快速標記：換貼新通知時，上一則「這是誰？」的狀態會清掉', '公差統計的「季」改名「近3月」（本來就是最近 3 個月）', '拿掉重複的圖片資料，檔案變小'] },
@@ -7535,11 +7597,11 @@ table.grid.wk td.cell { font-size: calc(var(--bd, 34px) * .48); }
               var pl = dutyDayOf(k).plan || {}, ra = dayRng(x.time);
               Object.keys(pl).forEach(function (itm) {
                 if (itm === x.why || !pl[itm].some(function (q) { return q.n === x.n && !q.away; })) return;
-                var pt = planTm(itm), rb = pt ? dayRng(pt.a + '–' + pt.b) : dayRng('');
+                var pt = planTm(itm, k), rb = pt ? dayRng(pt.a + '–' + pt.b) : dayRng('');
                 if (!(ra[0] < rb[1] && rb[0] < ra[1])) return;
                 var key3 = 'p|' + k + '|' + x.n + '|' + x.why + '|' + itm; if (seen[key3]) return; seen[key3] = 1;
                 var it3 = { id: key3, k: k, n: x.n, why: x.why, kind: 'plan', a: '輪值 ' + itm + (pt ? ' ' + pt.a + '–' + pt.b : ''), b: x.why + (tm ? ' ' + fmtTm(tm) : '') };
-                if (!tm) { it3.note = '公差時間還沒定'; if (!okd[key3]) soft.push(it3); } else hard.push(it3);
+                if (!tm || itm === '衛哨') { it3.note = itm === '衛哨' ? '衛哨只是提醒（留守的駐廠其中一人去）' : '公差時間還沒定'; if (!okd[key3]) soft.push(it3); } else hard.push(it3);
               });
             } catch (er) { /* 忽略 */ }
             evClash(k, x.n, x.time).forEach(function (t) {
@@ -7552,7 +7614,7 @@ table.grid.wk td.cell { font-size: calc(var(--bd, 34px) * .48); }
             Object.keys(pl2).forEach(function (itm) { pl2[itm].forEach(function (q) {
               if (q.away || !names[q.n]) return;
               var r2 = (recordsPub[k] || {})[q.n]; if (!r2) return;
-              var pt2 = planTm(itm), half2 = r2.period === '上午' || r2.period === '下午';
+              var pt2 = planTm(itm, k), half2 = r2.period === '上午' || r2.period === '下午';
               if (!(r2.period === '全天' || r2.period === '外勤' || half2)) return;
               if (half2 && pt2) { var b2 = r2.period === '上午' ? [480, 720] : [810, 1020], a2 = dayRng(pt2.a + '–' + pt2.b); if (!(a2[0] < b2[1] && b2[0] < a2[1])) return; }
               hard.push({ id: 'l|' + k + '|' + q.n + '|' + itm, k: k, n: q.n, why: itm, kind: 'leaveplan', a: r2.period === '外勤' ? (r2.type || '外勤') : r2.period + '休', b: '輪值 ' + itm + (pt2 ? ' ' + pt2.a + '–' + pt2.b : '') });
