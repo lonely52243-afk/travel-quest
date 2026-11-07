@@ -105,7 +105,55 @@ body{padding-bottom:env(safe-area-inset-bottom);-webkit-tap-highlight-color:tran
 .hl .h{font-size:12px;color:var(--ink3);margin-top:6px;border-top:1px dashed var(--line);padding-top:6px}
 .btn[aria-pressed="true"],.btn.on{color:#fff}
 @media(prefers-color-scheme:dark){:root:not([data-theme="light"]) .btn[aria-pressed="true"]{color:#fff}}
-.ic{flex:none;vertical-align:-3px}.mi{display:inline-block;width:20px;height:20px;flex:none;background:currentColor;-webkit-mask:var(--m) center/contain no-repeat;mask:var(--m) center/contain no-repeat}.gi{vertical-align:middle;margin-right:2px}.kpi span .gi{margin-right:0}.hl .tag{display:inline-flex;align-items:center;gap:5px}.kpi span .ic{vertical-align:-4px;margin-right:2px}
+.ic{flex:none;vertical-align:-3px}.mi{display:inline-block;width:20px;height:20px;flex:none;background:currentColor;-webkit-mask:var(--m) center/contain no-repeat;mask:var(--m) center/contain no-repeat}.sq{width:15px;height:15px;border-radius:3px;display:inline-block;margin:1px}.gi{vertical-align:middle;margin-right:2px}.kpi span .gi{margin-right:0}.hl .tag{display:inline-flex;align-items:center;gap:5px}.kpi span .ic{vertical-align:-4px;margin-right:2px}
+/* ===== 手機優先（Tailwind 風格的間距與尺寸）===== */
+:root{--ok:#1e8a4b;--warn:#c62f2f;--bar:56px}
+@media (prefers-color-scheme:dark){:root:not([data-theme="light"]){--ok:#46d38a;--warn:#ff7b7b}}
+:root[data-theme="dark"]{--ok:#46d38a;--warn:#ff7b7b}
+main{padding:0 16px calc(var(--bar) + 28px + env(safe-area-inset-bottom))}
+header.top{position:sticky;top:0;z-index:30;background:var(--bg);padding:10px 16px 8px;display:block;border-bottom:1px solid var(--line)}
+header.top .tb1{display:flex;justify-content:space-between;align-items:baseline;gap:8px;margin-bottom:8px}
+header.top h1{font-size:20px}
+#quick{display:grid;grid-template-columns:repeat(4,1fr);gap:0;border:1px solid var(--line);border-radius:12px;overflow:hidden;background:var(--chip)}
+#quick .btn{border:0;border-radius:0;background:transparent;min-height:48px;padding:0 4px;font-size:15px;font-weight:600}
+#quick .btn.on{background:var(--ink);color:var(--surface)}
+.tabs{position:sticky;top:var(--tbh,92px);z-index:20;padding:8px 0;margin:0 -16px;padding-left:16px;padding-right:16px;border-bottom:1px solid var(--line)}
+.btn,.chip,.tab,input[type=date],input[type=number],input[type=search],select{min-height:48px}
+.tab{min-height:48px;padding:0 16px;font-size:15px}
+details.ev summary{min-height:56px}
+td,th,.kpi b,.lab small,.nums,.badge,.pill,.t b{font-family:ui-monospace,SFMono-Regular,Menlo,Consolas,"Noto Sans Mono",monospace}
+.kpis{display:flex;gap:12px;overflow-x:auto;scroll-snap-type:x mandatory;margin:0 -16px;padding:2px 16px 8px;scrollbar-width:none}
+.kpis::-webkit-scrollbar{display:none}
+.kpi{flex:0 0 46%;max-width:210px;scroll-snap-align:start;padding:12px}
+.kpi b{font-size:30px;font-weight:800;letter-spacing:-.5px;margin:2px 0}
+.kpi svg{display:block;margin-top:6px}
+.kpi .st{font-weight:800;font-size:20px;margin:6px 0}
+.kpi .st.ok{color:var(--ok)}.kpi .st.warn{color:var(--warn)}
+#bnav{position:fixed;left:0;right:0;bottom:0;z-index:40;display:grid;grid-template-columns:repeat(4,1fr);background:var(--surface);border-top:1px solid var(--line);padding-bottom:env(safe-area-inset-bottom)}
+#bnav button{min-height:var(--bar);display:flex;flex-direction:column;align-items:center;justify-content:center;gap:2px;border:0;background:transparent;color:var(--ink3);font-size:12px;cursor:pointer;touch-action:manipulation}
+#bnav button[aria-current="true"]{color:var(--ink);font-weight:700}
+#bnav .mi{width:24px;height:24px}
+.hl .tag{font-family:inherit}
+.seg .btn,summary.note{min-height:48px}.kpis{scroll-padding-left:16px}header.top{padding-top:8px}header.top h1{font-size:19px}.tabs{padding-top:6px;padding-bottom:6px}
+#fbtn{min-height:44px;padding:0 16px;font-weight:600}#fbtn.act{background:var(--ink);color:var(--surface);border-color:var(--ink)}
+#sbg{position:fixed;inset:0;background:rgba(0,0,0,.45);z-index:60}
+#sheet{position:fixed;left:0;right:0;bottom:0;z-index:70;max-height:82vh;display:flex;flex-direction:column;background:var(--surface);border-radius:18px 18px 0 0;box-shadow:0 -8px 30px rgba(0,0,0,.25);transform:translateY(105%);transition:transform .25s ease;padding-bottom:env(safe-area-inset-bottom)}
+#sheet.open{transform:none}
+#sheet .grab{width:44px;height:5px;border-radius:3px;background:var(--line);margin:8px auto 0;touch-action:none;flex:none;position:relative}
+#sheet .grab::after{content:"";position:absolute;left:-30px;right:-30px;top:-10px;bottom:-14px}
+#sheet .shh{display:flex;justify-content:space-between;align-items:center;padding:6px 16px;flex:none}
+#sheet .shh b{font-size:17px}
+#shB{overflow-y:auto;padding:4px 16px 20px;overscroll-behavior:contain}
+@media(prefers-reduced-motion:reduce){#sheet{transition:none}}
+.sortbar{position:sticky;top:var(--stk,140px);z-index:15;background:var(--bg);display:flex;gap:8px;padding:8px 0;border-bottom:1px solid var(--line)}
+.sortbar .btn.primary{background:var(--ink);color:var(--surface);border-color:var(--ink)}.sortbar .btn{flex:1;min-height:48px;padding:0 6px;font-size:14px}
+.vr{position:absolute;left:0;right:0;height:78px;display:flex;align-items:center;justify-content:space-between;gap:10px;border-bottom:1px solid var(--line);padding:0 2px;cursor:pointer;overflow:hidden;touch-action:manipulation}
+.vr .l{min-width:0;flex:1}.vr .l1{font-size:12px;color:var(--ink2)}.vr .l1 b{color:var(--ink);font-size:14px}
+.vr .l2{font-size:15px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;margin-top:2px}
+.vr .r{display:flex;gap:6px;align-items:center;flex:none;font-family:ui-monospace,SFMono-Regular,Menlo,Consolas,monospace;font-size:15px;font-weight:700}
+.vr .r span{display:inline-flex;align-items:center;gap:3px}
+.lcw{position:relative}.lcw .zr{position:absolute;z-index:3;right:0;top:-6px;min-height:36px;font-size:12px;padding:0 10px}
+.lcw{touch-action:pan-y;-webkit-user-select:none;user-select:none}
 </style>
 </head>
 <body>
@@ -114,16 +162,13 @@ body{padding-bottom:env(safe-area-inset-bottom);-webkit-tap-highlight-color:tran
 <label class="f" style="margin-top:8px">密碼<input type="password" id="gPw" autocomplete="current-password"></label>
 <label style="font-size:13px;display:block;margin:8px 0"><input type="checkbox" id="gRem"> 記住這台裝置</label>
 <button class="btn on" id="gBtn" type="submit" style="width:100%">進入</button><div class="err" id="gateErr" role="alert"></div></form></div>
-<header class="top">
-  <div><h1>武系課公差分析</h1><div class="sub" id="sub"></div></div>
-  <div class="row"><button class="btn" id="tbl" aria-pressed="false" title="切換圖表／表格">表格檢視</button><button class="btn" id="theme" aria-label="切換深淺色">深淺</button></div>
+<header class="top" id="topbar">
+  <div class="tb1"><div><h1 id="pg">總覽</h1><div class="sub" id="sub"></div></div><button class="btn" id="fbtn" aria-haspopup="dialog">篩選</button></div>
+  <div class="seg qrow" id="quick" role="group" aria-label="時間範圍"></div>
 </header>
 <main>
 <nav class="tabs" role="tablist" id="tabs"></nav>
-<section class="filters" aria-label="篩選條件">
-  <div class="seg qrow" id="quick" role="group" aria-label="快速時間範圍"></div>
-  <details id="fdet" style="margin-top:6px"><summary class="btn" style="display:flex;align-items:center;justify-content:space-between"><span>更多篩選　<span class="note" id="fsum"></span></span><span aria-hidden="true">▾</span></summary>
-  <div class="fbody" style="margin-top:8px">
+<div id="fhold" hidden><div class="fbody" id="fbody">
     <div class="row">
       <label class="f">開始日期<input type="date" id="from"></label>
       <label class="f">結束日期<input type="date" id="to"></label>
@@ -135,16 +180,18 @@ body{padding-bottom:env(safe-area-inset-bottom);-webkit-tap-highlight-color:tran
       <div><div class="note" style="margin-bottom:4px">計算單位</div><div class="seg" id="metric" role="group"><button class="btn" data-m="ppl" aria-pressed="true">人次</button><button class="btn" data-m="cnt" aria-pressed="false">件數</button></div></div>
     </div>
     <details><summary class="note" style="min-height:40px;display:flex;align-items:center;cursor:pointer">進階：各股編制人數（已用你給的名冊，可改）</summary>
-      <div class="row" style="margin-top:6px"><label class="f">快砲<input type="number" min="1" value="25" id="h_k"></label><label class="f">飛彈<input type="number" min="1" value="24" id="h_f"></label><label class="f">軍械<input type="number" min="1" value="22" id="h_j"></label></div>
+      <div class="row" style="margin-top:6px"><label class="f">快砲<input type="number" min="0.1" step="0.1" value="25" id="h_k"></label><label class="f">飛彈<input type="number" min="0.1" step="0.1" value="24" id="h_f"></label><label class="f">軍械<input type="number" min="0.1" step="0.1" value="22" id="h_j"></label></div>
       <div class="note">預設＝名冊人數（快砲25、飛彈24、軍械22，已排除退伍）。「公平」＝各股占比跟人數占比一樣。</div>
     </details>
-    <div class="row"><button class="btn" id="reset">全部重設</button></div>
-  </div></details>
-</section>
+    <div class="row"><button class="btn" id="tbl" aria-pressed="false" title="切換圖表／表格">表格檢視</button><button class="btn" id="theme" aria-label="切換深淺色">深淺色</button><button class="btn" id="reset">全部重設</button></div>
+  </div><div class="note" id="fsum" style="margin-top:6px"></div></div>
 
 <div id="view"></div>
 <p class="note">資料來源：你的 Google 試算表（由 Juiker 群組匯出檔同步）。股別人數取自派遣訊息上註明的「快砲／飛彈／軍械」；沒註明的算「未分股」，只計件數、不計入各股。「人次」＝公差加班長／車長；跨日或多時段的訊息合併成一件。</p>
 </main>
+<div id="sbg" hidden></div>
+<section id="sheet" role="dialog" aria-modal="true" aria-labelledby="shT" hidden><div class="grab" id="shG" aria-hidden="true"></div><div class="shh"><b id="shT"></b><button class="btn" id="shX">完成</button></div><div id="shB"></div></section>
+<nav id="bnav" aria-label="主要選單"></nav>
 <div id="tip" role="status"></div>
 <script>
 /* ===== 設定：把 Apps Script 網頁應用程式網址貼在這裡（結尾 /exec）===== */
@@ -153,6 +200,13 @@ const SEED=[];
 const SEED_ROSTER=[];
 const SEED_CUT='';
 let D=[],ROSTER=[],RHEAD={k:0,f:0,j:0},RSET={},TYPES=[],MIN='',MAX='';
+const DEFAULT_RULES=[{kw:['股長','校','尉'],w:0,ban:[],note:'軍官／股長'},{kw:['士官長'],w:.2,ban:[],note:'士官長'},{kw:['班長'],w:.3,ban:[],note:'班長'},{kw:['聘','雇'],w:1,ban:['擦槍','清整/佈置/打掃'],note:'聘雇人員'}];
+let RANKS={},RULES=DEFAULT_RULES,MW={},FR={};
+function ruleOf(rk){return RULES.find(r=>r.kw.some(k=>rk.includes(k)))||null}
+function calcWeights(){MW={};const raw={k:0,f:0,j:0};
+  ROSTER.forEach(([nm,g])=>{if(!(g in raw))return;const rk=RANKS[nm]||'';const r=rk?ruleOf(rk):null;const w=r?r.w:1;MW[nm]={w,ban:r?r.ban:[],rk,note:r?r.note:'一般',g};raw[g]+=w});
+  RHEAD={k:Math.round(raw.k*10)/10,f:Math.round(raw.f*10)/10,j:Math.round(raw.j*10)/10};
+  FR={};TYPES.forEach(t=>{const o={k:0,f:0,j:0};Object.values(MW).forEach(m=>{if(!m.ban.includes(t))o[m.g]+=m.w});FR[t]={k:raw.k?o.k/raw.k:1,f:raw.f?o.f/raw.f:1,j:raw.j?o.j/raw.j:1}})}
 const DB={mode:'demo',lastMsg:'',msg:'',at:''};
 const ANCHOR=new Date(Date.now()+8*36e5).toISOString().slice(0,10);
 function inferFromNames(e){
@@ -165,12 +219,12 @@ function inferFromNames(e){
   return o}
 function applyData(ev,ros){
   D=ev.filter(e=>e.st!=='刪除').map(inferFromNames).slice().sort((a,b)=>(a.d+a.tm).localeCompare(b.d+b.tm));
-  ROSTER=ros;RHEAD={k:0,f:0,j:0};ROSTER.forEach(r=>{if(RHEAD[r[1]]!=null)RHEAD[r[1]]++});
+  ROSTER=ros;
   RSET=Object.fromEntries(ROSTER.map(r=>[r[0],r[1]]));
-  const m={};D.forEach(e=>m[e.ty]=(m[e.ty]||0)+e.k+e.f+e.j+1e-3);TYPES=Object.keys(m).sort((a,b)=>m[b]-m[a]);
+  const m={};D.forEach(e=>m[e.ty]=(m[e.ty]||0)+e.k+e.f+e.j+1e-3);TYPES=Object.keys(m).sort((a,b)=>m[b]-m[a]);calcWeights();
   MIN=D.length?D[0].d:ANCHOR;MAX=D.length?D[D.length-1].d:ANCHOR}
 const G=[{k:'k',n:'快砲',c:'var(--s1)'},{k:'f',n:'飛彈',c:'var(--s2)'},{k:'j',n:'軍械',c:'var(--s3)'}];
-const S={from:'',to:'',types:new Set(),show:{k:1,f:1,j:1},metric:'ppl',q:'',tab:'overview',tbl:false,heads:{k:1,f:1,j:1},drill:null,lm:'month',person:null,pn:15,pm:'all',
+const S={sort:'new',rt:'',from:'',to:'',types:new Set(),show:{k:1,f:1,j:1},metric:'ppl',q:'',tab:'overview',tbl:false,heads:{k:1,f:1,j:1},drill:null,lm:'month',person:null,pn:15,pm:'all',
   cmp:{preset:'6',aF:'',aT:'',bF:'',bT:''},more:200};
 const $=s=>document.querySelector(s);
 const esc=s=>String(s).replace(/[&<>"']/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));
@@ -182,9 +236,10 @@ function val(e,g){return S.metric==='ppl'?e[g]:(e[g]>0?1:0)}
 function inRange(e,f,t){return e.d>=f&&e.d<=t}
 function filt(f,t,opt){opt=opt||{};return D.filter(e=>inRange(e,f,t)&&(opt.noType||!S.types.size||S.types.has(e.ty))&&(!S.q||(e.p+e.x+e.ty+nmStr(e)).includes(S.q)))}
 function vis(){return G.filter(g=>S.show[g.k])}
-function exp(){const v=vis();const s=v.reduce((a,g)=>a+S.heads[g.k],0)||1;const o={};v.forEach(g=>o[g.k]=S.heads[g.k]/s);return o}
+function exp(t){const v=vis();const f=t&&FR[t]?FR[t]:null;const w=v.map(g=>S.heads[g.k]*(f?f[g.k]:1));const s=w.reduce((a,b)=>a+b,0)||1;const o={};v.forEach((g,i)=>o[g.k]=w[i]/s);return o}
+function expMix(rows){const v=vis();const E={};v.forEach(g=>E[g.k]=0);let T=0;rows.forEach(e=>{const t=v.reduce((a,g)=>a+val(e,g.k),0);if(!t)return;const x=exp(e.ty);v.forEach(g=>E[g.k]+=t*x[g.k]);T+=t});return{E,T}}
 function sums(rows){const o={k:0,f:0,j:0,n:0,u:0};rows.forEach(e=>{G.forEach(g=>o[g.k]+=val(e,g.k));o.n++;o.u+=e.u});return o}
-function stat(o){const v=vis();const tot=v.reduce((a,g)=>a+o[g.k],0);const ex=exp();let chi=0;v.forEach(g=>{const E=tot*ex[g.k];if(E>0)chi+=(o[g.k]-E)**2/E});
+function stat(o,ctx){const v=vis();const tot=v.reduce((a,g)=>a+o[g.k],0);let ex;if(Array.isArray(ctx)){const m=expMix(ctx);ex={};v.forEach(g=>ex[g.k]=m.T?m.E[g.k]/m.T:1/v.length)}else ex=exp(typeof ctx==='string'?ctx:null);let chi=0;v.forEach(g=>{const E=tot*ex[g.k];if(E>0)chi+=(o[g.k]-E)**2/E});
   let p=1;const df=v.length-1;if(tot>0&&df===2)p=Math.exp(-chi/2);else if(tot>0&&df===1)p=erfc(Math.sqrt(chi/2));
   return{tot,chi,p,ex}}
 function erfc(x){const t=1/(1+.3275911*x);const y=((((1.061405429*t-1.453152027)*t)+1.421413741)*t-.284496736)*t+.254829592;return y*t*Math.exp(-x*x)}
@@ -192,18 +247,38 @@ function months(f,t){const r=[];let y=+f.slice(0,4),m=+f.slice(5,7);const ey=+t.
 const tip=$('#tip');
 function showTip(h,x,y){tip.innerHTML=h;tip.style.display='block';const w=tip.offsetWidth,hh=tip.offsetHeight;let l=Math.min(Math.max(8,x-w/2),innerWidth-w-8),t=y-hh-14;if(t<8)t=y+18;tip.style.left=l+'px';tip.style.top=t+'px'}
 function hideTip(){tip.style.display='none'}
-document.addEventListener('pointerover',e=>{const t=e.target.closest('[data-tip]');if(t)showTip(t.dataset.tip,e.clientX,e.clientY)});
-document.addEventListener('pointermove',e=>{const t=e.target.closest('[data-tip]');if(t&&tip.style.display==='block')showTip(t.dataset.tip,e.clientX,e.clientY);else if(!t)hideTip()});
-document.addEventListener('pointerdown',e=>{if(!e.target.closest('[data-tip]'))hideTip()});
+let ltT=null,ltOn=false,ltX=0,ltY=0;
+const tipAt=(x,y)=>{const el=document.elementFromPoint(x,y);const t=el&&el.closest('[data-tip]');if(t)showTip(t.dataset.tip,x,y);else hideTip()};
+document.addEventListener('pointerover',e=>{if(e.pointerType==='touch')return;const t=e.target.closest('[data-tip]');if(t)showTip(t.dataset.tip,e.clientX,e.clientY)});
+document.addEventListener('pointermove',e=>{if(e.pointerType==='touch'){if(ltOn)tipAt(e.clientX,e.clientY);else if(ltT&&(Math.abs(e.clientX-ltX)>8||Math.abs(e.clientY-ltY)>8)){clearTimeout(ltT);ltT=null}return}
+  const t=e.target.closest('[data-tip]');if(t&&tip.style.display==='block')showTip(t.dataset.tip,e.clientX,e.clientY);else if(!t)hideTip()});
+document.addEventListener('pointerdown',e=>{if(e.pointerType==='touch'){clearTimeout(ltT);ltT=null;ltX=e.clientX;ltY=e.clientY;const t=e.target.closest('[data-tip]');if(!t){hideTip();return}ltT=setTimeout(()=>{ltOn=true;if(navigator.vibrate)navigator.vibrate(8);tipAt(ltX,ltY)},350);return}
+  if(!e.target.closest('[data-tip]'))hideTip()});
+const ltEnd=()=>{clearTimeout(ltT);ltT=null;if(ltOn){ltOn=false;hideTip()}};
+document.addEventListener('pointerup',ltEnd);document.addEventListener('pointercancel',ltEnd);
+document.addEventListener('touchmove',e=>{if((ltOn||chartAct)&&e.cancelable)e.preventDefault()},{passive:false});
+/* ---------- 底部抽屜 ---------- */
+let shFrom=null;
+function openSheet(title,content){const sh=$('#sheet');shFrom=document.activeElement;$('#shT').textContent=title;const b=$('#shB');
+  if(typeof content==='string')b.innerHTML=content;else{b.innerHTML='';b.appendChild(content)}
+  $('#sbg').hidden=false;sh.hidden=false;requestAnimationFrame(()=>sh.classList.add('open'));document.body.style.overflow='hidden';setTimeout(()=>$('#shX').focus(),60)}
+function closeSheet(){const sh=$('#sheet');if(sh.hidden)return;const fb=$('#fbody');if($('#shB').contains(fb))$('#fhold').appendChild(fb);
+  sh.classList.remove('open');$('#sbg').hidden=true;document.body.style.overflow='';setTimeout(()=>{sh.hidden=true},260);if(shFrom&&shFrom.focus)try{shFrom.focus()}catch(e){}}
+function openFilters(){syncControls();openSheet('篩選',$('#fbody'))}
+function wireSheet(){$('#fbtn').onclick=openFilters;$('#shX').onclick=closeSheet;$('#sbg').onclick=closeSheet;
+  document.addEventListener('keydown',e=>{if(e.key==='Escape')closeSheet()});
+  const g=$('#shG');let y0=null;g.onpointerdown=e=>{y0=e.clientY;g.setPointerCapture(e.pointerId)};
+  g.onpointermove=e=>{if(y0==null)return;const dy=Math.max(0,e.clientY-y0);$('#sheet').style.transition='none';$('#sheet').style.transform=`translateY(${dy}px)`};
+  g.onpointerup=e=>{if(y0==null)return;const dy=e.clientY-y0;y0=null;const sh=$('#sheet');sh.style.transition='';sh.style.transform='';if(dy>70)closeSheet()};
+  g.onpointercancel=()=>{y0=null;const sh=$('#sheet');sh.style.transition='';sh.style.transform=''}}
 document.addEventListener('scroll',hideTip,true);
 
 /* ---------- controls ---------- */
-const QUICK=[['全部',()=>[MIN,MAX]],['近12個月',()=>[addD(addM(ANCHOR,-12),1),MAX]],['近6個月',()=>[addD(addM(ANCHOR,-6),1),MAX]],['近3個月',()=>[addD(addM(ANCHOR,-3),1),MAX]],['2026年',()=>['2026-01-01',MAX]],['2025年',()=>['2025-01-01','2025-12-31']]];
+const QUICK=[['30天',()=>[addD(ANCHOR,-29),MAX]],['3個月',()=>[addD(addM(ANCHOR,-3),1),MAX]],['1年',()=>[addD(addM(ANCHOR,-12),1),MAX]],['全部',()=>[MIN,MAX]]];
 function buildControls(){
   $('#quick').innerHTML=QUICK.map((q,i)=>`<button class="btn" data-q="${i}">${q[0]}</button>`).join('');
   $('#typeChips').innerHTML=TYPES.map(t=>`<button class="chip" data-t="${esc(t)}" aria-pressed="false">${esc(t)}</button>`).join('');
   $('#gChips').innerHTML=G.map(g=>`<button class="chip" data-g="${g.k}" aria-pressed="true"><i class="dot" style="background:${g.c}"></i>${g.n}</button>`).join('');
-  $('#tabs').innerHTML=TABS.map(t=>`<button class="tab" role="tab" data-tab="${t[0]}" aria-selected="false">${mk(t[0])}<span>${t[1]}</span></button>`).join('');
   $('#from').min=$('#to').min=MIN;$('#from').max=$('#to').max=MAX;
 }
 const sv=(p,c)=>`<svg class="ic" viewBox="0 0 24 24" width="18" height="18" fill="none" stroke="${c||'currentColor'}" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">${p}</svg>`;
@@ -223,7 +298,14 @@ const IMG={"f9m": "iVBORw0KGgoAAAANSUhEUgAAAEAAAABACAMAAACdt4HsAAAASFBMVEX+/v4AA
 const pic=(k,z)=>`<img class="gi" alt="" width="${z||24}" height="${z||24}" src="data:image/png;base64,${IMG[k]}">`;
 const mk=k=>`<i class="mi" style="--m:url(data:image/png;base64,${IMG[k]})"></i>`;
 const GI={k:pic('kgun',24),f:pic('f9m',24),j:pic('jseat',24)};
-const TABS=[['overview','總覽'],['trend','時間趨勢'],['types','種類比較'],['ppl','人員比較'],['hot','聚集偵測'],['cmp','兩期比較'],['list','明細'],['sync','資料同步']];
+const TABS=[['overview','總覽'],['trend','時間趨勢'],['types','種類比較'],['rot','輪替分析'],['fc','預測'],['ppl','人員比較'],['hot','聚集偵測'],['cmp','兩期比較'],['list','明細'],['sync','資料同步']];
+const GROUPS=[['home','總覽','overview',['overview','list']],['ana','分析','trend',['trend','types','rot','hot','cmp','fc']],['ppl','人員','ppl',['ppl']],['set','設定','sync',['sync']]];
+const SUBL={overview:'總覽',list:'明細',trend:'時間趨勢',types:'種類比較',rot:'輪替分析',hot:'聚集偵測',cmp:'兩期比較',fc:'預測',ppl:'人員比較',sync:'資料同步'};
+const ICK={home:'overview',ana:'trend',ppl:'ppl',set:'sync'};
+function renderNav(){const g=GROUPS.find(x=>x[3].includes(S.tab))||GROUPS[0];S.last=S.last||{};S.last[g[0]]=S.tab;
+  const tb=$('#tabs');tb.innerHTML=g[3].length>1?g[3].map(t=>`<button class="tab" role="tab" data-tab="${t}" aria-selected="${t===S.tab}">${SUBL[t]}</button>`).join(''):'';tb.style.display=g[3].length>1?'':'none';
+  $('#bnav').innerHTML=GROUPS.map(x=>`<button data-grp="${x[0]}" aria-current="${x===g}"><span class="mi" style="--m:url(data:image/png;base64,${IMG[ICK[x[0]]]})"></span><span>${x[1]}</span></button>`).join('');
+  $('#pg').textContent=SUBL[S.tab]||'公差分析';const th=$('#topbar').offsetHeight;document.documentElement.style.setProperty('--tbh',th+'px');document.documentElement.style.setProperty('--stk',(th+(tb.style.display==='none'?0:tb.offsetHeight))+'px')}
 function syncControls(){
   $('#from').value=S.from;$('#to').value=S.to;
   document.querySelectorAll('#typeChips .chip').forEach(b=>b.setAttribute('aria-pressed',S.types.has(b.dataset.t)));
@@ -232,9 +314,11 @@ function syncControls(){
   document.querySelectorAll('#quick .btn').forEach((b,i)=>{const r=QUICK[i][1]();b.classList.toggle('on',r[0]===S.from&&r[1]===S.to)});
   document.querySelectorAll('.tab').forEach(b=>b.setAttribute('aria-selected',b.dataset.tab===S.tab));
   $('#tbl').setAttribute('aria-pressed',S.tbl);
+  const nf=S.types.size+(S.q?1:0)+(Object.values(S.show).filter(Boolean).length<3?1:0)+(S.metric!=='ppl'?1:0);$('#fbtn').textContent=nf?`篩選 · ${nf}`:'篩選';$('#fbtn').classList.toggle('act',nf>0);
   $('#fsum').textContent=`${S.from.slice(2)}～${S.to.slice(2)}｜${S.types.size?S.types.size+'類':'全部類別'}｜${S.metric==='ppl'?'人次':'件數'}`;
 }
 function wire(){
+  wireSheet();
   $('#quick').onclick=e=>{const b=e.target.closest('[data-q]');if(!b)return;const r=QUICK[b.dataset.q][1]();S.from=r[0];S.to=r[1];render()};
   $('#from').onchange=e=>{if(e.target.value){S.from=e.target.value;if(S.from>S.to)S.to=S.from;render()}};
   $('#to').onchange=e=>{if(e.target.value){S.to=e.target.value;if(S.to<S.from)S.from=S.to;render()}};
@@ -242,8 +326,9 @@ function wire(){
   $('#typeChips').onclick=e=>{const b=e.target.closest('[data-t]');if(!b)return;const t=b.dataset.t;S.types.has(t)?S.types.delete(t):S.types.add(t);render()};
   $('#gChips').onclick=e=>{const b=e.target.closest('[data-g]');if(!b)return;const k=b.dataset.g;const n=Object.values(S.show).filter(Boolean).length;if(S.show[k]&&n<=1)return;S.show[k]=S.show[k]?0:1;render()};
   $('#metric').onclick=e=>{const b=e.target.closest('[data-m]');if(!b)return;S.metric=b.dataset.m;render()};
-  ['k','f','j'].forEach(k=>$('#h_'+k).onchange=e=>{S.heads[k]=Math.max(1,+e.target.value||1);render()});
+  ['k','f','j'].forEach(k=>$('#h_'+k).onchange=e=>{S.heads[k]=Math.max(.1,+e.target.value||1);render()});
   $('#reset').onclick=()=>{S.from=MIN;S.to=MAX;S.types.clear();S.show={k:1,f:1,j:1};S.metric='ppl';S.q='';S.heads={...RHEAD};S.drill=null;$('#q').value='';['k','f','j'].forEach(k=>$('#h_'+k).value=RHEAD[k]);render()};
+  $('#bnav').onclick=e=>{const b=e.target.closest('[data-grp]');if(!b)return;const g=GROUPS.find(x=>x[0]===b.dataset.grp);S.tab=(S.last&&S.last[g[0]])||g[2];render();scrollTo({top:0})};
   $('#tabs').onclick=e=>{const b=e.target.closest('[data-tab]');if(!b)return;S.tab=b.dataset.tab;render();scrollTo({top:0})};
   $('#tbl').onclick=()=>{S.tbl=!S.tbl;render()};
   $('#theme').onclick=()=>{const r=document.documentElement;const dark=r.dataset.theme==='dark'||(!r.dataset.theme&&matchMedia('(prefers-color-scheme:dark)').matches);r.dataset.theme=dark?'light':'dark';render()};
@@ -253,11 +338,14 @@ function wire(){
 function viewClick(e){
   const t=e.target.closest('[data-type]');if(t){const ty=t.dataset.type;S.drill=S.drill===ty?null:ty;if(S.tab!=='types'){S.tab='types'}render();return}
   const m=e.target.closest('[data-month]');if(m){const mo=m.dataset.month;S.from=mo+'-01';S.to=addD(addM(mo+'-01',1),-1);render();return}
+  const rtb=e.target.closest('[data-rt]');if(rtb){S.rt=rtb.dataset.rt;render();return}
+  const go=e.target.closest('[data-go]');if(go){S.tab=go.dataset.go;render();scrollTo({top:0});return}
   const lm=e.target.closest('[data-lm]');if(lm){S.lm=lm.dataset.lm;render();return}
   const cp=e.target.closest('[data-cp]');if(cp){S.cmp.preset=cp.dataset.cp;render();return}
-  const pr=e.target.closest('[data-person]');if(pr){S.person=S.person===pr.dataset.person?null:pr.dataset.person;render();return}
+  const pr=e.target.closest('[data-person]');if(pr){if(S.tab!=='ppl'){S.tab='ppl';S.person=pr.dataset.person}else S.person=S.person===pr.dataset.person?null:pr.dataset.person;render();return}
   const pn=e.target.closest('[data-pn]');if(pn){S.pn=+pn.dataset.pn;render();return}
-  const mr=e.target.closest('#more');if(mr){S.more+=200;render();return}
+  const so=e.target.closest('[data-sort]');if(so){S.sort=so.dataset.sort;render();scrollTo(0,0);return}
+  const vr=e.target.closest('.vr');if(vr){evSheet(VL.rows[+vr.dataset.ev]);return}
 }
 
 /* ---------- shared chart pieces ---------- */
@@ -283,42 +371,77 @@ function colStack(labels,series,opt){ // series: [{g,vals}]
     const every=Math.ceil(n/(opt.rot?14:Math.floor((W-m.l)/34)));if(i%every===0){const t=opt.fmt?opt.fmt(lb):lb;s+=opt.rot?`<text transform="translate(${x+w/2},${H-m.b+10}) rotate(-45)" text-anchor="end">${esc(t)}</text>`:`<text x="${x+w/2}" y="${H-6}" text-anchor="middle">${esc(t)}</text>`}});
   return s+'</svg>'}
 function niceTicks(mx){const st=mx<=5?1:mx<=10?2:mx<=25?5:mx<=60?10:mx<=120?20:mx<=300?50:100;const r=[];for(let v=0;v<=mx+st-1e-9;v+=st)r.push(v);return r}
-function lineChart(labels,series,opt){ // series:[{g,vals}] ; opt.pctMode
-  opt=opt||{};const W=Math.max(300,$('#view').clientWidth-30),H=240,m={l:34,r:10,t:10,b:28};
-  const all=series.flatMap(s=>s.vals.filter(v=>v!=null));let mx=opt.pctMode?Math.max(.5,...all):Math.max(1,...all);const ticks=opt.pctMode?[0,.1,.2,.3,.4,.5,.6,.7,.8,.9,1].filter(t=>t<=mx+.1):niceTicks(mx);const top=ticks[ticks.length-1];
-  const n=labels.length;const x=i=>m.l+(n<=1?0:i/(n-1))*(W-m.l-m.r);const y=v=>H-m.b-(v/top)*(H-m.t-m.b);
-  let s=`<svg viewBox="0 0 ${W} ${H}" width="100%" role="img" aria-label="${esc(opt.aria||'折線圖')}" id="lc">`;
-  ticks.forEach(t=>s+=`<line class="grid" x1="${m.l}" x2="${W-m.r}" y1="${y(t)}" y2="${y(t)}"/><text x="${m.l-4}" y="${y(t)+4}" text-anchor="end">${opt.pctMode?Math.round(t*100)+'%':t}</text>`);
-  if(opt.ref!=null)s+=`<line class="ref" x1="${m.l}" x2="${W-m.r}" y1="${y(opt.ref)}" y2="${y(opt.ref)}"/><text x="${W-m.r}" y="${y(opt.ref)-4}" text-anchor="end">平均 ${Math.round(opt.ref*100)}%</text>`;
-  const every=Math.ceil(n/Math.max(2,Math.floor((W-m.l)/46)));labels.forEach((lb,i)=>{if(i%every===0)s+=`<text x="${x(i)}" y="${H-8}" text-anchor="middle">${esc(lb.slice(2))}</text>`});
-  series.forEach(q=>{let d='';let started=false;q.vals.forEach((v,i)=>{if(v==null){started=false;return}d+=(started?'L':'M')+x(i).toFixed(1)+' '+y(v).toFixed(1);started=true});
-    s+=`<path d="${d}" fill="none" stroke="${q.g.c}" stroke-width="2.5" stroke-linejoin="round" stroke-linecap="round"/>`;
-    if(n<=24)q.vals.forEach((v,i)=>{if(v!=null)s+=`<circle cx="${x(i)}" cy="${y(v)}" r="3.5" fill="${q.g.c}" stroke="var(--surface)" stroke-width="2"/>`})});
-  s+=`<line id="cx" x1="0" x2="0" y1="${m.t}" y2="${H-m.b}" stroke="var(--ink3)" stroke-width="1" style="display:none"/><rect id="hit" x="${m.l}" y="${m.t}" width="${W-m.l-m.r}" height="${H-m.t-m.b}" fill="transparent" style="touch-action:pan-y"/></svg>`;
-  setTimeout(()=>{const svg=$('#lc');if(!svg)return;const hit=svg.querySelector('#hit'),cx=svg.querySelector('#cx');
-    const mv=ev=>{const r=svg.getBoundingClientRect();const px=(ev.clientX-r.left)/r.width*W;let i=Math.round((px-m.l)/(W-m.l-m.r)*(n-1));i=Math.max(0,Math.min(n-1,i));cx.setAttribute('x1',x(i));cx.setAttribute('x2',x(i));cx.style.display='';
-      showTip(`<b>${esc(labels[i])}</b><br>`+series.map(q=>`${q.g.n}：${q.vals[i]==null?'—':(opt.pctMode?(q.vals[i]*100).toFixed(0)+'%':q.vals[i])}`).join('<br>'),ev.clientX,ev.clientY)};
-    hit.addEventListener('pointermove',mv);hit.addEventListener('pointerdown',mv);hit.addEventListener('pointerleave',()=>{cx.style.display='none';hideTip()})},0);
-  return s+''}
+let LCN=0,chartAct=false;
+function lineChart(labels0,series0,opt){ // series:[{g,vals}] ; opt.pctMode
+  opt=opt||{};const id='lc'+(++LCN),N0=labels0.length;let lo=0,hi=N0-1;
+  const W=Math.max(300,$('#view').clientWidth-30),H=opt.H||240,m={l:34,r:10,t:10,b:28};
+  const draw=()=>{const labels=labels0.slice(lo,hi+1),series=series0.map(q=>({g:q.g,vals:q.vals.slice(lo,hi+1)}));
+    const all=series0.flatMap(s=>s.vals.filter(v=>v!=null));let mx=opt.pctMode?Math.max(.5,...all):Math.max(1,...all);const ticks=opt.pctMode?[0,.1,.2,.3,.4,.5,.6,.7,.8,.9,1].filter(t=>t<=mx+.1):niceTicks(mx);const top=ticks[ticks.length-1];
+    const n=labels.length;const x=i=>m.l+(n<=1?0:i/(n-1))*(W-m.l-m.r);const y=v=>H-m.b-(v/top)*(H-m.t-m.b);
+    let s=`<svg viewBox="0 0 ${W} ${H}" width="100%" role="img" aria-label="${esc(opt.aria||'折線圖')}" style="touch-action:pan-y;display:block">`;
+    ticks.forEach(t=>s+=`<line class="grid" x1="${m.l}" x2="${W-m.r}" y1="${y(t)}" y2="${y(t)}"/><text x="${m.l-4}" y="${y(t)+4}" text-anchor="end">${opt.pctMode?Math.round(t*100)+'%':t}</text>`);
+    if(opt.ref!=null)s+=`<line class="ref" x1="${m.l}" x2="${W-m.r}" y1="${y(opt.ref)}" y2="${y(opt.ref)}"/><text x="${W-m.r}" y="${y(opt.ref)-4}" text-anchor="end">平均 ${Math.round(opt.ref*100)}%</text>`;
+    const every=Math.ceil(n/Math.max(2,Math.floor((W-m.l)/46)));labels.forEach((lb,i)=>{if(i%every===0)s+=`<text x="${x(i)}" y="${H-8}" text-anchor="middle">${esc(lb.slice(2))}</text>`});
+    series.forEach(q=>{let d='';let started=false;q.vals.forEach((v,i)=>{if(v==null){started=false;return}d+=(started?'L':'M')+x(i).toFixed(1)+' '+y(v).toFixed(1);started=true});
+      s+=`<path d="${d}" fill="none" stroke="${q.g.c}" stroke-width="2.5" stroke-linejoin="round" stroke-linecap="round"/>`;
+      if(n<=24)q.vals.forEach((v,i)=>{if(v!=null)s+=`<circle cx="${x(i)}" cy="${y(v)}" r="3.5" fill="${q.g.c}" stroke="var(--surface)" stroke-width="2"/>`})});
+    s+=`<line id="cx${id}" x1="0" x2="0" y1="${m.t}" y2="${H-m.b}" stroke="var(--ink3)" stroke-width="1" style="display:none"/></svg>`;
+    return {s,labels,series,n,x}};
+  let cur=draw();
+  const paint=()=>{const w=document.getElementById(id);if(!w)return;cur=draw();w.querySelector('.lcs').innerHTML=cur.s;w.querySelector('.zr').hidden=(lo===0&&hi===N0-1)};
+  const probe=(cx0,cy0)=>{const w=document.getElementById(id);const r=w.getBoundingClientRect();const px=(cx0-r.left)/r.width*W;const n=cur.n;let i=Math.round((px-m.l)/(W-m.l-m.r)*(n-1));i=Math.max(0,Math.min(n-1,i));
+    const c=w.querySelector('#cx'+id);if(c){c.setAttribute('x1',cur.x(i));c.setAttribute('x2',cur.x(i));c.style.display=''}
+    showTip(`<b>${esc(cur.labels[i])}</b><br>`+cur.series.map(q=>`${q.g.n}：${q.vals[i]==null?'—':(opt.pctMode?(q.vals[i]*100).toFixed(0)+'%':q.vals[i])}`).join('<br>'),cx0,cy0)};
+  const off=()=>{const w=document.getElementById(id);const c=w&&w.querySelector('#cx'+id);if(c)c.style.display='none';hideTip()};
+  setTimeout(()=>{const w=document.getElementById(id);if(!w)return;const P=new Map();let T=null,act=false,sx=0,sy=0,pz=null;
+    w.querySelector('.zr').onclick=()=>{lo=0;hi=N0-1;paint()};
+    const end=()=>{clearTimeout(T);T=null;if(act){act=false;chartAct=false;off()}};
+    w.addEventListener('pointerdown',e=>{P.set(e.pointerId,[e.clientX,e.clientY]);
+      if(e.pointerType==='mouse'){probe(e.clientX,e.clientY);return}
+      if(P.size===1){sx=e.clientX;sy=e.clientY;clearTimeout(T);T=setTimeout(()=>{act=true;chartAct=true;if(navigator.vibrate)navigator.vibrate(8);probe(sx,sy)},350)}
+      else if(P.size===2){clearTimeout(T);T=null;if(act){act=false;chartAct=false;off()}const [p,q]=[...P.values()];pz={d:Math.abs(p[0]-q[0])||1,mid:(p[0]+q[0])/2,lo,hi}}});
+    w.addEventListener('pointermove',e=>{if(!P.has(e.pointerId))return;P.set(e.pointerId,[e.clientX,e.clientY]);
+      if(e.pointerType==='mouse'){probe(e.clientX,e.clientY);return}
+      if(P.size>=2&&pz){const [p,q]=[...P.values()];const d=Math.abs(p[0]-q[0])||1,mid=(p[0]+q[0])/2;const r=w.getBoundingClientRect();
+        const span0=pz.hi-pz.lo;let span=Math.max(3,Math.min(N0-1,span0*pz.d/d));
+        const f0=(pz.mid-r.left)/r.width;const anchor=pz.lo+f0*span0;const f1=(mid-r.left)/r.width;
+        let nlo=anchor-f1*span;nlo=Math.max(0,Math.min(N0-1-span,nlo));const L=Math.round(nlo),Hh=Math.min(N0-1,Math.round(nlo+span));
+        if(L!==lo||Hh!==hi){lo=L;hi=Hh;paint()}return}
+      if(act){probe(e.clientX,e.clientY);return}
+      if(T&&(Math.abs(e.clientX-sx)>8||Math.abs(e.clientY-sy)>8)){clearTimeout(T);T=null}});
+    const up=e=>{P.delete(e.pointerId);if(P.size<2)pz=null;if(P.size===0)end();if(e.pointerType==='mouse')off()};
+    w.addEventListener('pointerup',up);w.addEventListener('pointercancel',up);w.addEventListener('pointerleave',e=>{if(e.pointerType==='mouse')off()});
+    w.addEventListener('wheel',e=>{if(!e.ctrlKey&&!e.shiftKey)return;e.preventDefault();const span=hi-lo,f=(e.clientX-w.getBoundingClientRect().left)/w.getBoundingClientRect().width,k=e.deltaY>0?1.25:.8;
+      const ns=Math.max(3,Math.min(N0-1,span*k)),an=lo+f*span;let nl=Math.max(0,Math.min(N0-1-ns,an-f*ns));lo=Math.round(nl);hi=Math.min(N0-1,Math.round(nl+ns));paint()},{passive:false});
+  },0);
+  return `<div class="lcw" id="${id}"><button class="btn zr" hidden>還原縮放</button><div class="lcs">${cur.s}</div><div class="note" style="text-align:center">長按看數值　·　雙指左右拉開可放大</div></div>`}
 function chartOrTable(chart,head,rows){return S.tbl?tableHTML(head,rows):chart}
 function hl(kind,tag,t,sub,how){const ik=kind==='ok'?'ok':kind==='warn'?'warn':'na';return `<div class="hl ${kind}" role="status"><span class="tag">${pic(/沒有/.test(tag)?'empty':ik,20)}${tag}</span><div class="t">${t}</div>${sub?`<div class="s">${sub}</div>`:''}${how?`<div class="h">怎麼看：${how}</div>`:''}</div>`}
-function fairText(o,label){const st=stat(o);if(st.tot<6)return `<div class="note">${label}：樣本太少（${st.tot}），不判斷。</div>`;
+function fairText(o,label,ctx){const st=stat(o,ctx);if(st.tot<6)return `<div class="note">${label}：樣本太少（${st.tot}），不判斷。</div>`;
   const v=vis();const lead=v.map(g=>({g,s:o[g.k]/st.tot,e:st.ex[g.k]})).sort((a,b)=>(b.s-b.e)-(a.s-a.e));
   const top=lead[0],bot=lead[lead.length-1];const sig=st.p<.05;
   return `<div class="find ${sig?'':'ok'}"><b>${sig?'有明顯偏態':'大致平均'} <span class="pill ${sig?'warn':'ok'}" title="統計檢定 p=${st.p<.001?'<.001':st.p.toFixed(3)}">${sig?'很可能不是巧合':'屬正常波動'}</span></b><div>${esc(label)}：${top.g.n}占 ${pct(top.s)}（依人數應為 ${pct(top.e)}），${bot.g.n}占 ${pct(bot.s)}。${sig?`${top.g.n}多扛、${bot.g.n}少扛。`:'差距在隨機波動範圍內。'}</div></div>`}
 
 /* ---------- tabs ---------- */
+function spark(vals,c){const n=vals.length;if(n<2)return '';const mx=Math.max(1,...vals);const W=100,H=30;const pts=vals.map((x,i)=>`${(i/(n-1)*W).toFixed(1)},${(H-3-x/mx*(H-6)).toFixed(1)}`).join(' ');return `<svg viewBox="0 0 ${W} ${H}" width="100%" height="30" preserveAspectRatio="none" aria-hidden="true"><polyline points="${pts}" fill="none" stroke="${c}" stroke-width="2" vector-effect="non-scaling-stroke" stroke-linejoin="round" stroke-linecap="round"/></svg>`}
 function vOverview(rows){
-  const o=sums(rows),st=stat(o),v=vis();
-  const kp=v.map(g=>`<div class="kpi"><span>${GI[g.k]} ${g.n}</span><b>${o[g.k]}</b><span>${st.tot?pct(o[g.k]/st.tot):'—'}　（人數占 ${pct(st.ex[g.k])}）</span><span style="display:block">每人平均 ${(o[g.k]/S.heads[g.k]).toFixed(1)}（${S.heads[g.k]}人）</span><div class="bar"><i style="width:${st.tot?o[g.k]/st.tot*100:0}%;background:${g.c}"></i></div></div>`).join('');
+  const o=sums(rows),st=stat(o,rows),v=vis();
+  const ms=months(S.from,S.to).slice(-24);const perM=ms.map(m=>sums(rows.filter(e=>e.d.slice(0,7)===m)));const m12=perM.slice(-12);
   const byT=TYPES.map(t=>({label:t,key:t,o:sums(rows.filter(e=>e.ty===t))})).filter(r=>r.o.k+r.o.f+r.o.j>0).sort((a,b)=>(b.o.k+b.o.f+b.o.j)-(a.o.k+a.o.f+a.o.j));
   const tbl=byT.map(r=>[r.label,r.o.k,r.o.f,r.o.j]);
   const lead=v.map(g=>({g,s:st.tot?o[g.k]/st.tot:0,e:st.ex[g.k],pp:o[g.k]/(S.heads[g.k]||1)})).sort((a,b)=>(b.s-b.e)-(a.s-a.e));
-  const hd=st.tot<6?hl('','資料不足','這段期間資料太少，先不下結論','請放寬上方日期或篩選。'):(st.p<.05?hl('warn','有偏差',`${lead[0].g.n}扛得偏多：占 ${pct(lead[0].s)}，但人數只占 ${pct(lead[0].e)}`,`${lead[lead.length-1].g.n}偏少（占 ${pct(lead[lead.length-1].s)}）。每人平均：${lead.map(x=>x.g.n+' '+x.pp.toFixed(1)+' 次').join('、')}`,'下面每個色塊越長＝該股扛越多；和「人數占比」差越多，越不公平。'):hl('ok','大致公平','三股負擔和人數相符',`每人平均：${lead.map(x=>x.g.n+' '+x.pp.toFixed(1)+' 次').join('、')}`,'色塊長度和人數占比接近就是公平。'));
-  return hd+`<div class="card"><h2>這段期間的整體負擔</h2><div class="kpis"><div class="kpi"><span>公差件數</span><b>${o.n}</b><span>${o.u?`含未分股 ${o.u} 件`:'全部有分股'}</span></div>${kp}</div>
-  ${fairText(o,'整體')}</div>
+  const hd=st.tot<6?hl('','資料不足','這段期間資料太少，先不下結論','請放寬上方時間範圍。'):(st.p<.05?hl('warn','有偏差',`${lead[0].g.n}扛得偏多：占 ${pct(lead[0].s)}，但人數只占 ${pct(lead[0].e)}`,`${lead[lead.length-1].g.n}偏少（占 ${pct(lead[lead.length-1].s)}）。每人平均：${lead.map(x=>x.g.n+' '+x.pp.toFixed(1)+' 次').join('、')}`,'色塊越長＝該股扛越多；和「人數占比」差越多，越不公平。'):hl('ok','大致公平','三股負擔和人數相符',`每人平均：${lead.map(x=>x.g.n+' '+x.pp.toFixed(1)+' 次').join('、')}`,'色塊長度和人數占比接近就是公平。'));
+  const cards=`<div class="kpi" tabindex="0"><span>公差件數</span><b>${o.n}</b><span>${o.u?`含未分股 ${o.u} 件`:'全部有分股'}</span>${spark(m12.map(x=>x.n),'var(--ink2)')}</div>`
+   +v.map(g=>`<div class="kpi" tabindex="0"><span>${GI[g.k]} ${g.n}</span><b>${o[g.k]}</b><span>占 ${st.tot?pct(o[g.k]/st.tot):'—'}／人數 ${pct(st.ex[g.k])}</span><span style="display:block">每人 ${(o[g.k]/S.heads[g.k]).toFixed(1)} 次</span>${spark(m12.map(x=>x[g.k]),g.c)}</div>`).join('')
+   +`<div class="kpi" tabindex="0"><span>公平度</span><div class="st ${st.tot<6?'':st.p<.05?'warn':'ok'}">${st.tot<6?'資料不足':st.p<.05?'有偏差':'大致公平'}</div><span>${st.tot<6?'':`最偏：${lead[0].g.n} ${(lead[0].s-lead[0].e>=0?'+':'−')+Math.abs((lead[0].s-lead[0].e)*100).toFixed(0)}pp`}</span></div>`;
+  const hh=Math.max(190,Math.round(innerHeight*.3));
+  const chart=ms.length?lineChart(ms,v.map(g=>({g,vals:perM.map(x=>x[g.k])})),{H:hh,aria:'每月各股公差人次折線圖'}):'';
+  const rec=rows.slice().reverse().slice(0,10);
+  return hd+`<div class="kpis" role="list" aria-label="關鍵指標（可左右滑動）">${cards}</div>
+  <div class="card"><h2>每月人次趨勢</h2><div class="note">手指按住圖表可看各月數值。</div>${legend()}<div class="chartwrap">${S.tbl?tableHTML(['月份',...v.map(g=>g.n)],ms.map((m,i)=>[m,...v.map(g=>perM[i][g.k])])):chart}</div></div>
   <div class="card"><h2>各種類由哪個股扛</h2><div class="note" style="margin-bottom:6px">每條＝一種公差，色塊寬度＝各股占比。點一列可看該類細節。</div>${legend()}
-  ${chartOrTable(hstack(byT),['種類','快砲','飛彈','軍械'],tbl)}</div>`}
+  ${chartOrTable(hstack(byT),['種類','快砲','飛彈','軍械'],tbl)}</div>
+  <div class="card"><h2>最近的公差</h2><div class="note">點開看原文與人名。</div>${evList(rec)}<button class="btn" data-go="list" style="width:100%;margin-top:8px">看全部明細</button></div>`}
 function vTrend(rows){
   const ms=months(S.from,S.to);const v=vis();
   const perM=ms.map(m=>sums(rows.filter(e=>e.d.slice(0,7)===m)));
@@ -345,8 +468,8 @@ function vTypes(rows){
   const v=vis(),ex=exp();
   const rs=TYPES.map(t=>({t,o:sums(rows.filter(e=>e.ty===t))})).filter(r=>r.o.k+r.o.f+r.o.j>0);
   const head=`<tr><th>種類</th>${v.map(g=>`<th style="text-align:center"><i class="dot" style="background:${g.c}"></i> ${g.n}</th>`).join('')}<th>合計</th></tr>`;
-  const body=rs.map(r=>{const tot=v.reduce((a,g)=>a+r.o[g.k],0);return `<tr class="${S.drill===r.t?'sel':''}" data-type="${esc(r.t)}"><td style="cursor:pointer">${esc(r.t)}</td>${v.map(g=>{const s=tot?r.o[g.k]/tot:0;const d=s-ex[g.k];return `<td class="c" style="background:${heatColor(d)}" data-type="${esc(r.t)}" data-tip="${esc(r.t)}<br>${g.n}：${r.o[g.k]}（占 ${pct(s)}，平均 ${pct(ex[g.k])}）<br>${d>=0?'多':'少'} ${Math.abs(d*100).toFixed(0)}pp"><b>${r.o[g.k]}</b><small>${tot?(d>=0?'+':'−')+Math.abs(d*100).toFixed(0)+'pp':''}</small></td>`}).join('')}<td>${tot}</td></tr>`}).join('');
-  const ranked=rs.map(r=>({r,st:stat(r.o)})).filter(x=>x.st.tot>=6).sort((a,b)=>a.st.p-b.st.p);const nsig=ranked.filter(x=>x.st.p<.05).length;
+  const body=rs.map(r=>{const ex=exp(r.t);const tot=v.reduce((a,g)=>a+r.o[g.k],0);return `<tr class="${S.drill===r.t?'sel':''}" data-type="${esc(r.t)}"><td style="cursor:pointer">${esc(r.t)}</td>${v.map(g=>{const s=tot?r.o[g.k]/tot:0;const d=s-ex[g.k];return `<td class="c" style="background:${heatColor(d)}" data-type="${esc(r.t)}" data-tip="${esc(r.t)}<br>${g.n}：${r.o[g.k]}（占 ${pct(s)}，平均 ${pct(ex[g.k])}）<br>${d>=0?'多':'少'} ${Math.abs(d*100).toFixed(0)}pp"><b>${r.o[g.k]}</b><small>${tot?(d>=0?'+':'−')+Math.abs(d*100).toFixed(0)+'pp':''}</small></td>`}).join('')}<td>${tot}</td></tr>`}).join('');
+  const ranked=rs.map(r=>({r,st:stat(r.o,r.t)})).filter(x=>x.st.tot>=6).sort((a,b)=>a.st.p-b.st.p);const nsig=ranked.filter(x=>x.st.p<.05).length;
   const w=ranked[0];
   const hd=!w?hl('','資料不足','這段期間各類樣本太少','請放寬上方日期或篩選。'):(nsig?hl('warn','有偏差',`${nsig} 類公差明顯偏某一股；最偏的是「${esc(w.r.t)}」`,v.map(g=>g.n+' '+w.r.o[g.k]).join('、'),'紅格＝該股在這類扛得比平均多，藍格＝比平均少，灰＝接近。點一列看細節。'):hl('ok','大致公平','各類公差三股都差不多','沒有哪一類明顯集中在某一股。','紅＝偏多、藍＝偏少、灰＝接近。'));
   let html=hd+`<div class="card"><h2>各類比較（熱度圖）</h2><div class="note">格子大字＝人次；小字＝比平均多／少幾個百分點。<span style="color:var(--pos);font-weight:600">紅＝偏多</span>、<span style="color:var(--neg);font-weight:600">藍＝偏少</span>、灰＝接近平均。點一列看細節。</div>
@@ -355,13 +478,13 @@ function vTypes(rows){
   html+=`<div class="card"><h2>種類比較（占比長條）</h2>${legend()}${chartOrTable(hstack(byT),['種類','快砲','飛彈','軍械'],rs.map(r=>[r.t,r.o.k,r.o.f,r.o.j]))}</div>`;
   if(S.drill){const dr=rows.filter(e=>e.ty===S.drill);const o=sums(dr);const ms=months(S.from,S.to);
     const perM=ms.map(m=>sums(dr.filter(e=>e.d.slice(0,7)===m)));
-    html+=`<div class="card"><h2>${esc(S.drill)}　<button class="btn" data-type="${esc(S.drill)}" style="min-height:36px">取消選取</button></h2>${fairText(o,S.drill)}${legend()}<div class="chartwrap">${chartOrTable(colStack(ms,v.map(g=>({g,vals:perM.map(x=>x[g.k])})),{fmt:m=>m.slice(2),rot:ms.length>10,aria:S.drill+'每月'}),['月份',...v.map(g=>g.n)],ms.map((m,i)=>[m,...v.map(g=>perM[i][g.k])]))}</div>
+    html+=`<div class="card"><h2>${esc(S.drill)}　<button class="btn" data-type="${esc(S.drill)}" style="min-height:36px">取消選取</button></h2>${fairText(o,S.drill,S.drill)}${legend()}<div class="chartwrap">${chartOrTable(colStack(ms,v.map(g=>({g,vals:perM.map(x=>x[g.k])})),{fmt:m=>m.slice(2),rot:ms.length>10,aria:S.drill+'每月'}),['月份',...v.map(g=>g.n)],ms.map((m,i)=>[m,...v.map(g=>perM[i][g.k])]))}</div>
     <h3 style="margin-top:10px">這類公差（最近 8 件）</h3>${evList(dr.slice().reverse().slice(0,8))}</div>`}
   return html}
 function evList(rows,more){return rows.map(e=>`<details class="ev"><summary><div><b>${e.d.slice(2)}</b> ${esc(e.tm||'時間未註明')} <span class="badge">${esc(e.ty)}</span></div><div>${esc(e.p||e.x.slice(0,36))} <span class="nums">${e.u?'<i>未分股</i>':G.map(g=>e[g.k]?`<i><i class="dot" style="background:${g.c}"></i>${e[g.k]}</i>`:'').join('')}</span></div>${e.n?`<div class="note">${G.map(g=>e.n[g.k]?`<span style="color:var(--ink2)"><i class="dot" style="background:${g.c};width:8px;height:8px"></i> ${esc(e.n[g.k].join('、'))}</span>`:'').join('　')}</div>`:''}</summary><div class="raw">${esc(e.x)}</div></details>`).join('')||'<div class="note">沒有符合的公差</div>'}
 function clusters(rows){ // 3-month windows
   const v=vis(),ms=months(S.from,S.to),out=[];const ex=exp();
-  TYPES.forEach(t=>{const tr=rows.filter(e=>e.ty===t);if(!tr.length)return;
+  TYPES.forEach(t=>{const tr=rows.filter(e=>e.ty===t);if(!tr.length)return;const ex=exp(t);
     for(let i=0;i<=ms.length-3;i++){const w=tr.filter(e=>{const m=e.d.slice(0,7);return m>=ms[i]&&m<=ms[i+2]});const o=sums(w);const tot=v.reduce((a,g)=>a+o[g.k],0);if(tot<6)continue;
       v.forEach(g=>{const s=o[g.k]/tot;if(s>=ex[g.k]+.27&&s>=.55)out.push({t,g,from:ms[i],to:ms[i+2],s,n:o[g.k],tot,score:(s-ex[g.k])*Math.sqrt(tot)})})}});
   const best={};out.forEach(c=>{const k=c.t+c.g.k;if(!best[k]||c.score>best[k].score)best[k]=c});
@@ -371,10 +494,15 @@ function people(rows){
   const P={};let slots=0,named=0;
   rows.forEach(e=>{G.forEach(g=>{if(!S.show[g.k])return;const need=e[g.k];if(need)slots+=1;const arr=(e.n&&e.n[g.k])||[];if(arr.length)named+=1;
     arr.forEach(nm=>{const key=g.k+'|'+nm;const p=P[key]||(P[key]={key,g,nm,c:0,last:'',first:'9',types:{},evs:[]});p.c++;p.evs.push(e);if(e.d>p.last)p.last=e.d;if(e.d<p.first)p.first=e.d;p.types[e.ty]=(p.types[e.ty]||0)+1})})});
-  ROSTER.forEach(([nm,g0])=>{if(g0==='x')return;const g=G.find(q=>q.k===g0);if(!g||!S.show[g0])return;const key=g0+'|'+nm;if(!P[key])P[key]={key,g,nm,c:0,last:'',first:'9',types:{},evs:[]}});
-  return{P:Object.values(P).filter(p=>RSET[p.nm]!=='x'),slots,named}}
+  ROSTER.forEach(([nm,g0])=>{if(g0==='x'||(MW[nm]&&MW[nm].w===0))return;const g=G.find(q=>q.k===g0);if(!g||!S.show[g0])return;const key=g0+'|'+nm;if(!P[key])P[key]={key,g,nm,c:0,last:'',first:'9',types:{},evs:[]}});
+  const PL=Object.values(P).filter(p=>RSET[p.nm]!=='x');PL.forEach(p=>{const m=MW[p.nm];p.w=m?m.w:1;p.note=m?m.note:'一般'});return{P:PL,slots,named}}
 function gini(a){const n=a.length;if(n<2)return 0;const s=a.slice().sort((x,y)=>x-y);const sum=s.reduce((x,y)=>x+y,0);if(!sum)return 0;let c=0;s.forEach((v,i)=>c+=(i+1)*v);return (2*c)/(n*sum)-(n+1)/n}
 function daysBetween(a,b){return Math.round((new Date(b)-new Date(a))/864e5)}
+function rankCard(P){if(!Object.keys(RANKS).length)return '';
+  const cnt={};P.forEach(p=>cnt[p.nm]=(cnt[p.nm]||0)+p.c);const grp={};
+  Object.entries(MW).forEach(([nm,m])=>{const g=grp[m.note]||(grp[m.note]={n:0,did:0,t:0,w:m.w,ban:m.ban});g.n++;const c=cnt[nm]||0;g.t+=c;if(c)g.did++});
+  const rows=Object.entries(grp).sort((a,b)=>b[1].w-a[1].w||b[1].n-a[1].n);
+  return `<div class="card"><h2>各階級出勤情況</h2><div class="note">用來驗證規則：階級高的人是不是真的比較少出。權重＝計算公平時這類人算幾個人；0＝不納入。</div><div style="overflow:auto;margin-top:6px"><table><thead><tr><th>組別</th><th>人數</th><th>出過</th><th>總次數</th><th>人均</th><th>權重</th></tr></thead><tbody>${rows.map(([k,g])=>`<tr><td>${esc(k)}${g.ban.length?`<br><small class="note">不出：${esc(g.ban.join('、'))}</small>`:''}</td><td>${g.n}</td><td>${g.did}</td><td>${g.t}</td><td>${(g.t/Math.max(1,g.n)).toFixed(1)}</td><td>${g.w}</td></tr>`).join('')}</tbody></table></div></div>`}
 function vPeople(rows){
   const {P,slots,named}=people(rows);const v=vis();
   const all=P.slice().sort((a,b)=>b.c-a.c||b.last.localeCompare(a.last));
@@ -383,13 +511,14 @@ function vPeople(rows){
   const per=v.map(g=>{const ps=P.filter(p=>p.g.k===g.k);const cs=ps.map(p=>p.c);const sum=cs.reduce((a,b)=>a+b,0);const n=S.heads[g.k]||ps.length;const top1=ps.slice().sort((a,b)=>b.c-a.c)[0];
     const top3=ps.slice().sort((a,b)=>b.c-a.c).slice(0,3).reduce((a,p)=>a+p.c,0);return{g,n:ps.length,did:ps.filter(p=>p.c>0).length,sum,avg:sum/Math.max(1,ps.length),top1,gini:gini(cs),top3s:sum?top3/sum:0}});
   const perTbl=`<div style="overflow:auto"><table><thead><tr><th>股</th><th>名冊</th><th>出過</th><th>沒出過</th><th>每人平均</th><th>最多</th><th>集中度</th></tr></thead><tbody>${per.map(r=>`<tr><td><i class="dot" style="background:${r.g.c}"></i> ${r.g.n}</td><td>${r.n}</td><td>${r.did}</td><td>${r.n-r.did}</td><td>${r.avg.toFixed(1)}</td><td>${r.top1&&r.top1.c?esc(r.top1.nm)+' '+r.top1.c:'—'}</td><td>${r.sum<6?'—':r.gini<.25?'平均':r.gini<.4?'略集中':'集中'}</td></tr>`).join('')}</tbody></table></div>`;
-  const next=v.map(g=>{const ps=P.filter(p=>p.g.k===g.k).sort((a,b)=>a.c-b.c||(a.last||'').localeCompare(b.last||'')).slice(0,6);return `<div style="margin:8px 0"><b><i class="dot" style="background:${g.c}"></i> ${g.n}</b>　${ps.map(p=>`<span class="badge" data-person="${esc(p.key)}" style="cursor:pointer;margin:2px 0">${esc(p.nm)} ${p.c}次${p.last?'・'+daysBetween(p.last,ANCHOR)+'天前':'・沒出過'}</span>`).join(' ')||'<span class="note">無名單</span>'}</div>`}).join('');
-  const t1=all[0];const noRun=P.filter(p=>p.c===0).length;
-  const hd=t1&&t1.c>0?hl('','重點',`出最多：${esc(t1.nm)}（${t1.g.n}）${t1.c} 次`,`名冊有 ${P.length} 人，${noRun} 人這段期間沒出過；姓名涵蓋 ${slots?pct(named/slots):'—'}`,'長條越長＝出越多次。點名字看他做過什麼。下方「下一輪候選」可看該輪到誰。'):hl('','沒有資料','這段期間沒有可對應姓名的公差','');
+  const next=v.map(g=>{const ps=P.filter(p=>p.g.k===g.k&&p.w>=.5).sort((a,b)=>a.c-b.c||(a.last||'').localeCompare(b.last||'')).slice(0,6);return `<div style="margin:8px 0"><b><i class="dot" style="background:${g.c}"></i> ${g.n}</b>　${ps.map(p=>`<span class="badge" data-person="${esc(p.key)}" style="cursor:pointer;margin:2px 0">${esc(p.nm)} ${p.c}次${p.last?'・'+daysBetween(p.last,ANCHOR)+'天前':'・沒出過'}</span>`).join(' ')||'<span class="note">無名單</span>'}</div>`}).join('');
+  const t1=all[0];const noRun=P.filter(p=>p.c===0&&p.w>0).length;
+  const hd=t1&&t1.c>0?hl('','重點',`出最多：${esc(t1.nm)}（${t1.g.n}）${t1.c} 次`,`有效名冊 ${P.length} 人，${noRun} 人這段期間沒出過；姓名涵蓋 ${slots?pct(named/slots):'—'}`,'長條越長＝出越多次。點名字看他做過什麼。下方「下一輪候選」可看該輪到誰。'):hl('','沒有資料','這段期間沒有可對應姓名的公差','');
   let h=hd+`<div class="card"><h2>人員比較</h2><div class="note">名單來自各股班長在群組回覆的姓名，依你給的名冊對成全名，自動配回對應的公差。<b>有名單的股別格數：${named}／${slots}（${slots?pct(named/slots):'—'}）</b>。每人每次公差算 1 次（不分人次／件數）。</div></div>
   <div class="card"><h2>誰出最多次</h2><div class="note">點名字看個人明細。顏色＝所屬股。</div>${legend()}${S.tbl?tableHTML(['姓名','股','次數','最近'],all.slice(0,S.pn).map(p=>[p.nm,p.g.n,p.c,p.last])):`<div class="hb">${barRows||'<div class="note">範圍內沒有可對應姓名的公差</div>'}</div>`}
   ${all.length>S.pn?`<button class="btn" data-pn="${S.pn+15}" style="width:100%;margin-top:8px">再顯示 15 人（共 ${all.length} 人）</button>`:''}${S.pn>15?`<button class="btn" data-pn="15" style="width:100%;margin-top:6px">收合</button>`:''}</div>
   <div class="card"><h2>各股內部是否平均</h2><div class="note">以名冊全員計算（含沒出過的）。集中度高＝公差集中在少數人。</div>${perTbl}</div>
+  ${rankCard(P)}
   <div class="card"><h2>下一輪候選（出最少、最久沒出）</h2><div class="note">依名冊排序：出最少次、最久沒出的人排前面（沒出過的最前）。注意：配不到姓名的公差沒算進去，實際可能比這裡多。</div>${next}</div>`;
   if(S.person){const p=P.find(x=>x.key===S.person);if(p){const tl=Object.entries(p.types).sort((a,b)=>b[1]-a[1]);
     h+=`<div class="card"><h2><i class="dot" style="background:${p.g.c}"></i> ${esc(p.nm)}（${p.g.n}）　<button class="btn" data-person="${esc(p.key)}" style="min-height:36px">取消選取</button></h2>
@@ -400,17 +529,87 @@ function vPeople(rows){
 
 function vHot(rows){
   const v=vis();const ex=exp();
-  const rs=TYPES.map(t=>({t,o:sums(rows.filter(e=>e.ty===t))})).map(r=>({...r,st:stat(r.o)})).filter(r=>r.st.tot>=6).sort((a,b)=>a.st.p-b.st.p);
+  const rs=TYPES.map(t=>({t,o:sums(rows.filter(e=>e.ty===t))})).map(r=>({...r,st:stat(r.o,r.t)})).filter(r=>r.st.tot>=6).sort((a,b)=>a.st.p-b.st.p);
   const cs=clusters(rows);const sg=rs.filter(r=>r.st.p<.05);
   const hd=!rs.length?hl('','資料不足','這段期間各類樣本太少',''):(sg.length||cs.length?hl('warn','有集中',`${sg.length} 類公差明顯集中在某一股${cs.length?`；另有 ${cs.length} 段短期集中`:''}`,sg[0]?(()=>{const l=v.map(g=>({g,s:sg[0].o[g.k]/sg[0].st.tot})).sort((a,b)=>b.s-a.s)[0];return `最嚴重：「${esc(sg[0].t)}」${l.g.n}占 ${pct(l.s)}`})():`最明顯：${cs[0].g.n}的「${esc(cs[0].t)}」`,'下面黃線＝偏某一股、綠線＝平均。點一項可跳到該類細節。'):hl('ok','沒有集中','沒有發現公差集中在某一股','各類與近期都算平均。'));
   return hd+`<div class="card"><h2>哪些公差「聚集」在某些股？</h2><div class="note">逐類檢查三股是否平均（已考慮各股人數不同）。只看樣本 ≥6 的類別；「偏某一股」＝很可能不是巧合。</div>
-  ${rs.map(r=>{const lead=v.map(g=>({g,s:r.o[g.k]/r.st.tot,e:ex[g.k]})).sort((a,b)=>(b.s-b.e)-(a.s-a.e));const sig=r.st.p<.05;return `<div class="find ${sig?'':'ok'}" data-type="${esc(r.t)}" tabindex="0" role="button"><b>${esc(r.t)}　<span class="pill ${sig?'warn':'ok'}" title="統計檢定 p=${r.st.p<.001?'<.001':r.st.p.toFixed(2)}">${sig?'偏某一股':'平均'}</span></b><div>${lead.map(x=>`${x.g.n} ${pct(x.s)}`).join('　')}（共 ${r.st.tot}）${sig?`→ ${lead[0].g.n}多、${lead[lead.length-1].g.n}少`:''}</div></div>`}).join('')||'<div class="note">範圍內樣本不足</div>'}</div>
+  ${rs.map(r=>{const lead=v.map(g=>({g,s:r.o[g.k]/r.st.tot,e:r.st.ex[g.k]})).sort((a,b)=>(b.s-b.e)-(a.s-a.e));const sig=r.st.p<.05;return `<div class="find ${sig?'':'ok'}" data-type="${esc(r.t)}" tabindex="0" role="button"><b>${esc(r.t)}　<span class="pill ${sig?'warn':'ok'}" title="統計檢定 p=${r.st.p<.001?'<.001':r.st.p.toFixed(2)}">${sig?'偏某一股':'平均'}</span></b><div>${lead.map(x=>`${x.g.n} ${pct(x.s)}`).join('　')}（共 ${r.st.tot}）${sig?`→ ${lead[0].g.n}多、${lead[lead.length-1].g.n}少`:''}</div></div>`}).join('')||'<div class="note">範圍內樣本不足</div>'}</div>
   <div class="card"><h2>短期集中（連續3個月）</h2><div class="note">同一類公差，連續3個月內某股占 55% 以上且高出平均 27pp 以上。</div>
   ${cs.map(c=>`<div class="find" data-type="${esc(c.t)}" tabindex="0" role="button"><b><i class="dot" style="background:${c.g.c}"></i> ${c.g.n}　${esc(c.t)}</b><div>${c.from}～${c.to}：${c.n}／${c.tot}（${pct(c.s)}）</div></div>`).join('')||'<div class="note">這段期間沒有明顯的短期集中。</div>'}</div>`}
+
+/* ---------- 輪替分析 ---------- */
+function oneG(e){const ks=vis().filter(g=>e[g.k]>0);return ks.length===1?ks[0]:null}
+function durH(e){const m=(e.tm||'').match(/(\d{2}):?(\d{2})\s*[-~～至到]\s*(\d{2}):?(\d{2})/);if(!m)return null;const h=(+m[3]*60+ +m[4]-(+m[1]*60+ +m[2]))/60;return h>0&&h<=12?h:null}
+function devChart(labels,series){const W=Math.max(300,$('#view').clientWidth-30),H=230,m={l:36,r:10,t:10,b:28};
+  const all=series.flatMap(q=>q.vals);const mx=Math.max(1,...all.map(Math.abs));const top=Math.ceil(mx/ (mx>20?10:mx>8?5:2))*(mx>20?10:mx>8?5:2);
+  const n=labels.length;const x=i=>m.l+(n<=1?(W-m.l-m.r)/2:i/(n-1)*(W-m.l-m.r));const y=v=>m.t+(1-(v+top)/(2*top))*(H-m.t-m.b);
+  let s=`<svg viewBox="0 0 ${W} ${H}" width="100%" role="img" aria-label="累計欠班曲線">`;
+  [-top,-top/2,0,top/2,top].forEach(t=>s+=`<line class="grid" x1="${m.l}" x2="${W-m.r}" y1="${y(t)}" y2="${y(t)}" ${t===0?'style="stroke:var(--ink3)"':''}/><text x="${m.l-4}" y="${y(t)+4}" text-anchor="end">${Math.round(t*10)/10}</text>`);
+  const every=Math.ceil(n/Math.max(2,Math.floor((W-m.l)/46)));labels.forEach((lb,i)=>{if(i%every===0)s+=`<text x="${x(i)}" y="${H-8}" text-anchor="middle">${esc(lb.slice(2))}</text>`});
+  series.forEach(q=>{s+=`<path d="${q.vals.map((v,i)=>(i?'L':'M')+x(i).toFixed(1)+' '+y(v).toFixed(1)).join('')}" fill="none" stroke="${q.g.c}" stroke-width="2.5" stroke-linejoin="round" stroke-linecap="round"/>`;
+    q.vals.forEach((v,i)=>s+=`<circle cx="${x(i)}" cy="${y(v)}" r="9" fill="transparent" data-tip="${esc(labels[i])}<br>${q.g.n}：${v>0?'多扛':'少扛'} ${Math.abs(v).toFixed(1)} 次"/>`)});
+  return s+'</svg>'}
+function vRot(rows){
+  const v=vis(),sel=S.rt&&TYPES.includes(S.rt)?S.rt:'';
+  const bar=`<div class="seg" style="margin:6px 0"><button class="btn" data-rt="" aria-pressed="${!sel}">全部種類</button>${TYPES.slice(0,6).map(t=>`<button class="btn" data-rt="${esc(t)}" aria-pressed="${sel===t}">${esc(t)}</button>`).join('')}</div>`;
+  const evs=rows.filter(e=>!sel||e.ty===sel).slice().sort((a,b)=>(a.d+a.tm).localeCompare(b.d+b.tm));
+  const seq=evs.map(e=>({e,g:oneG(e)})).filter(x=>x.g);const n=seq.length;
+  if(n<6)return hl('','資料不足','這個範圍內「只由一股出人」的公差太少（'+n+' 件），看不出輪替','放寬日期或換一個種類試試。')+`<div class="card"><h2>輪替分析</h2>${bar}</div>`;
+  const E={},A={};v.forEach(g=>{E[g.k]=0;A[g.k]=0});seq.forEach(x=>{const ex=exp(x.e.ty);v.forEach(g=>E[g.k]+=ex[g.k]);A[x.g.k]++});
+  let rep=0;const T={};v.forEach(a=>{T[a.k]={};v.forEach(b=>T[a.k][b.k]=0)});
+  for(let i=1;i<n;i++){const a=seq[i-1].g.k,b=seq[i].g.k;T[a][b]++;if(a===b)rep++}
+  const er=v.reduce((a,g)=>a+(E[g.k]/n)**2,0);const rr=rep/(n-1);const z=(rep-(n-1)*er)/Math.sqrt((n-1)*er*(1-er)||1);
+  const last=seq[n-1].g;const debt=v.map(g=>({g,d:E[g.k]-A[g.k]})).sort((a,b)=>b.d-a.d);const nxt=debt[0];
+  const kind=z<-1.64?'ok':z>1.64?'warn':'';const tag=z<-1.64?'有在輪流':z>1.64?'沒在輪流':'看不出規律';
+  const hd=hl(kind,tag,`連續同一股的比例 ${pct(rr)}（亂抽約 ${pct(er)}）`,`最近一次是${last.n}。依累計欠班，下一個最該輪到「${nxt.g.n}」${nxt.d>=.5?`（少扛 ${nxt.d.toFixed(1)} 次）`:'（目前差不多）'}`,'只由一股出人的公差，若真的輪流，同一股不該連續出現。欠班＝依人數應該扛的次數，減去實際扛的次數。');
+  const tl=seq.slice(-60).map(x=>`<i class="sq" style="background:${x.g.c}" data-tip="${esc(x.e.d)}<br>${esc(x.e.ty)}<br>${x.g.n}"></i>`).join('');
+  const trs=v.map(a=>{const tot=v.reduce((q,b)=>q+T[a.k][b.k],0);return `<tr><td><i class="dot" style="background:${a.c}"></i> ${a.n}</td>${v.map(b=>{const c=T[a.k][b.k];const sh=tot?c/tot:0;const d=sh-E[b.k]/n;return `<td class="c" style="background:${heatColor(d)};text-align:center" data-tip="上一件${a.n}→下一件${b.n}：${c} 次（${pct(sh)}）">${c}<br><small>${pct(sh)}</small></td>`}).join('')}</tr>`}).join('');
+  const ms=months(evs[0].d.slice(0,7)+'-01',evs[evs.length-1].d);const cum={};v.forEach(g=>cum[g.k]=0);
+  const series=v.map(g=>({g,vals:[]}));ms.forEach(mo=>{seq.filter(x=>x.e.d.slice(0,7)===mo).forEach(x=>{const ex=exp(x.e.ty);v.forEach(g=>cum[g.k]+=(x.g.k===g.k?1:0)-ex[g.k])});series.forEach(q=>q.vals.push(cum[q.g.k]))});
+  // 人時
+  const H={},C={};v.forEach(g=>{H[g.k]=0;C[g.k]=0});let withD=0,tot=0;rows.forEach(e=>{tot++;const h=durH(e);if(h==null)return;withD++;v.forEach(g=>{H[g.k]+=e[g.k]*h;C[g.k]+=e[g.k]})});
+  const Ht=v.reduce((a,g)=>a+H[g.k],0);
+  // 密集出勤
+  const {P}=people(rows);const dense=P.map(p=>{const ds=p.evs.map(e=>e.d).sort();let best=0,cnt=0;for(let i=0;i<ds.length;i++){let j=i;while(j+1<ds.length&&daysBetween(ds[i],ds[j+1])<=7)j++;if(j-i+1>cnt){cnt=j-i+1;best=i}}return{p,cnt,from:ds[best]}}).filter(x=>x.cnt>=3).sort((a,b)=>b.cnt-a.cnt).slice(0,8);
+  return hd+`<div class="card"><h2>輪替分析</h2>${bar}<div class="note">只看「這一件只由一股出人」的公差，共 ${n} 件。</div></div>
+  <div class="card"><h3>順序（最近 ${Math.min(60,n)} 件，左→右由舊到新）</h3>${legend()}<div>${tl}</div></div>
+  <div class="card"><h3>上一件 → 下一件（看有沒有「換股」）</h3><div class="note">若真的輪流，對角線（同一股接同一股）應該偏少。紅＝比平均多、藍＝比平均少。</div><div style="overflow:auto;margin-top:6px"><table class="heat"><thead><tr><th>上一件＼下一件</th>${v.map(b=>`<th style="text-align:center">${b.n}</th>`).join('')}</tr></thead><tbody>${trs}</tbody></table></div></div>
+  <div class="card"><h3>累計欠班曲線（越高＝累計多扛，越低＝累計少扛）</h3><div class="note">依各股人數與階級計算「應該扛的次數」，曲線在 0 附近＝公平；一直往下的股，就是被占便宜的那一股的對照。</div>${legend()}<div class="chartwrap">${devChart(ms,series)}</div></div>
+  <div class="card"><h3>人時負擔（人數 × 時數）</h3><div class="note">有寫時段（例如 0900-1030）的公差才能算時數：${withD}／${tot} 件。</div><div style="overflow:auto;margin-top:6px"><table><thead><tr><th>股</th><th>人次</th><th>人時</th><th>人時占比</th><th>平均每人次</th></tr></thead><tbody>${v.map(g=>`<tr><td><i class="dot" style="background:${g.c}"></i> ${g.n}</td><td>${C[g.k]}</td><td>${H[g.k].toFixed(1)}</td><td>${Ht?pct(H[g.k]/Ht):'—'}</td><td>${C[g.k]?(H[g.k]/C[g.k]).toFixed(1)+' 小時':'—'}</td></tr>`).join('')}</tbody></table></div></div>
+  <div class="card"><h3>短期內重複出勤（7 天內出 3 次以上）</h3>${dense.length?dense.map(x=>`<div class="find" data-person="${esc(x.p.key)}" tabindex="0" role="button"><b><i class="dot" style="background:${x.p.g.c}"></i> ${esc(x.p.nm)}（${x.p.g.n}）</b><div>${x.from.slice(2)} 起 7 天內出了 ${x.cnt} 次</div></div>`).join(''):'<div class="note">沒有人在 7 天內出到 3 次以上。</div>'}</div>`}
+
+/* ---------- 預測 ---------- */
+function mean(a){return a.length?a.reduce((x,y)=>x+y,0)/a.length:0}
+function median(a){if(!a.length)return 0;const b=a.slice().sort((x,y)=>x-y);const m=b.length>>1;return b.length%2?b[m]:(b[m-1]+b[m])/2}
+function vFc(){
+  const cur=ANCHOR.slice(0,7),cmn=+cur.slice(5,7),nxt=addM(cur+'-01',1).slice(0,7),nmn=+nxt.slice(5,7);
+  let all=months(MIN.slice(0,7),addD(cur+'-01',-1));if(all.length&&MIN.slice(8)>'05')all=all.slice(1);
+  if(all.length<6)return hl('','資料不足','歷史資料不到 6 個月，無法預測','先累積更多資料。');
+  const cnt={};D.forEach(e=>{const k=e.ty+'|'+e.d.slice(0,7);cnt[k]=(cnt[k]||0)+1});
+  const tot={};D.forEach(e=>{tot[e.d.slice(0,7)]=(tot[e.d.slice(0,7)]||0)+1});
+  const get=(t,m)=>cnt[t+'|'+m]||0;const rec=all.slice(-3);
+  const medT=median(all.map(m=>tot[m]||0));const OUT=new Set(all.filter(m=>(tot[m]||0)>=Math.max(10,2.2*medT)));
+  const est=(t,mn)=>{const sm=all.filter(m=>+m.slice(5,7)===mn);const clean=sm.filter(m=>!OUT.has(m));const same=(clean.length?clean:sm).map(m=>get(t,m));const base=mean(all.map(m=>get(t,m)));const r3=mean(rec.map(m=>get(t,m)));
+    const w=clean.length?(same.length>=2?.5:.4):.15;const e=same.length?w*mean(same)+(1-w)*r3:.5*r3+.5*base;return{e,same,base,r3,ny:same.length}};
+  const rows2=TYPES.map(t=>{const a=est(t,cmn),b=est(t,nmn);const so=D.filter(x=>x.ty===t&&x.d.slice(0,7)===cur&&x.d<=ANCHOR).length;return{t,a,b,so,idx:a.base>0&&a.ny?mean(a.same)/a.base:null}}).filter(r=>r.a.base>0||r.b.base>0).sort((x,y)=>y.a.e-x.a.e);
+  const top=rows2[0];const hot=rows2.filter(r=>r.idx!=null&&r.idx>=1.4&&mean(r.a.same)>=1).sort((x,y)=>y.idx-x.idx)[0];
+  const rng=e=>{const d=1.28*Math.sqrt(Math.max(e,.01));return `${Math.max(0,Math.round(e-d))}～${Math.round(e+d)}`};
+  const hd=hl('','預測',`${cmn} 月預估最常見的公差：「${esc(top.t)}」約 ${Math.round(top.a.e)} 件（可能 ${rng(top.a.e)}）`,hot?`同月歷史偏多：「${esc(hot.t)}」平常的 ${hot.idx.toFixed(1)} 倍`:'沒有哪一類在這個月特別突出。',`依「過去同月份」和「最近 3 個月」兩者加權估算。歷史只有約 ${Math.round(all.length/12*10)/10} 年，季節性只能參考。`);
+  const monthAvg=Array.from({length:12},(_,i)=>{const ms=all.filter(m=>+m.slice(5,7)===i+1);return{n:ms.length,a:mean(ms.map(m=>tot[m]||0))}});const mx=Math.max(1,...monthAvg.map(x=>x.a));
+  const bars=`<div style="display:grid;grid-template-columns:repeat(12,1fr);gap:4px;align-items:end;height:110px">${monthAvg.map((x,i)=>`<div style="text-align:center;font-size:11px;color:var(--ink2)" data-tip="${i+1} 月：平均 ${x.a.toFixed(1)} 件（${x.n} 年資料）"><div style="height:${x.n?Math.max(3,x.a/mx*80):2}px;background:${i+1===cmn?'var(--ink)':'var(--ink3)'};opacity:${x.n?1:.25};border-radius:3px 3px 0 0"></div>${i+1}</div>`).join('')}</div>`;
+  const tr=rows2.slice(0,8).map(r=>`<tr><td>${esc(r.t)}</td><td>${r.so}</td><td><b>${r.a.e.toFixed(1)}</b><br><small class="note">${rng(r.a.e)}</small></td><td>${r.a.ny?mean(r.a.same).toFixed(1)+'<br><small class="note">'+r.a.ny+' 年</small>':'—'}</td><td>${r.idx==null?'—':(r.idx>=1.4?'<span class="pill warn">偏多 ':r.idx<=.6?'<span class="pill ok">偏少 ':'<span class="badge">')+'×'+r.idx.toFixed(1)+'</span>'}</td><td>${r.b.e.toFixed(1)}</td></tr>`).join('');
+  const past=[];all.concat([]).forEach(()=>{});const yrs=[...new Set(all.filter(m=>+m.slice(5,7)===cmn).map(m=>m.slice(0,4)))];
+  const pastHtml=yrs.map(y=>{const ev=D.filter(e=>e.d.slice(0,7)===y+'-'+String(cmn).padStart(2,'0'));const by={};ev.forEach(e=>{const k=e.p||e.ty;by[k]=(by[k]||0)+1});return `<div style="margin:8px 0"><b>${y} 年 ${cmn} 月</b>（共 ${ev.length} 件）<div class="note" style="margin-top:3px">${Object.entries(by).sort((a,b)=>b[1]-a[1]).slice(0,10).map(([k,n])=>esc(k)+(n>1?'×'+n:'')).join('、')||'無'}</div></div>`}).join('');
+  const per=TYPES.map(t=>{const ds=D.filter(e=>e.ty===t).map(e=>e.d).sort();if(ds.length<5)return null;const gaps=[];for(let i=1;i<ds.length;i++){const g=daysBetween(ds[i-1],ds[i]);if(g>0)gaps.push(g)}if(gaps.length<4)return null;const md=median(gaps);const last=ds[ds.length-1];const since=daysBetween(last,ANCHOR);return{t,md,last,since,next:addD(last,Math.round(md)),n:ds.length}}).filter(Boolean).sort((a,b)=>(b.since/b.md)-(a.since/a.md));
+  const perHtml=per.map(r=>`<tr><td>${esc(r.t)}</td><td>${Math.round(r.md)} 天</td><td>${r.last.slice(2)}<br><small class="note">${r.since<0?'已登記':r.since+' 天前'}</small></td><td>${r.next.slice(2)}</td><td>${r.since<0?'<span class="badge">已排定</span>':r.since>r.md*3?'<span class="badge">不定期</span>':r.since>=r.md*.8?'<span class="pill warn">快到了</span>':'<span class="badge">還早</span>'}</td></tr>`).join('');
+  return hd+`<div class="card"><h2>各月份平均公差量</h2><div class="note">深色＝本月。看哪幾個月特別忙。</div><div style="margin-top:8px">${bars}</div></div>
+  <div class="card"><h2>本月（${cmn} 月）預估</h2><div class="note">${OUT.size?`異常月份（${[...OUT].join('、')}，明顯比平常多，多半是災害或大型活動）已降低影響。<br>`:''}「預估」＝全月預估件數（括號是 80% 可能範圍）；「同月歷史」＝過去同月份平均；倍數＝比平常多或少。</div><div style="overflow:auto;margin-top:6px"><table><thead><tr><th>種類</th><th>本月已有</th><th>全月預估</th><th>同月歷史</th><th>季節</th><th>${nmn} 月預估</th></tr></thead><tbody>${tr}</tbody></table></div></div>
+  <div class="card"><h2>往年這個月做過什麼</h2>${pastHtml||'<div class="note">還沒有往年同月份的資料。</div>'}</div>
+  <div class="card"><h2>週期性：下一次大概什麼時候</h2><div class="note">用「平均多久一次」推算（例如擦槍每季一次）。「快到了」＝距上次已超過平均間隔的 8 成；超過 3 倍間隔的視為「不定期」，不推算。</div><div style="overflow:auto;margin-top:6px"><table><thead><tr><th>種類</th><th>平均間隔</th><th>上次</th><th>預計</th><th></th></tr></thead><tbody>${perHtml||'<tr><td colspan="5">資料不足</td></tr>'}</tbody></table></div></div>`}
 function presetRanges(){const p=S.cmp.preset;if(p==='custom'){return{a:[S.cmp.aF||MIN,S.cmp.aT||addD(MIN,365)],b:[S.cmp.bF||addD(MIN,366),S.cmp.bT||MAX]}}
   const n=+p;const bF=addD(addM(ANCHOR,-n),1);const aT=addD(bF,-1);const aF=addD(addM(aT,-n),1);return{a:[aF,aT],b:[bF,MAX]}}
 function vCmp(){
-  const r=presetRanges();const A=filt(r.a[0],r.a[1]),B=filt(r.b[0],r.b[1]);const oa=sums(A),ob=sums(B);const v=vis();const sa=stat(oa),sb=stat(ob);
+  const r=presetRanges();const A=filt(r.a[0],r.a[1]),B=filt(r.b[0],r.b[1]);const oa=sums(A),ob=sums(B);const v=vis();const sa=stat(oa,A),sb=stat(ob,B);
   const pb=(k,t)=>`<button class="btn" data-cp="${k}" aria-pressed="${S.cmp.preset===k}">${t}</button>`;
   const g=(o,s)=>v.map(x=>({x,val:o[x.k],sh:s.tot?o[x.k]/s.tot:0}));
   const cmpRows=v.map(x=>({label:x.n,a:oa[x.k],b:ob[x.k],sa:sa.tot?oa[x.k]/sa.tot:0,sb:sb.tot?ob[x.k]/sb.tot:0}));
@@ -423,18 +622,34 @@ function vCmp(){
   ${S.cmp.preset==='custom'?`<div class="row" style="margin:6px 0"><label class="f">A 開始<input type="date" id="aF" value="${r.a[0]}"></label><label class="f">A 結束<input type="date" id="aT" value="${r.a[1]}"></label><label class="f">B 開始<input type="date" id="bF" value="${r.b[0]}"></label><label class="f">B 結束<input type="date" id="bT" value="${r.b[1]}"></label></div>`:''}
   <div class="note">套用上方的「種類／關鍵字／股別」篩選；日期以這裡的兩段為準。</div>${legend()}
   ${chartOrTable(barPair('A 期',oa,sa,r.a)+barPair('B 期',ob,sb,r.b),['股','A件人次','A占比','B人次','B占比'],cmpRows.map(c=>[c.label,c.a,pct(c.sa),c.b,pct(c.sb)]))}
-  ${fairText(oa,'A 期')}${fairText(ob,'B 期')}</div>
+  ${fairText(oa,'A 期',A)}${fairText(ob,'B 期',B)}</div>
   <div class="card"><h3>各類別：A→B 人次（▲▼＝占比變動 ≥15pp）</h3><div style="overflow:auto"><table><thead><tr><th>種類</th>${v.map(x=>`<th>${x.n}</th>`).join('')}</tr></thead><tbody>${trs||'<tr><td>無資料</td></tr>'}</tbody></table></div></div>`}
-function vList(rows){const rr=rows.slice().reverse();const l=rr[0];return (l?hl('','共 '+rows.length+' 件',`最近一件：${l.d.slice(2)} ${esc(l.p||l.ty)}`,'','點任一筆展開看群組原文、各股人數與姓名。'):hl('','沒有資料','這段期間沒有公差',''))+`<div class="card"><h2>公差明細　<span class="note">${rows.length} 件（點開看原文）</span></h2>${evList(rr.slice(0,S.more))}${rr.length>S.more?`<button class="btn" id="more" style="width:100%;margin-top:8px">再顯示 200 件</button>`:''}</div>`}
+const VH=78;let VL={rows:[],n:0};
+const sortRows=rows=>{const r=rows.slice();if(S.sort==='old')return r;if(S.sort==='ppl')return r.sort((a,b)=>(b.k+b.f+b.j)-(a.k+a.f+a.j)||(a.d<b.d?1:-1));return r.reverse()};
+function vList(rows){const rr=sortRows(rows);VL={rows:rr,n:Math.min(60,rr.length)};const l=rows[rows.length-1];
+  const sb=`<div class="sortbar" role="group" aria-label="排序">${[['new','時間 新→舊'],['old','時間 舊→新'],['ppl','人數 多→少']].map(([k,t])=>`<button class="btn ${S.sort===k?'primary':''}" data-sort="${k}" aria-pressed="${S.sort===k}">${t}</button>`).join('')}</div>`;
+  return (l?hl('','共 '+rows.length+' 件',`最近一件：${l.d.slice(2)} ${esc(l.p||l.ty)}`,'','點任一筆，從下方滑出原文與各股人名。'):hl('','沒有資料','這段期間沒有公差',''))+sb+`<div id="vl" style="position:relative;height:${VL.n*VH}px" role="list"></div><div class="note" id="vlf" style="text-align:center;padding:14px">${rr.length?'':'沒有符合的公差'}</div>`}
+function vlPaint(){const el=document.getElementById('vl');if(!el)return;const rr=VL.rows;const top=el.getBoundingClientRect().top+scrollY;const vh=innerHeight;
+  const bb=Math.ceil((scrollY+vh-top)/VH)+6;
+  if(bb>=VL.n-8&&VL.n<rr.length){VL.n=Math.min(rr.length,VL.n+60);el.style.height=VL.n*VH+'px'}
+  const a=Math.max(0,Math.floor((scrollY-top)/VH)-6),b=Math.min(VL.n,bb);
+  const key=a+'-'+b+'-'+VL.n;if(el.dataset.k===key)return;el.dataset.k=key;let h='';
+  for(let i=a;i<Math.min(b,rr.length);i++){const e=rr[i];h+=`<div class="vr" role="listitem" tabindex="0" data-ev="${i}" style="top:${i*VH}px"><div class="l"><div class="l1"><b>${e.d.slice(2)}</b> ${esc(e.tm||'')} <span class="badge">${esc(e.ty)}</span></div><div class="l2">${esc(e.p||e.x.slice(0,30))}</div></div><div class="r">${e.u?'<span class="note">未分股</span>':G.map(g=>e[g.k]?`<span><i class="dot" style="background:${g.c}"></i>${e[g.k]}</span>`:'').join('')}</div></div>`}
+  el.innerHTML=h;const f=document.getElementById('vlf');if(f)f.textContent=VL.n<rr.length?`已載入 ${VL.n} / ${rr.length}　繼續下滑自動載入…`:`已顯示全部 ${rr.length} 件`}
+function evSheet(e){const names=e.n?G.map(g=>e.n[g.k]?`<div><i class="dot" style="background:${g.c}"></i> <b>${g.n}</b> ${esc(e.n[g.k].join('、'))}</div>`:'').join(''):'';
+  openSheet(e.d.slice(2)+' '+(e.tm||''),`<div style="margin-bottom:8px"><span class="badge">${esc(e.ty)}</span> ${esc(e.p||'')}</div><div class="nums" style="font-size:16px;margin-bottom:8px">${e.u?'未分股':G.map(g=>`<span style="margin-right:12px"><i class="dot" style="background:${g.c}"></i>${g.n} ${e[g.k]||0} 人</span>`).join('')}</div>${names?`<div class="note" style="line-height:1.9;margin-bottom:8px">${names}</div>`:''}<div class="raw">${esc(e.x)}</div>`)}
+let vlRaf=0;addEventListener('scroll',()=>{if(S.tab!=='list'||vlRaf)return;vlRaf=requestAnimationFrame(()=>{vlRaf=0;vlPaint()})},{passive:true});
+addEventListener('resize',()=>{const el=document.getElementById('vl');if(el){el.dataset.k='';vlPaint()}});
 
 function render(keepFocus){
-  syncControls();const rows=filt(S.from,S.to);
+  syncControls();renderNav();const rows=filt(S.from,S.to);
   $('#sub').textContent=`${rows.length} 件符合｜資料 ${D.length?MIN.slice(0,7)+' ～ '+MAX.slice(0,7):'尚無'}｜${DB.mode==='remote'?'已連線':'預覽'}`;
   const v=$('#view');let h='';
-  if(S.tab==='overview')h=vOverview(rows);else if(S.tab==='trend')h=vTrend(rows);else if(S.tab==='types')h=vTypes(rows);else if(S.tab==='ppl')h=vPeople(rows);else if(S.tab==='hot')h=vHot(rows);else if(S.tab==='cmp')h=vCmp();else if(S.tab==='sync')h=vSync();else h=vList(rows);
+  if(S.tab==='overview')h=vOverview(rows);else if(S.tab==='trend')h=vTrend(rows);else if(S.tab==='types')h=vTypes(rows);else if(S.tab==='ppl')h=vPeople(rows);else if(S.tab==='hot')h=vHot(rows);else if(S.tab==='rot')h=vRot(rows);else if(S.tab==='fc')h=vFc();else if(S.tab==='cmp')h=vCmp();else if(S.tab==='sync')h=vSync();else h=vList(rows);
   const y=scrollY;v.innerHTML=h;if(keepFocus)scrollTo(0,y);
   ['aF','aT','bF','bT'].forEach(id=>{const el=$('#'+id);if(el)el.onchange=e=>{S.cmp[id]=e.target.value;render()}});
   if(S.tab==='sync')wireSync();
+  if(S.tab==='list')vlPaint();
   v.querySelectorAll('[data-type][role=button]').forEach(el=>el.onkeydown=e=>{if(e.key==='Enter'||e.key===' '){e.preventDefault();el.click()}});
 }
 const Ingest=(function(){
@@ -626,6 +841,8 @@ async function loadRemote(pwOverride){const c=cfgLoad();const pw=pwOverride!=nul
   const u=c.url+(c.url.includes('?')?'&':'?')+'action=all&key='+encodeURIComponent(pw);
   const r=await fetch(u);const j=await r.json();if(!j.ok){const e=new Error(j.error||'讀取失敗');e.auth=j.auth===false;throw e}
   DB.mode='remote';DB.lastMsg=(j.settings&&j.settings.lastMsg)||'';DB.at=new Date().toLocaleString('zh-TW');
+  try{RANKS=JSON.parse((j.settings&&j.settings.ranks)||'{}')||{}}catch(e){RANKS={}}
+  try{const rr=JSON.parse((j.settings&&j.settings.rules)||'null');RULES=Array.isArray(rr)&&rr.length?rr:DEFAULT_RULES}catch(e){RULES=DEFAULT_RULES}
   const ros=(j.roster||[]).map(r=>[r[0],GR[r[1]]||r[1]]);
   setAll((j.events||[]).map(fromRow).map(normEv),ros);return j}
 function useDemo(msg){DB.mode='demo';DB.lastMsg=SEED_CUT;DB.msg=msg||'';setAll(SEED.map(normEv),SEED_ROSTER.map(r=>[r[0],r[1]]))}
@@ -699,7 +916,7 @@ function typeOptions(sel){const T=['送裝備/運送器材','搬運/領物資/�
 function vSync(){
   const c=cfgLoad();const live=ALL.filter(e=>e.st!=='刪除');
   const rev=live.map(inferFromNames).sort((a,b)=>(b.u-a.u)||b.m.localeCompare(a.m));
-  const rosTxt=ROSTER.map(r=>r[0]+'\t'+GN[r[1]]).join('\n');
+  const rosTxt=ROSTER.map(r=>r[0]+'\t'+GN[r[1]]+'\t'+(RANKS[r[0]]||'')).join('\n');const rulTxt=RULES.map(r=>r.kw.join('、')+'｜'+r.w+'｜'+(r.ban||[]).join('、')+'｜'+r.note).join('\n');
   return `<div class="card"><h2>① 連線狀態</h2>
   <div class="note">資料與登入密碼都存在你的 Google 試算表；這個網頁本身不含任何資料。</div>
   <div style="margin:8px 0"><b>${DB.mode==='remote'?'已連線':'預覽模式（未連線）'}</b>｜資料 ${live.length} 件｜已同步到 ${esc(DB.lastMsg||'—')}${DB.at?'｜'+esc(DB.at):''}</div>
@@ -716,9 +933,12 @@ function vSync(){
    <label class="f">快<input class="rk" type="number" min="0" value="${e.k}"></label><label class="f">飛<input class="rf" type="number" min="0" value="${e.f}"></label><label class="f">軍<input class="rj" type="number" min="0" value="${e.j}"></label>
    <button class="btn rs">存</button><button class="btn rd">刪</button></div></div>`;const todo=rev.filter(e=>e.u),ok=rev.filter(e=>!e.u).slice(0,30);
   return (todo.length?`<div class="find"><b>還有 ${todo.length} 件抓不到股別，請補人數</b></div>`+todo.map(R).join(''):`<div class="find ok"><b>沒有需要處理的 ✓</b><div>所有公差都有分股。</div></div>`)+`<details style="margin-top:10px"><summary class="btn" style="display:flex;align-items:center;cursor:pointer">最近 ${ok.length} 件已抓到的（抽查用）</summary>${ok.map(R).join('')}</details>`})()}</div>
-  <div class="card"><h2>④ 各股名冊</h2><div class="note">一行一人：姓名［Tab］股別（快砲／飛彈／軍械／退伍）。「公平」用的編制人數與姓名配對都以這份為準。</div>
+  <div class="card"><h2>④ 各股名冊與階級</h2><div class="note">一行一人：姓名［Tab］股別（快砲／飛彈／軍械／退伍）［Tab］階級職稱。可以直接從試算表「人員」分頁複製 A～C 三欄貼上（標題列會自動略過）。階級用來判斷誰比較少出公差，見下方規則。</div>
   <textarea id="rosTa" rows="8" style="width:100%;margin-top:6px;border:1px solid var(--line);border-radius:10px;padding:8px;background:var(--surface)">${esc(rosTxt)}</textarea>
   <button class="btn" id="rosSave" style="margin-top:6px">儲存名冊</button></div>
+  <div class="card"><h2>階級規則（影響公平計算）</h2><div class="note">一行一條，由上往下第一條符合的生效：<br><b>階級關鍵字（用「、」分隔）｜權重｜不能出的類別（可空）｜名稱</b><br>權重 0＝不納入公平計算；0.3＝只算 0.3 個人；1＝一般。例如聘雇人員不能擦槍、打草，就把這兩類寫在第三欄。目前的類別名稱：${esc(TYPES.join('、'))}</div>
+  <textarea id="rulTa" rows="6" style="width:100%;margin-top:6px;border:1px solid var(--line);border-radius:10px;padding:8px;background:var(--surface)">${esc(rulTxt)}</textarea>
+  <div class="row" style="margin-top:6px"><button class="btn" id="rulSave">儲存規則</button><button class="btn" id="rulReset">還原預設</button></div><div class="note" id="rulMsg" role="status"></div></div>
   <div class="card"><h2>⑤ 初始資料匯入（只做一次）</h2><div class="note">選「公差初始資料.json」。只有在試算表是空的時候才會寫入；預覽模式則只在這次瀏覽顯示。</div>
   <input type="file" id="fSeed" style="margin-top:8px"><div class="note" id="seedMsg" style="margin-top:6px"></div></div>
   <div class="card"><h2>⑥ 修改登入密碼</h2><div class="row"><label class="f">新密碼<input type="password" id="npw" autocomplete="new-password"></label><button class="btn" id="npwBtn">修改</button></div><div class="note" id="npwMsg"></div></div>`}
@@ -736,9 +956,13 @@ function wireSync(){
       if(DB.mode==='remote'){try{await apiPost('update',{id,fields});await reloadAll(true)}catch(er){alert('存檔失敗：'+er.message)}}else{Object.assign(e0,fields);applyData(ALL,ROSTER);render()}};
     row.querySelector('.rd').onclick=async()=>{const e0=ALL.find(x=>x.id===id);
       if(DB.mode==='remote'){try{await apiPost('update',{id,fields:{st:'刪除'}});await reloadAll(true)}catch(er){alert('失敗：'+er.message)}}else{e0.st='刪除';applyData(ALL,ROSTER);render()}}});
+  const saveRules=async rules=>{RULES=rules;const m=el('rulMsg');try{if(DB.mode==='remote'){await apiPost('setting',{name:'rules',value:JSON.stringify(rules)});await reloadAll(true)}else{applyData(ALL,ROSTER);S.heads={...RHEAD};buildControls();render()}}catch(er){alert('失敗：'+er.message)}};
+  if(el('rulSave'))el('rulSave').onclick=()=>{const rules=el('rulTa').value.split(/\r?\n/).map(l=>l.split(/[｜|]/).map(x=>x.trim())).filter(a=>a[0]).map(a=>({kw:a[0].split(/[、,，]/).map(x=>x.trim()).filter(Boolean),w:Math.max(0,parseFloat(a[1])),ban:(a[2]||'').split(/[、,，]/).map(x=>x.trim()).filter(Boolean),note:a[3]||a[0]})).filter(r=>r.kw.length&&!isNaN(r.w));if(!rules.length){alert('格式看不懂，至少要一條規則。');return}saveRules(rules)};
+  if(el('rulReset'))el('rulReset').onclick=()=>{if(confirm('還原成預設規則？'))saveRules(DEFAULT_RULES)};
   if(el('rosSave'))el('rosSave').onclick=async()=>{const rows=el('rosTa').value.split(/\r?\n/).map(l=>l.split(/\t|\s{2,}/).map(s=>s.trim())).filter(a=>a[0]&&GR[a[1]]);
-    if(DB.mode==='remote'){try{await apiPost('roster',{roster:rows});await reloadAll(true)}catch(er){alert('失敗：'+er.message)}}
-    else{ROSTER=rows.map(a=>[a[0],GR[a[1]]]);applyData(ALL,ROSTER);S.heads={...RHEAD};buildControls();render()}};
+    const ranks={};rows.forEach(a=>{if(a[2])ranks[a[0]]=a[2]});
+    if(DB.mode==='remote'){try{await apiPost('roster',{roster:rows.map(a=>[a[0],a[1]])});await apiPost('setting',{name:'ranks',value:JSON.stringify(ranks)});await reloadAll(true)}catch(er){alert('失敗：'+er.message)}}
+    else{RANKS=ranks;ROSTER=rows.map(a=>[a[0],GR[a[1]]]);applyData(ALL,ROSTER);S.heads={...RHEAD};buildControls();render()}};
   if(el('npwBtn'))el('npwBtn').onclick=async()=>{const m=el('npwMsg');const np=el('npw').value;if(np.length<4){m.textContent='至少 4 個字元';return}
     if(DB.mode!=='remote'){m.textContent='要先連線試算表';return}
     try{await apiPost('setPassword',{newPassword:np});pwStore(np,false);m.textContent='已修改。下次登入請用新密碼。'}catch(er){m.textContent='失敗：'+er.message}};
