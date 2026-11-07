@@ -2465,6 +2465,19 @@ details.tds > summary.tdh > span { margin-right: auto; }
 .gdtip { font-size: 13px; color: var(--muted, #4b5563); line-height: 1.6; margin: 4px 0 12px; } .gdtip b { color: var(--stay, #e2572b); }
 .gdsec { margin-bottom: 16px; } .gdsec > b { font-size: 15px; } .gdsec > small { font-size: 12px; color: var(--muted, #6b7280); margin-left: 8px; } .gdsec .planpick { margin-top: 8px; }
 .gdrow { display: grid; grid-template-columns: 1fr 76px 16px 76px; align-items: center; gap: 6px; margin-top: 8px; } .gdrow span { font-weight: 700; font-size: 14px; } .gdrow input { min-height: 40px; text-align: center; font-size: 16px; } .gdrow i { font-style: normal; text-align: center; color: #9ca3af; }
+/* v11.29 衛哨設定 */
+.gdst { border-radius: 14px; padding: 10px 14px; margin: 6px 0 16px; border: 2px solid; } .gdst.ok { background: #eef8f1; border-color: #9fd3ae; } .gdst.no { background: #fff4e5; border-color: #f2c48d; }
+.gdsth { font-weight: 800; font-size: 15px; margin-bottom: 6px; } .gdst.ok .gdsth { color: #1f7a3c; } .gdst.no .gdsth { color: #9a4210; }
+.gdsl { display: grid; grid-template-columns: 72px 1fr; gap: 6px; font-size: 14px; padding: 3px 0; } .gdsl span { color: var(--muted, #6b7280); } .gdsl em { font-style: normal; color: #b3261e; } .gdsl small { font-weight: 600; color: var(--muted, #6b7280); margin-left: 4px; }
+.gdex { font-size: 12px; color: var(--muted, #6b7280); margin-top: 6px; padding-top: 6px; border-top: 1px dashed rgba(0,0,0,.12); } .gdex b { color: var(--stay, #e2572b); }
+.gdh { display: flex; align-items: center; gap: 4px; flex-wrap: wrap; margin-bottom: 8px; } .gdh > b:not(.stn) { font-size: 16px; } .gdh small { font-size: 12px; color: var(--muted, #6b7280); flex-basis: 100%; padding-left: 26px; }
+.gdrow { grid-template-columns: 1fr 72px 16px 72px !important; padding: 4px 6px; border-radius: 10px; } .gdrow.now { background: #fff6d6; }
+.gdrow span { display: flex; flex-direction: column; } .gdrow span small { font-size: 11px; font-weight: 600; color: var(--muted, #9ca3af); }
+.gdnow { font-style: normal; font-size: 10.5px; background: #f5b800; color: #1f2a44; border-radius: 6px; padding: 0 5px; margin-left: 4px; display: inline-block; width: max-content; }
+.gdtip { font-size: 11.5px; color: var(--muted, #9ca3af); margin-top: 6px; }
+.gdsave { position: sticky; bottom: 0; padding: 10px 0 calc(6px + env(safe-area-inset-bottom)); background: linear-gradient(transparent, var(--bg) 30%); }
+.gdsave button { width: 100%; } .gdsave button:disabled { opacity: .55; }
+[data-theme="dark"] .gdst.ok { background: rgba(46,154,80,.14); } [data-theme="dark"] .gdst.no { background: rgba(240,138,60,.12); } [data-theme="dark"] .gdrow.now { background: rgba(245,184,0,.12); }
 
   .sit { display: inline-flex; align-items: center; gap: 5px; }
 .sit .wi { width: 18px; height: 18px; flex-shrink: 0; background: center / contain no-repeat; }
@@ -4660,34 +4673,65 @@ table.grid.wk td.cell { font-size: calc(var(--bd, 34px) * .48); }
       var guardEdit = null;
       function guardMonths() { var d = new Date(), out = []; for (var i = -1; i <= 3; i++) { var x = new Date(d.getFullYear(), d.getMonth() + i, 1); out.push(x.getFullYear() + '-' + pad(x.getMonth() + 1)); } return out; }
       function guardOpen() {
-        guardEdit = { ppl: (guardCfg.ppl || []).slice(), tm: JSON.parse(JSON.stringify(guardCfg.tm || {})) };
+        guardEdit = { ppl: (guardCfg.ppl || []).slice(), tm: JSON.parse(JSON.stringify(guardCfg.tm || {})), saved: '' };
         guardDraw(); $('evtPage').classList.add('show'); $('evtPage').scrollTop = 0;
       }
+      function guardTmTx(tm, ym) {
+        var ks = Object.keys(tm || {}).filter(function (x) { return x <= ym; }).sort(); if (!ks.length) return null;
+        var t = tm[ks[ks.length - 1]], m = String(t).match(/^(\d{2})(\d{2})-(\d{2})(\d{2})$/);
+        return m ? { t: m[1] + ':' + m[2] + '–' + m[3] + ':' + m[4], from: ks[ks.length - 1], own: ks[ks.length - 1] === ym } : null;
+      }
+      function guardDirty() { return JSON.stringify({ p: guardEdit.ppl.slice().sort(), t: guardEdit.tm }) !== JSON.stringify({ p: (guardCfg.ppl || []).slice().sort(), t: guardCfg.tm || {} }); }
+      function guardReadInputs() {
+        document.querySelectorAll('#evtBody [data-gm][data-gi="0"]').forEach(function (el) {
+          var ym = el.dataset.gm, other = document.querySelector('#evtBody [data-gm="' + ym + '"][data-gi="1"]');
+          var a = el.value.replace(/\D/g, ''), b = other.value.replace(/\D/g, '');
+          if (a.length === 3) a = '0' + a; if (b.length === 3) b = '0' + b;
+          if (a.length === 4 && b.length === 4) guardEdit.tm[ym] = a + '-' + b; else if (!a && !b) delete guardEdit.tm[ym];
+        });
+      }
       function guardDraw() {
-        var h = '<div class="evtt">衛哨設定</div><div class="gdtip">駐廠的人<b>留守</b>那天，會自動多一項「衛哨」（時間照下面當月設定），選人、時間重疊都會一起判斷。</div>';
-        h += '<div class="gdsec"><b>駐廠名單</b><small>點選＝駐廠（已選 ' + guardEdit.ppl.length + ' 人）</small><div class="planpick">' + dutyEmps().map(function (e) {
-          return '<button class="' + (guardEdit.ppl.indexOf(e.name) >= 0 ? 'on' : '') + '" data-gp="' + esc(e.name) + '">' + esc(e.name) + '</button>'; }).join('') + '</div></div>';
-        h += '<div class="gdsec"><b>每月衛哨時間</b><small>空著＝沿用上個月</small>' + guardMonths().map(function (ym) {
-          var t = (guardEdit.tm[ym] || '').split('-'), inh = !guardEdit.tm[ym] ? guardTmOf(ym + '-01') : null;
-          return '<div class="gdrow"><span>' + ym.slice(0, 4) + ' 年 ' + (+ym.slice(5)) + ' 月</span><input type="text" inputmode="numeric" maxlength="4" data-gm="' + ym + '" data-gi="0" value="' + esc(t[0] || '') + '" placeholder="' + (inh ? inh.a.replace(':', '') : '1400') + '"><i>～</i><input type="text" inputmode="numeric" maxlength="4" data-gm="' + ym + '" data-gi="1" value="' + esc(t[1] || '') + '" placeholder="' + (inh ? inh.b.replace(':', '') : '1600') + '"></div>';
-        }).join('') + '</div>';
-        h += '<div class="evbtns"><button class="primary" id="guardSave">儲存設定</button></div><div class="muted" style="text-align:center;margin-top:8px">存在後端，大家看到的都一樣</div>';
+        var ymNow = todayKey().slice(0, 7), cur = guardTmTx(guardEdit.tm, ymNow), np = guardEdit.ppl.length, dirty = guardDirty();
+        var h = '<div class="evtt">衛哨設定</div>' + guardStHtml();
+        function guardStUnused() { var ok = np && cur; return '<div class="gdst ' + (ok ? 'ok' : 'no') + '"><div class="gdsth">' + (guardEdit.saved ? '✓ 已儲存，設定完成' : (ok ? (dirty ? '有變更，記得按下面「儲存」' : '✓ 已設定完成') : '還沒設定完成')) + '</div>' +
+          '<div class="gdsl"><span>駐廠</span><b>' + (np ? guardEdit.ppl.map(esc).join('、') : '<em>還沒選</em>') + '</b></div>' +
+          '<div class="gdsl"><span>' + (+ymNow.slice(5)) + ' 月衛哨</span><b>' + (cur ? cur.t + (cur.own ? '' : '<small>（沿用 ' + (+cur.from.slice(5)) + ' 月）</small>') : '<em>還沒設時間</em>') + '</b></div>' +
+          '<div class="gdex">駐廠的人被標<b>留守</b>那天 → 自動多一項衛哨（只是提醒，其中一人去）</div></div>'; }
+        // 1. 駐廠
+        var GHIDE = ['劉庭妤', '林謙丞', '何謙', '褚靜婕', '周芯羽', '郭蕙芳', '鄭于玲'], gall = !!guardEdit.all;
+        var gl = dutyEmps().filter(function (e) { return gall || GHIDE.indexOf(e.name) < 0 || guardEdit.ppl.indexOf(e.name) >= 0; });
+        h += '<div class="gdsec"><div class="gdh"><b class="stn">1</b><b>誰是駐廠？</b><small>點名字，黃色＝駐廠</small></div><div class="planpick">' + gl.map(function (e) {
+          return '<button class="' + (guardEdit.ppl.indexOf(e.name) >= 0 ? 'on' : '') + '" data-gp="' + esc(e.name) + '">' + (guardEdit.ppl.indexOf(e.name) >= 0 ? '✓ ' : '') + esc(e.name) + '</button>'; }).join('') + '</div>' +
+          '<button class="linkbtn" id="guardAll">' + (gall ? '收起不站哨的人' : '顯示全部人員') + '</button></div>';
+        // 2. 每月時間
+        h += '<div class="gdsec"><div class="gdh"><b class="stn">2</b><b>每月幾點站？</b><small>只填有變的月份，空著＝沿用上個月</small></div>' + guardMonths().map(function (ym) {
+          var own = guardEdit.tm[ym], t = (own || '').split('-'), inh = !own ? guardTmTx(guardEdit.tm, ym) : null, isNow = ym === ymNow;
+          return '<div class="gdrow' + (isNow ? ' now' : '') + '"><span>' + (+ym.slice(5)) + ' 月' + (isNow ? '<i class="gdnow">本月</i>' : '') + '<small>' + (own ? '' : (inh ? '沿用 ' + inh.t : '未設定')) + '</small></span>' +
+            '<input type="text" inputmode="numeric" maxlength="4" data-gm="' + ym + '" data-gi="0" value="' + esc(t[0] || '') + '" placeholder="' + (inh ? inh.t.slice(0, 5).replace(':', '') : '1400') + '" aria-label="' + (+ym.slice(5)) + '月開始">' +
+            '<i>～</i><input type="text" inputmode="numeric" maxlength="4" data-gm="' + ym + '" data-gi="1" value="' + esc(t[1] || '') + '" placeholder="' + (inh ? inh.t.slice(6).replace(':', '') : '1600') + '" aria-label="' + (+ym.slice(5)) + '月結束"></div>';
+        }).join('') + '<div class="gdtip">例：填 1400、1600。只填一格不會存。</div></div>';
+        h += '<div class="gdsave">' + guardBtnHtml() + '</div>';
         $('evtBody').innerHTML = h;
       }
+      function guardBtnHtml() { var dirty = guardDirty(); return '<button class="primary big" id="guardSave"' + (dirty ? '' : ' disabled') + '>' + (dirty ? '儲存設定' : (guardEdit.saved ? '✓ 已儲存' : '沒有變更')) + '</button>'; }
+      function guardStHtml() {
+        var ymNow = todayKey().slice(0, 7), cur = guardTmTx(guardEdit.tm, ymNow), np = guardEdit.ppl.length, dirty = guardDirty(), ok = np && cur;
+        return '<div class="gdst ' + (ok ? 'ok' : 'no') + '"><div class="gdsth">' + (guardEdit.saved && !dirty ? '✓ 已儲存，設定完成' : (ok ? (dirty ? '有變更，記得按下面「儲存設定」' : '✓ 已設定完成') : '還沒設定完成')) + '</div>' +
+          '<div class="gdsl"><span>駐廠</span><b>' + (np ? guardEdit.ppl.map(esc).join('、') : '<em>還沒選</em>') + '</b></div>' +
+          '<div class="gdsl"><span>' + (+ymNow.slice(5)) + ' 月衛哨</span><b>' + (cur ? cur.t + (cur.own ? '' : '<small>（沿用 ' + (+cur.from.slice(5)) + ' 月）</small>') : '<em>還沒設時間</em>') + '</b></div>' +
+          '<div class="gdex">駐廠的人被標<b>留守</b>那天 → 自動多一項衛哨（只是提醒，其中一人去）</div></div>';
+      }
+      function guardRefresh() { var st = document.querySelector('#evtBody .gdst'); if (st) st.outerHTML = guardStHtml(); var sv = document.querySelector('#evtBody .gdsave'); if (sv) sv.innerHTML = guardBtnHtml(); }
       function guardSave() {
-        document.querySelectorAll('#evtBody [data-gm]').forEach(function (el) {
-          var ym = el.dataset.gm, other = document.querySelector('#evtBody [data-gm="' + ym + '"][data-gi="' + (el.dataset.gi === '0' ? 1 : 0) + '"]');
-          var a = (el.dataset.gi === '0' ? el : other).value.replace(/\D/g, ''), b = (el.dataset.gi === '0' ? other : el).value.replace(/\D/g, '');
-          if (a.length === 3) a = '0' + a; if (b.length === 3) b = '0' + b;
-          if (a.length === 4 && b.length === 4) guardEdit.tm[ym] = a + '-' + b; else delete guardEdit.tm[ym];
-        });
-        var old = JSON.stringify(guardCfg); guardCfg = { ppl: guardEdit.ppl.slice(), tm: guardEdit.tm };
+        guardReadInputs();
+        if (!guardDirty()) { guardDraw(); return; }
+        var old = JSON.stringify(guardCfg); guardCfg = { ppl: guardEdit.ppl.slice(), tm: JSON.parse(JSON.stringify(guardEdit.tm)) };
         renderDutyMon(); if ($('dutyDay').classList.contains('show')) renderDutyDay();
         try { if ($('todoPage').classList.contains('show')) renderTodo(); } catch (e) { /* 忽略 */ }
-        $('evtPage').classList.remove('show'); showToast('衛哨設定已更新', null, null, 1800);
+        guardEdit.saved = '1'; guardDraw();
         apiCall({ action: 'setGuard', token: prefs.dutyPw, data: JSON.stringify(guardCfg) }).then(function (res) {
           if (!res || !res.ok) throw new Error((res && res.msg) || '儲存失敗');
-        }).catch(function (err) { guardCfg = JSON.parse(old); renderDutyMon(); showToast('衛哨設定沒有存成功，已還原：' + err.message + '（後端要第四十四版）', null, null, 4200); });
+        }).catch(function (err) { guardCfg = JSON.parse(old); guardEdit.saved = ''; renderDutyMon(); if ($('evtPage').classList.contains('show')) guardDraw(); showToast('沒有存成功，已還原：' + err.message + '（後端要第四十四版）', null, null, 4200); });
       }
       var planEdit = null;   // 正在改輪值人員：{k, lab, names}
       function planSave() {
@@ -5482,11 +5526,13 @@ table.grid.wk td.cell { font-size: calc(var(--bd, 34px) * .48); }
         $('dutyNext').addEventListener('click', function () { dutyYM = dutyYM[1] === 12 ? [dutyYM[0] + 1, 1] : [dutyYM[0], dutyYM[1] + 1]; renderDutyMon(); dutyLoad(); });
         $('evtBack').addEventListener('click', function () { planEdit = null; $('evtPage').classList.remove('show'); });
         $('guardSet').addEventListener('click', function () { guardOpen(); });
+        $('evtBody').addEventListener('input', function (ev) { if (guardEdit && ev.target.dataset && ev.target.dataset.gm) { guardReadInputs(); guardRefresh(); } });
         $('evtBody').addEventListener('click', function (ev) {
           var b = ev.target.closest ? ev.target.closest('button') : null; if (!b) return;
           if (b.id === 'guardSet2') { guardOpen(); return; }
-          if (b.dataset.gp) { var i = guardEdit.ppl.indexOf(b.dataset.gp); if (i >= 0) guardEdit.ppl.splice(i, 1); else guardEdit.ppl.push(b.dataset.gp); guardDraw(); return; }
+          if (b.dataset.gp) { guardReadInputs(); var i = guardEdit.ppl.indexOf(b.dataset.gp); if (i >= 0) guardEdit.ppl.splice(i, 1); else guardEdit.ppl.push(b.dataset.gp); guardEdit.saved = ''; guardDraw(); return; }
           if (b.id === 'guardSave') { guardSave(); return; }
+          if (b.id === 'guardAll') { guardReadInputs(); guardEdit.all = !guardEdit.all; guardDraw(); return; }
         }, true);
         $('dutyDayBody').addEventListener('click', function (ev) { var b = ev.target.closest ? ev.target.closest('[data-planon]') : null; if (!b) return; ev.stopPropagation(); planEdit = { k: dutyDayK, lab: b.dataset.planon, names: [] }; planSave(); }, true);
         $('dutyDayBody').addEventListener('toggle', function (ev) { if (ev.target.classList && ev.target.classList.contains('dstatw')) { prefs.dstatFold = !ev.target.open; savePrefs(); } }, true);
@@ -7327,6 +7373,7 @@ table.grid.wk td.cell { font-size: calc(var(--bd, 34px) * .48); }
         $('idInst').hidden = instStandalone() || no || !mobile;
       }
       var CHANGELOG = [
+        { v: 'v11.29', d: '11/7', t: ['衛哨設定畫面重新設計：最上面直接寫目前駐廠是誰、本月幾點站、設定完成沒；兩步驟「誰是駐廠？」「每月幾點站？」；有變更才能按儲存，存好顯示「✓ 已儲存，設定完成」'] },
         { v: 'v11.28', d: '11/7', t: ['新增衛哨：駐廠的人留守那天自動產生「衛哨」，時間照當月設定（沒設定沿用上個月）', '公差月曆上方「衛哨設定」：點選駐廠名單、填每月時間（要編輯中）；後端第四十四版', '衛哨跟擴大FO、查庫一樣：選人提醒、時間重疊、每日到班都會一起判斷；也能取消或別單位代理'] },
         { v: 'v11.27', d: '11/7', t: ['從當天詳細按「＋公差」選人時，「每月幾次」改用完整的 3 個月紀錄（之前可能只算到已讀的月份）'] },
         { v: 'v11.26', d: '11/7', t: ['當天詳細：上面的休假、留守、外勤收成一列「當天情況 休假 6・留守 3」，可以收起來並記住', '輪值（擴大FO、監工、查庫）可以「這天不用出」或「別單位代理」（填單位＋姓名）：之後的順序往後順延不跳人；當天顯示「已取消」或「別單位代理：○○」，按「恢復」就回到照輪值', '取消＝這項從當天消失（下面小字可恢復）；代理＝這項照樣顯示，人員換成代理人並標「代理」', '別單位代理一個換一個：填代理單位＋每位的代理人（空著＝還是原本的人）；不知道是誰就只填單位', '取消和代理的輪值，不會再算我們的人時間重疊、選人提醒、每日到班'] },
