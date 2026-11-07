@@ -319,7 +319,7 @@ tfoot td{font-weight:700;background:var(--soft)}
 .search input{height:60px;font-size:23px;border-radius:16px;padding-left:50px}
 .search svg{top:18px;width:24px;height:24px}
 .qclear{width:56px;height:56px;top:2px}
-.nav .wrap{grid-template-columns:repeat(5,1fr)}
+.nav .wrap{grid-template-columns:repeat(6,1fr)}.nav button{font-size:12px!important}.flowt td small{display:block;color:var(--mute);font-size:12px;font-weight:400;white-space:normal;text-align:right}.flowt td:first-child{white-space:nowrap}.flowt tr.cur td:first-child{color:var(--accent);font-weight:800}
 .nav button{min-height:60px;font-size:13px}
 .nav button.on::before{height:4px}
 .hl3{display:grid;grid-template-columns:repeat(3,1fr);gap:10px;margin:6px 0 14px}
@@ -350,7 +350,7 @@ tfoot td{font-weight:700;background:var(--soft)}
 .selbar .btn{background:transparent;color:var(--bg);border-color:color-mix(in srgb,var(--bg) 40%,transparent);min-height:46px}
 .selbar .btn.pri{background:var(--accent);color:var(--accent-t);border-color:var(--accent)}
 .selgap{height:70px}
-.toast.act{pointer-events:auto;display:flex;align-items:center;gap:12px;padding:8px 8px 8px 16px}
+.toast.act{width:max-content;pointer-events:auto;display:flex;align-items:center;gap:12px;padding:8px 8px 8px 16px}
 .toast .tu{background:var(--bg);color:var(--accent);font-weight:800;padding:8px 14px;border-radius:9px;min-height:44px}
 body.ro [data-act]:not([data-act="history"]):not([data-act="log"]),body.ro [data-sel],body.ro .qa,body.ro .selbar,body.ro [data-selall],body.ro [data-undo-one]{display:none!important}
 .rolebox{padding:12px 14px;border:1px solid var(--line);border-radius:14px;background:var(--card);margin:0 0 12px;display:flex;gap:10px;align-items:center}
@@ -358,6 +358,7 @@ body.ro [data-act]:not([data-act="history"]):not([data-act="log"]),body.ro [data
 .rolebox.ro i{background:var(--orange)}
 .undo1{margin-top:6px}
 @media (forced-colors:active){.nb,.chip,.btn{border:2px solid ButtonText}}
+.ytab .roc{display:block;font-size:13px;font-weight:700}.ytab.on .roc{color:var(--accent-t)}.rocd{color:var(--mute);font-size:12.5px;margin-left:4px}.kv .rocd{white-space:nowrap}
 </style>
 </head>
 <body>
@@ -397,6 +398,7 @@ body.ro [data-act]:not([data-act="history"]):not([data-act="log"]),body.ro [data
     <button data-nav="home" class="on" aria-current="page"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M3 11l9-8 9 8"/><path d="M5 10v10h14V10"/></svg><span>首頁</span></button>
     <button data-nav="count"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><rect x="3" y="3" width="7" height="9" rx="1.5"/><rect x="14" y="3" width="7" height="5" rx="1.5"/><rect x="14" y="12" width="7" height="9" rx="1.5"/><rect x="3" y="16" width="7" height="5" rx="1.5"/></svg><span>數量</span></button>
     <button data-nav="analysis"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M4 20V10M10 20V4M16 20v-8M22 20H2"/></svg><span>屆期</span><span class="badge" id="badgeExp" hidden></span></button>
+    <button data-nav="flow"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M4 8h13l-3-3M20 16H7l3 3"/></svg><span>進出廠</span></button>
     <button data-nav="work"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M14.7 6.3a4 4 0 0 0-5 5L3 18l3 3 6.7-6.7a4 4 0 0 0 5-5l-2.4 2.4-2.6-.6-.6-2.6z"/></svg><span>作業</span><span class="badge" id="badgeWork" hidden></span></button>
     <button data-nav="more"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><circle cx="5" cy="12" r="1.6"/><circle cx="12" cy="12" r="1.6"/><circle cx="19" cy="12" r="1.6"/></svg><span>更多</span></button>
   </div>
@@ -725,6 +727,8 @@ function diffDays(d) { return d ? Math.round((d - today()) / DAY) : null; }
 function pct(v) { return v == null ? '—' : v.toFixed(1) + '%'; }
 function rateCls(v) { return v == null ? '' : v >= 100 ? '' : v >= 90 ? 'warn' : 'bad'; }
 function daysCls(n) { return n == null ? '' : n <= 30 ? 'bad' : n <= 90 ? 'warn' : ''; }
+function roc(y) { return '民' + (y - 1911); }
+function yrTxt(y) { return y + '（' + roc(y) + '）'; }
 function daysText(n) { return n == null ? '—' : n < 0 ? '逾期 ' + (-n) + ' 天' : n + ' 天'; }
 function rawBlank(v) { if (v == null) return true; const s = String(v).trim(); return !s || /^(na|n\/a|無|-|—)$/i.test(s); }
 
@@ -777,7 +781,7 @@ function lsSet(k, v) { try { localStorage.setItem(k, JSON.stringify(v)); } catch
 const state = {
   records: [], aircraft: JSON.parse(JSON.stringify(CONFIG.AIRCRAFT)),
   source: 'none', updatedAt: null, loading: false, error: '',
-  view: 'home', role: 'edit', sel: {}, wk: 'wait', undo: null, key: '', logs: null, demo: null, anH: 90, xp: {}, open: {}, dr: null, drSort: 'days', drType: 'all', set: {}, tour: null, tourShown: false, year: null, yList: null, q: '', horizon: 90, expType: 'all', list: null, D: null
+  fy: null, fk: 'out', view: 'home', role: 'edit', sel: {}, wk: 'wait', undo: null, key: '', logs: null, demo: null, anH: 90, xp: {}, open: {}, dr: null, drSort: 'days', drType: 'all', set: {}, tour: null, tourShown: false, year: null, yList: null, q: '', horizon: 90, expType: 'all', list: null, D: null
 };
 
 /* =====================================================================
@@ -919,14 +923,17 @@ function compute() {
   // 出廠日 = 生效日，三線屆期應為出廠後 6 年
   const not6 = R.filter(r => r.effective && r.third && new Date(r.effective.getFullYear() + 6, r.effective.getMonth(), r.effective.getDate()).getTime() !== r.third.getTime());
 
+  const SERV = CONFIG.SERVICE_LOCS || ['一修', '三修'];
+  const not2 = R.filter(r => SERV.includes(r.loc) && r.effective && r.second && new Date(r.effective.getFullYear() + SEAT.SECOND_YEARS, r.effective.getMonth(), r.effective.getDate()).getTime() !== r.second.getTime());
   const issues = [];
-  if (overdue.length) issues.push({ cls: 'bad', t: '三線已逾期、仍在服役位置（' + overdue.length + ' 張）', items: overdue.map(r => r.serial) });
-  if (dupes.length) issues.push({ cls: 'bad', t: '序號重複（' + dupes.length + ' 個）', items: dupes });
-  if (badDate.length) issues.push({ cls: 'warn', t: '日期格式看不懂（' + badDate.length + ' 張），該欄位已當成空白', items: badDate.map(r => r.serial), extra: badDate.map(r => r.serial + '：' + r.badDates.join('、') + ' 「' + r.raw[({ '生效日': 'effective', '三線屆期': 'third', '二線屆期': 'second', '進廠日': 'enter' })[r.badDates[0]]] + '」') });
-  if (noThird.length) issues.push({ cls: 'warn', t: '服役中但沒有三線屆期日（' + noThird.length + ' 張）', items: noThird.map(r => r.serial) });
-  if (not6.length) issues.push({ cls: 'warn', t: '三線屆期不是「生效日 + 6 年」（' + not6.length + ' 張）', items: not6.map(r => r.serial), extra: not6.map(r => r.serial + '：生效 ' + fmtDate(r.effective) + '，三線 ' + fmtDate(r.third)) });
-  if (serialFix.length) issues.push({ cls: 'warn', t: '序號多打了 0（' + serialFix.length + ' 張），已當成 3 碼計算', items: serialFix.map(r => r.serial), extra: serialFix.map(r => r.rawSerial + ' → ' + r.serial) });
-  if (unknown.length) issues.push({ cls: 'warn', t: '型別或位置不在清單內，未計入數量（' + unknown.length + ' 張）', items: unknown.map(r => r.serial) });
+  if (overdue.length) issues.push({ id: 'overdue', cls: 'bad', t: '三線已逾期、仍在服役位置（' + overdue.length + ' 張）', items: overdue.map(r => r.serial) });
+  if (dupes.length) issues.push({ id: 'dupes', cls: 'bad', t: '序號重複（' + dupes.length + ' 個）', items: dupes });
+  if (badDate.length) issues.push({ id: 'baddate', cls: 'warn', t: '日期格式看不懂（' + badDate.length + ' 張），該欄位已當成空白', items: badDate.map(r => r.serial), extra: badDate.map(r => r.serial + '：' + r.badDates.join('、') + ' 「' + r.raw[({ '生效日': 'effective', '三線屆期': 'third', '二線屆期': 'second', '進廠日': 'enter' })[r.badDates[0]]] + '」') });
+  if (noThird.length) issues.push({ id: 'nothird', cls: 'warn', t: '服役中但沒有三線屆期日（' + noThird.length + ' 張）', items: noThird.map(r => r.serial) });
+  if (not6.length) issues.push({ id: 'not6', cls: 'warn', t: '三線屆期不是「生效日 + 6 年」（' + not6.length + ' 張）', items: not6.map(r => r.serial), extra: not6.map(r => r.serial + '：生效 ' + fmtDate(r.effective) + '，三線 ' + fmtDate(r.third)) });
+  if (not2.length) issues.push({ id: 'not2', cls: 'warn', t: '二線屆期不是「生效日 + 2 年」（' + not2.length + ' 張）', items: not2.map(r => r.serial), extra: not2.map(r => r.serial + '：生效 ' + fmtDate(r.effective) + '，二線 ' + fmtDate(r.second)) });
+  if (serialFix.length) issues.push({ id: 'serial', cls: 'warn', t: '序號多打了 0（' + serialFix.length + ' 張），已當成 3 碼計算', items: serialFix.map(r => r.serial), extra: serialFix.map(r => r.rawSerial + ' → ' + r.serial) });
+  if (unknown.length) issues.push({ id: 'unknown', cls: 'warn', t: '型別或位置不在清單內，未計入數量（' + unknown.length + ' 張）', items: unknown.map(r => r.serial) });
 
   const map = {}; R.forEach(r => { if (!map[r.serial]) map[r.serial] = r; });
   return { matrix, support, withDays, overdue, issues, map, unknown, total: R.length, cnt };
@@ -957,7 +964,7 @@ function render() {
   const n = D.withDays.filter(r => r.days <= 30 && (r.days >= 0 || SERVICE.includes(r.loc))).length, be = $('#badgeExp');
   be.hidden = !n; be.textContent = n;
   const bw = $('#badgeWork'); bw.hidden = !D.overdue.length; bw.textContent = D.overdue.length;
-  v.innerHTML = ({ home: viewHome, analysis: viewAnalysis, count: viewCount, work: viewWork, more: viewMore })[state.view]() +
+  v.innerHTML = ({ home: viewHome, analysis: viewAnalysis, count: viewCount, work: viewWork, flow: viewFlow, more: viewMore })[state.view]() +
     '<div class="foot">共 ' + D.total + ' 張　基準日 ' + fmtDate(today()) + '</div>' + (state.view === 'work' ? selBar() : '');
   renderDrawer();
 }
@@ -1026,7 +1033,7 @@ function secBar() {
 /* ---------- 單張座椅 ---------- */
 function dateCell(r, key) {
   if (r.badDates.length && r.badDates.indexOf({ effective: '生效日', third: '三線屆期', second: '二線屆期', enter: '進廠日' }[key]) >= 0) return '<span class="bad">格式有誤：' + esc(r.raw[key]) + '</span>';
-  return fmtDate(r[key]);
+  const d = r[key]; return fmtDate(d) + (d ? ' <small class="rocd">' + roc(d.getFullYear()) + '/' + p2(d.getMonth() + 1) + '/' + p2(d.getDate()) + '</small>' : '');
 }
 function detailHTML(r, inCard) {
   const D = state.D, svc = SERVICE.includes(r.loc), total = D.cnt[r.serial] || 1, cls = daysCls(r.days);
@@ -1071,7 +1078,7 @@ function itemHTML(r, o) {
   const open = !!state.xp[r.serial];
   const sel = o.sel ? '<button class="chk" role="checkbox" aria-checked="' + !!state.sel[r.serial] + '" data-sel="' + esc(r.serial) + '" aria-label="選取 ' + esc(r.serial) + '"><i>✓</i></button>' : '';
   return '<div class="it' + (open ? ' on' : '') + (o.sel ? ' wr' : '') + '"><div class="ith">' + sel + '<button class="itm" data-exp="1" aria-expanded="' + open + '"><span class="s">' + esc(r.serial) + '</span>' +
-    '<span class="m">' + (o.act ? '' : '<span class="u u-' + (UCLS[r.loc] || 'x') + '">' + esc(LD(r.loc) || '?') + '</span> ') + esc(r.type) + ' 型' + (r.third && !o.act ? ' · ' + fmtDate(r.third) : '') + (o.act && r.enter ? ' · 進廠 ' + fmtDate(r.enter) : '') + '</span>' +
+    '<span class="m">' + (o.fix ? esc(o.fix.replace(/^[^：]*：/, '')) : (o.act ? '' : '<span class="u u-' + (UCLS[r.loc] || 'x') + '">' + esc(LD(r.loc) || '?') + '</span> ') + esc(r.type) + ' 型') + (r.third && !o.act && !o.fix ? ' · ' + fmtDate(r.third) : '') + (o.act && !o.fix && r.enter ? ' · 進廠 ' + fmtDate(r.enter) : '') + '</span>' +
     '<span class="d ' + daysCls(r.days) + '">' + (r.days == null || o.act ? '' : daysText(r.days)) + '</span><span class="chev"></span></button>' +
     (o.act ? '<button class="btn pri" data-act="' + o.act + '" data-serial="' + esc(r.serial) + '">' + o.label + '</button>' : '') +
     '</div><div class="itd"' + (open ? '' : ' hidden') + '>' + detailHTML(r) + '</div></div>';
@@ -1084,9 +1091,10 @@ function drResolve(spec) {
   if (k === 'cell') { const t = p[1], l = p[2], w = +p[3] || 0; return { title: (t === 'all' ? '全部型別' : t + ' 型') + ' · ' + locName(l) + (w ? ' · ' + w + ' 天內屆期' : ''), recs: listFor(t, l, w) }; }
   if (k === 'keep') { const ty = p[1], l = p[2], H = +p[3]; return { title: ty + ' 型 · ' + LD(l) + ' · ' + H + ' 天後還在的座椅', recs: state.records.filter(r => r.type === ty && r.loc === l && (r.days == null || r.days > H)) }; }
   if (k === 'soon') { const H = +p[1], t = p[2], l = p[3]; return { title: '三線屆期　' + (H === 365 ? '1 年' : H + ' 天') + '內 · ' + (t === 'all' ? '全部型別' : t + ' 型') + ' · ' + (l === 'all' ? '一修＋三修' : l), recs: soonFor(H, t, l) }; }
-  if (k === 'year') { const Y = +p[1], t = p[2], l = p[3]; return { title: Y + ' 年屆期 · ' + (t === 'all' ? '全部型別' : t + ' 型') + ' · ' + (l === 'all' ? '一修＋三修' : l), recs: yearFor(Y, t, l) }; }
-  if (k === 'mon') { const i = +p[1], mo = monthsList()[i]; return { title: mo.y + ' 年 ' + (mo.m + 1) + ' 月屆期', recs: monthFor(i) }; }
-  if (k === 'issue') { const it = state.D.issues[+p[1]]; return { title: it ? it.t : '資料提醒', recs: it ? it.items.map(s => state.D.map[s]).filter(Boolean) : [], extra: it && it.extra }; }
+  if (k === 'year') { const Y = +p[1], t = p[2], l = p[3]; return { title: yrTxt(Y) + ' 年屆期 · ' + (t === 'all' ? '全部型別' : t + ' 型') + ' · ' + (l === 'all' ? '一修＋三修' : l), recs: yearFor(Y, t, l) }; }
+  if (k === 'mon') { const i = +p[1], mo = monthsList()[i]; return { title: yrTxt(mo.y) + ' ' + (mo.m + 1) + ' 月屆期', recs: monthFor(i) }; }
+  if (k === 'out' || k === 'in') { const Y = +p[1], m = +p[2], key = p[3], L = flowFor(k, Y, m, key); return { title: (k === 'out' ? '出廠' : '進廠') + '　' + yrTxt(Y) + (m ? ' ' + m + ' 月' : ' 全年') + ' · ' + (key === 'all' ? (k === 'out' ? '一修＋三修' : '全部型別') : (k === 'out' ? key : key + ' 型')), recs: L, reasons: flowReasons(k, L), isFlow: true }; }
+  if (k === 'issue') { const it = state.D.issues.find(i => i.id === p[1]); const re = {}; if (it && it.extra) it.items.forEach((s, i) => { re[s] = it.extra[i]; }); return { title: it ? it.t : '資料提醒', recs: it ? it.items.map(s => state.D.map[s]).filter(Boolean) : [], reasons: re, isIssue: true, fixable: !!it && it.id !== 'serial' && it.id !== 'overdue' }; }
   return { title: '清單', recs: [] };
 }
 const SORTS = { days: '依屆期', serial: '依序號', unit: '依單位' };
@@ -1114,8 +1122,8 @@ function renderDrawer() {
     '<div class="dtools">' + Object.keys(SORTS).map(k => '<button class="chip' + (state.drSort === k ? ' on' : '') + '" data-drsort="' + k + '">' + SORTS[k] + '</button>').join('') +
     (types.length > 1 ? '<span class="sp"></span>' + ['all'].concat(types).map(t => '<button class="chip' + (state.drType === t ? ' on' : '') + '" data-drtype="' + t + '">' + (t === 'all' ? '全部型別' : t) + '</button>').join('') : '') + '</div>' +
     (L.length ? '<div class="dsum">' + esc(grp(r => r.type + ' 型')) + '<br>' + esc(grp(r => LD(r.loc))) + '</div>' : '') +
-    (x.extra ? '<div class="note" style="margin:0 0 8px">' + x.extra.map(esc).join('<br>') + '</div>' : '') +
-    '<div class="card">' + listHTML(L) + '</div><div class="note" style="text-align:center">點序號展開詳細資料與操作</div>';
+    (x.isIssue ? '<div class="note" style="margin:0 0 8px">' + (x.fixable && state.role !== 'view' ? '按「修正」直接改資料，存檔就寫回試算表，不用開後端。' : '') + '</div>' : '') +
+    '<div class="card">' + (x.isFlow ? L.map(r => itemHTML(r, { fix: x.reasons[r.serial] || '' })).join('') : x.isIssue ? (L.length ? L.map(r => itemHTML(r, x.fixable ? { act: 'edit', label: '修正', fix: x.reasons[r.serial] || '' } : { fix: x.reasons[r.serial] || '' })).join('') : '<div class="empty"><b class="good">✓ 這一項都修好了</b></div>') : listHTML(L)) + '</div><div class="note" style="text-align:center">點序號展開詳細資料與操作</div>';
   el.hidden = false; document.body.classList.add('noscroll'); ds.scrollTop = keep; if (wasHidden) { try { ds.focus({ preventScroll: true }); } catch (e) { } }
 }
 function openDr(spec) {
@@ -1201,8 +1209,10 @@ function todoItems() {
   if (s30) out.push({ c: 'o', n: s30, t: '30 天內三線屆期', s: '點開看是哪幾張', attr: 'data-dr="soon|30|all|all"' });
   const low = D.support.filter(s => s.proj != null && s.proj < 90);
   if (low.length) out.push({ c: 'o', n: low.length, t: '90 天後支援度不足 90%', s: low.slice(0, 3).map(s => LD(s.loc) + ' ' + s.type).join('、') + (low.length > 3 ? '…' : ''), attr: 'data-nav="analysis"' });
+  const warnI = D.issues.filter(i => i.cls === 'warn');
+  if (warnI.length) out.push({ c: 'o', n: warnI.length, t: '資料有 ' + warnI.length + ' 項可修正', s: '點開逐張修：' + warnI[0].t.replace(/（.*$/, ''), attr: 'data-dr="issue|' + warnI[0].id + '"' });
   const bad = D.issues.filter(i => i.cls === 'bad' && i.t.indexOf('逾期') < 0);
-  if (bad.length) out.push({ c: 'r', n: bad.length, t: '資料有問題', s: bad[0].t, attr: 'data-dr="issue|' + D.issues.indexOf(bad[0]) + '"' });
+  if (bad.length) out.push({ c: 'r', n: bad.length, t: '資料有問題', s: bad[0].t, attr: 'data-dr="issue|' + bad[0].id + '"' });
   return out;
 }
 function viewCount() {
@@ -1231,7 +1241,7 @@ function viewCount() {
 
   let t4 = '<div class="card">';
   if (!D.issues.length) t4 += '<div class="empty">資料沒有發現問題</div>';
-  D.issues.forEach((i, ix) => { t4 += '<button class="issue" data-dr="issue|' + ix + '"><b class="' + i.cls + '">' + esc(i.t) + '</b><span class="mute">點開看是哪幾張 ›</span></button>'; });
+  D.issues.forEach((i, ix) => { t4 += '<button class="issue" data-dr="issue|' + i.id + '"><b class="' + i.cls + '">' + esc(i.t) + '</b><span class="mute">點開看是哪幾張 ›</span></button>'; });
   t4 += '</div>';
   h += sec('c-issues', '資料提醒', D.issues.length ? D.issues.length + ' 項' : '沒有問題', t4, D.issues.some(i => i.cls === 'bad'));
 
@@ -1241,6 +1251,43 @@ function toolRows() {
   const r = (k, ic, t, s) => '<button class="mrow" data-tool="' + k + '"><span class="mi">' + ICON[ic] + '</span><span>' + t + (s ? '<small>' + s + '</small>' : '') + '</span></button>';
   return r('csv', 'down', '下載全部資料（CSV）', '可用 Excel 開啟，當備份') + r('copyall', 'copy', '複製全部清單', '貼到通訊軟體') +
     r('settings', 'gear', '設定', '深淺色、字體大小、自動鎖定') + r('help', 'help', '使用說明', '怎麼用、進出廠流程') + r('tour', 'flag', '重看新手導覽', '');
+}
+
+/* ---------- 進出廠紀錄（由座椅資料推算） ---------- */
+function outDate(r) { return r.third ? new Date(r.third.getFullYear() - SEAT.LIFE_YEARS, r.third.getMonth(), r.third.getDate()) : r.effective; }
+function outEvents() { return state.records.filter(r => SERVICE.includes(r.loc) && outDate(r)); }
+function inEvents() { return state.records.filter(r => r.loc === '指部工廠' && r.enter); }
+function flowFor(kind, Y, m, key) {
+  const L = kind === 'out' ? outEvents() : inEvents(), dt = r => kind === 'out' ? outDate(r) : r.enter;
+  return L.filter(r => dt(r).getFullYear() === Y && (!m || dt(r).getMonth() + 1 === m) && (key === 'all' || (kind === 'out' ? r.loc : r.type) === key)).sort((a, b) => dt(a) - dt(b) || (a.serial < b.serial ? -1 : 1));
+}
+function flowReasons(kind, L) {
+  const o = {}; L.forEach(r => { o[r.serial] = (kind === 'out' ? '出廠 ' + fmtDate(outDate(r)) + ' → ' + r.loc : '進廠 ' + fmtDate(r.enter)) + ' · ' + r.type + ' 型'; }); return o;
+}
+function viewFlow() {
+  const k = state.fk, ev = k === 'out' ? outEvents() : inEvents(), dt = r => k === 'out' ? outDate(r) : r.enter;
+  const ys = {}; ev.forEach(r => { ys[dt(r).getFullYear()] = 1; });
+  const cy = today().getFullYear(); ys[cy] = 1;
+  const yl = Object.keys(ys).map(Number).sort((a, b) => a - b);
+  if (!state.fy || yl.indexOf(state.fy) < 0) state.fy = cy;
+  const Y = state.fy, cm = today().getMonth() + 1;
+  let h = '<div class="seg" role="tablist" aria-label="進廠或出廠" style="grid-template-columns:repeat(2,1fr)">' +
+    [['out', '出廠', outEvents().length + ' 筆'], ['in', '進廠', inEvents().length + ' 筆']].map(x => '<button role="tab" aria-selected="' + (k === x[0]) + '" data-fk="' + x[0] + '">' + x[1] + '<small>' + x[2] + '</small></button>').join('') + '</div>';
+  h += '<div class="ytabs">' + yl.map(y => '<button class="ytab' + (y === Y ? ' on' : '') + '" data-fy="' + y + '"><b>' + y + '</b><span class="roc">' + roc(y) + '年</span><span>' + ev.filter(r => dt(r).getFullYear() === y).length + ' 筆</span></button>').join('') + '</div>';
+  const cols = k === 'out' ? CONFIG.SERVICE_LOCS : CONFIG.TYPES, head = k === 'out' ? '給誰' : '型別';
+  let b = '<div class="card" style="margin-top:10px"><table class="flowt"><thead><tr><th>' + yrTxt(Y) + '</th>' + cols.map(c => '<th>' + esc(k === 'out' ? c : c + ' 型') + '</th>').join('') + '<th>合計</th></tr></thead><tbody>';
+  for (let m = 1; m <= 12; m++) {
+    const all = flowFor(k, Y, m, 'all');
+    const tys = {}; all.forEach(r => { tys[r.type] = (tys[r.type] || 0) + 1; });
+    const sub = k === 'out' && all.length ? '<small>' + Object.keys(tys).sort().map(t => t + '×' + tys[t]).join(' ') + '</small>' : '';
+    b += '<tr' + (Y === cy && m === cm ? ' class="cur"' : '') + '><td>' + m + ' 月</td>' + cols.map(c => '<td>' + nb(flowFor(k, Y, m, c).length, k + '|' + Y + '|' + m + '|' + c) + '</td>').join('') + '<td>' + nb(all.length, k + '|' + Y + '|' + m + '|all', true) + sub + '</td></tr>';
+  }
+  b += '</tbody><tfoot><tr><td>全年</td>' + cols.map(c => '<td>' + nb(flowFor(k, Y, 0, c).length, k + '|' + Y + '|0|' + c) + '</td>').join('') + '<td>' + nb(flowFor(k, Y, 0, 'all').length, k + '|' + Y + '|0|all', true) + '</td></tr></tfoot></table></div>';
+  h += b;
+  h += k === 'out' ? '<div class="note">出廠 = 目前在一修／三修的每一張座椅。出廠日 = 三線屆期 − 6 年（沒有三線屆期的用生效日），單位是現在所在的位置。每個月下面小字是型別數量。點數字看是哪幾張。</div>' :
+    '<div class="note">進廠 = 目前在指部的座椅，月份是進廠日。已經出廠的座椅，進廠日會被清掉，所以這裡只看得到還在指部的。</div>';
+  h += '<div class="note">想看完整的歷史（含已出廠的進廠日），到「作業 → 紀錄」看每一筆異動。</div>';
+  return h;
 }
 
 /* ---------- 屆期分析 ---------- */
@@ -1271,13 +1318,13 @@ function viewAnalysis() {
   else {
     if (ys.indexOf(state.year) < 0) state.year = ys.indexOf(today().getFullYear()) >= 0 ? today().getFullYear() : ys[0];
     const Y = state.year, yc = (t, l, bold) => '<td>' + nb(yearFor(Y, t, l).length, 'year|' + Y + '|' + t + '|' + l, bold) + '</td>';
-    b3 = '<div class="ytabs">' + ys.map(y => '<button class="ytab' + (y === Y ? ' on' : '') + '" data-year="' + y + '"><b>' + y + '</b><span>' + cnt[y] + ' 張</span></button>').join('') + '</div>' +
-      '<div class="card" style="margin-top:10px"><table><thead><tr><th>' + Y + ' 年</th><th>一修</th><th>三修</th><th>合計</th></tr></thead><tbody>';
+    b3 = '<div class="ytabs">' + ys.map(y => '<button class="ytab' + (y === Y ? ' on' : '') + '" data-year="' + y + '"><b>' + y + '</b><span class="roc">' + roc(y) + '年</span><span>' + cnt[y] + ' 張</span></button>').join('') + '</div>' +
+      '<div class="card" style="margin-top:10px"><table><thead><tr><th>' + yrTxt(Y) + ' 年</th><th>一修</th><th>三修</th><th>合計</th></tr></thead><tbody>';
     TYPES.forEach(ty => { b3 += '<tr><td><b>' + ty + '</b></td>' + yc(ty, '一修') + yc(ty, '三修') + yc(ty, 'all', true) + '</tr>'; });
     b3 += '</tbody><tfoot><tr><td>合計</td>' + yc('all', '一修') + yc('all', '三修') + yc('all', 'all', true) + '</tr></tfoot></table></div>' +
       '<div class="note">一修＋三修合計，依三線屆期日的年度統計，只算現在還在一修／三修的座椅。</div>';
   }
-  h += sec('a-year', '年度屆期（一修＋三修）', ys.length ? ys.slice(0, 3).map(y => y + '：' + cnt[y]).join('　') + (ys.length > 3 ? '…' : '') : '', b3, true);
+  h += sec('a-year', '年度屆期（一修＋三修）', ys.length ? ys.slice(0, 3).map(y => y + '（' + roc(y) + '）：' + cnt[y]).join('　') + (ys.length > 3 ? '…' : '') : '', b3, true);
 
   const months = monthsList(), mc = months.map((mo, i) => monthFor(i).length), mx = Math.max.apply(null, mc.concat([1]));
   const b4 = '<div class="card pad"><div class="mbars">' + months.map((mo, i) => '<button class="mb" data-dr="mon|' + i + '"' + (mc[i] ? '' : ' disabled') + ' aria-label="' + (mo.m + 1) + ' 月 ' + mc[i] + ' 張"><span class="mv">' + mc[i] + '</span><i style="height:' + Math.round(mc[i] / mx * 70) + 'px"></i><span class="ml">' + (mo.m + 1) + '月</span></button>').join('') + '</div></div>' +
@@ -1469,7 +1516,8 @@ function openAct(act, serial) {
       fld('型別', selHTML('e_type', withCur(CONFIG.TYPES, r.type), r.type)) + fld('位置', selHTML('e_loc', withCur(CONFIG.LOCS, r.loc), r.loc), '只改位置、沒改狀態時，狀態會自動跟著換') +
       fld('狀態', selHTML('e_status', stOpts, r.status, r.status ? '' : '（空白）')) +
       fld('生效日', dateIn('e_eff', r.effective)) + fld('三線屆期', dateIn('e_third', r.third)) + fld('二線屆期', dateIn('e_sec', r.second)) + fld('進廠日', dateIn('e_enter', r.enter)) +
-      fld('循環次數', '<input type="number" id="e_cycle" min="1" value="' + (r.cycle == null ? '' : esc(r.cycle)) + '">') + fld('備註', '<input type="text" id="e_note" value="' + esc(r.note) + '">'),
+      fld('循環次數', '<input type="number" id="e_cycle" min="1" value="' + (r.cycle == null ? '' : esc(r.cycle)) + '">') + fld('備註', '<input type="text" id="e_note" value="' + esc(r.note) + '">') +
+      '<div class="mtxt">快速帶入</div><div class="chips"><button class="chip" type="button" id="qf6">三線 = 生效日 + 6 年</button><button class="chip" type="button" id="qf2">二線 = 生效日 + 2 年</button></div>',
       '儲存修改', () => {
         const orig = { '型別': r.type, '位置': r.loc, '狀態': r.status, '生效日': dateVal(r.effective), '三線屆期': dateVal(r.third), '二線屆期': dateVal(r.second), '進廠日': dateVal(r.enter), '循環次數': r.cycle == null ? '' : String(r.cycle), '備註': r.note };
         const now = { '型別': $('#e_type').value, '位置': $('#e_loc').value, '狀態': $('#e_status').value, '生效日': $('#e_eff').value, '三線屆期': $('#e_third').value, '二線屆期': $('#e_sec').value, '進廠日': $('#e_enter').value, '循環次數': $('#e_cycle').value, '備註': $('#e_note').value };
@@ -1478,6 +1526,8 @@ function openAct(act, serial) {
         if (!Object.keys(fields).length) { modalErr('沒有修改任何欄位'); return; }
         return doAction('edit', { serial, fields });
       });
+    const qf = (btn, tgt, yrs) => $(btn).addEventListener('click', () => { const d = seatParse($('#e_eff').value); if (!d) { modalErr('請先填生效日'); return; } modalErr(''); $(tgt).value = dateVal(seatAddYears(d, yrs)); });
+    qf('#qf6', '#e_third', SEAT.LIFE_YEARS); qf('#qf2', '#e_sec', SEAT.SECOND_YEARS);
     return;
   }
   if (act === 'add') {
@@ -1650,10 +1700,12 @@ document.addEventListener('toggle', e => {
   if (d && d.dataset && d.dataset.sec) { state.open[d.dataset.sec] = d.open; lsSet('seatAsset.open', state.open); }
 }, true);
 document.addEventListener('click', e => {
-  const t = e.target.closest('[data-go],[data-nav],[data-h],[data-dr],[data-drclose],[data-drsort],[data-drtype],[data-copy-dr],[data-exp],[data-secall],[data-copy-card],[data-anh],[data-act],[data-mcancel],[data-year],[data-tool],[data-set],[data-tour],[data-retry],[data-work],[data-wk],[data-sel],[data-selall],[data-selclear],[data-batch],[data-hint],[data-undo],[data-undo-one]');
+  const t = e.target.closest('[data-go],[data-nav],[data-h],[data-dr],[data-drclose],[data-drsort],[data-drtype],[data-copy-dr],[data-exp],[data-secall],[data-copy-card],[data-anh],[data-act],[data-mcancel],[data-year],[data-tool],[data-set],[data-tour],[data-retry],[data-fk],[data-fy],[data-work],[data-wk],[data-sel],[data-selall],[data-selclear],[data-batch],[data-hint],[data-undo],[data-undo-one]');
   if (!t) { if (e.target.id === 'modal') closeModal(); else if (e.target.id === 'drawer') closeDr(); return; }
   const d = t.dataset;
   if (d.mcancel) return closeModal();
+  if (d.fk) { state.fk = d.fk; return render(); }
+  if (d.fy) { state.fy = +d.fy; return render(); }
   if (d.hint) { lsSet('seatAsset.hint', 1); return render(); }
   if (d.work) { state.wk = d.work; return nav('work'); }
   if (d.wk) { state.wk = d.wk; state.sel = {}; if (d.wk === 'log') state.logs = null; return render(); }
