@@ -359,7 +359,7 @@ body.ro [data-act]:not([data-act="history"]):not([data-act="log"]),body.ro [data
 .undo1{margin-top:6px}
 @media (forced-colors:active){.nb,.chip,.btn{border:2px solid ButtonText}}
 .ytab .roc{display:block;font-size:13px;font-weight:700}.ytab.on .roc{color:var(--accent-t)}.rocd{color:var(--mute);font-size:12.5px;margin-left:4px}.kv .rocd{white-space:nowrap}
-.mx th{text-align:center;padding:10px 2px;font-size:13px;color:var(--text);border-top:4px solid var(--tc,var(--line))}.mx th:first-child,.mx th:last-child{border-top-color:var(--line)}.mx th i{display:none}.mx td{text-align:center;padding:8px 2px}.mx td:first-child{text-align:left;padding-left:12px;line-height:1.2}.mx td:first-child small{display:block;color:var(--mute);font-size:12px}.mx .nb{min-width:44px}
+.mx th{text-align:center;padding:10px 2px;font-size:13px;color:var(--text);border-top:4px solid var(--tc,var(--line))}.mx th:first-child,.mx th:last-child{border-top-color:var(--line)}.mx td{text-align:center;padding:8px 2px}.mx td:first-child{text-align:left;padding-left:12px;line-height:1.2}.mx td:first-child small{display:block;color:var(--mute);font-size:12px}.mx .nb{min-width:44px}
 .sup th{text-align:left}.sup td{text-align:left;vertical-align:middle;padding:9px 6px}.sup td:first-child{padding-left:12px;white-space:nowrap}.sup td.rt{text-align:right;padding-right:12px;min-width:112px}.sup .rt b{font-size:18px}.sup .rbar{height:6px;margin:3px 0 2px}.sup .rs{font-size:12.5px;line-height:1.3}.sup .lk{font-size:12.5px;padding:2px 0}
 .chips[style*=grid] .chip{padding:9px 2px;text-align:center;font-size:14px}
 .qa button{flex-direction:row!important;justify-content:center;gap:12px!important;min-height:72px!important;font-size:17px}.qa .qt{text-align:left;line-height:1.25}.qa .qt small{display:block;font-size:12.5px;font-weight:600;color:var(--mute)}
@@ -476,7 +476,7 @@ function seatCheckin(rows, p, now) {
   if (r['位置'] !== '待修庫') throw new Error(r['序號'] + ' 目前在「' + r['位置'] + '」，只有待修庫的座椅才能進廠');
   const d = seatDateArg(p.date, seatToday(now), '進廠');
   const from = r['位置'];
-  r['位置'] = '指部工廠'; r['狀態'] = '交修中'; r['進廠日'] = seatFmt(d); r['備註'] = '交修中'; r['更新時間'] = seatFmtTime(now);
+  r['位置'] = '指部工廠'; r['狀態'] = '交修中'; r['進廠日'] = seatFmt(d); r['備註'] = seatAutoNote(r['備註'], '交修中'); r['更新時間'] = seatFmtTime(now);
   return { rows: [r], logs: [seatLog(now, '進廠', r, from, '指部工廠', '進廠日 ' + seatFmt(d))], msg: r['序號'] + ' 已進廠到指部' };
 }
 
@@ -497,7 +497,7 @@ function seatCheckout(rows, p, now) {
   const cycle = (parseInt(r['循環次數'], 10) || 1) + 1;
   const from = r['位置'];
   r['位置'] = p.loc; r['狀態'] = '服役中'; r['生效日'] = seatFmt(d); r['三線屆期'] = seatFmt(third); r['二線屆期'] = seatFmt(sec);
-  r['進廠日'] = ''; r['循環次數'] = cycle; r['備註'] = '第 ' + cycle + ' 輪'; r['更新時間'] = seatFmtTime(now);
+  r['進廠日'] = ''; r['循環次數'] = cycle; r['備註'] = seatAutoNote(r['備註'], '第 ' + cycle + ' 輪'); r['更新時間'] = seatFmtTime(now);
   return { rows: [r], logs: [seatLog(now, '出廠', r, from, p.loc, '出廠日 ' + seatFmt(d) + '，三線 ' + seatFmt(third) + '，二線 ' + seatFmt(sec) + '，第 ' + cycle + ' 輪')], msg: r['序號'] + ' 已出廠到' + p.loc + '，三線屆期 ' + seatFmt(third) };
 }
 
@@ -569,7 +569,7 @@ function seatAutoMove(rows, now, source) {
     const from = r['位置'];
     const old = { eff: r['生效日'] || '', third: seatFmt(third), sec: r['二線屆期'] || '' };
     const note = '三線 ' + old.third + ' 屆期，自動轉入待修庫（原生效 ' + (old.eff || '無') + '，二線 ' + (old.sec || '無') + '）';
-    r['位置'] = '待修庫'; r['狀態'] = '待進廠'; r['生效日'] = ''; r['三線屆期'] = ''; r['二線屆期'] = ''; r['進廠日'] = ''; r['備註'] = '待進廠'; r['更新時間'] = seatFmtTime(now);
+    r['位置'] = '待修庫'; r['狀態'] = '待進廠'; r['生效日'] = ''; r['三線屆期'] = ''; r['二線屆期'] = ''; r['進廠日'] = ''; r['備註'] = seatAutoNote(r['備註'], '待進廠'); r['更新時間'] = seatFmtTime(now);
     const lg = seatLog(now, '自動搬移', r, from, '待修庫', note, source || '系統');
     lg['原生效日'] = old.eff; lg['原三線屆期'] = old.third; lg['原二線屆期'] = old.sec;   // 舊日期變成歷史資料
     moved.push(r); logs.push(lg);
@@ -605,6 +605,8 @@ function seatSnap(r) {
   return JSON.stringify(o);
 }
 
+/* 備註：使用者自己寫的要保留；只有空白或系統寫過的（交修中／待進廠／第 N 輪）才換成新的 */
+function seatAutoNote(old, auto) { const o = String(old == null ? '' : old).trim(); return (!o || /^(交修中|待進廠|第\s*\d+\s*輪)$/.test(o)) ? auto : o; }
 function seatApplyOne(rows, req, now) {
   switch (req.action) {
     case 'checkin': return seatCheckin(rows, req, now);
@@ -787,7 +789,7 @@ function lsSet(k, v) { try { localStorage.setItem(k, JSON.stringify(v)); } catch
 const state = {
   records: [], aircraft: JSON.parse(JSON.stringify(CONFIG.AIRCRAFT)),
   source: 'none', updatedAt: null, loading: false, error: '',
-  fy: null, fk: 'out', view: 'home', role: 'edit', sel: {}, wk: 'wait', undo: null, key: '', logs: null, demo: null, anH: 90, xp: {}, open: {}, dr: null, drSort: 'days', drType: 'all', set: {}, tour: null, tourShown: false, year: null, yList: null, q: '', horizon: 90, expType: 'all', list: null, D: null
+  logLoading: false, fy: null, fk: 'out', view: 'home', role: 'edit', sel: {}, wk: 'wait', undo: null, key: '', logs: null, demo: null, anH: 90, xp: {}, open: {}, dr: null, drSort: 'days', drType: 'all', set: {}, tour: null, year: null, yList: null, q: '', horizon: 90, expType: 'all', list: null, D: null
 };
 
 /* =====================================================================
@@ -860,7 +862,6 @@ function normalize(rows) {
       const raw = pick(o, F[k]); r.raw[k] = raw; r[k] = parseDate(raw);
       if (!rawBlank(raw) && !r[k]) r.badDates.push(DN[k]);
     });
-    r.serialFixed = false;
     return r;
   }).filter(r => r.serial);
 }
@@ -921,11 +922,10 @@ function compute() {
 
   const withDays = R.filter(r => r.days != null).sort((a, b) => a.days - b.days);
   const overdue = withDays.filter(r => r.days < 0 && SERVICE.includes(r.loc));
-  const cnt = {}; R.forEach(r => cnt[r.serial] = (cnt[r.serial] || 0) + 1);
-  const dupes = Object.keys(cnt).filter(k => cnt[k] > 1);
+  const cnt = {}; R.forEach(r => { const k = seatKey(r.serial); cnt[k] = (cnt[k] || 0) + 1; });
+  const dupes = R.filter(r => cnt[seatKey(r.serial)] > 1).map(r => r.serial);
   const badDate = R.filter(r => r.badDates.length);
   const noThird = R.filter(r => SERVICE.includes(r.loc) && !r.third && !r.badDates.includes('三線屆期'));
-  const serialFix = R.filter(r => r.serialFixed);
   // 出廠日 = 生效日，三線屆期應為出廠後 6 年
   const not6 = R.filter(r => r.effective && r.third && new Date(r.effective.getFullYear() + 6, r.effective.getMonth(), r.effective.getDate()).getTime() !== r.third.getTime());
 
@@ -938,7 +938,6 @@ function compute() {
   if (noThird.length) issues.push({ id: 'nothird', cls: 'warn', t: '服役中但沒有三線屆期日（' + noThird.length + ' 張）', items: noThird.map(r => r.serial) });
   if (not6.length) issues.push({ id: 'not6', cls: 'warn', t: '三線屆期不是「生效日 + 6 年」（' + not6.length + ' 張）', items: not6.map(r => r.serial), extra: not6.map(r => r.serial + '：生效 ' + fmtDate(r.effective) + '，三線 ' + fmtDate(r.third)) });
   if (not2.length) issues.push({ id: 'not2', cls: 'warn', t: '二線屆期不是「生效日 + 2 年」（' + not2.length + ' 張）', items: not2.map(r => r.serial), extra: not2.map(r => r.serial + '：生效 ' + fmtDate(r.effective) + '，二線 ' + fmtDate(r.second)) });
-  if (serialFix.length) issues.push({ id: 'serial', cls: 'warn', t: '序號多打了 0（' + serialFix.length + ' 張），已當成 3 碼計算', items: serialFix.map(r => r.serial), extra: serialFix.map(r => r.rawSerial + ' → ' + r.serial) });
   if (unknown.length) issues.push({ id: 'unknown', cls: 'warn', t: '型別或位置不在清單內，未計入數量（' + unknown.length + ' 張）', items: unknown.map(r => r.serial) });
 
   const map = {}; R.forEach(r => { if (!map[r.serial]) map[r.serial] = r; });
@@ -1042,7 +1041,7 @@ function dateCell(r, key) {
   const d = r[key]; return fmtDate(d) + (d ? ' <small class="rocd">' + roc(d.getFullYear()) + '/' + p2(d.getMonth() + 1) + '/' + p2(d.getDate()) + '</small>' : '');
 }
 function detailHTML(r, inCard) {
-  const D = state.D, svc = SERVICE.includes(r.loc), total = D.cnt[r.serial] || 1, cls = daysCls(r.days);
+  const D = state.D, svc = SERVICE.includes(r.loc), total = D.cnt[seatKey(r.serial)] || 1, cls = daysCls(r.days);
   let h = '';
   if (!inCard) {
     h += '<div class="kv"><span>型別</span><span>' + esc(r.type) + ' 型' + (CONFIG.MODEL[r.type] ? '（' + esc(CONFIG.MODEL[r.type]) + '）' : '') + '</span></div>' +
@@ -1099,22 +1098,23 @@ function drResolve(spec) {
   if (k === 'soon') { const H = +p[1], t = p[2], l = p[3]; return { title: '三線屆期　' + (H === 365 ? '1 年' : H + ' 天') + '內 · ' + (t === 'all' ? '全部型別' : t + ' 型') + ' · ' + (l === 'all' ? '一修＋三修' : l), recs: soonFor(H, t, l) }; }
   if (k === 'year') { const Y = +p[1], t = p[2], l = p[3]; return { title: yrTxt(Y) + ' 年屆期 · ' + (t === 'all' ? '全部型別' : t + ' 型') + ' · ' + (l === 'all' ? '一修＋三修' : l), recs: yearFor(Y, t, l) }; }
   if (k === 'mon') { const i = +p[1], mo = monthsList()[i]; return { title: yrTxt(mo.y) + ' ' + (mo.m + 1) + ' 月屆期', recs: monthFor(i) }; }
-  if (k === 'out' || k === 'in') { const Y = +p[1], m = +p[2], key = p[3], L = flowFor(k, Y, m, key); return { title: (k === 'out' ? '出廠' : '進廠') + '　' + yrTxt(Y) + (m ? ' ' + m + ' 月' : ' 全年') + ' · ' + (key === 'all' ? (k === 'out' ? '一修＋三修' : '全部型別') : (k === 'out' ? key : key + ' 型')), recs: L, reasons: flowReasons(k, L), isFlow: true }; }
-  if (k === 'issue') { const it = state.D.issues.find(i => i.id === p[1]); const re = {}; if (it && it.extra) it.items.forEach((s, i) => { re[s] = it.extra[i]; }); return { title: it ? it.t : '資料提醒', recs: it ? it.items.map(s => state.D.map[s]).filter(Boolean) : [], reasons: re, isIssue: true, fixable: !!it && it.id !== 'serial' && it.id !== 'overdue' }; }
+  if (k === 'out' || k === 'in') { const Y = +p[1], m = +p[2], key = p[3], L = flowFor(k, Y, m, key); return { dateOf: r => k === 'out' ? outDate(r) : r.enter, title: (k === 'out' ? '出廠' : '進廠') + '　' + yrTxt(Y) + (m ? ' ' + m + ' 月' : ' 全年') + ' · ' + (key === 'all' ? (k === 'out' ? '一修＋三修' : '全部型別') : (k === 'out' ? key : key + ' 型')), recs: L, reasons: flowReasons(k, L), isFlow: true }; }
+  if (k === 'issue') { const it = state.D.issues.find(i => i.id === p[1]); const re = {}; if (it && it.extra) it.items.forEach((s, i) => { re[s] = it.extra[i]; }); return { title: it ? it.t : '資料提醒', recs: it ? it.items.map(s => state.D.map[s]).filter(Boolean) : [], reasons: re, isIssue: true, fixable: !!it && it.id !== 'dupes' && it.id !== 'unknown' && it.id !== 'overdue' }; }
   return { title: '清單', recs: [] };
 }
-const SORTS = { days: '依屆期', serial: '依序號', unit: '依單位' };
+const SORTS = { days: '依屆期', date: '依日期', serial: '依序號', unit: '依單位' };
 function drView(spec) {
   const x = drResolve(spec); let L = x.recs.slice();
   const types = []; L.forEach(r => { if (types.indexOf(r.type) < 0) types.push(r.type); });
   types.sort();
   if (state.drType !== 'all' && types.indexOf(state.drType) >= 0) L = L.filter(r => r.type === state.drType); else state.drType = 'all';
   const by = {
+    date: (a, b) => ((x.dateOf ? x.dateOf(a) : 0) - (x.dateOf ? x.dateOf(b) : 0)) || (a.serial < b.serial ? -1 : 1),
     days: (a, b) => (a.days == null ? 1e9 : a.days) - (b.days == null ? 1e9 : b.days) || (a.serial < b.serial ? -1 : 1),
     serial: (a, b) => a.serial < b.serial ? -1 : 1,
     unit: (a, b) => CONFIG.LOCS.indexOf(a.loc) - CONFIG.LOCS.indexOf(b.loc) || (a.serial < b.serial ? -1 : 1)
   };
-  L.sort(by[state.drSort] || by.days);
+  L.sort(by[state.drSort] || (x.dateOf ? by.date : by.days));
   return { x, L, types };
 }
 let drRet = null;
@@ -1125,7 +1125,7 @@ function renderDrawer() {
   const { x, L, types } = drView(state.dr), ds = $('#dsheet'), keep = ds.scrollTop;
   const grp = f => { const m = {}, o = []; L.forEach(r => { const k = f(r); if (!(k in m)) { m[k] = 0; o.push(k); } m[k]++; }); return o.map(k => k + ' ' + m[k]).join('　'); };
   ds.innerHTML = '<div class="grab"></div><div class="dhead"><div class="dtt"><b>' + esc(x.title) + '</b><span class="mute">共 ' + L.length + ' 張</span></div><div class="dbtns"><button class="btn" data-copy-dr="1">複製</button><button class="btn pri" data-drclose="1">關閉</button></div></div>' +
-    '<div class="dtools">' + Object.keys(SORTS).map(k => '<button class="chip' + (state.drSort === k ? ' on' : '') + '" data-drsort="' + k + '">' + SORTS[k] + '</button>').join('') +
+    '<div class="dtools">' + Object.keys(SORTS).filter(k => k === 'date' ? !!x.dateOf : k === 'days' ? !x.dateOf : true).map(k => '<button class="chip' + (state.drSort === k ? ' on' : '') + '" data-drsort="' + k + '">' + SORTS[k] + '</button>').join('') +
     (types.length > 1 ? '<span class="sp"></span>' + ['all'].concat(types).map(t => '<button class="chip' + (state.drType === t ? ' on' : '') + '" data-drtype="' + t + '">' + (t === 'all' ? '全部型別' : t) + '</button>').join('') : '') + '</div>' +
     (L.length ? '<div class="dsum">' + esc(grp(r => r.type + ' 型')) + '<br>' + esc(grp(r => LD(r.loc))) + '</div>' : '') +
     (x.isIssue ? '<div class="note" style="margin:0 0 8px">' + (x.fixable && state.role !== 'view' ? '按「修正」直接改資料，存檔就寫回試算表，不用開後端。' : '') + '</div>' : '') +
@@ -1134,7 +1134,7 @@ function renderDrawer() {
 }
 function openDr(spec) {
   if (!state.dr) pushLayer('dr');
-  state.dr = spec; state.drSort = 'days'; state.drType = 'all'; $('#dsheet').scrollTop = 0; renderDrawer();
+  state.dr = spec; state.drSort = /^(out|in)\|/.test(spec) ? 'date' : 'days'; state.drType = 'all'; $('#dsheet').scrollTop = 0; renderDrawer();
 }
 function closeDr() { popLayerUI('dr'); }
 function domCloseDr() { state.dr = null; renderDrawer(); }
@@ -1195,7 +1195,8 @@ function supportRows(H) {
     return { s, left, out: s.seats - left, rate: s.ac ? left / s.ac * 100 : null };
   });
 }
-function supportCards(H, warn) {
+function supportCards(H, mode) {
+  mode = mode || (H ? 'future' : 'now');
   const rows = supportRows(H);
   let h = '<div class="card"><table class="sup"><thead><tr><th>單位 型別</th><th>座椅／飛機</th><th>支援度</th></tr></thead><tbody>';
   rows.forEach(x => {
@@ -1203,7 +1204,7 @@ function supportCards(H, warn) {
     const seatSpec = H ? 'keep|' + s.type + '|' + s.loc + '|' + H : 'cell|' + s.type + '|' + s.loc + '|0';
     let sub;
     if (H) sub = x.out ? '<button class="lk" data-dr="cell|' + esc(s.type) + '|' + esc(s.loc) + '|' + H + '">−' + x.out + ' 張屆期</button>' : '<span class="good">沒有屆期</span>';
-    else if (!warn) sub = '<span class="mute">目前</span>';
+    else if (mode !== 'forecast') sub = '<span class="mute">目前</span>';
     else sub = '<span class="mute">90 天後 </span><b class="' + rateCls(s.proj) + '">' + pct(s.proj) + '</b>' + (s.exp90 ? ' <button class="lk" data-dr="cell|' + esc(s.type) + '|' + esc(s.loc) + '|90">−' + s.exp90 + '</button>' : '');
     h += '<tr><td><span class="u u-' + (UCLS[s.loc] || 'x') + '">' + esc(LD(s.loc)) + '</span> <b>' + esc(s.type) + '</b></td><td>' + nb(x.left, seatSpec) + ' <span class="mute">／ ' + s.ac + '</span></td>' +
       '<td class="rt"><b class="' + cls + '">' + pct(x.rate) + '</b><div class="rbar ' + cls + '"><i style="width:' + w + '%"></i></div><div class="rs">' + sub + '</div></td></tr>';
@@ -1237,7 +1238,7 @@ function viewCount() {
 
   h += '<h2>各型別在哪裡　<span class="mute" style="font-weight:400;font-size:13px">點數字看序號</span></h2>';
   const cell = (ty, l, n, bold) => '<td>' + nb(n, 'cell|' + ty + '|' + l + '|0', bold) + '</td>';
-  let mx = '<div class="card"><table class="mx"><thead><tr><th>型別</th>' + LOCS.map(l => '<th style="--tc:' + LCOLOR[l] + '"><i></i>' + esc(LD(l)) + '</th>').join('') + '<th>合計</th></tr></thead><tbody>';
+  let mx = '<div class="card"><table class="mx"><thead><tr><th>型別</th>' + LOCS.map(l => '<th style="--tc:' + LCOLOR[l] + '">' + esc(LD(l)) + '</th>').join('') + '<th>合計</th></tr></thead><tbody>';
   TYPES.forEach(ty => {
     const m = M[ty], tot = LOCS.reduce((s, l) => s + m[l], 0);
     mx += '<tr><td><b>' + esc(ty) + '</b><small>' + esc(CONFIG.MODEL[ty] || '') + '</small></td>' + LOCS.map(l => cell(ty, l, m[l])).join('') + cell(ty, 'all', tot, true) + '</tr>';
@@ -1248,8 +1249,8 @@ function viewCount() {
 
   h += secBar();
   const lowN = D.support.filter(s => s.proj != null && s.proj < 90).length;
-  h += sec('c-support', '飛機支援度', lowN ? '<span class="bad">' + lowN + ' 項 90 天後不到 90%</span>' : '目前正常',
-    '<div class="bar"><span class="mute">座椅 ÷ 飛機</span><button class="btn" data-act="aircraft">修改飛機數</button></div>' + supportCards(0, true) +
+  h += sec('c-support', '飛機支援度', lowN ? '<span class="bad">90 天後 ' + lowN + ' 項不到 90%</span>' : '現在與 90 天後都正常',
+    '<div class="bar"><span class="mute">座椅 ÷ 飛機</span><button class="btn" data-act="aircraft">修改飛機數</button></div>' + supportCards(0, 'forecast') +
     '<div class="note">100% 以上正常、90–99% 橘色、不到 90% 紅色。90 天後 = 扣掉 90 天內三線屆期（含已逾期）的張數。</div>', true);
 
   let t4 = '<div class="card">';
@@ -1267,11 +1268,12 @@ function toolRows() {
 }
 
 /* ---------- 進出廠紀錄（由座椅資料推算） ---------- */
-function outDate(r) { return r.third ? new Date(r.third.getFullYear() - SEAT.LIFE_YEARS, r.third.getMonth(), r.third.getDate()) : r.effective; }
+function outDate(r) { return r._od || (r._od = outDate0(r)); }
+function outDate0(r) { return r.third ? new Date(r.third.getFullYear() - SEAT.LIFE_YEARS, r.third.getMonth(), r.third.getDate()) : r.effective; }
 function outEvents() { return state.records.filter(r => SERVICE.includes(r.loc) && outDate(r)); }
 function inEvents() { return state.records.filter(r => r.loc === '指部工廠' && r.enter); }
-function flowFor(kind, Y, m, key) {
-  const L = kind === 'out' ? outEvents() : inEvents(), dt = r => kind === 'out' ? outDate(r) : r.enter;
+function flowFor(kind, Y, m, key, list) {
+  const L = list || (kind === 'out' ? outEvents() : inEvents()), dt = r => kind === 'out' ? outDate(r) : r.enter;
   return L.filter(r => dt(r).getFullYear() === Y && (!m || dt(r).getMonth() + 1 === m) && (key === 'all' || (kind === 'out' ? r.loc : r.type) === key)).sort((a, b) => dt(a) - dt(b) || (a.serial < b.serial ? -1 : 1));
 }
 function flowReasons(kind, L) {
@@ -1282,20 +1284,20 @@ function viewFlow() {
   const ys = {}; ev.forEach(r => { ys[dt(r).getFullYear()] = 1; });
   const cy = today().getFullYear(); ys[cy] = 1;
   const yl = Object.keys(ys).map(Number).sort((a, b) => a - b);
-  if (!state.fy || yl.indexOf(state.fy) < 0) state.fy = cy;
-  const Y = state.fy, cm = today().getMonth() + 1;
+  const Y = (state.fy && yl.indexOf(state.fy) >= 0) ? state.fy : cy;
+  const cm = today().getMonth() + 1;
   let h = '<div class="seg" role="tablist" aria-label="進廠或出廠" style="grid-template-columns:repeat(2,1fr)">' +
     [['out', '出廠', outEvents().length + ' 筆'], ['in', '進廠', inEvents().length + ' 筆']].map(x => '<button role="tab" aria-selected="' + (k === x[0]) + '" data-fk="' + x[0] + '">' + x[1] + '<small>' + x[2] + '</small></button>').join('') + '</div>';
   h += '<div class="ytabs">' + yl.map(y => '<button class="ytab' + (y === Y ? ' on' : '') + '" data-fy="' + y + '"><b>' + y + '</b><span class="roc">' + roc(y) + '年</span><span>' + ev.filter(r => dt(r).getFullYear() === y).length + ' 筆</span></button>').join('') + '</div>';
   const cols = k === 'out' ? CONFIG.SERVICE_LOCS : CONFIG.TYPES, head = k === 'out' ? '給誰' : '型別';
   let b = '<div class="card" style="margin-top:10px"><table class="flowt"><thead><tr><th>' + yrTxt(Y) + '</th>' + cols.map(c => '<th>' + esc(k === 'out' ? c : c + ' 型') + '</th>').join('') + '<th>合計</th></tr></thead><tbody>';
   for (let m = 1; m <= 12; m++) {
-    const all = flowFor(k, Y, m, 'all');
+    const all = flowFor(k, Y, m, 'all', ev);
     const tys = {}; all.forEach(r => { tys[r.type] = (tys[r.type] || 0) + 1; });
     const sub = k === 'out' && all.length ? '<small>' + Object.keys(tys).sort().map(t => t + '×' + tys[t]).join(' ') + '</small>' : '';
-    b += '<tr' + (Y === cy && m === cm ? ' class="cur"' : '') + '><td>' + m + ' 月</td>' + cols.map(c => '<td>' + nb(flowFor(k, Y, m, c).length, k + '|' + Y + '|' + m + '|' + c) + '</td>').join('') + '<td>' + nb(all.length, k + '|' + Y + '|' + m + '|all', true) + sub + '</td></tr>';
+    b += '<tr' + (Y === cy && m === cm ? ' class="cur"' : '') + '><td>' + m + ' 月</td>' + cols.map(c => '<td>' + nb(flowFor(k, Y, m, c, ev).length, k + '|' + Y + '|' + m + '|' + c) + '</td>').join('') + '<td>' + nb(all.length, k + '|' + Y + '|' + m + '|all', true) + sub + '</td></tr>';
   }
-  b += '</tbody><tfoot><tr><td>全年</td>' + cols.map(c => '<td>' + nb(flowFor(k, Y, 0, c).length, k + '|' + Y + '|0|' + c) + '</td>').join('') + '<td>' + nb(flowFor(k, Y, 0, 'all').length, k + '|' + Y + '|0|all', true) + '</td></tr></tfoot></table></div>';
+  b += '</tbody><tfoot><tr><td>全年</td>' + cols.map(c => '<td>' + nb(flowFor(k, Y, 0, c, ev).length, k + '|' + Y + '|0|' + c) + '</td>').join('') + '<td>' + nb(flowFor(k, Y, 0, 'all', ev).length, k + '|' + Y + '|0|all', true) + '</td></tr></tfoot></table></div>';
   h += b;
   h += k === 'out' ? '<div class="note">出廠 = 目前在一修／三修的每一張座椅。出廠日 = 三線屆期 − 6 年（沒有三線屆期的用生效日），單位是現在所在的位置。每個月下面小字是型別數量。點數字看是哪幾張。</div>' :
     '<div class="note">進廠 = 目前在指部的座椅，月份是進廠日。已經出廠的座椅，進廠日會被清掉，所以這裡只看得到還在指部的。</div>';
@@ -1383,7 +1385,7 @@ function bgInert(on) { ['hdr', 'view'].forEach(id => { const e = document.getEle
 let retFocus = null;
 function openSheet(html) {
   $('#sheet').innerHTML = '<div class="grab"></div>' + html;
-  if ($('#modal').hidden) { retFocus = document.activeElement; $('#modal').hidden = false; pushLayer('modal'); bgInert(true); }
+  if ($('#modal').hidden) { retFocus = document.activeElement; $('#modal').hidden = false; pushLayer('modal'); bgInert(true); $('#drawer').setAttribute('inert', ''); }
   $('#sheet').scrollTop = 0;
   const h3 = $('#sheet h3'); if (h3) $('#modal').setAttribute('aria-label', h3.textContent);
   try { $('#sheet').focus({ preventScroll: true }); } catch (e) { }
@@ -1395,7 +1397,7 @@ function openModal(title, body, okText, onOk) {
   if (ok) ok.onclick = async () => { const me = $('#merr'); if (me) me.textContent = ''; ok.disabled = true; const old = ok.textContent; ok.textContent = '處理中…'; try { await onOk(); } finally { if (ok.isConnected) { ok.disabled = false; ok.textContent = old; } } };
 }
 function closeModal() { popLayerUI('modal'); }
-function domCloseModal() { const was = !$('#modal').hidden; $('#modal').hidden = true; $('#sheet').innerHTML = ''; if (was) { bgInert(!!state.dr); if (retFocus && retFocus.isConnected && !state.dr) { try { retFocus.focus({ preventScroll: true }); } catch (e) { } } retFocus = null; } }
+function domCloseModal() { const was = !$('#modal').hidden; $('#modal').hidden = true; $('#sheet').innerHTML = ''; if (was) { $('#drawer').removeAttribute('inert'); bgInert(!!state.dr); if (retFocus && retFocus.isConnected && !state.dr) { try { retFocus.focus({ preventScroll: true }); } catch (e) { } } retFocus = null; } }
 function modalErr(msg) { const el = $('#merr'); if (el) el.textContent = msg; }
 
 /* ---------- 送出：示範模式在本機模擬，連線模式 POST 到 Apps Script ---------- */
@@ -1473,8 +1475,11 @@ async function fetchLog(serial) {
     });
   }
   const url = CONFIG.API_URL + (CONFIG.API_URL.indexOf('?') >= 0 ? '&' : '?') + 'key=' + encodeURIComponent(state.key) + '&what=log' + (serial ? '&serial=' + encodeURIComponent(serial) : '');
-  const res = await fetch(url, { cache: 'no-store', redirect: 'follow' });
-  const j = JSON.parse(await res.text());
+  const ctl = new AbortController(), to = setTimeout(() => ctl.abort(), 30000);
+  let j;
+  try { const res = await fetch(url, { cache: 'no-store', redirect: 'follow', signal: ctl.signal }); j = JSON.parse(await res.text()); }
+  catch (e) { throw new Error(e.name === 'AbortError' ? '連線逾時' : (e.message || '讀取失敗')); }
+  finally { clearTimeout(to); }
   if (j.error) { const er = new Error(j.error); er.auth = (j.code === 'AUTH'); throw er; }
   return j.log || [];
 }
@@ -1639,7 +1644,7 @@ function copyAll() {
 
 /* ---------- 新手導覽 ---------- */
 const TOUR = [
-  { ic: 'home', t: '歡迎使用小記', b: '<p>記錄每一張座椅現在在哪個單位、什麼時候屆期，並算出各單位的飛機支援度。</p><p>底下五個分頁：</p><ul><li><b>首頁</b>：輸入序號數字就能查，下面是今天要看的事</li><li><b>數量</b>：各型別在各單位的張數、飛機支援度</li><li><b>屆期</b>：未來哪些座椅要屆期</li><li><b>作業</b>：進廠、出廠，可以勾選多張一次處理</li><li><b>更多</b>：設定、備份、說明、鎖定</li></ul>' },
+  { ic: 'home', t: '歡迎使用小記', b: '<p>記錄每一張座椅現在在哪個單位、什麼時候屆期，並算出各單位的飛機支援度。</p><p>底下六個分頁：</p><ul><li><b>首頁</b>：輸入序號數字就能查，下面是今天要看的事</li><li><b>數量</b>：各型別在各單位的張數、飛機支援度</li><li><b>屆期</b>：未來哪些座椅要屆期</li><li><b>進出廠</b>：每個月進廠、出廠的數量</li><li><b>作業</b>：進廠、出廠，可以勾選多張一次處理</li><li><b>更多</b>：設定、備份、說明、鎖定</li></ul>' },
   { ic: 'search', t: '畫面上的數字都能點', b: '<p>點數字會跳出清單，列出是哪幾張。</p><p>點清單裡的序號，可以展開看型別、單位、三線屆期、剩餘天數，並直接進廠、出廠、調撥。清單可以排序、篩選型別，也能一鍵複製。</p>' },
   { ic: 'tool', t: '進廠、出廠怎麼做', b: '<ul><li>三線屆期一到，系統每天凌晨 1 點自動搬到待修庫</li><li>待修庫按「進廠」→ 到指部</li><li>修好後在指部按「出廠」，選回一修或三修，系統自動算新的三線屆期（+6 年）</li></ul><p>舊日期不會消失，會記在異動紀錄。</p>' },
   { ic: 'down', t: '加到手機主畫面', b: '<p>iPhone：Safari 按分享 →「加入主畫面」。<br>Android：選單 →「加到主畫面」。</p><p>「更多」分頁可以調深淺色與字體、下載備份、重看說明。</p>' }
@@ -1655,7 +1660,7 @@ function helpHTML() {
   const D = (t, body, open) => '<details class="hlp"' + (open ? ' open' : '') + '><summary>' + t + '</summary>' + body + '</details>';
   return '<h3>使用說明</h3>' +
     D('這是做什麼的', '<p>記錄每一張座椅現在在哪裡、什麼時候屆期，並算出各單位的飛機支援度。資料存在 Google 試算表，這個頁面負責看和操作。</p><p>流程：一修／三修服役 → 三線屆期 → 待修庫 → 進廠到指部翻修 → 出廠回一修／三修（出廠日就是新的生效日，三線屆期 = 出廠日 + 6 年）。</p>', true) +
-    D('五個分頁', '<ul><li><b>首頁</b>：上面框框只打數字（例如 72 或 188），看那張的完整資料和操作；下面是三個數字和「今天要看的」。</li><li><b>數量</b>：各型別在各單位的張數、飛機支援度、資料提醒。</li><li><b>屆期</b>：支援度預測、近期屆期、年度屆期、未來 12 個月。</li><li><b>作業</b>：待進廠、指部中、異動紀錄。勾選多張可以一次進廠或出廠。</li><li><b>更多</b>：設定、下載備份、說明、鎖定。</li></ul>') +
+    D('六個分頁', '<ul><li><b>首頁</b>：上面框框只打數字（例如 72 或 188），看那張的完整資料和操作；下面是三個數字和「今天要看的」。</li><li><b>數量</b>：各型別在各單位的張數、飛機支援度、資料提醒。</li><li><b>屆期</b>：支援度預測、近期屆期、年度屆期、未來 12 個月。</li><li><b>進出廠</b>：依年度、月份看出廠（給一修或三修、型別數量）和進廠。</li><li><b>作業</b>：待進廠、指部中、異動紀錄。勾選多張可以一次進廠或出廠。</li><li><b>更多</b>：設定、下載備份、說明、鎖定。</li></ul>') +
     D('做錯了怎麼辦', '<p>進廠、出廠、調撥、修改完成後，畫面下方會出現「復原」按鈕（約 9 秒）。錯過了也可以到「作業 → 紀錄」或該座椅的「歷史紀錄」，按最新一筆的「復原這一步」。若那張座椅之後又有新的異動，就不能復原，請用「修改資料」調整。</p>') +
     D('點數字看清單', '<p>畫面上所有數字都可以點，會跳出清單列出是哪幾張。清單可以「依屆期／依序號／依單位」排序、篩選型別，右上「複製」可貼到通訊軟體。點序號展開詳細資料與操作按鈕。</p>') +
     D('區塊收折', '<p>每個區塊標題點一下就收起或展開；「全部展開／全部收折」一次處理。你的收折狀態會記住。</p>') +
@@ -1664,7 +1669,7 @@ function helpHTML() {
     D('飛機支援度', '<p>支援度 = 座椅數 ÷ 飛機數。100% 以上正常、90–99% 橘色、不到 90% 紅色。飛機數有變動：總覽「修改飛機數」。</p>') +
     D('設定與備份', '<p>右上「⋯」→ 設定：深淺色、文字大小、自動鎖定時間。「下載全部資料（CSV）」可當備份，用 Excel 開啟。</p>') +
     D('加到手機主畫面', '<div class="hicon"><img alt="" src="data:image/png;base64,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"><span>iPhone：Safari 按分享 →「加入主畫面」。Android：選單 →「加到主畫面」。圖示與名稱就是這個。</span></div>') +
-    D('密碼與安全', '<p>密碼存在 Apps Script 的指令碼屬性：KEY 是管理密碼（可查看、可修改）；若另外設了 VIEW_KEY，用那組密碼登入就只能查看。網頁裡不放密碼。閒置一段時間自動鎖定，離開前可到「更多」按鎖定。</p>') +
+    D('密碼與安全', '<p>密碼寫在試算表的「密碼」分頁：「管理」那列可以查看、修改；「查看」列只能查看，可以多列、每人一個。要換密碼直接改格子，馬上生效。網頁裡不放密碼；能開啟試算表的人看得到密碼，請控制分享對象。閒置一段時間自動鎖定，離開前可到「更多」按鎖定。</p>') +
     D('常見狀況', '<ul><li>顯示「示範資料」：尚未設定試算表網址，畫面是假資料。</li><li>資料沒更新：按右上角重新整理。</li><li>按了進廠／出廠但逾時：先重新整理確認有沒有成功，再決定要不要重做。</li><li>手機按返回鍵：會先關閉視窗，不會直接離開。</li></ul>') +
     '<div class="mbtn"><button class="btn pri" data-mcancel="1">關閉</button></div>';
 }
@@ -1714,7 +1719,7 @@ document.addEventListener('click', e => {
   if (d.fy) { state.fy = +d.fy; return render(); }
   if (d.hint) { lsSet('seatAsset.hint', 1); return render(); }
   if (d.work) { state.wk = d.work; return nav('work'); }
-  if (d.wk) { state.wk = d.wk; state.sel = {}; if (d.wk === 'log') state.logs = null; return render(); }
+  if (d.wk) { state.wk = d.wk; state.sel = {}; if (d.wk === 'log') { state.logs = null; state.logLoading = false; } return render(); }
   if (d.sel) { if (state.sel[d.sel]) delete state.sel[d.sel]; else state.sel[d.sel] = 1; return render(); }
   if (d.selall) { workList(d.selall).forEach(r => { state.sel[r.serial] = 1; }); return render(); }
   if (d.selclear) { state.sel = {}; return render(); }
@@ -1786,7 +1791,7 @@ let idleTimer = null;
 function lock(msg) {
   try { sessionStorage.removeItem(AUTH_KEY); } catch (e) { }
   try { localStorage.removeItem(CONFIG.CACHE_KEY); } catch (e) { }
-  state.key = ''; state.role = 'edit'; state.sel = {}; document.body.classList.remove('ro'); state.records = []; state.D = null; state.source = 'none'; state.q = ''; state.dr = null; state.logs = null; resetLayers();
+  state.key = ''; state.role = 'edit'; state.sel = {}; document.body.classList.remove('ro'); state.records = []; state.D = null; state.source = 'none'; state.q = ''; state.dr = null; state.logs = null; state.logLoading = false; resetLayers();
   $('#q').value = ''; $('#qclear').hidden = true; $('#view').innerHTML = ''; $('#badgeExp').hidden = true;
   $('#lock').classList.remove('hide'); $('#pw').value = '';
   $('#lockErr').textContent = (typeof msg === 'string') ? msg : '';
