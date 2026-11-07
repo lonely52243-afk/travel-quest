@@ -2455,6 +2455,10 @@ details.tds > summary.tdh > span { margin-right: auto; }
 .subf label { display: block; font-weight: 700; font-size: 14px; } .subf label input { margin-top: 4px; }
 .subh { font-size: 12.5px; color: var(--muted, #6b7280); margin: 10px 0 6px; line-height: 1.5; }
 .subr { display: grid; grid-template-columns: 80px 18px 1fr; align-items: center; gap: 6px; margin-bottom: 6px; } .subr span { font-weight: 800; font-size: 15px; } .subr i { font-style: normal; color: #9ca3af; }
+[data-theme="dark"] .tdseg button:not(.on) { color: #e8eaee; } [data-theme="dark"] .tdseg button:not(.on) small { color: #aab1bd; }
+[data-theme="dark"] #page-ana .toolbar .nav button { background: #1c1f26 !important; border-color: #3a404c !important; color: #e8eaee; } [data-theme="dark"] #page-ana .toolbar .nav button .chev { stroke: #e8eaee; }
+[data-theme="dark"] .anrv b, [data-theme="dark"] .anr2 .anrn, [data-theme="dark"] .anatop b { color: #e8eaee; }
+[data-theme="dark"] .tdseg button.on small { color: #4b5563; }
 
   .sit { display: inline-flex; align-items: center; gap: 5px; }
 .sit .wi { width: 18px; height: 18px; flex-shrink: 0; background: center / contain no-repeat; }
@@ -5009,6 +5013,7 @@ table.grid.wk td.cell { font-size: calc(var(--bd, 34px) * .48); }
           if (!res || !res.ok) { renderStat.asked = 0; if (!statAll) $('statBody').innerHTML = '<div class="dnone">讀取失敗，請稍後再試</div>'; return; }
           var cmap = {}; qkAll().forEach(function (e) { cmap[qkV(e.name)] = e.name; });
           statAll = (res.items || []).map(function (x) { var c = cmap[qkV(x.name)]; if (c) x.name = c; return x; }); renderStat();
+          try { if ($('quickPage').classList.contains('show')) qkRender(); } catch (e) { /* 忽略 */ }
           try { localStorage.setItem('leave_stat_v1', JSON.stringify(statAll)); } catch (e) { /* 忽略 */ }
         }).catch(function () { renderStat.asked = 0; if (!statAll) $('statBody').innerHTML = '<div class="dnone">讀取失敗，請稍後再試</div>'; });
       }
@@ -5050,6 +5055,7 @@ table.grid.wk td.cell { font-size: calc(var(--bd, 34px) * .48); }
       }
       // 休假資料還沒讀的月份，背景讀完再重畫；回傳是否都讀好了
       function fairReady(cb) {
+        if (!statAll && !fairReady.sa) { fairReady.sa = 1; try { statLoad(); } catch (e) { /* 忽略 */ } setTimeout(function () { fairReady.sa = 0; }, 15000); }
         var miss = fairMonths().filter(function (ym) { return !loaded[ym]; });
         if (!miss.length) return true;
         if (!fairReady.busy) {
@@ -7260,6 +7266,7 @@ table.grid.wk td.cell { font-size: calc(var(--bd, 34px) * .48); }
         $('idInst').hidden = instStandalone() || no || !mobile;
       }
       var CHANGELOG = [
+        { v: 'v11.27', d: '11/7', t: ['從當天詳細按「＋公差」選人時，「每月幾次」改用完整的 3 個月紀錄（之前可能只算到已讀的月份）'] },
         { v: 'v11.26', d: '11/7', t: ['當天詳細：上面的休假、留守、外勤收成一列「當天情況 休假 6・留守 3」，可以收起來並記住', '輪值（擴大FO、監工、查庫）可以「這天不用出」或「別單位代理」（填單位＋姓名）：之後的順序往後順延不跳人；當天顯示「已取消」或「別單位代理：○○」，按「恢復」就回到照輪值', '取消＝這項從當天消失（下面小字可恢復）；代理＝這項照樣顯示，人員換成代理人並標「代理」', '別單位代理一個換一個：填代理單位＋每位的代理人（空著＝還是原本的人）；不知道是誰就只填單位', '取消和代理的輪值，不會再算我們的人時間重疊、選人提醒、每日到班'] },
         { v: 'v11.25', d: '11/7', t: ['讀取失敗（網路不穩）後會自動重試，不會一直卡在「讀取中」：搜尋、加班產出、每日到班、休假統計、待處理、公差統計', '加班產出：換身分再換回來，已選的人不會消失', '快速標記：換貼新通知時，上一則「這是誰？」的狀態會清掉', '公差統計的「季」改名「近3月」（本來就是最近 3 個月）', '拿掉重複的圖片資料，檔案變小'] },
         { v: 'v11.24', d: '11/7', t: ['待處理：重疊、行程、時間未定合成一區「時間重疊」，照日期排', '每張卡片兩行各標「休假／公差／輪值／行程」色塊，一看就知道誰撞誰', '兩區都可以收起來並記住（不負責派公差的人可以把重疊收起來）；每區開頭一句話說明怎麼處理'] },
