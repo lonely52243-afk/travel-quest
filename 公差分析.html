@@ -202,12 +202,12 @@ const SEED_ROSTER=[];
 const SEED_CUT='';
 let RH0={k:1,f:1,j:1},HOVR=null,DJ=[],D=[],ROSTER=[],RHEAD={k:0,f:0,j:0},RSET={},TYPES=[],MIN='',MAX='';
 const DEFAULT_RULES=[{kw:['股長','校','尉'],w:0,ban:[],note:'軍官／股長'},{kw:['士官長'],w:.2,ban:[],note:'士官長'},{kw:['班長'],w:.3,ban:[],note:'班長'},{kw:['聘','雇'],w:1,ban:['擦槍','清整/佈置/打掃'],note:'聘雇人員'}];
-let DUR={},STDO={},STDC=null,RANKS={},RULES=DEFAULT_RULES,MW={},FR={},GONE={},HC={};
+let GOVR={},DUR={},STDO={},STDC=null,RANKS={},RULES=DEFAULT_RULES,MW={},FR={},GONE={},HC={};
 function ruleOf(rk){return RULES.find(r=>r.kw.some(k=>rk.includes(k)))||null}
 function calcGone(){ // 已調差／退伍／不在現任名冊、但出過公差的人：歷史上算那一股的人力，離開日期＝最後一次出公差
   GONE={};const m={};
   D.concat(DJ).forEach(e=>{G.forEach(g=>((e.n&&e.n[g.k])||[]).forEach(nm=>{const c=RSET[nm];if(c==='k'||c==='f'||c==='j')return;const o=m[nm]||(m[nm]={nm,gc:{k:0,f:0,j:0},end:''});o.gc[g.k]++;if(e.d>o.end)o.end=e.d}))});
-  Object.values(m).forEach(o=>{const g=['k','f','j'].sort((a,b)=>o.gc[b]-o.gc[a])[0];const rk=RANKS[o.nm]||'';const r=rk?ruleOf(rk):null;const w=r?r.w:1;if(w===0)return;GONE[o.nm]={nm:o.nm,g,w,end:o.end,ban:r?r.ban:[],note:r?r.note:'一般'}})}
+  Object.values(m).forEach(o=>{const g=GOVR[o.nm]||['k','f','j'].sort((a,b)=>o.gc[b]-o.gc[a])[0];const rk=RANKS[o.nm]||'';const r=rk?ruleOf(rk):null;const w=r?r.w:1;if(w===0)return;GONE[o.nm]={nm:o.nm,g,w,end:o.end,ban:r?r.ban:[],note:r?r.note:'一般'}})}
 function headsAt(d){const k=(d||'')+'|'+S.heads.k+','+S.heads.f+','+S.heads.j;if(HC[k])return HC[k];const h={k:S.heads.k,f:S.heads.f,j:S.heads.j};if(!HOVR)Object.values(GONE).forEach(p=>{if(!d||p.end>=d)h[p.g]+=p.w});return HC[k]=h}
 function calcWeights(){MW={};HC={};const raw={k:0,f:0,j:0};
   ROSTER.forEach(([nm,g])=>{if(!(g in raw))return;const rk=RANKS[nm]||'';const r=rk?ruleOf(rk):null;const w=r?r.w:1;MW[nm]={w,ban:r?r.ban:[],rk,note:r?r.note:'一般',g};raw[g]+=w});
@@ -534,7 +534,7 @@ function clusters(rows){ // 3-month windows
 function people(rows){
   const P={};let slots=0,named=0;
   rows.forEach(e=>{G.forEach(g=>{if(!S.show[g.k])return;const need=e[g.k];if(need)slots+=1;const arr=(e.n&&e.n[g.k])||[];if(arr.length)named+=1;
-    arr.forEach(nm=>{const key=g.k+'|'+nm;const p=P[key]||(P[key]={key,g,nm,c:0,last:'',first:'9',types:{},evs:[]});p.c++;p.evs.push(e);if(e.d>p.last)p.last=e.d;if(e.d<p.first)p.first=e.d;p.types[e.ty]=(p.types[e.ty]||0)+1})})});
+    arr.forEach(nm=>{const gx=(GOVR[nm]&&!MW[nm]&&G.find(q=>q.k===GOVR[nm]))||g;if(!S.show[gx.k])return;const key=gx.k+'|'+nm;const p=P[key]||(P[key]={key,g:gx,nm,c:0,last:'',first:'9',types:{},evs:[]});p.c++;p.evs.push(e);if(e.d>p.last)p.last=e.d;if(e.d<p.first)p.first=e.d;p.types[e.ty]=(p.types[e.ty]||0)+1})})});
   ROSTER.forEach(([nm,g0])=>{if(g0==='x'||(MW[nm]&&MW[nm].w===0))return;const g=G.find(q=>q.k===g0);if(!g||!S.show[g0])return;const key=g0+'|'+nm;if(!P[key])P[key]={key,g,nm,c:0,last:'',first:'9',types:{},evs:[]}});
   const PL=Object.values(P);PL.forEach(p=>{const m=MW[p.nm];p.gone=!m;const gg=GONE[p.nm];p.w=m?m.w:(gg?gg.w:1);p.note=m?m.note:(gg?gg.note+'（已離開）':'已離開');if(gg)p.end=gg.end});return{P:PL.filter(p=>!(p.gone&&!GONE[p.nm])),slots,named}}
 function gini(a){const n=a.length;if(n<2)return 0;const s=a.slice().sort((x,y)=>x-y);const sum=s.reduce((x,y)=>x+y,0);if(!sum)return 0;let c=0;s.forEach((v,i)=>c+=(i+1)*v);return (2*c)/(n*sum)-(n+1)/n}
@@ -706,10 +706,10 @@ function vPeople(rows){
   let h=hd+`<div class="card"><h2>人員比較</h2><div class="note">名單來自各股班長在群組回覆的姓名，依你給的名冊對成全名，自動配回對應的公差。<b>有名單的股別格數：${named}／${slots}（${slots?pct(named/slots):'—'}）</b>。每人每次公差算 1 次（不分人次／件數）。</div></div>
   <div class="card"><h2>誰出最多次</h2><div class="note">點名字看個人明細。顏色＝所屬股。</div>${legend()}${S.tbl?tableHTML(['姓名','股','次數','最近'],all.slice(0,S.pn).map(p=>[p.nm,p.g.n,p.c,p.last])):`<div class="hb">${barRows||'<div class="note">範圍內沒有可對應姓名的公差</div>'}</div>`}
   ${all.length>S.pn?`<button class="btn" data-pn="${S.pn+15}" style="width:100%;margin-top:8px">再顯示 15 人（共 ${all.length} 人）</button>`:''}${S.pn>15?`<button class="btn" data-pn="15" style="width:100%;margin-top:6px">收合</button>`:''}</div>
-  ${PG.length?`<div class="card"><h2>已離開的人（調差／退伍／不在現任名冊）</h2><div class="note">他們過去出的公差，仍算在那一股的人力與次數裡；比較各股是否平均時，歷史期間的「應有人數」也會把他們加回去，離開日期以最後一次出公差為準。他們不列入「沒出過」和「下一輪候選」。</div>${v.map(g=>{const ps=PG.filter(p=>p.g.k===g.k);return ps.length?`<div style="margin:8px 0"><b><i class="dot" style="background:${g.c}"></i> ${g.n}</b>　${ps.sort((a,b)=>b.c-a.c).map(p=>`<span class="badge" style="margin:2px">${esc(p.nm)} ${p.c}次・至${(p.end||p.last).slice(2)}</span>`).join('')}</div>`:''}).join('')}</div>`:''}
+  ${PG.length?`<div class="card"><h2>已離開的人（調差／退伍／不在現任名冊）</h2><div class="note">他們過去出的公差，仍算在那一股的人力與次數裡；比較各股是否平均時，歷史期間的「應有人數」也會把他們加回去，離開日期以最後一次出公差為準。他們不列入「沒出過」。</div>${v.map(g=>{const ps=PG.filter(p=>p.g.k===g.k);return ps.length?`<div style="margin:8px 0"><b><i class="dot" style="background:${g.c}"></i> ${g.n}</b>　${ps.sort((a,b)=>b.c-a.c).map(p=>`<span class="badge" style="margin:2px">${esc(p.nm)} ${p.c}次・至${(p.end||p.last).slice(2)}<select data-gov="${esc(p.nm)}" aria-label="${esc(p.nm)}所屬股" style="margin-left:6px;min-height:36px;font-size:14px">${G.map(q=>`<option value="${q.k}" ${q.k===p.g.k?'selected':''}>${q.n}</option>`).join('')}</select></span>`).join('')}</div>`:''}).join('')}<div class="note" id="govm">名字歸錯股時，用右側選單改；會存到試算表設定，歷史人力與次數一併更正。</div></div>`:''}
   <div class="card"><h2>各股內部是否平均</h2><div class="note">以名冊全員計算（含沒出過的）。集中度高＝公差集中在少數人。</div>${perTbl}</div>
   ${rankCard(P)}
-  <div class="card"><h2>下一輪候選（出最少、最久沒出）</h2><div class="note">依名冊排序：出最少次、最久沒出的人排前面（沒出過的最前）。注意：配不到姓名的公差沒算進去，實際可能比這裡多。</div>${next}</div>`;
+`;
   if(S.person){const p=P.find(x=>x.key===S.person);if(p){const tl=Object.entries(p.types).sort((a,b)=>b[1]-a[1]);
     h+=`<div class="card"><h2><i class="dot" style="background:${p.g.c}"></i> ${esc(p.nm)}（${p.g.n}）　<button class="btn" data-person="${esc(p.key)}" style="min-height:36px">取消選取</button></h2>
     <div class="kpis" style="grid-template-columns:repeat(3,1fr)"><div class="kpi"><b>${p.c}</b><span>次</span></div><div class="kpi"><b style="font-size:17px;line-height:1.6">${p.last.slice(2)}</b><span>最近一次</span></div><div class="kpi"><b>${daysBetween(p.last,ANCHOR)}</b><span>天前</span></div></div>
@@ -733,6 +733,9 @@ function oneG(e){const ks=vis().filter(g=>e[g.k]>0);return ks.length===1?ks[0]:n
 const DSRC={m:'手動修正',t:'寫明時段',c:'收工回報',s:'類型標準'};
 function stdMap(){if(STDC)return STDC;const by={};D.concat(DJ).forEach(e=>{const p=Ingest.tmParse(e.tm);if(p&&p.h&&p.src==='t')(by[e.ty]=by[e.ty]||[]).push(p.h)});
   STDC={};Object.keys(by).forEach(t=>{const a=by[t].sort((x,y)=>x-y);if(a.length>=3)STDC[t]={h:a[a.length>>1],n:a.length}});return STDC}
+document.addEventListener('change',async e=>{const t=e.target;if(!t.dataset||!t.dataset.gov)return;
+  GOVR[t.dataset.gov]=t.value;calcWeights();S.heads={...RHEAD};render(true);
+  try{if(DB.mode==='remote')await apiPost('setting',{name:'goneG',value:JSON.stringify(GOVR)})}catch(er){const m=$('#govm');if(m)m.textContent='存檔失敗：'+er.message}});
 function stdKw(e){const t=(e.p||'')+' '+(e.x||'');for(const k of Object.keys(STDO)){if(k[0]==='@'&&STDO[k]>0&&t.includes(k.slice(1)))return Math.min(8,STDO[k])}return null}
 function stdH(ty){if(STDO[ty]>0)return Math.min(8,STDO[ty]);const o=stdMap()[ty];return o?Math.min(8,o.h):null}
 function durInfo(e){const o=DUR[e.id];if(o&&o[1]==='m')return{h:o[0],src:'m'};
@@ -1124,6 +1127,7 @@ async function loadRemote(pwOverride){const c=cfgLoad();const pw=pwOverride!=nul
   const r=await fetch(u);const j=await r.json();if(!j.ok){const e=new Error(j.error||'讀取失敗');e.auth=j.auth===false;throw e}
   DB.mode='remote';DB.lastMsg=(j.settings&&j.settings.lastMsg)||'';DB.at=new Date().toLocaleString('zh-TW');
   try{RANKS=JSON.parse((j.settings&&j.settings.ranks)||'{}')||{}}catch(e){RANKS={}}
+  try{GOVR=JSON.parse((j.settings&&j.settings.goneG)||'{}')||{}}catch(e){GOVR={}}
   try{DUR=JSON.parse((j.settings&&j.settings.dur)||'{}')||{}}catch(e){DUR={}}
   try{STDO=JSON.parse((j.settings&&j.settings.std)||'{}')||{}}catch(e){STDO={}}
   try{const hh=JSON.parse((j.settings&&j.settings.heads)||'null');HOVR=hh&&hh.k>0&&hh.f>0&&hh.j>0?{k:+hh.k,f:+hh.f,j:+hh.j}:null}catch(e){HOVR=null}
