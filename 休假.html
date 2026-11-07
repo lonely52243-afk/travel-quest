@@ -4698,7 +4698,7 @@ table.grid.wk td.cell { font-size: calc(var(--bd, 34px) * .48); }
           '<div class="gdsl"><span>' + (+ymNow.slice(5)) + ' 月衛哨</span><b>' + (cur ? cur.t + (cur.own ? '' : '<small>（沿用 ' + (+cur.from.slice(5)) + ' 月）</small>') : '<em>還沒設時間</em>') + '</b></div>' +
           '<div class="gdex">駐廠的人被標<b>留守</b>那天 → 自動多一項衛哨（只是提醒，其中一人去）</div></div>'; }
         // 1. 駐廠
-        var GHIDE = ['劉庭妤', '林謙丞', '何謙', '褚靜婕', '周芯羽', '郭蕙芳', '鄭于玲'], gall = !!guardEdit.all;
+        var GHIDE = ['劉庭妤', '林謙丞', '何謙', '褚靜婕', '周芯羽', '郭蕙芳', '鄭于玲', '郭瓊嵐', '陳啓泰', '李威幟', '蔡同咨'], gall = !!guardEdit.all;
         var gl = dutyEmps().filter(function (e) { return gall || GHIDE.indexOf(e.name) < 0 || guardEdit.ppl.indexOf(e.name) >= 0; });
         h += '<div class="gdsec"><div class="gdh"><b class="stn">1</b><b>誰是駐廠？</b><small>點名字，黃色＝駐廠</small></div><div class="planpick">' + gl.map(function (e) {
           return '<button class="' + (guardEdit.ppl.indexOf(e.name) >= 0 ? 'on' : '') + '" data-gp="' + esc(e.name) + '">' + (guardEdit.ppl.indexOf(e.name) >= 0 ? '✓ ' : '') + esc(e.name) + '</button>'; }).join('') + '</div>' +
