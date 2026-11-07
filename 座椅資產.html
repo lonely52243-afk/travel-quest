@@ -363,6 +363,7 @@ body.ro [data-act]:not([data-act="history"]):not([data-act="log"]),body.ro [data
 .sup th{text-align:left}.sup td{text-align:left;vertical-align:middle;padding:9px 6px}.sup td:first-child{padding-left:12px;white-space:nowrap}.sup td.rt{text-align:right;padding-right:12px;min-width:112px}.sup .rt b{font-size:18px}.sup .rbar{height:6px;margin:3px 0 2px}.sup .rs{font-size:12.5px;line-height:1.3}.sup .lk{font-size:12.5px;padding:2px 0}
 .chips[style*=grid] .chip{padding:9px 2px;text-align:center;font-size:14px}
 .qa button{flex-direction:row!important;justify-content:center;gap:12px!important;min-height:72px!important;font-size:17px}.qa .qt{text-align:left;line-height:1.25}.qa .qt small{display:block;font-size:12.5px;font-weight:600;color:var(--mute)}
+.verbox{margin-top:12px;padding:8px 10px;border-radius:10px;background:var(--soft);font-size:12.5px;text-align:center;line-height:1.7;color:var(--mute)}.verbox b{color:var(--text)}.verbox .ok{color:var(--green);font-weight:700}.verbox .no{color:var(--orange);font-weight:700}
 </style>
 </head>
 <body>
@@ -377,6 +378,7 @@ body.ro [data-act]:not([data-act="history"]):not([data-act="log"]),body.ro [data
     <button type="submit" class="go">解鎖</button>
     <div class="err" id="lockErr" role="alert"></div>
     <div class="hint" id="lockHint"></div>
+    <div class="verbox" id="lockVer" aria-live="polite"></div>
   </form>
 </div>
 
@@ -681,6 +683,7 @@ function seatUndoable(logs) {
 /* =====================================================================
    設定區（只需要改這裡）
    ===================================================================== */
+const PAGE_VER = 'v3.5';
 const CONFIG = {
   // Apps Script 部署後的「/exec」網址（只讀取，不會寫入）。
   // 密碼由 Apps Script 檢查（存在指令碼屬性 KEY），網頁裡不放密碼。
@@ -840,10 +843,10 @@ function parseResponse(text) {
   try { json = JSON.parse(text); } catch (e) { }
   if (json != null && typeof json === 'object') {
     if (!Array.isArray(json) && json.error) { const er = new Error(json.error); er.auth = (json.code === 'AUTH'); throw er; }
-    return { rows: extractRows(json), role: (!Array.isArray(json) && json.role) || '', aircraft: (!Array.isArray(json) && json.aircraft && typeof json.aircraft === 'object') ? json.aircraft : null };
+    return { rows: extractRows(json), role: (!Array.isArray(json) && json.role) || '', ver: (!Array.isArray(json) && json.ver) || '', aircraft: (!Array.isArray(json) && json.aircraft && typeof json.aircraft === 'object') ? json.aircraft : null };
   }
   if (/^\s*</.test(text)) throw new Error('回傳的是網頁而不是資料（可能是權限沒設為「任何人」）');
-  return { rows: rowsToObjects(parseTable(text)), role: '', aircraft: null };
+  return { rows: rowsToObjects(parseTable(text)), role: '', ver: '', aircraft: null };
 }
 function normalize(rows) {
   const F = CONFIG.FIELD_MAP;
@@ -876,6 +879,7 @@ async function fetchLive(key) {
 function applyData(text, source, ts) {
   const p = parseResponse(text);
   state.records = normalize(p.rows);
+  state.ver = p.ver || '';
   state.role = p.role === 'view' ? 'view' : 'edit'; document.body.classList.toggle('ro', state.role === 'view');
   state.aircraft = p.aircraft || JSON.parse(JSON.stringify(CONFIG.AIRCRAFT));
   state.source = source; state.updatedAt = ts;
@@ -1181,7 +1185,7 @@ function viewHome() {
 }
 function viewMore() {
   const ro = state.role === 'view';
-  let h = '<div class="rolebox' + (ro ? ' ro' : '') + '"><i></i><div><b>' + (ro ? '目前身分：只能查看' : '目前身分：可以修改') + '</b><div class="note" style="margin:0">' + (CONFIG.API_URL ? '資料來源：試算表（' + (state.source === 'live' ? '已連線' : '離線，顯示舊資料') + '）' : '示範模式：資料是假的，操作不會寫入') + '</div></div></div>';
+  let h = '<div class="rolebox' + (ro ? ' ro' : '') + '"><i></i><div><b>' + (ro ? '目前身分：只能查看' : '目前身分：可以修改') + '</b><div class="note" style="margin:0">' + (CONFIG.API_URL ? '資料來源：試算表（' + (state.source === 'live' ? '已連線' : '離線，顯示舊資料') + '）　網頁 ' + PAGE_VER + '　後端 ' + (state.ver || '舊版') : '示範模式：資料是假的，操作不會寫入') + '</div></div></div>';
   h += '<div class="card">' + toolRows() + (ro ? '' : '<button class="mrow" data-act="aircraft"><span class="mi">' + ICON.tool + '</span><span>修改飛機數<small>支援度用的飛機數量</small></span></button>') +
     (ro ? '' : '<button class="mrow" data-act="add"><span class="mi">' + ICON.flag + '</span><span>新增座椅<small>登記一張新的座椅</small></span></button>') + '<button class="mrow" data-tool="lock"><span class="mi">' + ICON.lock + '</span><span>鎖定<small>離開前按這個</small></span></button></div>';
   return h;
@@ -1795,7 +1799,7 @@ function lock(msg) {
   $('#q').value = ''; $('#qclear').hidden = true; $('#view').innerHTML = ''; $('#badgeExp').hidden = true;
   $('#lock').classList.remove('hide'); $('#pw').value = '';
   $('#lockErr').textContent = (typeof msg === 'string') ? msg : '';
-  setTimeout(() => $('#pw').focus(), 50);
+  setTimeout(() => $('#pw').focus(), 50); showVersions();
 }
 function bumpIdle() {
   if (!CONFIG.AUTO_LOCK_MIN) return;
@@ -1818,9 +1822,23 @@ document.addEventListener('visibilitychange', () => {
   if (!document.hidden && state.D && CONFIG.API_URL && state.updatedAt && Date.now() - state.updatedAt > 30 * 60000 && !state.loading) loadData(false);
 });
 
+/* ---------- 封面版本：確認網頁與後端（Apps Script）是否都更新成功 ---------- */
+async function showVersions() {
+  const el = $('#lockVer'); if (!el) return;
+  const pg = '網頁 <b>' + PAGE_VER + '</b>';
+  if (!CONFIG.API_URL) { el.innerHTML = pg + '　示範模式'; return; }
+  el.innerHTML = pg + '　後端 檢查中…';
+  try {
+    const ctl = new AbortController(), to = setTimeout(() => ctl.abort(), 12000);
+    const res = await fetch(CONFIG.API_URL + (CONFIG.API_URL.indexOf('?') >= 0 ? '&' : '?') + 'key=', { cache: 'no-store', redirect: 'follow', signal: ctl.signal });
+    clearTimeout(to);
+    const j = JSON.parse(await res.text()), v = j.ver || '';
+    el.innerHTML = pg + '　後端 ' + (v ? '<b>' + esc(v) + '</b>' : '<b>舊版</b>') + '<br>' + (v === PAGE_VER ? '<span class="ok">✓ 部署成功，版本一致</span>' : '<span class="no">⚠ 後端還不是最新，請重新貼上 Apps Script 並重新部署</span>');
+  } catch (e) { el.innerHTML = pg + '　後端 <span class="no">連不上</span>'; }
+}
 /* ---------- 啟動 ---------- */
 (function init() {
-  loadSettings(); applySettings();
+  loadSettings(); applySettings(); showVersions();
   state.open = lsGet('seatAsset.open', {}) || {};
   if (!CONFIG.API_URL) $('#pw').placeholder = '示範模式：隨便輸入就能進入';
   let k = ''; try { k = sessionStorage.getItem(AUTH_KEY) || ''; } catch (e) { }
