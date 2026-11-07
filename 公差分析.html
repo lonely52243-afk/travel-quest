@@ -135,7 +135,7 @@ td,th,.kpi b,.lab small,.nums,.badge,.pill,.t b{font-family:ui-monospace,SFMono-
 #bnav .mi{width:24px;height:24px}
 .hl .tag{font-family:inherit}
 .seg .btn,summary.note{min-height:48px}.kpis{scroll-padding-left:16px}header.top{padding-top:8px}header.top h1{font-size:19px}.tabs{padding-top:6px;padding-bottom:6px}
-#fbtn{min-height:44px;padding:0 16px;font-weight:600}#fbtn.act{background:var(--ink);color:var(--surface);border-color:var(--ink)}
+header.top{padding-top:env(safe-area-inset-top)}#fbtn{min-height:44px;padding:0 16px;font-weight:600}#fbtn.act{background:var(--ink);color:var(--surface);border-color:var(--ink)}
 #sbg{position:fixed;inset:0;background:rgba(0,0,0,.45);z-index:60}
 #sheet{position:fixed;left:0;right:0;bottom:0;z-index:70;max-height:82vh;display:flex;flex-direction:column;background:var(--surface);border-radius:18px 18px 0 0;box-shadow:0 -8px 30px rgba(0,0,0,.25);transform:translateY(105%);transition:transform .25s ease;padding-bottom:env(safe-area-inset-bottom)}
 #sheet.open{transform:none}
@@ -199,7 +199,7 @@ const CONFIG={url:'https://script.google.com/macros/s/AKfycbz8PehWpyavDM1HpyWbuy
 const SEED=[];
 const SEED_ROSTER=[];
 const SEED_CUT='';
-let D=[],ROSTER=[],RHEAD={k:0,f:0,j:0},RSET={},TYPES=[],MIN='',MAX='';
+let DJ=[],D=[],ROSTER=[],RHEAD={k:0,f:0,j:0},RSET={},TYPES=[],MIN='',MAX='';
 const DEFAULT_RULES=[{kw:['股長','校','尉'],w:0,ban:[],note:'軍官／股長'},{kw:['士官長'],w:.2,ban:[],note:'士官長'},{kw:['班長'],w:.3,ban:[],note:'班長'},{kw:['聘','雇'],w:1,ban:['擦槍','清整/佈置/打掃'],note:'聘雇人員'}];
 let RANKS={},RULES=DEFAULT_RULES,MW={},FR={};
 function ruleOf(rk){return RULES.find(r=>r.kw.some(k=>rk.includes(k)))||null}
@@ -218,11 +218,12 @@ function inferFromNames(e){
   ['k','f','j'].forEach(g=>{const t=Math.min(names[g],cap);o[g]=t;cap-=t});
   return o}
 function applyData(ev,ros){
-  D=ev.filter(e=>e.st!=='刪除').map(inferFromNames).slice().sort((a,b)=>(a.d+a.tm).localeCompare(b.d+b.tm));
+  DJ=ev.filter(e=>e.st==='直派').slice().sort((a,b)=>(a.d+a.tm).localeCompare(b.d+b.tm));
+  D=ev.filter(e=>e.st!=='刪除'&&e.st!=='直派').map(inferFromNames).slice().sort((a,b)=>(a.d+a.tm).localeCompare(b.d+b.tm));
   ROSTER=ros;
   RSET=Object.fromEntries(ROSTER.map(r=>[r[0],r[1]]));
   const m={};D.forEach(e=>m[e.ty]=(m[e.ty]||0)+e.k+e.f+e.j+1e-3);TYPES=Object.keys(m).sort((a,b)=>m[b]-m[a]);calcWeights();
-  MIN=D.length?D[0].d:ANCHOR;MAX=D.length?D[D.length-1].d:ANCHOR}
+  const AD=D.concat(DJ).map(e=>e.d).sort();MIN=AD.length?AD[0]:ANCHOR;MAX=AD.length?AD[AD.length-1]:ANCHOR}
 const G=[{k:'k',n:'快砲',c:'var(--s1)'},{k:'f',n:'飛彈',c:'var(--s2)'},{k:'j',n:'軍械',c:'var(--s3)'}];
 const S={jp:null,sort:'new',rt:'',from:'',to:'',types:new Set(),show:{k:1,f:1,j:1},metric:'ppl',q:'',tab:'overview',tbl:false,heads:{k:1,f:1,j:1},drill:null,lm:'month',person:null,pn:15,pm:'all',
   cmp:{preset:'6',aF:'',aT:'',bF:'',bT:''},more:200};
@@ -234,6 +235,7 @@ const addD=(d,n)=>{const t=new Date(d+'T00:00:00Z');t.setUTCDate(t.getUTCDate()+
 function nmStr(e){return e.n?Object.values(e.n).flat().join(' '):''}
 function val(e,g){return S.metric==='ppl'?e[g]:(e[g]>0?1:0)}
 function inRange(e,f,t){return e.d>=f&&e.d<=t}
+function filtJ(f,t){return DJ.filter(e=>inRange(e,f,t)&&(!S.types.size||S.types.has(e.ty))&&(!S.q||(e.p+e.x+e.ty+nmStr(e)).includes(S.q)))}
 function filt(f,t,opt){opt=opt||{};return D.filter(e=>inRange(e,f,t)&&(opt.noType||!S.types.size||S.types.has(e.ty))&&(!S.q||(e.p+e.x+e.ty+nmStr(e)).includes(S.q)))}
 function vis(){return G.filter(g=>S.show[g.k])}
 function exp(t){const v=vis();const f=t&&FR[t]?FR[t]:null;const w=v.map(g=>S.heads[g.k]*(f?f[g.k]:1));const s=w.reduce((a,b)=>a+b,0)||1;const o={};v.forEach((g,i)=>o[g.k]=w[i]/s);return o}
@@ -522,7 +524,7 @@ function vJx(rows){
   const did=all.filter(p=>p.c>0),none=all.filter(p=>p.c===0&&!p.x);const totalN=did.reduce((a,p)=>a+p.c,0);
   const g=gini(all.map(p=>p.c));const top3=did.slice(0,3).reduce((a,p)=>a+p.c,0);
   const cov=slots?named/slots:0;const t1=all[0];
-  const hd=hl(cov<.5?'warn':'ok','軍械股',`${ev.length} 件、${slots} 人次；出最多：${t1&&t1.c?esc(t1.nm)+' '+t1.c+' 次':'—'}`,`人名涵蓋 ${pct(cov)}（${named}／${slots} 件有名單）。名單來自你在軍械股群組 @ 的人和班長回覆。`,cov<.5?'人名涵蓋不到一半，個人次數會偏低。可到「資料同步」上傳軍械股群組檔補人名。':'長條越長＝出越多次。點名字看他做過什麼。');
+  const nDJ=ev.filter(e=>e.st==='直派').length;const hd=hl(cov<.5?'warn':'ok','軍械股',`${ev.length} 件、${slots} 人次；出最多：${t1&&t1.c?esc(t1.nm)+' '+t1.c+' 次':'—'}`,`人名涵蓋 ${pct(cov)}（${named}／${slots} 件有名單）。${nDJ?`含 ${nDJ} 件直接私訊給軍械股的急件（沒經武系課，不算三股比較）。`:''}`,cov<.5?'人名涵蓋不到一半，個人次數會偏低。可到「資料同步」上傳軍械股群組檔補人名。':'長條越長＝出越多次。點名字看他做過什麼。');
   const kp=`<div class="kpis"><div class="kpi"><b>${ev.length}</b><span>件</span></div><div class="kpi"><b>${slots}</b><span>人次</span></div><div class="kpi"><b>${did.length}／${all.filter(p=>!p.x).length}</b><span>出過／名冊</span></div><div class="kpi"><b>${pct(totalN?top3/totalN:0)}</b><span>前三名占比</span></div></div>`;
   const bars=`<div class="hb">${all.filter(p=>p.c>0).map(p=>`<div class="r" data-jp="${esc(p.nm)}" tabindex="0" role="button" style="cursor:pointer"><div class="lab"><span>${esc(p.nm)}${p.note&&p.note!=='一般'?` <small class="note">${esc(p.note)}</small>`:''}</span><small>${p.c} 次｜${p.h?p.h.toFixed(1)+' 小時｜':''}最近 ${p.last.slice(2)}</small></div><div class="bars" style="display:flex;height:20px"><i style="flex:${p.c} 1 0;background:${c3}" data-tip="${esc(p.nm)}：${p.c} 次">${p.c/mx>.12?p.c:''}</i><i style="flex:${Math.max(0,mx-p.c)} 1 0;background:transparent"></i></div></div>`).join('')}</div>`;
   const noneH=none.length?`<div class="note" style="margin-top:8px"><b>這段期間沒出過（${none.length} 人）</b></div><div>${none.map(p=>`<span class="badge" data-jp="${esc(p.nm)}" style="cursor:pointer;margin:2px">${esc(p.nm)}</span>`).join('')}</div>`:'';
@@ -697,7 +699,7 @@ function render(keepFocus){
   syncControls();renderNav();const rows=filt(S.from,S.to);
   $('#sub').textContent=`${rows.length} 件符合｜資料 ${D.length?MIN.slice(0,7)+' ～ '+MAX.slice(0,7):'尚無'}｜${DB.mode==='remote'?'已連線':'預覽'}`;
   const v=$('#view');let h='';
-  if(S.tab==='overview')h=vOverview(rows);else if(S.tab==='trend')h=vTrend(rows);else if(S.tab==='types')h=vTypes(rows);else if(S.tab==='ppl')h=vPeople(rows);else if(S.tab==='jx')h=vJx(rows);else if(S.tab==='hot')h=vHot(rows);else if(S.tab==='rot')h=vRot(rows);else if(S.tab==='fc')h=vFc();else if(S.tab==='cmp')h=vCmp();else if(S.tab==='sync')h=vSync();else h=vList(rows);
+  if(S.tab==='overview')h=vOverview(rows);else if(S.tab==='trend')h=vTrend(rows);else if(S.tab==='types')h=vTypes(rows);else if(S.tab==='ppl')h=vPeople(rows);else if(S.tab==='jx')h=vJx(rows.concat(filtJ(S.from,S.to)));else if(S.tab==='hot')h=vHot(rows);else if(S.tab==='rot')h=vRot(rows);else if(S.tab==='fc')h=vFc();else if(S.tab==='cmp')h=vCmp();else if(S.tab==='sync')h=vSync();else h=vList(rows);
   const y=scrollY;v.innerHTML=h;if(keepFocus)scrollTo(0,y);
   ['aF','aT','bF','bT'].forEach(id=>{const el=$('#'+id);if(el)el.onchange=e=>{S.cmp[id]=e.target.value;render()}});
   if(S.tab==='sync')wireSync();
@@ -891,7 +893,7 @@ function nameFromOwn(pool,msgs,roster,g){
   const res=[],unm=[];
   items.forEach(it=>{const e=it.ev,nm=it.names;if(!nm.length)return;
     const c=pool.filter(x=>x.st!=='刪除'&&x.d===e.d&&(x[g]>0||x.u)).map(x=>({x,s:(x.p===e.p&&e.p?3:0)+(x.tm===e.tm?1:0)+(x[g]===e[g]?1:0)+(x[g]>0?1:0)})).sort((a,b)=>b.s-a.s);
-    if(!c.length||c[0].s<2||(c.length>1&&c[1].s===c[0].s&&c[0].s<3)){unm.push({d:e.d,p:e.p,names:nm,why:'對不到'});return}
+    if(!c.length||c[0].s<2||(c.length>1&&c[1].s===c[0].s&&c[0].s<3)){unm.push({d:e.d,p:e.p,names:nm,why:'對不到',ev:e});return}
     const t=c[0].x,nd=t.u?nm.length:t[g];
     if(nm.length>Math.max(nd,1)){unm.push({d:e.d,p:e.p,names:nm,why:'人名多於人數'});return}
     res.push({ev:t,names:nm})});
@@ -958,9 +960,14 @@ async function doOwn(text,g){
   const roster=ROSTER.map(r=>[r[0],r[1]]);const msgs=Ingest.parseChat(text);
   const {res,unm}=Ingest.nameFromOwn(ALL,msgs,roster,g);
   const up=[];res.forEach(({ev,names})=>{const cur=(ev.n&&ev.n[g])||[];if(cur.join()===names.join())return;ev.n=Object.assign({},ev.n,{[g]:names});const r=toRow(ev);up.push({id:ev.id,nk:r.nk,nf:r.nf,nj:r.nj})});
-  const nm=GN[g]||g;const sum=`${nm}自己群組：對到 ${res.length} 件公差，更新人名 ${up.length} 件；另有 ${unm.length} 件對不到武系課的公差或人名多於人數，沒有動它。`;
-  if(DB.mode==='remote'){try{say('寫入試算表中…');if(up.length)await apiPost('updateNames',{items:up});await reloadAll(true);const s2=$('#syncMsg');if(s2)s2.textContent='完成。'+sum}catch(e){say('寫入失敗：'+e.message)}}
-  else{applyData(ALL,ROSTER);render();const s2=$('#syncMsg');if(s2)s2.textContent='（預覽模式，未保存）'+sum}}
+  // 對不到武系課公差的 = 直接私訊給本股的急件：記成「直派」，只算本股專區，不算三股比較
+  const have=new Set(ALL.map(e=>e.id));const add=[];
+  unm.filter(u=>u.why==='對不到'&&u.ev).forEach(u=>{const e=normEv({...u.ev,k:0,f:0,j:0,u:0,st:'直派',n:{[g]:u.names}});e[g]=Math.max(u.ev[g]||0,u.names.length);
+    e.id=hashId({...e,x:'直派'+(e.x||'')});if(have.has(e.id))return;have.add(e.id);add.push(e)});
+  const nm=GN[g]||g;const left=unm.length-add.length;
+  const sum=`${nm}自己群組：對到武系課公差 ${res.length} 件，更新人名 ${up.length} 件；另新增 ${add.length} 件「${nm}直派」公差（沒經武系課，只算${nm}專區）；${left} 件人名比人數多，沒有動它。`;
+  if(DB.mode==='remote'){try{say('寫入試算表中…');if(add.length)await apiPost('add',{events:add.map(toRow)});if(up.length)await apiPost('updateNames',{items:up});await reloadAll(true);const s2=$('#syncMsg');if(s2)s2.textContent='完成。'+sum}catch(e){say('寫入失敗：'+e.message)}}
+  else{setAll(ALL.concat(add),ROSTER);render();const s2=$('#syncMsg');if(s2)s2.textContent='（預覽模式，未保存）'+sum}}
 async function doSync(text,full){
   const st=$('#syncMsg');const say=t=>{if(st)st.textContent=t};
   const roster=ROSTER.map(r=>[r[0],r[1]]);
