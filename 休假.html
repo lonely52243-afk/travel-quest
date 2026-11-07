@@ -1725,7 +1725,7 @@ td.cell.stampin::before { animation: stampin .34s cubic-bezier(.3,.9,.4,1) both;
 .l2 .lt { margin-left: auto; font-variant-numeric: tabular-nums; }
 
 /* v10.53 新版介面（可切回） */
-/* ana 分頁開放 v11.20 */
+nav.tabbar button[data-t="ana"] { display: none !important; }
 /* 狀態形狀：休＝圓、留守＝圓角方、監控＝六角，色盲、強光下也分得出 */
 td.cell.stay::before { border-radius: 9px !important; }
 td.cell.mon::before { border-radius: 0 !important; clip-path: polygon(25% 3%, 75% 3%, 99% 50%, 75% 97%, 25% 97%, 1% 50%); }
@@ -2376,7 +2376,7 @@ i.att { background: #3fae6a; } i.days { background: var(--comp, #0E8C8C); } i.aw
 #page-more .mgh { margin: 14px 4px 6px; font-size: 13px; }
 #page-more #adminBox .btnrow button { min-height: 42px; }
 [data-theme="dark"] .anrb, [data-theme="dark"] .apbar { background: #2c313b; } [data-theme="dark"] .anso button:not(.on) { background: #1c1f26; } [data-theme="dark"] .anso button.on { background: #e8eaee; color: #1c1f26; }
-#openAna { display: none !important; }
+
 .anr { grid-template-areas: "n b v c" "n s s c" "n d d c"; }
 .anrd { grid-area: d; display: flex; gap: 5px; flex-wrap: wrap; } .anrd em { font-style: normal; font-size: 11px; font-weight: 700; padding: 0 6px; border-radius: 6px; background: #f3efe4; color: #4b5563; }
 .apd { display: grid; grid-template-columns: repeat(5, 1fr); gap: 5px; } .apd span { background: #f5f1e6; border-radius: 10px; padding: 6px 2px; text-align: center; font-size: 11.5px; color: var(--muted, #6b7280); display: flex; flex-direction: column; } .apd b { font-size: 18px; color: var(--ink, #1f2a44); }
@@ -2393,6 +2393,10 @@ i.att { background: #3fae6a; } i.days { background: var(--comp, #0E8C8C); } i.aw
 .apd2 { display: flex; gap: 8px; } .apd2 span { flex: 1; background: #f5f1e6; border-radius: 12px; padding: 10px 4px; text-align: center; font-size: 12px; color: var(--muted, #6b7280); display: flex; flex-direction: column; } .apd2 b { font-size: 26px; color: var(--ink, #1f2a44); }
 [data-theme="dark"] .apd2 span { background: #262b34; } [data-theme="dark"] .anr2 b, [data-theme="dark"] .apd2 b { color: #e8eaee; }
 .anr2 .anrn { grid-area: auto; font-size: 15px; font-weight: 800; }
+.anatop { display: flex; align-items: center; gap: 10px; margin: 0 2px 8px; } .anatop b { font-size: 18px; } .anatop .linkbtn { font-size: 14px; min-height: 36px; }
+.tdvs { flex-direction: column; align-items: stretch; gap: 3px; } .tdvs span { display: block; }
+.tdvs em { font-size: 11px; font-weight: 800; color: #d93a2b; align-self: flex-start; padding-left: 10px; } .tdvs em::before { content: '⇅ '; font-size: 13px; }
+.tdc.soft .tdvs em { color: #b07d00; }
 
   .sit { display: inline-flex; align-items: center; gap: 5px; }
 .sit .wi { width: 18px; height: 18px; flex-shrink: 0; background: center / contain no-repeat; }
@@ -2868,7 +2872,8 @@ table.grid.wk td.cell { font-size: calc(var(--bd, 34px) * .48); }
     </section>
 
     <!-- ===== 分析 ===== -->
-    <section class="page" id="page-ana" aria-label="休假分析">
+    <section class="page" id="page-ana" aria-label="休假統計">
+      <div class="anatop"><button class="linkbtn" id="anaBack">‹ 回更多</button><b>休假統計</b></div>
       <div class="toolbar">
         <div class="nav">
           <button id="aPrev" aria-label="上個月"><svg class="chev" viewBox="0 0 24 24" aria-hidden="true"><path d="M15 5l-7 7 7 7"/></svg></button>
@@ -2883,7 +2888,8 @@ table.grid.wk td.cell { font-size: calc(var(--bd, 34px) * .48); }
 
     <!-- ===== 更多 ===== -->
     <section class="page" id="page-more" aria-label="更多">
-      <button class="duty-add anacard" id="openAna" hidden><span class="dai gi gi-ana"></span><span class="dat"><b>休假分析</b><small>每個人每月休了幾天、到班幾天，點名字看個人月曆</small></span><span class="dac">›</span></button>
+      <h3 class="mgh">查看</h3>
+      <button class="duty-add anacard" id="openAna"><span class="dai gi gi-ana"></span><span class="dat"><b>休假統計</b><small>每人每月平日休、假日休，點名字看休假月曆</small></span><span class="dac">›</span></button>
       <h3 class="mgh">身分</h3>
       <details class="box fold mstatic" id="adminBox" open>
         <summary>身分與編輯鎖</summary>
@@ -3057,7 +3063,7 @@ table.grid.wk td.cell { font-size: calc(var(--bd, 34px) * .48); }
                 <li>打開先在封面<b>輸入密碼</b>，系統會自動認出身分：<b>彈射／軍械／股總</b>可以記錄，<b>查看密碼</b>只能看（可新增留守）。接著選<b>休假班表</b>或<b>公差勤務</b>。要換身分，按右上角「回入口」再按「換身分」。</li>
                 <li><b>首頁</b>最上面是當週留守，按「複製留守」就能貼到 Juiker；下面是每天的休假情況。</li>
                 <li><b>班表</b>（彈射班、軍械班或全部）：一人一天一格，空白＝未點假單。</li>
-                <li><b>產出</b>：複製留守、人員情況、加班文字。<b>統計</b>（下方分頁）：每個人每月到班、平日休、外勤、假日休、留守，點名字看個人月曆。</li>
+                <li><b>產出</b>：複製留守、人員情況、加班文字。<b>休假統計</b>（在「更多」最上面）：每人每月平日休、假日休，點名字看休假月曆。</li>
                 <li>這裡只記錄誰休假、誰留守、誰公差，不等於正式請假。</li>
               </ol>
             </div>
@@ -7041,7 +7047,7 @@ table.grid.wk td.cell { font-size: calc(var(--bd, 34px) * .48); }
       }
       function setTab(t) {
         if (t === 'gu') t = 'sched';
-        var key = t === 'sched' ? ((myId() === 'ban' || myId() === 'arm') ? 'sched' : 'gu') : t;
+        var key = t === 'sched' ? ((myId() === 'ban' || myId() === 'arm') ? 'sched' : 'gu') : (t === 'ana' ? 'more' : t);
         tab = t;
         $('toast').classList.remove('show');
         var pages = { sched: 'page-sched', days: 'page-days', out: 'page-out', ana: 'page-ana', more: 'page-more' };
@@ -7131,9 +7137,9 @@ table.grid.wk td.cell { font-size: calc(var(--bd, 34px) * .48); }
         $('idInst').hidden = instStandalone() || no || !mobile;
       }
       var CHANGELOG = [
-        { v: 'v11.21', d: '11/7', t: ['休假統計簡化：只看平日休、假日休（有外勤才顯示外勤），一人一列', '公差、尿篩、打靶、加班次數統一在「公差勤務 → 統計」看'] },
-        { v: 'v11.20', d: '11/7', t: ['休假分析從「更多」搬到下方分頁「統計」', '統計重新設計：上面一句話總結；每人一列（照名冊，不排名），長條看到班／平日休／外勤，下面寫這個月公差、尿篩、打靶次數', '個人頁：上班日、假日各一條長條，一眼看出到班、休、外勤、留守、監控、還沒標；顏色說明收起來', '更多頁整理：身分、個人設定直接展開；試算表、分享、更新收在一起'] },
-        { v: 'v11.19', d: '11/7', t: ['入口頁新增「待處理」：勤務時間重疊（全員）、假單還沒點（自己班），分這週／下週／之後，紅色數字＝這週要處理的', '重疊每筆寫清楚誰、哪天、撞到什麼，按「看公差・換人」或「改假」直接處理', '假單還沒點：點名字直接跳出標記選單；可複製提醒文字貼到 Juiker', '時間未定、跟行程同時段的放在「提醒」，可以按「沒問題」不再提醒', '待處理換上專用圖示（收件匣、撞期、未簽假單、換人、改假、讚、大聲公、歡呼貓、進度條）', '上方進度條：已處理幾件／共幾件；打開時自動跳到有事的那一週；唯讀時直接按名字會先開編輯'] },
+        { v: 'v11.21', d: '11/7', t: ['休假統計簡化：只看平日休、假日休（有外勤才顯示外勤），一人一列；入口放回「更多」最上面，頁面上方有「‹ 回更多」', '公差、尿篩、打靶、加班次數統一在「公差勤務 → 統計」看'] },
+        { v: 'v11.20', d: '11/7', t: ['統計重新設計：上面一句話總結；每人一列（照名冊，不排名），長條看到班／平日休／外勤，下面寫這個月公差、尿篩、打靶次數', '個人頁：上班日、假日各一條長條，一眼看出到班、休、外勤、留守、監控、還沒標；顏色說明收起來', '更多頁整理：休假統計在最上面，身分、個人設定直接展開；試算表、分享、更新收在一起'] },
+        { v: 'v11.19', d: '11/7', t: ['入口頁新增「待處理」：勤務時間重疊（全員）、假單還沒點（自己班），分這週／下週／之後，紅色數字＝這週要處理的', '重疊每筆寫清楚誰、哪天、撞到什麼，按「看公差・換人」或「改假」直接處理', '假單還沒點：點名字直接跳出標記選單；可複製提醒文字貼到 Juiker', '時間未定、跟行程同時段的放在「提醒」，可以按「沒問題」不再提醒', '重疊也會抓輪值（擴大FO、監工、查庫）：公差撞輪值、休假撞輪值', '待處理換上專用圖示（收件匣、撞期、未簽假單、換人、改假、讚、大聲公、歡呼貓、進度條）', '上方進度條：已處理幾件／共幾件；打開時自動跳到有事的那一週；唯讀時直接按名字會先開編輯'] },
         { v: 'v11.18', d: '11/7', t: ['加上新圖示：誰該先派、幫我選、新進、已排、長按選單每個按鈕（上午／下午／全天休、留守、監控、出差、公假、受訓、救災、清除）、加班統計各區標題、步驟、說明'] },
         { v: 'v11.17', d: '11/7', t: ['加班統計重新設計：只統計、不比較人', '這個月幾小時、幾天、幾人次，旁邊直接寫上個月和差多少', '今年每個月加班長條圖（平日／假日、加班天數），點長條跳到那個月', '每個人：這個月、上個月、差多少；點名字看每天做什麼、幾點到幾點、幾小時，還有他今年每個月的小圖', '這個月做什麼（事由、時數）和每天明細'] },
         { v: 'v11.16', d: '11/7', t: ['統計（公差、尿篩、打靶、加班）精簡：每人一列變薄、數字跟單位放同一行，一個畫面看得到更多人；字和按鈕維持好按的大小'] },
@@ -7389,11 +7395,34 @@ table.grid.wk td.cell { font-size: calc(var(--bd, 34px) * .48); }
               var it2 = { id: key, k: k, n: x.n, why: x.why, kind: 'duty', a: x.why + (tm ? ' ' + fmtTm(tm) : ''), b: oth ? oth.why + (otm ? ' ' + fmtTm(otm) : '') : t };
               if (!tm || (oth && !otm)) { it2.note = '有一項時間還沒定'; if (!okd[key]) soft.push(it2); } else hard.push(it2);
             });
+            // 公差撞輪值（擴大FO、監工、查庫）
+            try {
+              var pl = dutyDayOf(k).plan || {}, ra = dayRng(x.time);
+              Object.keys(pl).forEach(function (itm) {
+                if (itm === x.why || !pl[itm].some(function (q) { return q.n === x.n && !q.away; })) return;
+                var pt = planTm(itm), rb = pt ? dayRng(pt.a + '–' + pt.b) : dayRng('');
+                if (!(ra[0] < rb[1] && rb[0] < ra[1])) return;
+                var key3 = 'p|' + k + '|' + x.n + '|' + x.why + '|' + itm; if (seen[key3]) return; seen[key3] = 1;
+                var it3 = { id: key3, k: k, n: x.n, why: x.why, kind: 'plan', a: '輪值 ' + itm + (pt ? ' ' + pt.a + '–' + pt.b : ''), b: x.why + (tm ? ' ' + fmtTm(tm) : '') };
+                if (!tm) { it3.note = '公差時間還沒定'; if (!okd[key3]) soft.push(it3); } else hard.push(it3);
+              });
+            } catch (er) { /* 忽略 */ }
             evClash(k, x.n, x.time).forEach(function (t) {
               var key = 'e|' + k + '|' + x.n + '|' + x.why + '|' + t; if (seen[key] || okd[key]) return; seen[key] = 1;
               soft.push({ id: key, k: k, n: x.n, why: x.why, kind: 'ev', a: t, b: x.why + (tm ? ' ' + fmtTm(tm) : ''), note: '跟行程同時段' });
             });
           });
+          try {
+            var pl2 = dutyDayOf(k).plan || {};
+            Object.keys(pl2).forEach(function (itm) { pl2[itm].forEach(function (q) {
+              if (q.away || !names[q.n]) return;
+              var r2 = (recordsPub[k] || {})[q.n]; if (!r2) return;
+              var pt2 = planTm(itm), half2 = r2.period === '上午' || r2.period === '下午';
+              if (!(r2.period === '全天' || r2.period === '外勤' || half2)) return;
+              if (half2 && pt2) { var b2 = r2.period === '上午' ? [480, 720] : [810, 1020], a2 = dayRng(pt2.a + '–' + pt2.b); if (!(a2[0] < b2[1] && b2[0] < a2[1])) return; }
+              hard.push({ id: 'l|' + k + '|' + q.n + '|' + itm, k: k, n: q.n, why: itm, kind: 'leaveplan', a: r2.period === '外勤' ? (r2.type || '外勤') : r2.period + '休', b: '輪值 ' + itm + (pt2 ? ' ' + pt2.a + '–' + pt2.b : '') });
+            }); });
+          } catch (er2) { /* 忽略 */ }
           if (dayInfo(k).off && loaded[k.slice(0, 7)]) { var u = unfiledOf(k); if (u.length) miss.push({ k: k, l: u.map(function (x) { return x.name; }) }); }
         }
         var nm = 0; miss.forEach(function (d) { nm += d.l.length; });
@@ -7412,7 +7441,7 @@ table.grid.wk td.cell { font-size: calc(var(--bd, 34px) * .48); }
         todoStart = {}; renderTodo(); todoEnsure();
       }
       var todoStart = {};
-      function todoTypeTx(it) { return { off: '休假撞公差', away: '外勤撞公差', duty: '公差撞公差', ev: '公差撞行程' }[it.kind]; }
+      function todoTypeTx(it) { return { off: '休假撞公差', away: '外勤撞公差', duty: '公差撞公差', ev: '公差撞行程', plan: '公差撞輪值', leaveplan: '休假撞輪值' }[it.kind]; }
       function renderTodo() {
         var R3 = todoRanges(), sc = R3.map(function (r) { return todoScan(r.a, r.b); }), cur = sc[todoW], rg = R3[todoW], ro = isRO();
         $('todoSub').textContent = '勤務重疊：全員・假單：' + (prefs.role === '股總' ? '全員' : (prefs.role || '') + '班');
@@ -7425,8 +7454,8 @@ table.grid.wk td.cell { font-size: calc(var(--bd, 34px) * .48); }
         if (!todoReady()) h += '<div class="tdload">資料讀取中…</div>';
         function card(it, soft) {
           return '<div class="tdc ' + (soft ? 'soft' : 'hard') + '"><div class="tdct"><b>' + mdLabel(it.k) + '（' + wkOf(it.k) + '）</b><span class="tdn">' + esc(it.n) + '</span><i class="tdty">' + todoTypeTx(it) + '</i></div>' +
-            '<div class="tdvs"><span>' + esc(it.a) + '</span><em>⟷</em><span>' + esc(it.b) + '</span></div>' + (it.note ? '<div class="tdnote">' + esc(it.note) + '</div>' : '') +
-            '<div class="tdact"><button class="primary" data-tdduty="' + it.k + '">看公差・換人</button>' + (it.kind === 'off' || it.kind === 'away' ? '<button data-tdcell="' + it.k + '" data-tdname="' + esc(it.n) + '">改假</button>' : '') +
+            '<div class="tdvs"><span>' + esc(it.a) + '</span><em>同時段</em><span>' + esc(it.b) + '</span></div>' + (it.note ? '<div class="tdnote">' + esc(it.note) + '</div>' : '') +
+            '<div class="tdact"><button class="primary" data-tdduty="' + it.k + '">看公差・換人</button>' + (it.kind === 'off' || it.kind === 'away' || it.kind === 'leaveplan' ? '<button data-tdcell="' + it.k + '" data-tdname="' + esc(it.n) + '">改假</button>' : '') +
             (soft ? '<button class="ghost" data-tdok="' + esc(it.id) + '">沒問題</button>' : '') + '</div></div>';
         }
         h += '<section class="tds"><div class="tdh red"><b>勤務時間重疊</b><span>' + (cur.hard.length ? cur.hard.length + ' 件要處理' : '沒有') + '</span></div>';
@@ -8082,6 +8111,7 @@ table.grid.wk td.cell { font-size: calc(var(--bd, 34px) * .48); }
         function applyUi2() { document.body.classList.add('ui2'); }
         applyUi2();
         $('openAna').addEventListener('click', function () { setTab('ana'); window.scrollTo(0, 0); });
+        $('anaBack').addEventListener('click', function () { setTab('more'); window.scrollTo(0, 0); });
         $('sndTog').addEventListener('change', function () { prefs.sound = this.checked; savePrefs(); if (prefs.sound) FX.ok(); });
         $('homeBtn').addEventListener('click', function () { $('swId').click(); });
         document.querySelectorAll('[data-verbtn]').forEach(function (b) { b.textContent = APP_VER; b.addEventListener('click', openVer); });
