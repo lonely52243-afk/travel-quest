@@ -201,11 +201,16 @@ const SEED_ROSTER=[];
 const SEED_CUT='';
 let DJ=[],D=[],ROSTER=[],RHEAD={k:0,f:0,j:0},RSET={},TYPES=[],MIN='',MAX='';
 const DEFAULT_RULES=[{kw:['股長','校','尉'],w:0,ban:[],note:'軍官／股長'},{kw:['士官長'],w:.2,ban:[],note:'士官長'},{kw:['班長'],w:.3,ban:[],note:'班長'},{kw:['聘','雇'],w:1,ban:['擦槍','清整/佈置/打掃'],note:'聘雇人員'}];
-let RANKS={},RULES=DEFAULT_RULES,MW={},FR={};
+let RANKS={},RULES=DEFAULT_RULES,MW={},FR={},GONE={},HC={};
 function ruleOf(rk){return RULES.find(r=>r.kw.some(k=>rk.includes(k)))||null}
-function calcWeights(){MW={};const raw={k:0,f:0,j:0};
+function calcGone(){ // 已調差／退伍／不在現任名冊、但出過公差的人：歷史上算那一股的人力，離開日期＝最後一次出公差
+  GONE={};const m={};
+  D.concat(DJ).forEach(e=>{G.forEach(g=>((e.n&&e.n[g.k])||[]).forEach(nm=>{const c=RSET[nm];if(c==='k'||c==='f'||c==='j')return;const o=m[nm]||(m[nm]={nm,gc:{k:0,f:0,j:0},end:''});o.gc[g.k]++;if(e.d>o.end)o.end=e.d}))});
+  Object.values(m).forEach(o=>{const g=['k','f','j'].sort((a,b)=>o.gc[b]-o.gc[a])[0];const rk=RANKS[o.nm]||'';const r=rk?ruleOf(rk):null;const w=r?r.w:1;if(w===0)return;GONE[o.nm]={nm:o.nm,g,w,end:o.end,ban:r?r.ban:[],note:r?r.note:'一般'}})}
+function headsAt(d){const k=(d||'')+'|'+S.heads.k+','+S.heads.f+','+S.heads.j;if(HC[k])return HC[k];const h={k:S.heads.k,f:S.heads.f,j:S.heads.j};Object.values(GONE).forEach(p=>{if(!d||p.end>=d)h[p.g]+=p.w});return HC[k]=h}
+function calcWeights(){MW={};HC={};const raw={k:0,f:0,j:0};
   ROSTER.forEach(([nm,g])=>{if(!(g in raw))return;const rk=RANKS[nm]||'';const r=rk?ruleOf(rk):null;const w=r?r.w:1;MW[nm]={w,ban:r?r.ban:[],rk,note:r?r.note:'一般',g};raw[g]+=w});
-  RHEAD={k:Math.round(raw.k*10)/10,f:Math.round(raw.f*10)/10,j:Math.round(raw.j*10)/10};
+  RHEAD={k:Math.round(raw.k*10)/10,f:Math.round(raw.f*10)/10,j:Math.round(raw.j*10)/10};calcGone();
   FR={};TYPES.forEach(t=>{const o={k:0,f:0,j:0};Object.values(MW).forEach(m=>{if(!m.ban.includes(t))o[m.g]+=m.w});FR[t]={k:raw.k?o.k/raw.k:1,f:raw.f?o.f/raw.f:1,j:raw.j?o.j/raw.j:1}})}
 const DB={mode:'demo',lastMsg:'',msg:'',at:''};
 const ANCHOR=new Date(Date.now()+8*36e5).toISOString().slice(0,10);
@@ -238,8 +243,8 @@ function inRange(e,f,t){return e.d>=f&&e.d<=t}
 function filtJ(f,t){return DJ.filter(e=>inRange(e,f,t)&&(!S.types.size||S.types.has(e.ty))&&(!S.q||(e.p+e.x+e.ty+nmStr(e)).includes(S.q)))}
 function filt(f,t,opt){opt=opt||{};return D.filter(e=>inRange(e,f,t)&&(opt.noType||!S.types.size||S.types.has(e.ty))&&(!S.q||(e.p+e.x+e.ty+nmStr(e)).includes(S.q)))}
 function vis(){return G.filter(g=>S.show[g.k])}
-function exp(t){const v=vis();const f=t&&FR[t]?FR[t]:null;const w=v.map(g=>S.heads[g.k]*(f?f[g.k]:1));const s=w.reduce((a,b)=>a+b,0)||1;const o={};v.forEach((g,i)=>o[g.k]=w[i]/s);return o}
-function expMix(rows){const v=vis();const E={};v.forEach(g=>E[g.k]=0);let T=0;rows.forEach(e=>{const t=v.reduce((a,g)=>a+val(e,g.k),0);if(!t)return;const x=exp(e.ty);v.forEach(g=>E[g.k]+=t*x[g.k]);T+=t});return{E,T}}
+function exp(t,d){const v=vis();const f=t&&FR[t]?FR[t]:null;const H=d?headsAt(d):S.heads;const w=v.map(g=>H[g.k]*(f?f[g.k]:1));const s=w.reduce((a,b)=>a+b,0)||1;const o={};v.forEach((g,i)=>o[g.k]=w[i]/s);return o}
+function expMix(rows){const v=vis();const E={};v.forEach(g=>E[g.k]=0);let T=0;rows.forEach(e=>{const t=v.reduce((a,g)=>a+val(e,g.k),0);if(!t)return;const x=exp(e.ty,e.d);v.forEach(g=>E[g.k]+=t*x[g.k]);T+=t});return{E,T}}
 function sums(rows){const o={k:0,f:0,j:0,n:0,u:0};rows.forEach(e=>{G.forEach(g=>o[g.k]+=val(e,g.k));o.n++;o.u+=e.u});return o}
 function stat(o,ctx){const v=vis();const tot=v.reduce((a,g)=>a+o[g.k],0);let ex;if(Array.isArray(ctx)){const m=expMix(ctx);ex={};v.forEach(g=>ex[g.k]=m.T?m.E[g.k]/m.T:1/v.length)}else ex=exp(typeof ctx==='string'?ctx:null);let chi=0;v.forEach(g=>{const E=tot*ex[g.k];if(E>0)chi+=(o[g.k]-E)**2/E});
   let p=1;const df=v.length-1;if(tot>0&&df===2)p=Math.exp(-chi/2);else if(tot>0&&df===1)p=erfc(Math.sqrt(chi/2));
@@ -498,7 +503,7 @@ function people(rows){
   rows.forEach(e=>{G.forEach(g=>{if(!S.show[g.k])return;const need=e[g.k];if(need)slots+=1;const arr=(e.n&&e.n[g.k])||[];if(arr.length)named+=1;
     arr.forEach(nm=>{const key=g.k+'|'+nm;const p=P[key]||(P[key]={key,g,nm,c:0,last:'',first:'9',types:{},evs:[]});p.c++;p.evs.push(e);if(e.d>p.last)p.last=e.d;if(e.d<p.first)p.first=e.d;p.types[e.ty]=(p.types[e.ty]||0)+1})})});
   ROSTER.forEach(([nm,g0])=>{if(g0==='x'||(MW[nm]&&MW[nm].w===0))return;const g=G.find(q=>q.k===g0);if(!g||!S.show[g0])return;const key=g0+'|'+nm;if(!P[key])P[key]={key,g,nm,c:0,last:'',first:'9',types:{},evs:[]}});
-  const PL=Object.values(P).filter(p=>RSET[p.nm]!=='x');PL.forEach(p=>{const m=MW[p.nm];p.w=m?m.w:1;p.note=m?m.note:'一般'});return{P:PL,slots,named}}
+  const PL=Object.values(P);PL.forEach(p=>{const m=MW[p.nm];p.gone=!m;const gg=GONE[p.nm];p.w=m?m.w:(gg?gg.w:1);p.note=m?m.note:(gg?gg.note+'（已離開）':'已離開');if(gg)p.end=gg.end});return{P:PL.filter(p=>!(p.gone&&!GONE[p.nm])),slots,named}}
 function gini(a){const n=a.length;if(n<2)return 0;const s=a.slice().sort((x,y)=>x-y);const sum=s.reduce((x,y)=>x+y,0);if(!sum)return 0;let c=0;s.forEach((v,i)=>c+=(i+1)*v);return (2*c)/(n*sum)-(n+1)/n}
 function daysBetween(a,b){return Math.round((new Date(b)-new Date(a))/864e5)}
 function rankCard(P){if(!Object.keys(RANKS).length)return '';
@@ -514,19 +519,19 @@ function jxData(rows){
   const sv=S.show;S.show={k:1,f:1,j:1};const pp=people(rows);S.show=sv;   // 沿用原本的人員統計與階級規則（MW）
   const ev=rows.filter(e=>e.j>0||(e.n&&e.n.j&&e.n.j.length));let slots=0,named=0;
   ev.forEach(e=>{slots++;if(e.n&&e.n.j&&e.n.j.length)named++});
-  const P=pp.P.filter(p=>p.g.k==='j').map(p=>{const o={nm:p.nm,c:p.c,last:p.last,types:p.types,evs:p.evs,w:p.w,note:p.note,h:0,wd:[0,0,0,0,0,0,0],sl:{},g:p.g,key:p.key,x:RSET[p.nm]==='j'?0:1};
+  const P=pp.P.filter(p=>p.g.k==='j').map(p=>{const o={nm:p.nm,c:p.c,last:p.last,types:p.types,evs:p.evs,w:p.w,note:p.note,h:0,wd:[0,0,0,0,0,0,0],sl:{},g:p.g,key:p.key,x:p.gone?1:0};
     p.evs.forEach(e=>{const d=durH(e);if(d)o.h+=d;o.wd[new Date(e.d+'T00:00:00Z').getUTCDay()]++;const sl=tmSlot(e.tm);o.sl[sl]=(o.sl[sl]||0)+1});return o});
   return{ev,P,slots,named}}
 function vJx(rows){
   const {ev,P,slots,named}=jxData(rows);const c3=G[2].c;
   if(!ev.length)return hl('','沒有資料','這段期間沒有軍械股的公差','');
   const all=P.slice().sort((a,b)=>b.c-a.c||b.last.localeCompare(a.last));const mx=Math.max(1,...all.map(p=>p.c));
-  const did=all.filter(p=>p.c>0),none=all.filter(p=>p.c===0&&!p.x);const totalN=did.reduce((a,p)=>a+p.c,0);
-  const g=gini(all.map(p=>p.c));const top3=did.slice(0,3).reduce((a,p)=>a+p.c,0);
+  const act=all.filter(p=>!p.x);const did=act.filter(p=>p.c>0),none=act.filter(p=>p.c===0);const totalN=all.reduce((a,p)=>a+p.c,0);
+  const g=gini(act.map(p=>p.c));const top3=all.slice(0,3).reduce((a,p)=>a+p.c,0);
   const cov=slots?named/slots:0;const t1=all[0];
   const nDJ=ev.filter(e=>e.st==='直派').length;const hd=hl(cov<.5?'warn':'ok','軍械股',`${ev.length} 件、${slots} 人次；出最多：${t1&&t1.c?esc(t1.nm)+' '+t1.c+' 次':'—'}`,`人名涵蓋 ${pct(cov)}（${named}／${slots} 件有名單）。${nDJ?`含 ${nDJ} 件直接私訊給軍械股的急件（沒經武系課，不算三股比較）。`:''}`,cov<.5?'人名涵蓋不到一半，個人次數會偏低。可到「資料同步」上傳軍械股群組檔補人名。':'長條越長＝出越多次。點名字看他做過什麼。');
-  const kp=`<div class="kpis"><div class="kpi"><b>${ev.length}</b><span>件</span></div><div class="kpi"><b>${slots}</b><span>人次</span></div><div class="kpi"><b>${did.length}／${all.filter(p=>!p.x).length}</b><span>出過／名冊</span></div><div class="kpi"><b>${pct(totalN?top3/totalN:0)}</b><span>前三名占比</span></div></div>`;
-  const bars=`<div class="hb">${all.filter(p=>p.c>0).map(p=>`<div class="r" data-jp="${esc(p.nm)}" tabindex="0" role="button" style="cursor:pointer"><div class="lab"><span>${esc(p.nm)}${p.note&&p.note!=='一般'?` <small class="note">${esc(p.note)}</small>`:''}</span><small>${p.c} 次｜${p.h?p.h.toFixed(1)+' 小時｜':''}最近 ${p.last.slice(2)}</small></div><div class="bars" style="display:flex;height:20px"><i style="flex:${p.c} 1 0;background:${c3}" data-tip="${esc(p.nm)}：${p.c} 次">${p.c/mx>.12?p.c:''}</i><i style="flex:${Math.max(0,mx-p.c)} 1 0;background:transparent"></i></div></div>`).join('')}</div>`;
+  const kp=`<div class="kpis"><div class="kpi"><b>${ev.length}</b><span>件</span></div><div class="kpi"><b>${slots}</b><span>人次</span></div><div class="kpi"><b>${did.length}／${act.length}</b><span>現任出過／名冊</span></div><div class="kpi"><b>${pct(totalN?top3/totalN:0)}</b><span>前三名占比</span></div></div>`;
+  const bars=`<div class="hb">${all.filter(p=>p.c>0).map(p=>`<div class="r" data-jp="${esc(p.nm)}" tabindex="0" role="button" style="cursor:pointer"><div class="lab"><span>${esc(p.nm)}${p.x?' <small class="note">已離開</small>':(p.note&&p.note!=='一般'?` <small class="note">${esc(p.note)}</small>`:'')}</span><small>${p.c} 次｜${p.h?p.h.toFixed(1)+' 小時｜':''}最近 ${p.last.slice(2)}</small></div><div class="bars" style="display:flex;height:20px"><i style="flex:${p.c} 1 0;background:${c3}" data-tip="${esc(p.nm)}：${p.c} 次">${p.c/mx>.12?p.c:''}</i><i style="flex:${Math.max(0,mx-p.c)} 1 0;background:transparent"></i></div></div>`).join('')}</div>`;
   const noneH=none.length?`<div class="note" style="margin-top:8px"><b>這段期間沒出過（${none.length} 人）</b></div><div>${none.map(p=>`<span class="badge" data-jp="${esc(p.nm)}" style="cursor:pointer;margin:2px">${esc(p.nm)}</span>`).join('')}</div>`:'';
   // 種類
   const T={};ev.forEach(e=>{const t=T[e.ty]||(T[e.ty]={ty:e.ty,n:0,s:0,who:{}});t.n++;t.s+=e.j||((e.n&&e.n.j)||[]).length;((e.n&&e.n.j)||[]).forEach(nm=>t.who[nm]=(t.who[nm]||0)+1)});
@@ -558,10 +563,10 @@ function vJx(rows){
     <h3 style="margin-top:10px">全部紀錄</h3>${evList(p.evs.slice().reverse())}</div>`}}
   return h}
 function vPeople(rows){
-  const {P,slots,named}=people(rows);const v=vis();
-  const all=P.slice().sort((a,b)=>b.c-a.c||b.last.localeCompare(a.last));
+  const {P:PA,slots,named}=people(rows);const v=vis();const P=PA.filter(p=>!p.gone),PG=PA.filter(p=>p.gone&&p.c>0);
+  const all=PA.slice().sort((a,b)=>b.c-a.c||b.last.localeCompare(a.last));
   const top=all.slice(0,S.pn);const mx=Math.max(1,...all.map(p=>p.c));
-  const barRows=top.filter(p=>p.c>0).map(p=>`<div class="r" data-person="${esc(p.key)}" tabindex="0" role="button" style="cursor:pointer"><div class="lab"><span><i class="dot" style="background:${p.g.c}"></i> ${esc(p.nm)}　<small class="note">${p.g.n}</small></span><small>${p.c} 次｜最近 ${p.last.slice(2)}</small></div><div class="bars" style="display:flex;height:20px"><i style="flex:${p.c} 1 0;background:${p.g.c};border-radius:3px" data-tip="${esc(p.nm)}（${p.g.n}）<br>${p.c} 次<br>最近：${p.last}"></i><i style="flex:${mx-p.c} 1 0"></i></div></div>`).join('');
+  const barRows=top.filter(p=>p.c>0).map(p=>`<div class="r" data-person="${esc(p.key)}" tabindex="0" role="button" style="cursor:pointer"><div class="lab"><span><i class="dot" style="background:${p.g.c}"></i> ${esc(p.nm)}　<small class="note">${p.g.n}${p.gone?'・已離開':''}</small></span><small>${p.c} 次｜最近 ${p.last.slice(2)}</small></div><div class="bars" style="display:flex;height:20px"><i style="flex:${p.c} 1 0;background:${p.g.c};border-radius:3px" data-tip="${esc(p.nm)}（${p.g.n}）<br>${p.c} 次<br>最近：${p.last}"></i><i style="flex:${mx-p.c} 1 0"></i></div></div>`).join('');
   const per=v.map(g=>{const ps=P.filter(p=>p.g.k===g.k);const cs=ps.map(p=>p.c);const sum=cs.reduce((a,b)=>a+b,0);const n=S.heads[g.k]||ps.length;const top1=ps.slice().sort((a,b)=>b.c-a.c)[0];
     const top3=ps.slice().sort((a,b)=>b.c-a.c).slice(0,3).reduce((a,p)=>a+p.c,0);return{g,n:ps.length,did:ps.filter(p=>p.c>0).length,sum,avg:sum/Math.max(1,ps.length),top1,gini:gini(cs),top3s:sum?top3/sum:0}});
   const perTbl=`<div style="overflow:auto"><table><thead><tr><th>股</th><th>名冊</th><th>出過</th><th>沒出過</th><th>每人平均</th><th>最多</th><th>集中度</th></tr></thead><tbody>${per.map(r=>`<tr><td><i class="dot" style="background:${r.g.c}"></i> ${r.g.n}</td><td>${r.n}</td><td>${r.did}</td><td>${r.n-r.did}</td><td>${r.avg.toFixed(1)}</td><td>${r.top1&&r.top1.c?esc(r.top1.nm)+' '+r.top1.c:'—'}</td><td>${r.sum<6?'—':r.gini<.25?'平均':r.gini<.4?'略集中':'集中'}</td></tr>`).join('')}</tbody></table></div>`;
@@ -571,6 +576,7 @@ function vPeople(rows){
   let h=hd+`<div class="card"><h2>人員比較</h2><div class="note">名單來自各股班長在群組回覆的姓名，依你給的名冊對成全名，自動配回對應的公差。<b>有名單的股別格數：${named}／${slots}（${slots?pct(named/slots):'—'}）</b>。每人每次公差算 1 次（不分人次／件數）。</div></div>
   <div class="card"><h2>誰出最多次</h2><div class="note">點名字看個人明細。顏色＝所屬股。</div>${legend()}${S.tbl?tableHTML(['姓名','股','次數','最近'],all.slice(0,S.pn).map(p=>[p.nm,p.g.n,p.c,p.last])):`<div class="hb">${barRows||'<div class="note">範圍內沒有可對應姓名的公差</div>'}</div>`}
   ${all.length>S.pn?`<button class="btn" data-pn="${S.pn+15}" style="width:100%;margin-top:8px">再顯示 15 人（共 ${all.length} 人）</button>`:''}${S.pn>15?`<button class="btn" data-pn="15" style="width:100%;margin-top:6px">收合</button>`:''}</div>
+  ${PG.length?`<div class="card"><h2>已離開的人（調差／退伍／不在現任名冊）</h2><div class="note">他們過去出的公差，仍算在那一股的人力與次數裡；比較各股是否平均時，歷史期間的「應有人數」也會把他們加回去，離開日期以最後一次出公差為準。他們不列入「沒出過」和「下一輪候選」。</div>${v.map(g=>{const ps=PG.filter(p=>p.g.k===g.k);return ps.length?`<div style="margin:8px 0"><b><i class="dot" style="background:${g.c}"></i> ${g.n}</b>　${ps.sort((a,b)=>b.c-a.c).map(p=>`<span class="badge" style="margin:2px">${esc(p.nm)} ${p.c}次・至${(p.end||p.last).slice(2)}</span>`).join('')}</div>`:''}).join('')}</div>`:''}
   <div class="card"><h2>各股內部是否平均</h2><div class="note">以名冊全員計算（含沒出過的）。集中度高＝公差集中在少數人。</div>${perTbl}</div>
   ${rankCard(P)}
   <div class="card"><h2>下一輪候選（出最少、最久沒出）</h2><div class="note">依名冊排序：出最少次、最久沒出的人排前面（沒出過的最前）。注意：配不到姓名的公差沒算進去，實際可能比這裡多。</div>${next}</div>`;
@@ -776,6 +782,11 @@ function extraRules(b){
     if((w=b.match(new RegExp('各課\\s*'+NUM+'\\s*員?'))))n=num(w[1]);
     else if((w=b.match(new RegExp('武系\\s*'+NUM+'\\s*員'))))n=num(w[1]);
     return one(m[1],n)}
+  // 括號後面接股別：「人員：男性5員(空電1、航儀2、武系2）軍械1、飛彈1」「（20號航儀、21號空電、22號武系）軍1、快1」
+  for(const l of lines){if(/^(地點|理由|用途|目的|事由|備註|使用人|日期)[：:]/.test(l.replace(/^[0-9.、 ]+/,'')))continue;
+    const sm=l.match(/[）)]\s*((?:(?:快砲|快跑|飛彈|軍械|快|飛|軍)\s*[\d一二兩三四五乙]*\s*員?\s*[、,，]?\s*)+)$/);
+    if(sm){const o={k:0,f:0,j:0};let t,any=false;const re=tokG();while((t=re.exec(sm[1]))){const n=num(t[2]);o[STK[t[1]]]+=n==null?1:n;any=true}
+      if(any)return o}}
   return null}
 function one(name,n){const o={k:0,f:0,j:0};o[STK[name]]=n;return o}
 
@@ -872,7 +883,7 @@ function pairNames(events,msgs,roster,opt){
 function ownGroup(text){const m=text.slice(0,120).match(/(快砲|飛彈|軍械)股/);return m?STK[m[1]]:null}
 function nameFromOwn(pool,msgs,roster,g){
   // 匯出檔看不到「引用回覆」原文，所以用：1) 一則訊息內的 1./2. 項目各自歸名；2) 短回覆（「打掃兩員 @A @B」）依關鍵字或缺額，補到最近幾則公差
-  const RO=rosterMaps(roster.filter(r=>r[1]===g));const ms=t=>new Date(t.replace(' ','T')+':00').getTime();
+  const RO=rosterMaps(roster.filter(r=>r[1]===g||r[1]==='x'));const ms=t=>new Date(t.replace(' ','T')+':00').getTime();
   const full=s=>{s=s.replace(/^軍電廠-|^[快飛軍]\S{1,2}股-/,'');return RO[s]?RO[s][0]:null};
   const grab=(b,out)=>{(b.match(/@~?[^\s@：:，,、]+/g)||[]).forEach(t=>{const n=full(t.replace(/^@~?/,''));if(n&&!out.includes(n))out.push(n)});return out};
   const items=[];
@@ -959,41 +970,48 @@ async function doOwn(text,g){
   const st=$('#syncMsg');const say=t=>{if(st)st.textContent=t};
   const roster=ROSTER.map(r=>[r[0],r[1]]);const msgs=Ingest.parseChat(text);
   const {res,unm}=Ingest.nameFromOwn(ALL,msgs,roster,g);
-  const up=[];res.forEach(({ev,names})=>{const cur=(ev.n&&ev.n[g])||[];if(cur.join()===names.join())return;ev.n=Object.assign({},ev.n,{[g]:names});const r=toRow(ev);up.push({id:ev.id,nk:r.nk,nf:r.nf,nj:r.nj})});
+  const byId=new Map();res.forEach(r=>byId.set(r.ev.id,r));   // 同一件被配到兩次時以較晚的為準
+  const up=[];[...byId.values()].forEach(({ev,names})=>{const cur=(ev.n&&ev.n[g])||[];if(cur.slice().sort().join()===names.slice().sort().join())return;ev.n=Object.assign({},ev.n,{[g]:names});const r=toRow(ev);up.push({id:ev.id,nk:r.nk,nf:r.nf,nj:r.nj})});
   // 對不到武系課公差的 = 直接私訊給本股的急件：記成「直派」，只算本股專區，不算三股比較
   const have=new Set(ALL.map(e=>e.id));const add=[];
   unm.filter(u=>u.why==='對不到'&&u.ev).forEach(u=>{const e=normEv({...u.ev,k:0,f:0,j:0,u:0,st:'直派',n:{[g]:u.names}});e[g]=Math.max(u.ev[g]||0,u.names.length);
     e.id=hashId({...e,x:'直派'+(e.x||'')});if(have.has(e.id))return;have.add(e.id);add.push(e)});
   const nm=GN[g]||g;const left=unm.length-add.length;
-  const sum=`${nm}自己群組：對到武系課公差 ${res.length} 件，更新人名 ${up.length} 件；另新增 ${add.length} 件「${nm}直派」公差（沒經武系課，只算${nm}專區）；${left} 件人名比人數多，沒有動它。`;
+  const sum=`${nm}自己群組：對到武系課公差 ${[...byId.values()].filter(r=>r.ev.st!=='直派').length} 件，更新人名 ${up.length} 件；另新增 ${add.length} 件「${nm}直派」公差（沒經武系課，只算${nm}專區）；${left} 件人名比人數多，沒有動它。`;
   if(DB.mode==='remote'){try{say('寫入試算表中…');if(add.length)await apiPost('add',{events:add.map(toRow)});if(up.length)await apiPost('updateNames',{items:up});await reloadAll(true);const s2=$('#syncMsg');if(s2)s2.textContent='完成。'+sum}catch(e){say('寫入失敗：'+e.message)}}
   else{setAll(ALL.concat(add),ROSTER);render();const s2=$('#syncMsg');if(s2)s2.textContent='（預覽模式，未保存）'+sum}}
-async function doSync(text,full){
+async function doSync(text,full,dm){
   const st=$('#syncMsg');const say=t=>{if(st)st.textContent=t};
   const roster=ROSTER.map(r=>[r[0],r[1]]);
   const msgs=Ingest.parseChat(text);if(!msgs.length){say('這個檔案看不出是 Juiker 匯出的聊天記錄。');return}
-  const lastInFile=msgs[msgs.length-1].dt;
-  const cut=full?'0000':(DB.lastMsg||'0000');
+  const lastInFile=msgs[msgs.length-1].dt;const refT=dm?(DB.lastMsg||lastInFile):lastInFile;
+  const cut=(full||dm)?'0000':(DB.lastMsg||'0000');
   const newMsgs=msgs.filter(m=>m.dt>cut);
   let evs=Ingest.extractEvents(newMsgs).map(normEv);
   const have=new Set(ALL.map(e=>e.id));evs=evs.filter(e=>!have.has(e.id));
+  // 私訊／補件檔：同一件公差可能已在武系課群組出現（時間不同、id 不同），用內容比對去重；若對到「直派」就轉正
+  const conv=[];
+  if(dm){const live=ALL.filter(x=>x.st!=='刪除');evs=evs.filter(e=>{const d=live.find(x=>x.d===e.d&&((e.p&&x.p===e.p)||(x.tm===e.tm&&x.k===e.k&&x.f===e.f&&x.j===e.j)));
+      if(!d)return true;if(d.st==='直派'&&e.k+e.f+e.j>0)conv.push({d,e});return false})}
   const lim=cut==='0000'?'0000':new Date(new Date(cut.replace(' ','T')+':00').getTime()-5*864e5).toISOString().slice(0,16).replace('T',' ');
   const oldPool=cut==='0000'?[]:ALL.filter(e=>e.st!=='刪除'&&e.m>=lim);
   const before=new Map(oldPool.map(e=>[e.id,JSON.stringify(e.n||{})]));
   const matched=Ingest.pairNames(oldPool.concat(evs),msgs,roster,{after:cut});
   const nameUp=oldPool.filter(e=>JSON.stringify(e.n||{})!==before.get(e.id)).map(e=>{const r=toRow(e);return{id:e.id,nk:r.nk,nf:r.nf,nj:r.nj}});
   let nInf=0;const unk=evs.filter(e=>e.u).length;
-  const sum=`新訊息 ${newMsgs.length} 則 → 新公差 ${evs.length} 件（${unk} 件抓不到股別，請到下方審核）；姓名配對 ${matched} 筆；補上名字 ${nameUp.length} 件。`;const sumF=()=>sum+(nInf?`　另有 ${nInf} 件依班長回覆的人名補上人數。`:'');
+  const sum=dm?`補件檔（不是武系課群組）：新增 ${evs.length} 件原本沒有的公差（${unk} 件抓不到股別，請到下方審核）；姓名配對 ${matched} 筆；原「直派」轉正 ${conv.length} 件。`:`新訊息 ${newMsgs.length} 則 → 新公差 ${evs.length} 件（${unk} 件抓不到股別，請到下方審核）；姓名配對 ${matched} 筆；補上名字 ${nameUp.length} 件。`;const sumF=()=>sum+(nInf?`　另有 ${nInf} 件依班長回覆的人名補上人數。`:'');
   if(DB.mode==='remote'){
     try{say('寫入試算表中…');
       if(evs.length)await apiPost('add',{events:evs.map(toRow)});
       if(nameUp.length)await apiPost('updateNames',{items:nameUp});
-      nInf=await applyInfer(ALL.concat(evs),lastInFile);
-      await apiPost('setting',{name:'lastMsg',value:lastInFile>DB.lastMsg?lastInFile:DB.lastMsg});
+      for(const c of conv)await apiPost('update',{id:c.d.id,fields:{k:c.e.k,f:c.e.f,j:c.e.j,u:0,st:''}});
+      nInf=await applyInfer(ALL.concat(evs),refT);
+      if(!dm)await apiPost('setting',{name:'lastMsg',value:lastInFile>DB.lastMsg?lastInFile:DB.lastMsg});
       await reloadAll(true);const s2=$('#syncMsg');if(s2)s2.textContent='完成。'+sumF()}catch(e){say('寫入失敗：'+e.message)}
   }else{
-    nInf=await applyInfer(ALL.concat(evs),lastInFile);
-    setAll(ALL.concat(evs),ROSTER);DB.lastMsg=lastInFile;S.to=MAX;render();const s2=$('#syncMsg');if(s2)s2.textContent='（預覽模式，未保存）'+sumF()}
+    conv.forEach(c=>Object.assign(c.d,{k:c.e.k,f:c.e.f,j:c.e.j,u:0,st:''}));
+    nInf=await applyInfer(ALL.concat(evs),refT);
+    setAll(ALL.concat(evs),ROSTER);if(!dm)DB.lastMsg=lastInFile;S.to=MAX;render();const s2=$('#syncMsg');if(s2)s2.textContent='（預覽模式，未保存）'+sumF()}
 }
 function pendingInfer(pool,ref){
   const lim=new Date(new Date(ref.replace(' ','T')+':00').getTime()-4*864e5).toISOString().slice(0,16).replace('T',' ');
@@ -1020,7 +1038,9 @@ function vSync(){
   ${DB.msg?`<div class="find"><div>${esc(DB.msg)}</div></div>`:''}
   <div class="row" style="margin-top:6px"><button class="btn" id="cReload">重新載入</button><button class="btn" id="cInf">補算人數</button><button class="btn" id="cOut">登出</button></div></div>
   <div class="card"><h2>② 上傳新的群組訊息</h2>
-  <div class="note">在 Juiker 匯出聊天記錄 .txt，整份上傳即可（第一次匯入的「公差初始資料.json」也可以從這裡選，會自動判斷）。只處理「上次同步之後」的新訊息，重複上傳不會重複計算。</div>
+  <div class="note">在 Juiker 匯出聊天記錄 .txt，整份上傳即可，程式看檔案標題自動判斷是哪一種（第一次匯入的「公差初始資料.json」也可以從這裡選）。重複上傳不會重複計算。</div>
+  <details class="note" style="margin-top:6px"><summary class="note">三種檔案怎麼處理（建議依序上傳）</summary>
+  <div style="margin-top:6px;line-height:1.7"><b>① 武系課群組</b>：新公差＋各股班長回覆的人名，只處理上次同步之後的新訊息。<br><b>② 哲豪私訊（或其他非武系課的檔）</b>：補進武系課群組沒有的公差，已有的不重複；之前的「軍械直派」若其實是它，會轉正算進三股比較。不影響同步進度。<br><b>③ 軍械股群組</b>：依你派公差後 @ 的人補上實際人名；對不到的記成「軍械直派」，只算軍械專區。</div></details>
   <div class="row" style="margin-top:8px"><input type="file" id="fUp"></div>
   <label style="font-size:13px;display:block;margin-top:6px"><input type="checkbox" id="fFull"> 整份重算（忽略上次進度；已存在的不會重複）</label>
   <div class="note" id="syncMsg" role="status" style="margin-top:8px"></div></div>
@@ -1045,7 +1065,7 @@ function wireSync(){
   if(el('cInf'))el('cInf').onclick=async()=>{const m=$('#syncMsg')||el('cInf');try{const ref=DB.lastMsg||ALL.reduce((a,e)=>e.m>a?e.m:a,'0000');const n=await applyInfer(ALL,ref);if(DB.mode==='remote')await reloadAll(true);else{applyData(ALL,ROSTER);render()}alert(n?`已依回覆人名補上 ${n} 件。`:'沒有需要補的。')}catch(er){alert('失敗：'+er.message)}};
   if(el('cOut'))el('cOut').onclick=()=>{pwClear();location.reload()};
   if(el('fUp'))el('fUp').onchange=async e=>{const f=e.target.files[0];if(!f)return;const t=await f.text();
-    if(/\.json$/i.test(f.name)||t.trim().startsWith('{'))await importSeed(t,el('syncMsg'));else{const og=Ingest.ownGroup(t);if(og)await doOwn(t,og);else await doSync(t,el('fFull').checked)}};
+    if(/\.json$/i.test(f.name)||t.trim().startsWith('{'))await importSeed(t,el('syncMsg'));else{const og=Ingest.ownGroup(t);if(og)await doOwn(t,og);else await doSync(t,el('fFull').checked,!/武系課/.test(t.slice(0,120)))}};
   if(el('fSeed'))el('fSeed').onchange=async e=>{const f=e.target.files[0];if(!f)return;await importSeed(await f.text(),el('seedMsg'))};
   v.querySelectorAll('.rv').forEach(row=>{const id=row.dataset.id;
     row.querySelector('.rs').onclick=async()=>{const e0=ALL.find(x=>x.id===id);const k=+row.querySelector('.rk').value||0,f=+row.querySelector('.rf').value||0,j=+row.querySelector('.rj').value||0;const ty=row.querySelector('.rt').value;
