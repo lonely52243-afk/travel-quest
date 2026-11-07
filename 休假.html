@@ -2440,6 +2440,16 @@ details.tds { margin-bottom: 14px; } details.tds > summary { list-style: none; c
 .tdk { font-style: normal; display: inline-block; min-width: 36px; text-align: center; font-size: 11px; font-weight: 800; padding: 1px 6px; border-radius: 6px; margin-right: 8px; vertical-align: 1px; color: #fff; }
 .tdk.k-休假 { background: var(--full, #2563c9); } .tdk.k-外勤 { background: var(--away, #7b4fbf); } .tdk.k-公差 { background: #c2410c; } .tdk.k-輪值 { background: #0E8C8C; } .tdk.k-行程 { background: #b07d00; }
 details.tds > summary.tdh > span { margin-right: auto; }
+/* v11.26 當天詳細 */
+.dstatw { margin-bottom: 10px; } .dstatw > summary { cursor: pointer; display: flex; align-items: center; gap: 8px; min-height: 44px; padding: 6px 12px; border-radius: 12px; background: var(--card, #fff); border: 1.5px solid var(--line, #e5dfcf); font-weight: 800; font-size: 15px; }
+.dstatw > summary span { font-weight: 600; font-size: 13px; color: var(--muted, #6b7280); margin-right: auto; }
+.dstatw[open] > summary { border-radius: 12px 12px 0 0; border-bottom: 0; } .dstatw[open] > .dstat { margin-top: 0; border-top-left-radius: 0; border-top-right-radius: 0; }
+.planoff { display: flex; align-items: center; gap: 8px; padding: 10px 12px; margin: 6px 0; border-radius: 12px; border: 1.5px dashed #c0c4cc; color: var(--muted, #6b7280); font-size: 14px; }
+.planoff b { text-decoration: line-through; margin-right: 6px; color: var(--ink, #374151); } .planoff button { margin-left: auto; min-height: 36px; padding: 4px 14px; }
+#evtBody .evbtns .danger { color: #b3261e; border-color: #f0b4ac; }
+[data-theme="dark"] .dstatw > summary { background: #1c1f26; border-color: #2c313b; }
+.planoff button { flex: none; white-space: nowrap; } .planoff em { font-style: normal; font-weight: 800; color: #0E8C8C; }
+.planoff.sub { border-color: #8fcfcf; background: rgba(14,140,140,.06); } .planoff.sub b { text-decoration: none; }
 
   .sit { display: inline-flex; align-items: center; gap: 5px; }
 .sit .wi { width: 18px; height: 18px; flex-shrink: 0; background: center / contain no-repeat; }
@@ -4455,23 +4465,25 @@ table.grid.wk td.cell { font-size: calc(var(--bd, 34px) * .48); }
         var est = {}, lastCK = '', lastFO = '', fo = {}, ck = {}, jg = {}, lastJG = '';
         Object.keys(rosterAll).sort().forEach(function (k) {
           rosterAll[k].forEach(function (x) {
+            if (x.n === '停' || /^代[:：]/.test(x.n)) return;
             if (x.item === '查庫') { ck[k] = (ck[k] || []).concat(x.n); if (k > lastCK) lastCK = k; }
             if (x.item === '擴大FO') { fo[k] = (fo[k] || []).concat(x.n); if (k > lastFO) lastFO = k; }
             if (x.item === '監工') { jg[k] = (jg[k] || []).concat(x.n); if (k > lastJG) lastJG = k; }
           });
         });
         function add(k, item, n) { (est[k] = est[k] || []).push({ item: item, n: n, est: true }); }
+        function stopped(k, item) { return (rosterAll[k] || []).some(function (x) { return x.item === item && (x.n === '停' || /^代[:：]/.test(x.n)); }); }
         function walk(from, cb) {
           var d = parseKey(from);
           for (var i = 1; i <= 75; i++) { var x = new Date(d.getFullYear(), d.getMonth(), d.getDate() + i), k = keyOf(x); if (!dayInfo(k).off) cb(k, x); }
         }
         if (lastCK) {
           var names = ck[lastCK].filter(function (n) { return EST_CK.indexOf(n) >= 0; }), li = names.length ? EST_CK.indexOf(names[names.length - 1]) : -1;
-          if (li >= 0) walk(lastCK, function (k) { li = (li + 1) % EST_CK.length; add(k, '查庫', EST_CK[li]); });
+          if (li >= 0) walk(lastCK, function (k) { if (stopped(k, '查庫')) return; li = (li + 1) % EST_CK.length; add(k, '查庫', EST_CK[li]); });
         }
         if (lastJG && EST_JG.length) {
           var jn = jg[lastJG].filter(function (n) { return EST_JG.indexOf(n) >= 0; }), ji = jn.length ? EST_JG.indexOf(jn[jn.length - 1]) : -1;
-          if (ji >= 0) walk(lastJG, function (k) { ji = (ji + 1) % EST_JG.length; add(k, '監工', EST_JG[ji]); });
+          if (ji >= 0) walk(lastJG, function (k) { if (stopped(k, '監工')) return; ji = (ji + 1) % EST_JG.length; add(k, '監工', EST_JG[ji]); });
         }
         if (lastFO) {
           var fk = Object.keys(fo).sort(), cur = fo[lastFO] || [], prev = fk.length > 1 ? fo[fk[fk.length - 2]] : [];
@@ -4480,6 +4492,7 @@ table.grid.wk td.cell { font-size: calc(var(--bd, 34px) * .48); }
           var ptr = mx + 1;
           walk(lastFO, function (k, x) {
             if (x.getDay() !== 2 && x.getDay() !== 5) return;
+            if (stopped(k, '擴大FO')) return;
             var kk = (x.getMonth() + 1) % 2 ? 2 : 3, ps = need.slice(0, kk), nn = [];
             while (ps.length < kk) { var p = EST_FO[ptr % EST_FO.length]; ptr++; ps.push(p); nn.push(p); }
             ps.forEach(function (p) { add(k, '擴大FO', p); }); need = nn;
@@ -4499,8 +4512,8 @@ table.grid.wk td.cell { font-size: calc(var(--bd, 34px) * .48); }
         o.plan = {};
         o.note = dutyNotes[k] || ''; o.est = false;
         o.anyNote = !!o.note || Object.keys(dutyNotes).some(function (x) { return x.indexOf(k + '|') === 0; });
-        var realIt = {}; (rosterAll[k] || []).forEach(function (x) { realIt[x.item] = 1; });
-        (rosterAll[k] || []).concat((rosterEst[k] || []).filter(function (x) { return !realIt[x.item]; })).forEach(function (x) { if (x.est) o.est = true; (o.plan[x.item] = o.plan[x.item] || []).push({ n: x.n, est: !!x.est, away: !!offClash(k, x.n, planTm(x.item) ? planTm(x.item).a + '–' + planTm(x.item).b : '', x.item) }); });
+        var realIt = {}; o.planOff = {}; o.planSub = {}; (rosterAll[k] || []).forEach(function (x) { realIt[x.item] = 1; if (x.n === '停') o.planOff[x.item] = 1; else if (/^代[:：]/.test(x.n)) o.planSub[x.item] = x.n.slice(2); });
+        (rosterAll[k] || []).filter(function (x) { return x.n !== '停' && !/^代[:：]/.test(x.n); }).concat((rosterEst[k] || []).filter(function (x) { return !realIt[x.item]; })).forEach(function (x) { if (x.est) o.est = true; (o.plan[x.item] = o.plan[x.item] || []).push({ n: x.n, est: !!x.est, away: !!offClash(k, x.n, planTm(x.item) ? planTm(x.item).a + '–' + planTm(x.item).b : '', x.item) }); });
         (dutyAll[k] || []).forEach(function (x) { var lab = x.why + (x.time ? '　' + x.time : ''); var g = o.duty[lab] || (o.duty[lab] = { why: x.why, time: x.time || '', names: [] }); g.names.push(x.n); o.nDuty++; });
         return o;
       }
@@ -4592,13 +4605,20 @@ table.grid.wk td.cell { font-size: calc(var(--bd, 34px) * .48); }
           if (x.plan) tl('plan', x.t, x.plan, x.names, '', x.plan === '查庫' ? 'w-ware' : (/FO/i.test(x.plan) ? 'w-fo' : (/監工/.test(x.plan) ? 'w-helmet' : '')), 'plan:' + x.plan);
           else tl('duty', x.t, x.g.why, x.g.names, '', wiOf(x.g.why) + (dutyNotes[k + '|' + x.lab] ? ' hasnote' : ''), 'duty:' + x.lab);
         });
-        if (!Object.keys(o.plan).length && !dayInfo(k).off && rosterState && rosterState !== 'ok') h += '<div class="plannote warn">' + (rosterState === 'nocfg' ? '輪值預估需要後端第二十三版以上，請更新後端' : '輪值表' + esc(rosterState) + '，按右上角重新整理再試') + '</div>';
+        Object.keys(o.planSub || {}).forEach(function (it) {
+          var pt = planTm(it);
+          h += '<div class="planoff sub" data-kind="plan" data-lab="' + esc(it) + '"><span><b>' + esc(it) + '</b>' + (pt ? pt.a + '–' + pt.b + '　' : '') + '別單位代理：<em>' + esc(o.planSub[it]) + '</em></span>' + (dutyEditor() ? '<button class="ghost" data-planon="' + esc(it) + '">恢復</button>' : '') + '</div>';
+        });
+        Object.keys(o.planOff || {}).forEach(function (it) {
+          h += '<div class="planoff"><span><b>' + esc(it) + '</b>這天不用出（已取消）</span>' + (dutyEditor() ? '<button class="ghost" data-planon="' + esc(it) + '">恢復</button>' : '') + '</div>';
+        });
+        if (!Object.keys(o.plan).length && !Object.keys(o.planOff || {}).length && !Object.keys(o.planSub || {}).length && !dayInfo(k).off && rosterState && rosterState !== 'ok') h += '<div class="plannote warn">' + (rosterState === 'nocfg' ? '輪值預估需要後端第二十三版以上，請更新後端' : '輪值表' + esc(rosterState) + '，按右上角重新整理再試') + '</div>';
         var legend = [];
         if (Object.keys(o.plan).length) legend.push('虛線＝輪值表' + (o.est ? '（含預估）' : '') + '，依實際為主');
         if (o.note) h += '<div class="dl note"><div class="dlh"><b>舊的整天備註</b>' + (dutyEditor() ? '<button class="linkbtn" id="oldNoteDel">清除</button>' : '') + '</div><div class="dln nt">' + esc(o.note) + '</div></div>';
         if (Object.keys(o.duty).length || Object.keys(o.plan).length) legend.push('點一項可看備註、改人');
         if (legend.length) h += '<div class="plannote">' + legend.join('・') + '</div>';
-        $('dutyDayBody').innerHTML = top + (stH ? '<div class="dstat">' + stH + '</div>' : '') + acts + (nTl ? '<div class="dsec">公差・勤務</div>' : '') + (top || stH || nTl || h ? h : '<div class="dnone">這天沒有任何標記</div>');
+        $('dutyDayBody').innerHTML = top + (stH ? '<details class="dstatw"' + (prefs.dstatFold ? '' : ' open') + '><summary>當天情況<span>' + [['休假', o.rest.length], ['留守', o.stay.length], ['監控', o.mon.length], ['外勤', Object.keys(o.out).reduce(function (a, w) { return a + o.out[w].length; }, 0)]].filter(function (x) { return x[1]; }).map(function (x) { return x[0] + ' ' + x[1]; }).join('・') + '</span></summary><div class="dstat">' + stH + '</div></details>' : '') + acts + (nTl ? '<div class="dsec">公差・勤務</div>' : '') + (top || stH || nTl || h ? h : '<div class="dnone">這天沒有任何標記</div>');
       }
       var evtCur = null;
       function evtTm(tm) {
@@ -4617,8 +4637,9 @@ table.grid.wk td.cell { font-size: calc(var(--bd, 34px) * .48); }
         rosterAll[k] = (rosterAll[k] || []).filter(function (x) { return x.item !== lab; }).concat(names.map(function (n) { return { item: lab, n: n }; }));
         if (!rosterAll[k].length) delete rosterAll[k];
         try { localStorage.setItem(ROSTER_KEY, JSON.stringify(rosterAll)); } catch (e) { /* 忽略 */ }
-        planEdit = null; evtOpen('plan:' + lab); renderDutyMon(); if ($('dutyDay').classList.contains('show')) renderDutyDay();
-        showToast('已更新輪值表：' + lab + ' ' + (names.join('、') || '（無人）'), null, null, 2400);
+        planEdit = null; if ($('evtPage').classList.contains('show')) evtOpen('plan:' + lab); renderDutyMon(); if ($('dutyDay').classList.contains('show')) renderDutyDay();
+        try { if ($('todoPage').classList.contains('show')) renderTodo(); if ($('attPage').classList.contains('show')) renderAtt(); } catch (e) { /* 忽略 */ }
+        showToast(/^代[:：]/.test(names[0] || '') ? lab + ' ' + mdLabel(k) + ' 由 ' + names[0].slice(2) + ' 代理' : names[0] === '停' ? lab + ' ' + mdLabel(k) + ' 已取消（不用出）' : (!names.length ? lab + ' ' + mdLabel(k) + ' 已恢復照輪值' : '已更新輪值表：' + lab + ' ' + names.join('、')), null, null, 2400);
         apiCall({ action: 'setRoster', token: prefs.dutyPw, date: k, item: lab, names: names.join('、') }).then(function (res) {
           if (!res || !res.ok) throw new Error((res && res.msg) || '儲存失敗');
         }).catch(function (err) {
@@ -4659,7 +4680,7 @@ table.grid.wk td.cell { font-size: calc(var(--bd, 34px) * .48); }
             }).join('') + '</div></div>';
             h += '<div class="evbtns"><button class="primary" id="planSave">儲存到輪值表</button><button class="ghost" id="planCancel">取消</button></div>';
           } else if (dutyEditor()) {
-            h += '<div class="evbtns"><button class="primary" id="planEdit">修改人員' + (isEst ? '（預估改成正式）' : '') + '</button></div>';
+            h += '<div class="evbtns"><button class="primary" id="planEdit">修改人員' + (isEst ? '（預估改成正式）' : '') + '</button><button class="ghost" id="planSubBtn">別單位代理</button><button class="ghost danger" id="planStop">這天不用出（取消）</button></div>';
             h += '<div class="muted" style="text-align:center;margin-top:10px">' + (isEst ? '目前是依輪值順序推算的預估；改完會寫進「輪值表」，之後的預估也會跟著重算' : '改完會寫回試算表的「輪值表」分頁') + '</div>';
           } else h += '<div class="evbtns"><button class="ghost" id="evUnlock">✎ 解鎖編輯（彈射／軍械／股總密碼）</button></div>';
           evtCur = { lab: lab, why: why, kind: kind, plan: pl0 };
@@ -5400,6 +5421,8 @@ table.grid.wk td.cell { font-size: calc(var(--bd, 34px) * .48); }
         $('dutyPrev').addEventListener('click', function () { dutyYM = dutyYM[1] === 1 ? [dutyYM[0] - 1, 12] : [dutyYM[0], dutyYM[1] - 1]; renderDutyMon(); dutyLoad(); });
         $('dutyNext').addEventListener('click', function () { dutyYM = dutyYM[1] === 12 ? [dutyYM[0] + 1, 1] : [dutyYM[0], dutyYM[1] + 1]; renderDutyMon(); dutyLoad(); });
         $('evtBack').addEventListener('click', function () { planEdit = null; $('evtPage').classList.remove('show'); });
+        $('dutyDayBody').addEventListener('click', function (ev) { var b = ev.target.closest ? ev.target.closest('[data-planon]') : null; if (!b) return; ev.stopPropagation(); planEdit = { k: dutyDayK, lab: b.dataset.planon, names: [] }; planSave(); }, true);
+        $('dutyDayBody').addEventListener('toggle', function (ev) { if (ev.target.classList && ev.target.classList.contains('dstatw')) { prefs.dstatFold = !ev.target.open; savePrefs(); } }, true);
         // 安卓返回鍵／左滑返回：先關最上層的頁面，而不是直接離開
         var histOn = false;
         function histArm() { if (histOn) return; try { history.pushState({ bm: 1 }, ''); histOn = true; } catch (e) { /* 忽略 */ } }
@@ -5428,6 +5451,8 @@ table.grid.wk td.cell { font-size: calc(var(--bd, 34px) * .48); }
         $('evtBody').addEventListener('click', function (ev) {
           if (!evtCur || evtCur.kind !== 'plan') return;
           var b = ev.target.closest('button'); if (!b) return;
+          if (b.id === 'planSubBtn') { var lb2 = evtCur.lab, k2 = dutyDayK; openSheet({ title: lb2 + ' ' + mdLabel(k2) + ' 由誰代理？', sub: '填別單位同仁，例如：飛彈股 王小明', body: '<input id="planSubIn" class="awayin" type="text" maxlength="20" placeholder="單位＋姓名">', actions: [{ label: '儲存', cls: 'main', fn: function () { var v = ($('planSubIn').value || '').trim().replace(/[、,，\s]+/g, '・'); if (!v) { showToast('請填代理人', null, null, 1800); return; } planEdit = { k: k2, lab: lb2, names: ['代:' + v] }; planSave(); $('evtPage').classList.remove('show'); } }] }); setTimeout(function () { try { $('planSubIn').focus(); } catch (e) { /* 忽略 */ } }, 120); return; }
+          if (b.id === 'planStop') { var lb = evtCur.lab; openSheet({ title: lb + ' ' + mdLabel(dutyDayK) + ' 不用出？', sub: '輪值表會記「停」；之後的順序往後順延，不會跳過人', actions: [{ label: '確定取消這天', cls: 'danger', fn: function () { planEdit = { k: dutyDayK, lab: lb, names: ['停'] }; planSave(); $('evtPage').classList.remove('show'); } }] }); return; }
           if (b.id === 'planEdit') { planEdit = { k: dutyDayK, lab: evtCur.lab, names: evtCur.plan.slice() }; evtOpen('plan:' + evtCur.lab); }
           else if (b.id === 'planCancel') { planEdit = null; evtOpen('plan:' + evtCur.lab); }
           else if (b.id === 'planSave') planSave();
@@ -7222,6 +7247,7 @@ table.grid.wk td.cell { font-size: calc(var(--bd, 34px) * .48); }
         $('idInst').hidden = instStandalone() || no || !mobile;
       }
       var CHANGELOG = [
+        { v: 'v11.26', d: '11/7', t: ['當天詳細：上面的休假、留守、外勤收成一列「當天情況 休假 6・留守 3」，可以收起來並記住', '輪值（擴大FO、監工、查庫）可以「這天不用出」或「別單位代理」（填單位＋姓名）：之後的順序往後順延不跳人；當天顯示「已取消」或「別單位代理：○○」，按「恢復」就回到照輪值', '取消和代理的輪值，不會再算進時間重疊、選人提醒、每日到班'] },
         { v: 'v11.25', d: '11/7', t: ['讀取失敗（網路不穩）後會自動重試，不會一直卡在「讀取中」：搜尋、加班產出、每日到班、休假統計、待處理、公差統計', '加班產出：換身分再換回來，已選的人不會消失', '快速標記：換貼新通知時，上一則「這是誰？」的狀態會清掉', '公差統計的「季」改名「近3月」（本來就是最近 3 個月）', '拿掉重複的圖片資料，檔案變小'] },
         { v: 'v11.24', d: '11/7', t: ['待處理：重疊、行程、時間未定合成一區「時間重疊」，照日期排', '每張卡片兩行各標「休假／公差／輪值／行程」色塊，一看就知道誰撞誰', '兩區都可以收起來並記住（不負責派公差的人可以把重疊收起來）；每區開頭一句話說明怎麼處理'] },
         { v: 'v11.23', d: '11/7', t: ['快速標記選人：名單分成「可以派／當天有事／不能派」三區，不能派的放最下面變淡，一眼看到誰能選', '說明縮短成一行；還沒選時間會直接寫「只先擋休假」'] },
