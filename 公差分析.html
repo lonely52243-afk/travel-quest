@@ -1,0 +1,680 @@
+<!DOCTYPE html>
+<html lang="zh-Hant">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>武系課公差分析</title>
+<style>
+:root{color-scheme:light;--bg:#f6f5f2;--surface:#fcfcfb;--ink:#0b0b0b;--ink2:#52514e;--ink3:#7a7974;--line:#e1e0d9;--chip:#efeeea;--accent:#2a78d6;
+--s1:#2a78d6;--s2:#eb6834;--s3:#1baf7a;--neg:#2a78d6;--pos:#e34948;--mid:#f0efec;--warn:#b26a00;--ok:#0a7f0a}
+@media (prefers-color-scheme:dark){:root:not([data-theme="light"]){color-scheme:dark;--bg:#121211;--surface:#1a1a19;--ink:#f0efec;--ink2:#c3c2b7;--ink3:#9a998f;--line:#2c2c2a;--chip:#262624;--accent:#3987e5;
+--s1:#3987e5;--s2:#d95926;--s3:#199e70;--neg:#3987e5;--pos:#e66767;--mid:#383835;--warn:#e0a030;--ok:#3cc43c}}
+:root[data-theme="dark"]{color-scheme:dark;--bg:#121211;--surface:#1a1a19;--ink:#f0efec;--ink2:#c3c2b7;--ink3:#9a998f;--line:#2c2c2a;--chip:#262624;--accent:#3987e5;
+--s1:#3987e5;--s2:#d95926;--s3:#199e70;--neg:#3987e5;--pos:#e66767;--mid:#383835;--warn:#e0a030;--ok:#3cc43c}
+*{box-sizing:border-box}
+body{margin:0;background:var(--bg);color:var(--ink);font:15px/1.5 -apple-system,"PingFang TC","Noto Sans TC","Microsoft JhengHei",sans-serif;-webkit-text-size-adjust:100%}
+h1{font-size:19px;margin:0}h2{font-size:16px;margin:0 0 4px}h3{font-size:14px;margin:0 0 6px;color:var(--ink2)}
+header.top{padding:12px 14px 6px;display:flex;justify-content:space-between;align-items:center;gap:8px}
+.sub{color:var(--ink2);font-size:13px}
+main{max-width:980px;margin:0 auto;padding:0 12px 80px}
+.card{background:var(--surface);border:1px solid var(--line);border-radius:14px;padding:14px;margin:10px 0}
+button,select,input{font:inherit;color:inherit}
+.btn{min-height:44px;padding:0 14px;border-radius:10px;border:1px solid var(--line);background:var(--chip);cursor:pointer;touch-action:manipulation}
+.btn[aria-pressed="true"],.btn.on{background:var(--accent);border-color:var(--accent);color:#fff}
+.btn:focus-visible,input:focus-visible,select:focus-visible,summary:focus-visible,[tabindex]:focus-visible{outline:3px solid var(--accent);outline-offset:2px}
+.row{display:flex;flex-wrap:wrap;gap:8px;align-items:center}
+.seg{display:flex;flex-wrap:wrap;gap:6px}
+.seg .btn{min-height:40px;padding:0 12px;font-size:14px}
+label.f{display:flex;flex-direction:column;font-size:12px;color:var(--ink2);gap:2px}
+input[type=date],input[type=number],input[type=search],select{min-height:44px;border:1px solid var(--line);border-radius:10px;background:var(--surface);padding:0 10px;max-width:100%}
+input[type=number]{width:72px}
+.filters{padding:4px 0 6px}.qrow{flex-wrap:nowrap;overflow-x:auto;scrollbar-width:none}.qrow .btn{flex:none}.qrow::-webkit-scrollbar{display:none}.tabs{position:sticky;top:0;z-index:20;background:var(--bg)}
+.fbody{display:grid;gap:8px}
+.chips{display:flex;flex-wrap:wrap;gap:6px}
+.chip{min-height:40px;padding:0 12px;border-radius:20px;border:1px solid var(--line);background:var(--chip);cursor:pointer;font-size:14px;display:inline-flex;align-items:center;gap:6px}
+.chip[aria-pressed="true"]{background:var(--ink);color:var(--surface);border-color:var(--ink)}
+.dot{width:12px;height:12px;border-radius:3px;display:inline-block;flex:none}
+.tabs{display:flex;gap:4px;overflow-x:auto;padding:8px 0;scrollbar-width:none}
+.tabs::-webkit-scrollbar{display:none}
+.tab{flex:none;min-height:44px;padding:0 14px;border-radius:22px;border:1px solid var(--line);background:var(--surface);cursor:pointer;white-space:nowrap}
+.tab[aria-selected="true"]{background:var(--ink);color:var(--surface);border-color:var(--ink)}
+.kpis{display:grid;grid-template-columns:repeat(2,1fr);gap:8px}
+@media(min-width:700px){.kpis{grid-template-columns:repeat(5,1fr)}}
+.kpi{border:1px solid var(--line);border-radius:12px;padding:10px;background:var(--surface)}
+.kpi b{display:block;font-size:26px;line-height:1.1;font-variant-numeric:tabular-nums}
+.kpi span{font-size:12px;color:var(--ink2)}
+.kpi .bar{height:6px;border-radius:3px;background:var(--line);margin-top:6px;position:relative;overflow:hidden}
+.kpi .bar i{position:absolute;left:0;top:0;bottom:0}
+.hb{display:grid;gap:10px}
+.hb .r{cursor:pointer;border-radius:8px;padding:2px}
+.hb .r:hover{background:var(--chip)}
+.hb .lab{display:flex;justify-content:space-between;gap:8px;font-size:14px;margin-bottom:3px}
+.hb .lab small{color:var(--ink2);font-size:12px;white-space:nowrap}
+.hb .bars{display:flex;gap:2px;height:26px}
+.hb .bars i{display:flex;align-items:center;justify-content:center;font-style:normal;font-size:12px;color:#fff;border-radius:3px;min-width:2px;font-weight:600;text-shadow:0 0 2px rgba(0,0,0,.35)}
+.legend{display:flex;flex-wrap:wrap;gap:12px;font-size:13px;color:var(--ink2);margin:4px 0 8px}
+.legend span{display:inline-flex;align-items:center;gap:5px}
+svg text{fill:var(--ink2);font-size:11px}
+svg .grid{stroke:var(--line);stroke-width:1}
+svg .ref{stroke:var(--ink3);stroke-dasharray:4 3;stroke-width:1}
+.chartwrap{width:100%;overflow:hidden}
+table{border-collapse:collapse;width:100%;font-size:13px}
+th,td{padding:7px 6px;border-bottom:1px solid var(--line);text-align:right;font-variant-numeric:tabular-nums}
+th:first-child,td:first-child{text-align:left}
+th{color:var(--ink2);font-weight:600;font-size:12px}
+.heat td.c{cursor:pointer;text-align:center;min-width:64px}
+.heat td.c b{display:block;font-size:14px}.heat td.c small{font-size:11px;color:var(--ink2)}
+.heat tr.sel td:first-child{font-weight:700;text-decoration:underline}
+.find{border-left:5px solid var(--warn);padding:8px 12px;margin:8px 0;background:var(--chip);border-radius:0 10px 10px 0;cursor:pointer}
+.find.ok{border-left-color:var(--ok)}
+.find b{font-size:14px}
+.find div{font-size:13px;color:var(--ink2)}
+#tip{position:fixed;z-index:50;pointer-events:none;background:var(--ink);color:var(--surface);padding:7px 10px;border-radius:8px;font-size:13px;max-width:260px;display:none;line-height:1.4;box-shadow:0 4px 14px rgba(0,0,0,.25)}
+details.ev{border-bottom:1px solid var(--line);padding:8px 0}
+details.ev summary{cursor:pointer;list-style:none;min-height:44px;display:flex;flex-direction:column;justify-content:center}
+details.ev summary::-webkit-details-marker{display:none}
+.badge{display:inline-block;font-size:11px;padding:1px 7px;border-radius:9px;background:var(--chip);color:var(--ink2)}
+.nums{display:inline-flex;gap:6px;font-size:12px;margin-left:6px}
+.nums i{font-style:normal;display:inline-flex;align-items:center;gap:3px}
+.raw{white-space:pre-wrap;font-size:13px;color:var(--ink2);background:var(--chip);padding:8px;border-radius:8px;margin-top:6px}
+.note{font-size:12px;color:var(--ink3)}
+.pill{font-size:12px;padding:2px 8px;border-radius:10px}
+.pill.warn{background:color-mix(in srgb,var(--warn) 20%,transparent);color:var(--warn)}
+.pill.ok{background:color-mix(in srgb,var(--ok) 20%,transparent);color:var(--ok)}
+.sr{position:absolute;left:-9999px}
+@media(prefers-reduced-motion:no-preference){.hb .bars i{transition:flex-basis .25s}}
+body.locked main,body.locked header.top{display:none}
+#gate{min-height:100vh;display:flex;align-items:center;justify-content:center;padding:16px}
+#gate[hidden]{display:none}
+#gate .box{width:100%;max-width:360px}
+#gate input[type=password],#gate input[type=url]{width:100%}
+.err{color:var(--pos);min-height:20px;font-size:14px}
+</style>
+</head>
+<body>
+<div id="gate" hidden><form class="card box" id="gForm"><h1>武系課公差分析</h1><div class="sub" style="margin:4px 0 10px">請輸入密碼</div>
+<div id="gUrlRow" hidden><label class="f">後端網址（Apps Script）<input type="url" id="gUrl" placeholder="https://script.google.com/macros/s/…/exec"></label></div>
+<label class="f" style="margin-top:8px">密碼<input type="password" id="gPw" autocomplete="current-password"></label>
+<label style="font-size:13px;display:block;margin:8px 0"><input type="checkbox" id="gRem"> 記住這台裝置</label>
+<button class="btn on" id="gBtn" type="submit" style="width:100%">進入</button><div class="err" id="gateErr" role="alert"></div></form></div>
+<header class="top">
+  <div><h1>武系課公差分析</h1><div class="sub" id="sub"></div></div>
+  <div class="row"><button class="btn" id="tbl" aria-pressed="false" title="切換圖表／表格">表格檢視</button><button class="btn" id="theme" aria-label="切換深淺色">深淺</button></div>
+</header>
+<main>
+<nav class="tabs" role="tablist" id="tabs"></nav>
+<section class="filters" aria-label="篩選條件">
+  <div class="seg qrow" id="quick" role="group" aria-label="快速時間範圍"></div>
+  <details id="fdet" style="margin-top:6px"><summary class="btn" style="display:flex;align-items:center;justify-content:space-between"><span>更多篩選　<span class="note" id="fsum"></span></span><span aria-hidden="true">▾</span></summary>
+  <div class="fbody" style="margin-top:8px">
+    <div class="row">
+      <label class="f">開始日期<input type="date" id="from"></label>
+      <label class="f">結束日期<input type="date" id="to"></label>
+      <label class="f" style="flex:1;min-width:140px">關鍵字（事由／原文）<input type="search" id="q" placeholder="例：水銷、懇親會"></label>
+    </div>
+    <div><div class="note" style="margin-bottom:4px">公差種類（可複選，不選＝全部）</div><div class="chips" id="typeChips"></div></div>
+    <div class="row">
+      <div><div class="note" style="margin-bottom:4px">顯示股別</div><div class="chips" id="gChips"></div></div>
+      <div><div class="note" style="margin-bottom:4px">計算單位</div><div class="seg" id="metric" role="group"><button class="btn" data-m="ppl" aria-pressed="true">人次</button><button class="btn" data-m="cnt" aria-pressed="false">件數</button></div></div>
+    </div>
+    <details><summary class="note" style="min-height:40px;display:flex;align-items:center;cursor:pointer">進階：各股編制人數（已用你給的名冊，可改）</summary>
+      <div class="row" style="margin-top:6px"><label class="f">快砲<input type="number" min="1" value="25" id="h_k"></label><label class="f">飛彈<input type="number" min="1" value="24" id="h_f"></label><label class="f">軍械<input type="number" min="1" value="22" id="h_j"></label></div>
+      <div class="note">預設＝名冊人數（快砲25、飛彈24、軍械22，已排除退伍）。「公平」＝各股占比跟人數占比一樣。</div>
+    </details>
+    <div class="row"><button class="btn" id="reset">全部重設</button></div>
+  </div></details>
+</section>
+
+<div id="view"></div>
+<p class="note">資料來源：你的 Google 試算表（由 Juiker 群組匯出檔同步）。股別人數取自派遣訊息上註明的「快砲／飛彈／軍械」；沒註明的算「未分股」，只計件數、不計入各股。「人次」＝公差加班長／車長；跨日或多時段的訊息合併成一件。</p>
+</main>
+<div id="tip" role="status"></div>
+<script>
+/* ===== 設定：把 Apps Script 網頁應用程式網址貼在這裡（結尾 /exec）===== */
+const CONFIG={url:'https://script.google.com/macros/s/AKfycbz8PehWpyavDM1HpyWbuy6cCXq0jjqSe9nWUI_X0ithjkiqhYOvBpFjPOYEkeRSl7yP/exec'};
+const SEED=[];
+const SEED_ROSTER=[];
+const SEED_CUT='';
+let D=[],ROSTER=[],RHEAD={k:0,f:0,j:0},RSET={},TYPES=[],MIN='',MAX='';
+const DB={mode:'demo',lastMsg:'',msg:'',at:''};
+const ANCHOR=new Date(Date.now()+8*36e5).toISOString().slice(0,10);
+function applyData(ev,ros){
+  D=ev.filter(e=>e.st!=='刪除').slice().sort((a,b)=>(a.d+a.tm).localeCompare(b.d+b.tm));
+  ROSTER=ros;RHEAD={k:0,f:0,j:0};ROSTER.forEach(r=>{if(RHEAD[r[1]]!=null)RHEAD[r[1]]++});
+  RSET=Object.fromEntries(ROSTER.map(r=>[r[0],r[1]]));
+  const m={};D.forEach(e=>m[e.ty]=(m[e.ty]||0)+e.k+e.f+e.j+1e-3);TYPES=Object.keys(m).sort((a,b)=>m[b]-m[a]);
+  MIN=D.length?D[0].d:ANCHOR;MAX=D.length?D[D.length-1].d:ANCHOR}
+const G=[{k:'k',n:'快砲',c:'var(--s1)'},{k:'f',n:'飛彈',c:'var(--s2)'},{k:'j',n:'軍械',c:'var(--s3)'}];
+const S={from:'',to:'',types:new Set(),show:{k:1,f:1,j:1},metric:'ppl',q:'',tab:'overview',tbl:false,heads:{k:1,f:1,j:1},drill:null,lm:'month',person:null,pn:15,pm:'all',
+  cmp:{preset:'6',aF:'',aT:'',bF:'',bT:''},more:200};
+const $=s=>document.querySelector(s);
+const esc=s=>String(s).replace(/[&<>"']/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));
+const pct=x=>(x*100).toFixed(0)+'%';
+const addM=(d,n)=>{const t=new Date(d+'T00:00:00Z');t.setUTCMonth(t.getUTCMonth()+n);return t.toISOString().slice(0,10)};
+const addD=(d,n)=>{const t=new Date(d+'T00:00:00Z');t.setUTCDate(t.getUTCDate()+n);return t.toISOString().slice(0,10)};
+function nmStr(e){return e.n?Object.values(e.n).flat().join(' '):''}
+function val(e,g){return S.metric==='ppl'?e[g]:(e[g]>0?1:0)}
+function inRange(e,f,t){return e.d>=f&&e.d<=t}
+function filt(f,t,opt){opt=opt||{};return D.filter(e=>inRange(e,f,t)&&(opt.noType||!S.types.size||S.types.has(e.ty))&&(!S.q||(e.p+e.x+e.ty+nmStr(e)).includes(S.q)))}
+function vis(){return G.filter(g=>S.show[g.k])}
+function exp(){const v=vis();const s=v.reduce((a,g)=>a+S.heads[g.k],0)||1;const o={};v.forEach(g=>o[g.k]=S.heads[g.k]/s);return o}
+function sums(rows){const o={k:0,f:0,j:0,n:0,u:0};rows.forEach(e=>{G.forEach(g=>o[g.k]+=val(e,g.k));o.n++;o.u+=e.u});return o}
+function stat(o){const v=vis();const tot=v.reduce((a,g)=>a+o[g.k],0);const ex=exp();let chi=0;v.forEach(g=>{const E=tot*ex[g.k];if(E>0)chi+=(o[g.k]-E)**2/E});
+  let p=1;const df=v.length-1;if(tot>0&&df===2)p=Math.exp(-chi/2);else if(tot>0&&df===1)p=erfc(Math.sqrt(chi/2));
+  return{tot,chi,p,ex}}
+function erfc(x){const t=1/(1+.3275911*x);const y=((((1.061405429*t-1.453152027)*t)+1.421413741)*t-.284496736)*t+.254829592;return y*t*Math.exp(-x*x)}
+function months(f,t){const r=[];let y=+f.slice(0,4),m=+f.slice(5,7);const ey=+t.slice(0,4),em=+t.slice(5,7);while(y<ey||(y===ey&&m<=em)){r.push(y+'-'+String(m).padStart(2,'0'));m++;if(m>12){m=1;y++}}return r}
+const tip=$('#tip');
+function showTip(h,x,y){tip.innerHTML=h;tip.style.display='block';const w=tip.offsetWidth,hh=tip.offsetHeight;let l=Math.min(Math.max(8,x-w/2),innerWidth-w-8),t=y-hh-14;if(t<8)t=y+18;tip.style.left=l+'px';tip.style.top=t+'px'}
+function hideTip(){tip.style.display='none'}
+document.addEventListener('pointerover',e=>{const t=e.target.closest('[data-tip]');if(t)showTip(t.dataset.tip,e.clientX,e.clientY)});
+document.addEventListener('pointermove',e=>{const t=e.target.closest('[data-tip]');if(t&&tip.style.display==='block')showTip(t.dataset.tip,e.clientX,e.clientY);else if(!t)hideTip()});
+document.addEventListener('pointerdown',e=>{if(!e.target.closest('[data-tip]'))hideTip()});
+document.addEventListener('scroll',hideTip,true);
+
+/* ---------- controls ---------- */
+const QUICK=[['全部',()=>[MIN,MAX]],['近12個月',()=>[addD(addM(ANCHOR,-12),1),MAX]],['近6個月',()=>[addD(addM(ANCHOR,-6),1),MAX]],['近3個月',()=>[addD(addM(ANCHOR,-3),1),MAX]],['2026年',()=>['2026-01-01',MAX]],['2025年',()=>['2025-01-01','2025-12-31']]];
+function buildControls(){
+  $('#quick').innerHTML=QUICK.map((q,i)=>`<button class="btn" data-q="${i}">${q[0]}</button>`).join('');
+  $('#typeChips').innerHTML=TYPES.map(t=>`<button class="chip" data-t="${esc(t)}" aria-pressed="false">${esc(t)}</button>`).join('');
+  $('#gChips').innerHTML=G.map(g=>`<button class="chip" data-g="${g.k}" aria-pressed="true"><i class="dot" style="background:${g.c}"></i>${g.n}</button>`).join('');
+  $('#tabs').innerHTML=TABS.map(t=>`<button class="tab" role="tab" data-tab="${t[0]}" aria-selected="false">${t[1]}</button>`).join('');
+  $('#from').min=$('#to').min=MIN;$('#from').max=$('#to').max=MAX;
+}
+const TABS=[['overview','總覽'],['trend','時間趨勢'],['types','種類比較'],['ppl','人員比較'],['hot','聚集偵測'],['cmp','兩期比較'],['list','明細'],['sync','資料同步']];
+function syncControls(){
+  $('#from').value=S.from;$('#to').value=S.to;
+  document.querySelectorAll('#typeChips .chip').forEach(b=>b.setAttribute('aria-pressed',S.types.has(b.dataset.t)));
+  document.querySelectorAll('#gChips .chip').forEach(b=>b.setAttribute('aria-pressed',!!S.show[b.dataset.g]));
+  document.querySelectorAll('#metric .btn').forEach(b=>b.setAttribute('aria-pressed',b.dataset.m===S.metric));
+  document.querySelectorAll('#quick .btn').forEach((b,i)=>{const r=QUICK[i][1]();b.classList.toggle('on',r[0]===S.from&&r[1]===S.to)});
+  document.querySelectorAll('.tab').forEach(b=>b.setAttribute('aria-selected',b.dataset.tab===S.tab));
+  $('#tbl').setAttribute('aria-pressed',S.tbl);
+  $('#fsum').textContent=`${S.from.slice(2)}～${S.to.slice(2)}｜${S.types.size?S.types.size+'類':'全部類別'}｜${S.metric==='ppl'?'人次':'件數'}`;
+}
+function wire(){
+  $('#quick').onclick=e=>{const b=e.target.closest('[data-q]');if(!b)return;const r=QUICK[b.dataset.q][1]();S.from=r[0];S.to=r[1];render()};
+  $('#from').onchange=e=>{if(e.target.value){S.from=e.target.value;if(S.from>S.to)S.to=S.from;render()}};
+  $('#to').onchange=e=>{if(e.target.value){S.to=e.target.value;if(S.to<S.from)S.from=S.to;render()}};
+  $('#q').oninput=e=>{S.q=e.target.value.trim();render()};
+  $('#typeChips').onclick=e=>{const b=e.target.closest('[data-t]');if(!b)return;const t=b.dataset.t;S.types.has(t)?S.types.delete(t):S.types.add(t);render()};
+  $('#gChips').onclick=e=>{const b=e.target.closest('[data-g]');if(!b)return;const k=b.dataset.g;const n=Object.values(S.show).filter(Boolean).length;if(S.show[k]&&n<=1)return;S.show[k]=S.show[k]?0:1;render()};
+  $('#metric').onclick=e=>{const b=e.target.closest('[data-m]');if(!b)return;S.metric=b.dataset.m;render()};
+  ['k','f','j'].forEach(k=>$('#h_'+k).onchange=e=>{S.heads[k]=Math.max(1,+e.target.value||1);render()});
+  $('#reset').onclick=()=>{S.from=MIN;S.to=MAX;S.types.clear();S.show={k:1,f:1,j:1};S.metric='ppl';S.q='';S.heads={...RHEAD};S.drill=null;$('#q').value='';['k','f','j'].forEach(k=>$('#h_'+k).value=RHEAD[k]);render()};
+  $('#tabs').onclick=e=>{const b=e.target.closest('[data-tab]');if(!b)return;S.tab=b.dataset.tab;render();scrollTo({top:0})};
+  $('#tbl').onclick=()=>{S.tbl=!S.tbl;render()};
+  $('#theme').onclick=()=>{const r=document.documentElement;const dark=r.dataset.theme==='dark'||(!r.dataset.theme&&matchMedia('(prefers-color-scheme:dark)').matches);r.dataset.theme=dark?'light':'dark';render()};
+  addEventListener('resize',()=>render(true));
+  $('#view').addEventListener('click',viewClick);
+}
+function viewClick(e){
+  const t=e.target.closest('[data-type]');if(t){const ty=t.dataset.type;S.drill=S.drill===ty?null:ty;if(S.tab!=='types'){S.tab='types'}render();return}
+  const m=e.target.closest('[data-month]');if(m){const mo=m.dataset.month;S.from=mo+'-01';S.to=addD(addM(mo+'-01',1),-1);render();return}
+  const lm=e.target.closest('[data-lm]');if(lm){S.lm=lm.dataset.lm;render();return}
+  const cp=e.target.closest('[data-cp]');if(cp){S.cmp.preset=cp.dataset.cp;render();return}
+  const pr=e.target.closest('[data-person]');if(pr){S.person=S.person===pr.dataset.person?null:pr.dataset.person;render();return}
+  const pn=e.target.closest('[data-pn]');if(pn){S.pn=+pn.dataset.pn;render();return}
+  const mr=e.target.closest('#more');if(mr){S.more+=200;render();return}
+}
+
+/* ---------- shared chart pieces ---------- */
+function legend(){return `<div class="legend">${vis().map(g=>`<span><i class="dot" style="background:${g.c}"></i>${g.n}</span>`).join('')}</div>`}
+function tableHTML(head,rows){return `<div style="overflow:auto"><table><thead><tr>${head.map(h=>`<th>${esc(h)}</th>`).join('')}</tr></thead><tbody>${rows.map(r=>`<tr>${r.map(c=>`<td>${esc(c)}</td>`).join('')}</tr>`).join('')}</tbody></table></div>`}
+function hstack(rows,opt){ // rows:[{label,key,o:{k,f,j}}]
+  opt=opt||{};const v=vis();const ex=exp();
+  return `<div class="hb">${rows.map(r=>{const tot=v.reduce((a,g)=>a+r.o[g.k],0);
+    const dev=tot?v.map(g=>({g,d:r.o[g.k]/tot-ex[g.k]})).sort((a,b)=>Math.abs(b.d)-Math.abs(a.d))[0]:null;
+    const segs=v.map(g=>{const x=r.o[g.k];const w=tot?x/tot*100:0;return `<i style="flex:${w} 1 0;background:${g.c}" data-tip="${esc(r.label)}<br>${g.n}：${x}（${tot?pct(x/tot):'0%'}）" aria-label="${g.n} ${x}">${w>9?x:''}</i>`}).join('');
+    return `<div class="r" ${r.key?`data-type="${esc(r.key)}" tabindex="0" role="button"`:''}><div class="lab"><span>${esc(r.label)}</span><small>${tot}${S.metric==='ppl'?'人次':'件'}${dev&&tot>=6&&Math.abs(dev.d)>=.12?`｜${dev.g.n}${dev.d>0?'偏多':'偏少'} ${Math.abs(dev.d*100).toFixed(0)}pp`:''}</small></div><div class="bars">${tot?segs:'<i style="flex:1;background:var(--line);color:var(--ink3)">無資料</i>'}</div></div>`}).join('')}</div>`}
+function colStack(labels,series,opt){ // series: [{g,vals}]
+  opt=opt||{};const W=Math.max(300,$('#view').clientWidth-30),H=opt.h||210,m={l:30,r:6,t:8,b:opt.rot?42:24};
+  const n=labels.length;const tot=labels.map((_,i)=>series.reduce((a,s)=>a+s.vals[i],0));const mx=Math.max(1,...tot);
+  const ticks=niceTicks(mx);const top=ticks[ticks.length-1];
+  const bw=(W-m.l-m.r)/n;const y=v=>H-m.b-(v/top)*(H-m.t-m.b);
+  let s=`<svg viewBox="0 0 ${W} ${H}" width="100%" role="img" aria-label="${esc(opt.aria||'堆疊直條圖')}">`;
+  ticks.forEach(t=>s+=`<line class="grid" x1="${m.l}" x2="${W-m.r}" y1="${y(t)}" y2="${y(t)}"/><text x="${m.l-4}" y="${y(t)+4}" text-anchor="end">${t}</text>`);
+  labels.forEach((lb,i)=>{let acc=0;const x=m.l+i*bw+bw*.12,w=bw*.76;
+    const tipTxt=`<b>${esc(opt.fmt?opt.fmt(lb):lb)}</b><br>`+series.map(q=>`${q.g.n}：${q.vals[i]}`).join('<br>')+`<br>合計：${tot[i]}`;
+    series.forEach(q=>{const v=q.vals[i];if(!v)return;const y0=y(acc),y1=y(acc+v);acc+=v;s+=`<rect x="${x}" y="${y1}" width="${w}" height="${Math.max(0,y0-y1-1.5)}" fill="${q.g.c}" rx="2"/>`});
+    s+=`<rect x="${m.l+i*bw}" y="${m.t}" width="${bw}" height="${H-m.t-m.b}" fill="transparent" data-tip="${tipTxt}" ${opt.click?`data-${opt.click}="${lb}" style="cursor:pointer"`:''}/>`;
+    const every=Math.ceil(n/(opt.rot?14:Math.floor((W-m.l)/34)));if(i%every===0){const t=opt.fmt?opt.fmt(lb):lb;s+=opt.rot?`<text transform="translate(${x+w/2},${H-m.b+10}) rotate(-45)" text-anchor="end">${esc(t)}</text>`:`<text x="${x+w/2}" y="${H-6}" text-anchor="middle">${esc(t)}</text>`}});
+  return s+'</svg>'}
+function niceTicks(mx){const st=mx<=5?1:mx<=10?2:mx<=25?5:mx<=60?10:mx<=120?20:mx<=300?50:100;const r=[];for(let v=0;v<=mx+st-1e-9;v+=st)r.push(v);return r}
+function lineChart(labels,series,opt){ // series:[{g,vals}] ; opt.pctMode
+  opt=opt||{};const W=Math.max(300,$('#view').clientWidth-30),H=240,m={l:34,r:10,t:10,b:28};
+  const all=series.flatMap(s=>s.vals.filter(v=>v!=null));let mx=opt.pctMode?Math.max(.5,...all):Math.max(1,...all);const ticks=opt.pctMode?[0,.1,.2,.3,.4,.5,.6,.7,.8,.9,1].filter(t=>t<=mx+.1):niceTicks(mx);const top=ticks[ticks.length-1];
+  const n=labels.length;const x=i=>m.l+(n<=1?0:i/(n-1))*(W-m.l-m.r);const y=v=>H-m.b-(v/top)*(H-m.t-m.b);
+  let s=`<svg viewBox="0 0 ${W} ${H}" width="100%" role="img" aria-label="${esc(opt.aria||'折線圖')}" id="lc">`;
+  ticks.forEach(t=>s+=`<line class="grid" x1="${m.l}" x2="${W-m.r}" y1="${y(t)}" y2="${y(t)}"/><text x="${m.l-4}" y="${y(t)+4}" text-anchor="end">${opt.pctMode?Math.round(t*100)+'%':t}</text>`);
+  if(opt.ref!=null)s+=`<line class="ref" x1="${m.l}" x2="${W-m.r}" y1="${y(opt.ref)}" y2="${y(opt.ref)}"/><text x="${W-m.r}" y="${y(opt.ref)-4}" text-anchor="end">平均 ${Math.round(opt.ref*100)}%</text>`;
+  const every=Math.ceil(n/Math.max(2,Math.floor((W-m.l)/46)));labels.forEach((lb,i)=>{if(i%every===0)s+=`<text x="${x(i)}" y="${H-8}" text-anchor="middle">${esc(lb.slice(2))}</text>`});
+  series.forEach(q=>{let d='';let started=false;q.vals.forEach((v,i)=>{if(v==null){started=false;return}d+=(started?'L':'M')+x(i).toFixed(1)+' '+y(v).toFixed(1);started=true});
+    s+=`<path d="${d}" fill="none" stroke="${q.g.c}" stroke-width="2.5" stroke-linejoin="round" stroke-linecap="round"/>`;
+    if(n<=24)q.vals.forEach((v,i)=>{if(v!=null)s+=`<circle cx="${x(i)}" cy="${y(v)}" r="3.5" fill="${q.g.c}" stroke="var(--surface)" stroke-width="2"/>`})});
+  s+=`<line id="cx" x1="0" x2="0" y1="${m.t}" y2="${H-m.b}" stroke="var(--ink3)" stroke-width="1" style="display:none"/><rect id="hit" x="${m.l}" y="${m.t}" width="${W-m.l-m.r}" height="${H-m.t-m.b}" fill="transparent" style="touch-action:pan-y"/></svg>`;
+  setTimeout(()=>{const svg=$('#lc');if(!svg)return;const hit=svg.querySelector('#hit'),cx=svg.querySelector('#cx');
+    const mv=ev=>{const r=svg.getBoundingClientRect();const px=(ev.clientX-r.left)/r.width*W;let i=Math.round((px-m.l)/(W-m.l-m.r)*(n-1));i=Math.max(0,Math.min(n-1,i));cx.setAttribute('x1',x(i));cx.setAttribute('x2',x(i));cx.style.display='';
+      showTip(`<b>${esc(labels[i])}</b><br>`+series.map(q=>`${q.g.n}：${q.vals[i]==null?'—':(opt.pctMode?(q.vals[i]*100).toFixed(0)+'%':q.vals[i])}`).join('<br>'),ev.clientX,ev.clientY)};
+    hit.addEventListener('pointermove',mv);hit.addEventListener('pointerdown',mv);hit.addEventListener('pointerleave',()=>{cx.style.display='none';hideTip()})},0);
+  return s+''}
+function chartOrTable(chart,head,rows){return S.tbl?tableHTML(head,rows):chart}
+function fairText(o,label){const st=stat(o);if(st.tot<6)return `<div class="note">${label}：樣本太少（${st.tot}），不判斷。</div>`;
+  const v=vis();const lead=v.map(g=>({g,s:o[g.k]/st.tot,e:st.ex[g.k]})).sort((a,b)=>(b.s-b.e)-(a.s-a.e));
+  const top=lead[0],bot=lead[lead.length-1];const sig=st.p<.05;
+  return `<div class="find ${sig?'':'ok'}"><b>${sig?'有明顯偏態':'大致平均'} <span class="pill ${sig?'warn':'ok'}">p=${st.p<.001?'<.001':st.p.toFixed(3)}</span></b><div>${esc(label)}：${top.g.n}占 ${pct(top.s)}（依人數應為 ${pct(top.e)}），${bot.g.n}占 ${pct(bot.s)}。${sig?`${top.g.n}多扛、${bot.g.n}少扛。`:'差距在隨機波動範圍內。'}</div></div>`}
+
+/* ---------- tabs ---------- */
+function vOverview(rows){
+  const o=sums(rows),st=stat(o),v=vis();
+  const kp=v.map(g=>`<div class="kpi"><span><i class="dot" style="background:${g.c}"></i> ${g.n}</span><b>${o[g.k]}</b><span>${st.tot?pct(o[g.k]/st.tot):'—'}　（人數占 ${pct(st.ex[g.k])}）</span><span style="display:block">每人平均 ${(o[g.k]/S.heads[g.k]).toFixed(1)}（${S.heads[g.k]}人）</span><div class="bar"><i style="width:${st.tot?o[g.k]/st.tot*100:0}%;background:${g.c}"></i></div></div>`).join('');
+  const byT=TYPES.map(t=>({label:t,key:t,o:sums(rows.filter(e=>e.ty===t))})).filter(r=>r.o.k+r.o.f+r.o.j>0).sort((a,b)=>(b.o.k+b.o.f+b.o.j)-(a.o.k+a.o.f+a.o.j));
+  const tbl=byT.map(r=>[r.label,r.o.k,r.o.f,r.o.j]);
+  return `<div class="card"><h2>這段期間的整體負擔</h2><div class="kpis"><div class="kpi"><span>公差件數</span><b>${o.n}</b><span>${o.u?`含未分股 ${o.u} 件`:'全部有分股'}</span></div>${kp}</div>
+  ${fairText(o,'整體')}</div>
+  <div class="card"><h2>各種類由哪個股扛</h2><div class="note" style="margin-bottom:6px">每條＝一種公差，色塊寬度＝各股占比。點一列可看該類細節。</div>${legend()}
+  ${chartOrTable(hstack(byT),['種類','快砲','飛彈','軍械'],tbl)}</div>`}
+function vTrend(rows){
+  const ms=months(S.from,S.to);const v=vis();
+  const perM=ms.map(m=>sums(rows.filter(e=>e.d.slice(0,7)===m)));
+  const lmBtn=(k,t)=>`<button class="btn" data-lm="${k}" aria-pressed="${S.lm===k}">${t}</button>`;
+  let chart,head,tb;
+  if(S.lm==='month'){chart=colStack(ms,v.map(g=>({g,vals:perM.map(o=>o[g.k])})),{click:'month',fmt:m=>m.slice(2),aria:'每月各股公差人次',rot:ms.length>10});head=['月份',...v.map(g=>g.n)];tb=ms.map((m,i)=>[m,...v.map(g=>perM[i][g.k])])}
+  else if(S.lm==='cum'){let acc={k:0,f:0,j:0};const cs=ms.map((m,i)=>{G.forEach(g=>acc[g.k]+=perM[i][g.k]);return{...acc}});chart=lineChart(ms,v.map(g=>({g,vals:cs.map(o=>o[g.k])})),{aria:'累計人次折線圖'});head=['月份',...v.map(g=>g.n)];tb=ms.map((m,i)=>[m,...v.map(g=>cs[i][g.k])])}
+  else{const ex=exp();const rs=ms.map((m,i)=>{const w={k:0,f:0,j:0};for(let j=Math.max(0,i-2);j<=i;j++)G.forEach(g=>w[g.k]+=perM[j][g.k]);const t=v.reduce((a,g)=>a+w[g.k],0);return{w,t}});
+    chart=lineChart(ms,v.map(g=>({g,vals:rs.map(r=>r.t>=5?r.w[g.k]/r.t:null)})),{pctMode:true,ref:v.length?1/v.length:null,aria:'滾動三個月占比折線圖'});head=['月份',...v.map(g=>g.n+'占比')];tb=ms.map((m,i)=>[m,...v.map(g=>rs[i].t>=5?pct(rs[i].w[g.k]/rs[i].t):'—')])}
+  const hr=Array(24).fill(0).map(()=>({k:0,f:0,j:0}));const wd=Array(7).fill(0).map(()=>({k:0,f:0,j:0}));
+  rows.forEach(e=>{const m=e.tm.match(/(\d{1,2}):?(\d{2})/);const h=m?+m[1]:null;if(h!=null&&h>=6&&h<=20)G.forEach(g=>hr[h][g.k]+=val(e,g.k));const w=(new Date(e.d+'T00:00:00Z').getUTCDay()+6)%7;G.forEach(g=>wd[w][g.k]+=val(e,g.k))});
+  const hl=[...Array(14).keys()].map(i=>i+6);const wl=['一','二','三','四','五','六','日'];
+  const hrC=colStack(hl.map(String),v.map(g=>({g,vals:hl.map(h=>hr[h][g.k])})),{h:170,fmt:h=>h+':00',aria:'開始時段分布'});
+  const wdC=colStack(wl,v.map(g=>({g,vals:wl.map((_,i)=>wd[i][g.k])})),{h:170,fmt:w=>'星期'+w,aria:'星期分布'});
+  return `<div class="card"><h2>時間趨勢</h2><div class="seg" style="margin:6px 0">${lmBtn('month','每月人次')}${lmBtn('cum','累計人次')}${lmBtn('roll','滾動3個月占比')}</div>
+  <div class="note" style="margin-bottom:4px">${S.lm==='roll'?'虛線＝三股各占 1/3；實際公平線是各股人數占比，請用總覽比對。某股長期高於虛線＝負擔偏多（樣本少於5的月份不畫）。':S.lm==='month'?'點某個月，會把篩選範圍縮到那個月。':'線越往上＝累計扛得越多，看三條線的分岔。'}</div>${legend()}<div class="chartwrap">${chartOrTable(chart,head,tb)}</div></div>
+  <div class="card"><h3>幾點開始（${S.metric==='ppl'?'人次':'件數'}）</h3><div class="chartwrap">${chartOrTable(hrC,['時','快砲','飛彈','軍械'],hl.map(h=>[h+':00',hr[h].k,hr[h].f,hr[h].j]))}</div></div>
+  <div class="card"><h3>星期幾</h3><div class="chartwrap">${chartOrTable(wdC,['星期','快砲','飛彈','軍械'],wl.map((w,i)=>[w,wd[i].k,wd[i].f,wd[i].j]))}</div></div>`}
+function heatColor(d){const a=Math.min(Math.abs(d)/.35,1)*.62;return `color-mix(in srgb,var(${d>=0?'--pos':'--neg'}) ${Math.round(a*100)}%,var(--mid))`}
+function vTypes(rows){
+  const v=vis(),ex=exp();
+  const rs=TYPES.map(t=>({t,o:sums(rows.filter(e=>e.ty===t))})).filter(r=>r.o.k+r.o.f+r.o.j>0);
+  const head=`<tr><th>種類</th>${v.map(g=>`<th style="text-align:center"><i class="dot" style="background:${g.c}"></i> ${g.n}</th>`).join('')}<th>合計</th></tr>`;
+  const body=rs.map(r=>{const tot=v.reduce((a,g)=>a+r.o[g.k],0);return `<tr class="${S.drill===r.t?'sel':''}" data-type="${esc(r.t)}"><td style="cursor:pointer">${esc(r.t)}</td>${v.map(g=>{const s=tot?r.o[g.k]/tot:0;const d=s-ex[g.k];return `<td class="c" style="background:${heatColor(d)}" data-type="${esc(r.t)}" data-tip="${esc(r.t)}<br>${g.n}：${r.o[g.k]}（占 ${pct(s)}，平均 ${pct(ex[g.k])}）<br>${d>=0?'多':'少'} ${Math.abs(d*100).toFixed(0)}pp"><b>${r.o[g.k]}</b><small>${tot?(d>=0?'+':'−')+Math.abs(d*100).toFixed(0)+'pp':''}</small></td>`}).join('')}<td>${tot}</td></tr>`}).join('');
+  let html=`<div class="card"><h2>各類比較（熱度圖）</h2><div class="note">格子大字＝人次；小字＝比平均多／少幾個百分點。<span style="color:var(--pos);font-weight:600">紅＝偏多</span>、<span style="color:var(--neg);font-weight:600">藍＝偏少</span>、灰＝接近平均。點一列看細節。</div>
+  <div style="overflow:auto;margin-top:8px"><table class="heat"><thead>${head}</thead><tbody>${body}</tbody></table></div></div>`;
+  const byT=rs.map(r=>({label:r.t,key:r.t,o:r.o}));
+  html+=`<div class="card"><h2>種類比較（占比長條）</h2>${legend()}${chartOrTable(hstack(byT),['種類','快砲','飛彈','軍械'],rs.map(r=>[r.t,r.o.k,r.o.f,r.o.j]))}</div>`;
+  if(S.drill){const dr=rows.filter(e=>e.ty===S.drill);const o=sums(dr);const ms=months(S.from,S.to);
+    const perM=ms.map(m=>sums(dr.filter(e=>e.d.slice(0,7)===m)));
+    html+=`<div class="card"><h2>${esc(S.drill)}　<button class="btn" data-type="${esc(S.drill)}" style="min-height:36px">取消選取</button></h2>${fairText(o,S.drill)}${legend()}<div class="chartwrap">${chartOrTable(colStack(ms,v.map(g=>({g,vals:perM.map(x=>x[g.k])})),{fmt:m=>m.slice(2),rot:ms.length>10,aria:S.drill+'每月'}),['月份',...v.map(g=>g.n)],ms.map((m,i)=>[m,...v.map(g=>perM[i][g.k])]))}</div>
+    <h3 style="margin-top:10px">這類公差（最近 8 件）</h3>${evList(dr.slice().reverse().slice(0,8))}</div>`}
+  return html}
+function evList(rows,more){return rows.map(e=>`<details class="ev"><summary><div><b>${e.d.slice(2)}</b> ${esc(e.tm||'時間未註明')} <span class="badge">${esc(e.ty)}</span></div><div>${esc(e.p||e.x.slice(0,36))} <span class="nums">${e.u?'<i>未分股</i>':G.map(g=>e[g.k]?`<i><i class="dot" style="background:${g.c}"></i>${e[g.k]}</i>`:'').join('')}</span></div>${e.n?`<div class="note">${G.map(g=>e.n[g.k]?`<span style="color:var(--ink2)"><i class="dot" style="background:${g.c};width:8px;height:8px"></i> ${esc(e.n[g.k].join('、'))}</span>`:'').join('　')}</div>`:''}</summary><div class="raw">${esc(e.x)}</div></details>`).join('')||'<div class="note">沒有符合的公差</div>'}
+function clusters(rows){ // 3-month windows
+  const v=vis(),ms=months(S.from,S.to),out=[];const ex=exp();
+  TYPES.forEach(t=>{const tr=rows.filter(e=>e.ty===t);if(!tr.length)return;
+    for(let i=0;i<=ms.length-3;i++){const w=tr.filter(e=>{const m=e.d.slice(0,7);return m>=ms[i]&&m<=ms[i+2]});const o=sums(w);const tot=v.reduce((a,g)=>a+o[g.k],0);if(tot<6)continue;
+      v.forEach(g=>{const s=o[g.k]/tot;if(s>=ex[g.k]+.27&&s>=.55)out.push({t,g,from:ms[i],to:ms[i+2],s,n:o[g.k],tot,score:(s-ex[g.k])*Math.sqrt(tot)})})}});
+  const best={};out.forEach(c=>{const k=c.t+c.g.k;if(!best[k]||c.score>best[k].score)best[k]=c});
+  return Object.values(best).sort((a,b)=>b.score-a.score).slice(0,10)}
+
+function people(rows){
+  const P={};let slots=0,named=0;
+  rows.forEach(e=>{G.forEach(g=>{if(!S.show[g.k])return;const need=e[g.k];if(need)slots+=1;const arr=(e.n&&e.n[g.k])||[];if(arr.length)named+=1;
+    arr.forEach(nm=>{const key=g.k+'|'+nm;const p=P[key]||(P[key]={key,g,nm,c:0,last:'',first:'9',types:{},evs:[]});p.c++;p.evs.push(e);if(e.d>p.last)p.last=e.d;if(e.d<p.first)p.first=e.d;p.types[e.ty]=(p.types[e.ty]||0)+1})})});
+  ROSTER.forEach(([nm,g0])=>{if(g0==='x')return;const g=G.find(q=>q.k===g0);if(!g||!S.show[g0])return;const key=g0+'|'+nm;if(!P[key])P[key]={key,g,nm,c:0,last:'',first:'9',types:{},evs:[]}});
+  return{P:Object.values(P).filter(p=>RSET[p.nm]!=='x'),slots,named}}
+function gini(a){const n=a.length;if(n<2)return 0;const s=a.slice().sort((x,y)=>x-y);const sum=s.reduce((x,y)=>x+y,0);if(!sum)return 0;let c=0;s.forEach((v,i)=>c+=(i+1)*v);return (2*c)/(n*sum)-(n+1)/n}
+function daysBetween(a,b){return Math.round((new Date(b)-new Date(a))/864e5)}
+function vPeople(rows){
+  const {P,slots,named}=people(rows);const v=vis();
+  const all=P.slice().sort((a,b)=>b.c-a.c||b.last.localeCompare(a.last));
+  const top=all.slice(0,S.pn);const mx=Math.max(1,...all.map(p=>p.c));
+  const barRows=top.filter(p=>p.c>0).map(p=>`<div class="r" data-person="${esc(p.key)}" tabindex="0" role="button" style="cursor:pointer"><div class="lab"><span><i class="dot" style="background:${p.g.c}"></i> ${esc(p.nm)}　<small class="note">${p.g.n}</small></span><small>${p.c} 次｜最近 ${p.last.slice(2)}</small></div><div class="bars" style="display:flex;height:20px"><i style="flex:${p.c} 1 0;background:${p.g.c};border-radius:3px" data-tip="${esc(p.nm)}（${p.g.n}）<br>${p.c} 次<br>最近：${p.last}"></i><i style="flex:${mx-p.c} 1 0"></i></div></div>`).join('');
+  const per=v.map(g=>{const ps=P.filter(p=>p.g.k===g.k);const cs=ps.map(p=>p.c);const sum=cs.reduce((a,b)=>a+b,0);const n=S.heads[g.k]||ps.length;const top1=ps.slice().sort((a,b)=>b.c-a.c)[0];
+    const top3=ps.slice().sort((a,b)=>b.c-a.c).slice(0,3).reduce((a,p)=>a+p.c,0);return{g,n:ps.length,did:ps.filter(p=>p.c>0).length,sum,avg:sum/Math.max(1,ps.length),top1,gini:gini(cs),top3s:sum?top3/sum:0}});
+  const perTbl=`<div style="overflow:auto"><table><thead><tr><th>股</th><th>名冊</th><th>出過</th><th>沒出過</th><th>每人平均</th><th>最多</th><th>集中度</th></tr></thead><tbody>${per.map(r=>`<tr><td><i class="dot" style="background:${r.g.c}"></i> ${r.g.n}</td><td>${r.n}</td><td>${r.did}</td><td>${r.n-r.did}</td><td>${r.avg.toFixed(1)}</td><td>${r.top1&&r.top1.c?esc(r.top1.nm)+' '+r.top1.c:'—'}</td><td>${r.sum<6?'—':r.gini<.25?'平均':r.gini<.4?'略集中':'集中'}</td></tr>`).join('')}</tbody></table></div>`;
+  const next=v.map(g=>{const ps=P.filter(p=>p.g.k===g.k).sort((a,b)=>a.c-b.c||(a.last||'').localeCompare(b.last||'')).slice(0,6);return `<div style="margin:8px 0"><b><i class="dot" style="background:${g.c}"></i> ${g.n}</b>　${ps.map(p=>`<span class="badge" data-person="${esc(p.key)}" style="cursor:pointer;margin:2px 0">${esc(p.nm)} ${p.c}次${p.last?'・'+daysBetween(p.last,ANCHOR)+'天前':'・沒出過'}</span>`).join(' ')||'<span class="note">無名單</span>'}</div>`}).join('');
+  let h=`<div class="card"><h2>人員比較</h2><div class="note">名單來自各股班長在群組回覆的姓名，依你給的名冊對成全名，自動配回對應的公差。<b>有名單的股別格數：${named}／${slots}（${slots?pct(named/slots):'—'}）</b>。每人每次公差算 1 次（不分人次／件數）。</div></div>
+  <div class="card"><h2>誰出最多次</h2><div class="note">點名字看個人明細。顏色＝所屬股。</div>${legend()}${S.tbl?tableHTML(['姓名','股','次數','最近'],all.slice(0,S.pn).map(p=>[p.nm,p.g.n,p.c,p.last])):`<div class="hb">${barRows||'<div class="note">範圍內沒有可對應姓名的公差</div>'}</div>`}
+  ${all.length>S.pn?`<button class="btn" data-pn="${S.pn+15}" style="width:100%;margin-top:8px">再顯示 15 人（共 ${all.length} 人）</button>`:''}${S.pn>15?`<button class="btn" data-pn="15" style="width:100%;margin-top:6px">收合</button>`:''}</div>
+  <div class="card"><h2>各股內部是否平均</h2><div class="note">以名冊全員計算（含沒出過的）。集中度高＝公差集中在少數人。</div>${perTbl}</div>
+  <div class="card"><h2>下一輪候選（出最少、最久沒出）</h2><div class="note">依名冊排序：出最少次、最久沒出的人排前面（沒出過的最前）。注意：配不到姓名的公差沒算進去，實際可能比這裡多。</div>${next}</div>`;
+  if(S.person){const p=P.find(x=>x.key===S.person);if(p){const tl=Object.entries(p.types).sort((a,b)=>b[1]-a[1]);
+    h+=`<div class="card"><h2><i class="dot" style="background:${p.g.c}"></i> ${esc(p.nm)}（${p.g.n}）　<button class="btn" data-person="${esc(p.key)}" style="min-height:36px">取消選取</button></h2>
+    <div class="kpis" style="grid-template-columns:repeat(3,1fr)"><div class="kpi"><b>${p.c}</b><span>次</span></div><div class="kpi"><b style="font-size:17px;line-height:1.6">${p.last.slice(2)}</b><span>最近一次</span></div><div class="kpi"><b>${daysBetween(p.last,ANCHOR)}</b><span>天前</span></div></div>
+    <h3 style="margin-top:10px">做過哪些類型</h3>${tl.map(([k,n])=>`<div style="display:flex;justify-content:space-between;padding:4px 0;border-bottom:1px solid var(--line)"><span>${esc(k)}</span><b>${n}</b></div>`).join('')}
+    <h3 style="margin-top:10px">全部紀錄</h3>${evList(p.evs.slice().reverse())}</div>`}}
+  return h}
+
+function vHot(rows){
+  const v=vis();const ex=exp();
+  const rs=TYPES.map(t=>({t,o:sums(rows.filter(e=>e.ty===t))})).map(r=>({...r,st:stat(r.o)})).filter(r=>r.st.tot>=6).sort((a,b)=>a.st.p-b.st.p);
+  const cs=clusters(rows);
+  return `<div class="card"><h2>哪些公差「聚集」在某些股？</h2><div class="note">用卡方檢定看每一類是否平均（p&lt;0.05＝很可能不是巧合）。只看樣本 ≥6 的類別。</div>
+  ${rs.map(r=>{const lead=v.map(g=>({g,s:r.o[g.k]/r.st.tot,e:ex[g.k]})).sort((a,b)=>(b.s-b.e)-(a.s-a.e));const sig=r.st.p<.05;return `<div class="find ${sig?'':'ok'}" data-type="${esc(r.t)}" tabindex="0" role="button"><b>${esc(r.t)}　<span class="pill ${sig?'warn':'ok'}">${sig?'偏態':'平均'} p=${r.st.p<.001?'<.001':r.st.p.toFixed(2)}</span></b><div>${lead.map(x=>`${x.g.n} ${pct(x.s)}`).join('　')}（共 ${r.st.tot}）${sig?`→ ${lead[0].g.n}多、${lead[lead.length-1].g.n}少`:''}</div></div>`}).join('')||'<div class="note">範圍內樣本不足</div>'}</div>
+  <div class="card"><h2>短期集中（連續3個月）</h2><div class="note">同一類公差，連續3個月內某股占 55% 以上且高出平均 27pp 以上。</div>
+  ${cs.map(c=>`<div class="find" data-type="${esc(c.t)}" tabindex="0" role="button"><b><i class="dot" style="background:${c.g.c}"></i> ${c.g.n}　${esc(c.t)}</b><div>${c.from}～${c.to}：${c.n}／${c.tot}（${pct(c.s)}）</div></div>`).join('')||'<div class="note">這段期間沒有明顯的短期集中。</div>'}</div>`}
+function presetRanges(){const p=S.cmp.preset;if(p==='custom'){return{a:[S.cmp.aF||MIN,S.cmp.aT||addD(MIN,365)],b:[S.cmp.bF||addD(MIN,366),S.cmp.bT||MAX]}}
+  const n=+p;const bF=addD(addM(ANCHOR,-n),1);const aT=addD(bF,-1);const aF=addD(addM(aT,-n),1);return{a:[aF,aT],b:[bF,MAX]}}
+function vCmp(){
+  const r=presetRanges();const A=filt(r.a[0],r.a[1]),B=filt(r.b[0],r.b[1]);const oa=sums(A),ob=sums(B);const v=vis();const sa=stat(oa),sb=stat(ob);
+  const pb=(k,t)=>`<button class="btn" data-cp="${k}" aria-pressed="${S.cmp.preset===k}">${t}</button>`;
+  const g=(o,s)=>v.map(x=>({x,val:o[x.k],sh:s.tot?o[x.k]/s.tot:0}));
+  const cmpRows=v.map(x=>({label:x.n,a:oa[x.k],b:ob[x.k],sa:sa.tot?oa[x.k]/sa.tot:0,sb:sb.tot?ob[x.k]/sb.tot:0}));
+  const barPair=(lab,o,s,range)=>`<div class="r" style="margin-bottom:10px"><div class="lab"><span>${lab}　<small class="note">${range[0].slice(2)} ～ ${range[1].slice(2)}</small></span><small>共 ${s.tot}</small></div><div class="bars" style="display:flex;gap:2px;height:28px">${v.map(x=>{const w=s.tot?o[x.k]/s.tot*100:0;return `<i style="flex:${w} 1 0;background:${x.c};display:flex;align-items:center;justify-content:center;color:#fff;font-style:normal;font-size:12px;font-weight:600;border-radius:3px;text-shadow:0 0 2px rgba(0,0,0,.35)" data-tip="${lab}<br>${x.n}：${o[x.k]}（${pct(w/100)}）">${w>=20?o[x.k]+'｜'+Math.round(w)+'%':w>9?o[x.k]:''}</i>`}).join('')}</div></div>`;
+  const types=TYPES.map(t=>{const x=sums(A.filter(e=>e.ty===t)),y=sums(B.filter(e=>e.ty===t));const ta=v.reduce((q,gg)=>q+x[gg.k],0),tb=v.reduce((q,gg)=>q+y[gg.k],0);return{t,x,y,ta,tb}}).filter(r=>r.ta+r.tb>0);
+  const trs=types.map(r=>`<tr><td>${esc(r.t)}</td>${v.map(gg=>{const sa2=r.ta?r.x[gg.k]/r.ta:null,sb2=r.tb?r.y[gg.k]/r.tb:null;const d=sa2!=null&&sb2!=null?(sb2-sa2)*100:null;return `<td>${r.x[gg.k]}→${r.y[gg.k]}${d!=null&&Math.abs(d)>=15?`<br><small style="color:${d>0?'var(--pos)':'var(--neg)'}">${d>0?'▲':'▼'}${Math.abs(d).toFixed(0)}pp</small>`:''}</td>`}).join('')}</tr>`).join('');
+  return `<div class="card"><h2>兩個時期比較</h2><div class="seg" style="margin:6px 0">${pb('3','近3月 vs 前3月')}${pb('6','近6月 vs 前6月')}${pb('12','近12月 vs 前12月')}${pb('custom','自訂')}</div>
+  ${S.cmp.preset==='custom'?`<div class="row" style="margin:6px 0"><label class="f">A 開始<input type="date" id="aF" value="${r.a[0]}"></label><label class="f">A 結束<input type="date" id="aT" value="${r.a[1]}"></label><label class="f">B 開始<input type="date" id="bF" value="${r.b[0]}"></label><label class="f">B 結束<input type="date" id="bT" value="${r.b[1]}"></label></div>`:''}
+  <div class="note">套用上方的「種類／關鍵字／股別」篩選；日期以這裡的兩段為準。</div>${legend()}
+  ${chartOrTable(barPair('A 期',oa,sa,r.a)+barPair('B 期',ob,sb,r.b),['股','A件人次','A占比','B人次','B占比'],cmpRows.map(c=>[c.label,c.a,pct(c.sa),c.b,pct(c.sb)]))}
+  ${fairText(oa,'A 期')}${fairText(ob,'B 期')}</div>
+  <div class="card"><h3>各類別：A→B 人次（▲▼＝占比變動 ≥15pp）</h3><div style="overflow:auto"><table><thead><tr><th>種類</th>${v.map(x=>`<th>${x.n}</th>`).join('')}</tr></thead><tbody>${trs||'<tr><td>無資料</td></tr>'}</tbody></table></div></div>`}
+function vList(rows){const rr=rows.slice().reverse();return `<div class="card"><h2>公差明細　<span class="note">${rows.length} 件（點開看原文）</span></h2>${evList(rr.slice(0,S.more))}${rr.length>S.more?`<button class="btn" id="more" style="width:100%;margin-top:8px">再顯示 200 件</button>`:''}</div>`}
+
+function render(keepFocus){
+  syncControls();const rows=filt(S.from,S.to);
+  $('#sub').textContent=`${rows.length} 件符合｜資料 ${D.length?MIN.slice(0,7)+' ～ '+MAX.slice(0,7):'尚無'}｜${DB.mode==='remote'?'已連線':'預覽'}`;
+  const v=$('#view');let h='';
+  if(S.tab==='overview')h=vOverview(rows);else if(S.tab==='trend')h=vTrend(rows);else if(S.tab==='types')h=vTypes(rows);else if(S.tab==='ppl')h=vPeople(rows);else if(S.tab==='hot')h=vHot(rows);else if(S.tab==='cmp')h=vCmp();else if(S.tab==='sync')h=vSync();else h=vList(rows);
+  const y=scrollY;v.innerHTML=h;if(keepFocus)scrollTo(0,y);
+  ['aF','aT','bF','bT'].forEach(id=>{const el=$('#'+id);if(el)el.onchange=e=>{S.cmp[id]=e.target.value;render()}});
+  if(S.tab==='sync')wireSync();
+  v.querySelectorAll('[data-type][role=button]').forEach(el=>el.onkeydown=e=>{if(e.key==='Enter'||e.key===' '){e.preventDefault();el.click()}});
+}
+const Ingest=(function(){
+const CN={'一':1,'二':2,'兩':2,'三':3,'四':4,'五':5,'乙':1};
+const num=s=>s==null||s===''?null:(/^\d+$/.test(s)?+s:(CN[s]!=null?CN[s]:null));
+const STK={'快砲':'k','快跑':'k','快':'k','飛彈':'f','飛':'f','軍械':'j','軍':'j'};
+const TOK='(快砲|快跑|飛彈|軍械|快|飛|軍)\\s*(\\d+|[一二兩三四五乙])?\\s*(?:員)?';
+const tokG=()=>new RegExp(TOK,'g');
+const NUM='(\\d+|[一二兩三四五乙])';
+
+/* ---------- 1. 解析 Juiker 匯出檔 ---------- */
+function parseChat(text){
+  const re=/^(\d{4})\/(\d{2})\/(\d{2}) (\d{2}):(\d{2}):(\d{2}) (.*)$/;
+  const msgs=[];let cur=null;
+  text.replace(/^﻿/,'').split(/\r?\n/).forEach(line=>{
+    const m=line.match(re);
+    if(m){if(cur)msgs.push(cur);const rest=m[7];let sender=rest,body='';
+      const i=rest.indexOf(': ');if(i>=0&&!rest.startsWith('回收')){sender=rest.slice(0,i);body=rest.slice(i+2)}
+      cur={dt:`${m[1]}-${m[2]}-${m[3]} ${m[4]}:${m[5]}`,sender,body}}
+    else if(cur)cur.body+='\n'+line});
+  if(cur)msgs.push(cur);
+  msgs.sort((a,b)=>a.dt<b.dt?-1:a.dt>b.dt?1:0);
+  return msgs}
+
+/* ---------- 2. 欄位 ---------- */
+function field(b,keys){for(const k of keys){const m=b.match(new RegExp('(?:^|\\n)\\s*(?:\\d[\\.、]\\s*)?'+k+'\\s*[：:]\\s*([^\\n]*)'));if(m)return m[1].trim()}return''}
+function parseDate(msg){
+  const b=msg.body;const my=+msg.dt.slice(0,4),mmo=+msg.dt.slice(5,7);
+  const fix=(mo,d)=>{let yr=my;if(mo<mmo-6)yr=my+1;if(mo>mmo+6)yr=my-1;return `${yr}-${String(mo).padStart(2,'0')}-${String(d).padStart(2,'0')}`};
+  let m=b.match(/日期[：:]\s*(?:\d\.)?\s*(\d{2,3})\s*[年\.]\s*(\d{1,2})\s*[月\.]\s*(\d{1,2})/);
+  if(m)return fix(+m[2],+m[3]);
+  m=b.match(/日期[：:]\s*(?:\d\.)?\s*(\d{1,2})[\/\.](\d{1,2})/);
+  if(m)return fix(+m[1],+m[2]);
+  return null}
+
+/* ---------- 3. 各股人數 ---------- */
+function allocLines(b){
+  const res={k:0,f:0,j:0},lead={k:0,f:0,j:0};let found=false;
+  const lines=b.split('\n').map(l=>l.trim()).filter(l=>l&&!l.startsWith('@'));
+  for(const l of lines){
+    const l2=l.replace(/^[0-9.、 ]+/,'');
+    if(/^(地點|理由|用途|目的|事由|備註|服裝|使用人|承辦人|日期|使用時間|時間|公差時間)[：:]/.test(l2))continue;
+    const role=/^(班長階層|帶隊官|帶隊|車長|中戰車長|小貨車車長|班長)[：:]/.test(l)?'lead':'g';
+    const body=/^[^\s：:]{1,8}[：:]/.test(l)?l.replace(/^[^：:]*[：:]/,''):l;
+    const stripped=body.replace(tokG(),'').replace(/[\s、，,()（）\-：:各員公差班長階層帶隊官股武系一二兩三四五乙\d]/g,'');
+    const tgt=role==='lead'?lead:res;
+    if(stripped.length<=3&&tokG().test(body)){
+      const ge=body.match(new RegExp('各\\s*'+NUM));
+      let t;const re=tokG();
+      while((t=re.exec(body))){let n=num(t[2]);if(n==null)n=ge?num(ge[1]):1;tgt[STK[t[1]]]+=n}
+      found=true;continue}
+    const mm=l.match(new RegExp('武系\\s*'+NUM+'?\\s*員?\\s*[（(]([^）)]*)[）)]'));
+    if(mm&&tokG().test(mm[2])){
+      const ge=mm[2].match(new RegExp('各\\s*'+NUM));let t;const re=tokG();
+      while((t=re.exec(mm[2]))){let n=num(t[2]);if(n==null)n=ge?num(ge[1]):1;tgt[STK[t[1]]]+=n}
+      found=true}
+  }
+  return{res,lead,found}}
+function extraRules(b){
+  // 沒有「快1飛1」這類寫法時的補救規則
+  let m;
+  if((m=b.match(new RegExp('各股\\s*(?:派)?\\s*'+NUM+'\\s*員?'))))return{k:num(m[1]),f:num(m[1]),j:num(m[1])};
+  if((m=b.match(new RegExp('各課\\s*'+NUM+'\\s*員?\\s*(?:公差)?\\s*[（(]\\s*(快砲|飛彈|軍械)\\s*[）)]'))))return one(m[2],num(m[1]));
+  if((m=b.match(new RegExp('各派\\s*'+NUM+'\\s*員[^（(\\n]*[（(]\\s*(快砲|飛彈|軍械)\\s*[）)]'))))return one(m[2],num(m[1]));
+  if((m=b.match(new RegExp('武系\\s*'+NUM+'\\s*員\\s*[（(]\\s*(快砲|飛彈|軍械)\\s*[）)]'))))return one(m[2],num(m[1]));
+  const lines=b.split('\n').map(l=>l.replace(/@\S+/g,'').trim()).filter(Boolean);
+  const last=lines[lines.length-1]||'';
+  if((m=last.match(/(?:^|[\s）)（(，,：:-])(快砲|飛彈|軍械)股?\s*$/))){
+    let n=1,w;
+    if((w=b.match(new RegExp('各課\\s*'+NUM+'\\s*員?'))))n=num(w[1]);
+    else if((w=b.match(new RegExp('武系\\s*'+NUM+'\\s*員'))))n=num(w[1]);
+    return one(m[1],n)}
+  return null}
+function one(name,n){const o={k:0,f:0,j:0};o[STK[name]]=n;return o}
+
+/* ---------- 4. 種類 ---------- */
+function classify(purpose,raw){
+  const t=purpose+raw.slice(0,300),pp=purpose||raw;
+  if(/車長|駕駛|EMT|壓車/.test(pp)&&!/搬運|運送/.test(pp))return'車長/駕駛/救護';
+  if(/運送器材|送裝備|送校|裝備搬運/.test(t))return'送裝備/運送器材';
+  if(/典禮|觀禮|授階|授獎|晉任|布達|佈達|講習|演講|講座|懇親|聘僱|音樂會|採購實務|教育|餐桌|招生|部隊合署|帶會客|茶會/.test(pp+t.slice(0,250)))return'典禮/活動/聽講';
+  if(/報廢|水銷|資收|鋁床|繳庫|廢品|洗衣機|脫水機|折疊椅|搬|領取|領月餅|領口糧|口糧|糧秣|水|推車|伸縮梯|接收器材|釘排|工程餘料|瓶裝/.test(pp))return'搬運/領物資/報廢水銷';
+  if(/樹|打草|落葉|馬路|劃線|鋪|清整|清洗|外環道|阻絕|靶場|清運|整理|拆床|寢室|復原|佈置|布置|拆除|撤收|聖誕|打掃|藤蔓|變電箱|清除|收整/.test(pp))return'清整/佈置/打掃';
+  if(/蓋|名冊|歸檔|通訊錄|獎|編頁碼|監工|檢整|車牌|口罩|A4|評議|行政支援|支援|鋼印|印/.test(t.slice(0,300)))return'行政/監工/文書支援';
+  if(/擦槍|槍/.test(pp))return'擦槍';
+  return'其他'}
+
+/* ---------- 5. 從訊息抽出公差事件 ---------- */
+function isDispatch(m){const b=m.body;return b.includes('公差')&&/日期|時間|用途|目的|事由/.test(b)}
+function extractEvents(msgs){
+  const out=[];
+  msgs.forEach(m=>{
+    if(!isDispatch(m))return;
+    const b=m.body;
+    if(/取消/.test(b.slice(0,80)))return;
+    if(!/日期[：:]/.test(b))return;               // 沒有日期的多半是宣導
+    let{res,lead,found}=allocLines(b);
+    let a=found?res:null;
+    if(!found){const ex=extraRules(b);if(ex){a=ex;lead={k:0,f:0,j:0}}}
+    else{
+      const s=res.k+res.f+res.j;
+      if(s===1){const w=b.match(new RegExp('各課\\s*'+NUM+'\\s*員?'));
+        if(w&&num(w[1])>=2){const key=['k','f','j'].find(x=>res[x]);res[key]=num(w[1])}}}
+    const hasWork=/各課|各股|武系|公差人數|人員|須\d+員|公差\s*[：:*]/.test(b);
+    if(!a&&!hasWork)return;
+    const purpose=field(b,['理由','用途','目的','事由']);
+    const tm=field(b,['使用時間','公差時間','時間']);
+    const lines=b.split('\n').map(s=>s.trim()).filter(s=>s&&!s.startsWith('@'));
+    const ev={m:m.dt,d:parseDate(m)||m.dt.slice(0,10),tm:tm.slice(0,24),p:purpose.slice(0,40),
+      ty:classify(purpose,b),k:0,f:0,j:0,u:0,x:lines.join(' ／ ').slice(0,520)};
+    if(a){['k','f','j'].forEach(g=>ev[g]=(a[g]||0)+(lead[g]||0))}
+    if(!a||ev.k+ev.f+ev.j===0){ev.u=1;ev.k=ev.f=ev.j=0}
+    out.push(ev)});
+  // 去重（同日期、時間、事由、人數）
+  const seen=new Set();
+  return out.filter(e=>{const key=[e.d,e.tm,e.p,e.k,e.f,e.j].join('|');if(seen.has(key))return false;seen.add(key);return true})}
+
+/* ---------- 6. 姓名配對 ---------- */
+function rosterMaps(roster){ // roster: [[name,g]]  g in k/f/j/x
+  const RO={};
+  roster.forEach(([n,g])=>{RO[n]=[n,g];if(n.length>=3)RO[n.slice(-2)]=[n,g]});
+  const alias={'煥均':'張煥鈞','彥奉':'陳彥夆','俊丞':'蔡竣丞','峻丞':'蔡竣丞','紹軒':'柯上紹軒','柯紹軒':'柯上紹軒','蔡融':'劉蔡融'};
+  const gm=Object.fromEntries(roster);
+  Object.entries(alias).forEach(([a,f])=>{if(gm[f])RO[a]=[f,gm[f]]});
+  return RO}
+function parseNames(body,RO){
+  let b=body.trim();
+  const pre=b.match(/^(快砲股?|快跑|飛彈股?|軍械股?)\s*[-:：]?\s*(?:\d+員?\s*[-:：]?)?\s*/);
+  if(pre&&pre[0].length)b=b.slice(pre[0].length);
+  b=b.replace(/^[（(]?\d*員?[)）]?/,'').trim();
+  const STOP=new Set(['等等','抄收','收到','無','已','好','OK','ok']);
+  const toks=b.split(/[、,，\/／\s及和+＋]+/).filter(t=>t&&!STOP.has(t));
+  if(!toks.length||toks.length>12)return null;
+  const res=[];
+  toks.forEach(t=>{t=t.replace(/[（(].*?[）)]/g,'');if(RO[t])res.push(RO[t])});
+  if(!res.length||res.length/toks.length<.75)return null;
+  return res}
+function pairNames(events,msgs,roster,opt){
+  opt=opt||{};const RO=rosterMaps(roster);
+  const senderOk=s=>s==='您'||roster.some(([n])=>s.includes(n));
+  const ms=t=>new Date(t.replace(' ','T')+':00').getTime();
+  const DAY=864e5;
+  const evs=events.map(e=>({e,t:ms(e.m),need:e.u?{k:1,f:1,j:1}:{k:e.k,f:e.f,j:e.j},anyone:!!e.u,
+    got:{k:[...((e.n&&e.n.k)||[])],f:[...((e.n&&e.n.f)||[])],j:[...((e.n&&e.n.j)||[])]}}));
+  const after=opt.after||'0000';
+  let matched=0;
+  msgs.forEach(m=>{
+    if(m.dt<=after||!m.body||/\n/.test(m.body.trim())||!senderOk(m.sender))return;
+    const p=parseNames(m.body,RO);if(!p)return;
+    const rt=ms(m.dt);const byg={};p.forEach(([n,g])=>{(byg[g]=byg[g]||[]).push(n)});
+    Object.entries(byg).forEach(([g,nm])=>{
+      const gs=g==='x'?['k','f','j']:[g];
+      const cands=evs.filter(x=>x.t<=rt&&rt<=x.t+4*DAY&&gs.some(q=>x.need[q]>0));
+      let pick=null,q0=null;
+      for(const q of gs){
+        const op=cands.filter(x=>x.need[q]>0&&x.got[q].length<x.need[q]&&!(x.anyone&&(x.got.k.length+x.got.f.length+x.got.j.length)>=1));
+        const ex=op.filter(x=>x.need[q]-x.got[q].length===nm.length);
+        const pk=ex.length?ex[ex.length-1]:(op[0]||null);
+        if(pk){pick=pk;q0=q;break}}
+      if(!pick)return;
+      const room=pick.need[q0]-pick.got[q0].length;
+      pick.got[q0].push(...nm.slice(0,room));matched++})});
+  evs.forEach(x=>{const n={};['k','f','j'].forEach(g=>{if(x.got[g].length)n[g]=x.got[g]});if(Object.keys(n).length)x.e.n=n;else delete x.e.n});
+  return matched}
+return{parseChat,extractEvents,pairNames,classify,parseNames,rosterMaps}
+})();
+if(typeof module!=='undefined')module.exports=Ingest;
+
+/* ================= 資料層：Google 試算表（Apps Script）＝後端；密碼也在試算表 ================= */
+const LS_URL='gc_url_v1',SS_PW='gc_pw_s',LS_PW='gc_pw_r';
+function cfgLoad(){let url=CONFIG.url||'',pw='';
+  try{if(!url)url=localStorage.getItem(LS_URL)||''}catch(e){}
+  try{pw=sessionStorage.getItem(SS_PW)||localStorage.getItem(LS_PW)||''}catch(e){}
+  return{url,pw}}
+function pwStore(pw,remember){try{sessionStorage.setItem(SS_PW,pw)}catch(e){}try{if(remember)localStorage.setItem(LS_PW,pw);else localStorage.removeItem(LS_PW)}catch(e){}}
+function pwClear(){try{sessionStorage.removeItem(SS_PW);localStorage.removeItem(LS_PW)}catch(e){}}
+function hashId(e){const s=[e.m,e.d,e.tm,e.p,e.k,e.f,e.j,(e.x||'').slice(0,40)].join('|');let h=5381;for(let i=0;i<s.length;i++)h=((h<<5)+h+s.charCodeAt(i))|0;return 'E'+(h>>>0).toString(36)+s.length.toString(36)}
+function normEv(e){const o={...e};o.k=+o.k||0;o.f=+o.f||0;o.j=+o.j||0;o.u=+o.u?1:0;o.tm=o.tm||'';o.p=o.p||'';o.x=o.x||'';o.ty=o.ty||'其他';if(!o.n)o.n={};if(!o.id)o.id=hashId(o);return o}
+function fromRow(r){const sp=s=>s?String(s).split('、').filter(Boolean):[];const n={};const k=sp(r.nk),f=sp(r.nf),j=sp(r.nj);if(k.length)n.k=k;if(f.length)n.f=f;if(j.length)n.j=j;
+  return{id:r.id,m:r.m,d:r.d,tm:r.tm,p:r.p,ty:r.ty,k:+r.k||0,f:+r.f||0,j:+r.j||0,u:+r.u?1:0,x:r.x,n,st:r.st||''}}
+function toRow(e){const g=a=>(a||[]).join('、');return{id:e.id,m:e.m,d:e.d,tm:e.tm,p:e.p,ty:e.ty,k:e.k,f:e.f,j:e.j,u:e.u,x:e.x,nk:g(e.n&&e.n.k),nf:g(e.n&&e.n.f),nj:g(e.n&&e.n.j),st:e.st||''}}
+const GN={k:'快砲',f:'飛彈',j:'軍械',x:'退伍'},GR={'快砲':'k','飛彈':'f','軍械':'j','退伍':'x'};
+let ALL=[];
+function setAll(ev,ros){ALL=ev;applyData(ev,ros)}
+async function apiPost(action,payload){const c=cfgLoad();
+  const r=await fetch(c.url,{method:'POST',headers:{'Content-Type':'text/plain;charset=utf-8'},body:JSON.stringify({key:c.pw,action,...payload})});
+  const j=await r.json();if(!j.ok){const e=new Error(j.error||'後端回應失敗');e.auth=j.auth===false;throw e}return j}
+async function loadRemote(pwOverride){const c=cfgLoad();const pw=pwOverride!=null?pwOverride:c.pw;
+  const u=c.url+(c.url.includes('?')?'&':'?')+'action=all&key='+encodeURIComponent(pw);
+  const r=await fetch(u);const j=await r.json();if(!j.ok){const e=new Error(j.error||'讀取失敗');e.auth=j.auth===false;throw e}
+  DB.mode='remote';DB.lastMsg=(j.settings&&j.settings.lastMsg)||'';DB.at=new Date().toLocaleString('zh-TW');
+  const ros=(j.roster||[]).map(r=>[r[0],GR[r[1]]||r[1]]);
+  setAll((j.events||[]).map(fromRow).map(normEv),ros);return j}
+function useDemo(msg){DB.mode='demo';DB.lastMsg=SEED_CUT;DB.msg=msg||'';setAll(SEED.map(normEv),SEED_ROSTER.map(r=>[r[0],r[1]]))}
+
+/* ---------- 登入閘門 ---------- */
+function gateMsg(t){$('#gateErr').textContent=t||''}
+function showGate(){document.body.classList.add('locked');$('#gate').hidden=false;$('#gUrlRow').hidden=!!CONFIG.url;const c=cfgLoad();$('#gUrl').value=c.url;setTimeout(()=>$('#gPw').focus(),50)}
+function unlock(){document.body.classList.remove('locked');$('#gate').hidden=true}
+function finishInit(){S.from=MIN;S.to=MAX;S.heads={...RHEAD};buildControls();['k','f','j'].forEach(k=>{$('#h_'+k).value=RHEAD[k]});render()}
+async function initApp(){
+  wire();
+  $('#gForm').onsubmit=async e=>{e.preventDefault();gateMsg('');const url=($('#gUrl').value||'').trim();const pw=$('#gPw').value;
+    if(!CONFIG.url){if(!url){gateMsg('請先填後端網址');return}try{localStorage.setItem(LS_URL,url)}catch(er){}}
+    if(!pw){gateMsg('請輸入密碼');return}
+    $('#gBtn').disabled=true;$('#gBtn').textContent='驗證中…';
+    try{await loadRemote(pw);pwStore(pw,$('#gRem').checked);unlock();if(!ALL.length)DB.msg='試算表目前是空的，請到「資料同步」頁匯入初始資料。';finishInit()}
+    catch(er){gateMsg(er.auth?'密碼錯誤':'連線失敗：'+er.message)}
+    finally{$('#gBtn').disabled=false;$('#gBtn').textContent='進入'}};
+  const c=cfgLoad();
+  if(!c.url){useDemo(SEED.length?'尚未設定後端網址，目前顯示內建範例資料（僅供預覽）。':'尚未設定後端網址：請在檔案最上方 CONFIG.url 貼上 Apps Script 網址。');finishInit();return}
+  if(c.pw){try{await loadRemote();unlock();if(!ALL.length)DB.msg='試算表目前是空的，請到「資料同步」頁匯入初始資料。';finishInit();return}catch(e){if(!e.auth)gateMsg('連線失敗：'+e.message);pwClear()}}
+  showGate()}
+async function reloadAll(keepRange){const f=S.from,t=S.to,wasAll=(S.from===MIN&&S.to===MAX);
+  if(DB.mode==='remote')await loadRemote();
+  if(wasAll||!keepRange){S.from=MIN;S.to=MAX}else{S.from=f;S.to=t}
+  S.heads={...RHEAD};buildControls();['k','f','j'].forEach(k=>{$('#h_'+k).value=RHEAD[k]});render()}
+
+/* ---------- 上傳群組檔 → 增量同步 ---------- */
+async function doSync(text,full){
+  const st=$('#syncMsg');const say=t=>{if(st)st.textContent=t};
+  const roster=ROSTER.map(r=>[r[0],r[1]]);
+  const msgs=Ingest.parseChat(text);if(!msgs.length){say('這個檔案看不出是 Juiker 匯出的聊天記錄。');return}
+  const lastInFile=msgs[msgs.length-1].dt;
+  const cut=full?'0000':(DB.lastMsg||'0000');
+  const newMsgs=msgs.filter(m=>m.dt>cut);
+  let evs=Ingest.extractEvents(newMsgs).map(normEv);
+  const have=new Set(ALL.map(e=>e.id));evs=evs.filter(e=>!have.has(e.id));
+  const lim=cut==='0000'?'0000':new Date(new Date(cut.replace(' ','T')+':00').getTime()-5*864e5).toISOString().slice(0,16).replace('T',' ');
+  const oldPool=cut==='0000'?[]:ALL.filter(e=>e.st!=='刪除'&&e.m>=lim);
+  const before=new Map(oldPool.map(e=>[e.id,JSON.stringify(e.n||{})]));
+  const matched=Ingest.pairNames(oldPool.concat(evs),msgs,roster,{after:cut});
+  const nameUp=oldPool.filter(e=>JSON.stringify(e.n||{})!==before.get(e.id)).map(e=>{const r=toRow(e);return{id:e.id,nk:r.nk,nf:r.nf,nj:r.nj}});
+  const unk=evs.filter(e=>e.u).length;
+  const sum=`新訊息 ${newMsgs.length} 則 → 新公差 ${evs.length} 件（${unk} 件抓不到股別，請到下方審核）；姓名配對 ${matched} 筆；補上名字 ${nameUp.length} 件。`;
+  if(DB.mode==='remote'){
+    try{say('寫入試算表中…');
+      if(evs.length)await apiPost('add',{events:evs.map(toRow)});
+      if(nameUp.length)await apiPost('updateNames',{items:nameUp});
+      await apiPost('setting',{name:'lastMsg',value:lastInFile>DB.lastMsg?lastInFile:DB.lastMsg});
+      await reloadAll(true);const s2=$('#syncMsg');if(s2)s2.textContent='完成。'+sum}catch(e){say('寫入失敗：'+e.message)}
+  }else{
+    setAll(ALL.concat(evs),ROSTER);DB.lastMsg=lastInFile;S.to=MAX;render();const s2=$('#syncMsg');if(s2)s2.textContent='（預覽模式，未保存）'+sum}
+}
+function typeOptions(sel){const T=['送裝備/運送器材','搬運/領物資/報廢水銷','清整/佈置/打掃','典禮/活動/聽講','行政/監工/文書支援','擦槍','車長/駕駛/救護','固定輪值（體育館/小木屋打掃）','其他'];return T.map(t=>`<option ${t===sel?'selected':''}>${esc(t)}</option>`).join('')}
+function vSync(){
+  const c=cfgLoad();const live=ALL.filter(e=>e.st!=='刪除');
+  const rev=live.slice().sort((a,b)=>(b.u-a.u)||b.m.localeCompare(a.m)).slice(0,30);
+  const rosTxt=ROSTER.map(r=>r[0]+'\t'+GN[r[1]]).join('\n');
+  return `<div class="card"><h2>① 連線狀態</h2>
+  <div class="note">資料與登入密碼都存在你的 Google 試算表；這個網頁本身不含任何資料。</div>
+  <div style="margin:8px 0"><b>${DB.mode==='remote'?'已連線':'預覽模式（未連線）'}</b>｜資料 ${live.length} 件｜已同步到 ${esc(DB.lastMsg||'—')}${DB.at?'｜'+esc(DB.at):''}</div>
+  ${DB.msg?`<div class="find"><div>${esc(DB.msg)}</div></div>`:''}
+  <div class="row" style="margin-top:6px"><button class="btn" id="cReload">重新載入</button><button class="btn" id="cOut">登出</button></div></div>
+  <div class="card"><h2>② 上傳新的群組訊息</h2>
+  <div class="note">在 Juiker 匯出聊天記錄 .txt，整份上傳即可。只處理「上次同步之後」的新訊息，重複上傳不會重複計算。</div>
+  <div class="row" style="margin-top:8px"><input type="file" id="fUp" accept=".txt,text/plain"></div>
+  <label style="font-size:13px;display:block;margin-top:6px"><input type="checkbox" id="fFull"> 整份重算（忽略上次進度；已存在的不會重複）</label>
+  <div class="note" id="syncMsg" role="status" style="margin-top:8px"></div></div>
+  <div class="card"><h2>③ 審核新抓到的公差</h2><div class="note">電腦判讀可能有誤。標「抓不到股別」的請補人數。改完按「存」；不是公差的按「刪」（只標記，不會真的刪掉）。顯示最新 30 件。</div>
+  ${rev.map(e=>`<div class="rv" data-id="${esc(e.id)}" style="border-top:1px solid var(--line);padding:8px 0"><div style="font-size:13px"><b>${e.d.slice(2)}</b> ${esc(e.tm)} ${e.u?'<span class="pill warn">抓不到股別</span>':''}　${esc(e.p||e.x.slice(0,30))}</div>
+   <div class="row" style="margin-top:4px"><select class="rt" aria-label="種類">${typeOptions(e.ty)}</select>
+   <label class="f">快<input class="rk" type="number" min="0" value="${e.k}"></label><label class="f">飛<input class="rf" type="number" min="0" value="${e.f}"></label><label class="f">軍<input class="rj" type="number" min="0" value="${e.j}"></label>
+   <button class="btn rs">存</button><button class="btn rd">刪</button></div></div>`).join('')||'<div class="note">沒有資料</div>'}</div>
+  <div class="card"><h2>④ 各股名冊</h2><div class="note">一行一人：姓名［Tab］股別（快砲／飛彈／軍械／退伍）。「公平」用的編制人數與姓名配對都以這份為準。</div>
+  <textarea id="rosTa" rows="8" style="width:100%;margin-top:6px;border:1px solid var(--line);border-radius:10px;padding:8px;background:var(--surface)">${esc(rosTxt)}</textarea>
+  <button class="btn" id="rosSave" style="margin-top:6px">儲存名冊</button></div>
+  <div class="card"><h2>⑤ 初始資料匯入（只做一次）</h2><div class="note">選「公差初始資料.json」。只有在試算表是空的時候才會寫入；預覽模式則只在這次瀏覽顯示。</div>
+  <input type="file" id="fSeed" accept=".json,application/json" style="margin-top:8px"><div class="note" id="seedMsg" style="margin-top:6px"></div></div>
+  <div class="card"><h2>⑥ 修改登入密碼</h2><div class="row"><label class="f">新密碼<input type="password" id="npw" autocomplete="new-password"></label><button class="btn" id="npwBtn">修改</button></div><div class="note" id="npwMsg"></div></div>`}
+function wireSync(){
+  const v=$('#view');const el=id=>v.querySelector('#'+id);
+  if(el('cReload'))el('cReload').onclick=async()=>{try{DB.msg='';await reloadAll(true)}catch(e){DB.msg='連線失敗：'+e.message;render()}};
+  if(el('cOut'))el('cOut').onclick=()=>{pwClear();location.reload()};
+  if(el('fUp'))el('fUp').onchange=async e=>{const f=e.target.files[0];if(!f)return;const t=await f.text();await doSync(t,el('fFull').checked)};
+  if(el('fSeed'))el('fSeed').onchange=async e=>{const f=e.target.files[0];if(!f)return;const m=el('seedMsg');
+    try{const j=JSON.parse(await f.text());
+      if(DB.mode==='remote'){if(ALL.length){m.textContent='試算表已經有資料，不會覆蓋。';return}
+        m.textContent='寫入中…';await apiPost('seed',{events:j.events,roster:j.roster,lastMsg:j.lastMsg||''});DB.msg='';await reloadAll();const m2=$('#seedMsg');if(m2)m2.textContent='已寫入。'}
+      else{DB.lastMsg=j.lastMsg||'';setAll((j.events||[]).map(fromRow).map(normEv),(j.roster||[]).map(r=>[r[0],GR[r[1]]||r[1]]));S.from=MIN;S.to=MAX;S.heads={...RHEAD};buildControls();render()}}
+    catch(er){m.textContent='失敗：'+er.message}};
+  v.querySelectorAll('.rv').forEach(row=>{const id=row.dataset.id;
+    row.querySelector('.rs').onclick=async()=>{const e0=ALL.find(x=>x.id===id);const k=+row.querySelector('.rk').value||0,f=+row.querySelector('.rf').value||0,j=+row.querySelector('.rj').value||0;const ty=row.querySelector('.rt').value;
+      const fields={ty,k,f,j,u:(k+f+j)?0:1};
+      if(DB.mode==='remote'){try{await apiPost('update',{id,fields});await reloadAll(true)}catch(er){alert('存檔失敗：'+er.message)}}else{Object.assign(e0,fields);applyData(ALL,ROSTER);render()}};
+    row.querySelector('.rd').onclick=async()=>{const e0=ALL.find(x=>x.id===id);
+      if(DB.mode==='remote'){try{await apiPost('update',{id,fields:{st:'刪除'}});await reloadAll(true)}catch(er){alert('失敗：'+er.message)}}else{e0.st='刪除';applyData(ALL,ROSTER);render()}}});
+  if(el('rosSave'))el('rosSave').onclick=async()=>{const rows=el('rosTa').value.split(/\r?\n/).map(l=>l.split(/\t|\s{2,}/).map(s=>s.trim())).filter(a=>a[0]&&GR[a[1]]);
+    if(DB.mode==='remote'){try{await apiPost('roster',{roster:rows});await reloadAll(true)}catch(er){alert('失敗：'+er.message)}}
+    else{ROSTER=rows.map(a=>[a[0],GR[a[1]]]);applyData(ALL,ROSTER);S.heads={...RHEAD};buildControls();render()}};
+  if(el('npwBtn'))el('npwBtn').onclick=async()=>{const m=el('npwMsg');const np=el('npw').value;if(np.length<4){m.textContent='至少 4 個字元';return}
+    if(DB.mode!=='remote'){m.textContent='要先連線試算表';return}
+    try{await apiPost('setPassword',{newPassword:np});pwStore(np,false);m.textContent='已修改。下次登入請用新密碼。'}catch(er){m.textContent='失敗：'+er.message}};
+}
+
+initApp();
+</script>
+</body>
+</html>
