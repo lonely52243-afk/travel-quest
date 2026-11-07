@@ -179,9 +179,10 @@ header.top{padding-top:env(safe-area-inset-top)}#fbtn{min-height:44px;padding:0 
       <div><div class="note" style="margin-bottom:4px">顯示股別</div><div class="chips" id="gChips"></div></div>
       <div><div class="note" style="margin-bottom:4px">計算單位</div><div class="seg" id="metric" role="group"><button class="btn" data-m="ppl" aria-pressed="true">人次</button><button class="btn" data-m="cnt" aria-pressed="false">件數</button></div></div>
     </div>
-    <details><summary class="note" style="min-height:40px;display:flex;align-items:center;cursor:pointer">進階：各股編制人數（已用你給的名冊，可改）</summary>
+    <details><summary class="note" style="min-height:48px;display:flex;align-items:center;cursor:pointer">進階：各股派遣比例（預設＝名冊人數，可改）</summary>
       <div class="row" style="margin-top:6px"><label class="f">快砲<input type="number" min="0.1" step="0.1" value="25" id="h_k"></label><label class="f">飛彈<input type="number" min="0.1" step="0.1" value="24" id="h_f"></label><label class="f">軍械<input type="number" min="0.1" step="0.1" value="22" id="h_j"></label></div>
-      <div class="note">預設＝名冊人數（快砲25、飛彈24、軍械22，已排除退伍）。「公平」＝各股占比跟人數占比一樣。</div>
+      <div class="note" id="hnote">預設＝名冊人數（已排除退伍）。想照實際派遣比例比，直接填比例，例如快砲 2、飛彈 1、軍械 1。「期望」＝各股占比與此比例一致。</div>
+      <div class="row" style="margin-top:6px"><button class="btn" id="hsave">存為預設比例</button><button class="btn" id="hclr">改回名冊人數</button></div>
     </details>
     <div class="row"><button class="btn" id="tbl" aria-pressed="false" title="切換圖表／表格">表格檢視</button><button class="btn" id="theme" aria-label="切換深淺色">深淺色</button><button class="btn" id="reset">全部重設</button></div>
   </div><div class="note" id="fsum" style="margin-top:6px"></div></div>
@@ -199,18 +200,18 @@ const CONFIG={url:'https://script.google.com/macros/s/AKfycbz8PehWpyavDM1HpyWbuy
 const SEED=[];
 const SEED_ROSTER=[];
 const SEED_CUT='';
-let DJ=[],D=[],ROSTER=[],RHEAD={k:0,f:0,j:0},RSET={},TYPES=[],MIN='',MAX='';
+let RH0={k:1,f:1,j:1},HOVR=null,DJ=[],D=[],ROSTER=[],RHEAD={k:0,f:0,j:0},RSET={},TYPES=[],MIN='',MAX='';
 const DEFAULT_RULES=[{kw:['股長','校','尉'],w:0,ban:[],note:'軍官／股長'},{kw:['士官長'],w:.2,ban:[],note:'士官長'},{kw:['班長'],w:.3,ban:[],note:'班長'},{kw:['聘','雇'],w:1,ban:['擦槍','清整/佈置/打掃'],note:'聘雇人員'}];
-let RANKS={},RULES=DEFAULT_RULES,MW={},FR={},GONE={},HC={};
+let DUR={},STDO={},STDC=null,RANKS={},RULES=DEFAULT_RULES,MW={},FR={},GONE={},HC={};
 function ruleOf(rk){return RULES.find(r=>r.kw.some(k=>rk.includes(k)))||null}
 function calcGone(){ // 已調差／退伍／不在現任名冊、但出過公差的人：歷史上算那一股的人力，離開日期＝最後一次出公差
   GONE={};const m={};
   D.concat(DJ).forEach(e=>{G.forEach(g=>((e.n&&e.n[g.k])||[]).forEach(nm=>{const c=RSET[nm];if(c==='k'||c==='f'||c==='j')return;const o=m[nm]||(m[nm]={nm,gc:{k:0,f:0,j:0},end:''});o.gc[g.k]++;if(e.d>o.end)o.end=e.d}))});
   Object.values(m).forEach(o=>{const g=['k','f','j'].sort((a,b)=>o.gc[b]-o.gc[a])[0];const rk=RANKS[o.nm]||'';const r=rk?ruleOf(rk):null;const w=r?r.w:1;if(w===0)return;GONE[o.nm]={nm:o.nm,g,w,end:o.end,ban:r?r.ban:[],note:r?r.note:'一般'}})}
-function headsAt(d){const k=(d||'')+'|'+S.heads.k+','+S.heads.f+','+S.heads.j;if(HC[k])return HC[k];const h={k:S.heads.k,f:S.heads.f,j:S.heads.j};Object.values(GONE).forEach(p=>{if(!d||p.end>=d)h[p.g]+=p.w});return HC[k]=h}
+function headsAt(d){const k=(d||'')+'|'+S.heads.k+','+S.heads.f+','+S.heads.j;if(HC[k])return HC[k];const h={k:S.heads.k,f:S.heads.f,j:S.heads.j};if(!HOVR)Object.values(GONE).forEach(p=>{if(!d||p.end>=d)h[p.g]+=p.w});return HC[k]=h}
 function calcWeights(){MW={};HC={};const raw={k:0,f:0,j:0};
   ROSTER.forEach(([nm,g])=>{if(!(g in raw))return;const rk=RANKS[nm]||'';const r=rk?ruleOf(rk):null;const w=r?r.w:1;MW[nm]={w,ban:r?r.ban:[],rk,note:r?r.note:'一般',g};raw[g]+=w});
-  RHEAD={k:Math.round(raw.k*10)/10,f:Math.round(raw.f*10)/10,j:Math.round(raw.j*10)/10};calcGone();
+  RHEAD={k:Math.round(raw.k*10)/10,f:Math.round(raw.f*10)/10,j:Math.round(raw.j*10)/10};calcGone();RH0={...RHEAD};if(HOVR)RHEAD={...HOVR};
   FR={};TYPES.forEach(t=>{const o={k:0,f:0,j:0};Object.values(MW).forEach(m=>{if(!m.ban.includes(t))o[m.g]+=m.w});FR[t]={k:raw.k?o.k/raw.k:1,f:raw.f?o.f/raw.f:1,j:raw.j?o.j/raw.j:1}})}
 const DB={mode:'demo',lastMsg:'',msg:'',at:''};
 const ANCHOR=new Date(Date.now()+8*36e5).toISOString().slice(0,10);
@@ -223,6 +224,7 @@ function inferFromNames(e){
   ['k','f','j'].forEach(g=>{const t=Math.min(names[g],cap);o[g]=t;cap-=t});
   return o}
 function applyData(ev,ros){
+  STDC=null;
   DJ=ev.filter(e=>e.st==='直派').slice().sort((a,b)=>(a.d+a.tm).localeCompare(b.d+b.tm));
   D=ev.filter(e=>e.st!=='刪除'&&e.st!=='直派').map(inferFromNames).slice().sort((a,b)=>(a.d+a.tm).localeCompare(b.d+b.tm));
   ROSTER=ros;
@@ -230,7 +232,7 @@ function applyData(ev,ros){
   const m={};D.forEach(e=>m[e.ty]=(m[e.ty]||0)+e.k+e.f+e.j+1e-3);TYPES=Object.keys(m).sort((a,b)=>m[b]-m[a]);calcWeights();
   const AD=D.concat(DJ).map(e=>e.d).sort();MIN=AD.length?AD[0]:ANCHOR;MAX=AD.length?AD[AD.length-1]:ANCHOR}
 const G=[{k:'k',n:'快砲',c:'var(--s1)'},{k:'f',n:'飛彈',c:'var(--s2)'},{k:'j',n:'軍械',c:'var(--s3)'}];
-const S={jp:null,sort:'new',rt:'',from:'',to:'',types:new Set(),show:{k:1,f:1,j:1},metric:'ppl',q:'',tab:'overview',tbl:false,heads:{k:1,f:1,j:1},drill:null,lm:'month',person:null,pn:15,pm:'all',
+const S={lg:4,lgx:1,ex:{officer:1,hire:1,sgm:0,sq:0,hp:1},jp:null,sort:'new',rt:'',from:'',to:'',types:new Set(),show:{k:1,f:1,j:1},metric:'ppl',q:'',tab:'overview',tbl:false,heads:{k:1,f:1,j:1},drill:null,lm:'month',person:null,pn:15,pm:'all',
   cmp:{preset:'6',aF:'',aT:'',bF:'',bT:''},more:200};
 const $=s=>document.querySelector(s);
 const esc=s=>String(s).replace(/[&<>"']/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));
@@ -306,8 +308,8 @@ const pic=(k,z)=>`<img class="gi" alt="" width="${z||24}" height="${z||24}" src=
 const mk=k=>`<i class="mi" style="--m:url(data:image/png;base64,${IMG[k]})"></i>`;
 const GI={k:pic('kgun',24),f:pic('f9m',24),j:pic('jseat',24)};
 const TABS=[['overview','總覽'],['trend','時間趨勢'],['types','種類比較'],['rot','輪替分析'],['fc','預測'],['ppl','人員比較'],['jx','軍械專區'],['hot','聚集偵測'],['cmp','兩期比較'],['list','明細'],['sync','資料同步']];
-const GROUPS=[['home','總覽','overview',['overview','list']],['ana','分析','trend',['trend','types','rot','hot','cmp','fc']],['ppl','人員','ppl',['ppl','jx']],['set','設定','sync',['sync']]];
-const SUBL={overview:'總覽',list:'明細',trend:'時間趨勢',types:'種類比較',rot:'輪替分析',hot:'聚集偵測',cmp:'兩期比較',fc:'預測',ppl:'人員比較',jx:'軍械專區',sync:'資料同步'};
+const GROUPS=[['home','總覽','overview',['overview','list']],['ana','分析','trend',['trend','types','rot','load','hot','cmp','fc']],['ppl','人員','ppl',['ppl','jx']],['set','設定','sync',['sync']]];
+const SUBL={overview:'總覽',list:'明細',trend:'時間趨勢',types:'種類比較',rot:'輪替分析',hot:'聚集偵測',cmp:'兩期比較',fc:'預測',ppl:'人員比較',jx:'軍械專區',load:'負荷與配置',sync:'資料同步'};
 const ICK={home:'overview',ana:'trend',ppl:'ppl',set:'sync'};
 function renderNav(){const g=GROUPS.find(x=>x[3].includes(S.tab))||GROUPS[0];S.last=S.last||{};S.last[g[0]]=S.tab;
   const tb=$('#tabs');tb.innerHTML=g[3].length>1?g[3].map(t=>`<button class="tab" role="tab" data-tab="${t}" aria-selected="${t===S.tab}">${SUBL[t]}</button>`).join(''):'';tb.style.display=g[3].length>1?'':'none';
@@ -333,6 +335,8 @@ function wire(){
   $('#typeChips').onclick=e=>{const b=e.target.closest('[data-t]');if(!b)return;const t=b.dataset.t;S.types.has(t)?S.types.delete(t):S.types.add(t);render()};
   $('#gChips').onclick=e=>{const b=e.target.closest('[data-g]');if(!b)return;const k=b.dataset.g;const n=Object.values(S.show).filter(Boolean).length;if(S.show[k]&&n<=1)return;S.show[k]=S.show[k]?0:1;render()};
   $('#metric').onclick=e=>{const b=e.target.closest('[data-m]');if(!b)return;S.metric=b.dataset.m;render()};
+  $('#hsave').onclick=async()=>{const h={k:+$('#h_k').value||1,f:+$('#h_f').value||1,j:+$('#h_j').value||1};HOVR=h;try{if(DB.mode==='remote')await apiPost('setting',{name:'heads',value:JSON.stringify(h)})}catch(er){alert('存檔失敗：'+er.message)}calcWeights();S.heads={...RHEAD};render();alert('已存成預設比例 快砲'+h.k+'：飛彈'+h.f+'：軍械'+h.j)};
+  $('#hclr').onclick=async()=>{HOVR=null;try{if(DB.mode==='remote')await apiPost('setting',{name:'heads',value:''})}catch(er){alert('存檔失敗：'+er.message)}calcWeights();S.heads={...RHEAD};buildControls();['k','f','j'].forEach(k=>$('#h_'+k).value=RHEAD[k]);render()};
   ['k','f','j'].forEach(k=>$('#h_'+k).onchange=e=>{S.heads[k]=Math.max(.1,+e.target.value||1);render()});
   $('#reset').onclick=()=>{S.from=MIN;S.to=MAX;S.types.clear();S.show={k:1,f:1,j:1};S.metric='ppl';S.q='';S.heads={...RHEAD};S.drill=null;$('#q').value='';['k','f','j'].forEach(k=>$('#h_'+k).value=RHEAD[k]);render()};
   $('#bnav').onclick=e=>{const b=e.target.closest('[data-grp]');if(!b)return;const g=GROUPS.find(x=>x[0]===b.dataset.grp);S.tab=(S.last&&S.last[g[0]])||g[2];render();scrollTo({top:0})};
@@ -343,12 +347,16 @@ function wire(){
   $('#view').addEventListener('click',viewClick);
 }
 function viewClick(e){
+  if(e.target.id==='stdsave'){const o={};document.querySelectorAll('.stdi').forEach(i=>{const v=parseFloat(i.value);if(v>0)o[i.dataset.t]=Math.min(8,v)});const kk=[...document.querySelectorAll('.stdk')],kh=[...document.querySelectorAll('.stdkh')];kk.forEach((k,i)=>{const w=k.value.trim(),v=parseFloat(kh[i].value);if(w&&v>0)o['@'+w]=Math.min(8,v)});STDO=o;(async()=>{const m=$('#stdmsg');try{if(DB.mode==='remote')await apiPost('setting',{name:'std',value:JSON.stringify(o)});render();const m2=$('#stdmsg');if(m2)m2.textContent='已儲存'}catch(er){if(m)m.textContent='存檔失敗：'+er.message}})();return}
   const t=e.target.closest('[data-type]');if(t){const ty=t.dataset.type;S.drill=S.drill===ty?null:ty;if(S.tab!=='types'){S.tab='types'}render();return}
   const m=e.target.closest('[data-month]');if(m){const mo=m.dataset.month;S.from=mo+'-01';S.to=addD(addM(mo+'-01',1),-1);render();return}
   const rtb=e.target.closest('[data-rt]');if(rtb){S.rt=rtb.dataset.rt;render();return}
   const go=e.target.closest('[data-go]');if(go){S.tab=go.dataset.go;render();scrollTo({top:0});return}
   const lm=e.target.closest('[data-lm]');if(lm){S.lm=lm.dataset.lm;render();return}
   const cp=e.target.closest('[data-cp]');if(cp){S.cmp.preset=cp.dataset.cp;render();return}
+  const lgb=e.target.closest('[data-lg]');if(lgb){S.lg=+lgb.dataset.lg;render();return}
+  const lgx=e.target.closest('[data-lgx]');if(lgx){S.lgx=S.lgx?0:1;render();return}
+  const ex=e.target.closest('[data-ex]');if(ex){S.ex[ex.dataset.ex]=S.ex[ex.dataset.ex]?0:1;render();return}
   const jp=e.target.closest('[data-jp]');if(jp){S.jp=S.jp===jp.dataset.jp?null:jp.dataset.jp;render();return}
   const pr=e.target.closest('[data-person]');if(pr){if(S.tab!=='ppl'){S.tab='ppl';S.person=pr.dataset.person}else S.person=S.person===pr.dataset.person?null:pr.dataset.person;render();return}
   const pn=e.target.closest('[data-pn]');if(pn){S.pn=+pn.dataset.pn;render();return}
@@ -364,7 +372,7 @@ function hstack(rows,opt){ // rows:[{label,key,o:{k,f,j}}]
   return `<div class="hb">${rows.map(r=>{const tot=v.reduce((a,g)=>a+r.o[g.k],0);
     const dev=tot?v.map(g=>({g,d:r.o[g.k]/tot-ex[g.k]})).sort((a,b)=>Math.abs(b.d)-Math.abs(a.d))[0]:null;
     const segs=v.map(g=>{const x=r.o[g.k];const w=tot?x/tot*100:0;return `<i style="flex:${w} 1 0;background:${g.c}" data-tip="${esc(r.label)}<br>${g.n}：${x}（${tot?pct(x/tot):'0%'}）" aria-label="${g.n} ${x}">${w>9?x:''}</i>`}).join('');
-    return `<div class="r" ${r.key?`data-type="${esc(r.key)}" tabindex="0" role="button"`:''}><div class="lab"><span>${esc(r.label)}</span><small>${tot}${S.metric==='ppl'?'人次':'件'}${dev&&tot>=6&&Math.abs(dev.d)>=.12?`｜${dev.g.n}${dev.d>0?'偏多':'偏少'} ${Math.abs(dev.d*100).toFixed(0)}pp`:''}</small></div><div class="bars">${tot?segs:'<i style="flex:1;background:var(--line);color:var(--ink3)">無資料</i>'}</div></div>`}).join('')}</div>`}
+    return `<div class="r" ${r.key?`data-type="${esc(r.key)}" tabindex="0" role="button"`:''}><div class="lab"><span>${esc(r.label)}</span><small>${tot}${S.metric==='ppl'?'人次':'件'}${dev&&tot>=6&&Math.abs(dev.d)>=.12?`｜${dev.g.n}${dev.d>0?'高於期望':'低於期望'} ${Math.abs(dev.d*100).toFixed(0)}pp`:''}</small></div><div class="bars">${tot?segs:'<i style="flex:1;background:var(--line);color:var(--ink3)">無資料</i>'}</div></div>`}).join('')}</div>`}
 function colStack(labels,series,opt){ // series: [{g,vals}]
   opt=opt||{};const W=Math.max(300,$('#view').clientWidth-30),H=opt.h||210,m={l:30,r:6,t:8,b:opt.rot?42:24};
   const n=labels.length;const tot=labels.map((_,i)=>series.reduce((a,s)=>a+s.vals[i],0));const mx=Math.max(1,...tot);
@@ -428,26 +436,45 @@ function hl(kind,tag,t,sub,how){const ik=kind==='ok'?'ok':kind==='warn'?'warn':'
 function fairText(o,label,ctx){const st=stat(o,ctx);if(st.tot<6)return `<div class="note">${label}：樣本太少（${st.tot}），不判斷。</div>`;
   const v=vis();const lead=v.map(g=>({g,s:o[g.k]/st.tot,e:st.ex[g.k]})).sort((a,b)=>(b.s-b.e)-(a.s-a.e));
   const top=lead[0],bot=lead[lead.length-1];const sig=st.p<.05;
-  return `<div class="find ${sig?'':'ok'}"><b>${sig?'有明顯偏態':'大致平均'} <span class="pill ${sig?'warn':'ok'}" title="統計檢定 p=${st.p<.001?'<.001':st.p.toFixed(3)}">${sig?'很可能不是巧合':'屬正常波動'}</span></b><div>${esc(label)}：${top.g.n}占 ${pct(top.s)}（依人數應為 ${pct(top.e)}），${bot.g.n}占 ${pct(bot.s)}。${sig?`${top.g.n}多扛、${bot.g.n}少扛。`:'差距在隨機波動範圍內。'}</div></div>`}
+  return `<div class="find ${sig?'':'ok'}"><b>${sig?'統計顯著偏離':'未達顯著偏離'} <span class="pill ${sig?'warn':'ok'}" title="統計檢定 p=${st.p<.001?'<.001':st.p.toFixed(3)}">${sig?'非隨機波動':'屬隨機波動'}</span></b><div>${esc(label)}：${top.g.n}占 ${pct(top.s)}（依人數應為 ${pct(top.e)}），${bot.g.n}占 ${pct(bot.s)}。${sig?`${top.g.n}高於期望、${bot.g.n}低於期望。`:'差異在隨機波動範圍內。'}</div></div>`}
 
 /* ---------- tabs ---------- */
 function spark(vals,c){const n=vals.length;if(n<2)return '';const mx=Math.max(1,...vals);const W=100,H=30;const pts=vals.map((x,i)=>`${(i/(n-1)*W).toFixed(1)},${(H-3-x/mx*(H-6)).toFixed(1)}`).join(' ');return `<svg viewBox="0 0 ${W} ${H}" width="100%" height="30" preserveAspectRatio="none" aria-hidden="true"><polyline points="${pts}" fill="none" stroke="${c}" stroke-width="2" vector-effect="non-scaling-stroke" stroke-linejoin="round" stroke-linecap="round"/></svg>`}
+/* ---------- 配置偏差分析：實際值 − 期望值（人次），供下一件配置參考 ---------- */
+function debtOf(rows){const v=vis();const o=sums(rows);const m=expMix(rows);const d={};v.forEach(g=>d[g.k]={a:o[g.k],e:m.E[g.k],x:o[g.k]-m.E[g.k]});return{d,T:m.T}}
+function debtCard(){
+  const v=vis();if(v.length<2)return '';const win=[['近 3 個月',3],['近 6 個月',6],['近 1 年',12],['全部',0]];
+  const rowsOf=n=>filt(n?addM(MAX,-n):MIN,MAX);
+  const R=win.map(([l,n])=>({l,n,r:rowsOf(n)})).map(x=>({...x,db:debtOf(x.r)}));
+  const pick=R[1].db.T>=12?R[1]:(R[2].db.T>=12?R[2]:R[3]);       // 以近半年為主，太少就拉長
+  const need=v.slice().sort((a,b)=>pick.db.d[a.k].x-pick.db.d[b.k].x)[0];
+  const fmt=x=>(x>=0?'+':'−')+Math.abs(x).toFixed(1);
+  const tbl=`<div style="overflow:auto"><table><thead><tr><th>期間</th>${v.map(g=>`<th>${g.n}</th>`).join('')}</tr></thead><tbody>${R.map(x=>`<tr><td>${x.l}<br><small class="note">${x.db.T} 人次</small></td>${v.map(g=>{const z=x.db.d[g.k];const big=x.db.T>=12&&Math.abs(z.x)>=Math.max(3,x.db.T*.08);return `<td style="text-align:center"><b style="color:${big?(z.x>0?'var(--warn)':'var(--ok)'):'inherit'}">${fmt(z.x)}</b><br><small class="note">${z.a}／期望 ${z.e.toFixed(0)}${z.e>0?'｜z='+(z.x/Math.sqrt(z.e)).toFixed(1):''}</small></td>`}).join('')}</tr>`).join('')}</tbody></table></div>`;
+  // 差在哪一類（拿 pick 期間）
+  const TT=TYPES.map(t=>({t,db:debtOf(pick.r.filter(e=>e.ty===t))})).filter(x=>x.db.T>=4);
+  const items=[];TT.forEach(x=>v.forEach(g=>items.push({t:x.t,g,x:x.db.d[g.k].x})));
+  items.sort((a,b)=>Math.abs(b.x)-Math.abs(a.x));const top=items.filter(i=>Math.abs(i.x)>=2).slice(0,5);
+  const why=top.length?`<h3 style="margin-top:12px">偏差最大的類別（${pick.l}）</h3>${top.map(i=>`<div style="display:flex;justify-content:space-between;padding:6px 0;border-bottom:1px solid var(--line)"><span><i class="dot" style="background:${i.g.c}"></i> ${i.g.n}｜${esc(i.t)}</span><b style="color:${i.x>0?'var(--warn)':'var(--ok)'}">${i.x>0?'高於期望':'低於期望'} ${Math.abs(i.x).toFixed(1)}</b></div>`).join('')}`:'';
+  const ratio=HOVR?`依你存的派遣比例 快砲${HOVR.k}：飛彈${HOVR.f}：軍械${HOVR.j}`:'依名冊人數與階級規則';
+  return `<div class="card"><h2>配置偏差分析（實際值 − 期望值）</h2><div class="note">${ratio}，以期望占比推算各股期望人次，與實際人次相減得偏差；z＝偏差÷√期望值（標準化殘差，|z|≥2 視為顯著）。<b>＋＝高於期望（紅），−＝低於期望（綠）</b>；偏差以人次計。</div>
+  <div class="find ok" style="margin:8px 0"><b>下一件建議優先配置：<i class="dot" style="background:${need.c}"></i> ${need.n}</b><div>${pick.l}${pick.db.T<12?'（樣本偏少，僅供參考）':''}：${need.n}低於期望 ${Math.abs(Math.min(0,pick.db.d[need.k].x)).toFixed(1)} 人次${pick.db.d[need.k].x>=0?'；三股均無低於期望的情形，依輪序配置即可':''}。</div></div>
+  ${tbl}${why}</div>`}
 function vOverview(rows){
   const o=sums(rows),st=stat(o,rows),v=vis();
   const ms=months(S.from,S.to).slice(-24);const perM=ms.map(m=>sums(rows.filter(e=>e.d.slice(0,7)===m)));const m12=perM.slice(-12);
   const byT=TYPES.map(t=>({label:t,key:t,o:sums(rows.filter(e=>e.ty===t))})).filter(r=>r.o.k+r.o.f+r.o.j>0).sort((a,b)=>(b.o.k+b.o.f+b.o.j)-(a.o.k+a.o.f+a.o.j));
   const tbl=byT.map(r=>[r.label,r.o.k,r.o.f,r.o.j]);
-  const lead=v.map(g=>({g,s:st.tot?o[g.k]/st.tot:0,e:st.ex[g.k],pp:o[g.k]/(S.heads[g.k]||1)})).sort((a,b)=>(b.s-b.e)-(a.s-a.e));
-  const hd=st.tot<6?hl('','資料不足','這段期間資料太少，先不下結論','請放寬上方時間範圍。'):(st.p<.05?hl('warn','有偏差',`${lead[0].g.n}扛得偏多：占 ${pct(lead[0].s)}，但人數只占 ${pct(lead[0].e)}`,`${lead[lead.length-1].g.n}偏少（占 ${pct(lead[lead.length-1].s)}）。每人平均：${lead.map(x=>x.g.n+' '+x.pp.toFixed(1)+' 次').join('、')}`,'色塊越長＝該股扛越多；和「人數占比」差越多，越不公平。'):hl('ok','大致公平','三股負擔和人數相符',`每人平均：${lead.map(x=>x.g.n+' '+x.pp.toFixed(1)+' 次').join('、')}`,'色塊長度和人數占比接近就是公平。'));
+  const lead=v.map(g=>({g,s:st.tot?o[g.k]/st.tot:0,e:st.ex[g.k],pp:o[g.k]/(RH0[g.k]||1)})).sort((a,b)=>(b.s-b.e)-(a.s-a.e));
+  const hd=st.tot<6?hl('','資料不足','這段期間資料太少，先不下結論','請放寬上方時間範圍。'):(st.p<.05?hl('warn','顯著偏離',`${lead[0].g.n}實際占比高於期望：實際 ${pct(lead[0].s)}，期望 ${pct(lead[0].e)}（χ²=${st.chi.toFixed(1)}，p=${st.p<.001?'<.001':st.p.toFixed(3)}）`,`${lead[lead.length-1].g.n}低於期望（占 ${pct(lead[lead.length-1].s)}）。人均次數：${lead.map(x=>x.g.n+' '+x.pp.toFixed(1)+' 次').join('、')}`,'色塊越長＝該股占比越高；與「人數占比」差越大，偏離越大。'):hl('ok','未達顯著偏離','三股配置與人數占比相符',`人均次數：${lead.map(x=>x.g.n+' '+x.pp.toFixed(1)+' 次').join('、')}`,'色塊長度與人數占比接近＝與期望一致。'));
   const cards=`<div class="kpi" tabindex="0"><span>公差件數</span><b>${o.n}</b><span>${o.u?`含未分股 ${o.u} 件`:'全部有分股'}</span>${spark(m12.map(x=>x.n),'var(--ink2)')}</div>`
-   +v.map(g=>`<div class="kpi" tabindex="0"><span>${GI[g.k]} ${g.n}</span><b>${o[g.k]}</b><span>占 ${st.tot?pct(o[g.k]/st.tot):'—'}／人數 ${pct(st.ex[g.k])}</span><span style="display:block">每人 ${(o[g.k]/S.heads[g.k]).toFixed(1)} 次</span>${spark(m12.map(x=>x[g.k]),g.c)}</div>`).join('')
-   +`<div class="kpi" tabindex="0"><span>公平度</span><div class="st ${st.tot<6?'':st.p<.05?'warn':'ok'}">${st.tot<6?'資料不足':st.p<.05?'有偏差':'大致公平'}</div><span>${st.tot<6?'':`最偏：${lead[0].g.n} ${(lead[0].s-lead[0].e>=0?'+':'−')+Math.abs((lead[0].s-lead[0].e)*100).toFixed(0)}pp`}</span></div>`;
+   +v.map(g=>`<div class="kpi" tabindex="0"><span>${GI[g.k]} ${g.n}</span><b>${o[g.k]}</b><span>占 ${st.tot?pct(o[g.k]/st.tot):'—'}／人數 ${pct(st.ex[g.k])}</span><span style="display:block">每人 ${(o[g.k]/(RH0[g.k]||1)).toFixed(1)} 次</span>${spark(m12.map(x=>x[g.k]),g.c)}</div>`).join('')
+   +`<div class="kpi" tabindex="0"><span>分配均衡度</span><div class="st ${st.tot<6?'':st.p<.05?'warn':'ok'}">${st.tot<6?'資料不足':st.p<.05?'顯著偏離':'未達顯著偏離'}</div><span>${st.tot<6?'':`最偏：${lead[0].g.n} ${(lead[0].s-lead[0].e>=0?'+':'−')+Math.abs((lead[0].s-lead[0].e)*100).toFixed(0)}pp`}</span></div>`;
   const hh=Math.max(190,Math.round(innerHeight*.3));
   const chart=ms.length?lineChart(ms,v.map(g=>({g,vals:perM.map(x=>x[g.k])})),{H:hh,aria:'每月各股公差人次折線圖'}):'';
   const rec=rows.slice().reverse().slice(0,10);
-  return hd+`<div class="kpis" role="list" aria-label="關鍵指標（可左右滑動）">${cards}</div>
+  return hd+debtCard()+`<div class="kpis" role="list" aria-label="關鍵指標（可左右滑動）">${cards}</div>
   <div class="card"><h2>每月人次趨勢</h2><div class="note">手指按住圖表可看各月數值。</div>${legend()}<div class="chartwrap">${S.tbl?tableHTML(['月份',...v.map(g=>g.n)],ms.map((m,i)=>[m,...v.map(g=>perM[i][g.k])])):chart}</div></div>
-  <div class="card"><h2>各種類由哪個股扛</h2><div class="note" style="margin-bottom:6px">每條＝一種公差，色塊寬度＝各股占比。點一列可看該類細節。</div>${legend()}
+  <div class="card"><h2>各類別的股別配置比例</h2><div class="note" style="margin-bottom:6px">每條＝一種公差，色塊寬度＝各股占比。點一列可看該類細節。</div>${legend()}
   ${chartOrTable(hstack(byT),['種類','快砲','飛彈','軍械'],tbl)}</div>
   <div class="card"><h2>最近的公差</h2><div class="note">點開看原文與人名。</div>${evList(rec)}<button class="btn" data-go="list" style="width:100%;margin-top:8px">看全部明細</button></div>`}
 function vTrend(rows){
@@ -468,7 +495,7 @@ function vTrend(rows){
   const l3=sums(rows.filter(e=>e.d.slice(0,7)>=ms[Math.max(0,ms.length-3)]));const l3t=v.reduce((a,g)=>a+l3[g.k],0);const l3l=v.slice().sort((a,b)=>l3[b.k]-l3[a.k])[0];
   const hd=!ms.length||!tt.some(x=>x>0)?hl('','沒有資料','這段期間沒有公差','請放寬上方篩選。'):hl('','重點',`最忙的月份是 ${ms[pk]}（${tt[pk]} ${S.metric==='ppl'?'人次':'件'}）`,l3t?`最近 3 個月：${l3l.n}最多（${l3[l3l.k]}／${l3t}）`:'最近 3 個月沒有公差','柱子越高＝那個月公差越多；顏色分三股。點某個月可只看那個月。');
   return hd+`<div class="card"><h2>時間趨勢</h2><div class="seg" style="margin:6px 0">${lmBtn('month','每月人次')}${lmBtn('cum','累計人次')}${lmBtn('roll','滾動3個月占比')}</div>
-  <div class="note" style="margin-bottom:4px">${S.lm==='roll'?'虛線＝三股各占 1/3；實際公平線是各股人數占比，請用總覽比對。某股長期高於虛線＝負擔偏多（樣本少於5的月份不畫）。':S.lm==='month'?'點某個月，會把篩選範圍縮到那個月。':'線越往上＝累計扛得越多，看三條線的分岔。'}</div>${legend()}<div class="chartwrap">${chartOrTable(chart,head,tb)}</div></div>
+  <div class="note" style="margin-bottom:4px">${S.lm==='roll'?'虛線＝三股各占 1/3；實際期望線是各股人數占比，請用總覽比對。某股長期高於虛線＝高於期望（樣本少於5的月份不畫）。':S.lm==='month'?'點某個月，會把篩選範圍縮到那個月。':'線越往上＝累計偏差越大（高於期望），看三條線的分岔。'}</div>${legend()}<div class="chartwrap">${chartOrTable(chart,head,tb)}</div></div>
   <div class="card"><h3>幾點開始（${S.metric==='ppl'?'人次':'件數'}）</h3><div class="chartwrap">${chartOrTable(hrC,['時','快砲','飛彈','軍械'],hrl.map(h=>[h+':00',hr[h].k,hr[h].f,hr[h].j]))}</div></div>
   <div class="card"><h3>星期幾</h3><div class="chartwrap">${chartOrTable(wdC,['星期','快砲','飛彈','軍械'],wl.map((w,i)=>[w,wd[i].k,wd[i].f,wd[i].j]))}</div></div>`}
 function heatColor(d){const a=Math.min(Math.abs(d)/.35,1)*.62;return `color-mix(in srgb,var(${d>=0?'--pos':'--neg'}) ${Math.round(a*100)}%,var(--mid))`}
@@ -479,8 +506,8 @@ function vTypes(rows){
   const body=rs.map(r=>{const ex=exp(r.t);const tot=v.reduce((a,g)=>a+r.o[g.k],0);return `<tr class="${S.drill===r.t?'sel':''}" data-type="${esc(r.t)}"><td style="cursor:pointer">${esc(r.t)}</td>${v.map(g=>{const s=tot?r.o[g.k]/tot:0;const d=s-ex[g.k];return `<td class="c" style="background:${heatColor(d)}" data-type="${esc(r.t)}" data-tip="${esc(r.t)}<br>${g.n}：${r.o[g.k]}（占 ${pct(s)}，平均 ${pct(ex[g.k])}）<br>${d>=0?'多':'少'} ${Math.abs(d*100).toFixed(0)}pp"><b>${r.o[g.k]}</b><small>${tot?(d>=0?'+':'−')+Math.abs(d*100).toFixed(0)+'pp':''}</small></td>`}).join('')}<td>${tot}</td></tr>`}).join('');
   const ranked=rs.map(r=>({r,st:stat(r.o,r.t)})).filter(x=>x.st.tot>=6).sort((a,b)=>a.st.p-b.st.p);const nsig=ranked.filter(x=>x.st.p<.05).length;
   const w=ranked[0];
-  const hd=!w?hl('','資料不足','這段期間各類樣本太少','請放寬上方日期或篩選。'):(nsig?hl('warn','有偏差',`${nsig} 類公差明顯偏某一股；最偏的是「${esc(w.r.t)}」`,v.map(g=>g.n+' '+w.r.o[g.k]).join('、'),'紅格＝該股在這類扛得比平均多，藍格＝比平均少，灰＝接近。點一列看細節。'):hl('ok','大致公平','各類公差三股都差不多','沒有哪一類明顯集中在某一股。','紅＝偏多、藍＝偏少、灰＝接近。'));
-  let html=hd+`<div class="card"><h2>各類比較（熱度圖）</h2><div class="note">格子大字＝人次；小字＝比平均多／少幾個百分點。<span style="color:var(--pos);font-weight:600">紅＝偏多</span>、<span style="color:var(--neg);font-weight:600">藍＝偏少</span>、灰＝接近平均。點一列看細節。</div>
+  const hd=!w?hl('','資料不足','這段期間各類樣本太少','請放寬上方日期或篩選。'):(nsig?hl('warn','顯著偏離',`${nsig} 類公差明顯偏某一股；最偏的是「${esc(w.r.t)}」`,v.map(g=>g.n+' '+w.r.o[g.k]).join('、'),'紅格＝該股在此類別高於期望，藍格＝低於期望，灰＝接近。點一列看細節。'):hl('ok','未達顯著偏離','各類公差三股都差不多','沒有哪一類明顯集中在某一股。','紅＝高於期望、藍＝低於期望、灰＝接近。'));
+  let html=hd+`<div class="card"><h2>各類比較（熱度圖）</h2><div class="note">格子大字＝人次；小字＝比平均多／少幾個百分點。<span style="color:var(--pos);font-weight:600">紅＝高於期望</span>、<span style="color:var(--neg);font-weight:600">藍＝低於期望</span>、灰＝接近平均。點一列看細節。</div>
   <div style="overflow:auto;margin-top:8px"><table class="heat"><thead>${head}</thead><tbody>${body}</tbody></table></div></div>`;
   const byT=rs.map(r=>({label:r.t,key:r.t,o:r.o}));
   html+=`<div class="card"><h2>種類比較（占比長條）</h2>${legend()}${chartOrTable(hstack(byT),['種類','快砲','飛彈','軍械'],rs.map(r=>[r.t,r.o.k,r.o.f,r.o.j]))}</div>`;
@@ -488,7 +515,13 @@ function vTypes(rows){
     const perM=ms.map(m=>sums(dr.filter(e=>e.d.slice(0,7)===m)));
     html+=`<div class="card"><h2>${esc(S.drill)}　<button class="btn" data-type="${esc(S.drill)}" style="min-height:36px">取消選取</button></h2>${fairText(o,S.drill,S.drill)}${legend()}<div class="chartwrap">${chartOrTable(colStack(ms,v.map(g=>({g,vals:perM.map(x=>x[g.k])})),{fmt:m=>m.slice(2),rot:ms.length>10,aria:S.drill+'每月'}),['月份',...v.map(g=>g.n)],ms.map((m,i)=>[m,...v.map(g=>perM[i][g.k])]))}</div>
     <h3 style="margin-top:10px">這類公差（最近 8 件）</h3>${evList(dr.slice().reverse().slice(0,8))}</div>`}
-  return html}
+  return html+stdCard(rows)}
+function stdCard(rows){const sm=stdMap();const ts=TYPES.filter(t=>rows.some(e=>e.ty===t));
+  return `<div class="card"><h2>公差工時（類型標準）</h2><div class="note">工時來源順序：手動修正 → 時間欄寫明 → 收工回報 → 類型標準。只有前面都沒有時才套用類型標準（該類寫明時段者的中位數，至少 3 件；可自訂，上限 8 小時）。目前來源：${durMixTxt(rows)}。</div>
+  <div style="overflow:auto;margin-top:6px"><table><thead><tr><th>種類</th><th>寫明筆數</th><th>中位數</th><th>自訂（小時）</th></tr></thead><tbody>${ts.map((t,i)=>`<tr><td>${esc(t)}</td><td style="text-align:center">${sm[t]?sm[t].n:'—'}</td><td style="text-align:center">${sm[t]?sm[t].h.toFixed(1):'—'}</td><td><input class="stdi" data-t="${esc(t)}" type="number" inputmode="decimal" min="0" max="8" step="0.5" value="${STDO[t]||''}" style="width:80px;min-height:40px;font-size:16px"></td></tr>`).join('')}</tbody></table></div>
+  <h3 style="margin-top:10px">關鍵字標準（優先於類型）</h3><div class="note">公差事由或內容含關鍵字（例如「打草」「靶場」）就套用這個工時。可存 3 組。</div>
+  ${(()=>{const ks=Object.keys(STDO).filter(k=>k[0]==='@');while(ks.length<3)ks.push('');return ks.slice(0,3).map(k=>`<div style="display:flex;gap:8px;margin-top:6px"><input class="stdk" type="text" placeholder="關鍵字" value="${esc(k.slice(1))}" style="flex:1;min-height:40px;font-size:16px"><input class="stdkh" type="number" inputmode="decimal" min="0" max="8" step="0.5" placeholder="小時" value="${k?STDO[k]:''}" style="width:80px;min-height:40px;font-size:16px"></div>`).join('')})()}
+  <div style="margin-top:8px"><button class="btn" id="stdsave" style="min-height:44px">儲存自訂標準</button> <span class="note" id="stdmsg"></span></div></div>`}
 function evList(rows,more){return rows.map(e=>`<details class="ev"><summary><div><b>${e.d.slice(2)}</b> ${esc(e.tm||'時間未註明')} <span class="badge">${esc(e.ty)}</span></div><div>${esc(e.p||e.x.slice(0,36))} <span class="nums">${e.u?'<i>未分股</i>':G.map(g=>e[g.k]?`<i><i class="dot" style="background:${g.c}"></i>${e[g.k]}</i>`:'').join('')}</span></div>${e.n?`<div class="note">${G.map(g=>e.n[g.k]?`<span style="color:var(--ink2)"><i class="dot" style="background:${g.c};width:8px;height:8px"></i> ${esc(e.n[g.k].join('、'))}</span>`:'').join('　')}</div>`:''}</summary><div class="raw">${esc(e.x)}</div></details>`).join('')||'<div class="note">沒有符合的公差</div>'}
 function clusters(rows){ // 3-month windows
   const v=vis(),ms=months(S.from,S.to),out=[];const ex=exp();
@@ -510,7 +543,7 @@ function rankCard(P){if(!Object.keys(RANKS).length)return '';
   const cnt={};P.forEach(p=>cnt[p.nm]=(cnt[p.nm]||0)+p.c);const grp={};
   Object.entries(MW).forEach(([nm,m])=>{const g=grp[m.note]||(grp[m.note]={n:0,did:0,t:0,w:m.w,ban:m.ban});g.n++;const c=cnt[nm]||0;g.t+=c;if(c)g.did++});
   const rows=Object.entries(grp).sort((a,b)=>b[1].w-a[1].w||b[1].n-a[1].n);
-  return `<div class="card"><h2>各階級出勤情況</h2><div class="note">用來驗證規則：階級高的人是不是真的比較少出。權重＝計算公平時這類人算幾個人；0＝不納入。</div><div style="overflow:auto;margin-top:6px"><table><thead><tr><th>組別</th><th>人數</th><th>出過</th><th>總次數</th><th>人均</th><th>權重</th></tr></thead><tbody>${rows.map(([k,g])=>`<tr><td>${esc(k)}${g.ban.length?`<br><small class="note">不出：${esc(g.ban.join('、'))}</small>`:''}</td><td>${g.n}</td><td>${g.did}</td><td>${g.t}</td><td>${(g.t/Math.max(1,g.n)).toFixed(1)}</td><td>${g.w}</td></tr>`).join('')}</tbody></table></div></div>`}
+  return `<div class="card"><h2>各階級出勤情況</h2><div class="note">用來驗證規則：階級高的人是不是真的比較少出。權重＝計算期望值時這類人算幾個人；0＝不納入。</div><div style="overflow:auto;margin-top:6px"><table><thead><tr><th>組別</th><th>人數</th><th>出過</th><th>總次數</th><th>人均</th><th>權重</th></tr></thead><tbody>${rows.map(([k,g])=>`<tr><td>${esc(k)}${g.ban.length?`<br><small class="note">不出：${esc(g.ban.join('、'))}</small>`:''}</td><td>${g.n}</td><td>${g.did}</td><td>${g.t}</td><td>${(g.t/Math.max(1,g.n)).toFixed(1)}</td><td>${g.w}</td></tr>`).join('')}</tbody></table></div></div>`}
 /* ---------- 軍械專區 ---------- */
 const WD=['日','一','二','三','四','五','六'];
 function tmSlot(tm){const t=(tm||'').match(/(\d{2}):?(\d{2})/g);if(!t)return '未註明';const hh=x=>+x.replace(':','').slice(0,2)*60+ +x.replace(':','').slice(2);const a=hh(t[0]),b=t.length>1?hh(t[t.length-1]):null;
@@ -562,6 +595,103 @@ function vJx(rows){
     <h3 style="margin-top:10px">星期分布</h3><div class="note">${[1,2,3,4,5,6,0].map(d=>'週'+WD[d]+' '+p.wd[d]).join('　')}</div>
     <h3 style="margin-top:10px">全部紀錄</h3>${evList(p.evs.slice().reverse())}</div>`}}
   return h}
+/* ---------- 負荷與配置：分層期望（小型件各股均等、大型件依比例）＋可用人力 ---------- */
+function ratioShare(){const H=HOVR||RH0;const t=H.k+H.f+H.j||1;return{k:H.k/t,f:H.f/t,j:H.j/t}}
+function chiP(o,ex){const tot=o.k+o.f+o.j;let chi=0;['k','f','j'].forEach(g=>{const E=tot*ex[g];if(E>0)chi+=(o[g]-E)**2/E});return{tot,chi,p:tot>0?Math.exp(-chi/2):1}}
+/* ---------- 實際人力：扣除軍官、聘僱（可勾選）後的比較 ---------- */
+const CATS=[['officer','軍官（校、尉、股長）'],['sgm','士官長'],['sq','班長'],['hire','聘僱（聘、雇）'],['other','其他士官兵']];
+function catOf(rk){if(/校|尉|股長/.test(rk))return'officer';if(/聘|雇/.test(rk))return'hire';if(/士官長/.test(rk))return'sgm';if(/班長/.test(rk))return'sq';return'other'}
+function effCard(rows){
+  if(!Object.keys(RANKS).length)return `<div class="card"><h2>扣除軍官、聘僱後的實際人力</h2><div class="note">名冊尚未帶入階級，無法分類。請到「設定 → 資料同步 → ④ 各股名冊與階級」，把試算表「人員」分頁的 A～C 欄（姓名、股別、階級）貼上並存檔。</div></div>`;
+  const cnt={k:{},f:{},j:{}};G.forEach(g=>CATS.forEach(([c])=>cnt[g.k][c]=0));let unk={k:0,f:0,j:0};
+  ROSTER.forEach(([nm,g])=>{if(!(g in cnt))return;const rk=RANKS[nm];if(!rk){unk[g]++;cnt[g].other++;return}cnt[g][catOf(rk)]++});
+  const elig=nm=>{const m=MW[nm];if(!m||!rows.length)return 1;return rows.filter(e=>!m.ban.includes(e.ty)).length/rows.length};
+  const hw={k:0,f:0,j:0};ROSTER.forEach(([nm,g])=>{if(g in hw&&RANKS[nm]&&catOf(RANKS[nm])==='hire')hw[g]+=elig(nm)});
+  const eff=g=>CATS.reduce((a,[c])=>a+(c==='hire'&&S.ex.hp?hw[g]:(S.ex[c]?0:cnt[g][c])),0);
+  const raw=g=>CATS.reduce((a,[c])=>a+cnt[g][c],0);
+  const E={};G.forEach(g=>E[g.k]=eff(g.k));const Et=E.k+E.f+E.j||1;const Rt=raw('k')+raw('f')+raw('j')||1;
+  const act=sums(rows);const At=act.k+act.f+act.j||1;const rs=ratioShare();
+  const mp=g=>E[g]/Et;
+  const ai=g=>E[g]?(act[g]/At)/mp(g):0;const li=g=>mp(g)?rs[g]/mp(g):0;
+  const hrs=G.map(g=>rows.reduce((a,e)=>{const d=durH(e);return a+(d&&e[g.k]?d*e[g.k]:0)},0));
+  const c=chiP(act,{k:mp('k'),f:mp('f'),j:mp('j')});const pf=p=>p<.001?'<.001':p.toFixed(3);
+  const tg=CATS.map(([c,l])=>`<label style="display:inline-flex;align-items:center;gap:6px;min-height:48px;margin-right:12px"><input type="checkbox" data-ex="${c}" ${S.ex[c]?'checked':''} style="width:22px;height:22px"> ${c==='hire'?'扣除':'扣除'}${esc(l)}</label>`).join('')+`<label style="display:inline-flex;align-items:center;gap:6px;min-height:48px"><input type="checkbox" data-ex="hp" ${S.ex.hp?'checked':''} style="width:22px;height:22px"> 聘僱依可出的公差類型折算（優先於扣除）</label>`;
+  const comp=`<div style="overflow:auto"><table><thead><tr><th>階級組成（人）</th>${G.map(g=>`<th>${g.n}</th>`).join('')}</tr></thead><tbody>${CATS.map(([c,l])=>`<tr><td>${esc(l)}</td>${G.map(g=>`<td style="text-align:center;${S.ex[c]&&!(c==='hire'&&S.ex.hp)?'color:var(--ink3);text-decoration:line-through':''}">${cnt[g.k][c]}${c==='hire'&&S.ex.hp&&cnt[g.k][c]?'→'+hw[g.k].toFixed(1):''}</td>`).join('')}</tr>`).join('')}
+   <tr><td><b>名冊合計</b></td>${G.map(g=>`<td style="text-align:center"><b>${raw(g.k)}</b></td>`).join('')}</tr>
+   <tr><td><b>實際人力（扣除後）</b></td>${G.map(g=>`<td style="text-align:center"><b>${Math.round(E[g.k]*10)/10}</b></td>`).join('')}</tr>
+   <tr><td>實際人力占比<br><small class="note">名冊占比 ${G.map(g=>pct(raw(g.k)/Rt)).join('／')}</small></td>${G.map(g=>`<td style="text-align:center">${pct(mp(g.k))}</td>`).join('')}</tr></tbody></table></div>`;
+  const cmp=`<div style="overflow:auto;margin-top:10px"><table><thead><tr><th>以實際人力計</th>${G.map(g=>`<th>${g.n}</th>`).join('')}</tr></thead><tbody>
+   <tr><td>實際人次</td>${G.map(g=>`<td style="text-align:center">${act[g.k]}</td>`).join('')}</tr>
+   <tr><td>人均人次</td>${G.map(g=>`<td style="text-align:center">${E[g.k]?(act[g.k]/E[g.k]).toFixed(1):'—'}</td>`).join('')}</tr>
+   <tr><td>人均工時</td>${G.map((g,i)=>`<td style="text-align:center">${E[g.k]?(hrs[i]/E[g.k]).toFixed(1):'—'} h</td>`).join('')}</tr>
+   <tr><td>實際人均負荷指數<br><small class="note">實際占比 ÷ 人力占比</small></td>${G.map(g=>`<td style="text-align:center"><b style="color:${Math.abs(ai(g.k)-1)>=.2?'var(--warn)':'inherit'}">${ai(g.k).toFixed(2)}</b></td>`).join('')}</tr>
+   <tr><td>期望人均負荷指數<br><small class="note">配置比例 ÷ 人力占比</small></td>${G.map(g=>`<td style="text-align:center"><b style="color:${Math.abs(li(g.k)-1)>=.2?'var(--warn)':'inherit'}">${li(g.k).toFixed(2)}</b></td>`).join('')}</tr></tbody></table></div>`;
+  const top=G.slice().sort((a,b)=>ai(b.k)-ai(a.k))[0],bot=G.slice().sort((a,b)=>ai(a.k)-ai(b.k))[0];
+  const note=unk.k+unk.f+unk.j?`<div class="note" style="margin-top:6px">有 ${unk.k+unk.f+unk.j} 人名冊沒有階級，暫歸「其他士官兵」。</div>`:'';
+  return `<div class="card"><h2>扣除軍官、聘僱後的實際人力</h2><div class="note">勾選要扣除的類別，重新計算各股實際可派人力，並與實際人次、配置比例比較。以人頭數計（不加權）。</div><div style="margin:6px 0">${tg}</div>${comp}${cmp}
+  <div class="find ${c.p<.05?'':'ok'}" style="margin-top:10px"><b>${c.p<.05?'實際分配與實際人力占比有顯著差異':'實際分配與實際人力占比無顯著差異'}（χ²=${c.chi.toFixed(1)}，p=${pf(c.p)}）</b><div>以實際人力計，人均負荷指數最高為${top.n}（${ai(top.k).toFixed(2)}），最低為${bot.n}（${ai(bot.k).toFixed(2)}）。</div></div>${note}</div>`}
+/* ---------- 長工時公差：哪一股出 ---------- */
+function lgCard(rows){
+  const T=S.lg,pf=p=>p<.001?'<.001':p.toFixed(3);
+  const all=rows.filter(e=>!e.u);const lg=all.filter(e=>{const i=durInfo(e);return i&&i.h>=T&&(!S.lgx||i.src!=='s')});
+  const bt=[3,4,6,8].map(h=>`<button class="btn ${T===h?'on':''}" data-lg="${h}" style="min-height:44px;margin-right:6px">≥${h} 小時</button>`).join('');
+  const tg=`<label style="display:inline-flex;align-items:center;gap:6px;min-height:48px"><input type="checkbox" data-lgx="1" ${S.lgx?'checked':''} style="width:22px;height:22px"> 只計有依據的工時（排除類型標準推估）</label>`;
+  const head=`<div class="card"><h2>長工時公差：由哪一股出</h2><div class="note">把工時達門檻的公差獨立分析，看負擔落在哪一股。人次＝該股派出人數，人時＝人數×工時。</div><div style="margin:6px 0">${bt}</div>${tg}`;
+  if(lg.length<3)return head+`<div class="note" style="margin-top:6px">符合條件的公差只有 ${lg.length} 件，樣本太少，不做檢定。可降低門檻或取消「只計有依據」。</div></div>`;
+  const pp=rs=>{const q={k:0,f:0,j:0};rs.forEach(e=>G.forEach(g=>q[g.k]+=e[g.k]||0));return q};const o=pp(lg),n=o.k+o.f+o.j||1;const hr={k:0,f:0,j:0};lg.forEach(e=>{const h=durH(e);G.forEach(g=>hr[g.k]+=h*(e[g.k]||0))});const ht=hr.k+hr.f+hr.j||1;
+  const m=expMix(lg);const ex={};G.forEach(g=>ex[g.k]=m.T?m.E[g.k]/m.T:1/3);
+  const c=chiP(o,ex);const all0=pp(all),an=all0.k+all0.f+all0.j||1;
+  const nL=G.map(g=>lg.filter(e=>e[g.k]>0).length);
+  const tb=`<div style="overflow:auto;margin-top:8px"><table><thead><tr><th></th>${G.map(g=>`<th>${g.n}</th>`).join('')}</tr></thead><tbody>
+   <tr><td>參與件數</td>${nL.map(x=>`<td style="text-align:center">${x}</td>`).join('')}</tr>
+   <tr><td>人次</td>${G.map(g=>`<td style="text-align:center">${o[g.k]}</td>`).join('')}</tr>
+   <tr><td>人次占比</td>${G.map(g=>`<td style="text-align:center">${pct(o[g.k]/n)}</td>`).join('')}</tr>
+   <tr><td>期望占比<br><small class="note">依人力與可出類型</small></td>${G.map(g=>`<td style="text-align:center">${pct(ex[g.k])}</td>`).join('')}</tr>
+   <tr><td>人時</td>${G.map(g=>`<td style="text-align:center">${hr[g.k].toFixed(1)}</td>`).join('')}</tr>
+   <tr><td>人時占比</td>${G.map(g=>`<td style="text-align:center"><b>${pct(hr[g.k]/ht)}</b></td>`).join('')}</tr>
+   <tr><td>全部公差人次占比<br><small class="note">對照</small></td>${G.map(g=>`<td style="text-align:center">${pct(all0[g.k]/an)}</td>`).join('')}</tr></tbody></table></div>`;
+  const dv=G.slice().sort((a,b)=>(hr[b.k]/ht-ex[b.k])-(hr[a.k]/ht-ex[a.k]))[0];
+  const f=`<div class="find ${c.p<.05?'':'ok'}" style="margin-top:10px"><b>${c.p<.05?'長工時公差的人次分配與期望有顯著差異':'長工時公差的人次分配與期望無顯著差異'}（χ²=${c.chi.toFixed(1)}，p=${pf(c.p)}，n=${c.tot}）</b><div>共 ${lg.length} 件、${ht.toFixed(0)} 人時；人時占比相對期望最高的是${dv.n}（${pct(hr[dv.k]/ht)}，期望人次占比 ${pct(ex[dv.k])}）。</div></div>`;
+  const top=lg.slice().sort((a,b)=>durH(b)-durH(a)||b.d.localeCompare(a.d)).slice(0,8);
+  const tl=top.map(e=>{const i=durInfo(e);return `<div class="note" style="margin-top:4px"><b>${e.d.slice(2)}</b> ${esc(e.ty)}｜${esc((e.p||'').slice(0,18))}｜${i.h.toFixed(1)}h（${DSRC[i.src]}）｜${G.filter(g=>e[g.k]>0).map(g=>g.n+e[g.k]).join(' ')}</div>`}).join('');
+  return head+tb+f+`<h3 style="margin-top:10px">最長的 ${top.length} 件</h3>${tl}</div>`}
+function vLoad(rows){
+  const SM=3,rs=ratioShare(),eq={k:1/3,f:1/3,j:1/3};
+  const small=rows.filter(e=>e.k+e.f+e.j>0&&e.k+e.f+e.j<=SM),large=rows.filter(e=>e.k+e.f+e.j>SM);
+  const sm=sums(small),lg=sums(large);
+  const cs=chiP(sm,eq),cl=chiP(lg,rs);
+  // 分層期望合併
+  const tot={k:sm.k+lg.k,f:sm.f+lg.f,j:sm.j+lg.j};const T=tot.k+tot.f+tot.j;
+  const Es={k:(sm.k+sm.f+sm.j)/3+(lg.k+lg.f+lg.j)*rs.k,f:(sm.k+sm.f+sm.j)/3+(lg.k+lg.f+lg.j)*rs.f,j:(sm.k+sm.f+sm.j)/3+(lg.k+lg.f+lg.j)*rs.j};
+  let chi=0;['k','f','j'].forEach(g=>{if(Es[g]>0)chi+=(tot[g]-Es[g])**2/Es[g]});const pAll=T?Math.exp(-chi/2):1;
+  const pf=p=>p<.001?'<.001':p.toFixed(3);const sg=p=>p<.05?'顯著偏離':'未達顯著偏離';
+  const row=(l,o,ex,c)=>`<tr><td>${l}<br><small class="note">${c.tot} 人次</small></td>${G.map(g=>`<td style="text-align:center"><b>${o[g.k]}</b><br><small class="note">期望 ${(c.tot*ex[g.k]).toFixed(1)}｜${pct(c.tot?o[g.k]/c.tot:0)}</small></td>`).join('')}<td style="text-align:center">${c.tot?c.chi.toFixed(1):'—'}<br><small class="note">p=${c.tot?pf(c.p):'—'}</small></td></tr>`;
+  const strat=`<div style="overflow:auto"><table><thead><tr><th>層別</th>${G.map(g=>`<th>${g.n}</th>`).join('')}<th>χ²</th></tr></thead><tbody>${row('小型件（≤'+SM+' 人次，期望各股均等）',sm,eq,cs)}${row('大型件（>'+SM+' 人次，期望依比例）',lg,rs,cl)}<tr><td><b>合併（分層期望）</b><br><small class="note">${T} 人次</small></td>${G.map(g=>`<td style="text-align:center"><b>${tot[g.k]}</b><br><small class="note">期望 ${Es[g.k].toFixed(1)}</small></td>`).join('')}<td style="text-align:center">${chi.toFixed(1)}<br><small class="note">p=${pf(pAll)}</small></td></tr></tbody></table></div>`;
+  // 可用人力與配置比例
+  const H=RH0,Ht=H.k+H.f+H.j||1;const act=sums(rows);const At=act.k+act.f+act.j||1;
+  const mp={k:H.k/Ht,f:H.f/Ht,j:H.j/Ht};
+  const li=g=>rs[g]/mp[g];                      // 配置比例 ÷ 可用人力占比 ＝ 期望人均負荷指數
+  const ai=g=>(act[g]/At)/mp[g];               // 實際占比 ÷ 可用人力占比 ＝ 實際人均負荷指數
+  const hrs=G.map(g=>rows.reduce((a,e)=>{const d=durH(e);return a+(d&&e[g.k]?d*e[g.k]:0)},0));const hcov=rows.filter(e=>durH(e)).length/(rows.length||1);
+  const mt=`<div style="overflow:auto"><table><thead><tr><th>指標</th>${G.map(g=>`<th>${g.n}</th>`).join('')}</tr></thead><tbody>
+   <tr><td>可用人力（階級加權）</td>${G.map(g=>`<td style="text-align:center">${H[g.k].toFixed(1)}</td>`).join('')}</tr>
+   <tr><td>可用人力占比</td>${G.map(g=>`<td style="text-align:center">${pct(mp[g.k])}</td>`).join('')}</tr>
+   <tr><td>大型件配置比例</td>${G.map(g=>`<td style="text-align:center">${pct(rs[g.k])}</td>`).join('')}</tr>
+   <tr><td>期望人均負荷指數<br><small class="note">配置比例 ÷ 人力占比</small></td>${G.map(g=>`<td style="text-align:center"><b style="color:${Math.abs(li(g.k)-1)>=.2?'var(--warn)':'inherit'}">${li(g.k).toFixed(2)}</b></td>`).join('')}</tr>
+   <tr><td>實際人均負荷指數<br><small class="note">實際占比 ÷ 人力占比</small></td>${G.map(g=>`<td style="text-align:center"><b style="color:${Math.abs(ai(g.k)-1)>=.2?'var(--warn)':'inherit'}">${ai(g.k).toFixed(2)}</b></td>`).join('')}</tr>
+   <tr><td>人均人次</td>${G.map(g=>`<td style="text-align:center">${(act[g.k]/(H[g.k]||1)).toFixed(1)}</td>`).join('')}</tr>
+   <tr><td>人均工時<br><small class="note">工時來源：${durMixTxt(rows)}</small></td>${G.map((g,i)=>`<td style="text-align:center">${(hrs[i]/(H[g.k]||1)).toFixed(1)} h</td>`).join('')}</tr></tbody></table></div>`;
+  const dev=G.slice().sort((a,b)=>Math.abs(li(b.k)-1)-Math.abs(li(a.k)-1))[0];
+  const mism=Math.max(...G.map(g=>Math.abs(li(g.k)-1)))>=.2;
+  // 受限類別的可用人力占比
+  const lim=Object.keys(FR).map(t=>{const w=G.map(g=>H[g.k]*FR[t][g.k]);const s2=w.reduce((a,b)=>a+b,0)||1;return{t,sh:w.map(x=>x/s2),dev:Math.max(...w.map((x,i)=>Math.abs(x/s2-mp[G[i].k])))}}).filter(x=>x.dev>=.03).sort((a,b)=>b.dev-a.dev).slice(0,5);
+  const limH=lim.length?`<h3 style="margin-top:12px">受階級限制的類別（可用人力占比 vs 整體）</h3><div class="note">聘雇人員不可出的類別，會改變各股可用人力占比。</div><div style="overflow:auto"><table><thead><tr><th>類別</th>${G.map(g=>`<th>${g.n}</th>`).join('')}</tr></thead><tbody>${lim.map(x=>`<tr><td>${esc(x.t)}</td>${x.sh.map(v=>`<td style="text-align:center">${pct(v)}</td>`).join('')}</tr>`).join('')}</tbody></table></div>`:'';
+  const hd=hl(mism||cl.p<.05||cs.p<.05?'warn':'ok','負荷與配置',
+    mism?`配置比例與可用人力占比不一致：${dev.n}期望人均負荷指數 ${li(dev.k).toFixed(2)}`:`配置比例與可用人力占比大致吻合（指數 ${G.map(g=>li(g.k).toFixed(2)).join('／')}）`,
+    `小型件：${sg(cs.p)}（p=${pf(cs.p)}）；大型件：${sg(cl.p)}（p=${pf(cl.p)}）；合併分層檢定：${sg(pAll)}（p=${pf(pAll)}）`,
+    '指數＝1 表示該股承擔的負荷與其可用人力占比相稱；大於 1 表示單位人力負荷高於平均，小於 1 表示低於平均。');
+  return hd+`<div class="card"><h2>分層檢定</h2><div class="note">依公差規模分層：${SM} 人次以下視為各股均等輪派，超過者依派遣比例（${HOVR?'已存比例':'名冊可用人力'} ${G.map(g=>g.n+' '+pct(rs[g.k])).join('：')}）。分別檢定，再合併檢定。</div>${strat}</div>
+  <div class="card"><h2>可用人力與配置比例</h2><div class="note">可用人力＝名冊人數依階級規則加權（股長／軍官、士官長等權重較低）。期望人均負荷指數反映「比例本身」是否與人力相稱；實際指數反映實際執行結果。</div>${mt}${limH}</div>${effCard(rows)}${lgCard(rows)}`}
 function vPeople(rows){
   const {P:PA,slots,named}=people(rows);const v=vis();const P=PA.filter(p=>!p.gone),PG=PA.filter(p=>p.gone&&p.c>0);
   const all=PA.slice().sort((a,b)=>b.c-a.c||b.last.localeCompare(a.last));
@@ -599,15 +729,27 @@ function vHot(rows){
 
 /* ---------- 輪替分析 ---------- */
 function oneG(e){const ks=vis().filter(g=>e[g.k]>0);return ks.length===1?ks[0]:null}
-function durH(e){const m=(e.tm||'').match(/(\d{2}):?(\d{2})\s*[-~～至到]\s*(\d{2}):?(\d{2})/);if(!m)return null;const h=(+m[3]*60+ +m[4]-(+m[1]*60+ +m[2]))/60;return h>0&&h<=12?h:null}
+/* 工時來源：m 手動修正 > t 公差時間欄寫明 > c 收工回報推得 > s 該類型標準工時（實測中位數或自訂）。推估者上限 8 小時 */
+const DSRC={m:'手動修正',t:'寫明時段',c:'收工回報',s:'類型標準'};
+function stdMap(){if(STDC)return STDC;const by={};D.concat(DJ).forEach(e=>{const p=Ingest.tmParse(e.tm);if(p&&p.h&&p.src==='t')(by[e.ty]=by[e.ty]||[]).push(p.h)});
+  STDC={};Object.keys(by).forEach(t=>{const a=by[t].sort((x,y)=>x-y);if(a.length>=3)STDC[t]={h:a[a.length>>1],n:a.length}});return STDC}
+function stdKw(e){const t=(e.p||'')+' '+(e.x||'');for(const k of Object.keys(STDO)){if(k[0]==='@'&&STDO[k]>0&&t.includes(k.slice(1)))return Math.min(8,STDO[k])}return null}
+function stdH(ty){if(STDO[ty]>0)return Math.min(8,STDO[ty]);const o=stdMap()[ty];return o?Math.min(8,o.h):null}
+function durInfo(e){const o=DUR[e.id];if(o&&o[1]==='m')return{h:o[0],src:'m'};
+  const p=Ingest.tmParse(e.tm);if(p&&p.h)return{h:p.h,src:'t'};
+  if(o&&o[1]==='c')return{h:Math.min(10,o[0]),src:'c'};
+  const sd=stdKw(e)||stdH(e.ty);return sd?{h:sd,src:'s'}:null}
+function durH(e){const i=durInfo(e);return i?i.h:null}
+function durMix(rows){const c={m:0,t:0,c:0,s:0,n:0};rows.forEach(e=>{const i=durInfo(e);c[i?i.src:'n']++});return c}
+function durMixTxt(rows){const c=durMix(rows),n=rows.length||1;return ['t','m','c','s','n'].filter(k=>c[k]).map(k=>(k==='n'?'無法估算':DSRC[k])+' '+Math.round(c[k]/n*100)+'%').join('／')}
 function devChart(labels,series){const W=Math.max(300,$('#view').clientWidth-30),H=230,m={l:36,r:10,t:10,b:28};
   const all=series.flatMap(q=>q.vals);const mx=Math.max(1,...all.map(Math.abs));const top=Math.ceil(mx/ (mx>20?10:mx>8?5:2))*(mx>20?10:mx>8?5:2);
   const n=labels.length;const x=i=>m.l+(n<=1?(W-m.l-m.r)/2:i/(n-1)*(W-m.l-m.r));const y=v=>m.t+(1-(v+top)/(2*top))*(H-m.t-m.b);
-  let s=`<svg viewBox="0 0 ${W} ${H}" width="100%" role="img" aria-label="累計欠班曲線">`;
+  let s=`<svg viewBox="0 0 ${W} ${H}" width="100%" role="img" aria-label="累計偏差曲線">`;
   [-top,-top/2,0,top/2,top].forEach(t=>s+=`<line class="grid" x1="${m.l}" x2="${W-m.r}" y1="${y(t)}" y2="${y(t)}" ${t===0?'style="stroke:var(--ink3)"':''}/><text x="${m.l-4}" y="${y(t)+4}" text-anchor="end">${Math.round(t*10)/10}</text>`);
   const every=Math.ceil(n/Math.max(2,Math.floor((W-m.l)/46)));labels.forEach((lb,i)=>{if(i%every===0)s+=`<text x="${x(i)}" y="${H-8}" text-anchor="middle">${esc(lb.slice(2))}</text>`});
   series.forEach(q=>{s+=`<path d="${q.vals.map((v,i)=>(i?'L':'M')+x(i).toFixed(1)+' '+y(v).toFixed(1)).join('')}" fill="none" stroke="${q.g.c}" stroke-width="2.5" stroke-linejoin="round" stroke-linecap="round"/>`;
-    q.vals.forEach((v,i)=>s+=`<circle cx="${x(i)}" cy="${y(v)}" r="9" fill="transparent" data-tip="${esc(labels[i])}<br>${q.g.n}：${v>0?'多扛':'少扛'} ${Math.abs(v).toFixed(1)} 次"/>`)});
+    q.vals.forEach((v,i)=>s+=`<circle cx="${x(i)}" cy="${y(v)}" r="9" fill="transparent" data-tip="${esc(labels[i])}<br>${q.g.n}：${v>0?'高於期望':'低於期望'} ${Math.abs(v).toFixed(1)} 次"/>`)});
   return s+'</svg>'}
 function vRot(rows){
   const v=vis(),sel=S.rt&&TYPES.includes(S.rt)?S.rt:'';
@@ -621,7 +763,7 @@ function vRot(rows){
   const er=v.reduce((a,g)=>a+(E[g.k]/n)**2,0);const rr=rep/(n-1);const z=(rep-(n-1)*er)/Math.sqrt((n-1)*er*(1-er)||1);
   const last=seq[n-1].g;const debt=v.map(g=>({g,d:E[g.k]-A[g.k]})).sort((a,b)=>b.d-a.d);const nxt=debt[0];
   const kind=z<-1.64?'ok':z>1.64?'warn':'';const tag=z<-1.64?'有在輪流':z>1.64?'沒在輪流':'看不出規律';
-  const hd=hl(kind,tag,`連續同一股的比例 ${pct(rr)}（亂抽約 ${pct(er)}）`,`最近一次是${last.n}。依累計欠班，下一個最該輪到「${nxt.g.n}」${nxt.d>=.5?`（少扛 ${nxt.d.toFixed(1)} 次）`:'（目前差不多）'}`,'只由一股出人的公差，若真的輪流，同一股不該連續出現。欠班＝依人數應該扛的次數，減去實際扛的次數。');
+  const hd=hl(kind,tag,`連續同一股的比例 ${pct(rr)}（亂抽約 ${pct(er)}）`,`最近一次是${last.n}。依累計欠班，下一個最該輪到「${nxt.g.n}」${nxt.d>=.5?`（低於期望 ${nxt.d.toFixed(1)} 次）`:'（目前差不多）'}`,'只由一股出人的公差，若真的輪流，同一股不該連續出現。累計偏差＝實際次數減期望次數（期望依人數與階級權重計算）。');
   const tl=seq.slice(-60).map(x=>`<i class="sq" style="background:${x.g.c}" data-tip="${esc(x.e.d)}<br>${esc(x.e.ty)}<br>${x.g.n}"></i>`).join('');
   const trs=v.map(a=>{const tot=v.reduce((q,b)=>q+T[a.k][b.k],0);return `<tr><td><i class="dot" style="background:${a.c}"></i> ${a.n}</td>${v.map(b=>{const c=T[a.k][b.k];const sh=tot?c/tot:0;const d=sh-E[b.k]/n;return `<td class="c" style="background:${heatColor(d)};text-align:center" data-tip="上一件${a.n}→下一件${b.n}：${c} 次（${pct(sh)}）">${c}<br><small>${pct(sh)}</small></td>`}).join('')}</tr>`}).join('');
   const ms=months(evs[0].d.slice(0,7)+'-01',evs[evs.length-1].d);const cum={};v.forEach(g=>cum[g.k]=0);
@@ -633,9 +775,9 @@ function vRot(rows){
   const {P}=people(rows);const dense=P.map(p=>{const ds=p.evs.map(e=>e.d).sort();let best=0,cnt=0;for(let i=0;i<ds.length;i++){let j=i;while(j+1<ds.length&&daysBetween(ds[i],ds[j+1])<=7)j++;if(j-i+1>cnt){cnt=j-i+1;best=i}}return{p,cnt,from:ds[best]}}).filter(x=>x.cnt>=3).sort((a,b)=>b.cnt-a.cnt).slice(0,8);
   return hd+`<div class="card"><h2>輪替分析</h2>${bar}<div class="note">只看「這一件只由一股出人」的公差，共 ${n} 件。</div></div>
   <div class="card"><h3>順序（最近 ${Math.min(60,n)} 件，左→右由舊到新）</h3>${legend()}<div>${tl}</div></div>
-  <div class="card"><h3>上一件 → 下一件（看有沒有「換股」）</h3><div class="note">若真的輪流，對角線（同一股接同一股）應該偏少。紅＝比平均多、藍＝比平均少。</div><div style="overflow:auto;margin-top:6px"><table class="heat"><thead><tr><th>上一件＼下一件</th>${v.map(b=>`<th style="text-align:center">${b.n}</th>`).join('')}</tr></thead><tbody>${trs}</tbody></table></div></div>
-  <div class="card"><h3>累計欠班曲線（越高＝累計多扛，越低＝累計少扛）</h3><div class="note">依各股人數與階級計算「應該扛的次數」，曲線在 0 附近＝公平；一直往下的股，就是被占便宜的那一股的對照。</div>${legend()}<div class="chartwrap">${devChart(ms,series)}</div></div>
-  <div class="card"><h3>人時負擔（人數 × 時數）</h3><div class="note">有寫時段（例如 0900-1030）的公差才能算時數：${withD}／${tot} 件。</div><div style="overflow:auto;margin-top:6px"><table><thead><tr><th>股</th><th>人次</th><th>人時</th><th>人時占比</th><th>平均每人次</th></tr></thead><tbody>${v.map(g=>`<tr><td><i class="dot" style="background:${g.c}"></i> ${g.n}</td><td>${C[g.k]}</td><td>${H[g.k].toFixed(1)}</td><td>${Ht?pct(H[g.k]/Ht):'—'}</td><td>${C[g.k]?(H[g.k]/C[g.k]).toFixed(1)+' 小時':'—'}</td></tr>`).join('')}</tbody></table></div></div>
+  <div class="card"><h3>上一件 → 下一件（看有沒有「換股」）</h3><div class="note">若真的輪流，對角線（同一股接同一股）預期偏低。紅＝高於期望、藍＝低於期望。</div><div style="overflow:auto;margin-top:6px"><table class="heat"><thead><tr><th>上一件＼下一件</th>${v.map(b=>`<th style="text-align:center">${b.n}</th>`).join('')}</tr></thead><tbody>${trs}</tbody></table></div></div>
+  <div class="card"><h3>累計偏差曲線（越高＝累計高於期望，越低＝累計低於期望）</h3><div class="note">依各股人數與階級計算「期望次數」，曲線在 0 附近＝與期望一致；持續下降的股，代表長期低於期望便宜的那一股的對照。</div>${legend()}<div class="chartwrap">${devChart(ms,series)}</div></div>
+  <div class="card"><h3>人時配置量（人數 × 時數）</h3><div class="note">能估算時數 ${withD}／${tot} 件；來源：${durMixTxt(rows)}。推估（收工回報、類型標準）單件上限 8～10 小時。</div><div style="overflow:auto;margin-top:6px"><table><thead><tr><th>股</th><th>人次</th><th>人時</th><th>人時占比</th><th>平均每人次</th></tr></thead><tbody>${v.map(g=>`<tr><td><i class="dot" style="background:${g.c}"></i> ${g.n}</td><td>${C[g.k]}</td><td>${H[g.k].toFixed(1)}</td><td>${Ht?pct(H[g.k]/Ht):'—'}</td><td>${C[g.k]?(H[g.k]/C[g.k]).toFixed(1)+' 小時':'—'}</td></tr>`).join('')}</tbody></table></div></div>
   <div class="card"><h3>短期內重複出勤（7 天內出 3 次以上）</h3>${dense.length?dense.map(x=>`<div class="find" data-person="${esc(x.p.key)}" tabindex="0" role="button"><b><i class="dot" style="background:${x.p.g.c}"></i> ${esc(x.p.nm)}（${x.p.g.n}）</b><div>${x.from.slice(2)} 起 7 天內出了 ${x.cnt} 次</div></div>`).join(''):'<div class="note">沒有人在 7 天內出到 3 次以上。</div>'}</div>`}
 
 /* ---------- 預測 ---------- */
@@ -654,10 +796,10 @@ function vFc(){
   const rows2=TYPES.map(t=>{const a=est(t,cmn),b=est(t,nmn);const so=D.filter(x=>x.ty===t&&x.d.slice(0,7)===cur&&x.d<=ANCHOR).length;return{t,a,b,so,idx:a.base>0&&a.ny?mean(a.same)/a.base:null}}).filter(r=>r.a.base>0||r.b.base>0).sort((x,y)=>y.a.e-x.a.e);
   const top=rows2[0];const hot=rows2.filter(r=>r.idx!=null&&r.idx>=1.4&&mean(r.a.same)>=1).sort((x,y)=>y.idx-x.idx)[0];
   const rng=e=>{const d=1.28*Math.sqrt(Math.max(e,.01));return `${Math.max(0,Math.round(e-d))}～${Math.round(e+d)}`};
-  const hd=hl('','預測',`${cmn} 月預估最常見的公差：「${esc(top.t)}」約 ${Math.round(top.a.e)} 件（可能 ${rng(top.a.e)}）`,hot?`同月歷史偏多：「${esc(hot.t)}」平常的 ${hot.idx.toFixed(1)} 倍`:'沒有哪一類在這個月特別突出。',`依「過去同月份」和「最近 3 個月」兩者加權估算。歷史只有約 ${Math.round(all.length/12*10)/10} 年，季節性只能參考。`);
+  const hd=hl('','預測',`${cmn} 月預估最常見的公差：「${esc(top.t)}」約 ${Math.round(top.a.e)} 件（可能 ${rng(top.a.e)}）`,hot?`同月歷史高於期望：「${esc(hot.t)}」平常的 ${hot.idx.toFixed(1)} 倍`:'沒有哪一類在這個月特別突出。',`依「過去同月份」和「最近 3 個月」兩者加權估算。歷史只有約 ${Math.round(all.length/12*10)/10} 年，季節性只能參考。`);
   const monthAvg=Array.from({length:12},(_,i)=>{const ms=all.filter(m=>+m.slice(5,7)===i+1);return{n:ms.length,a:mean(ms.map(m=>tot[m]||0))}});const mx=Math.max(1,...monthAvg.map(x=>x.a));
   const bars=`<div style="display:grid;grid-template-columns:repeat(12,1fr);gap:4px;align-items:end;height:110px">${monthAvg.map((x,i)=>`<div style="text-align:center;font-size:11px;color:var(--ink2)" data-tip="${i+1} 月：平均 ${x.a.toFixed(1)} 件（${x.n} 年資料）"><div style="height:${x.n?Math.max(3,x.a/mx*80):2}px;background:${i+1===cmn?'var(--ink)':'var(--ink3)'};opacity:${x.n?1:.25};border-radius:3px 3px 0 0"></div>${i+1}</div>`).join('')}</div>`;
-  const tr=rows2.slice(0,8).map(r=>`<tr><td>${esc(r.t)}</td><td>${r.so}</td><td><b>${r.a.e.toFixed(1)}</b><br><small class="note">${rng(r.a.e)}</small></td><td>${r.a.ny?mean(r.a.same).toFixed(1)+'<br><small class="note">'+r.a.ny+' 年</small>':'—'}</td><td>${r.idx==null?'—':(r.idx>=1.4?'<span class="pill warn">偏多 ':r.idx<=.6?'<span class="pill ok">偏少 ':'<span class="badge">')+'×'+r.idx.toFixed(1)+'</span>'}</td><td>${r.b.e.toFixed(1)}</td></tr>`).join('');
+  const tr=rows2.slice(0,8).map(r=>`<tr><td>${esc(r.t)}</td><td>${r.so}</td><td><b>${r.a.e.toFixed(1)}</b><br><small class="note">${rng(r.a.e)}</small></td><td>${r.a.ny?mean(r.a.same).toFixed(1)+'<br><small class="note">'+r.a.ny+' 年</small>':'—'}</td><td>${r.idx==null?'—':(r.idx>=1.4?'<span class="pill warn">高於期望 ':r.idx<=.6?'<span class="pill ok">低於期望 ':'<span class="badge">')+'×'+r.idx.toFixed(1)+'</span>'}</td><td>${r.b.e.toFixed(1)}</td></tr>`).join('');
   const past=[];all.concat([]).forEach(()=>{});const yrs=[...new Set(all.filter(m=>+m.slice(5,7)===cmn).map(m=>m.slice(0,4)))];
   const pastHtml=yrs.map(y=>{const ev=D.filter(e=>e.d.slice(0,7)===y+'-'+String(cmn).padStart(2,'0'));const by={};ev.forEach(e=>{const k=e.p||e.ty;by[k]=(by[k]||0)+1});return `<div style="margin:8px 0"><b>${y} 年 ${cmn} 月</b>（共 ${ev.length} 件）<div class="note" style="margin-top:3px">${Object.entries(by).sort((a,b)=>b[1]-a[1]).slice(0,10).map(([k,n])=>esc(k)+(n>1?'×'+n:'')).join('、')||'無'}</div></div>`}).join('');
   const per=TYPES.map(t=>{const ds=D.filter(e=>e.ty===t).map(e=>e.d).sort();if(ds.length<5)return null;const gaps=[];for(let i=1;i<ds.length;i++){const g=daysBetween(ds[i-1],ds[i]);if(g>0)gaps.push(g)}if(gaps.length<4)return null;const md=median(gaps);const last=ds[ds.length-1];const since=daysBetween(last,ANCHOR);return{t,md,last,since,next:addD(last,Math.round(md)),n:ds.length}}).filter(Boolean).sort((a,b)=>(b.since/b.md)-(a.since/a.md));
@@ -697,7 +839,13 @@ function vlPaint(){const el=document.getElementById('vl');if(!el)return;const rr
   for(let i=a;i<Math.min(b,rr.length);i++){const e=rr[i];h+=`<div class="vr" role="listitem" tabindex="0" data-ev="${i}" style="top:${i*VH}px"><div class="l"><div class="l1"><b>${e.d.slice(2)}</b> ${esc(e.tm||'')} <span class="badge">${esc(e.ty)}</span></div><div class="l2">${esc(e.p||e.x.slice(0,30))}</div></div><div class="r">${e.u?'<span class="note">未分股</span>':G.map(g=>e[g.k]?`<span><i class="dot" style="background:${g.c}"></i>${e[g.k]}</span>`:'').join('')}</div></div>`}
   el.innerHTML=h;const f=document.getElementById('vlf');if(f)f.textContent=VL.n<rr.length?`已載入 ${VL.n} / ${rr.length}　繼續下滑自動載入…`:`已顯示全部 ${rr.length} 件`}
 function evSheet(e){const names=e.n?G.map(g=>e.n[g.k]?`<div><i class="dot" style="background:${g.c}"></i> <b>${g.n}</b> ${esc(e.n[g.k].join('、'))}</div>`:'').join(''):'';
-  openSheet(e.d.slice(2)+' '+(e.tm||''),`<div style="margin-bottom:8px"><span class="badge">${esc(e.ty)}</span> ${esc(e.p||'')}</div><div class="nums" style="font-size:16px;margin-bottom:8px">${e.u?'未分股':G.map(g=>`<span style="margin-right:12px"><i class="dot" style="background:${g.c}"></i>${g.n} ${e[g.k]||0} 人</span>`).join('')}</div>${names?`<div class="note" style="line-height:1.9;margin-bottom:8px">${names}</div>`:''}<div class="raw">${esc(e.x)}</div>`)}
+  openSheet(e.d.slice(2)+' '+(e.tm||''),`<div style="margin-bottom:8px"><span class="badge">${esc(e.ty)}</span> ${esc(e.p||'')}</div><div class="nums" style="font-size:16px;margin-bottom:8px">${e.u?'未分股':G.map(g=>`<span style="margin-right:12px"><i class="dot" style="background:${g.c}"></i>${g.n} ${e[g.k]||0} 人</span>`).join('')}</div>${names?`<div class="note" style="line-height:1.9;margin-bottom:8px">${names}</div>`:''}${durEd(e)}<div class="raw">${esc(e.x)}</div>`);wireDur(e)}
+function durEd(e){const i=durInfo(e);const lab=i?`${i.h.toFixed(1).replace(/\.0$/,'')} 小時（${DSRC[i.src]}${i.src==='t'?'':'，推估'}）`:'無法估算';
+  return `<div class="card" style="margin:8px 0"><b>工時</b>：${lab}<div style="display:flex;gap:8px;align-items:center;margin-top:8px"><input id="dh" type="number" inputmode="decimal" min="0" max="24" step="0.5" placeholder="手動輸入小時" style="flex:1;min-height:44px;font-size:16px" value="${DUR[e.id]&&DUR[e.id][1]==='m'?DUR[e.id][0]:''}"><button class="btn" id="dhs" style="min-height:44px">儲存</button><button class="btn" id="dhc" style="min-height:44px">清除</button></div><div class="note" id="dhm">手動修正優先於其他來源，會存在試算表設定。</div></div>`}
+async function saveDur(){if(DB.mode==='remote')await apiPost('setting',{name:'dur',value:JSON.stringify(DUR)})}
+function wireDur(e){const m=$('#dhm');if(!m)return;
+  $('#dhs').onclick=async()=>{const v=parseFloat($('#dh').value);if(!(v>0&&v<=24)){m.textContent='請輸入 0～24 之間的小時數';return}DUR[e.id]=[Math.round(v*10)/10,'m'];try{await saveDur();m.textContent='已儲存';closeSheet();render()}catch(er){m.textContent='存檔失敗：'+er.message}};
+  $('#dhc').onclick=async()=>{if(DUR[e.id]&&DUR[e.id][1]==='m')delete DUR[e.id];try{await saveDur();m.textContent='已清除';closeSheet();render()}catch(er){m.textContent='存檔失敗：'+er.message}}}
 let vlRaf=0;addEventListener('scroll',()=>{if(S.tab!=='list'||vlRaf)return;vlRaf=requestAnimationFrame(()=>{vlRaf=0;vlPaint()})},{passive:true});
 addEventListener('resize',()=>{const el=document.getElementById('vl');if(el){el.dataset.k='';vlPaint()}});
 
@@ -705,7 +853,7 @@ function render(keepFocus){
   syncControls();renderNav();const rows=filt(S.from,S.to);
   $('#sub').textContent=`${rows.length} 件符合｜資料 ${D.length?MIN.slice(0,7)+' ～ '+MAX.slice(0,7):'尚無'}｜${DB.mode==='remote'?'已連線':'預覽'}`;
   const v=$('#view');let h='';
-  if(S.tab==='overview')h=vOverview(rows);else if(S.tab==='trend')h=vTrend(rows);else if(S.tab==='types')h=vTypes(rows);else if(S.tab==='ppl')h=vPeople(rows);else if(S.tab==='jx')h=vJx(rows.concat(filtJ(S.from,S.to)));else if(S.tab==='hot')h=vHot(rows);else if(S.tab==='rot')h=vRot(rows);else if(S.tab==='fc')h=vFc();else if(S.tab==='cmp')h=vCmp();else if(S.tab==='sync')h=vSync();else h=vList(rows);
+  if(S.tab==='overview')h=vOverview(rows);else if(S.tab==='trend')h=vTrend(rows);else if(S.tab==='types')h=vTypes(rows);else if(S.tab==='ppl')h=vPeople(rows);else if(S.tab==='load')h=vLoad(rows);else if(S.tab==='jx')h=vJx(rows.concat(filtJ(S.from,S.to)));else if(S.tab==='hot')h=vHot(rows);else if(S.tab==='rot')h=vRot(rows);else if(S.tab==='fc')h=vFc();else if(S.tab==='cmp')h=vCmp();else if(S.tab==='sync')h=vSync();else h=vList(rows);
   const y=scrollY;v.innerHTML=h;if(keepFocus)scrollTo(0,y);
   ['aF','aT','bF','bT'].forEach(id=>{const el=$('#'+id);if(el)el.onchange=e=>{S.cmp[id]=e.target.value;render()}});
   if(S.tab==='sync')wireSync();
@@ -885,7 +1033,8 @@ function nameFromOwn(pool,msgs,roster,g){
   // 匯出檔看不到「引用回覆」原文，所以用：1) 一則訊息內的 1./2. 項目各自歸名；2) 短回覆（「打掃兩員 @A @B」）依關鍵字或缺額，補到最近幾則公差
   const RO=rosterMaps(roster.filter(r=>r[1]===g||r[1]==='x'));const ms=t=>new Date(t.replace(' ','T')+':00').getTime();
   const full=s=>{s=s.replace(/^軍電廠-|^[快飛軍]\S{1,2}股-/,'');return RO[s]?RO[s][0]:null};
-  const grab=(b,out)=>{(b.match(/@~?[^\s@：:，,、]+/g)||[]).forEach(t=>{const n=full(t.replace(/^@~?/,''));if(n&&!out.includes(n))out.push(n)});return out};
+  const unk={};
+  const grab=(b,out)=>{(b.match(/@~?[^\s@：:，,、]+/g)||[]).forEach(t=>{const raw=t.replace(/^@~?/,'');const n=full(raw);if(n){if(!out.includes(n))out.push(n)}else if(/^[\u4e00-\u9fff]{2,4}$/.test(raw))unk[raw]=(unk[raw]||0)+1});return out};
   const items=[];
   msgs.forEach((m,i)=>{
     if(!/日期[：:]/.test(m.body))return;
@@ -908,8 +1057,46 @@ function nameFromOwn(pool,msgs,roster,g){
     const t=c[0].x,nd=t.u?nm.length:t[g];
     if(nm.length>Math.max(nd,1)){unm.push({d:e.d,p:e.p,names:nm,why:'人名多於人數'});return}
     res.push({ev:t,names:nm})});
-  return{res,unm}}
-return{parseChat,extractEvents,pairNames,classify,parseNames,rosterMaps,ownGroup,nameFromOwn}
+  return{res,unm,unk}}
+
+/* ---------- 工時：解析公差時間欄 ---------- */
+// 回傳 {s,e,h,src}：寫明起訖 → h；只寫起點 → 只有 s；只有上午／下午／全天等字樣 → 以約定時段換算
+function tmParse(tm){
+  const t=String(tm||'').replace(/[：]/g,':').replace(/\s+/g,'');if(!t)return null;
+  const mn=(h,m)=>(+h)*60+(+m||0);
+  let m=t.match(/(\d{1,2}):?(\d{2})(?:時|點)?[-~～至到]+(?:次日)?(\d{1,2}):?(\d{2})/);
+  if(m){const s=mn(m[1],m[2]),e=mn(m[3],m[4]);if(s<1440&&e>s&&e-s<=720)return{s,e,h:(e-s)/60,src:'t'};return null}
+  m=t.match(/(\d{1,2})[點時:](\d{2})?分?(?:起)?[-~～至到]+(\d{1,2})[點時:]?(\d{2})?/);
+  if(m){const s=mn(m[1],m[2]),e=mn(m[3],m[4]);if(e>s&&e-s<=720)return{s,e,h:(e-s)/60,src:'t'}}
+  if(/全天|整天|一整天|全日/.test(t))return{s:480,e:960,h:8,src:'t'};
+  if(/半天/.test(t))return{h:4,src:'t'};
+  if(/上午|早上/.test(t))return{s:480,e:720,h:4,src:'t'};
+  if(/下午/.test(t))return{s:780,e:1020,h:4,src:'t'};
+  m=t.match(/^(\d{1,2})-(\d{1,2})$/);if(m&&+m[2]>+m[1]&&+m[2]<=24&&+m[2]-+m[1]<=12)return{s:+m[1]*60,e:+m[2]*60,h:+m[2]-+m[1],src:'t'};
+  m=t.match(/^(\d{2}):?(\d{2})(?!\d)/)||t.match(/^(\d{1,2})[點時](\d{2})?分?(?:起|開始)?$/);
+  if(m){const s=mn(m[1],m[2]);if(s<1440)return{s}}
+  return null}
+/* ---------- 工時：用「收工／完成」回報訊息推結束時間 ---------- */
+// 條件：公差只寫了起點；同一天、起點之後 16 小時內、非派工訊息、短訊息含完成字樣，
+// 且（提到公差事由的連續兩字，或該日只有這一件公差）。回傳 {id:小時}
+function completionEnds(evs,msgs){
+  const out={},ms=t=>new Date(t.replace(' ','T')+':00').getTime();
+  const done=/(完成|收工|結束|完畢|歸建|已回)/;
+  evs.forEach(e=>{
+    if(!e.id)return;const p=tmParse(e.tm);if(!p||p.h||p.s==null)return;
+    const t0=ms(e.m),only=!evs.some(x=>x!==e&&x.d===e.d);
+    const terms=(e.p||'').replace(/[^一-龥A-Za-z0-9]/g,'');
+    for(const m of msgs){
+      if(m.dt<=e.m)continue;if(ms(m.dt)-t0>16*3600e3)break;
+      if(m.dt.slice(0,10)!==e.d||isDispatch(m))continue;
+      const b=m.body;if(b.length>80||!done.test(b))continue;
+      let hit=false;for(let i=0;i+2<=terms.length;i++)if(b.includes(terms.slice(i,i+2))){hit=true;break}
+      if(!(hit||only))continue;
+      const em=+m.dt.slice(11,13)*60+ +m.dt.slice(14,16),h=(em-p.s)/60;
+      if(h>0&&h<=10)out[e.id]=Math.round(h*10)/10;
+      break}});
+  return out}
+return{parseChat,extractEvents,pairNames,classify,parseNames,rosterMaps,ownGroup,nameFromOwn,tmParse,completionEnds}
 })();
 if(typeof module!=='undefined')module.exports=Ingest;
 
@@ -937,6 +1124,9 @@ async function loadRemote(pwOverride){const c=cfgLoad();const pw=pwOverride!=nul
   const r=await fetch(u);const j=await r.json();if(!j.ok){const e=new Error(j.error||'讀取失敗');e.auth=j.auth===false;throw e}
   DB.mode='remote';DB.lastMsg=(j.settings&&j.settings.lastMsg)||'';DB.at=new Date().toLocaleString('zh-TW');
   try{RANKS=JSON.parse((j.settings&&j.settings.ranks)||'{}')||{}}catch(e){RANKS={}}
+  try{DUR=JSON.parse((j.settings&&j.settings.dur)||'{}')||{}}catch(e){DUR={}}
+  try{STDO=JSON.parse((j.settings&&j.settings.std)||'{}')||{}}catch(e){STDO={}}
+  try{const hh=JSON.parse((j.settings&&j.settings.heads)||'null');HOVR=hh&&hh.k>0&&hh.f>0&&hh.j>0?{k:+hh.k,f:+hh.f,j:+hh.j}:null}catch(e){HOVR=null}
   try{const rr=JSON.parse((j.settings&&j.settings.rules)||'null');RULES=Array.isArray(rr)&&rr.length?rr:DEFAULT_RULES}catch(e){RULES=DEFAULT_RULES}
   const ros=(j.roster||[]).map(r=>[r[0],GR[r[1]]||r[1]]);
   setAll((j.events||[]).map(fromRow).map(normEv),ros);return j}
@@ -966,10 +1156,13 @@ async function reloadAll(keepRange){const f=S.from,t=S.to,wasAll=(S.from===MIN&&
   S.heads={...RHEAD};buildControls();['k','f','j'].forEach(k=>{$('#h_'+k).value=RHEAD[k]});render()}
 
 /* ---------- 上傳群組檔 → 增量同步 ---------- */
+let OWNUNK=null;
+function unkCard(){const u=OWNUNK;return `<div class="card"><h2>名冊找不到的人</h2><div class="note">這些人在${GN[u.g]}群組被 @ 過，但不在名冊。多半是已調差或退伍的人，過去出的公差因此沒算到。勾選後按「加入名冊」，會標成「已離開」，歷史公差算回${GN[u.g]}的人力。其他股的班長、承辦人不要勾。</div><div style="margin-top:6px">${u.list.map(([n,c])=>`<label style="display:inline-flex;align-items:center;gap:6px;min-height:48px;margin:2px 10px 2px 0"><input type="checkbox" class="unkc" value="${esc(n)}" style="width:22px;height:22px"> ${esc(n)} <small class="note">${c} 次</small></label>`).join('')}</div><button class="btn primary" id="unkAdd" style="width:100%;margin-top:8px">加入名冊（標為已離開）</button></div>`}
 async function doOwn(text,g){
   const st=$('#syncMsg');const say=t=>{if(st)st.textContent=t};
   const roster=ROSTER.map(r=>[r[0],r[1]]);const msgs=Ingest.parseChat(text);
-  const {res,unm}=Ingest.nameFromOwn(ALL,msgs,roster,g);
+  const {res,unm,unk}=Ingest.nameFromOwn(ALL,msgs,roster,g);
+  OWNUNK={text,g,list:Object.entries(unk).filter(x=>x[1]>=3).sort((a,b)=>b[1]-a[1]).slice(0,24)};
   const byId=new Map();res.forEach(r=>byId.set(r.ev.id,r));   // 同一件被配到兩次時以較晚的為準
   const up=[];[...byId.values()].forEach(({ev,names})=>{const cur=(ev.n&&ev.n[g])||[];if(cur.slice().sort().join()===names.slice().sort().join())return;ev.n=Object.assign({},ev.n,{[g]:names});const r=toRow(ev);up.push({id:ev.id,nk:r.nk,nf:r.nf,nj:r.nj})});
   // 對不到武系課公差的 = 直接私訊給本股的急件：記成「直派」，只算本股專區，不算三股比較
@@ -980,6 +1173,12 @@ async function doOwn(text,g){
   const sum=`${nm}自己群組：對到武系課公差 ${[...byId.values()].filter(r=>r.ev.st!=='直派').length} 件，更新人名 ${up.length} 件；另新增 ${add.length} 件「${nm}直派」公差（沒經武系課，只算${nm}專區）；${left} 件人名比人數多，沒有動它。`;
   if(DB.mode==='remote'){try{say('寫入試算表中…');if(add.length)await apiPost('add',{events:add.map(toRow)});if(up.length)await apiPost('updateNames',{items:up});await reloadAll(true);const s2=$('#syncMsg');if(s2)s2.textContent='完成。'+sum}catch(e){say('寫入失敗：'+e.message)}}
   else{setAll(ALL.concat(add),ROSTER);render();const s2=$('#syncMsg');if(s2)s2.textContent='（預覽模式，未保存）'+sum}}
+// 用收工／完成回報訊息推得的工時（公差只寫起點者），存進設定 dur；手動修正的不覆蓋
+async function applyEnds(evs,msgs){
+  const ce=Ingest.completionEnds(evs.filter(e=>e.st!=='刪除'),msgs);let n=0;
+  Object.entries(ce).forEach(([id,h])=>{const o=DUR[id];if(o&&o[1]==='m')return;if(o&&o[1]==='c'&&o[0]===h)return;DUR[id]=[h,'c'];n++});
+  if(n&&DB.mode==='remote')await apiPost('setting',{name:'dur',value:JSON.stringify(DUR)});
+  return n}
 async function doSync(text,full,dm){
   const st=$('#syncMsg');const say=t=>{if(st)st.textContent=t};
   const roster=ROSTER.map(r=>[r[0],r[1]]);
@@ -998,19 +1197,21 @@ async function doSync(text,full,dm){
   const before=new Map(oldPool.map(e=>[e.id,JSON.stringify(e.n||{})]));
   const matched=Ingest.pairNames(oldPool.concat(evs),msgs,roster,{after:cut});
   const nameUp=oldPool.filter(e=>JSON.stringify(e.n||{})!==before.get(e.id)).map(e=>{const r=toRow(e);return{id:e.id,nk:r.nk,nf:r.nf,nj:r.nj}});
-  let nInf=0;const unk=evs.filter(e=>e.u).length;
-  const sum=dm?`補件檔（不是武系課群組）：新增 ${evs.length} 件原本沒有的公差（${unk} 件抓不到股別，請到下方審核）；姓名配對 ${matched} 筆；原「直派」轉正 ${conv.length} 件。`:`新訊息 ${newMsgs.length} 則 → 新公差 ${evs.length} 件（${unk} 件抓不到股別，請到下方審核）；姓名配對 ${matched} 筆；補上名字 ${nameUp.length} 件。`;const sumF=()=>sum+(nInf?`　另有 ${nInf} 件依班長回覆的人名補上人數。`:'');
+  let nInf=0,nEnd=0;const unk=evs.filter(e=>e.u).length;
+  const sum=dm?`補件檔（不是武系課群組）：新增 ${evs.length} 件原本沒有的公差（${unk} 件抓不到股別，請到下方審核）；姓名配對 ${matched} 筆；原「直派」轉正 ${conv.length} 件。`:`新訊息 ${newMsgs.length} 則 → 新公差 ${evs.length} 件（${unk} 件抓不到股別，請到下方審核）；姓名配對 ${matched} 筆；補上名字 ${nameUp.length} 件。`;const sumF=()=>sum+(nInf?`　另有 ${nInf} 件依班長回覆的人名補上人數。`:'')+(nEnd?`　${nEnd} 件依收工回報推得工時。`:'');
   if(DB.mode==='remote'){
     try{say('寫入試算表中…');
       if(evs.length)await apiPost('add',{events:evs.map(toRow)});
       if(nameUp.length)await apiPost('updateNames',{items:nameUp});
       for(const c of conv)await apiPost('update',{id:c.d.id,fields:{k:c.e.k,f:c.e.f,j:c.e.j,u:0,st:''}});
       nInf=await applyInfer(ALL.concat(evs),refT);
+      try{nEnd=await applyEnds(ALL.concat(evs),msgs)}catch(e){}
       if(!dm)await apiPost('setting',{name:'lastMsg',value:lastInFile>DB.lastMsg?lastInFile:DB.lastMsg});
       await reloadAll(true);const s2=$('#syncMsg');if(s2)s2.textContent='完成。'+sumF()}catch(e){say('寫入失敗：'+e.message)}
   }else{
     conv.forEach(c=>Object.assign(c.d,{k:c.e.k,f:c.e.f,j:c.e.j,u:0,st:''}));
     nInf=await applyInfer(ALL.concat(evs),refT);
+    try{nEnd=await applyEnds(ALL.concat(evs),msgs)}catch(e){}
     setAll(ALL.concat(evs),ROSTER);if(!dm)DB.lastMsg=lastInFile;S.to=MAX;render();const s2=$('#syncMsg');if(s2)s2.textContent='（預覽模式，未保存）'+sumF()}
 }
 function pendingInfer(pool,ref){
@@ -1044,6 +1245,7 @@ function vSync(){
   <div class="row" style="margin-top:8px"><input type="file" id="fUp"></div>
   <label style="font-size:13px;display:block;margin-top:6px"><input type="checkbox" id="fFull"> 整份重算（忽略上次進度；已存在的不會重複）</label>
   <div class="note" id="syncMsg" role="status" style="margin-top:8px"></div></div>
+  ${OWNUNK&&OWNUNK.list.length?unkCard():''}
   <div class="card"><h2>③ 審核新抓到的公差</h2><div class="note">電腦判讀可能有誤。標「抓不到股別」的請補人數；標「由回覆人名推算」的是依班長回覆的姓名數自動補上的（每次同步都會自動做，4 天後回覆都收齊才寫入）。改完按「存」；不是公差的按「刪」（只標記，不會真的刪掉）。上面是真的抓不到的；已抓到的收在下方「抽查用」。</div>
   ${(()=>{const R=e=>`<div class="rv" data-id="${esc(e.id)}" style="border-top:1px solid var(--line);padding:8px 0"><div style="font-size:13px"><b>${e.d.slice(2)}</b> ${esc(e.tm)} ${e.u?'<span class="pill warn">抓不到股別</span>':((e.inf||e.st==='推算')?'<span class="pill ok">由回覆人名推算</span>':'')}　${esc(e.p||e.x.slice(0,30))}</div>
    <div class="row" style="margin-top:4px"><select class="rt" aria-label="種類">${typeOptions(e.ty)}</select>
@@ -1053,7 +1255,7 @@ function vSync(){
   <div class="card"><h2>④ 各股名冊與階級</h2><div class="note">一行一人：姓名［Tab］股別（快砲／飛彈／軍械／退伍）［Tab］階級職稱。可以直接從試算表「人員」分頁複製 A～C 三欄貼上（標題列會自動略過）。階級用來判斷誰比較少出公差，見下方規則。</div>
   <textarea id="rosTa" rows="8" style="width:100%;margin-top:6px;border:1px solid var(--line);border-radius:10px;padding:8px;background:var(--surface)">${esc(rosTxt)}</textarea>
   <button class="btn" id="rosSave" style="margin-top:6px">儲存名冊</button></div>
-  <div class="card"><h2>階級規則（影響公平計算）</h2><div class="note">一行一條，由上往下第一條符合的生效：<br><b>階級關鍵字（用「、」分隔）｜權重｜不能出的類別（可空）｜名稱</b><br>權重 0＝不納入公平計算；0.3＝只算 0.3 個人；1＝一般。例如聘雇人員不能擦槍、打草，就把這兩類寫在第三欄。目前的類別名稱：${esc(TYPES.join('、'))}</div>
+  <div class="card"><h2>階級規則（影響期望值計算）</h2><div class="note">一行一條，由上往下第一條符合的生效：<br><b>階級關鍵字（用「、」分隔）｜權重｜不能出的類別（可空）｜名稱</b><br>權重 0＝不納入期望值計算；0.3＝只算 0.3 個人；1＝一般。例如聘雇人員不能擦槍、打草，就把這兩類寫在第三欄。目前的類別名稱：${esc(TYPES.join('、'))}</div>
   <textarea id="rulTa" rows="6" style="width:100%;margin-top:6px;border:1px solid var(--line);border-radius:10px;padding:8px;background:var(--surface)">${esc(rulTxt)}</textarea>
   <div class="row" style="margin-top:6px"><button class="btn" id="rulSave">儲存規則</button><button class="btn" id="rulReset">還原預設</button></div><div class="note" id="rulMsg" role="status"></div></div>
   <div class="card"><h2>⑤ 初始資料匯入（只做一次）</h2><div class="note">選「公差初始資料.json」。只有在試算表是空的時候才會寫入；預覽模式則只在這次瀏覽顯示。</div>
@@ -1080,6 +1282,11 @@ function wireSync(){
     const ranks={};rows.forEach(a=>{if(a[2])ranks[a[0]]=a[2]});
     if(DB.mode==='remote'){try{await apiPost('roster',{roster:rows.map(a=>[a[0],a[1]])});await apiPost('setting',{name:'ranks',value:JSON.stringify(ranks)});await reloadAll(true)}catch(er){alert('失敗：'+er.message)}}
     else{RANKS=ranks;ROSTER=rows.map(a=>[a[0],GR[a[1]]]);applyData(ALL,ROSTER);S.heads={...RHEAD};buildControls();render()}};
+  if(el('unkAdd'))el('unkAdd').onclick=async()=>{const nm=[...document.querySelectorAll('.unkc:checked')].map(c=>c.value);if(!nm.length){alert('請先勾選');return}
+    const {text,g}=OWNUNK;const have=new Set(ROSTER.map(r=>r[0]));const add=nm.filter(n=>!have.has(n));
+    try{if(DB.mode==='remote'){await apiPost('roster',{roster:ROSTER.map(r=>[r[0],GN[r[1]]]).concat(add.map(n=>[n,'退伍']))});await reloadAll(true)}
+      else{ROSTER=ROSTER.concat(add.map(n=>[n,'x']));applyData(ALL,ROSTER);S.heads={...RHEAD};buildControls();render()}
+      await doOwn(text,g)}catch(er){alert('失敗：'+er.message)}};
   if(el('npwBtn'))el('npwBtn').onclick=async()=>{const m=el('npwMsg');const np=el('npw').value;if(np.length<4){m.textContent='至少 4 個字元';return}
     if(DB.mode!=='remote'){m.textContent='要先連線試算表';return}
     try{await apiPost('setPassword',{newPassword:np});pwStore(np,false);m.textContent='已修改。下次登入請用新密碼。'}catch(er){m.textContent='失敗：'+er.message}};
