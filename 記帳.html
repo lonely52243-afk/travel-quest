@@ -7,6 +7,7 @@
 <meta name="mobile-web-app-capable" content="yes">
 <meta name="apple-mobile-web-app-status-bar-style" content="default">
 <meta name="apple-mobile-web-app-title" content="吱吱記帳">
+<meta http-equiv="Content-Security-Policy" content="default-src 'none'; script-src 'unsafe-inline'; style-src 'unsafe-inline'; img-src data:; connect-src https://script.google.com https://script.googleusercontent.com; base-uri 'none'; form-action 'none'; object-src 'none'">
 <meta name="theme-color" content="#f5f1e8" media="(prefers-color-scheme: light)">
 <meta name="theme-color" content="#1c1b19" media="(prefers-color-scheme: dark)">
 <meta name="color-scheme" content="light dark">
@@ -706,6 +707,20 @@ button.hero-num { min-height: 40px; margin: 0 0 10px; }
 .sp-sec .sp-amt { margin-bottom: 4px; }
 .sp-sec .btn { margin-top: 12px; }
 .sp-sec .sp-it:last-child { border-bottom: 0; }
+
+/* ===== v6.5 可讀性與無障礙：輸入框 16px（iPhone 不會自動放大）、對比、觸控大小 ===== */
+:root { --sub: #6f685d; --link: #b8533f; }
+@media (prefers-color-scheme: dark) { :root { --sub: #b3ab9d; --link: #ee9482; } }
+input, select, textarea, .input { font-size: 16px; }
+.sp-amt { font-size: 1.8rem; }
+.linkbtn, .drill-back, .sp-links .linkbtn, .dg .linkbtn, .line-tip .mini { color: var(--link); }
+.chip, .sp-chips .chip { min-height: 40px; }
+.md { min-height: 40px; }
+.mchip { min-height: 40px; }
+.mini-btn { min-height: 44px; min-width: 44px; }
+.stat .k, .i-meta, .cal-w, .tb, .sp-sub, .sp-cap, .sp-lb, .heat-lg, .hh, .hw, .catrow .r small, .stat .s { font-size: max(.72rem, 10px); }
+.cd .dt { font-size: .62rem; }
+.hc b { font-size: .68rem; }
 </style>
 </head>
 <body>
@@ -894,7 +909,7 @@ button.hero-num { min-height: 40px; margin: 0 0 10px; }
       <div class="imp-kinds" aria-label="可以辨識的檔案">
         <span>LINE Pay 聊天紀錄</span><span>LINE Bank 聊天紀錄</span><span>消費 CSV</span><span>收入 CSV</span>
       </div>
-      <label class="btn line imp-pick" for="fFile">選擇檔案（可多選）</label>
+      <label class="btn line imp-pick" for="fFile" tabindex="0" role="button" onkeydown="if(event.key==='Enter'||event.key===' '){event.preventDefault();document.getElementById('fFile').click();}">選擇檔案（可多選）</label>
       <input id="fFile" type="file" multiple accept=".txt,.csv,text/plain,text/csv" class="sr">
       <div id="impResult" aria-live="polite" style="margin-top:14px"></div>
       <button id="impGo" class="btn hidden">全部匯入</button>
@@ -928,7 +943,7 @@ button.hero-num { min-height: 40px; margin: 0 0 10px; }
   'use strict';
 
   var DEFAULT_API = 'https://script.google.com/macros/s/AKfycbxPkzgIjUT7O4YMPVPjFi5u9JsZL_WWcNhAgVXnH_Erg5Z3jWo2ZgTnpiZTRGUYZqun/exec';
-  var PAGE_VERSION = '6.0';
+  var PAGE_VERSION = '6.5';
   var LS_KEY = 'zz_expense_key';
   var LS_API = 'zz_expense_api';
   var LS_CACHE = 'zz_expense_cache';
@@ -944,7 +959,7 @@ button.hero-num { min-height: 40px; margin: 0 0 10px; }
     key: '', limit: 200, listSig: '', pickY: 0, anaRange: 'month', income: [], impKind: 'line', rows: [], cats: [], catDefs: [], catEdit: null, catBack: 'cats', budget: 0,
     y: 0, m: 0, tab: 'home',
     source: '全部', cat: '', q: '',
-    mode: 'edit', editing: null, busy: false,
+    editing: null, busy: false,
     mode: 'book', calSel: null, calOpen: false, drills: [], back: '', line: null, ana: null, catColors: {}, serverColors: {}, sources: [], backendVersion: '',
     loadedAt: 0, lastAdd: null, addBuf: '', addSource: '', addAll: false, panel: '', opener: null
   };
@@ -959,6 +974,11 @@ button.hero-num { min-height: 40px; margin: 0 0 10px; }
     });
   }
   function pad(n) { return (n < 10 ? '0' : '') + n; }
+  function n0(v) { v = Number(v); return isFinite(v) ? v : 0; }
+  var COLOR_RE = /^#[0-9a-fA-F]{6}$/;
+  function safeColor(c, fb) { return COLOR_RE.test(String(c || '')) ? String(c) : (fb || '#9aa3ad'); }
+  function safeId(v) { v = String(v == null ? '' : v); return /^[a-z0-9]{1,24}$/.test(v) ? v : ''; }
+  function cleanStr(v, n) { return String(v == null ? '' : v).replace(/[\u0000-\u001f]/g, ' ').trim().slice(0, n || 40); }
   function num(n) { return Number(n).toLocaleString('en-US', { maximumFractionDigits: 2 }); }
   function money(n) { return 'NT$ ' + num(n); }
   function shortNum(n) {
@@ -971,8 +991,10 @@ button.hero-num { min-height: 40px; margin: 0 0 10px; }
 
   /* ---------- 後端 ---------- */
 
-  function apiList() {
-    return fetch(getApi() + '?action=list&key=' + encodeURIComponent(state.key)).then(function (r) { return r.json(); });
+  function authFail(msg) {
+    lsDel(LS_KEY); lsDel(LS_CACHE);
+    state.key = ''; state.rows = [];
+    showLogin(msg || '登入已失效，請重新輸入密碼');
   }
   function apiPost(obj) {
     obj.key = state.key;
@@ -980,7 +1002,18 @@ button.hero-num { min-height: 40px; margin: 0 0 10px; }
       method: 'POST',
       headers: { 'Content-Type': 'text/plain;charset=utf-8' },
       body: JSON.stringify(obj)
-    }).then(function (r) { return r.json(); });
+    }).then(function (r) { return r.json(); }).then(function (res) {
+      if (res && res.ok === false && res.msg === 'unauthorized' && state.key) authFail();
+      return res;
+    });
+  }
+  // 讀資料：新版後端用 POST（密碼不放網址）；舊版後端沒有這個功能，自動退回舊作法
+  function apiList() {
+    return apiPost({ action: 'list' }).then(function (res) {
+      if (res && res.ok === true && res.result && res.result.rows) { res.result.ok = true; return res.result; }
+      if (res && res.ok === false) return res;
+      return fetch(getApi() + '?action=list&key=' + encodeURIComponent(state.key)).then(function (r) { return r.json(); });
+    });
   }
 
   /* ---------- 提示 ---------- */
@@ -1006,6 +1039,7 @@ button.hero-num { min-height: 40px; margin: 0 0 10px; }
     fetch(getApi()).then(function (r) { return r.json(); }).then(function (d) {
       if (d && d.version) { state.backendVersion = d.version; $('verLogin').textContent = versionText(); }
     }).catch(function () {});
+    closeSheet();
     $('app').classList.add('hidden');
     $('login').classList.remove('hidden');
     $('loginErr').textContent = msg || '';
@@ -1021,12 +1055,15 @@ button.hero-num { min-height: 40px; margin: 0 0 10px; }
     if (!pw) { $('loginErr').textContent = '請輸入密碼'; return; }
     if (api) lsSet(LS_API, api); else lsDel(LS_API);
     state.key = pw;
-    lsSet(LS_KEY, pw);
     $('pw').value = '';
     $('loginErr').textContent = '';
     refresh();
   }
   function logout() {
+    var d = spLoad(), has = d.people.length || d.events.length || d.debts.length;
+    if (has && window.confirm('要連「分帳、欠款」的資料一起從這支手機清掉嗎？\n\n按「確定」＝全部清掉（沒備份就找不回來）\n按「取消」＝只登出，分帳欠款保留')) {
+      lsDel(LS_SPLIT); sp.data = null;
+    }
     lsDel(LS_KEY); lsDel(LS_CACHE);
     state.key = ''; state.rows = [];
     closeSheet();
@@ -1040,7 +1077,9 @@ button.hero-num { min-height: 40px; margin: 0 0 10px; }
     state.income = d.income || [];
     state.catDefs = (d.catDefs && d.catDefs.length) ? d.catDefs : (d.categories || []).filter(function (n) { return n !== '未分類'; }).map(function (n) { return { name: n, kw: [], color: '' }; });
     syncCats();
-    state.serverColors = d.colors || {};
+    state.serverColors = {};
+    Object.keys(d.colors || {}).forEach(function (k) { if (COLOR_RE.test(String(d.colors[k]))) state.serverColors[k] = d.colors[k]; });
+    state.catDefs.forEach(function (c) { c.color = safeColor(c.color, ''); });
     state.sources = d.sources || [];
     state.budget = Number(d.budget) || 0;
     state.backendVersion = d.version || '';
@@ -1053,25 +1092,28 @@ button.hero-num { min-height: 40px; margin: 0 0 10px; }
     apiList().then(function (d) {
       if (!d || !d.ok) {
         if (d && d.msg === 'unauthorized') {
-          lsDel(LS_KEY); lsDel(LS_CACHE);
-          state.key = '';
-          showLogin('密碼不對');
+          if (state.key) authFail('密碼不對');
+        } else if (!$('login').classList.contains('hidden')) {
+          $('loginErr').textContent = '讀取失敗：' + ((d && d.msg) || '未知錯誤');
         } else if (!quiet) {
           toast('讀取失敗：' + ((d && d.msg) || '未知錯誤'));
         }
         return;
       }
       applyData(d);
+      lsSet(LS_KEY, state.key);
       lsSet(LS_CACHE, JSON.stringify(d));
       showApp();
       render();
       if (!lsGet('zz_swipe_hint')) { lsSet('zz_swipe_hint', '1'); toast('小提示：手指左右滑動可以切換月份'); }
+      if (state.panel === 'drill' && state.drills.length) renderDrill();
       if (state.panel === 'tidy') buildTidy();
       if (state.panel === 'cats') buildCats();
       if (state.panel === 'income') buildIncome();
       if (state.panel === 'more') buildMore();
     }).catch(function () {
-      if (!quiet) toast('連不上後端，目前顯示的是上次的資料');
+      if (!$('login').classList.contains('hidden')) $('loginErr').textContent = '連不上後端，請檢查網路或網址';
+      else if (!quiet) toast('連不上後端，目前顯示的是上次的資料');
     }).then(function () { state.busy = false; });
   }
 
@@ -1103,7 +1145,7 @@ button.hero-num { min-height: 40px; margin: 0 0 10px; }
     if (i < 0) return '';
     return '<span class="art ' + (cls || '') + '" aria-hidden="true" style="' + spriteStyle(i) + '"></span>';
   }
-  function colorOf(c) { return state.catColors[c] || PALETTE[7]; }
+  function colorOf(c) { return safeColor(state.catColors[c], PALETTE[7]); }
 
   /* ---------- 計算 ---------- */
 
@@ -1258,8 +1300,10 @@ button.hero-num { min-height: 40px; margin: 0 0 10px; }
   }
 
   /* ---------- 明細抽屜：每個數字都能點開，看背後的明細 ---------- */
-  function rowsOf(y, m) { return state.rows.filter(function (r) { return isOn(r) && inMonth(r.time, y, m); }); }
-  function rowsYear(y) { return state.rows.filter(function (r) { return isOn(r) && new Date(r.time).getFullYear() === y; }); }
+  // 全站唯一的資料入口：總覽不套來源篩選（畫面上也沒有篩選鈕），其他頁面一律套用，數字才會互相對得上
+  function srcPass(r) { return state.tab === 'home' || srcOk(r); }
+  function rowsOf(y, m) { return state.rows.filter(function (r) { return isOn(r) && srcPass(r) && inMonth(r.time, y, m); }); }
+  function rowsYear(y) { return state.rows.filter(function (r) { return isOn(r) && srcPass(r) && new Date(r.time).getFullYear() === y; }); }
   function sumOf(rows) { var t = 0; rows.forEach(function (r) { t += r.amount; }); return t; }
   function dayName(y, m, d) { return (m + 1) + '/' + d + '（週' + WEEK[new Date(y, m, d).getDay()] + '）'; }
   function dayDrill(y, m, d) {
@@ -1285,7 +1329,7 @@ button.hero-num { min-height: 40px; margin: 0 0 10px; }
         return { nm: g.k, ct: g.n + ' 筆　佔 ' + Math.round(g.v / total * 100) + '%', v: g.v, act: 'dcat', arg: g.k };
       }), false);
     } else if (mode === 'days') {
-      h = rankHtml(grp(rows, function (r) { var t = new Date(r.time); return t.getFullYear() + '-' + t.getMonth() + '-' + t.getDate(); }).sort(function (a, b) {
+      h = rankHtml(grp(rows, function (r) { var t = new Date(r.time); return t.getFullYear() + '-' + pad(t.getMonth()) + '-' + pad(t.getDate()); }).sort(function (a, b) {
         return a.k < b.k ? 1 : -1;
       }).map(function (g) {
         var p = g.k.split('-'), hi = holInfo(+p[0], +p[1], +p[2]);
@@ -1568,8 +1612,8 @@ button.hero-num { min-height: 40px; margin: 0 0 10px; }
     return t.replace(/^(\d{4})\/(\d)(?=\/|$)/, '$1/0$2').replace(/^(\d{4}\/\d{2})\/(\d)$/, '$1/0$2');
   }
   function matchTok(r, hay, t) {
-    var m = /^([<>])=?(\d+(?:\.\d+)?)$/.exec(t);
-    if (m) return m[1] === '>' ? r.amount >= Number(m[2]) : r.amount <= Number(m[2]);
+    var m = /^([<>])(=?)(\d+(?:\.\d+)?)$/.exec(t);
+    if (m) { var lim = Number(m[3]); return m[1] === '>' ? (m[2] ? r.amount >= lim : r.amount > lim) : (m[2] ? r.amount <= lim : r.amount < lim); }
     m = /^(\d+(?:\.\d+)?)-(\d+(?:\.\d+)?)$/.exec(t);
     if (m) return r.amount >= Number(m[1]) && r.amount <= Number(m[2]);
     return hay.indexOf(t) >= 0;
@@ -1669,7 +1713,7 @@ button.hero-num { min-height: 40px; margin: 0 0 10px; }
       var delay = Math.round(acc / C * DUR);
       var dur = Math.max(Math.round(len / C * DUR), 60);
       sl += '<g class="sl" data-i="' + i + '" style="--dx:' + (dx * 7).toFixed(2) + 'px;--dy:' + (dy * 7).toFixed(2) + 'px">' +
-        '<circle class="slice" cx="' + CX + '" cy="' + CY + '" r="' + R + '" fill="none" stroke="' + e.color + '" stroke-width="' + SW + '"' +
+        '<circle class="slice" cx="' + CX + '" cy="' + CY + '" r="' + R + '" fill="none" stroke="' + safeColor(e.color) + '" stroke-width="' + SW + '"' +
         ' stroke-dasharray="0 ' + C.toFixed(2) + '" stroke-dashoffset="' + (-acc).toFixed(2) + '" transform="rotate(-90 ' + CX + ' ' + CY + ')"' +
         ' data-d="' + draw.toFixed(2) + '" data-r="' + (C - draw).toFixed(2) + '"' +
         ' style="transition:stroke-dasharray ' + dur + 'ms linear ' + delay + 'ms"/></g>';
@@ -1987,13 +2031,43 @@ button.hero-num { min-height: 40px; margin: 0 0 10px; }
   /* ---------- 分帳專區（資料只存在這支手機，人名自己加） ---------- */
   var LS_SPLIT = 'zz_split_v1';
   var sp = { data: null, view: 'home', ev: null, item: null, imp: null };
+  // 把任何來源（本機資料、備份碼）整理成乾淨的格式：只留字串、數字，id 只留英數
+  function spClean(raw) {
+    var d = { people: [], events: [], me: '', debts: [], last: [], cur: '' };
+    if (!raw || typeof raw !== 'object') return d;
+    (Array.isArray(raw.people) ? raw.people : []).forEach(function (p) { p = cleanStr(p, 12); if (p && d.people.indexOf(p) < 0) d.people.push(p); });
+    var used = {};
+    function uid(v) { v = safeId(v); while (!v || used[v]) v = spId(); used[v] = 1; return v; }
+    (Array.isArray(raw.events) ? raw.events : []).forEach(function (e) {
+      if (!e || typeof e !== 'object') return;
+      var ev = { id: uid(e.id), title: cleanStr(e.title, 30) || '分帳', time: n0(e.time) || Date.now(), members: [], items: [], imported: e.imported ? true : false, dirty: e.dirty ? true : false, debtsAdded: e.debtsAdded ? true : false };
+      (Array.isArray(e.members) ? e.members : []).forEach(function (p) { p = cleanStr(p, 12); if (p && ev.members.indexOf(p) < 0) ev.members.push(p); });
+      (Array.isArray(e.items) ? e.items : []).forEach(function (it) {
+        if (!it || typeof it !== 'object') return;
+        var amt = Math.round(n0(it.amount)), who = (Array.isArray(it.who) ? it.who : []).map(function (p) { return cleanStr(p, 12); }).filter(function (p) { return p && ev.members.indexOf(p) >= 0; });
+        if (amt > 0 && who.length) ev.items.push({ id: uid(it.id), what: cleanStr(it.what, 30) || '未命名', amount: amt, payer: cleanStr(it.payer, 12), who: who });
+      });
+      d.events.push(ev);
+    });
+    (Array.isArray(raw.debts) ? raw.debts : []).forEach(function (x) {
+      if (!x || typeof x !== 'object') return;
+      var amt = Math.round(n0(x.amount)), per = cleanStr(x.person, 12);
+      if (!(amt > 0) || !per) return;
+      var due = /^\d{4}-\d{2}-\d{2}$/.test(String(x.due || '')) ? String(x.due) : '';
+      var dd = { id: uid(x.id), person: per, dir: x.dir === 'out' ? 'out' : 'in', amount: amt, what: cleanStr(x.what, 30) || '欠款', time: n0(x.time) || Date.now(), due: due, pay: [], ev: safeId(x.ev) };
+      (Array.isArray(x.pay) ? x.pay : []).forEach(function (p) { if (p && n0(p.a) > 0) dd.pay.push({ t: n0(p.t) || Date.now(), a: Math.round(n0(p.a)) }); });
+      d.debts.push(dd);
+    });
+    d.me = d.people.indexOf(cleanStr(raw.me, 12)) >= 0 ? cleanStr(raw.me, 12) : '';
+    d.last = (Array.isArray(raw.last) ? raw.last : []).map(function (p) { return cleanStr(p, 12); }).filter(function (p) { return d.people.indexOf(p) >= 0; });
+    d.cur = d.events.some(function (e) { return e.id === safeId(raw.cur); }) ? safeId(raw.cur) : '';
+    return d;
+  }
   function spLoad() {
     if (sp.data) return sp.data;
     var d = null;
     try { d = JSON.parse(lsGet(LS_SPLIT)); } catch (e) {}
-    if (!d || !d.people || !d.events) d = { people: [], events: [], me: '', debts: [] };
-    if (!d.debts) d.debts = [];
-    return (sp.data = d);
+    return (sp.data = spClean(d));
   }
   function spSave() { lsSet(LS_SPLIT, JSON.stringify(sp.data)); }
   function spId() { return Date.now().toString(36) + Math.random().toString(36).slice(2, 6); }
@@ -2105,8 +2179,8 @@ button.hero-num { min-height: 40px; margin: 0 0 10px; }
       h += '<div class="dg"><div class="dg-h"><b>' + esc(p) + '</b><span class="' + (net > 0 ? 'down' : net < 0 ? 'up' : '') + '">' + (show === 'open' ? (net > 0 ? '欠我 ' + num(net) : net < 0 ? '我欠他 ' + num(-net) : '互相抵掉') : '') + '</span></div>';
       by[p].sort(function (a, b) { return b.time - a.time; }).forEach(function (x) {
         var l = dLeft(x), part = dPaid(x) > 0 && l > 0;
-        h += '<div class="dr"><button class="dchk" role="checkbox" aria-checked="' + (l === 0) + '" aria-label="' + (l === 0 ? '取消已還' : '標記已還') + '" data-sp="dtoggle" data-id="' + x.id + '"><i>' + (l === 0 ? '✓' : '') + '</i></button>' +
-          '<button class="dmain" data-sp="dopen" data-id="' + x.id + '"><span><b class="' + (l === 0 ? 'dn' : '') + '">' + esc(x.what) + '</b><small>' + (x.dir === 'in' ? '他欠我' : '我欠他') + '　' + shortDate(x.time) + (part ? '　已還 ' + num(dPaid(x)) : '') + dueTag(x) + '</small></span><span class="' + (l === 0 ? 'dn' : x.dir === 'in' ? 'down' : 'up') + '">' + num(l === 0 ? x.amount : l) + '</span></button></div>';
+        h += '<div class="dr"><button class="dchk" role="checkbox" aria-checked="' + (l === 0) + '" aria-label="' + (l === 0 ? '取消已還' : '標記已還') + '" data-sp="dtoggle" data-id="' + esc(x.id) + '"><i>' + (l === 0 ? '✓' : '') + '</i></button>' +
+          '<button class="dmain" data-sp="dopen" data-id="' + esc(x.id) + '"><span><b class="' + (l === 0 ? 'dn' : '') + '">' + esc(x.what) + '</b><small>' + (x.dir === 'in' ? '他欠我' : '我欠他') + '　' + shortDate(x.time) + (part ? '　已還 ' + num(dPaid(x)) : '') + dueTag(x) + '</small></span><span class="' + (l === 0 ? 'dn' : x.dir === 'in' ? 'down' : 'up') + '">' + num(l === 0 ? x.amount : l) + '</span></button></div>';
       });
       if (show === 'open' && net > 0) h += '<button class="linkbtn mini" data-sp="dremind" data-p="' + esc(p) + '">複製提醒文字 ›</button>';
       h += '</div>';
@@ -2119,9 +2193,9 @@ button.hero-num { min-height: 40px; margin: 0 0 10px; }
     if (x && !sp.dEdit) {
       var l = dLeft(x);
       h += '<div class="sp-res"><div class="sp-tot">' + esc(x.person) + '　' + (x.dir === 'in' ? '欠我' : '我欠他') + '</div><div class="sp-big">' + num(x.amount) + '</div>' +
-        '<div class="note">' + esc(x.what) + '　' + dateStr(x.time) + (x.due ? '　到期 ' + x.due : '') + (x.ev ? '　（來自分帳）' : '') + '</div>' +
+        '<div class="note">' + esc(x.what) + '　' + dateStr(x.time) + (x.due ? '　到期 ' + esc(x.due) : '') + (x.ev ? '　（來自分帳）' : '') + '</div>' +
         '<div class="sp-tr"><span>已還</span><b>' + num(dPaid(x)) + '</b></div><div class="sp-tr"><span>還差</span><b class="' + (l ? 'up' : 'down') + '">' + (l ? num(l) : '已還清 ✓') + '</b></div></div>';
-      if (l) h += '<div class="sp-add"><input id="dPay" class="input" type="number" inputmode="decimal" min="0" placeholder="這次還了多少"><button class="btn" data-sp="dpay">記錄</button></div><button class="btn" data-sp="dall" data-id="' + x.id + '">一次還清（' + num(l) + '）</button>';
+      if (l) h += '<div class="sp-add"><input id="dPay" class="input" type="number" inputmode="decimal" min="0" placeholder="這次還了多少"><button class="btn" data-sp="dpay">記錄</button></div><button class="btn" data-sp="dall" data-id="' + esc(x.id) + '">一次還清（' + num(l) + '）</button>';
       if ((x.pay || []).length) {
         h += '<div class="note" style="margin-top:12px">還款紀錄（點一筆可刪除）</div>';
         x.pay.forEach(function (p, i) { h += '<button class="more-item" data-sp="dundo" data-i="' + i + '"><span>' + dateStr(p.t) + '</span><span>' + num(p.a) + '　✕</span></button>'; });
@@ -2133,9 +2207,9 @@ button.hero-num { min-height: 40px; margin: 0 0 10px; }
         '<div class="sp-chips" id="dPeople">' + spChips(d.people, [v.person], 'data-dp') + '</div>' +
         '<div class="field"><label for="dPer">名字</label><input id="dPer" class="input" type="text" maxlength="12" value="' + esc(v.person) + '" autocomplete="off"></div>' +
         '<div class="note" style="margin:10px 0 6px">方向</div><div class="sp-chips"><button class="chip" data-ddir="in" aria-pressed="' + (v.dir === 'in') + '">他欠我</button><button class="chip" data-ddir="out" aria-pressed="' + (v.dir === 'out') + '">我欠他</button></div>' +
-        '<div class="field"><label for="dAmt">金額</label><input id="dAmt" class="input" type="number" inputmode="decimal" min="0" value="' + v.amount + '"></div>' +
+        '<div class="field"><label for="dAmt">金額</label><input id="dAmt" class="input" type="number" inputmode="decimal" min="0" value="' + n0(v.amount) + '"></div>' +
         '<div class="field"><label for="dWhat">為了什麼</label><input id="dWhat" class="input" type="text" maxlength="30" value="' + esc(v.what) + '" placeholder="借錢、代墊計程車…" autocomplete="off"></div>' +
-        '<div class="row2"><div class="field"><label for="dDate">日期</label><input id="dDate" class="input" type="date" value="' + dateStr(v.time) + '"></div><div class="field"><label for="dDue">預計還款日（選填）</label><input id="dDue" class="input" type="date" value="' + (v.due || '') + '"></div></div>' +
+        '<div class="row2"><div class="field"><label for="dDate">日期</label><input id="dDate" class="input" type="date" value="' + dateStr(v.time) + '"></div><div class="field"><label for="dDue">預計還款日（選填）</label><input id="dDue" class="input" type="date" value="' + esc(v.due || '') + '"></div></div>' +
         '<button class="btn" data-sp="dsave">' + (x ? '儲存修改' : '記下來') + '</button>';
     }
     return h;
@@ -2180,20 +2254,20 @@ button.hero-num { min-height: 40px; margin: 0 0 10px; }
         var who = ed ? ed.who : ev.members, lastPay = ev.items.length ? ev.items[ev.items.length - 1].payer : '';
         var qs = ['吃飯', '計程車', '飲料', '停車', '其他'];
         h += '<div class="sp-sec"><div class="sp-lb">' + (ed ? '修改這一筆' : '記一筆') + '</div>' +
-          '<input id="spA" class="input sp-amt" type="number" inputmode="decimal" min="0" placeholder="金額" enterkeyhint="done" value="' + (ed ? ed.amount : '') + '">' +
+          '<input id="spA" class="input sp-amt" type="number" inputmode="decimal" min="0" placeholder="金額" enterkeyhint="done" value="' + (ed ? n0(ed.amount) : '') + '">' +
           '<div class="sp-lb s">誰先付？</div><div class="sp-chips" id="spPayer">' + spChips(ev.members, [ed ? ed.payer : lastPay], 'data-payer') + '</div>' +
           '<div class="sp-lb s">花在什麼（選填）</div><div class="sp-chips">' + qs.map(function (q) { return '<button type="button" class="chip" data-q="' + q + '" aria-pressed="' + (ed && ed.what === q) + '">' + q + '</button>'; }).join('') + '</div>' +
           '<input id="spW" class="input" type="text" placeholder="或自己輸入" maxlength="30" autocomplete="off" value="' + esc(ed ? ed.what : '') + '">' +
           '<details class="sp-more"' + (who.length < ev.members.length ? ' open' : '') + '><summary>有人沒份？<span id="spWhoTxt">' + (who.length < ev.members.length ? who.length + ' 人分攤' : '預設全員平分') + '</span></summary><div class="sp-chips" id="spWho">' + spChips(ev.members, who, 'data-who') + '</div></details>' +
           '<div class="sp-pre" id="spPre"></div>' +
-          '<button class="btn" data-sp="qadd">' + (ed ? '儲存' : '記下') + '</button>' + (ed ? '<div class="sp-two"><button class="btn line" data-sp="qcancel">取消</button><button class="btn line" data-sp="delitem" data-id="' + ed.id + '">刪除</button></div>' : '') + '</div>';
+          '<button class="btn" data-sp="qadd">' + (ed ? '儲存' : '記下') + '</button>' + (ed ? '<div class="sp-two"><button class="btn line" data-sp="qcancel">取消</button><button class="btn line" data-sp="delitem" data-id="' + esc(ed.id) + '">刪除</button></div>' : '') + '</div>';
       } else h += '<div class="sp-guide" style="margin-top:6px">至少選 2 個人才能開始記</div>';
       // 4) 已記的項目（點一筆可修改）
       if (ev.items.length) {
         h += '<div class="sp-sec"><div class="sp-lb">已記 ' + ev.items.length + ' 筆（點一筆可修改）</div>';
         ev.items.forEach(function (it) {
           var ex = ev.members.length - it.who.length;
-          h += '<button class="more-item sp-it" data-sp="edititem" data-id="' + it.id + '"><span><b>' + esc(it.what || '未命名') + '</b><small>' + esc(it.payer) + ' 先付' + (ex > 0 ? '　' + it.who.length + ' 人分攤' : '') + '</small></span><span>' + num(it.amount) + '</span></button>';
+          h += '<button class="more-item sp-it" data-sp="edititem" data-id="' + esc(it.id) + '"><span><b>' + esc(it.what || '未命名') + '</b><small>' + esc(it.payer) + ' 先付' + (ex > 0 ? '　' + it.who.length + ' 人分攤' : '') + '</small></span><span>' + num(it.amount) + '</span></button>';
         });
         h += '</div>';
       }
@@ -2217,7 +2291,7 @@ button.hero-num { min-height: 40px; margin: 0 0 10px; }
       if (!past.length) h += '<div class="empty-box">還沒有過去的紀錄</div>';
       past.forEach(function (e) {
         var cc = spCalc(e);
-        h += '<button class="more-item sp-ev" data-sp="open" data-id="' + e.id + '"><span><b>' + esc(e.title) + '</b><small>' + shortDate(e.time) + '　' + e.members.length + ' 人　共 ' + num(cc.total) + (e.imported ? '　已匯入' : '') + '</small></span><span>›</span></button>';
+        h += '<button class="more-item sp-ev" data-sp="open" data-id="' + esc(e.id) + '"><span><b>' + esc(e.title) + '</b><small>' + shortDate(e.time) + '　' + e.members.length + ' 人　共 ' + num(cc.total) + (e.imported ? (e.dirty ? '　已匯入（之後改過）' : '　已匯入') : '') + '</small></span><span>›</span></button>';
       });
     } else if (sp.view === 'people') {
       $('spTitle').textContent = '成員名單';
@@ -2243,8 +2317,8 @@ button.hero-num { min-height: 40px; margin: 0 0 10px; }
       calc.rows.forEach(function (r) { h += '<div class="sp-tr"><span>' + esc(r.store) + '</span><b class="amt">' + num(r.amount) + '</b></div>'; });
       if (!calc.rows.length) h += '<div class="sp-tr">這個人沒有任何分攤項目</div>';
       h += '<div class="note">時間：' + dateStr(ev.time) + '　合計 ' + money(calc.sum) + '。記的是「你自己該負擔的」，不是你先墊出去的總額。</div></div>';
-      if (ev.imported) h += '<div class="note up">這個活動已經匯入過一次，再匯會重複記帳。</div>';
-      h += '<button class="btn" data-sp="doimp"' + (calc.rows.length ? '' : ' disabled') + '>確定匯入</button>';
+      if (ev.imported) h += '<div class="note up" style="margin-top:8px">' + (ev.dirty ? '這場匯入之後又改過內容。再匯入會「重複記帳」，請先到「明細」把之前匯入的那幾筆（店名「' + esc(ev.title) + '」開頭）刪掉。' : '這場已經匯入過了，再匯入會重複記帳。') + '</div>';
+      h += '<button class="btn" data-sp="doimp"' + (calc.rows.length ? '' : ' disabled') + '>' + (ev.imported ? '我知道了，仍要再匯入一次' : '確定匯入') + '</button>';
     }
     $('spBody').innerHTML = h;
     if (sp.view === 'item') spPreview();
@@ -2297,8 +2371,8 @@ button.hero-num { min-height: 40px; margin: 0 0 10px; }
       if (multi) chip.setAttribute('aria-pressed', chip.getAttribute('aria-pressed') === 'true' ? 'false' : 'true');
       else if (chip.hasAttribute('data-payer')) {
         chip.parentNode.querySelectorAll('.chip').forEach(function (c) { c.setAttribute('aria-pressed', c === chip ? 'true' : 'false'); });
-        var w = document.querySelector('#spWho [data-who="' + chip.getAttribute('data-payer').replace(/"/g, '\\"') + '"]');
-        if (w && w.getAttribute('aria-pressed') !== 'true') w.setAttribute('aria-pressed', 'true');
+        var pv = chip.getAttribute('data-payer');
+        document.querySelectorAll('#spWho .chip').forEach(function (w) { if (w.getAttribute('data-who') === pv) w.setAttribute('aria-pressed', 'true'); });
       } else if (chip.hasAttribute('data-me')) { sp.imp.me = chip.getAttribute('data-me'); sp.imp.cat = $('spCat').value; sp.imp.src = $('spSrc').value; spRender(); return; }
       else if (chip.hasAttribute('data-mode')) { sp.imp.mode = chip.getAttribute('data-mode'); sp.imp.cat = $('spCat').value; sp.imp.src = $('spSrc').value; spRender(); return; }
       var wt = $('spWhoTxt'); if (wt && $('spWho')) { var ws = spSel('spWho', 'data-who').length, wn = document.querySelectorAll('#spWho .chip').length; wt.textContent = ws === wn ? '預設全員平分' : ws + ' 人分攤'; }
@@ -2329,7 +2403,10 @@ button.hero-num { min-height: 40px; margin: 0 0 10px; }
       try {
         var nd = JSON.parse($('spRestore').value.trim());
         if (!nd || !Array.isArray(nd.people) || !Array.isArray(nd.events)) throw 0;
-        sp.data = nd; spSave(); toast('已還原'); spRender();
+        var cl = spClean(nd);
+        if (!window.confirm('要用這份備份覆蓋現在的資料嗎？\n\n備份裡有：' + cl.people.length + ' 位成員、' + cl.events.length + ' 場分帳、' + cl.debts.length + ' 筆欠款。\n（現在的資料會先自動留一份，之後還能救回）')) return;
+        lsSet('zz_split_prev', JSON.stringify(spLoad()));
+        sp.data = cl; spSave(); toast('已還原'); spRender();
       } catch (x) { toast('備份碼格式不對'); }
     }
     else if (act === 'qaddp') {
@@ -2352,12 +2429,16 @@ button.hero-num { min-height: 40px; margin: 0 0 10px; }
       var cur = sp.edit ? ev.items.filter(function (x) { return x.id === sp.edit; })[0] : null;
       if (cur) { cur.what = what; cur.amount = amt; cur.payer = py; cur.who = who; }
       else ev.items.push({ id: spId(), what: what, amount: amt, payer: py, who: who });
-      ev.imported = false; ev.debtsAdded = false; sp.edit = null; spSave(); spRender(); buzz();
+      if (ev.imported) ev.dirty = true;
+      if (ev.debtsAdded) spSyncDebts(ev);
+      sp.edit = null; spSave(); spRender(); buzz();
     }
     else if (act === 'qnew') { d.cur = ''; sp.edit = null; spSave(); spGo('home', null); toast('已存到「過去的分帳」，開了新的一場'); }
-    else if (act === 'delitem') { ev.items = ev.items.filter(function (x) { return x.id !== b.getAttribute('data-id'); }); ev.imported = false; spSave(); spGo('home'); }
+    else if (act === 'delitem') { ev.items = ev.items.filter(function (x) { return x.id !== b.getAttribute('data-id'); }); if (ev.imported) ev.dirty = true; if (ev.debtsAdded) spSyncDebts(ev); sp.edit = null; spSave(); spGo('home'); }
     else if (act === 'delev') {
-      if (!confirm('確定刪除「' + ev.title + '」？')) return;
+      var linked = d.debts.filter(function (q) { return q.ev === ev.id; }), keepN = linked.filter(function (q) { return (q.pay || []).length; }).length;
+      if (!confirm('確定刪除「' + ev.title + '」？' + (ev.imported ? '\n\n這場已經匯入過支出，記帳裡那幾筆不會跟著刪，要到「明細」自己刪。' : '') + (linked.length ? '\n\n欠款簿裡由這場產生的 ' + linked.length + ' 筆欠款也會一起移除' + (keepN ? '（已有還款紀錄的 ' + keepN + ' 筆會保留）' : '') + '。' : ''))) return;
+      d.debts = d.debts.filter(function (q) { return q.ev !== ev.id || (q.pay || []).length; });
       d.events = d.events.filter(function (x) { return x.id !== ev.id; }); d.cur = ''; spSave(); spGo('home', null);
     }
     else if (act === 'members') spGo('members');
@@ -2422,17 +2503,35 @@ button.hero-num { min-height: 40px; margin: 0 0 10px; }
       else toast('這個瀏覽器不能自動複製');
     }
     else if (act === 'todebt') {
-      var addN = 0;
-      spCalc(ev).tr.forEach(function (t) {
-        if (t.from !== d.me && t.to !== d.me) return;
-        var inb = t.to === d.me, per = inb ? t.from : t.to;
-        if (d.debts.some(function (q) { return q.ev === ev.id && q.person === per && q.dir === (inb ? 'in' : 'out'); })) return;
-        d.debts.push({ id: spId(), person: per, dir: inb ? 'in' : 'out', amount: t.v, what: ev.title, time: ev.time, due: '', pay: [], ev: ev.id }); addN++;
-      });
-      ev.debtsAdded = true; spSave(); toast(addN ? '已記進欠款簿 ' + addN + ' 筆（上方「欠款」可看）' : '欠款簿裡已經有了'); spRender();
+      var rr = spSyncDebts(ev); spSave();
+      toast((rr.add || rr.upd || rr.del) ? '欠款簿已更新：新增 ' + rr.add + '、更新 ' + rr.upd + '、移除 ' + rr.del : '欠款簿裡已經是最新的'); spRender();
     }
   }
+  // 把這一場跟「我」有關的轉帳，同步到欠款簿：金額改了就更新，不需要了就拿掉；已經有還款紀錄的不會被動到
+  function spSyncDebts(ev) {
+    var d = spLoad();
+    if (!d.me || ev.members.indexOf(d.me) < 0) return { add: 0, upd: 0, del: 0 };
+    var want = {}, r = { add: 0, upd: 0, del: 0 };
+    spCalc(ev).tr.forEach(function (t) {
+      if (t.from !== d.me && t.to !== d.me) return;
+      var inb = t.to === d.me, per = inb ? t.from : t.to;
+      want[per + '|' + (inb ? 'in' : 'out')] = { person: per, dir: inb ? 'in' : 'out', amount: t.v };
+    });
+    var have = {};
+    d.debts.filter(function (q) { return q.ev === ev.id; }).forEach(function (q) { have[q.person + '|' + q.dir] = q; });
+    Object.keys(want).forEach(function (k) {
+      var w = want[k], q = have[k];
+      if (!q) { d.debts.push({ id: spId(), person: w.person, dir: w.dir, amount: w.amount, what: ev.title, time: ev.time, due: '', pay: [], ev: ev.id }); r.add++; }
+      else if (q.amount !== w.amount && (q.pay || []).length === 0) { q.amount = w.amount; r.upd++; }
+    });
+    Object.keys(have).forEach(function (k) {
+      if (!want[k] && (have[k].pay || []).length === 0) { d.debts = d.debts.filter(function (z) { return z !== have[k]; }); r.del++; }
+    });
+    ev.debtsAdded = true;
+    return r;
+  }
   function spImport(ev) {
+    if (ev.imported && !window.confirm('這場已經匯入過，再匯入一次會重複記帳。確定要再匯入嗎？')) return;
     var im = sp.imp; im.cat = $('spCat').value; im.src = $('spSrc').value;
     var calc = spMyRows(ev, im.me, im.mode);
     if (!calc.rows.length) return;
@@ -2440,7 +2539,7 @@ button.hero-num { min-height: 40px; margin: 0 0 10px; }
     var d = spLoad(); d.me = im.me; 
     apiPost({ action: 'import', rows: calc.rows.map(function (r) { return [calc.t, r.amount, r.store, '正常', im.src, '', im.cat]; }) }).then(function (res) {
       if (res && res.ok && /^imported:(\d+)$/.test(res.result)) {
-        ev.imported = true; spSave();
+        ev.imported = true; ev.dirty = false; spSave();
         toast('已匯入 ' + RegExp.$1 + ' 筆，共 ' + money(calc.sum));
         spGo('home'); refresh(true);
       } else { btn.disabled = false; toast('匯入失敗：' + ((res && (res.msg || res.result)) || '未知錯誤')); }
@@ -2463,6 +2562,8 @@ button.hero-num { min-height: 40px; margin: 0 0 10px; }
     Object.keys(PANELS).forEach(function (k) { $(PANELS[k]).classList.toggle('hidden', k !== which); });
     state.panel = which;
     $('mask').classList.remove('hidden');
+    var sheetEl = document.querySelector('#mask .sheet'), hh = $(PANELS[which]).querySelector('h2');
+    if (sheetEl) { sheetEl.scrollTop = 0; if (hh) { if (!hh.id) hh.id = 'ttl_' + which; sheetEl.setAttribute('aria-labelledby', hh.id); } }
     document.body.style.overflow = 'hidden';
     var h = $(PANELS[which]).querySelector('h2');
     if (h && which !== 'add') { try { h.focus({ preventScroll: true }); } catch (e) {} }
@@ -2560,7 +2661,7 @@ button.hero-num { min-height: 40px; margin: 0 0 10px; }
             var n = 0;
             if (r2 && r2.ok && /^ruled:(\d+)$/.test(r2.result)) n = Number(RegExp.$1);
             afterAction(res, '已儲存，以後「' + store + '」自動歸「' + cat + '」' + (n ? '，另外 ' + n + ' 筆舊紀錄也歸類了' : ''));
-          });
+          }).catch(function () { afterAction(res, '已儲存（但「以後自動歸類」沒成功，晚點再試）'); });
         }
         afterAction(res, '已儲存');
       })
@@ -2653,6 +2754,8 @@ button.hero-num { min-height: 40px; margin: 0 0 10px; }
         state.lastAdd = { row: res.row, time: t, amount: amount };
         toast('已記 ' + cat + ' ' + num(amount), undoAdd);
       } else {
+        state.rows = state.rows.filter(function (r) { return r.row !== 0; });
+        render();
         toast('記帳失敗：' + ((res && (res.msg || res.result)) || '未知錯誤'));
       }
       refresh(true);
@@ -3109,9 +3212,14 @@ button.hero-num { min-height: 40px; margin: 0 0 10px; }
         throw new Error((res && (res.msg || res.result)) || '未知錯誤');
       });
     }
-    var chain = Promise.resolve();
-    if (plan.exp.length) chain = chain.then(function () { return post({ action: 'import', rows: plan.exp.map(function (p) { return [p.t, p.amount, p.store, p.status, p.source || '', p.card || '', p.category || '']; }) }, 'e'); });
-    if (plan.inc.length) chain = chain.then(function () { return post({ action: 'import', kind: 'income', rows: plan.inc.map(function (p) { return [p.t, p.amount, p.store, p.source]; }) }, 'i'); });
+    var chain = Promise.resolve(), CH = 150;
+    function chunked(list, mk, key) {
+      for (var i = 0; i < list.length; i += CH) (function (part) {
+        chain = chain.then(function () { var keep = done[key]; return post(mk(part), key).then(function () { done[key] = keep + done[key]; }); });
+      })(list.slice(i, i + CH));
+    }
+    chunked(plan.exp, function (part) { return { action: 'import', rows: part.map(function (p) { return [p.t, p.amount, p.store, p.status, p.source || '', p.card || '', p.category || '']; }) }; }, 'e');
+    chunked(plan.inc, function (part) { return { action: 'import', kind: 'income', rows: part.map(function (p) { return [p.t, p.amount, p.store, p.source]; }) }; }, 'i');
     chain.then(function () {
       toast('已匯入：支出 ' + done.e + ' 筆、收入 ' + done.i + ' 筆');
       closeSheet();
@@ -3150,12 +3258,12 @@ button.hero-num { min-height: 40px; margin: 0 0 10px; }
   function saveIncome() {
     var a = parseFloat($('fiAmount').value);
     if (!a || a <= 0) { toast('請輸入金額'); return; }
-    var btn = $('incSave');
+    var btn = $('incSave'), nowD = new Date(), it = (state.y === nowD.getFullYear() && state.m === nowD.getMonth()) ? Date.now() : new Date(state.y, state.m + 1, 0, 12).getTime();
     btn.disabled = true;
-    apiPost({ action: 'incomeAdd', amount: a, note: $('fiNote').value.trim() || '收入', time: Date.now(), source: '手動' }).then(function (res) {
+    apiPost({ action: 'incomeAdd', amount: a, note: $('fiNote').value.trim() || '收入', time: it, source: '手動' }).then(function (res) {
       if (res && res.ok && res.result === 'income added') {
         toast('已記一筆收入 ' + money(a));
-        state.income.push({ row: 0, time: Date.now(), amount: a, note: $('fiNote').value.trim() || '收入', source: '手動' });
+        state.income.push({ row: 0, time: it, amount: a, note: $('fiNote').value.trim() || '收入', source: '手動' });
         $('fiAmount').value = '';
         buildIncome();
         render();
@@ -3284,7 +3392,8 @@ button.hero-num { min-height: 40px; margin: 0 0 10px; }
       state.cat = b.getAttribute('data-cat');
       render();
     });
-    $('qInput').addEventListener('input', function () { state.q = $('qInput').value; render(); });
+    var qTimer = null;
+    $('qInput').addEventListener('input', function () { state.q = $('qInput').value; clearTimeout(qTimer); qTimer = setTimeout(render, 180); });
 
     $('vHome').addEventListener('click', function (e) {
       var it = e.target.closest('.item');
@@ -3322,6 +3431,7 @@ button.hero-num { min-height: 40px; margin: 0 0 10px; }
       var g = e.target.closest('.barg');
       if (g) {
         var p = g.getAttribute('data-ym').split('-');
+        state.anaRange = 'month';
         gotoMonth(Number(p[0]), Number(p[1]));
         return;
       }
@@ -3367,6 +3477,7 @@ button.hero-num { min-height: 40px; margin: 0 0 10px; }
       if (!b || b.disabled) return;
       closeSheet();
       state.q = ''; $('qInput').value = '';
+      state.anaRange = 'month';
       gotoMonth(state.pickY, Number(b.getAttribute('data-pm')));
     });
     $('incSave').addEventListener('click', saveIncome);
