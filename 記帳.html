@@ -62,6 +62,23 @@ details.adv .input { font-size: .85rem; }
 .top { position: sticky; top: 0; z-index: 5; background: var(--paper); padding-top: env(safe-area-inset-top); border-bottom: 1px solid var(--line); }
 .month { display: flex; align-items: center; justify-content: center; }
 .month b { font-family: var(--serif); font-weight: 600; font-size: 1.15rem; letter-spacing: .12em; min-width: 140px; text-align: center; }
+@keyframes slL { from { transform: translateX(32px); opacity: .15; } to { transform: none; opacity: 1; } }
+@keyframes slR { from { transform: translateX(-32px); opacity: .15; } to { transform: none; opacity: 1; } }
+.wrap.sl-l { animation: slL .22s ease-out; }
+.wrap.sl-r { animation: slR .22s ease-out; }
+@media (prefers-reduced-motion: reduce) { .wrap.sl-l, .wrap.sl-r { animation: none; } }
+.mlabel { font-family: var(--serif); font-weight: 600; font-size: 1.15rem; letter-spacing: .12em; min-width: 150px; min-height: 52px; text-align: center; }
+.mlabel::after { content: " ▾"; font-size: .7rem; color: var(--sub); letter-spacing: 0; }
+.searchpill { width: 100%; display: flex; align-items: center; gap: 10px; min-height: 48px; padding: 0 14px; border: 1px solid var(--line); border-radius: 24px; color: var(--sub); margin: 4px 0 8px; text-align: left; }
+.searchpill svg { width: 18px; height: 18px; stroke: var(--sub); flex: none; }
+.mgrid { display: grid; grid-template-columns: repeat(3, 1fr); gap: 10px; margin: 12px 0; }
+.mgrid button { min-height: 64px; border: 1px solid var(--line); border-radius: 10px; display: flex; flex-direction: column; align-items: center; justify-content: center; gap: 2px; font-family: var(--serif); font-weight: 600; }
+.mgrid button small { font-family: var(--sans); font-weight: 400; font-size: .72rem; color: var(--sub); }
+.mgrid button[aria-pressed="true"] { background: var(--ink); color: var(--on-ink); border-color: var(--ink); }
+.mgrid button[aria-pressed="true"] small { color: var(--on-ink); opacity: .8; }
+.mgrid button:disabled { opacity: .3; }
+.yearbar { display: flex; align-items: center; justify-content: center; gap: 8px; }
+.yearbar b { font-family: var(--serif); font-size: 1.1rem; min-width: 110px; text-align: center; letter-spacing: .12em; }
 .arrow { width: 52px; height: 52px; display: flex; align-items: center; justify-content: center; font-size: 1.5rem; color: var(--ink); text-align: center; }
 .arrow:disabled { opacity: .25; }
 .chips { display: flex; gap: 8px; overflow-x: auto; padding: 2px 20px 10px; scrollbar-width: none; max-width: 520px; margin: 0 auto; }
@@ -260,7 +277,7 @@ textarea.input { min-height: 96px; resize: vertical; line-height: 1.5; font-fami
   <header class="top">
     <div class="month">
       <button id="prevBtn" class="arrow" aria-label="上個月">‹</button>
-      <b id="monthLabel" aria-live="polite"></b>
+      <button id="monthLabel" class="mlabel" aria-haspopup="dialog" aria-label="選擇月份"></button>
       <button id="nextBtn" class="arrow" aria-label="下個月">›</button>
     </div>
     <div class="chips hidden" id="sourceChips" role="group" aria-label="依來源篩選"></div>
@@ -273,8 +290,9 @@ textarea.input { min-height: 96px; resize: vertical; line-height: 1.5; font-fami
       <div class="search">
         <svg viewBox="0 0 24 24" fill="none" stroke-width="1.8" stroke-linecap="round" aria-hidden="true"><circle cx="11" cy="11" r="6.5"/><path d="M16 16l4 4"/></svg>
         <label class="sr" for="qInput">搜尋店名、分類或金額</label>
-        <input id="qInput" type="search" placeholder="搜尋店名、分類、金額" autocomplete="off" enterkeyhint="search">
+        <input id="qInput" type="search" placeholder="搜尋全部明細：店名、分類、金額、日期" autocomplete="off" enterkeyhint="search">
       </div>
+      <div class="hint" id="qHint" style="margin:4px 0 0">搜尋會找全部月份。可以用空格合併條件，例如：萊爾富 2025/3、&gt;500、100-300</div>
       <div class="chips" id="catChips" role="group" aria-label="依分類篩選" style="padding:8px 0"></div>
       <div class="list-sum" id="listSum"></div>
       <div id="list"></div>
@@ -375,11 +393,31 @@ textarea.input { min-height: 96px; resize: vertical; line-height: 1.5; font-fami
       <button id="catBackBtn" class="btn line">取　消</button>
     </div>
 
+    <div id="pMonth" class="hidden">
+      <h2 tabindex="-1">選擇月份</h2>
+      <div class="yearbar"><button class="arrow" id="pyPrev" aria-label="前一年">‹</button><b id="pyLabel"></b><button class="arrow" id="pyNext" aria-label="後一年">›</button></div>
+      <div class="mgrid" id="mGrid"></div>
+      <button class="btn line" data-close>關　閉</button>
+    </div>
+
+    <div id="pIncome" class="hidden">
+      <h2 tabindex="-1">收入記帳</h2>
+      <div class="row2">
+        <div class="field"><label for="fiAmount">金額</label><input id="fiAmount" class="input" type="number" inputmode="decimal" min="0" step="any"></div>
+        <div class="field"><label for="fiNote">摘要</label><input id="fiNote" class="input" type="text" list="incNotes" autocomplete="off" placeholder="薪資、獎金…"></div>
+      </div>
+      <datalist id="incNotes"><option value="薪資"></option><option value="獎金"></option><option value="利息"></option><option value="轉入"></option><option value="退款"></option></datalist>
+      <button id="incSave" class="btn">記一筆收入</button>
+      <div class="note" style="color:var(--sub);font-size:.8rem;margin:16px 0 4px">這個月的收入（點一筆可刪除）</div>
+      <div id="incList"></div>
+      <button class="btn line" data-close>完　成</button>
+    </div>
+
     <div id="pImport" class="hidden">
-      <h2 tabindex="-1">補記 LINE 付款</h2>
-      <p style="color:var(--sub);font-size:.88rem;margin:0 0 12px">自動記帳漏掉時，用這裡手動補。到「LINE錢包」聊天室，右上角選單 → 傳送聊天記錄，存成文字檔，再選那個檔案。檔案只在你的手機上讀取，只會把付款的時間、金額、店名送到你自己的試算表。</p>
-      <label class="btn line" for="fFile" style="margin-top:0;cursor:pointer;letter-spacing:.15em">選擇聊天紀錄檔（.txt）</label>
-      <input id="fFile" type="file" accept=".txt,text/plain" class="sr">
+      <h2 tabindex="-1">匯入資料</h2>
+      <p style="color:var(--sub);font-size:.88rem;margin:0 0 12px">可以選兩種檔案：①「LINE錢包」聊天室匯出的文字檔（.txt），補記自動記帳漏掉的付款；②整理好的 CSV（消費或收入）。檔案只在你的手機上讀取，已經在帳裡的不會重複匯入。</p>
+      <label class="btn line" for="fFile" style="margin-top:0;cursor:pointer;letter-spacing:.15em">選擇檔案（.txt 或 .csv）</label>
+      <input id="fFile" type="file" accept=".txt,.csv,text/plain,text/csv" class="sr">
       <div id="impResult" aria-live="polite" style="margin-top:14px"></div>
       <button id="impGo" class="btn hidden">補　記</button>
       <button class="btn line" data-close>關　閉</button>
@@ -389,7 +427,8 @@ textarea.input { min-height: 96px; resize: vertical; line-height: 1.5; font-fami
       <h2 tabindex="-1">更　多</h2>
       <button class="more-item" id="mRefresh"><span>重新整理資料</span><span id="mUpdated"></span></button>
       <button class="more-item" id="mBudget"><span>每月預算</span><span id="mBudgetVal"></span></button>
-      <button class="more-item" id="mImport"><span>補記 LINE 付款（匯入聊天紀錄）</span><span>›</span></button>
+      <button class="more-item" id="mImport"><span>匯入資料（LINE 聊天紀錄、CSV）</span><span>›</span></button>
+      <button class="more-item" id="mIncome"><span>收入記帳</span><span id="mIncomeVal"></span></button>
       <button class="more-item" id="mCats"><span>分類管理</span><span id="mCatsVal"></span></button>
       <button class="more-item" id="mTidy"><span>整理未分類</span><span id="mTidyVal"></span></button>
       <button class="more-item" id="mLogout"><span>登出</span><span></span></button>
@@ -407,7 +446,7 @@ textarea.input { min-height: 96px; resize: vertical; line-height: 1.5; font-fami
   'use strict';
 
   var DEFAULT_API = 'https://script.google.com/macros/s/AKfycbxPkzgIjUT7O4YMPVPjFi5u9JsZL_WWcNhAgVXnH_Erg5Z3jWo2ZgTnpiZTRGUYZqun/exec';
-  var PAGE_VERSION = '5.4';
+  var PAGE_VERSION = '5.7';
   var LS_KEY = 'zz_expense_key';
   var LS_API = 'zz_expense_api';
   var LS_CACHE = 'zz_expense_cache';
@@ -416,7 +455,7 @@ textarea.input { min-height: 96px; resize: vertical; line-height: 1.5; font-fami
   var PALETTE = ['#3d5a73', '#b8603e', '#7d8f69', '#c9a24a', '#8a6f9e', '#6d9a9a', '#a85a6a', '#8c8577'];
 
   var state = {
-    key: '', anaRange: 'month', rows: [], cats: [], catDefs: [], catEdit: null, catBack: 'cats', budget: 0,
+    key: '', limit: 200, listSig: '', pickY: 0, anaRange: 'month', income: [], impKind: 'line', rows: [], cats: [], catDefs: [], catEdit: null, catBack: 'cats', budget: 0,
     y: 0, m: 0, tab: 'home',
     source: '全部', cat: '', q: '',
     mode: 'edit', editing: null, busy: false,
@@ -512,6 +551,7 @@ textarea.input { min-height: 96px; resize: vertical; line-height: 1.5; font-fami
 
   function applyData(d) {
     state.rows = d.rows || [];
+    state.income = d.income || [];
     state.catDefs = (d.catDefs && d.catDefs.length) ? d.catDefs : (d.categories || []).filter(function (n) { return n !== '未分類'; }).map(function (n) { return { name: n, kw: [], color: '' }; });
     syncCats();
     state.serverColors = d.colors || {};
@@ -539,8 +579,10 @@ textarea.input { min-height: 96px; resize: vertical; line-height: 1.5; font-fami
       lsSet(LS_CACHE, JSON.stringify(d));
       showApp();
       render();
+      if (!lsGet('zz_swipe_hint')) { lsSet('zz_swipe_hint', '1'); toast('小提示：手指左右滑動可以切換月份'); }
       if (state.panel === 'tidy') buildTidy();
       if (state.panel === 'cats') buildCats();
+      if (state.panel === 'income') buildIncome();
       if (state.panel === 'more') buildMore();
     }).catch(function () {
       if (!quiet) toast('連不上後端，目前顯示的是上次的資料');
@@ -589,8 +631,13 @@ textarea.input { min-height: 96px; resize: vertical; line-height: 1.5; font-fami
   function render() {
     var now = new Date();
     var isCurrent = (state.y === now.getFullYear() && state.m === now.getMonth());
-    $('monthLabel').textContent = state.y + '年' + (state.m + 1) + '月';
-    $('nextBtn').disabled = isCurrent;
+    var searching = state.tab === 'list' && state.q.trim() !== '';
+    $('monthLabel').textContent = searching ? '搜尋全部月份' : state.y + '年' + (state.m + 1) + '月';
+    $('nextBtn').disabled = isCurrent || searching;
+    $('prevBtn').disabled = searching;
+    $('monthLabel').disabled = searching;
+    var sig = [state.q, state.cat, state.source, state.y, state.m, state.tab].join('|');
+    if (sig !== state.listSig) { state.listSig = sig; state.limit = 200; }
 
     var tabs = { home: 'tbHome', list: 'tbList', ana: 'tbAna' };
     Object.keys(tabs).forEach(function (k) { $(tabs[k]).setAttribute('aria-selected', state.tab === k ? 'true' : 'false'); });
@@ -598,7 +645,7 @@ textarea.input { min-height: 96px; resize: vertical; line-height: 1.5; font-fami
     $('vList').classList.toggle('hidden', state.tab !== 'list');
     $('viewAna').classList.toggle('hidden', state.tab !== 'ana');
 
-    var monthAll = state.rows.filter(function (r) { return inMonth(r.time, state.y, state.m); });
+    var monthAll = searching ? state.rows.slice() : state.rows.filter(function (r) { return inMonth(r.time, state.y, state.m); });
 
     // 來源篩選只在明細與分析出現
     var sources = ['全部'];
@@ -665,7 +712,11 @@ textarea.input { min-height: 96px; resize: vertical; line-height: 1.5; font-fami
       var diff = (total - prevTotal) / prevTotal * 100;
       h += '　較上月 <b class="' + (diff > 0 ? 'up' : 'down') + '">' + (diff > 0 ? '▲ 多' : '▼ 少') + Math.abs(Math.round(diff)) + '%</b>';
     }
-    h += '</div></div>';
+    var incM = incomeSum(state.y, state.m);
+    h += '</div>' + (state.income.length ? '<div class="hero-sub">本月入帳 <b>' + num(incM) + '</b>　結餘 <b class="' + (incM - total < 0 ? 'up' : '') + '">' + (incM - total < 0 ? '−' : '') + num(Math.abs(incM - total)) + '</b></div>' : '') + '</div>';
+
+    // 搜尋入口
+    h += '<button class="searchpill" id="hSearch"><svg viewBox="0 0 24 24" fill="none" stroke-width="1.8" stroke-linecap="round" aria-hidden="true"><circle cx="11" cy="11" r="6.5"/><path d="M16 16l4 4"/></svg>搜尋全部明細</button>';
 
     // 預算
     h += '<div class="card"><h3>預　算</h3>';
@@ -691,47 +742,60 @@ textarea.input { min-height: 96px; resize: vertical; line-height: 1.5; font-fami
     }
     h += '</div>';
 
-    // 今天
+    // 今天（只有看本月才有）
     if (isCurrent) {
       h += '<div class="card"><h3>今　天</h3><div class="kv"><span>今天花了</span><span><b class="serif" style="font-size:1.2rem">' + money(today) + '</b>　' + todayN + ' 筆</span></div></div>';
     }
 
-    // 待整理
-    var un = uncategorized();
-    if (un.length) {
-      var cnt = 0;
-      un.forEach(function (u) { cnt += u.n; });
-      h += '<div class="card"><button class="todo" id="hTidy"><span>有 <b>' + cnt + '</b> 筆還沒分類（' + un.length + ' 家店）</span><span>整理 ›</span></button></div>';
+    // 這個月還沒分類的
+    var unM = {}, unN = 0, unS = 0;
+    monthRows.forEach(function (r) { if (r.category === '未分類' && r.store) { unN++; if (!unM[r.store]) { unM[r.store] = 1; unS++; } } });
+    if (unN) h += '<div class="card"><button class="todo" id="hTidy"><span>這個月有 <b>' + unN + '</b> 筆還沒分類（' + unS + ' 家店）</span><span>整理 ›</span></button></div>';
+
+    // 這個月每天
+    if (monthRows.length) {
+      var dly = dailySvg(monthRows);
+      h += '<div class="card"><h3>每日支出</h3>' + dly.svg + '<div class="hero-sub" style="text-align:left">最高單日 <b>' + num(dly.max) + '</b>（' + (state.m + 1) + '/' + (dly.maxDay + 1) + '）</div></div>';
+
+      // 這個月分類前五
+      var byC = {};
+      monthRows.forEach(function (r) { byC[r.category] = byC[r.category] || { v: 0, n: 0 }; byC[r.category].v += r.amount; byC[r.category].n++; });
+      var cn = Object.keys(byC).sort(function (a, b) { return byC[b].v - byC[a].v; });
+      h += '<div class="card"><h3>分　類</h3>';
+      cn.slice(0, 5).forEach(function (n) {
+        h += '<button class="catrow" data-hcat="' + esc(n) + '"><span class="l">' + catDot(n) + esc(n) + '</span><span class="r">' + num(byC[n].v) + '<small>' + Math.round(byC[n].v / total * 100) + '%　' + byC[n].n + ' 筆</small></span></button>';
+      });
+      h += '<button class="linkbtn" id="hAna">完整分析 ›</button></div>';
     }
 
-    // 近 7 天
-    var wk = '';
-    var maxd = 0, vals = [];
-    for (var i = 6; i >= 0; i--) {
-      var d0 = new Date(now.getFullYear(), now.getMonth(), now.getDate() - i);
-      var s = 0;
-      state.rows.forEach(function (r) { if (isOn(r) && dayKey(new Date(r.time)) === dayKey(d0)) s += r.amount; });
-      vals.push({ d: d0, v: s });
-      if (s > maxd) maxd = s;
-    }
-    vals.forEach(function (x, k) {
-      var hh = maxd ? Math.max(Math.round(x.v / maxd * 56), x.v ? 3 : 2) : 2;
-      wk += '<div class="wk' + (k === 6 ? ' today' : '') + '" role="img" aria-label="' + (x.d.getMonth() + 1) + '月' + x.d.getDate() + '日 ' + x.v + '元"><i style="height:' + hh + 'px"></i>' + WEEK[x.d.getDay()] + '</div>';
-    });
-    h += '<div class="card"><h3>近七天</h3><div class="week">' + wk + '</div></div>';
-
-    // 最近
-    var recent = state.rows.slice().sort(function (a, b) { return b.time - a.time; }).slice(0, 5);
-    h += '<div class="card"><h3>最　近</h3>';
+    // 這個月最近
+    var recent = monthRows.slice().sort(function (a, b) { return b.time - a.time; }).slice(0, 5);
+    h += '<div class="card"><h3>' + (isCurrent ? '本月最近' : (state.m + 1) + '月最後幾筆') + '</h3>';
     recent.forEach(function (r) { h += itemHtml(r, true); });
-    if (!recent.length) h += '<div class="empty-box">按下方「＋」記第一筆</div>';
-    else h += '<button class="linkbtn" id="hAll">全部明細 ›</button>';
+    if (!recent.length) h += '<div class="empty-box">' + (isCurrent ? '按下方「＋」記第一筆' : '這個月沒有紀錄') + '</div>';
+    else h += '<button class="linkbtn" id="hAll">本月全部明細 ›</button>';
     h += '</div>';
 
     $('vHome').innerHTML = h;
   }
 
   /* ---------- 明細 ---------- */
+
+  // 搜尋：每個詞都要符合（空格＝而且）。支援 >500、<100、100-300，以及 2025/3、3/15 這類日期
+  function rowHay(r) {
+    var d = new Date(r.time);
+    return (r.store + ' ' + r.category + ' ' + r.source + ' ' + r.card + ' ' + r.amount + ' ' + r.status + ' ' + d.getFullYear() + '/' + pad(d.getMonth() + 1) + '/' + pad(d.getDate()) + ' ' + (d.getMonth() + 1) + '/' + d.getDate()).toLowerCase();
+  }
+  function normTok(t) {
+    return t.replace(/^(\d{4})\/(\d)(?=\/|$)/, '$1/0$2').replace(/^(\d{4}\/\d{2})\/(\d)$/, '$1/0$2');
+  }
+  function matchTok(r, hay, t) {
+    var m = /^([<>])=?(\d+(?:\.\d+)?)$/.exec(t);
+    if (m) return m[1] === '>' ? r.amount >= Number(m[2]) : r.amount <= Number(m[2]);
+    m = /^(\d+(?:\.\d+)?)-(\d+(?:\.\d+)?)$/.exec(t);
+    if (m) return r.amount >= Number(m[1]) && r.amount <= Number(m[2]);
+    return hay.indexOf(t) >= 0;
+  }
 
   function renderList(rows) {
     var names = {};
@@ -745,10 +809,13 @@ textarea.input { min-height: 96px; resize: vertical; line-height: 1.5; font-fami
     $('catChips').innerHTML = ch;
 
     var q = state.q.trim().toLowerCase();
+    var toks = q ? q.split(/\s+/).map(normTok) : [];
     var list = rows.filter(function (r) {
       if (state.cat && r.category !== state.cat) return false;
-      if (!q) return true;
-      return (r.store + ' ' + r.category + ' ' + r.source + ' ' + r.card + ' ' + r.amount).toLowerCase().indexOf(q) >= 0;
+      if (!toks.length) return true;
+      var hay = rowHay(r);
+      for (var i = 0; i < toks.length; i++) if (!matchTok(r, hay, toks[i])) return false;
+      return true;
     });
     list.sort(function (a, b) { return b.time - a.time; });
 
@@ -759,17 +826,19 @@ textarea.input { min-height: 96px; resize: vertical; line-height: 1.5; font-fami
       var k = dayKey(new Date(r.time));
       dayTotals[k] = (dayTotals[k] || 0) + r.amount;
     });
-    $('listSum').innerHTML = '<span>' + (q || state.cat ? '符合 ' : '共 ') + n + ' 筆</span><span>合計 ' + money(sum) + '</span>';
+    $('qHint').classList.toggle('hidden', !!q);
+    $('listSum').innerHTML = '<span>' + (q ? '全部月份　' : '') + (q || state.cat ? '符合 ' : '共 ') + n + ' 筆</span><span>合計 ' + money(sum) + '</span>';
 
     var html = '', cur = '';
-    list.forEach(function (r) {
+    list.slice(0, state.limit).forEach(function (r) {
       var d = new Date(r.time), k = dayKey(d);
       if (k !== cur) {
         cur = k;
-        html += '<div class="day"><span>' + (d.getMonth() + 1) + '月' + d.getDate() + '日　' + WEEK[d.getDay()] + '</span><span>' + money(dayTotals[k] || 0) + '</span></div>';
+        html += '<div class="day"><span>' + (q ? d.getFullYear() + '年' : '') + (d.getMonth() + 1) + '月' + d.getDate() + '日　' + WEEK[d.getDay()] + '</span><span>' + money(dayTotals[k] || 0) + '</span></div>';
       }
       html += itemHtml(r, false);
     });
+    if (list.length > state.limit) html += '<button class="btn line" id="listMore">再顯示更多（還有 ' + (list.length - state.limit) + ' 筆）</button>';
     $('list').innerHTML = html || '<div class="empty-box">' + (q || state.cat ? '找不到符合的紀錄' : '這個月還沒有紀錄') + '</div>';
   }
 
@@ -985,6 +1054,26 @@ textarea.input { min-height: 96px; resize: vertical; line-height: 1.5; font-fami
     return { svg: svg, max: max, maxDay: maxDay };
   }
 
+  /* 收入 */
+  function incomeSum(y, m) {
+    var s = 0;
+    state.income.forEach(function (r) { if (inMonth(r.time, y, m)) s += r.amount; });
+    return s;
+  }
+  function incomeSumYear(y) {
+    var s = 0;
+    state.income.forEach(function (r) { if (new Date(r.time).getFullYear() === y) s += r.amount; });
+    return s;
+  }
+  function cashflowHtml(inc, exp, title) {
+    if (!state.income.length) return '';
+    var bal = inc - exp;
+    return '<div class="sec"><h3>' + title + '</h3><div class="note">入帳包含自行轉入與利息</div><div class="stats">' +
+      '<div class="stat"><div class="k">入帳</div><div class="v">' + num(inc) + '</div></div>' +
+      '<div class="stat"><div class="k">支出</div><div class="v">' + num(exp) + '</div></div>' +
+      '<div class="stat"><div class="k">結餘</div><div class="v ' + (bal < 0 ? 'up' : '') + '">' + (bal < 0 ? '−' : '') + num(Math.abs(bal)) + '</div></div></div></div>';
+  }
+
   /* 分析用的小工具 */
   function brandOf(store) {
     var t = String(store || '').trim();
@@ -1124,6 +1213,7 @@ textarea.input { min-height: 96px; resize: vertical; line-height: 1.5; font-fami
         $('viewAna').innerHTML = html + '<div class="empty-box">這一年還沒有可分析的消費</div>';
         return;
       }
+      html += cashflowHtml(incomeSumYear(state.y), yTotal, state.y + ' 年收支');
       var pyBy = {};
       state.rows.forEach(function (r) { if (isOn(r) && srcOk(r) && new Date(r.time).getFullYear() === state.y - 1) pyBy[r.category] = (pyBy[r.category] || 0) + r.amount; });
       html += catSection(yRows, yTotal, pyBy);
@@ -1157,6 +1247,7 @@ textarea.input { min-height: 96px; resize: vertical; line-height: 1.5; font-fami
     var dim = new Date(state.y, state.m + 1, 0).getDate();
     var days = isCur ? now.getDate() : dim;
     html += '<div class="sec"><h3>本月重點</h3>' + insightHtml(counted, total, days, isCur ? dim : 0) + '</div>';
+    html += cashflowHtml(incomeSum(state.y, state.m), total, '本月收支');
 
     var pY = Math.floor(prevIdx / 12), pM = prevIdx % 12, prevByCat = {};
     state.rows.forEach(function (r) {
@@ -1191,7 +1282,7 @@ textarea.input { min-height: 96px; resize: vertical; line-height: 1.5; font-fami
 
   /* ---------- 面板（詳細／編輯／記帳／預算／整理／更多） ---------- */
 
-  var PANELS = { import: 'pImport', detail: 'pDetail', edit: 'pEdit', add: 'pAdd', budget: 'pBudget', tidy: 'pTidy', more: 'pMore', cats: 'pCats', cat: 'pCat' };
+  var PANELS = { import: 'pImport', detail: 'pDetail', edit: 'pEdit', add: 'pAdd', budget: 'pBudget', tidy: 'pTidy', more: 'pMore', cats: 'pCats', cat: 'pCat', income: 'pIncome', month: 'pMonth' };
 
   function showPanel(which) {
     var wasOpen = !$('mask').classList.contains('hidden');
@@ -1640,10 +1731,83 @@ textarea.input { min-height: 96px; resize: vertical; line-height: 1.5; font-fami
 
   function openImport() {
     impPending = [];
+    state.impKind = 'line';
     $('fFile').value = '';
     $('impResult').innerHTML = '';
     $('impGo').classList.add('hidden');
     showPanel('import');
+  }
+
+  /* CSV 讀取（含引號、BOM） */
+  function parseCsv(text) {
+    text = String(text || '').replace(/^﻿/, '');
+    var rows = [], row = [], cell = '', q = false, i, c;
+    for (i = 0; i < text.length; i++) {
+      c = text[i];
+      if (q) {
+        if (c === '"') { if (text[i + 1] === '"') { cell += '"'; i++; } else q = false; } else cell += c;
+      } else if (c === '"') q = true;
+      else if (c === ',') { row.push(cell); cell = ''; }
+      else if (c === '\n' || c === '\r') {
+        if (c === '\r' && text[i + 1] === '\n') i++;
+        row.push(cell); cell = '';
+        if (row.length > 1 || row[0] !== '') rows.push(row);
+        row = [];
+      } else cell += c;
+    }
+    row.push(cell);
+    if (row.length > 1 || row[0] !== '') rows.push(row);
+    return rows;
+  }
+  function csvTime(s) {
+    var m = /^\s*(\d{4})[\/-](\d{1,2})[\/-](\d{1,2})(?:[ T](\d{1,2}):(\d{2})(?::(\d{2}))?)?/.exec(String(s || ''));
+    if (!m) return 0;
+    return Date.UTC(+m[1], +m[2] - 1, +m[3], +(m[4] || 0), +(m[5] || 0), +(m[6] || 0)) - 8 * 3600000; // 檔案是台灣時間
+  }
+  function planCsv(rows) {
+    var kind = 'expense', i;
+    for (i = 0; i < rows.length; i++) { if (csvTime(rows[i][0])) { kind = rows[i].length >= 7 ? 'expense' : 'income'; break; } }
+    var items = [];
+    rows.forEach(function (r) {
+      var t = csvTime(r[0]), a = parseFloat(String(r[1] || '').replace(/[^\d.]/g, ''));
+      if (!t || !a) return;
+      if (kind === 'expense') items.push({ t: t, amount: a, store: String(r[2] || '').trim(), category: String(r[3] || '').trim(), status: r[4] === '已取消' ? '已取消' : '正常', source: String(r[5] || '').trim(), card: String(r[6] || '').trim() });
+      else items.push({ t: t, amount: a, store: String(r[2] || '').trim() || '收入', source: String(r[3] || '').trim() });
+    });
+    var used = {}, fresh = [];
+    items.forEach(function (p) {
+      var pool = kind === 'expense' ? state.rows : state.income, hit = -1, j;
+      for (j = 0; j < pool.length; j++) {
+        var r = pool[j];
+        if (used[j]) continue;
+        var nm = kind === 'expense' ? String(r.store || '').trim() : String(r.note || '').trim();
+        if (r.amount !== p.amount || nm !== p.store) continue;
+        if (Math.abs(r.time - p.t) <= (kind === 'expense' ? 180000 : 60000)) { hit = j; break; }
+      }
+      if (hit >= 0) used[hit] = true; else fresh.push(p);
+    });
+    fresh.sort(function (a, b) { return a.t - b.t; });
+    return { kind: kind, total: items.length, fresh: fresh };
+  }
+  function showImportPlan(kind, total, label) {
+    var h = '<div class="kv"><span>檔案內的' + label + '</span><span>' + total + ' 筆</span></div>' +
+      '<div class="kv"><span>帳裡已經有</span><span>' + (total - impPending.length) + ' 筆</span></div>' +
+      '<div class="kv"><span>可以匯入</span><span><b class="up">' + impPending.length + ' 筆</b></span></div>';
+    if (!impPending.length) {
+      h += '<div class="empty-box" style="padding:20px 0">沒有缺漏，帳已經是最新的。</div>';
+    } else {
+      var show = impPending.slice(-15).reverse();
+      h += '<div style="margin-top:10px">';
+      show.forEach(function (p) {
+        var d = new Date(p.t);
+        h += '<div class="imp-row"><span>' + (d.getMonth() + 1) + '/' + d.getDate() + ' ' + pad(d.getHours()) + ':' + pad(d.getMinutes()) + '</span><span style="flex:1;min-width:0;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;color:var(--ink)">' + esc(p.store || '（沒有店名）') + (p.status === '已取消' ? '　已取消' : '') + '</span><b>' + num(p.amount) + '</b></div>';
+      });
+      if (impPending.length > 15) h += '<div class="hero-sub" style="padding:8px 0">只列出最近 15 筆，其餘一起匯入。</div>';
+      h += '</div>';
+      $('impGo').textContent = '匯入 ' + impPending.length + ' 筆';
+      $('impGo').classList.remove('hidden');
+    }
+    $('impResult').innerHTML = h;
   }
 
   function onFile() {
@@ -1651,33 +1815,30 @@ textarea.input { min-height: 96px; resize: vertical; line-height: 1.5; font-fami
     if (!f) return;
     $('impResult').textContent = '讀取中…';
     $('impGo').classList.add('hidden');
+    var isCsv = /\.csv$/i.test(f.name);
     var rd = new FileReader();
     rd.onerror = function () { $('impResult').textContent = '讀不到這個檔案，請再選一次。'; };
     rd.onload = function () {
-      var parsed = parseLineExport(String(rd.result || ''));
-      if (!parsed.pays.length) {
-        $('impResult').innerHTML = '<div class="empty-box" style="padding:20px 0">這個檔案裡找不到 LINE Pay 付款。請確認是「LINE錢包」聊天室匯出的文字檔。</div>';
+      var text = String(rd.result || '');
+      if (isCsv) {
+        var plan = planCsv(parseCsv(text));
+        if (!plan.total) {
+          $('impResult').innerHTML = '<div class="empty-box" style="padding:20px 0">這個 CSV 讀不到資料。每列要有「時間、金額、…」，消費 7 欄、收入 4 欄。</div>';
+          return;
+        }
+        state.impKind = plan.kind;
+        impPending = plan.fresh;
+        showImportPlan(plan.kind, plan.total, plan.kind === 'income' ? '收入' : '消費');
         return;
       }
-      impPending = planImport(parsed);
-      var h = '<div class="kv"><span>檔案內的付款</span><span>' + parsed.pays.length + ' 筆</span></div>' +
-        '<div class="kv"><span>帳裡已經有</span><span>' + (parsed.pays.length - impPending.length) + ' 筆</span></div>' +
-        '<div class="kv"><span>可以補記</span><span><b class="up">' + impPending.length + ' 筆</b></span></div>';
-      if (!impPending.length) {
-        h += '<div class="empty-box" style="padding:20px 0">沒有缺漏，帳已經是最新的。</div>';
-      } else {
-        var show = impPending.slice(-15).reverse();
-        h += '<div style="margin-top:10px">';
-        show.forEach(function (p) {
-          var d = new Date(p.t);
-          h += '<div class="imp-row"><span>' + (d.getMonth() + 1) + '/' + d.getDate() + ' ' + pad(d.getHours()) + ':' + pad(d.getMinutes()) + '</span><span style="flex:1;min-width:0;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;color:var(--ink)">' + esc(p.store || '（沒有店名）') + (p.status === '已取消' ? '　已取消' : '') + '</span><b>' + num(p.amount) + '</b></div>';
-        });
-        if (impPending.length > 15) h += '<div class="hero-sub" style="padding:8px 0">只列出最近 15 筆，其餘一起補記。</div>';
-        h += '</div>';
-        $('impGo').textContent = '補記 ' + impPending.length + ' 筆';
-        $('impGo').classList.remove('hidden');
+      var parsed = parseLineExport(text);
+      if (!parsed.pays.length) {
+        $('impResult').innerHTML = '<div class="empty-box" style="padding:20px 0">這個檔案裡找不到 LINE Pay 付款。請確認是「LINE錢包」聊天室匯出的文字檔，或改選 CSV。</div>';
+        return;
       }
-      $('impResult').innerHTML = h;
+      state.impKind = 'line';
+      impPending = planImport(parsed);
+      showImportPlan('line', parsed.pays.length, '付款');
     };
     rd.readAsText(f, 'UTF-8');
   }
@@ -1686,19 +1847,80 @@ textarea.input { min-height: 96px; resize: vertical; line-height: 1.5; font-fami
     if (!impPending.length) return;
     var btn = $('impGo');
     btn.disabled = true;
-    var rows = impPending.map(function (p) { return [p.t, p.amount, p.store, p.status]; });
-    apiPost({ action: 'import', rows: rows }).then(function (res) {
+    var body;
+    if (state.impKind === 'income') {
+      body = { action: 'import', kind: 'income', rows: impPending.map(function (p) { return [p.t, p.amount, p.store, p.source]; }) };
+    } else {
+      body = { action: 'import', rows: impPending.map(function (p) { return [p.t, p.amount, p.store, p.status, p.source || '', p.card || '', p.category || '']; }) };
+    }
+    apiPost(body).then(function (res) {
       if (res && res.ok && /^imported:(\d+)$/.test(res.result)) {
-        toast('已補記 ' + RegExp.$1 + ' 筆');
+        var n = /^imported:(\d+)$/.exec(res.result)[1];
+        toast('已匯入 ' + n + ' 筆');
         closeSheet();
         refresh(true);
       } else if (res && res.ok && res.result === 'unknown action') {
-        toast('後端還沒更新到 v5.1，請先更新 Apps Script 並部署新版本');
+        toast('後端還沒更新，請先更新 Apps Script 並部署新版本');
       } else {
-        toast('補記失敗：' + ((res && (res.msg || res.result)) || '未知錯誤'));
+        toast('匯入失敗：' + ((res && (res.msg || res.result)) || '未知錯誤'));
       }
-    }).catch(function () { toast('連不上後端，這次沒有補記'); })
+    }).catch(function () { toast('連不上後端，這次沒有匯入'); })
       .then(function () { btn.disabled = false; });
+  }
+
+  /* 選月份 */
+  function buildMonthPick() {
+    var now = new Date(), y = state.pickY, h = '';
+    $('pyLabel').textContent = y + ' 年';
+    $('pyNext').disabled = y >= now.getFullYear();
+    for (var m = 0; m < 12; m++) {
+      var future = y > now.getFullYear() || (y === now.getFullYear() && m > now.getMonth());
+      h += '<button data-pm="' + m + '" aria-pressed="' + (y === state.y && m === state.m) + '"' + (future ? ' disabled' : '') + '>' + (m + 1) + '月<small>' + (future ? '' : shortNum(sumMonthAll(y, m))) + '</small></button>';
+    }
+    $('mGrid').innerHTML = h;
+  }
+  function openMonthPick() { state.pickY = state.y; buildMonthPick(); showPanel('month'); }
+
+  /* 收入記帳 */
+  function buildIncome() {
+    var list = state.income.filter(function (r) { return inMonth(r.time, state.y, state.m); }).sort(function (a, b) { return b.time - a.time; });
+    var h = '';
+    list.forEach(function (r) {
+      var d = new Date(r.time);
+      h += '<button class="imp-row" style="width:100%;text-align:left;min-height:48px" data-inc="' + r.row + '"><span>' + (d.getMonth() + 1) + '/' + d.getDate() + '</span><span style="flex:1;min-width:0;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;color:var(--ink)">' + esc(r.note) + '</span><b>' + num(r.amount) + '</b></button>';
+    });
+    $('incList').innerHTML = h || '<div class="empty-box" style="padding:20px 0">這個月還沒有收入紀錄</div>';
+  }
+  function openIncome() { $('fiAmount').value = ''; buildIncome(); showPanel('income'); }
+  function saveIncome() {
+    var a = parseFloat($('fiAmount').value);
+    if (!a || a <= 0) { toast('請輸入金額'); return; }
+    var btn = $('incSave');
+    btn.disabled = true;
+    apiPost({ action: 'incomeAdd', amount: a, note: $('fiNote').value.trim() || '收入', time: Date.now(), source: '手動' }).then(function (res) {
+      if (res && res.ok && res.result === 'income added') {
+        toast('已記一筆收入 ' + money(a));
+        state.income.push({ row: 0, time: Date.now(), amount: a, note: $('fiNote').value.trim() || '收入', source: '手動' });
+        $('fiAmount').value = '';
+        buildIncome();
+        render();
+        refresh(true);
+      } else if (res && res.ok && res.result === 'unknown action') toast('後端還沒更新到 v5.4，請先更新 Apps Script 並部署新版本');
+      else toast('失敗：' + ((res && (res.msg || res.result)) || '未知錯誤'));
+    }).catch(function () { toast('連不上後端'); }).then(function () { btn.disabled = false; });
+  }
+  function deleteIncomeRow(row) {
+    var r = null;
+    state.income.forEach(function (x) { if (x.row === row) r = x; });
+    if (!r || !window.confirm('確定刪除這筆收入嗎？（' + r.note + ' ' + money(r.amount) + '）')) return;
+    apiPost({ action: 'incomeDelete', row: r.row, time: r.time, oldAmount: r.amount }).then(function (res) {
+      if (res && res.ok && res.result === 'income deleted') {
+        toast('已刪除');
+        state.income = state.income.filter(function (x) { return x !== r; });
+        buildIncome(); render(); refresh(true);
+      } else if (res && res.result === 'stale') { toast('資料已經變動，已重新載入'); refresh(true); }
+      else toast('失敗：' + ((res && (res.msg || res.result)) || '未知錯誤'));
+    }).catch(function () { toast('連不上後端'); });
   }
 
   /* 更多 */
@@ -1707,6 +1929,7 @@ textarea.input { min-height: 96px; resize: vertical; line-height: 1.5; font-fami
     $('mUpdated').textContent = state.loadedAt ? (mins < 1 ? '剛剛更新' : mins + ' 分鐘前') : '';
     $('mBudgetVal').textContent = state.budget ? money(state.budget) : '未設定';
     var n = uncategorized().length;
+    $('mIncomeVal').textContent = state.income.length ? '本月 ' + money(incomeSum(state.y, state.m)) : '';
     $('mCatsVal').textContent = state.catDefs.length ? state.catDefs.length + ' 個分類' : '';
     $('mTidyVal').textContent = n ? n + ' 家待整理' : '都整理好了';
     $('verMore').textContent = versionText();
@@ -1714,6 +1937,44 @@ textarea.input { min-height: 96px; resize: vertical; line-height: 1.5; font-fami
   function openMore() { buildMore(); showPanel('more'); }
 
   /* ---------- 事件 ---------- */
+
+  // 左右滑動切換月份（年度分析時切換年）。dir：-1 上一個、1 下一個
+  function stepRange(dir) {
+    var now = new Date(), y = state.y, m = state.m;
+    if (state.tab === 'ana' && state.anaRange === 'year') {
+      y += dir;
+      if (y > now.getFullYear()) return false;
+      if (y === now.getFullYear() && m > now.getMonth()) m = now.getMonth();
+    } else {
+      m += dir;
+      if (m < 0) { m = 11; y--; }
+      if (m > 11) { m = 0; y++; }
+      if (y > now.getFullYear() || (y === now.getFullYear() && m > now.getMonth())) return false;
+    }
+    var w = document.querySelector('main.wrap');
+    gotoMonth(y, m);
+    w.classList.remove('sl-l', 'sl-r');
+    void w.offsetWidth;
+    w.classList.add(dir > 0 ? 'sl-l' : 'sl-r');
+    return true;
+  }
+  function bindSwipe() {
+    var el = document.getElementById('app'), sx = 0, sy = 0, st = 0, ok = false;
+    el.addEventListener('touchstart', function (e) {
+      ok = false;
+      if (e.touches.length !== 1 || state.panel || state.q.trim()) return;
+      if (e.target.closest('.chips, input, textarea, select, .tabbar, .top, svg.noswipe')) return;
+      sx = e.touches[0].clientX; sy = e.touches[0].clientY; st = Date.now(); ok = true;
+    }, { passive: true });
+    el.addEventListener('touchend', function (e) {
+      if (!ok) return;
+      ok = false;
+      var t = e.changedTouches[0], dx = t.clientX - sx, dy = t.clientY - sy;
+      if (Math.abs(dx) < 70 || Math.abs(dx) < Math.abs(dy) * 1.8 || Date.now() - st > 700) return;
+      // 手指往右滑 = 看前一個月；往左滑 = 看後一個月
+      stepRange(dx > 0 ? -1 : 1);
+    }, { passive: true });
+  }
 
   function gotoMonth(y, m) {
     state.y = y; state.m = m; state.cat = '';
@@ -1775,9 +2036,13 @@ textarea.input { min-height: 96px; resize: vertical; line-height: 1.5; font-fami
       if (!b) return;
       if (b.id === 'hBudget') openBudget();
       else if (b.id === 'hTidy') openTidy();
-      else if (b.id === 'hAll') setTab('list');
+      else if (b.id === 'hAll') { state.q = ''; $('qInput').value = ''; setTab('list'); }
+      else if (b.id === 'hAna') setTab('ana');
+      else if (b.id === 'hSearch') { state.q = ''; $('qInput').value = ''; setTab('list'); try { $('qInput').focus(); } catch (x) {} }
+      else if (b.hasAttribute('data-hcat')) { state.cat = b.getAttribute('data-hcat'); state.q = ''; $('qInput').value = ''; setTab('list'); }
     });
     $('list').addEventListener('click', function (e) {
+      if (e.target.id === 'listMore') { state.limit += 200; render(); return; }
       var it = e.target.closest('.item');
       if (it) openRow(it);
     });
@@ -1831,6 +2096,22 @@ textarea.input { min-height: 96px; resize: vertical; line-height: 1.5; font-fami
     });
     $('tidySmart').addEventListener('click', smartRecat);
     $('mCats').addEventListener('click', openCats);
+    $('mIncome').addEventListener('click', openIncome);
+    $('monthLabel').addEventListener('click', openMonthPick);
+    $('pyPrev').addEventListener('click', function () { state.pickY--; buildMonthPick(); });
+    $('pyNext').addEventListener('click', function () { state.pickY++; buildMonthPick(); });
+    $('mGrid').addEventListener('click', function (e) {
+      var b = e.target.closest('[data-pm]');
+      if (!b || b.disabled) return;
+      closeSheet();
+      state.q = ''; $('qInput').value = '';
+      gotoMonth(state.pickY, Number(b.getAttribute('data-pm')));
+    });
+    $('incSave').addEventListener('click', saveIncome);
+    $('incList').addEventListener('click', function (e) {
+      var b = e.target.closest('[data-inc]');
+      if (b) deleteIncomeRow(Number(b.getAttribute('data-inc')));
+    });
     $('catNew').addEventListener('click', function () { state.catBack = 'cats'; openCatEdit(-1, ''); });
     $('catSmart').addEventListener('click', smartRecat);
     $('catPreset').addEventListener('click', function () {
@@ -1880,6 +2161,7 @@ textarea.input { min-height: 96px; resize: vertical; line-height: 1.5; font-fami
     state.y = now.getFullYear();
     state.m = now.getMonth();
     bind();
+    bindSwipe();
     var k = lsGet(LS_KEY);
     if (!k) { showLogin(''); return; }
     state.key = k;
