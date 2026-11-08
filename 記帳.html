@@ -162,6 +162,25 @@ svg text { font-family: var(--sans); }
 
 #toast { position: fixed; left: 50%; bottom: calc(104px + env(safe-area-inset-bottom)); transform: translateX(-50%); background: var(--ink); color: var(--paper); padding: 10px 18px; border-radius: 2px; font-size: 14px; letter-spacing: .05em; z-index: 40; max-width: 88%; text-align: center; }
   .ver { font-size: 11px; letter-spacing: .12em; color: var(--sub); margin-top: 22px; }
+/* 圓環動畫 */
+.donut-box { margin-top: 4px; }
+.sl { cursor: pointer; transition: transform .3s cubic-bezier(.3,1.5,.5,1), opacity .25s; }
+.sl.pop { transform: translate(var(--dx), var(--dy)); }
+.sl.dim { opacity: .28; }
+.lbl { opacity: 0; transition: opacity .45s; pointer-events: none; }
+.lbl.in { opacity: 1; }
+.lbl.dim.in { opacity: .22; }
+.lbl .pc { font-size: 10px; font-weight: 600; fill: #2a2724; }
+.lbl .nm { font-size: 9px; fill: #7a736a; }
+.lbl polyline { fill: none; stroke: #b9b09d; stroke-width: .8; }
+.spark { transform-box: fill-box; transform-origin: center; opacity: 0; animation: tw 3.4s ease-in-out infinite; pointer-events: none; }
+@keyframes tw { 0%, 100% { opacity: 0; transform: scale(.25) rotate(0deg); } 50% { opacity: .9; transform: scale(1) rotate(45deg); } }
+.grow { transform-box: fill-box; transform-origin: 50% 100%; animation: grow .7s cubic-bezier(.2,.8,.2,1) both; }
+@keyframes grow { from { transform: scaleY(0); } to { transform: scaleY(1); } }
+.donut-act { text-align: center; min-height: 34px; }
+.link { color: var(--shu); font-size: 14px; letter-spacing: .1em; padding: 6px 10px; text-align: center; }
+.catrow.on { background: var(--paper2); }
+@media (prefers-reduced-motion: reduce) { .grow, .spark { animation: none; } .spark { display: none; } .sl, .lbl { transition: none; } }
 footer .ver { margin-top: 6px; }
 footer { text-align: center; color: var(--sub); font-size: 11px; letter-spacing: .3em; padding: 40px 0 6px; }
 </style>
@@ -266,7 +285,7 @@ footer { text-align: center; color: var(--sub); font-size: 11px; letter-spacing:
   'use strict';
 
   var DEFAULT_API = 'https://script.google.com/macros/s/AKfycbxPkzgIjUT7O4YMPVPjFi5u9JsZL_WWcNhAgVXnH_Erg5Z3jWo2ZgTnpiZTRGUYZqun/exec';
-  var PAGE_VERSION = '4.0';
+  var PAGE_VERSION = '4.1';
   var LS_KEY = 'zz_expense_key';
   var LS_API = 'zz_expense_api';
   var WEEK = ['日', '一', '二', '三', '四', '五', '六'];
@@ -279,7 +298,7 @@ footer { text-align: center; color: var(--sub); font-size: 11px; letter-spacing:
     tab: 'list',
     source: '全部', cat: '',
     mode: 'edit', editing: null, busy: false,
-    catColors: {}, serverColors: {}, sources: [], backendVersion: ''
+    ana: null, catColors: {}, serverColors: {}, sources: [], backendVersion: ''
   };
 
   function $(id) { return document.getElementById(id); }
@@ -527,7 +546,7 @@ footer { text-align: center; color: var(--sub); font-size: 11px; letter-spacing:
       var cx = x + bw / 2;
       svg += '<g class="barg" data-ym="' + it.y + '-' + it.m + '">' +
         '<rect x="' + (padX + step * k) + '" y="0" width="' + step + '" height="' + H + '" fill="transparent"/>' +
-        '<rect x="' + x + '" y="' + (it.v ? y : H - bottom - 1) + '" width="' + bw + '" height="' + (it.v ? Math.max(h, 2) : 1) + '" fill="' + (on ? '#c4412d' : '#3d5a73') + '" opacity="' + (on ? 1 : 0.55) + '"/>' +
+        '<rect class="grow" style="animation-delay:' + (k * 70) + 'ms" x="' + x + '" y="' + (it.v ? y : H - bottom - 1) + '" width="' + bw + '" height="' + (it.v ? Math.max(h, 2) : 1) + '" fill="' + (on ? '#c4412d' : '#3d5a73') + '" opacity="' + (on ? 1 : 0.55) + '"/>' +
         '<text class="bv" x="' + cx + '" y="' + (y - 6) + '">' + shortNum(it.v) + '</text>' +
         '<text class="bm' + (on ? ' on' : '') + '" x="' + cx + '" y="' + (H - 9) + '">' + (it.m + 1) + '月</text></g>';
     });
@@ -535,19 +554,150 @@ footer { text-align: center; color: var(--sub); font-size: 11px; letter-spacing:
   }
 
   function donutSvg(entries, total) {
-    var R = 52, C = 2 * Math.PI * R;
-    var svg = '<svg viewBox="0 0 140 140" role="img" aria-label="分類比例">';
-    svg += '<circle cx="70" cy="70" r="' + R + '" fill="none" stroke="#ece6d8" stroke-width="14"/>';
-    var acc = 0;
-    entries.forEach(function (e) {
-      var len = total ? e.value / total * C : 0;
-      var draw = Math.max(len - (entries.length > 1 ? 1.5 : 0), 0.5);
-      svg += '<circle cx="70" cy="70" r="' + R + '" fill="none" stroke="' + e.color + '" stroke-width="14" stroke-dasharray="' + draw.toFixed(2) + ' ' + (C - draw).toFixed(2) + '" stroke-dashoffset="' + (-acc).toFixed(2) + '" transform="rotate(-90 70 70)"/>';
+    var CX = 160, CY = 126, R = 58, SW = 24, C = 2 * Math.PI * R, DUR = 900;
+    var svg = '<svg id="donutSvg" viewBox="0 0 320 252" role="img" aria-label="分類比例">';
+    svg += '<circle cx="' + CX + '" cy="' + CY + '" r="' + R + '" fill="none" stroke="#ece6d8" stroke-width="' + SW + '"/>';
+    var acc = 0, labels = [], sl = '';
+    entries.forEach(function (e, i) {
+      var len = e.value / total * C;
+      var draw = Math.max(len - (entries.length > 1 ? 2 : 0), 0.6);
+      var ang = (acc + len / 2) / C * 2 * Math.PI - Math.PI / 2;
+      var dx = Math.cos(ang), dy = Math.sin(ang);
+      var delay = Math.round(acc / C * DUR);
+      var dur = Math.max(Math.round(len / C * DUR), 60);
+      sl += '<g class="sl" data-i="' + i + '" style="--dx:' + (dx * 7).toFixed(2) + 'px;--dy:' + (dy * 7).toFixed(2) + 'px">' +
+        '<circle class="slice" cx="' + CX + '" cy="' + CY + '" r="' + R + '" fill="none" stroke="' + e.color + '" stroke-width="' + SW + '"' +
+        ' stroke-dasharray="0 ' + C.toFixed(2) + '" stroke-dashoffset="' + (-acc).toFixed(2) + '" transform="rotate(-90 ' + CX + ' ' + CY + ')"' +
+        ' data-d="' + draw.toFixed(2) + '" data-r="' + (C - draw).toFixed(2) + '"' +
+        ' style="transition:stroke-dasharray ' + dur + 'ms linear ' + delay + 'ms"/></g>';
+      if (e.value / total >= 0.04) {
+        var rr = R + SW / 2;
+        labels.push({ i: i, ax: CX + dx * (rr + 3), ay: CY + dy * (rr + 3), ex: CX + dx * (rr + 14), ey: CY + dy * (rr + 14),
+          right: dx >= 0, delay: delay + Math.round(dur / 2), pct: Math.round(e.value / total * 100), name: e.name });
+      }
       acc += len;
     });
-    svg += '<text x="70" y="66" text-anchor="middle" font-size="9" fill="#7a736a" letter-spacing="2">支出</text>';
-    svg += '<text x="70" y="84" text-anchor="middle" font-size="15" font-weight="600" fill="#2a2724" style="font-family:var(--serif)">' + shortNum(total) + '</text>';
+    svg += sl;
+
+    // 外圍標籤：左右各自由上到下排，太近就往下推開，避免文字重疊
+    [true, false].forEach(function (side) {
+      var arr = labels.filter(function (l) { return l.right === side; }).sort(function (a, b) { return a.ey - b.ey; });
+      var prev = -999;
+      arr.forEach(function (l) {
+        l.ly = Math.max(l.ey, prev + 24);
+        prev = l.ly;
+      });
+    });
+    labels.forEach(function (l) {
+      var tx = l.ex + (l.right ? 8 : -8);
+      var nm = l.name.length > 5 ? l.name.slice(0, 5) + '…' : l.name;
+      svg += '<g class="lbl" data-i="' + l.i + '" style="transition-delay:' + l.delay + 'ms">' +
+        '<polyline points="' + l.ax.toFixed(1) + ',' + l.ay.toFixed(1) + ' ' + l.ex.toFixed(1) + ',' + l.ly.toFixed(1) + ' ' + tx.toFixed(1) + ',' + l.ly.toFixed(1) + '"/>' +
+        '<text class="pc" x="' + (tx + (l.right ? 3 : -3)).toFixed(1) + '" y="' + (l.ly - 1).toFixed(1) + '" text-anchor="' + (l.right ? 'start' : 'end') + '">' + l.pct + '%</text>' +
+        '<text class="nm" x="' + (tx + (l.right ? 3 : -3)).toFixed(1) + '" y="' + (l.ly + 10).toFixed(1) + '" text-anchor="' + (l.right ? 'start' : 'end') + '">' + esc(nm) + '</text></g>';
+    });
+
+    // 環上的小星光（很淡、很慢）
+    [24, 78, 133, 198, 252, 318].forEach(function (deg, k) {
+      var a2 = deg * Math.PI / 180 - Math.PI / 2, s = k % 2 ? 4 : 5.5, q = s * 0.25;
+      svg += '<g transform="translate(' + (CX + Math.cos(a2) * R).toFixed(1) + ' ' + (CY + Math.sin(a2) * R).toFixed(1) + ')">' +
+        '<path class="spark" style="animation-delay:' + (1100 + k * 520) + 'ms" fill="#fffaf0" d="M0,' + -s + ' L' + q + ',' + -q + ' L' + s + ',0 L' + q + ',' + q + ' L0,' + s + ' L' + -q + ',' + q + ' L' + -s + ',0 L' + -q + ',' + -q + 'Z"/></g>';
+    });
+
+    // 中央資訊（預設顯示總額，點分類後換成該分類）
+    svg += '<text style="pointer-events:none" id="cLabel" x="' + CX + '" y="' + (CY - 11) + '" text-anchor="middle" font-size="9" fill="#7a736a" letter-spacing="2">支出</text>';
+    svg += '<text id="cVal" x="' + CX + '" y="' + (CY + 10) + '" text-anchor="middle" font-size="17" font-weight="600" fill="#2a2724" style="font-family:var(--serif);pointer-events:none">0</text>';
+    svg += '<text style="pointer-events:none" id="cSub" x="' + CX + '" y="' + (CY + 25) + '" text-anchor="middle" font-size="8.5" fill="#7a736a"></text>';
+    svg += '<text style="pointer-events:none" id="cSub2" x="' + CX + '" y="' + (CY + 37) + '" text-anchor="middle" font-size="8.5" fill="#7a736a"></text>';
     return svg + '</svg>';
+  }
+
+  var cuTimer = null;
+  function countUp(el, to, ms) {
+    cancelAnimationFrame(cuTimer);
+    if (!el) return;
+    if (!ms) { el.textContent = num(to); return; }
+    var t0 = null;
+    function step(ts) {
+      if (t0 === null) t0 = ts;
+      var k = Math.min((ts - t0) / ms, 1);
+      var e = 1 - Math.pow(1 - k, 3);
+      el.textContent = num(Math.round(to * e));
+      if (k < 1) cuTimer = requestAnimationFrame(step);
+    }
+    cuTimer = requestAnimationFrame(step);
+  }
+  function reduceMotion() {
+    return !!(window.matchMedia && window.matchMedia('(prefers-reduced-motion: reduce)').matches);
+  }
+
+  // 圓環掃出來、標籤淡入、總額數字跳動
+  function startAnaAnim() {
+    var svg = $('donutSvg');
+    if (!svg || !state.ana) return;
+    var slices = svg.querySelectorAll('.slice');
+    var reduce = reduceMotion();
+    var i;
+    if (reduce) { for (i = 0; i < slices.length; i++) slices[i].style.transition = 'none'; }
+    requestAnimationFrame(function () {
+      requestAnimationFrame(function () {
+        var k;
+        for (k = 0; k < slices.length; k++) {
+          slices[k].style.strokeDasharray = slices[k].getAttribute('data-d') + ' ' + slices[k].getAttribute('data-r');
+        }
+        var ls = svg.querySelectorAll('.lbl');
+        for (k = 0; k < ls.length; k++) ls[k].classList.add('in');
+      });
+    });
+    setCenter('支出', state.ana.total, '', '', reduce ? 0 : 900);
+  }
+
+  function setCenter(label, val, sub, sub2html, ms) {
+    $('cLabel').textContent = label;
+    $('cSub').textContent = sub;
+    var s2 = $('cSub2');
+    s2.textContent = sub2html.text || '';
+    s2.setAttribute('fill', sub2html.color || '#7a736a');
+    countUp($('cVal'), val, ms);
+  }
+
+  function selectSlice(i) {
+    var ana = state.ana;
+    if (!ana) return;
+    if (ana.sel === i) i = -1;
+    ana.sel = i;
+    var svg = $('donutSvg');
+    var gs = svg.querySelectorAll('.sl'), ls = svg.querySelectorAll('.lbl'), k;
+    for (k = 0; k < gs.length; k++) {
+      var on = Number(gs[k].getAttribute('data-i')) === i;
+      gs[k].classList.toggle('pop', on);
+      gs[k].classList.toggle('dim', i >= 0 && !on);
+    }
+    for (k = 0; k < ls.length; k++) {
+      ls[k].classList.toggle('dim', i >= 0 && Number(ls[k].getAttribute('data-i')) !== i);
+    }
+    var rows = document.querySelectorAll('.catrow');
+    for (k = 0; k < rows.length; k++) {
+      rows[k].classList.toggle('on', i >= 0 && rows[k].getAttribute('data-cat') === ana.entries[i].name);
+    }
+    var ms = reduceMotion() ? 0 : 450;
+    if (i < 0) {
+      setCenter('支出', ana.total, '', {}, ms);
+      $('donutAct').innerHTML = '';
+    } else {
+      var e = ana.entries[i];
+      var sub2 = {};
+      if (e.prev > 0) {
+        var d = (e.value - e.prev) / e.prev * 100;
+        sub2 = { text: '較上月 ' + (d > 0 ? '▲' : '▼') + Math.abs(Math.round(d)) + '%', color: d > 0 ? '#c4412d' : '#3d5a73' };
+      } else if (!e.members) {
+        sub2 = { text: '上月沒有紀錄' };
+      }
+      var nm = e.name.length > 6 ? e.name.slice(0, 6) + '…' : e.name;
+      setCenter(nm, e.value, '占 ' + Math.round(e.value / ana.total * 100) + '%　' + e.count + ' 筆', sub2, ms);
+      $('donutAct').innerHTML = e.members ? '' : '<button class="link" id="goCat">查看「' + esc(e.name) + '」明細 ›</button>';
+    }
+    if (navigator.vibrate) { try { navigator.vibrate(6); } catch (x) {} }
   }
 
   function dailySvg(counted) {
@@ -566,7 +716,7 @@ footer { text-align: center; color: var(--sub); font-size: 11px; letter-spacing:
       if (!v) return;
       var h = Math.max(Math.round((H - top - bottom) * v / max), 2);
       var x = padX + step * i + (step - bw) / 2;
-      svg += '<rect x="' + x.toFixed(2) + '" y="' + (H - bottom - h) + '" width="' + bw.toFixed(2) + '" height="' + h + '" fill="' + (i === maxDay ? '#c4412d' : '#3d5a73') + '" opacity="' + (i === maxDay ? 1 : 0.55) + '"/>';
+      svg += '<rect class="grow" style="animation-delay:' + (i * 14) + 'ms" x="' + x.toFixed(2) + '" y="' + (H - bottom - h) + '" width="' + bw.toFixed(2) + '" height="' + h + '" fill="' + (i === maxDay ? '#c4412d' : '#3d5a73') + '" opacity="' + (i === maxDay ? 1 : 0.55) + '"/>';
     });
     var marks = [1, 10, 20, n];
     var drawn = {};
@@ -594,6 +744,7 @@ footer { text-align: center; color: var(--sub); font-size: 11px; letter-spacing:
 
     if (!counted.length) {
       html += '<div class="empty-box">這個月還沒有可分析的消費</div>';
+      state.ana = null;
       $('viewAna').innerHTML = html;
       return;
     }
@@ -603,22 +754,28 @@ footer { text-align: center; color: var(--sub); font-size: 11px; letter-spacing:
     counted.forEach(function (r) { byCat[r.category] = byCat[r.category] || { v: 0, n: 0 }; byCat[r.category].v += r.amount; byCat[r.category].n++; });
     var names = Object.keys(byCat).sort(function (a, b) { return byCat[b].v - byCat[a].v; });
     var entries = names.map(function (n) { return { name: n, value: byCat[n].v, count: byCat[n].n, color: colorOf(n) }; });
-    var donutEntries = entries;
-    if (entries.length > 7) {
-      var rest = entries.slice(6);
-      var rv = 0;
-      rest.forEach(function (e) { rv += e.value; });
-      donutEntries = entries.slice(0, 6).concat([{ name: '其他', value: rv, color: PALETTE[7] }]);
-    }
-    html += '<div class="sec"><h3>分　類</h3><div class="note">點分類可回到明細，只看那一類</div>' +
-      '<div class="donut-wrap"><div class="donut">' + donutSvg(donutEntries, total) + '</div><div class="legend">';
-    donutEntries.forEach(function (e) {
-      html += '<div class="leg"><i style="background:' + e.color + '"></i><span class="n">' + esc(e.name) + '</span><span class="p">' + Math.round(e.value / total * 100) + '%</span></div>';
+    var pY = Math.floor(prevIdx / 12), pM = prevIdx % 12;
+    var prevByCat = {};
+    state.rows.forEach(function (r) {
+      if (isOn(r) && srcOk(r) && inMonth(r.time, pY, pM)) prevByCat[r.category] = (prevByCat[r.category] || 0) + r.amount;
     });
-    html += '</div></div>';
+    var main = [], rest = [];
+    entries.forEach(function (e, i) {
+      e.prev = prevByCat[e.name] || 0;
+      if (i < 6 && e.value / total >= 0.03) main.push(e); else rest.push(e);
+    });
+    if (rest.length === 1) { main.push(rest[0]); rest = []; }
+    if (rest.length) {
+      var rv = 0, rc = 0, rp = 0;
+      rest.forEach(function (e) { rv += e.value; rc += e.count; rp += e.prev; });
+      main.push({ name: '其他', value: rv, count: rc, color: PALETTE[7], prev: rp, members: rest.map(function (e) { return e.name; }) });
+    }
+    state.ana = { entries: main, total: total, sel: -1 };
+    html += '<div class="sec"><h3>分　類</h3><div class="note">點圓環上的分類看重點，再點一次還原</div>' +
+      '<div class="donut-box">' + donutSvg(main, total) + '</div><div class="donut-act" id="donutAct"></div>';
     entries.forEach(function (e) {
       html += '<button class="catrow" data-cat="' + esc(e.name) + '"><span class="l"><i style="background:' + e.color + '"></i>' + esc(e.name) + '</span>' +
-        '<span class="r">' + num(e.value) + '<small>' + e.count + ' 筆</small></span></button>';
+        '<span class="r">' + num(e.value) + '<small>' + Math.round(e.value / total * 100) + '%　' + e.count + ' 筆</small></span></button>';
     });
     html += '</div>';
 
@@ -668,6 +825,7 @@ footer { text-align: center; color: var(--sub); font-size: 11px; letter-spacing:
     }
 
     $('viewAna').innerHTML = html;
+    startAnaAnim();
   }
 
   /* ---------- 詳細／編輯／新增 ---------- */
@@ -856,6 +1014,15 @@ footer { text-align: center; color: var(--sub); font-size: 11px; letter-spacing:
     });
 
     $('viewAna').addEventListener('click', function (e) {
+      var sl = e.target.closest('.sl');
+      if (sl) { selectSlice(Number(sl.getAttribute('data-i'))); return; }
+      if (e.target.id === 'goCat' && state.ana && state.ana.sel >= 0) {
+        state.cat = state.ana.entries[state.ana.sel].name;
+        state.tab = 'list';
+        render();
+        window.scrollTo(0, 0);
+        return;
+      }
       var g = e.target.closest('.barg');
       if (g) {
         var p = g.getAttribute('data-ym').split('-');
