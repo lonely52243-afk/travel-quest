@@ -116,6 +116,8 @@ details.adv .input { font-size: .85rem; }
 .empty-box { text-align: center; color: var(--sub); padding: 48px 0; letter-spacing: .15em; }
 
 /* 分析 */
+.seg { display: flex; gap: 8px; margin-top: 18px; }
+.seg .chip { min-width: 64px; justify-content: center; }
 .sec { margin-top: 30px; }
 .sec h3 { font-family: var(--serif); font-weight: 600; font-size: .95rem; letter-spacing: .25em; margin: 0 0 4px; display: flex; align-items: center; gap: 10px; }
 .sec h3::before { content: ""; width: 6px; height: 6px; border-radius: 50%; background: var(--shu); }
@@ -355,6 +357,7 @@ textarea.input { min-height: 96px; resize: vertical; line-height: 1.5; font-fami
       <div id="catsList"></div>
       <button id="catNew" class="btn">＋ 新增分類</button>
       <button id="catSmart" class="btn line">智慧分類（重新歸類未分類）</button>
+      <button id="catPreset" class="btn line">匯入建議字典（補齊分類與店名）</button>
       <button class="btn line" data-close>完　成</button>
     </div>
 
@@ -404,7 +407,7 @@ textarea.input { min-height: 96px; resize: vertical; line-height: 1.5; font-fami
   'use strict';
 
   var DEFAULT_API = 'https://script.google.com/macros/s/AKfycbxPkzgIjUT7O4YMPVPjFi5u9JsZL_WWcNhAgVXnH_Erg5Z3jWo2ZgTnpiZTRGUYZqun/exec';
-  var PAGE_VERSION = '5.3';
+  var PAGE_VERSION = '5.4';
   var LS_KEY = 'zz_expense_key';
   var LS_API = 'zz_expense_api';
   var LS_CACHE = 'zz_expense_cache';
@@ -413,7 +416,7 @@ textarea.input { min-height: 96px; resize: vertical; line-height: 1.5; font-fami
   var PALETTE = ['#3d5a73', '#b8603e', '#7d8f69', '#c9a24a', '#8a6f9e', '#6d9a9a', '#a85a6a', '#8c8577'];
 
   var state = {
-    key: '', rows: [], cats: [], catDefs: [], catEdit: null, catBack: 'cats', budget: 0,
+    key: '', anaRange: 'month', rows: [], cats: [], catDefs: [], catEdit: null, catBack: 'cats', budget: 0,
     y: 0, m: 0, tab: 'home',
     source: '全部', cat: '', q: '',
     mode: 'edit', editing: null, busy: false,
@@ -772,12 +775,13 @@ textarea.input { min-height: 96px; resize: vertical; line-height: 1.5; font-fami
 
   /* ---------- 分析 ---------- */
 
-  function sixMonthSvg() {
+  // 月份長條圖：count 個月，最後一個月是 endIdx（年×12＋月）
+  function monthsSvg(count, endIdx, label) {
     var curIdx = state.y * 12 + state.m;
     var items = [];
     var max = 0;
-    for (var i = 5; i >= 0; i--) {
-      var idx = curIdx - i;
+    for (var i = count - 1; i >= 0; i--) {
+      var idx = endIdx - i;
       var y = Math.floor(idx / 12);
       var m = idx % 12;
       var v = monthTotal(y, m);
@@ -786,9 +790,9 @@ textarea.input { min-height: 96px; resize: vertical; line-height: 1.5; font-fami
     }
     if (!max) max = 1;
     var W = 320, H = 180, padX = 6, top = 24, bottom = 26;
-    var step = (W - padX * 2) / 6;
-    var bw = 26;
-    var svg = '<svg viewBox="0 0 ' + W + ' ' + H + '" role="img" aria-label="近六個月支出">';
+    var step = (W - padX * 2) / count;
+    var bw = count > 6 ? 16 : 26;
+    var svg = '<svg viewBox="0 0 ' + W + ' ' + H + '" role="img" aria-label="' + label + '">';
     svg += '<line x1="' + padX + '" y1="' + (H - bottom) + '" x2="' + (W - padX) + '" y2="' + (H - bottom) + '" stroke="var(--line)" stroke-width="1"/>';
     items.forEach(function (it, k) {
       var h = Math.round((H - top - bottom) * it.v / max);
@@ -798,9 +802,9 @@ textarea.input { min-height: 96px; resize: vertical; line-height: 1.5; font-fami
       var cx = x + bw / 2;
       svg += '<g class="barg" data-ym="' + it.y + '-' + it.m + '">' +
         '<rect x="' + (padX + step * k) + '" y="0" width="' + step + '" height="' + H + '" fill="transparent"/>' +
-        '<rect class="grow" style="animation-delay:' + (k * 70) + 'ms" x="' + x + '" y="' + (it.v ? y : H - bottom - 1) + '" width="' + bw + '" height="' + (it.v ? Math.max(h, 2) : 1) + '" fill="' + (on ? 'var(--shu)' : 'var(--ai)') + '" opacity="' + (on ? 1 : 0.55) + '"/>' +
-        '<text class="bv" x="' + cx + '" y="' + (y - 6) + '">' + shortNum(it.v) + '</text>' +
-        '<text class="bm' + (on ? ' on' : '') + '" x="' + cx + '" y="' + (H - 9) + '">' + (it.m + 1) + '月</text></g>';
+        '<rect class="grow" style="animation-delay:' + (k * 50) + 'ms" x="' + x + '" y="' + (it.v ? y : H - bottom - 1) + '" width="' + bw + '" height="' + (it.v ? Math.max(h, 2) : 1) + '" fill="' + (on ? 'var(--shu)' : 'var(--ai)') + '" opacity="' + (on ? 1 : 0.55) + '"/>' +
+        (count > 6 ? '' : '<text class="bv" x="' + cx + '" y="' + (y - 6) + '">' + shortNum(it.v) + '</text>') +
+        '<text class="bm' + (on ? ' on' : '') + '" x="' + cx + '" y="' + (H - 9) + '">' + (it.m + 1) + (count > 6 ? '' : '月') + '</text></g>';
     });
     return svg + '</svg>';
   }
@@ -981,36 +985,71 @@ textarea.input { min-height: 96px; resize: vertical; line-height: 1.5; font-fami
     return { svg: svg, max: max, maxDay: maxDay };
   }
 
-  function renderAnalysis(monthAll, rows, counted, total) {
-    var html = '';
-
-    // 近六個月
-    var prevIdx = state.y * 12 + state.m - 1;
-    var prevTotal = monthTotal(Math.floor(prevIdx / 12), prevIdx % 12);
-    var cmp = '';
-    if (prevTotal > 0 || total > 0) {
-      var d = total - prevTotal;
-      cmp = d === 0 ? '與上個月相同' : '較上個月' + (d > 0 ? '多' : '少') + ' ' + money(Math.abs(d));
-    }
-    html += '<div class="sec"><h3>近六個月</h3><div class="note">' + esc(cmp) + '　·　點長條可切換月份</div>' + sixMonthSvg() + '</div>';
-
-    if (!counted.length) {
-      html += '<div class="empty-box">這個月還沒有可分析的消費</div>';
-      state.ana = null;
-      $('viewAna').innerHTML = html;
-      return;
-    }
-
-    // 分類
+  /* 分析用的小工具 */
+  function brandOf(store) {
+    var t = String(store || '').trim();
+    var m = t.split(/[\s\(（\-－_＿·・＊\*#＃]+/)[0];
+    return (m && m.length >= 2) ? m : t;
+  }
+  function rankHtml(items, withNo) {
+    var max = 0;
+    items.forEach(function (x) { if (x.v > max) max = x.v; });
+    var h = '';
+    items.forEach(function (x, i) {
+      h += '<div class="rank"><span class="no">' + (withNo ? (i + 1) : '') + '</span><div class="mid"><div class="nm">' + esc(x.nm) + '</div>' +
+        '<div class="ct">' + esc(x.ct) + '</div><div class="thin"><i style="width:' + (max ? Math.round(x.v / max * 100) : 0) + '%"></i></div></div>' +
+        '<span class="am">' + num(x.v) + '</span></div>';
+    });
+    return h;
+  }
+  function weekdayHtml(counted) {
+    var names = ['週日', '週一', '週二', '週三', '週四', '週五', '週六'], sums = [0, 0, 0, 0, 0, 0, 0], ns = [0, 0, 0, 0, 0, 0, 0];
+    counted.forEach(function (r) { var d = new Date(r.time).getDay(); sums[d] += r.amount; ns[d]++; });
+    var order = [1, 2, 3, 4, 5, 6, 0];
+    return rankHtml(order.map(function (d) { return { nm: names[d], ct: ns[d] + ' 筆', v: sums[d] }; }), false);
+  }
+  function periodHtml(counted) {
+    var P = [['清晨　5–9 點', 5, 9], ['上午　9–12 點', 9, 12], ['中午　12–14 點', 12, 14], ['下午　14–17 點', 14, 17], ['晚上　17–21 點', 17, 21], ['夜間　21–5 點', 21, 29]];
+    var sums = P.map(function () { return 0; }), ns = P.map(function () { return 0; });
+    counted.forEach(function (r) {
+      var h = new Date(r.time).getHours();
+      if (h < 5) h += 24;
+      for (var i = 0; i < P.length; i++) if (h >= P[i][1] && h < P[i][2]) { sums[i] += r.amount; ns[i]++; break; }
+    });
+    return rankHtml(P.map(function (p, i) { return { nm: p[0], ct: ns[i] + ' 筆', v: sums[i] }; }), false);
+  }
+  // 固定支出（自動偵測）：同一家店至少 3 個月都有、每月只有一兩筆、金額很接近
+  function recurring() {
+    var by = {};
+    state.rows.forEach(function (r) {
+      if (!isOn(r) || !r.store) return;
+      var b = brandOf(r.store);
+      var g = by[b] = by[b] || { name: b, months: {}, n: 0, list: [], last: 0, lastAmt: 0 };
+      g.list.push({ t: r.time, a: r.amount });
+      var d = new Date(r.time), key = d.getFullYear() * 12 + d.getMonth();
+      g.months[key] = (g.months[key] || 0) + 1;
+      g.n++;
+      if (r.time > g.last) { g.last = r.time; g.lastAmt = r.amount; }
+    });
+    var now = new Date(), nowKey = now.getFullYear() * 12 + now.getMonth(), out = [];
+    Object.keys(by).forEach(function (k) {
+      var g = by[k], ms = Object.keys(g.months).map(Number);
+      if (ms.length < 3) return;
+      if (g.n / ms.length > 1.5) return;
+      g.list.sort(function (a, b) { return a.t - b.t; });
+      var tail = g.list.slice(-3).map(function (x) { return x.a; }), lo = Math.min.apply(null, tail), hi = Math.max.apply(null, tail);
+      if ((hi - lo) / ((hi + lo) / 2) > 0.25) return;
+      if (nowKey - Math.max.apply(null, ms) > 2) return;
+      out.push({ name: g.name, amt: g.lastAmt, months: ms.length });
+    });
+    out.sort(function (a, b) { return b.amt - a.amt; });
+    return out;
+  }
+  function catSection(counted, total, prevByCat) {
     var byCat = {};
     counted.forEach(function (r) { byCat[r.category] = byCat[r.category] || { v: 0, n: 0 }; byCat[r.category].v += r.amount; byCat[r.category].n++; });
     var names = Object.keys(byCat).sort(function (a, b) { return byCat[b].v - byCat[a].v; });
     var entries = names.map(function (n) { return { name: n, value: byCat[n].v, count: byCat[n].n, color: colorOf(n) }; });
-    var pY = Math.floor(prevIdx / 12), pM = prevIdx % 12;
-    var prevByCat = {};
-    state.rows.forEach(function (r) {
-      if (isOn(r) && srcOk(r) && inMonth(r.time, pY, pM)) prevByCat[r.category] = (prevByCat[r.category] || 0) + r.amount;
-    });
     var main = [], rest = [];
     entries.forEach(function (e, i) {
       e.prev = prevByCat[e.name] || 0;
@@ -1023,15 +1062,108 @@ textarea.input { min-height: 96px; resize: vertical; line-height: 1.5; font-fami
       main.push({ name: '其他', value: rv, count: rc, color: PALETTE[7], prev: rp, members: rest.map(function (e) { return e.name; }) });
     }
     state.ana = { entries: main, total: total, sel: -1 };
-    html += '<div class="sec"><h3>分　類</h3><div class="note">點圓環上的分類看重點，再點一次還原</div>' +
+    var html = '<div class="sec"><h3>分　類</h3><div class="note">點圓環上的分類看重點，再點一次還原</div>' +
       '<div class="donut-box">' + donutSvg(main, total) + '</div><div class="donut-act" id="donutAct"></div>';
     entries.forEach(function (e) {
-      html += '<button class="catrow" data-cat="' + esc(e.name) + '"><span class="l"><i style="background:' + e.color + '"></i>' + esc(e.name) + '</span>' +
+      html += '<button class="catrow" data-cat="' + esc(e.name) + '"><span class="l">' + catDot(e.name) + esc(e.name) + '</span>' +
         '<span class="r">' + num(e.value) + '<small>' + Math.round(e.value / total * 100) + '%　' + e.count + ' 筆</small></span></button>';
     });
-    html += '</div>';
+    return html + '</div>';
+  }
+  function brandSection(counted, total, title) {
+    var by = {};
+    counted.forEach(function (r) {
+      if (!r.store) return;
+      var b = brandOf(r.store);
+      by[b] = by[b] || { v: 0, n: 0 };
+      by[b].v += r.amount; by[b].n++;
+    });
+    var names = Object.keys(by).sort(function (a, b) { return by[b].v - by[a].v; }).slice(0, 8);
+    if (!names.length) return '';
+    return '<div class="sec"><h3>' + title + '</h3><div class="note">同一品牌的不同分店合併計算</div>' +
+      rankHtml(names.map(function (n) { return { nm: n, ct: by[n].n + ' 筆　均 ' + num(Math.round(by[n].v / by[n].n)) + '　佔 ' + Math.round(by[n].v / total * 100) + '%', v: by[n].v }; }), true) + '</div>';
+  }
+  function insightHtml(counted, total, days, forecastDays) {
+    var n = counted.length, avg = n ? Math.round(total / n) : 0, perDay = days ? Math.round(total / days) : 0;
+    var h = '<div class="stats">' +
+      '<div class="stat"><div class="k">筆數</div><div class="v">' + n + '</div><div class="s">平均 ' + num(avg) + '／筆</div></div>' +
+      '<div class="stat"><div class="k">日均</div><div class="v">' + num(perDay) + '</div><div class="s">共 ' + days + ' 天</div></div>';
+    if (forecastDays) h += '<div class="stat"><div class="k">月底預估</div><div class="v">' + num(Math.round(perDay * forecastDays)) + '</div><div class="s">照目前速度</div></div>';
+    return h + '</div>';
+  }
+  function recurringHtml() {
+    var rc = recurring();
+    if (!rc.length) return '';
+    var sum = 0;
+    rc.forEach(function (x) { sum += x.amt; });
+    return '<div class="sec"><h3>固定支出</h3><div class="note">自動偵測：連續多個月都有、金額接近的項目　·　每月約 ' + money(sum) + '</div>' +
+      rankHtml(rc.map(function (x) { return { nm: x.name, ct: '已出現 ' + x.months + ' 個月', v: x.amt }; }), false) + '</div>';
+  }
 
-    // 每日
+  function renderAnalysis(monthAll, rows, counted, total) {
+    var html = '';
+    var yr = state.anaRange === 'year';
+    html += '<div class="seg" role="group" aria-label="分析範圍"><button class="chip" data-range="month" aria-pressed="' + (!yr) + '">月</button>' +
+      '<button class="chip" data-range="year" aria-pressed="' + yr + '">年</button></div>';
+    var now = new Date();
+
+    if (yr) {
+      var yRows = state.rows.filter(function (r) { return isOn(r) && srcOk(r) && new Date(r.time).getFullYear() === state.y; });
+      var yTotal = 0;
+      yRows.forEach(function (r) { yTotal += r.amount; });
+      var pTotal = 0;
+      state.rows.forEach(function (r) { if (isOn(r) && srcOk(r) && new Date(r.time).getFullYear() === state.y - 1) pTotal += r.amount; });
+      var months = state.y === now.getFullYear() ? now.getMonth() + 1 : 12;
+      var cmpY = pTotal ? '去年全年 ' + money(pTotal) : '';
+      html += '<div class="sec"><h3>' + state.y + ' 年</h3><div class="note">' + esc(cmpY) + (cmpY ? '　·　' : '') + '點長條可切換月份</div>' +
+        '<div class="stats"><div class="stat"><div class="k">全年支出</div><div class="v">' + num(yTotal) + '</div><div class="s">' + yRows.length + ' 筆</div></div>' +
+        '<div class="stat"><div class="k">月均</div><div class="v">' + num(Math.round(yTotal / months)) + '</div><div class="s">' + months + ' 個月</div></div></div>' +
+        monthsSvg(12, state.y * 12 + 11, state.y + '年每月支出') + '</div>';
+      if (!yRows.length) {
+        state.ana = null;
+        $('viewAna').innerHTML = html + '<div class="empty-box">這一年還沒有可分析的消費</div>';
+        return;
+      }
+      var pyBy = {};
+      state.rows.forEach(function (r) { if (isOn(r) && srcOk(r) && new Date(r.time).getFullYear() === state.y - 1) pyBy[r.category] = (pyBy[r.category] || 0) + r.amount; });
+      html += catSection(yRows, yTotal, pyBy);
+      html += brandSection(yRows, yTotal, '商家　前八');
+      html += '<div class="sec"><h3>星期分布</h3>' + weekdayHtml(yRows) + '</div>';
+      html += '<div class="sec"><h3>時段分布</h3>' + periodHtml(yRows) + '</div>';
+      html += recurringHtml();
+      $('viewAna').innerHTML = html;
+      startAnaAnim();
+      return;
+    }
+
+    // 月：近六個月
+    var prevIdx = state.y * 12 + state.m - 1;
+    var prevTotal = monthTotal(Math.floor(prevIdx / 12), prevIdx % 12);
+    var cmp = '';
+    if (prevTotal > 0 || total > 0) {
+      var d = total - prevTotal;
+      cmp = d === 0 ? '與上個月相同' : '較上個月' + (d > 0 ? '多' : '少') + ' ' + money(Math.abs(d));
+    }
+    html += '<div class="sec"><h3>近六個月</h3><div class="note">' + esc(cmp) + '　·　點長條可切換月份</div>' + monthsSvg(6, state.y * 12 + state.m, '近六個月支出') + '</div>';
+
+    if (!counted.length) {
+      html += '<div class="empty-box">這個月還沒有可分析的消費</div>';
+      state.ana = null;
+      $('viewAna').innerHTML = html;
+      return;
+    }
+
+    var isCur = state.y === now.getFullYear() && state.m === now.getMonth();
+    var dim = new Date(state.y, state.m + 1, 0).getDate();
+    var days = isCur ? now.getDate() : dim;
+    html += '<div class="sec"><h3>本月重點</h3>' + insightHtml(counted, total, days, isCur ? dim : 0) + '</div>';
+
+    var pY = Math.floor(prevIdx / 12), pM = prevIdx % 12, prevByCat = {};
+    state.rows.forEach(function (r) {
+      if (isOn(r) && srcOk(r) && inMonth(r.time, pY, pM)) prevByCat[r.category] = (prevByCat[r.category] || 0) + r.amount;
+    });
+    html += catSection(counted, total, prevByCat);
+
     var daily = dailySvg(counted);
     var best = null;
     counted.forEach(function (r) { if (!best || r.amount > best.amount) best = r; });
@@ -1041,39 +1173,16 @@ textarea.input { min-height: 96px; resize: vertical; line-height: 1.5; font-fami
       '<div class="stat"><div class="k">最高單筆</div><div class="v">' + num(best.amount) + '</div><div class="s">' + esc(best.store || '（沒有店名）') + '</div></div>' +
       '</div></div>';
 
-    // 商家
-    var byStore = {};
-    counted.forEach(function (r) {
-      if (!r.store) return;
-      byStore[r.store] = byStore[r.store] || { v: 0, n: 0 };
-      byStore[r.store].v += r.amount;
-      byStore[r.store].n++;
-    });
-    var storeNames = Object.keys(byStore).sort(function (a, b) { return byStore[b].v - byStore[a].v; }).slice(0, 5);
-    if (storeNames.length) {
-      var smax = byStore[storeNames[0]].v;
-      html += '<div class="sec"><h3>商家　前五</h3>';
-      storeNames.forEach(function (s, i) {
-        html += '<div class="rank"><span class="no">' + (i + 1) + '</span><div class="mid"><div class="nm">' + esc(s) + '</div>' +
-          '<div class="ct">共 ' + byStore[s].n + ' 筆</div><div class="thin"><i style="width:' + Math.round(byStore[s].v / smax * 100) + '%"></i></div></div>' +
-          '<span class="am">' + num(byStore[s].v) + '</span></div>';
-      });
-      html += '</div>';
-    }
+    html += brandSection(counted, total, '商家　前八');
+    html += '<div class="sec"><h3>星期分布</h3>' + weekdayHtml(counted) + '</div>';
+    html += '<div class="sec"><h3>時段分布</h3>' + periodHtml(counted) + '</div>';
+    html += recurringHtml();
 
-    // 來源（不受來源篩選影響，方便比較）
     var bySrc = {};
     monthAll.filter(isOn).forEach(function (r) { bySrc[r.source] = bySrc[r.source] || { v: 0, n: 0 }; bySrc[r.source].v += r.amount; bySrc[r.source].n++; });
     var srcNames = Object.keys(bySrc).sort(function (a, b) { return bySrc[b].v - bySrc[a].v; });
     if (srcNames.length > 1) {
-      var smax2 = bySrc[srcNames[0]].v;
-      html += '<div class="sec"><h3>來　源</h3>';
-      srcNames.forEach(function (s) {
-        html += '<div class="rank"><span class="no"></span><div class="mid"><div class="nm">' + esc(s) + '</div>' +
-          '<div class="ct">共 ' + bySrc[s].n + ' 筆</div><div class="thin"><i style="width:' + Math.round(bySrc[s].v / smax2 * 100) + '%"></i></div></div>' +
-          '<span class="am">' + num(bySrc[s].v) + '</span></div>';
-      });
-      html += '</div>';
+      html += '<div class="sec"><h3>來　源</h3>' + rankHtml(srcNames.map(function (n) { return { nm: n, ct: '共 ' + bySrc[n].n + ' 筆', v: bySrc[n].v }; }), false) + '</div>';
     }
 
     $('viewAna').innerHTML = html;
@@ -1674,6 +1783,8 @@ textarea.input { min-height: 96px; resize: vertical; line-height: 1.5; font-fami
     });
 
     $('viewAna').addEventListener('click', function (e) {
+      var rg = e.target.closest('[data-range]');
+      if (rg) { state.anaRange = rg.getAttribute('data-range'); render(); return; }
       var sl = e.target.closest('.sl');
       if (sl) { selectSlice(Number(sl.getAttribute('data-i'))); return; }
       if (e.target.id === 'goCat' && state.ana && state.ana.sel >= 0) {
@@ -1722,6 +1833,15 @@ textarea.input { min-height: 96px; resize: vertical; line-height: 1.5; font-fami
     $('mCats').addEventListener('click', openCats);
     $('catNew').addEventListener('click', function () { state.catBack = 'cats'; openCatEdit(-1, ''); });
     $('catSmart').addEventListener('click', smartRecat);
+    $('catPreset').addEventListener('click', function () {
+      apiPost({ action: 'catPreset' }).then(function (res) {
+        if (res && res.ok && /^preset:(\d+):(\d+)$/.test(res.result)) {
+          var m = /^preset:(\d+):(\d+)$/.exec(res.result);
+          toast('已補上 ' + m[1] + ' 個關鍵字，' + m[2] + ' 筆未分類自動歸好了');
+          refresh(true);
+        } else toast('失敗：' + ((res && (res.msg || res.result)) || '未知錯誤'));
+      }).catch(function () { toast('連不上後端'); });
+    });
     $('catSave').addEventListener('click', saveCat);
     $('catDel').addEventListener('click', delCat);
     $('catBackBtn').addEventListener('click', catBack);
