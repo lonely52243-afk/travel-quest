@@ -563,6 +563,149 @@ b, strong { font-weight: 600; }
 .sp-add { display: flex; gap: 8px; align-items: flex-end; }
 .sp-add .btn { margin: 0; width: auto; padding: 0 18px; }
 .sp-chips .chip { min-height: 40px; }
+
+/* ===== v6.2 配色：照參考圖（奶油底、鮭粉主卡、芥末黃選取、深褐描邊）===== */
+:root { --paper: #fefcf7; --card: #fffefb; --sheet: #fefcf7; --paper2: #f4efe4; --ink: #3e3b35; --bd: #3e3b35; --pink: #e7a69a; --pinkbg: #e7a79b; --yel: #f1d489; --shu: #d9806f; --line: #e2dacb; }
+.hero .cap, .hero .hero-sub, .hero-num small { color: #3e3b35; }
+.hero .mchip, .hero .bud { background: #fffefb; color: #3e3b35; }
+.hero .mchip span, .hero .bud-t { color: #7a736a; }
+.hero .mchip b, .hero .bud-t b { color: #3e3b35; }
+.hero .chev, .hero .fc, .hero .fc i { color: #3e3b35; }
+.hero .meter { background: rgba(255,254,251,.7); }
+.sp-res { background: var(--pinkbg); color: #3e3b35; }
+.sp-res .sp-cap, .sp-res .sp-sub, .sp-res .sp-tr .arw, .sp-res .note { color: #5f574f; }
+@media (prefers-color-scheme: dark) {
+  :root { --paper: #1c1b19; --paper2: #2a2823; --ink: #ece7dc; --sub: #a79f91; --line: #3b372f; --shu: #e27a64; --ai: #92b4d0; --on-ink: #1c1b19; --sheet: #23211e; --bd: #cfc7b9; --card: #262320; --pink: #e9a193; --pinkbg: #4d3a36; --yel: #d9c47c; }
+  .hero .cap, .hero .hero-sub, .hero-num small, .hero .chev, .hero .fc, .hero .fc i { color: var(--ink); }
+  .hero .mchip, .hero .bud { background: var(--card); color: var(--ink); }
+  .hero .mchip span, .hero .bud-t { color: var(--sub); }
+  .hero .mchip b, .hero .bud-t b { color: var(--ink); }
+  .hero .meter { background: rgba(255,255,255,.12); }
+  .sp-res { background: var(--pinkbg); color: var(--ink); }
+  .sp-res .sp-cap, .sp-res .sp-sub, .sp-res .sp-tr .arw, .sp-res .note { color: var(--sub); }
+}
+
+/* ===== v6.3 俐落：系統字體、更小更細、用色彩分層 ===== */
+html { font-size: 13.5px; }
+:root { --serif: -apple-system, BlinkMacSystemFont, "PingFang TC", "Noto Sans TC", "Microsoft JhengHei", sans-serif; --sans: -apple-system, BlinkMacSystemFont, "PingFang TC", "Noto Sans TC", "Microsoft JhengHei", sans-serif; --hair: #e6dfd2; --up: #d4634f; --dn: #3a8c78; }
+@media (prefers-color-scheme: dark) { :root { --hair: #36322c; --up: #ee8b78; --dn: #6fc3ab; } }
+body { font-weight: 400; line-height: 1.4; font-variant-numeric: tabular-nums; letter-spacing: .01em; }
+b, strong { font-weight: 600; }
+.up { color: var(--up) !important; } .down { color: var(--dn) !important; }
+/* 三個入口：分段控制 */
+.modes { margin: 8px 14px 2px; padding: 3px; gap: 2px; background: var(--paper2); border-radius: 12px; max-width: 492px; }
+.md { min-height: 34px; border: 0; border-radius: 9px; background: transparent; color: var(--sub); }
+.md b { font-size: .92rem; font-weight: 500; letter-spacing: .06em; }
+.md[aria-selected="true"] { background: var(--card); color: var(--ink); box-shadow: 0 1px 3px rgba(60,50,40,.15); }
+.md[aria-selected="true"] b { font-weight: 600; }
+/* 月份列 */
+.mlabel { font-size: .98rem; font-weight: 600; letter-spacing: .04em; }
+.arrow { font-weight: 500; }
+/* 主卡片 */
+.hero { margin: 8px 0 10px; padding: 14px 16px 10px; border: 0; border-radius: 18px; box-shadow: 0 1px 2px rgba(60,40,30,.08); }
+.hero .cap { font-size: .72rem; letter-spacing: .06em; opacity: .8; }
+.hero-num { font-size: 2.1rem; font-weight: 600; letter-spacing: 0; }
+.hero-num small { font-size: .85rem; font-weight: 500; opacity: .75; }
+.mchip { min-height: 32px; padding: 0 10px; border: 0; background: rgba(255,254,251,.85); font-size: .74rem; }
+.mchip b { font-size: .84rem; font-weight: 600; }
+.bud { border: 0; border-radius: 12px; background: rgba(255,254,251,.85); padding: 8px 12px; margin-top: 10px; }
+.bud.nobud { border: 1px dashed rgba(62,59,53,.35); background: transparent; color: #3e3b35; font-size: .8rem; }
+.fc { font-size: .76rem; min-height: 36px; }
+/* 一般卡片：細邊、白底、分層 */
+.card { border: 1px solid var(--hair); border-radius: 16px; background: var(--card); padding: 12px 14px; margin: 10px 0; }
+.card.slim { padding: 4px 12px; }
+.card h3, .sec h3 { font-size: .72rem; font-weight: 600; letter-spacing: .1em; color: var(--sub); margin: 0 0 6px; }
+.card h3::before, .sec h3::before { display: none; }
+.sec { margin-top: 14px; }
+.coach { background: #fff6dc; border: 1px solid #f1d489; color: #5a4a1f; border-radius: 14px; }
+.coach .linkbtn { color: #8a6d1d; }
+@media (prefers-color-scheme: dark) { .coach { background: #3a3322; border-color: #6b5a2c; color: #e9dcb0; } .coach .linkbtn { color: #d9c47c; } }
+/* 清單 */
+.item, .catrow, .rank, .more-item { border-bottom: 1px solid var(--hair); }
+.item { min-height: 50px; padding: 7px 0; }
+.item:last-child, .catrow:last-of-type { border-bottom: 0; }
+.i-store { font-size: .9rem; font-weight: 500; }
+.i-amt { font-size: .95rem; font-weight: 600; }
+.i-meta { font-size: .7rem; }
+.dayhd { font-size: .78rem; }
+.catrow { position: relative; flex-wrap: wrap; min-height: 44px; padding: 8px 0 12px; }
+.catrow .bar { position: absolute; left: 0; right: 0; bottom: 4px; height: 3px; background: var(--paper2); border-radius: 2px; overflow: hidden; }
+.catrow .bar i { display: block; height: 100%; width: auto; border-radius: 2px; }
+.catrow .r { font-weight: 600; font-size: .92rem; }
+.catrow .r small { font-size: .68rem; }
+.cat-dot { width: 8px; height: 8px; border-radius: 50%; margin-right: 8px; display: inline-block; }
+/* 按鈕與標籤 */
+.btn { min-height: 44px; border: 0; border-radius: 12px; background: var(--ink); color: var(--on-ink); font-size: .9rem; font-weight: 600; letter-spacing: .1em; margin-top: 12px; }
+.btn.line { background: transparent; color: var(--ink); border: 1px solid var(--hair); font-weight: 500; }
+.chip { border: 1px solid var(--hair); background: var(--card); font-size: .8rem; font-weight: 500; min-height: 36px; padding: 0 13px; color: var(--ink); }
+.chip[aria-pressed="true"] { background: var(--ink); color: var(--on-ink); border-color: var(--ink); }
+.chips { padding-bottom: 6px; }
+.stat { background: var(--paper2); border-radius: 12px; }
+.stat .k { font-size: .66rem; letter-spacing: .08em; }
+.stat .v { font-size: .95rem; }
+.linkbtn { font-size: .8rem; }
+.empty-box { font-size: .85rem; color: var(--sub); }
+/* 月曆 */
+.cal-w { font-size: .66rem; font-weight: 500; }
+.cd { min-height: 52px; }
+.cd .dn { width: 28px; height: 28px; font-size: .85rem; font-weight: 500; }
+.cd.sel .dn { background: var(--yel); color: #3e3b35; font-weight: 600; }
+.mini-btn { min-width: 40px; min-height: 40px; border: 1px solid var(--hair); font-weight: 500; }
+/* 底部導覽 */
+.tabbar { border-top: 1px solid var(--hair); background: var(--paper); }
+.tb { font-size: .66rem; letter-spacing: .04em; }
+.addbtn { border: 0; background: var(--shu); color: #fff; box-shadow: 0 4px 12px rgba(217,128,111,.45); }
+/* 分帳 */
+.sp-res { border: 0; border-radius: 16px; box-shadow: 0 1px 2px rgba(60,40,30,.08); }
+.sp-tr { border-bottom: 1px solid rgba(62,59,53,.12); }
+.sp-tr .amt { font-size: 1.15rem; }
+@media (prefers-color-scheme: dark) { .sp-tr { border-bottom-color: rgba(255,255,255,.1); } }
+.sp-steps { font-size: .72rem; }
+.sp-chips .chip { min-height: 38px; }
+.dg { border: 1px solid var(--hair); border-radius: 16px; }
+.dg-h { border-bottom: 1px solid var(--hair); }
+.dr { border-bottom: 1px solid var(--hair); }
+.dchk i { border-width: 1.5px; border-radius: 7px; width: 24px; height: 24px; }
+.sp-sum > div { border: 1px solid var(--hair); border-radius: 14px; }
+.heat { gap: 3px; } .hc { min-height: 40px; border-radius: 8px; }
+
+/* ---- v6.3 補：把剩下的粗框統一成細線 ---- */
+.sec { border: 1px solid var(--hair); border-radius: 16px; padding: 12px 14px; margin: 10px 0; background: var(--card); }
+.hero-num { min-height: 0; margin: 0 0 8px; align-items: center; }
+.dayhd { border-top: 1px solid var(--hair); margin-top: 8px; padding-top: 8px; }
+.dayhd .tag { border: 1px solid var(--hair); font-weight: 500; font-size: .68rem; }
+.dayhd .tag.mk { border-color: var(--ai); }
+.tidy, .crow, .imp-row, .drow { border-bottom: 1px solid var(--hair); border-top: 0; }
+.drow:last-of-type { border-bottom: 1px solid var(--hair); }
+.meter { height: 10px; border: 0; background: var(--paper2); border-radius: 5px; }
+.todo { border: 0; background: var(--paper2); border-radius: 12px; font-size: .84rem; }
+.a-cat, .key, .mgrid button, .imp-file, .searchpill { border: 1px solid var(--hair); border-radius: 12px; }
+.sheet { border: 0; border-radius: 20px 20px 0 0; box-shadow: 0 -4px 24px rgba(40,30,20,.18); }
+.search { border-bottom: 1px solid var(--hair); }
+.input { border-bottom: 1px solid var(--hair); }
+.input:focus { border-bottom: 1px solid var(--shu); }
+.mini-btn { border: 1px solid var(--hair); }
+.imp-file { padding: 8px 12px; }
+.lg.c2::before { border-top-width: 2px; }
+.cat-dot { flex: none; }
+
+.day-card { margin-top: 8px; }
+.day-card .dayhd { border-top: 0; margin: 0 0 4px; padding-top: 0; }
+.day-card .item:last-child { border-bottom: 0; }
+.day-card .empty-day { padding: 14px 0; text-align: center; color: var(--sub); font-size: .84rem; }
+button.hero-num { min-height: 40px; margin: 0 0 10px; }
+.mchips { margin-top: 2px; }
+
+.sp-sec { margin-top: 12px; padding: 12px 14px; border: 1px solid var(--hair); border-radius: 16px; background: var(--card); }
+.sp-lb { font-size: .72rem; font-weight: 600; letter-spacing: .1em; color: var(--sub); margin-bottom: 8px; }
+.sp-lb.s { margin: 12px 0 6px; }
+.sp-add { margin-top: 8px; } .sp-add .input { flex: 1; min-height: 40px; }
+.sp-add .btn { min-height: 40px; }
+.sp-two { display: flex; gap: 8px; } .sp-two .btn { flex: 1; }
+.sp-links { display: flex; justify-content: space-between; margin-top: 10px; }
+.sp-sec .sp-amt { margin-bottom: 4px; }
+.sp-sec .btn { margin-top: 12px; }
+.sp-sec .sp-it:last-child { border-bottom: 0; }
 </style>
 </head>
 <body>
@@ -1098,7 +1241,8 @@ b, strong { font-weight: 600; }
     var inRange = y >= HOL_FROM && y <= HOL_TO;
     if (open) h += '<div class="cal-note"><span class="rd">紅字</span>放假　<span class="bl">藍字</span>週六　<i class="dot"></i>有消費' + (inRange ? '' : '　（這一年只標示週末）') + '</div>';
 
-    // 選到的那一天
+    // 選到的那一天：另外一張卡片，不跟月曆黏在一起
+    h += '</div><div class="card day-card">';
     if (sel) {
       var hi2 = holInfo(y, m, sel);
       var dayRows = monthRows.filter(function (r) { return new Date(r.time).getDate() === sel; }).sort(function (a, b) { return a.time - b.time; });
@@ -1397,7 +1541,7 @@ b, strong { font-weight: 600; }
       var cn = Object.keys(byC).sort(function (a, b) { return byC[b].v - byC[a].v; });
       h += '<div class="card"><h3>分　類</h3>';
       cn.slice(0, 5).forEach(function (n) {
-        h += '<button class="catrow" data-act="cat" data-arg="' + esc(n) + '"><span class="l">' + catDot(n) + esc(n) + '</span><span class="r">' + num(byC[n].v) + '<small>' + Math.round(byC[n].v / total * 100) + '%　' + byC[n].n + ' 筆</small><i class="chev" aria-hidden="true">›</i></span></button>';
+        h += '<button class="catrow" data-act="cat" data-arg="' + esc(n) + '"><span class="l">' + catDot(n) + esc(n) + '</span><span class="r">' + num(byC[n].v) + '<small>' + Math.round(byC[n].v / total * 100) + '%　' + byC[n].n + ' 筆</small><i class="chev" aria-hidden="true">›</i></span><span class="bar" aria-hidden="true"><i style="width:' + Math.max(2, Math.round(byC[n].v / total * 100)) + '%;background:' + colorOf(n) + '"></i></span></button>';
       });
       h += '<button class="linkbtn" data-act="ana">完整分析 ›</button></div>';
     }
@@ -1908,7 +2052,7 @@ b, strong { font-weight: 600; }
     app.classList.toggle('m-split', m !== 'book');
     document.querySelectorAll('.md').forEach(function (b) { b.setAttribute('aria-selected', b.getAttribute('data-mode') === m ? 'true' : 'false'); });
     if (state.panel) closeSheet();
-    if (m === 'split') { sp.view = 'home'; sp.ev = null; spRender(); }
+    if (m === 'split') { sp.view = 'home'; sp.ev = null; sp.edit = null; spRender(); }
     else if (m === 'debt') { sp.dTab = 'open'; sp.view = 'debts'; spRender(); }
     else render();
     window.scrollTo(0, 0);
@@ -1996,21 +2140,85 @@ b, strong { font-weight: 600; }
     }
     return h;
   }
+  // 永遠有一個「正在記」的分帳，打開就能直接輸入
+  function ensureCur() {
+    var d = spLoad(), e = spEv(d.cur);
+    if (!e) {
+      d.events = d.events.filter(function (x) { return x.items.length; });
+      var mem = (d.last || []).filter(function (p) { return d.people.indexOf(p) >= 0; });
+      e = { id: spId(), title: shortDate(Date.now()) + ' 分帳', time: Date.now(), members: mem, items: [], imported: false };
+      d.events.push(e); d.cur = e.id; spSave();
+    }
+    sp.ev = d.cur;
+    return e;
+  }
   function spRender() {
-    var d = spLoad(), h = '', ev = sp.ev ? spEv(sp.ev) : null;
+    var d = spLoad(), h = '', ev = ensureCur();
+    if (sp.view === 'ev' || sp.view === 'item' || sp.view === 'members' || sp.view === 'new') sp.view = 'home';
     $('spBack').classList.toggle('hidden', sp.view === 'home' || (sp.view === 'debts' && state.mode === 'debt'));
-    if (sp.view === 'ev' && !ev) sp.view = 'home';
     if (sp.view === 'debts') { $('spBody').innerHTML = spDebtsView(d); return; }
     if (sp.view === 'debt') { $('spBody').innerHTML = spDebtView(d); sp.dEdit = sp.dEdit; return; }
     if (sp.view === 'home') {
       $('spTitle').textContent = '分帳';
-      h += '<div class="sp-steps"><span><i>1</i>選人</span><span class="ar">›</span><span><i>2</i>記誰先付</span><span class="ar">›</span><span><i>3</i>看誰給誰</span></div>';
-      h += '<button class="btn" data-sp="new">＋ 新增分帳</button>';
-      d.events.slice().sort(function (a, b) { return b.time - a.time; }).forEach(function (e) {
-        var c = spCalc(e);
-        h += '<button class="more-item sp-ev" data-sp="open" data-id="' + e.id + '"><span><b>' + esc(e.title) + '</b><small>' + shortDate(e.time) + '　' + e.members.length + ' 人　共 ' + num(c.total) + (e.imported ? '　已匯入' : '') + '</small></span><span>›</span></button>';
+      var c = spCalc(ev), ed = sp.edit ? ev.items.filter(function (x) { return x.id === sp.edit; })[0] : null;
+      if (!ed) sp.edit = null;
+      // 1) 誰給誰：永遠在最上面，隨著輸入即時更新
+      h += '<div class="sp-res">';
+      if (!c.total) h += '<div class="sp-guide">輸入金額、點誰先付，這裡就會告訴你誰給誰</div>';
+      else {
+        h += '<div class="sp-cap">誰給誰</div>';
+        if (c.tr.length) c.tr.forEach(function (t) { h += '<div class="sp-tr"><span class="who">' + esc(t.from) + '</span><span class="arw" aria-label="給">→</span><span class="who">' + esc(t.to) + '</span><b class="amt">' + num(t.v) + '</b></div>'; });
+        else h += '<div class="sp-guide">剛好打平，不用轉帳</div>';
+        h += '<div class="sp-sub">共 ' + num(c.total) + '　每人約 ' + num(Math.round(c.total / Math.max(ev.members.length, 1))) + '　' + ev.members.length + ' 人</div>';
+      }
+      h += '</div>';
+      // 2) 誰參加：點一下開關
+      h += '<div class="sp-sec"><div class="sp-lb">誰參加</div><div class="sp-chips" id="spMm">' + spChips(d.people, ev.members, 'data-mm') + '</div>' +
+        '<div class="sp-add"><input id="spNewP" class="input" type="text" placeholder="＋ 新增名字" autocomplete="off" maxlength="12" enterkeyhint="done"><button class="btn line" data-sp="qaddp">加入</button></div></div>';
+      // 3) 記一筆：金額 → 誰先付 → 記下
+      if (ev.members.length >= 2) {
+        var who = ed ? ed.who : ev.members, lastPay = ev.items.length ? ev.items[ev.items.length - 1].payer : '';
+        var qs = ['吃飯', '計程車', '飲料', '停車', '其他'];
+        h += '<div class="sp-sec"><div class="sp-lb">' + (ed ? '修改這一筆' : '記一筆') + '</div>' +
+          '<input id="spA" class="input sp-amt" type="number" inputmode="decimal" min="0" placeholder="金額" enterkeyhint="done" value="' + (ed ? ed.amount : '') + '">' +
+          '<div class="sp-lb s">誰先付？</div><div class="sp-chips" id="spPayer">' + spChips(ev.members, [ed ? ed.payer : lastPay], 'data-payer') + '</div>' +
+          '<div class="sp-lb s">花在什麼（選填）</div><div class="sp-chips">' + qs.map(function (q) { return '<button type="button" class="chip" data-q="' + q + '" aria-pressed="' + (ed && ed.what === q) + '">' + q + '</button>'; }).join('') + '</div>' +
+          '<input id="spW" class="input" type="text" placeholder="或自己輸入" maxlength="30" autocomplete="off" value="' + esc(ed ? ed.what : '') + '">' +
+          '<details class="sp-more"' + (who.length < ev.members.length ? ' open' : '') + '><summary>有人沒份？<span id="spWhoTxt">' + (who.length < ev.members.length ? who.length + ' 人分攤' : '預設全員平分') + '</span></summary><div class="sp-chips" id="spWho">' + spChips(ev.members, who, 'data-who') + '</div></details>' +
+          '<div class="sp-pre" id="spPre"></div>' +
+          '<button class="btn" data-sp="qadd">' + (ed ? '儲存' : '記下') + '</button>' + (ed ? '<div class="sp-two"><button class="btn line" data-sp="qcancel">取消</button><button class="btn line" data-sp="delitem" data-id="' + ed.id + '">刪除</button></div>' : '') + '</div>';
+      } else h += '<div class="sp-guide" style="margin-top:6px">至少選 2 個人才能開始記</div>';
+      // 4) 已記的項目（點一筆可修改）
+      if (ev.items.length) {
+        h += '<div class="sp-sec"><div class="sp-lb">已記 ' + ev.items.length + ' 筆（點一筆可修改）</div>';
+        ev.items.forEach(function (it) {
+          var ex = ev.members.length - it.who.length;
+          h += '<button class="more-item sp-it" data-sp="edititem" data-id="' + it.id + '"><span><b>' + esc(it.what || '未命名') + '</b><small>' + esc(it.payer) + ' 先付' + (ex > 0 ? '　' + it.who.length + ' 人分攤' : '') + '</small></span><span>' + num(it.amount) + '</span></button>';
+        });
+        h += '</div>';
+      }
+      // 5) 要用的時候才按
+      if (c.total) {
+        h += '<div class="sp-foot"><button class="btn line" data-sp="imp">匯入我的支出</button><button class="btn line" data-sp="copy">複製結算</button></div>';
+        h += '<button class="btn" data-sp="qnew">完成，開新的一場</button>';
+        h += '<details class="sp-more"><summary>更多</summary>';
+        h += '<table class="sp-tb"><tr><th>人</th><th>先付</th><th>該分攤</th><th>差額</th></tr>';
+        c.bal.forEach(function (b) { h += '<tr><td>' + esc(b.p) + '</td><td>' + num(c.paid[b.p]) + '</td><td>' + num(c.owed[b.p]) + '</td><td class="' + (b.v > 0 ? 'down' : b.v < 0 ? 'up' : '') + '">' + (b.v > 0 ? '＋' : b.v < 0 ? '−' : '') + num(Math.abs(b.v)) + '</td></tr>'; });
+        h += '</table><div class="note">差額「＋」＝別人要給他，「−」＝他要給別人。</div>';
+        var meIn = d.me && ev.members.indexOf(d.me) >= 0;
+        if (!meIn) h += '<div class="note" style="margin-top:8px">我是誰？選一次就記住</div><div class="sp-chips">' + spChips(ev.members, [], 'data-setme') + '</div>';
+        else if (c.tr.some(function (t) { return t.from === d.me || t.to === d.me; })) h += '<button class="btn line" data-sp="todebt">把跟我有關的轉帳記進欠款簿' + (ev.debtsAdded ? '（已記過）' : '') + '</button>';
+        h += '<button class="linkbtn" data-sp="delev">刪除這一場</button></details>';
+      }
+      h += '<div class="sp-links"><button class="linkbtn" data-sp="hist">過去的分帳</button><button class="linkbtn" data-sp="people">名單與備份</button></div>';
+    } else if (sp.view === 'hist') {
+      $('spTitle').textContent = '過去的分帳';
+      var past = d.events.filter(function (e) { return e.items.length && e.id !== d.cur; }).sort(function (a, b) { return b.time - a.time; });
+      if (!past.length) h += '<div class="empty-box">還沒有過去的紀錄</div>';
+      past.forEach(function (e) {
+        var cc = spCalc(e);
+        h += '<button class="more-item sp-ev" data-sp="open" data-id="' + e.id + '"><span><b>' + esc(e.title) + '</b><small>' + shortDate(e.time) + '　' + e.members.length + ' 人　共 ' + num(cc.total) + (e.imported ? '　已匯入' : '') + '</small></span><span>›</span></button>';
       });
-      h += '<button class="linkbtn" data-sp="people" style="margin-top:14px">成員名單（' + d.people.length + ' 人）　備份</button>';
     } else if (sp.view === 'people') {
       $('spTitle').textContent = '成員名單';
       h += '<p class="note">這裡加的人，之後新增活動都能直接點選。想加就加，沒有人數限制。</p>';
@@ -2021,58 +2229,6 @@ b, strong { font-weight: 600; }
       });
       h += '<div class="note" style="margin-top:14px">備份：資料只存在這支手機的瀏覽器。換手機或清除資料前，先複製備份碼。</div>' +
         '<button class="btn line" data-sp="bk">複製備份碼</button><textarea id="spRestore" class="input" rows="2" placeholder="要還原時，把備份碼貼在這裡"></textarea><button class="btn line" data-sp="rs">用貼上的備份碼還原</button>';
-    } else if (sp.view === 'new') {
-      $('spTitle').textContent = '新增分帳';
-      var dr = sp.draft || { title: '', sel: d.last || [] };
-      h += '<div class="field"><label class="sr" for="spT">名稱</label><input id="spT" class="input" type="text" placeholder="名稱（選填，例：週五聚餐）" maxlength="30" autocomplete="off" value="' + esc(dr.title) + '"></div>' +
-        '<div class="note" style="margin:12px 0 6px">誰有參加？點選名字</div>' +
-        '<div class="sp-chips" id="spM">' + spChips(d.people, dr.sel, 'data-m') + '</div>' +
-        '<div class="sp-add"><input id="spNewP" class="input" type="text" placeholder="＋ 新的名字" autocomplete="off" maxlength="12"><button class="btn line" data-sp="addp2">加入</button></div>' +
-        '<div class="field"><label for="spD">日期</label><input id="spD" class="input" type="date" value="' + dateStr(Date.now()) + '"></div>' +
-        '<button class="btn" data-sp="create">開始記帳</button>';
-      sp.draft = null;
-    } else if (sp.view === 'ev' || sp.view === 'item') {
-      var c = spCalc(ev);
-      $('spTitle').textContent = ev.title;
-      if (sp.view === 'item') {
-        var it = sp.item ? ev.items.filter(function (x) { return x.id === sp.item; })[0] : null;
-        $('spTitle').textContent = it ? '修改' : '記一筆';
-        var who = it ? it.who : ev.members, lastPay = ev.items.length ? ev.items[ev.items.length - 1].payer : '';
-        var qs = ['吃飯', '計程車', '飲料', '停車', '其他'];
-        h += '<div class="field"><label class="sr" for="spA">金額</label><input id="spA" class="input sp-amt" type="number" inputmode="decimal" min="0" placeholder="金額" value="' + (it ? it.amount : '') + '"></div>' +
-          '<div class="note" style="margin:12px 0 6px">花在什麼？</div><div class="sp-chips">' + qs.map(function (q) { return '<button type="button" class="chip" data-q="' + q + '" aria-pressed="' + (it && it.what === q) + '">' + q + '</button>'; }).join('') + '</div>' +
-          '<input id="spW" class="input" type="text" placeholder="或自己輸入" maxlength="30" autocomplete="off" value="' + esc(it ? it.what : '') + '">' +
-          '<div class="note" style="margin:12px 0 6px">誰先付的？</div><div class="sp-chips" id="spPayer">' + spChips(ev.members, [it ? it.payer : lastPay], 'data-payer') + '</div>' +
-          '<details class="sp-more"' + (who.length < ev.members.length ? ' open' : '') + '><summary>分攤：<span id="spWhoTxt">' + (who.length < ev.members.length ? who.length + ' 人' : '全員平分') + '</span>（有人沒份才需要改）</summary><div class="sp-chips" id="spWho">' + spChips(ev.members, who, 'data-who') + '</div></details>' +
-          '<div class="sp-pre" id="spPre"></div>' +
-          '<button class="btn" data-sp="saveitem">' + (it ? '儲存' : '記下') + '</button>' + (it ? '<button class="linkbtn" data-sp="delitem" data-id="' + it.id + '">刪除這一筆</button>' : '');
-      } else {
-        // 結果放最上面：誰給誰，一眼看到
-        h += '<div class="sp-res">';
-        if (!c.total) h += '<div class="sp-guide">先記第一筆：誰先付了什麼</div>';
-        else {
-          h += '<div class="sp-cap">誰給誰</div>';
-          if (c.tr.length) c.tr.forEach(function (t) { h += '<div class="sp-tr"><span class="who">' + esc(t.from) + '</span><span class="arw" aria-label="給">→</span><span class="who">' + esc(t.to) + '</span><b class="amt">' + num(t.v) + '</b></div>'; });
-          else h += '<div class="sp-guide">剛好打平，不用轉帳</div>';
-          h += '<div class="sp-sub">共 ' + num(c.total) + '　每人約 ' + num(Math.round(c.total / ev.members.length)) + '　' + ev.members.length + ' 人</div>';
-        }
-        h += '</div><button class="btn" data-sp="additem">＋ 記一筆</button>';
-        ev.items.forEach(function (it) {
-          var ex = ev.members.length - it.who.length;
-          h += '<button class="more-item sp-it" data-sp="edititem" data-id="' + it.id + '"><span><b>' + esc(it.what || '未命名') + '</b><small>' + esc(it.payer) + ' 先付' + (ex ? '　' + it.who.length + ' 人分攤' : '') + '</small></span><span>' + num(it.amount) + '</span></button>';
-        });
-        if (c.total) {
-          h += '<div class="sp-foot"><button class="btn line" data-sp="imp">匯入我的支出</button><button class="btn line" data-sp="copy">複製結算</button></div>';
-          h += '<details class="sp-more"><summary>更多</summary>';
-          h += '<table class="sp-tb"><tr><th>人</th><th>先付</th><th>該分攤</th><th>差額</th></tr>';
-          c.bal.forEach(function (b) { h += '<tr><td>' + esc(b.p) + '</td><td>' + num(c.paid[b.p]) + '</td><td>' + num(c.owed[b.p]) + '</td><td class="' + (b.v > 0 ? 'down' : b.v < 0 ? 'up' : '') + '">' + (b.v > 0 ? '＋' : b.v < 0 ? '−' : '') + num(Math.abs(b.v)) + '</td></tr>'; });
-          h += '</table><div class="note">差額「＋」＝別人要給他，「−」＝他要給別人。</div>';
-          var meIn = d.me && ev.members.indexOf(d.me) >= 0;
-          if (!meIn) h += '<div class="note" style="margin-top:8px">我是誰？選一次就記住</div><div class="sp-chips">' + spChips(ev.members, [], 'data-setme') + '</div>';
-          else if (c.tr.some(function (t) { return t.from === d.me || t.to === d.me; })) h += '<button class="btn line" data-sp="todebt">把跟我有關的轉帳記進欠款簿' + (ev.debtsAdded ? '（已記過）' : '') + '</button>';
-          h += '<button class="btn line" data-sp="members">調整參加的人</button><button class="linkbtn" data-sp="delev">刪除這個分帳</button></details>';
-        } else h += '<button class="linkbtn" data-sp="delev" style="margin-top:12px">刪除這個分帳</button>';
-      }
     } else if (sp.view === 'members') {
       $('spTitle').textContent = '調整參加的人';
       h += '<div class="sp-chips" id="spM">' + spChips(d.people, ev.members, 'data-m') + '</div><div class="note" style="margin-top:8px">已經有分攤項目的人不能直接拿掉，請先修改那些項目。</div><button class="btn" data-sp="savem">儲存</button>';
@@ -2114,6 +2270,17 @@ b, strong { font-weight: 600; }
   }
   function spClick(e) {
     var chip = e.target.closest('.chip');
+    if (chip && chip.hasAttribute('data-mm')) {
+      var dd = spLoad(), cv = spEv(dd.cur), pn = chip.getAttribute('data-mm'), has = cv.members.indexOf(pn) >= 0;
+      if (has) {
+        var used = cv.items.some(function (it) { return it.payer === pn || it.who.indexOf(pn) >= 0; });
+        if (used) { toast(pn + ' 已經有項目，不能拿掉'); return; }
+        cv.members = cv.members.filter(function (x) { return x !== pn; });
+      } else cv.members = dd.people.filter(function (x) { return x === pn || cv.members.indexOf(x) >= 0; });
+      dd.last = cv.members.slice(); spSave(); sp.draftA = $('spA') ? $('spA').value : ''; spRender();
+      if (sp.draftA && $('spA')) $('spA').value = sp.draftA;
+      return;
+    }
     if (chip && chip.hasAttribute('data-q')) {
       var on = chip.getAttribute('aria-pressed') !== 'true';
       chip.parentNode.querySelectorAll('.chip').forEach(function (c) { c.setAttribute('aria-pressed', 'false'); });
@@ -2134,7 +2301,7 @@ b, strong { font-weight: 600; }
         if (w && w.getAttribute('aria-pressed') !== 'true') w.setAttribute('aria-pressed', 'true');
       } else if (chip.hasAttribute('data-me')) { sp.imp.me = chip.getAttribute('data-me'); sp.imp.cat = $('spCat').value; sp.imp.src = $('spSrc').value; spRender(); return; }
       else if (chip.hasAttribute('data-mode')) { sp.imp.mode = chip.getAttribute('data-mode'); sp.imp.cat = $('spCat').value; sp.imp.src = $('spSrc').value; spRender(); return; }
-      var wt = $('spWhoTxt'); if (wt && $('spWho')) { var ws = spSel('spWho', 'data-who').length, wn = document.querySelectorAll('#spWho .chip').length; wt.textContent = ws === wn ? '全員平分' : ws + ' 人'; }
+      var wt = $('spWhoTxt'); if (wt && $('spWho')) { var ws = spSel('spWho', 'data-who').length, wn = document.querySelectorAll('#spWho .chip').length; wt.textContent = ws === wn ? '預設全員平分' : ws + ' 人分攤'; }
       spPreview();
       return;
     }
@@ -2143,7 +2310,8 @@ b, strong { font-weight: 600; }
     var act = b.getAttribute('data-sp'), d = spLoad(), ev = sp.ev ? spEv(sp.ev) : null, p = b.getAttribute('data-p'), v;
     if (act === 'new') spGo('new');
     else if (act === 'people') spGo('people');
-    else if (act === 'open') spGo('ev', b.getAttribute('data-id'));
+    else if (act === 'open') { d.cur = b.getAttribute('data-id'); spSave(); sp.edit = null; spGo('home', null); }
+    else if (act === 'hist') spGo('hist');
     else if (act === 'addp') {
       v = $('spNewP').value.replace(/\s+/g, ' ').trim();
       if (!v) { toast('先輸入名字'); return; }
@@ -2164,41 +2332,33 @@ b, strong { font-weight: 600; }
         sp.data = nd; spSave(); toast('已還原'); spRender();
       } catch (x) { toast('備份碼格式不對'); }
     }
-    else if (act === 'addp2') {
+    else if (act === 'qaddp') {
       v = $('spNewP').value.replace(/\s+/g, ' ').trim();
       if (!v) { toast('先輸入名字'); return; }
-      sp.draft = { title: $('spT').value, sel: spSel('spM', 'data-m') };
       if (d.people.indexOf(v) < 0) d.people.push(v);
-      if (sp.draft.sel.indexOf(v) < 0) sp.draft.sel.push(v);
-      spSave(); spRender(); try { $('spNewP').focus(); } catch (x) {}
+      if (ev.members.indexOf(v) < 0) ev.members = d.people.filter(function (x) { return x === v || ev.members.indexOf(x) >= 0; });
+      d.last = ev.members.slice(); spSave(); spRender(); try { $('spNewP').focus(); } catch (x) {}
     }
-    else if (act === 'create') {
-      var title = $('spT').value.trim(), mem = spSel('spM', 'data-m'), day = $('spD').value;
-      if (!title) title = shortDate(day ? new Date(day + 'T12:00:00').getTime() : Date.now()) + ' 分帳';
-      if (mem.length < 2) { toast('至少選 2 個人'); return; }
-      var tt = day ? new Date(day + 'T12:00:00').getTime() : Date.now();
-      if (day === dateStr(Date.now())) tt = Date.now();
-      var n = { id: spId(), title: title, time: tt, members: d.people.filter(function (x) { return mem.indexOf(x) >= 0; }), items: [], imported: false };
-      d.events.push(n); d.last = n.members.slice(); spSave(); spGo('ev', n.id);
-    }
-    else if (act === 'additem') { sp.item = null; spGo('item'); }
-    else if (act === 'edititem') { sp.item = b.getAttribute('data-id'); spGo('item'); }
-    else if (act === 'saveitem') {
+    else if (act === 'edititem') { sp.edit = b.getAttribute('data-id'); spRender(); try { $('spA').scrollIntoView({ block: 'center' }); } catch (x) {} }
+    else if (act === 'qcancel') { sp.edit = null; spRender(); }
+    else if (act === 'qadd') {
       var what = $('spW').value.trim(), amt = parseFloat($('spA').value), py = spSel('spPayer', 'data-payer')[0], who = spSel('spWho', 'data-who');
-      if (!(amt > 0)) { toast('先輸入金額'); return; }
-      if (!what) what = '未命名';
-      if (!py) { toast('選一下誰先付的'); return; }
+      if (!(amt > 0)) { toast('先輸入金額'); try { $('spA').focus(); } catch (x) {} return; }
+      if (!py) { toast('點一下誰先付的'); return; }
       if (!who.length) { toast('至少要有一個人分攤'); return; }
+      if (who.indexOf(py) < 0 && false) who.push(py);
+      if (!what) what = '未命名';
       amt = Math.round(amt);
-      var cur = sp.item ? ev.items.filter(function (x) { return x.id === sp.item; })[0] : null;
+      var cur = sp.edit ? ev.items.filter(function (x) { return x.id === sp.edit; })[0] : null;
       if (cur) { cur.what = what; cur.amount = amt; cur.payer = py; cur.who = who; }
       else ev.items.push({ id: spId(), what: what, amount: amt, payer: py, who: who });
-      ev.imported = false; ev.debtsAdded = false; spSave(); spGo('ev');
+      ev.imported = false; ev.debtsAdded = false; sp.edit = null; spSave(); spRender(); buzz();
     }
-    else if (act === 'delitem') { ev.items = ev.items.filter(function (x) { return x.id !== b.getAttribute('data-id'); }); ev.imported = false; spSave(); spGo('ev'); }
+    else if (act === 'qnew') { d.cur = ''; sp.edit = null; spSave(); spGo('home', null); toast('已存到「過去的分帳」，開了新的一場'); }
+    else if (act === 'delitem') { ev.items = ev.items.filter(function (x) { return x.id !== b.getAttribute('data-id'); }); ev.imported = false; spSave(); spGo('home'); }
     else if (act === 'delev') {
       if (!confirm('確定刪除「' + ev.title + '」？')) return;
-      d.events = d.events.filter(function (x) { return x.id !== ev.id; }); spSave(); spGo('home', null);
+      d.events = d.events.filter(function (x) { return x.id !== ev.id; }); d.cur = ''; spSave(); spGo('home', null);
     }
     else if (act === 'members') spGo('members');
     else if (act === 'savem') {
@@ -2207,7 +2367,7 @@ b, strong { font-weight: 600; }
       var lost = ev.members.filter(function (q) { return mm.indexOf(q) < 0 && used[q]; });
       if (mm.length < 2) { toast('至少選 2 個人'); return; }
       if (lost.length) { toast(lost.join('、') + ' 還有項目，請先修改項目'); return; }
-      ev.members = d.people.filter(function (x) { return mm.indexOf(x) >= 0; }); spSave(); spGo('ev');
+      ev.members = d.people.filter(function (x) { return mm.indexOf(x) >= 0; }); spSave(); spGo('home');
     }
     else if (act === 'copy') {
       var tx = spText(ev);
@@ -2282,14 +2442,14 @@ b, strong { font-weight: 600; }
       if (res && res.ok && /^imported:(\d+)$/.test(res.result)) {
         ev.imported = true; spSave();
         toast('已匯入 ' + RegExp.$1 + ' 筆，共 ' + money(calc.sum));
-        spGo('ev'); refresh(true);
+        spGo('home'); refresh(true);
       } else { btn.disabled = false; toast('匯入失敗：' + ((res && (res.msg || res.result)) || '未知錯誤')); }
     }).catch(function () { btn.disabled = false; toast('連不上後端，沒有匯入'); });
   }
   function spBackBtn() {
     if (sp.view === 'debt') { if (sp.dEdit && sp.debt) { sp.dEdit = false; spRender(); } else spGo('debts'); }
     else if (sp.view === 'debts') setMode('split');
-    else if (sp.view === 'item' || sp.view === 'members' || sp.view === 'imp') spGo('ev');
+    else if (sp.view === 'imp') spGo('home');
     else spGo('home', null);
   }
 
