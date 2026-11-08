@@ -848,6 +848,77 @@ meta { }
 .sheet { background: var(--sheet) !important; border: 1px solid var(--glb) !important; border-bottom: 0 !important; border-radius: 32px 32px 0 0 !important; box-shadow: 0 -20px 60px rgba(0,0,0,.5); }
 .sheet h2 { font-family: var(--num); letter-spacing: .22em; color: var(--gold); }
 .linkbtn, .link, a.link { color: var(--gold) !important; }
+
+/* ===== v7.4 Neon：黑底、霓虹漸層邊框、粗體大數字（深色模式） ===== */
+@media (prefers-color-scheme: dark) {
+  :root {
+    --paper: #000; --paper2: #101014; --card: #060607; --sheet: #08080a; --ink: #fff; --sub: #8d8d99; --line: rgba(255,255,255,.08); --hair: rgba(255,255,255,.08);
+    --gold: #7fd8ff; --shu: #7fd8ff; --pinkbg: #060607; --yel: #8b6cff; --bd: rgba(255,255,255,.18);
+    --num: -apple-system, BlinkMacSystemFont, "SF Pro Rounded", "PingFang TC", "Noto Sans TC", sans-serif;
+    --neon: conic-gradient(from 210deg, #7b5cff, #3fa9ff, #2de2a6, #3fa9ff, #b45cff, #7b5cff);
+    --bgfx: none;
+  }
+  body { background-image: none; }
+  .card, .sec, .day-card, .cal-card, .sp-sec, .dg, .imp-file, .bud, .mchip, .stat, .searchpill, .more-item, .coach {
+    border: 1.5px solid transparent !important;
+    background: linear-gradient(#060607, #060607) padding-box, var(--neon) border-box !important;
+    box-shadow: 0 0 22px rgba(110,90,255,.14) !important;
+    -webkit-backdrop-filter: none; backdrop-filter: none;
+  }
+  .card, .sec, .day-card, .cal-card { border-radius: 26px; }
+  .mchip, .stat { box-shadow: none !important; }
+  .hero {
+    border: 1.5px solid transparent !important;
+    background: linear-gradient(#060607, #060607) padding-box, var(--neon) border-box !important;
+    box-shadow: 0 0 30px rgba(110,90,255,.2) !important; border-radius: 28px !important;
+  }
+  .hero::after { display: none; }
+  .hero .cap { letter-spacing: .12em; font-size: .78rem; color: var(--sub); text-transform: none; }
+  .hero-num { font-weight: 800 !important; font-size: 3.6rem !important; letter-spacing: -.03em; color: #fff !important; text-shadow: none; -webkit-text-fill-color: #fff; }
+  .hero-num small { color: var(--sub) !important; -webkit-text-fill-color: var(--sub); font-size: 1rem !important; font-weight: 700; letter-spacing: 0; }
+  .card h3, .sec h3, .sp-cap, .stat .k { color: #9fb0ff; letter-spacing: .14em; text-transform: none; font-weight: 700; }
+  .card h3::before, .sec h3::before { background: linear-gradient(135deg, #7b5cff, #2de2a6); width: 8px; height: 8px; border-radius: 50%; transform: none; }
+  .item .i-amt, .dayhd .sum { color: #fff !important; }
+  .dayhd .sum { color: #7fd8ff !important; }
+  .i-amt, .item .i-amt, .stat .v, .catrow .r, .dayhd .sum, .mchip b, .sp-sum b, .rank .am, .dayhd b { font-family: var(--num) !important; font-weight: 800 !important; letter-spacing: -.01em; }
+  .dayhd b { font-size: 1.25rem; }
+  .catrow .bar { background: #1b1b21 !important; }
+  .catrow .bar i { box-shadow: 0 0 10px currentColor; }
+  /* 帳戶卡 */
+  .atile { background: linear-gradient(#060607, #060607) padding-box, var(--neon) border-box !important; border: 1.5px solid transparent !important; border-radius: 26px !important; box-shadow: 0 0 22px rgba(80,120,255,.16) !important; color: #fff; padding: 14px 16px 6px; }
+  .atile.t0 { background: linear-gradient(#060607, #060607) padding-box, conic-gradient(from 200deg, #06c755, #35e3c4, #7b5cff, #06c755) border-box !important; box-shadow: 0 0 22px rgba(6,199,85,.18) !important; }
+  .atile.t1 { background: linear-gradient(#060607, #060607) padding-box, conic-gradient(from 200deg, #5b92f0, #b070ff, #3fd6e8, #5b92f0) border-box !important; box-shadow: 0 0 22px rgba(91,146,240,.2) !important; }
+  .atile .an { display: flex; justify-content: space-between; align-items: center; font-size: .78rem; font-weight: 800; letter-spacing: .04em; }
+  .atile.t0 .an { color: #06c755; } .atile.t1 .an { color: #6fa4ff; }
+  .atile .an em { font-style: normal; font-size: .66rem; color: var(--sub); font-weight: 700; }
+  .atile .av { font-family: var(--num); font-weight: 800; font-size: 1.75rem; letter-spacing: -.02em; color: #fff; margin-top: 4px; }
+  .atile .av small { color: var(--sub); font-size: .7rem; font-weight: 700; }
+  .atile .as { color: var(--sub); font-size: .68rem; }
+  .atile .ag { height: 4px; border-radius: 3px; background: #1d1d23; margin-top: 8px; overflow: hidden; }
+  .atile .ag i { display: block; height: 100%; border-radius: 3px; }
+  .atile.t0 .ag i { background: linear-gradient(90deg, #06c755, #35e3c4); box-shadow: 0 0 8px #06c755; }
+  .atile.t1 .ag i { background: linear-gradient(90deg, #5b92f0, #b070ff); box-shadow: 0 0 8px #5b92f0; }
+  .atile .ab button { color: #cfd3ff; }
+  .atile.t0 .an, .atile.t1 .an, .atile.t0 .as, .atile.t1 .as, .atile.t0 .av small, .atile.t1 .av small { color: inherit; }
+  .atile.t0 .an { color: #06c755; } .atile.t1 .an { color: #6fa4ff; }
+  .atile.t0 .as, .atile.t1 .as, .atile .av small { color: var(--sub); }
+  .atile.t0 .av, .atile.t1 .av, .atile.t0 .ab button, .atile.t1 .ab button { color: #fff; }
+  .atile.t0 .ab button, .atile.t1 .ab button { color: #cfd3ff; }
+  .atile.setup { background: transparent !important; border: 1.5px dashed rgba(255,255,255,.22) !important; color: #9fb0ff; box-shadow: none !important; }
+  /* 導覽與按鈕 */
+  .tabbar::before { background: rgba(0,0,0,.82); border-top: 1px solid rgba(255,255,255,.1); }
+  .tb[aria-selected="true"] { color: #fff !important; }
+  .tb[aria-selected="true"] svg { stroke: #7fd8ff !important; filter: drop-shadow(0 0 6px rgba(127,216,255,.7)); }
+  .addbtn { background: linear-gradient(135deg, #7b5cff, #3fa9ff 55%, #2de2a6) !important; color: #fff !important; box-shadow: 0 0 0 5px #000, 0 0 24px rgba(90,130,255,.65) !important; }
+  .btn { background: linear-gradient(135deg, #7b5cff, #3fa9ff) !important; color: #fff !important; box-shadow: 0 0 20px rgba(90,110,255,.4); }
+  .btn.line { background: transparent !important; border: 1.5px solid rgba(255,255,255,.25) !important; color: #fff !important; box-shadow: none; }
+  .chip { border: 1.5px solid rgba(255,255,255,.18) !important; }
+  .chip[aria-pressed="true"], .mgrid button[aria-pressed="true"], .md[aria-selected="true"] { background: linear-gradient(135deg, #7b5cff, #3fa9ff) !important; color: #fff !important; box-shadow: 0 0 14px rgba(90,110,255,.5); }
+  .cd.sel .dn { background: linear-gradient(135deg, #7b5cff, #3fa9ff); color: #fff; box-shadow: 0 0 14px rgba(90,130,255,.7); }
+  .coach .linkbtn, .linkbtn, .link, a.link { color: #7fd8ff !important; }
+  .sheet { background: #08080a !important; border: 1.5px solid rgba(123,92,255,.55) !important; border-bottom: 0 !important; box-shadow: 0 -10px 50px rgba(90,100,255,.25); }
+  .sheet h2 { font-family: var(--num); color: #fff; letter-spacing: .12em; }
+}
 </style>
 </head>
 <body>
@@ -1090,7 +1161,7 @@ meta { }
   'use strict';
 
   var DEFAULT_API = 'https://script.google.com/macros/s/AKfycbxPkzgIjUT7O4YMPVPjFi5u9JsZL_WWcNhAgVXnH_Erg5Z3jWo2ZgTnpiZTRGUYZqun/exec';
-  var PAGE_VERSION = '7.3';
+  var PAGE_VERSION = '7.4';
   var LS_KEY = 'zz_expense_key';
   var LS_API = 'zz_expense_api';
   var LS_CACHE = 'zz_expense_cache';
@@ -3006,9 +3077,12 @@ meta { }
   }
   function acctTile(a, i) {
     var ai = acctInfo(a), d = new Date(a.time), net = ai.inc - ai.out;
-    return '<div class="atile t' + Math.min(i, 2) + '"><div class="an">' + esc(a.name) + '</div>' +
+    var tot = 0; state.accts.forEach(function (x) { tot += Math.max(0, acctInfo(x).bal); });
+    var share = tot > 0 ? Math.max(0, Math.min(100, Math.round(Math.max(0, ai.bal) / tot * 100))) : 0;
+    return '<div class="atile t' + Math.min(i, 2) + '"><div class="an">' + esc(a.name) + '<em>' + share + '%</em></div>' +
       '<div class="av' + (ai.bal < 0 ? ' up' : '') + '"><small>NT$</small>' + (ai.bal < 0 ? '−' : '') + num(Math.abs(ai.bal)) + '</div>' +
       '<div class="as">' + (d.getMonth() + 1) + '/' + d.getDate() + ' 校正後 ' + (net < 0 ? '−' : '+') + num(Math.abs(net)) + '</div>' +
+      '<div class="ag"><i style="width:' + share + '%"></i></div>' +
       '<div class="ab"><button data-act="acin" data-arg="' + esc(a.id) + '" aria-label="' + esc(a.name) + ' 轉入">＋轉入</button><button data-act="acct" data-arg="' + esc(a.id) + '" aria-label="校正 ' + esc(a.name) + '">校正</button></div></div>';
   }
   function acctHtml() {
