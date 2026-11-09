@@ -2479,6 +2479,30 @@ details.tds > summary.tdh > span { margin-right: auto; }
 .gdsave button { width: 100%; } .gdsave button:disabled { opacity: .55; }
 [data-theme="dark"] .gdst.ok { background: rgba(46,154,80,.14); } [data-theme="dark"] .gdst.no { background: rgba(240,138,60,.12); } [data-theme="dark"] .gdrow.now { background: rgba(245,184,0,.12); }
 .chf { font-size: 10.5px; font-weight: 800; margin-left: 4px; padding: 0 5px; border-radius: 6px; background: #1f2a44; color: #fff; vertical-align: 1px; } button.on .chf { background: #f5b800; color: #1f2a44; }
+/* v11.32 留守提醒 */
+.rmstay .rmst { margin-top: 8px; padding-top: 8px; border-top: 1px dashed var(--line, #e5dfcf); } .rmst.off { opacity: .45; pointer-events: none; }
+.rml2 { font-size: 13px; font-weight: 800; margin: 10px 0 6px; }
+.rmwho { display: grid !important; grid-template-columns: repeat(3, 1fr); } .rmwho button { min-height: 40px; }
+.rmwhotx { font-size: 12px; color: var(--muted, #6b7280); margin-top: 4px; } .rmpick { margin-top: 8px; }
+.rmoffs { display: grid; grid-template-columns: repeat(4, 1fr); gap: 6px; } .rmoffs button { min-height: 42px; border-radius: 10px; border: 1.5px solid var(--line, #d8d2c2); background: var(--card, #fff); font: inherit; font-weight: 700; font-size: 14px; color: var(--ink, #1f2a44); }
+.rmoffs button.on { background: #1f2a44; color: #fff; border-color: #1f2a44; } .rmoffs button.on::before { content: '✓ '; }
+.rmhr { display: flex; align-items: center; gap: 8px; margin-top: 8px; font-size: 13px; } .rmhr select { min-height: 40px; }
+.rminc { display: flex; flex-wrap: wrap; gap: 6px 14px; font-size: 14px; } .rminc label { display: inline-flex; align-items: center; gap: 5px; min-height: 36px; }
+.rmprev { margin-top: 10px; font-size: 12px; } .rmprev pre { white-space: pre-wrap; background: #f5f1e6; border-radius: 10px; padding: 8px 10px; margin: 4px 0 0; font-family: inherit; font-size: 12.5px; line-height: 1.55; }
+[data-theme="dark"] .rmprev pre { background: #262b34; } [data-theme="dark"] .rmoffs button:not(.on) { background: #1c1f26; color: #e8eaee; } [data-theme="dark"] .rmoffs button.on { background: #e8eaee; color: #1c1f26; }
+/* v11.32 個人留守提醒 */
+.myrm > summary > span { display: flex; align-items: center; gap: 6px; flex-wrap: wrap; } .myrmst { font-size: 12px; font-weight: 700; color: var(--muted, #9ca3af); flex-basis: 100%; padding-left: 30px; } .myrmst.on { color: #1f7a3c; }
+.mys { margin: 14px 0; } .mys .gdh { margin-bottom: 8px; } .stn.ok { background: #2e9a50 !important; }
+.myme { display: flex; align-items: center; gap: 8px; margin-top: 8px; font-weight: 700; } .myme select { flex: 1; min-height: 44px; font-size: 16px; }
+.myhr { display: grid; grid-template-columns: repeat(3, 1fr); gap: 6px; margin-top: 8px; } .myhr button { min-height: 40px; border-radius: 10px; border: 1.5px solid var(--line, #d8d2c2); background: var(--card, #fff); font: inherit; font-size: 13.5px; font-weight: 700; color: var(--ink, #1f2a44); } .myhr button.on { background: #f5b800; border-color: #1f2a44; }
+.mymore { margin: 6px 0 10px; } .mymore > summary { font-size: 13px; font-weight: 700; color: var(--muted, #6b7280); cursor: pointer; padding: 6px 0; } .mymore .rminc { padding-top: 6px; }
+.mybtn .big { width: 100%; } .mybtn .big:disabled { opacity: .5; } .mybtn .btnrow { margin-top: 8px; } .mybtn .danger { color: #b3261e; } .mybtn .rmmsg { text-align: center; margin-top: 6px; }
+.myrm .rmwho { display: grid !important; grid-template-columns: repeat(3, 1fr); } .myrm .rmwho button { min-height: 42px; }
+.rmoffs { display: grid; grid-template-columns: repeat(4, 1fr); gap: 6px; } .rmoffs button { min-height: 42px; border-radius: 10px; border: 1.5px solid var(--line, #d8d2c2); background: var(--card, #fff); font: inherit; font-weight: 700; font-size: 14px; color: var(--ink, #1f2a44); }
+.rmoffs button.on { background: #1f2a44; color: #fff; border-color: #1f2a44; } .rmoffs button.on::before { content: '✓ '; }
+.rminc { display: flex; flex-wrap: wrap; gap: 6px 14px; font-size: 14px; } .rminc label { display: inline-flex; align-items: center; gap: 5px; min-height: 36px; }
+.rmwhotx { font-size: 12px; color: var(--muted, #6b7280); margin-top: 6px; } .rmpick { margin-top: 8px; }
+[data-theme="dark"] .rmoffs button:not(.on), [data-theme="dark"] .myhr button:not(.on) { background: #1c1f26; color: #e8eaee; } [data-theme="dark"] .rmoffs button.on { background: #e8eaee; color: #1c1f26; } [data-theme="dark"] .myhr button.on { color: #1c1f26; }
 
   .sit { display: inline-flex; align-items: center; gap: 5px; }
 .sit .wi { width: 18px; height: 18px; flex-shrink: 0; background: center / contain no-repeat; }
@@ -2991,6 +3015,10 @@ table.grid.wk td.cell { font-size: calc(var(--bd, 34px) * .48); }
       </details>
 
       <h3 class="mgh">個人</h3>
+      <details class="box fold myrm" id="foldMyRm">
+        <summary><span><span class="gi gi-mail"></span>留守提醒信<small class="myrmst" id="myrmSum">還沒設定</small></span></summary>
+        <div id="myrmBody"></div>
+      </details>
       <details class="box fold mstatic" id="foldMe" open>
         <summary>我的設定</summary>
         <ul class="list">
@@ -6274,8 +6302,11 @@ table.grid.wk td.cell { font-size: calc(var(--bd, 34px) * .48); }
         if (!isRO() && !canEditName(name)) hint = '此人員不在本身分負責範圍，無法修改。';
         else if (forcedRO) hint = '這是唯讀連結，無法修改。';
         else if (!prefs.pw) {
-          hint = prefs.guest ? '門禁密碼只能查看，不能修改。' : (rec ? '目前只能查看。要修改請先換身分。' : '一般只能新增留守，其他要修改請先換身分。');
-          if (!prefs.guest && !rec && !(info.off)) acts.push({ label: '新增留守', cls: 'main', fn: function () { applyState(k, name, { period: '留守', type: '留守' }, null, name + ' ' + mdLabel(k) + ' 留守', true); } });
+          var ra0 = (recsA[k] || {})[name] || null, rb0 = (recsB[k] || {})[name] || null, isStay = function (r) { return r && r.period === '留守'; };
+          var hasStay = isStay(rec) || isStay(ra0) || isStay(rb0), other = rec && !isStay(rec);
+          hint = hasStay ? '可以取消留守（班長、股總兩份一起刪）。其他要修改請換身分。' : (other ? '這格已經有紀錄，只能查看。要修改請換身分。' : '可以新增留守。其他要修改請換身分。');
+          if (!rec && !ra0 && !rb0) acts.push({ label: '＋ 新增留守', cls: 'main', fn: function () { applyState(k, name, { period: '留守', type: '留守' }, null, name + ' ' + mdLabel(k) + ' 留守', true); } });
+          if (hasStay) acts.push({ label: '取消留守', cls: 'danger', fn: function () { clearBoth(k, name); } });
           acts.push({ label: '換身分', fn: goLogin });
         } else {
           hint = '目前是唯讀（防止誤點）。要修改請先開啟編輯。';
@@ -7387,6 +7418,8 @@ table.grid.wk td.cell { font-size: calc(var(--bd, 34px) * .48); }
         $('idInst').hidden = instStandalone() || no || !mobile;
       }
       var CHANGELOG = [
+        { v: 'v11.33', d: '11/9', t: ['用查看密碼或門禁密碼登入的人，也能新增、取消「留守」（點名字那格）；取消會把班長、股總兩份一起刪；其他（休假、外勤）還是只能看；後端第四十八版'] },
+        { v: 'v11.32', d: '11/9', t: ['「更多」新增「留守提醒信」：每支手機都能自己設，不用密碼', '三步驟：① 寄到哪個信箱 ② 提醒誰的留守（只有我／自己選／全部）③ 什麼時候寄（前 3、2、1 天、當天，可複選＋幾點）', '最上面直接寫目前狀態；信裡要不要寫監控、衛哨、公差、Juiker 文字收在「信裡要寫什麼」；後端第四十七版'] },
         { v: 'v11.31', d: '11/9', t: ['尿篩也判斷時間重疊：尿篩時間撞到同一人其他公差（例如運送器材 09:00–10:30 撞尿篩 10:00）會提醒；選人放「當天有事」、待處理放黃色提醒，不會擋'] },
         { v: 'v11.30', d: '11/9', t: ['股長改成實際的人（股名冊「簡稱」填「股長」的那位，現在是李宗穎）：假單未點、尿篩、打靶都跟大家一樣算', '加班的督導「股長」換成李宗穎本人（當天休假會標「休」），產出文字還是寫「股長」；人員情況、留守文字裡也寫「股長」', '以後換股長：只要在股名冊把「股長」簡稱改到新的人（後端第四十五版）'] },
         { v: 'v11.29', d: '11/7', t: ['衛哨設定畫面重新設計：最上面直接寫目前駐廠是誰、本月幾點站、設定完成沒；兩步驟「誰是駐廠？」「每月幾點站？」；有變更才能按儲存，存好顯示「✓ 已儲存，設定完成」'] },
@@ -8428,6 +8461,68 @@ table.grid.wk td.cell { font-size: calc(var(--bd, 34px) * .48); }
             other: { on: $('rmOtherOn').checked, when: $('rmOtherWhen').value, hour: +$('rmOtherHour').value } };
         }
         $('foldRemind').addEventListener('toggle', function () { if (this.open) rmLoad(); });
+        // ====== 留守提醒信（每支手機自己的）======
+        var my = null, myBusy = false;
+        function myDev() { var d = ''; try { d = localStorage.getItem('rm_dev') || ''; if (!d) { d = (Date.now().toString(36) + Math.random().toString(36).slice(2, 10)).replace(/[^a-z0-9]/g, ''); localStorage.setItem('rm_dev', d); } } catch (e) { d = 'x' + Date.now().toString(36); } return d; }
+        function myDef() { return { emails: [''], stay: { on: false, offs: [1], hour: 20, who: 'me', me: prefs.me || '', ppl: [], inc: { mon: true, guard: true, duty: false, jk: true } } }; }
+        function myTx(st) { return (st.who === 'me' ? (st.me || '我') : (st.who === 'pick' ? st.ppl.length + ' 人' : '全部')) + '・留守前 ' + st.offs.map(function (o) { return o === 0 ? '當天' : o + ' 天'; }).join('、') + '・' + st.hour + ':00'; }
+        function myNames() { return (employees.length ? employees : dutyEmps()).map(function (e) { return e.name; }); }
+        function myDraw(msg, bad) {
+          var t = my.stay, em = my.emails[0] || '', okM = /^[^@\s]+@[^@\s]+\.[^@\s]+$/.test(em), okW = t.who === 'all' || (t.who === 'me' ? !!t.me : t.ppl.length > 0), okO = t.offs.length > 0;
+          var ready = okM && okW && okO, HR = [[7, '早上 7 點'], [8, '早上 8 點'], [12, '中午 12 點'], [17, '下午 5 點'], [20, '晚上 8 點'], [21, '晚上 9 點']];
+          var h = '<div class="gdst ' + (my.saved && t.on ? 'ok' : 'no') + '"><div class="gdsth">' + (my.saved && t.on ? '✓ 已開啟' : (my.saved ? '目前關閉' : '照 1 → 3 設定，最後按「開啟提醒」')) + '</div>' +
+            (my.saved && t.on ? '<div class="gdsl"><span>提醒</span><b>' + esc(myTx(t)) + '</b></div><div class="gdsl"><span>寄到</span><b>' + esc(my.emails.filter(Boolean).join('、')) + '</b></div>' : '<div class="gdex">設定好後，你選的人要<b>留守</b>前，會自動寄信到你的信箱。每支手機各自設定，不用密碼。</div>') + '</div>';
+          h += '<div class="mys"><div class="gdh"><b class="stn' + (okM ? ' ok' : '') + '">' + (okM ? '✓' : '1') + '</b><b>寄到哪個信箱？</b></div><input type="email" class="rmmail" id="myMail" inputmode="email" autocapitalize="off" placeholder="例：abc@gmail.com" value="' + esc(em) + '"></div>';
+          h += '<div class="mys"><div class="gdh"><b class="stn' + (okW ? ' ok' : '') + '">' + (okW ? '✓' : '2') + '</b><b>提醒誰的留守？</b></div><div class="seg rmwho" id="myWho"><button data-mw="me" class="' + (t.who === 'me' ? 'on' : '') + '">只有我</button><button data-mw="pick" class="' + (t.who === 'pick' ? 'on' : '') + '">自己選</button><button data-mw="all" class="' + (t.who === 'all' ? 'on' : '') + '">全部</button></div>';
+          if (t.who === 'me') h += '<div class="myme"><span>我是</span><select id="myMe"><option value="">— 選我的姓名 —</option>' + myNames().map(function (n) { return '<option' + (n === t.me ? ' selected' : '') + '>' + esc(n) + '</option>'; }).join('') + '</select></div>';
+          if (t.who === 'pick') h += '<div class="planpick rmpick">' + myNames().map(function (n) { return '<button data-mp="' + esc(n) + '" class="' + (t.ppl.indexOf(n) >= 0 ? 'on' : '') + '">' + esc(n) + '</button>'; }).join('') + '</div>';
+          if (t.who === 'all') h += '<div class="rmwhotx">全部同仁只要有人留守就寄</div>';
+          h += '</div>';
+          h += '<div class="mys"><div class="gdh"><b class="stn' + (okO ? ' ok' : '') + '">' + (okO ? '✓' : '3') + '</b><b>什麼時候寄？</b><small>可以複選</small></div><div class="rmoffs">' + [3, 2, 1, 0].map(function (o) { return '<button data-mo="' + o + '" class="' + (t.offs.indexOf(o) >= 0 ? 'on' : '') + '">' + (o ? '前 ' + o + ' 天' : '當天') + '</button>'; }).join('') + '</div>' +
+            '<div class="myhr">' + HR.map(function (x) { return '<button data-mh="' + x[0] + '" class="' + (t.hour === x[0] ? 'on' : '') + '">' + x[1] + '</button>'; }).join('') + '</div></div>';
+          h += '<details class="mymore"><summary>信裡要寫什麼（可不改）</summary><div class="rminc"><label><input type="checkbox" checked disabled> 留守</label><label><input type="checkbox" data-mi="mon"' + (t.inc.mon ? ' checked' : '') + '> 監控</label><label><input type="checkbox" data-mi="guard"' + (t.inc.guard ? ' checked' : '') + '> 衛哨</label><label><input type="checkbox" data-mi="duty"' + (t.inc.duty ? ' checked' : '') + '> 當天公差</label><label><input type="checkbox" data-mi="jk"' + (t.inc.jk ? ' checked' : '') + '> 可貼 Juiker 的文字</label></div></details>';
+          h += '<div class="mybtn"><button class="primary big" id="mySave"' + (ready && !myBusy ? '' : ' disabled') + '>' + (myBusy ? '儲存中…' : (t.on && my.saved ? '儲存變更' : '開啟提醒')) + '</button>' +
+            (my.saved && t.on ? '<div class="btnrow"><button class="ghost" id="myTest">寄測試信</button><button class="ghost danger" id="myOff">關閉提醒</button></div>' : '') +
+            '<div class="rmmsg' + (bad ? ' bad' : '') + '">' + esc(msg || (ready ? '' : '還差：' + [okM ? '' : '信箱', okW ? '' : '選人', okO ? '' : '時間'].filter(Boolean).join('、'))) + '</div></div>';
+          $('myrmBody').innerHTML = h;
+          $('myrmSum').textContent = my.saved && t.on ? '已開啟・' + myTx(t) : '還沒設定';
+          $('myrmSum').classList.toggle('on', !!(my.saved && t.on));
+        }
+        function myLoad() {
+          if (!my) { my = myDef(); myDraw('讀取中…'); }
+          apiCall({ action: 'getMyRemind', dev: myDev() }).then(function (res) {
+            if (!res || !res.ok) { myDraw((res && res.msg) || '讀取失敗（後端要第四十七版）', true); return; }
+            var s0 = res.setting || {}; my = myDef();
+            if (s0.emails && s0.emails.length) my.emails = s0.emails.slice();
+            if (s0.stay) { my.stay = s0.stay; if (!my.stay.me) my.stay.me = prefs.me || ''; }
+            my.saved = !!(s0.emails && s0.emails.length); myDraw();
+          }).catch(function (e) { myDraw('讀取失敗：' + e.message, true); });
+        }
+        function mySend(on) {
+          my.stay.on = on; myBusy = true; myDraw();
+          apiCall({ action: 'setMyRemind', dev: myDev(), data: JSON.stringify({ emails: my.emails.filter(Boolean), stay: my.stay }) }).then(function (res) {
+            myBusy = false;
+            if (!res || !res.ok) { myDraw((res && res.msg) || '儲存失敗', true); return; }
+            my.saved = true; showToast(on ? '✓ 留守提醒已開啟' : '留守提醒已關閉', null, null, 2000); myDraw(res.trigger === false ? '排程還沒啟用：請股總在 Apps Script 執行一次 setupReminder' : '', res.trigger === false);
+          }).catch(function (e) { myBusy = false; myDraw('儲存失敗：' + e.message, true); });
+        }
+        $('foldMyRm').addEventListener('toggle', function () { if (this.open) myLoad(); });
+        $('myrmBody').addEventListener('input', function (ev) { if (ev.target.id === 'myMail') { my.emails[0] = ev.target.value.trim(); var y = ev.target.selectionStart; myDraw(); var m = $('myMail'); m.focus(); try { m.setSelectionRange(y, y); } catch (e) { /* 忽略 */ } } });
+        $('myrmBody').addEventListener('change', function (ev) {
+          var t = ev.target;
+          if (t.id === 'myMe') { my.stay.me = t.value; if (t.value && !prefs.me) { prefs.me = t.value; savePrefs(); } myDraw(); }
+          else if (t.dataset.mi) { my.stay.inc[t.dataset.mi] = t.checked; }
+        });
+        $('myrmBody').addEventListener('click', function (ev) {
+          var b = ev.target.closest('button'); if (!b) return; var t = my.stay;
+          if (b.dataset.mw) { t.who = b.dataset.mw; if (t.who === 'me' && !t.me) t.me = prefs.me || ''; myDraw(); }
+          else if (b.dataset.mp) { var i = t.ppl.indexOf(b.dataset.mp); if (i >= 0) t.ppl.splice(i, 1); else t.ppl.push(b.dataset.mp); myDraw(); }
+          else if (b.dataset.mo) { var o = +b.dataset.mo, j = t.offs.indexOf(o); if (j >= 0) t.offs.splice(j, 1); else t.offs.push(o); t.offs.sort(); myDraw(); }
+          else if (b.dataset.mh) { t.hour = +b.dataset.mh; myDraw(); }
+          else if (b.id === 'mySave') mySend(true);
+          else if (b.id === 'myOff') mySend(false);
+          else if (b.id === 'myTest') { b.disabled = true; apiCall({ action: 'testMyRemind', dev: myDev() }).then(function (res) { b.disabled = false; if (res && res.ok) showToast('已寄測試信到 ' + res.to.join('、'), null, null, 2400); else myDraw((res && res.msg) || '寄送失敗', true); }).catch(function (e) { b.disabled = false; myDraw('寄送失敗：' + e.message, true); }); }
+        });
         $('rmSave').addEventListener('click', function () {
           var d = rmData();
           var badM = d.emails.filter(function (x) { return !/^[^@\s]+@[^@\s]+\.[^@\s]+$/.test(x); })[0];
