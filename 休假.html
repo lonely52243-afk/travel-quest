@@ -2478,6 +2478,7 @@ details.tds > summary.tdh > span { margin-right: auto; }
 .gdsave { position: sticky; bottom: 0; padding: 10px 0 calc(6px + env(safe-area-inset-bottom)); background: linear-gradient(transparent, var(--bg) 30%); }
 .gdsave button { width: 100%; } .gdsave button:disabled { opacity: .55; }
 [data-theme="dark"] .gdst.ok { background: rgba(46,154,80,.14); } [data-theme="dark"] .gdst.no { background: rgba(240,138,60,.12); } [data-theme="dark"] .gdrow.now { background: rgba(245,184,0,.12); }
+.chf { font-size: 10.5px; font-weight: 800; margin-left: 4px; padding: 0 5px; border-radius: 6px; background: #1f2a44; color: #fff; vertical-align: 1px; } button.on .chf { background: #f5b800; color: #1f2a44; }
 
   .sit { display: inline-flex; align-items: center; gap: 5px; }
 .sit .wi { width: 18px; height: 18px; flex-shrink: 0; background: center / contain no-repeat; }
@@ -5866,7 +5867,14 @@ table.grid.wk td.cell { font-size: calc(var(--bd, 34px) * .48); }
         return '<div class="sec"><b>' + title + ' ' + arr.length + ' 人</b>' +
           (arr.length ? '<div class="chips">' + arr.map(fn).join('') + '</div>' : '<span class="muted">無</span>') + '</div>';
       }
-      function fmtLeave(l) { return l.period === '全天' ? l.name : l.name + '（' + l.period + '休）'; }
+      // 股長是誰：股名冊「簡稱」有「股長」的那位（換人只要改股名冊）
+      function chiefName() {
+        for (var i = 0; i < PEOPLE.length; i++) { var a = PEOPLE[i].a || []; if ((Array.isArray(a) ? a : String(a).split(/[、,，\/\s]+/)).indexOf('股長') >= 0) return PEOPLE[i].n; }
+        for (var j = 0; j < empAll.length; j++) if (empAll[j].chief) return empAll[j].name;
+        return '';
+      }
+      function honor(n) { var c = chiefName(); return c && n === c ? '股長' : n; }
+      function fmtLeave(l) { return l.period === '全天' ? honor(l.name) : honor(l.name) + '（' + l.period + '休）'; }
 
       // 留守＝被標記「留守」的人
       function stayOf(k) {
@@ -5902,10 +5910,10 @@ table.grid.wk td.cell { font-size: calc(var(--bd, 34px) * .48); }
       // 這天完全沒有任何標記的人（＝還沒點假單）
       function unfiledOf(k) {
         var out = [];
-        employees.forEach(function (e) { if (!e.officer && !getRec(k, e.name)) out.push({ name: e.name }); });   // 軍官不列入未點
+        var cn = chiefName(); employees.forEach(function (e) { if ((!e.officer || e.chief || e.name === cn) && !getRec(k, e.name)) out.push({ name: e.name }); });   // 軍官不列入未點
         return out;
       }
-      function fmtStay(s) { return s.period ? s.name + '（' + s.period + '休）' : s.name; }
+      function fmtStay(s) { return s.period ? honor(s.name) + '（' + s.period + '休）' : honor(s.name); }
       function presentCount(k) {
         var n = 0;
         employees.forEach(function (e) {
@@ -5919,7 +5927,7 @@ table.grid.wk td.cell { font-size: calc(var(--bd, 34px) * .48); }
       // ====== 產出文字 ======
       function stayText(k) {
         var names = stayOf(k).map(fmtStay);
-        var mons = monOf(k).map(function (m) { return m.name; });
+        var mons = monOf(k).map(function (m) { return honor(m.name); });
         var t = dayHead(k) + '\n' + (names.length ? names.join('、') : '無');
         if (mons.length) t += '\n監控：' + mons.join('、');
         return t;
@@ -5929,14 +5937,14 @@ table.grid.wk td.cell { font-size: calc(var(--bd, 34px) * .48); }
         var lv = leavesOf(k).map(fmtLeave);
         var lines = [dayHead(k) + (info.label ? ' ' + info.label : '')];
         lines.push('休假：' + (lv.length ? lv.join('、') : '無'));
-        awayGroups(k).forEach(function (g) { lines.push(g.label + '：' + g.list.map(function (x) { return x.name; }).join('、')); });
+        awayGroups(k).forEach(function (g) { lines.push(g.label + '：' + g.list.map(function (x) { return honor(x.name); }).join('、')); });
         if (info.off) {
           var st = stayOf(k).map(fmtStay);
           lines.push('留守：' + (st.length ? st.join('、') : '無'));
         } else {
           lines.push('到班：' + presentCount(k) + ' 人');
         }
-        var mons = monOf(k).map(function (m) { return m.name; });
+        var mons = monOf(k).map(function (m) { return honor(m.name); });
         if (mons.length) lines.push('監控：' + mons.join('、'));
         return lines.join('\n');
       }
@@ -6576,7 +6584,7 @@ table.grid.wk td.cell { font-size: calc(var(--bd, 34px) * .48); }
         h += '</tr></thead><tbody>';
 
         employees.forEach(function (emp, ei) {
-          if (emp.officer && (prefs.show || {}).off === false) return;
+          if (emp.officer && !emp.chief && emp.name !== chiefName() && (prefs.show || {}).off === false) return;
           if (ei > 0 && groups.length > 1 && emp.sec !== employees[ei - 1].sec) h += '<tr class="secrow"><td class="namecol">' + esc(emp.sec) + '</td><td colspan="' + keys.length + '"></td></tr>';
           h += '<tr><td class="namecol' + (prefs.me && emp.name === prefs.me ? ' me' : '') + '">' + esc(emp.name) + '</td>';
           keys.forEach(function (k, idx) {
@@ -6985,9 +6993,9 @@ table.grid.wk td.cell { font-size: calc(var(--bd, 34px) * .48); }
         var md = (+p[1]) + '／' + (+p[2]);
         var head = (k === tk ? '今日(' + md + ')' : md + '（' + wkOf(k) + '）') + (o.when || '') + '加班人員：';
         var lines = [head.replace(/：$/, '')], gs = otSync(), multi = gs.length > 1;
-        if (o.sup) lines.push('督導：' + o.sup);
+        if (o.sup) lines.push('督導：' + honor(o.sup));
         gs.forEach(function (g, i) {
-          var gl = [], f = (g.from || '').trim(), t = (g.to || '').trim(), nm = g.ppl.map(otShortName), rows = [];
+          var gl = [], f = (g.from || '').trim(), t = (g.to || '').trim(), nm = g.ppl.map(function (n) { return honor(n) === '股長' ? '股長' : otShortName(n); }), rows = [];
           if (f || t) gl.push('時間：' + (f && t ? f + '～' + t : (f || t)));
           if ((g.why || '').trim()) gl.push('事由：' + g.why.trim());
           for (var j = 0; j < nm.length; j += 3) rows.push(nm.slice(j, j + 3).join('、'));
@@ -7015,9 +7023,11 @@ table.grid.wk td.cell { font-size: calc(var(--bd, 34px) * .48); }
         var pm = {}; PEOPLE.forEach(function (x) { pm[x.n] = x; });
         var supL = employees.map(function (e) { return e.name; }), supFew = PEOPLE.length && !otSupAll;
         if (supFew) supL = supL.filter(function (n) { return pm[n] && (pm[n].k || pm[n].c === '軍官') || n === o.sup; });
-        supL = ['股長'].concat(supL.filter(function (n) { return n !== '股長'; }));
+        var chf = chiefName();
+        if (chf && o.sup === '股長') o.sup = chf;
+        supL = chf ? [chf].concat(supL.filter(function (n) { return n !== chf && n !== '股長'; })) : ['股長'].concat(supL.filter(function (n) { return n !== '股長'; }));
         $('otSup').innerHTML = supL.map(function (n) {
-          return '<button data-n="' + esc(n) + '"' + (o.sup === n ? ' class="on"' : '') + '>' + esc(n) + (n === '股長' ? '' : tag(n)) + '</button>';
+          return '<button data-n="' + esc(n) + '"' + (o.sup === n ? ' class="on"' : '') + '>' + esc(n) + (chf && n === chf ? '<small class="chf">股長</small>' : '') + (n === '股長' ? '' : tag(n)) + '</button>';
         }).join('') + (PEOPLE.length ? '<button class="more" data-more="1">' + (otSupAll ? '收起' : '其他人…') + '</button>' : '');
         var otAll0 = ((typeof stockGroup === 'function' && stockGroup()) || {}).employees || employees;
         var otKnown = {}; qkAll().forEach(function (e) { otKnown[e.name] = 1; }); (otAll0 || []).forEach(function (e) { otKnown[e.name] = 1; }); employees.forEach(function (e) { otKnown[e.name] = 1; });
@@ -7373,6 +7383,7 @@ table.grid.wk td.cell { font-size: calc(var(--bd, 34px) * .48); }
         $('idInst').hidden = instStandalone() || no || !mobile;
       }
       var CHANGELOG = [
+        { v: 'v11.30', d: '11/9', t: ['股長改成實際的人（股名冊「簡稱」填「股長」的那位，現在是李宗穎）：假單未點、尿篩、打靶都跟大家一樣算', '加班的督導「股長」換成李宗穎本人（當天休假會標「休」），產出文字還是寫「股長」；人員情況、留守文字裡也寫「股長」', '以後換股長：只要在股名冊把「股長」簡稱改到新的人（後端第四十五版）'] },
         { v: 'v11.29', d: '11/7', t: ['衛哨設定畫面重新設計：最上面直接寫目前駐廠是誰、本月幾點站、設定完成沒；兩步驟「誰是駐廠？」「每月幾點站？」；有變更才能按儲存，存好顯示「✓ 已儲存，設定完成」'] },
         { v: 'v11.28', d: '11/7', t: ['新增衛哨：駐廠的人留守那天自動產生「衛哨」，時間照當月設定（沒設定沿用上個月）', '公差月曆上方「衛哨設定」：點選駐廠名單、填每月時間（要編輯中）；後端第四十四版', '衛哨跟擴大FO、查庫一樣：選人提醒、時間重疊、每日到班都會一起判斷；也能取消或別單位代理'] },
         { v: 'v11.27', d: '11/7', t: ['從當天詳細按「＋公差」選人時，「每月幾次」改用完整的 3 個月紀錄（之前可能只算到已讀的月份）'] },
