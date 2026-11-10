@@ -2844,6 +2844,22 @@ body.gstay #gridBox td.namecol.me { background: #ffe9a8; font-weight: 800; }
 .gsnow { font-size: 13px; color: var(--muted, #4b5563); margin: 4px 0 2px; } .gsc.hard .gsnow { color: #c0392b; font-weight: 700; }
 .gsodd { font-size: 12.5px; color: #a15c00; background: #fff4d6; border-radius: 8px; padding: 4px 8px; margin: 4px 0; }
 [data-theme="dark"] .gsodd { background: rgba(245,184,0,.15); color: #f5c451; }
+.gsbad { display: flex; flex-wrap: wrap; align-items: center; gap: 6px; margin: 8px 0; padding: 8px 10px; border-radius: 12px; background: #fdeaea; border: 1.5px solid #e8a3a3; }
+.gsbad b { color: #c0392b; font-size: 14px; margin-right: 4px; } .gsbad span { min-height: 30px; display: inline-flex; align-items: center; padding: 2px 10px; border-radius: 999px; border: 1px solid #e8a3a3; background: #fff; color: #c0392b; font: inherit; font-size: 13.5px; font-weight: 700; }
+.gslist { background: var(--card, #fff); border: 1px solid var(--line, #e5dfcf); border-radius: 14px; overflow: hidden; margin-top: 8px; }
+.gsp { display: flex; gap: 10px; padding: 10px 12px; align-items: flex-start; } .gsp + .gsp { border-top: 1px solid var(--line, #eee7d6); }
+.gsn { flex: none; width: 4.2em; font-size: 15.5px; line-height: 34px; } .gsr { flex: 1; min-width: 0; display: flex; flex-direction: column; gap: 4px; }
+.gsl2 { display: flex; flex-wrap: wrap; align-items: center; gap: 5px; } .gsv { font-size: 12px; font-weight: 800; padding: 1px 6px; border-radius: 6px; color: #fff; } .gsv.a { background: #e2572b; } .gsv.x { background: #6b7280; }
+.gsk { display: inline-flex; align-items: baseline; min-height: 30px; line-height: 26px; padding: 2px 9px; border-radius: 8px; font: inherit; font-size: 14px; font-weight: 700; border: 1px solid; background: transparent; } .gsk small { margin-left: 2px; font-size: 11px; font-weight: 600; opacity: .7; }
+.gsk.a { border-color: #f0b48a; color: #b5431c; background: #fff4ee; } .gsk.x { border-color: #c9ccd2; color: #4b5563; text-decoration: line-through; background: #f4f5f7; }
+[data-theme="dark"] .gsk.a { background: rgba(226,87,43,.15); color: #ffa37f; border-color: rgba(226,87,43,.5); } [data-theme="dark"] .gsk.x { background: rgba(255,255,255,.06); color: #b8bcc4; border-color: #555; }
+[data-theme="dark"] .gsbad { background: rgba(192,57,43,.15); border-color: rgba(192,57,43,.5); } [data-theme="dark"] .gsbad span { background: #1c1f26; color: #ff9b8f; }
+.gsact { display: flex; gap: 8px; margin-top: 10px; } .gsact button { flex: 1; min-height: 44px; border-radius: 12px; font: inherit; font-weight: 800; font-size: 15px; } .gsact button:not(.primary) { background: var(--card, #fff); border: 1.5px solid var(--line, #d8d2c2); color: var(--ink, #1f2a44); }
+/* v11.37 簡短版 */
+.gsbad { display: block; font-size: 14px; font-weight: 700; color: #c0392b; }
+.gsp { display: block; font-size: 15px; line-height: 1.6; } .gsp b { font-weight: 800; margin-right: 2px; } .gsp em { font-style: normal; font-weight: 700; color: #b5431c; } .gsp s { color: var(--muted, #6b7280); }
+.gsp small { display: block; font-size: 12.5px; color: #a15c00; }
+[data-theme="dark"] .gsbad { color: #ff9b8f; } [data-theme="dark"] .gsp em { color: #ffa37f; } [data-theme="dark"] .gsp small { color: #f5c451; }
 </style>
 </head>
 <body>
@@ -7540,8 +7556,8 @@ body.gstay #gridBox td.namecol.me { background: #ffe9a8; font-weight: 800; }
           todoBadge(); if ($('todoPage').classList.contains('show')) renderTodo();
           var g = gsDays();
           if (g.length && !gsToasted) {
-            gsToasted = true; var bad = g.filter(function (d) { return d.short; }).length;
-            showToast('同仁自己改了留守 ' + g.length + ' 天' + (bad ? '，其中 ' + bad + ' 天少了人' : ''), '去看', openTodo, 6000);
+            gsToasted = true; var bad = g.filter(function (d) { return d.short; }).length, pp = gsPeople();
+            showToast(pp[0].n + (pp.length > 1 ? '等 ' + pp.length + ' 人' : ' ') + '改了留守' + (bad ? '，' + bad + ' 天可能少人' : ''), '去看', openTodo, 6000);
           }
         }).catch(function () { gsLogAt = 0; });
       }
@@ -7571,28 +7587,37 @@ body.gstay #gridBox td.namecol.me { background: #ffe9a8; font-weight: 800; }
         });
         return out;
       }
+      // 依人整理：郭蕙芳 ＋ 11/10、11/19　－ 11/14
+      function gsPeople() {
+        var by = {}, ord = [];
+        gsDays().forEach(function (d) {
+          d.add.forEach(function (n) { if (!by[n]) { by[n] = { n: n, add: [], del: [], odd: [], ts: 0 }; ord.push(n); } by[n].add.push(d.k); by[n].ts = Math.max(by[n].ts, d.ts); });
+          d.del.forEach(function (n) { if (!by[n]) { by[n] = { n: n, add: [], del: [], odd: [], ts: 0 }; ord.push(n); } by[n].del.push(d.k); by[n].ts = Math.max(by[n].ts, d.ts); });
+          d.odd.forEach(function (o) { var who = d.add.concat(d.del).filter(function (n) { return o.indexOf(n) >= 0; })[0] || d.add.concat(d.del)[0]; if (by[who] && by[who].odd.indexOf(o) < 0) by[who].odd.push(o); });
+        });
+        return ord.map(function (n) { return by[n]; }).sort(function (a, b) { return b.ts - a.ts; });
+      }
+      function gsChips(ks, cls) { return ks.map(function (k) { return '<span class="gsk ' + cls + '">' + mdLabel(k) + '<small>' + wkOf(k) + '</small></span>'; }).join(''); }
       function gsTodoHtml() {
         var g = gsDays(); if (!g.length) return '';
-        g.sort(function (a, b) { return (b.short - a.short) || (a.k < b.k ? -1 : 1); });
-        var bad = g.filter(function (d) { return d.short; }).length;
-        var h = '<details class="tds" data-fold="gs" open><summary class="tdh ' + (bad ? 'red' : 'org') + '"><b>同仁自己改的留守</b><span>' + g.length + ' 天' + (bad ? '・' + bad + ' 天少人' : '') + '</span></summary><div class="tdhint">大家自己標的留守。紅色＝取消的比加入的多，那天可能少人；其他看過就好。</div>';
-        h += g.map(function (d) {
-          var sw = d.add.length && d.add.length === d.del.length, tx = sw
-            ? '<span class="gsw">換班</span><s>' + esc(d.del.join('、')) + '</s> → <em>' + esc(d.add.join('、')) + '</em>'
-            : (d.add.length ? '<span class="gsa">＋留守</span>' + esc(d.add.join('、')) + ' ' : '') + (d.del.length ? '<span class="gsx">－取消</span>' + esc(d.del.join('、')) : '');
-          return '<div class="tdc gsc ' + (d.short ? 'hard' : 'soft') + '"><div class="tdct"><b>' + mdLabel(d.k) + '<small>' + wkOf(d.k) + '</small></b><span class="gstx">' + tx + '</span></div>' +
-            '<div class="gsnow">' + (d.now ? '現在 ' + d.now + ' 人留守' : '<b>現在沒人留守</b>') + (d.short && d.now ? '・比原本少 ' + (d.del.length - d.add.length) + ' 人' : '') + '</div>' +
-            (d.odd.length ? '<div class="gsodd">⚠ ' + esc(d.odd.join('；')) + '</div>' : '') +
-            '<div class="tdact"><button class="primary" data-tdduty="' + d.k + '">看這天</button></div></div>';
-        }).join('');
-        return h + '<button class="tdcopy" data-gsseen="1">全部看過了（清掉）</button></details>';
+        var ppl = gsPeople(), bad = g.filter(function (d) { return d.short; });
+        var h = '<details class="tds" data-fold="gs" open><summary class="tdh ' + (bad.length ? 'red' : 'org') + '"><b>同仁自己改的留守</b><span>' + ppl.length + ' 人</span></summary>';
+        if (bad.length) h += '<div class="gsbad">⚠ ' + bad.map(function (d) { return mdLabel(d.k) + '(' + wkOf(d.k) + ')' + (d.now ? '剩 ' + d.now + ' 人' : '沒人留守'); }).join('、') + '，可能少人</div>';
+        var ds = function (ks) { return ks.map(function (k) { return mdLabel(k) + '(' + wkOf(k) + ')'; }).join('、'); };
+        h += '<div class="gslist">' + ppl.map(function (p) {
+          var t = [];
+          if (p.add.length) t.push('新增留守 <em>' + ds(p.add) + '</em>');
+          if (p.del.length) t.push('取消留守 <s>' + ds(p.del) + '</s>');
+          return '<div class="gsp"><b>' + esc(p.n) + '</b> ' + t.join('；') + (p.odd.length ? '<small>⚠ ' + esc(p.odd.join('；')) + '</small>' : '') + '</div>';
+        }).join('') + '</div>';
+        return h + '<div class="gsact"><button class="primary" data-gsgo="1">打開休假班表</button><button data-gsseen="1">✓ 都看過了</button></div></details>';
       }
       function gsSeenAll() { var m = 0; gsLog.forEach(function (r) { m = Math.max(m, r.ts || 0); }); prefs.gsSeen = m || Date.now(); savePrefs(); gsLog = []; renderTodo(); }
       function todoBadge() {
         if (!$('gTodoN') || !employees.length) return;
-        var r = todoRanges()[0], t = todoScan(r.a, r.b), gn = gsDays().length, n = t.hard.length + t.soft.length + t.nm + gn;
+        var r = todoRanges()[0], t = todoScan(r.a, r.b), gn = gsPeople().length, n = t.hard.length + t.soft.length + t.nm + gn;
         $('gTodoN').hidden = !n; $('gTodoN').textContent = n;
-        $('gTodoSub').textContent = n ? (gn ? '留守有改 ' + gn + ' 天' + (n > gn ? '・' : '') : '') + (t.hard.length + t.soft.length ? '重疊 ' + (t.hard.length + t.soft.length) + ' 件' : '') + (t.hard.length + t.soft.length && t.nm ? '・' : '') + (t.nm ? '假單未點 ' + t.nm + ' 人次' : '') : '這週都處理好了';
+        $('gTodoSub').textContent = n ? (gn ? gn + ' 人改了留守' + (n > gn ? '・' : '') : '') + (t.hard.length + t.soft.length ? '重疊 ' + (t.hard.length + t.soft.length) + ' 件' : '') + (t.hard.length + t.soft.length && t.nm ? '・' : '') + (t.nm ? '假單未點 ' + t.nm + ' 人次' : '') : '這週都處理好了';
       }
       function openTodo() {
         $('idGate').classList.remove('show'); $('todoPage').classList.add('show'); $('todoPage').scrollTop = 0;
@@ -7938,7 +7963,7 @@ body.gstay #gridBox td.namecol.me { background: #ffe9a8; font-weight: 800; }
         { ic: '<span class="tic ic-ok"></span>', t: '3　按「新增」', d: '確認名稱後按<b>「新增」</b>，主畫面就有圖示，一點就開。' }
       ];
       var CHANGELOG = [
-        { v: 'v11.36', d: '11/10', t: ['門禁／查看身分標留守變簡單：平常照樣正常看全部人；按班表上方「標留守」才開始，只有自己那排亮、其他人變暗', '標留守時：點自己空白格＝留守，再點一下＝取消（班長、股總兩份一起刪），不用再跳選單；好了按「完成」恢復正常看', '第一次會問「你是誰」，打名字就能找到；不想標也能選「我只看，不標記」', '已經是休、出差等的格子不能自己改，按「複製訊息」直接貼給班長；過去的日子也不能改', '班長打開 App 會跳「同仁自己改了留守」，待處理最上面列出：換班、＋留守、－取消，取消比加入多的那天標紅色「少人」，看完按「全部看過了」'] },
+        { v: 'v11.36', d: '11/10', t: ['門禁／查看身分標留守變簡單：平常照樣正常看全部人；按班表上方「標留守」才開始，只有自己那排亮、其他人變暗', '標留守時：點自己空白格＝留守，再點一下＝取消（班長、股總兩份一起刪），不用再跳選單；好了按「完成」恢復正常看', '第一次會問「你是誰」，打名字就能找到；不想標也能選「我只看，不標記」', '已經是休、出差等的格子不能自己改，按「複製訊息」直接貼給班長；過去的日子也不能改', '班長打開 App 會跳「○○ 改了留守」，待處理最上面一人一行：郭蕙芳 新增 11/10、11/19，取消的日期劃線；可能少人的日子另外紅色列出，看完按「都看過了」'] },
         { v: 'v11.35', d: '11/10', t: ['產出新增「尿篩」提醒：自動抓下一次尿篩；明天的寫「明日…如無法按時前往，請於 0900時前回復」，今天的寫「今日…請準時前往」', '回復截止時間可以自己填（空著＝尿篩前 1 小時）'] },
         { v: 'v11.34', d: '11/9', t: ['內部整理：程式依功能分檔、刪掉沒在用的程式和樣式、合併重複的寫法；畫面和功能都沒變，檔案變小'] },
         { v: 'v11.33', d: '11/9', t: ['用查看密碼或門禁密碼登入的人，也能新增、取消「留守」（點名字那格）；取消會把班長、股總兩份一起刪；其他（休假、外勤）還是只能看；後端第四十八版'] },
@@ -8708,6 +8733,7 @@ body.gstay #gridBox td.namecol.me { background: #ffe9a8; font-weight: 800; }
           if (b.dataset.tdok) { prefs.todoOk = prefs.todoOk || {}; prefs.todoOk[b.dataset.tdok] = 1; savePrefs(); renderTodo(); showToast('這筆不再提醒', null, null, 1500); return; }
           if (b.dataset.tdduty) { dutyOpen(b.dataset.tdduty); return; }
           if (b.dataset.gsseen) { gsSeenAll(); return; }
+          if (b.dataset.gsgo) { $('todoPage').classList.remove('show'); prefs.duty = false; hideDuty(); finishGate(); setTab('sched'); return; }
           if (b.dataset.tdcell) {
             var go = function () { onCellLong({ dataset: { date: b.dataset.tdcell, name: b.dataset.tdname } }); };
             if (isRO()) { $('editBtn').click(); var tries = 0, w = setInterval(function () { tries++; if (!isRO()) { clearInterval(w); renderTodo(); go(); } else if (tries > 40) clearInterval(w); }, 250); return; }
