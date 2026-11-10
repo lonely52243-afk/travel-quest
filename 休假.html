@@ -5255,9 +5255,9 @@ var LB = { duty: '公差', ur: '尿篩', shoot: '打靶', ot: '加班', plan: '�
 var td = mineItems(tk, me), st = td.filter(function (x) { return x.st; })[0], tasks = td.filter(function (x) { return !x.st; });
 var p1 = [];
 if (st) p1.push(esc(st.ttl));
-tasks.slice(0, 2).forEach(function (x) { var l = LB[x.t] || ''; p1.push(esc((x.ttl.indexOf(l) >= 0 || !l ? '' : l + ' ') + x.ttl)); });
-if (tasks.length > 2) p1.push('…共 ' + tasks.length + ' 件');
-var r1 = p1.length ? '<b>' + p1.join('・') + '</b>' : '<span class="gbn">沒有安排</span>';
+var seen = {}; tasks.forEach(function (x) { var l = LB[x.t] || x.s; if (!seen[l]) { seen[l] = 1; p1.push(esc(l)); } });
+var r1 = p1.length ? '<b>' + p1.join('・') + '</b>' + (tasks.length > 1 ? '<span class="gbn">　共 ' + tasks.length + ' 件</span>' : '') : '<span class="gbn">沒有安排</span>';
+if (mineClash(tk, tk, me)[tk]) r1 += '<b class="gbu">　⚠ 時間重疊</b>';
 var r2 = '', k0 = '', run = [];
 for (var d = 0; d < 14; d++) { var kk = addDays(tk, d); if (dayInfo(kk).off) { if (!run.length || addDays(run[run.length - 1], 1) === kk) run.push(kk); else break; } else if (run.length) break; }
 if (run.length) {
@@ -5421,6 +5421,7 @@ var INSTALL_IOS = [
 { ic: '<span class="tic ic-ok"></span>', t: '3　按「新增」', d: '確認名稱後按<b>「新增」</b>，主畫面就有圖示，一點就開。' }
 ];
 var CHANGELOG = [
+{ v: 'v11.68', d: '11/11', t: ['「我的重點」今天那行改簡短：只列類別（尿篩・公差・行程）加「共幾件」，時間重疊會直接標出來'] },
 { v: 'v11.67', d: '11/11', t: ['一般首頁最上面新增「我的重點」三行：今天要做什麼、下個假日（留守／休／還沒點幾天）、假單有沒有點好，打開 3 秒就知道'] },
 { v: 'v11.66', d: '11/11', t: ['一般首頁引導：右上多「看導覽」；紅條下面直接寫下一步（休假去公司點假單／留守按標留守）；名單沒載入（沒網路）時改顯示「重試」，不會卡在選名字；唯讀連結的「標留守」改成灰色並說明原因'] },
 { v: 'v11.65', d: '11/11', t: ['使用導覽說明文字全部精簡（拿掉贅詞，意思不變）；順便移除沒用到的程式碼'] },
