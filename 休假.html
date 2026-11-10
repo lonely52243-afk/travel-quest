@@ -3326,6 +3326,21 @@ body:has(#idGate.show) #sheetMask { z-index: 10010; } body:has(#idGate.show) #to
 #attBody .arow.here .ach { font-size: 13.5px; padding: 2px 9px; }
 .dstat .tl.sm.here .tlm > b::before { content: '✓'; display: inline-block; width: 20px; height: 20px; line-height: 20px; margin-right: 6px; border-radius: 50%; background: #2f8a55; color: #fff; font-size: 12px; font-weight: 900; text-align: center; vertical-align: 1px; background-image: none; }
 #quickPage .qksel { clear: both; width: 100%; }
+/* 全站收折：黃底 +／− 改成箭頭（收起 ›，打開 ⌄） */
+details summary::after { content: ''; display: inline-block; width: 8px; height: 8px; min-width: 0; line-height: 0; padding: 0; margin: 0 6px 0 8px; border: solid var(--muted, #8a8f9c); border-width: 0 2px 2px 0; border-radius: 1px; background: none; color: inherit; transform: rotate(-45deg); transition: transform .2s; flex-shrink: 0; }
+details[open] summary::after { transform: rotate(45deg) translate(-2px, -2px); }
+details.tds > summary .tdh > span, details.tds > summary.tdh > span { font-size: 12.5px; }
+details.filter > summary::after, details.filter[open] > summary::after { transform: none; border: none; width: auto; height: auto; line-height: 1.4; margin: 0 0 0 8px; }
+details[open] summary::after { transform: rotate(45deg); margin-top: -5px; }
+details.tds > summary.tdh > b { white-space: nowrap; flex-shrink: 0; }
+details.tds > summary.tdh > span { line-height: 1.35; }
+details summary::after { border-radius: 0; border-top: 0 none; border-left: 0 none; }
+details summary::after { border: 0 none !important; width: 14px; height: 14px; margin-top: 0; background: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 14 14'%3E%3Cpath d='M5 2.5 9.5 7 5 11.5' fill='none' stroke='%238a8f9c' stroke-width='2' stroke-linecap='round' stroke-linejoin='round'/%3E%3C/svg%3E") center / 14px 14px no-repeat; transform: none; }
+details[open] summary::after { transform: rotate(90deg); margin-top: 0; }
+details.filter > summary::after, details.filter[open] > summary::after { background: none; transform: none; width: auto; height: auto; }
+#minePage details > summary::after { border: 0 none !important; width: 14px; height: 14px; background: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 14 14'%3E%3Cpath d='M5 2.5 9.5 7 5 11.5' fill='none' stroke='%238a8f9c' stroke-width='2' stroke-linecap='round' stroke-linejoin='round'/%3E%3C/svg%3E") center / 14px 14px no-repeat !important; transform: none; }
+#minePage details[open] > summary::after { transform: rotate(90deg); }
+details[open] summary::after { content: ''; }
 </style>
 </head>
 <body>
@@ -8143,7 +8158,7 @@ body:has(#idGate.show) #sheetMask { z-index: 10010; } body:has(#idGate.show) #to
           var g = gsDays();
           if (g.length && !gsToasted) {
             gsToasted = true; var bad = g.filter(function (d) { return d.short; }).length, pp = gsPeople();
-            showToast(pp[0].n + (pp.length > 1 ? '等 ' + pp.length + ' 人' : ' ') + '改了留守' + (bad ? '，' + bad + ' 天可能少人' : ''), '去看', openTodo, 6000);
+            showToast(pp[0].n + (pp.length > 1 ? '等 ' + pp.length + ' 人' : ' ') + '改了留守', '去看', openTodo, 6000);
           }
         }).catch(function () { gsLogAt = 0; });
       }
@@ -8189,8 +8204,10 @@ body:has(#idGate.show) #sheetMask { z-index: 10010; } body:has(#idGate.show) #to
       function gsTodoHtml() {
         var g = gsDays(); if (!g.length) return '';
         var ppl = gsPeople(), bad = g.filter(function (d) { return d.short; });
-        var h = '<details class="tds" data-fold="gs" open><summary class="tdh ' + (bad.length ? 'red' : 'org') + '"><b>留守變更</b><span>' + ppl.length + ' 人</span></summary>';
-        if (bad.length) h += '<div class="gsbad">⚠ ' + bad.map(function (d) { return mdLabel(d.k) + '(' + wkOf(d.k) + ')' + (d.now ? '剩 ' + d.now + ' 人' : '沒人留守'); }).join('、') + '，可能少人</div>';
+        // 預設收起（只看標題就知道幾人、新增／取消幾天），要看再點開
+        var na = 0, nd = 0, nc = 0; ppl.forEach(function (p) { na += p.add.length; nd += p.del.length; nc += p.chg.length; });
+        var gOpen = (prefs.todoFold || {}).gs === false;
+        var h = '<details class="tds" data-fold="gs"' + (gOpen ? ' open' : '') + '><summary class="tdh org"><b>留守變更</b><span>' + ppl.length + ' 人' + (na ? '・新增 ' + na + ' 天' : '') + (nd ? '・取消 ' + nd + ' 天' : '') + (nc ? '・休假改留守 ' + nc + ' 天' : '') + '</span></summary>';
         var ds = function (ks) { return ks.map(function (k) { return mdLabel(k) + '(' + wkOf(k) + ')'; }).join('、'); };
         h += '<div class="gslist">' + ppl.map(function (p) {
           var t = [];
@@ -8822,6 +8839,7 @@ body:has(#idGate.show) #sheetMask { z-index: 10010; } body:has(#idGate.show) #to
         { ic: '<span class="tic ic-ok"></span>', t: '3　按「新增」', d: '確認名稱後按<b>「新增」</b>，主畫面就有圖示，一點就開。' }
       ];
       var CHANGELOG = [
+        { v: 'v11.46', d: '11/10', t: ['待處理「留守變更」：拿掉「沒人留守，可能少人」；預設收起，標題列直接寫「5 人・新增 5 天・取消 2 天・休假改留守 1 天」，要看名單再點開', '全站收折按鈕統一：黃底 +／− 改成灰色小箭頭（收起 ›，打開 ⌄）'] },
         { v: 'v11.45', d: '11/10', t: ['快速標記：打靶職掌表（手槍／步槍、射手、救護員…）整則歸成一件「打靶」，括號裡的職掌不再拆成好幾件公差；名字只寫名（志鵬、瓊嵐）也抓得到', '快速標記：選到的人名改成橫排，不會一人一行', '快速標記：一則通知用空行隔開、每段有自己的日期和人（例：打靶職掌表＋「明（11）日擦槍」），會拆成兩件；看得懂「明（11）日」', '擦槍只寫開始時間：上午預設 2 小時（0900 → 09:00–11:00），下午做到 17:00（1330 → 13:30–17:00）'] },
         { v: 'v11.44', d: '11/10', t: ['當天詳細：「當天情況」加上到班（綠色、放最前面），人數跟每日到班同步', '每日到班：到班、休假、外勤、留守、監控放在同一張卡，到班放最前面用綠框醒目；有排公差的到班人員右上有紫點', '每日到班：日期列、週曆、應到／實到／不在縮小；人名標籤縮小，一行放得下更多人；複製按鈕改成小的白色按鈕', '公假在人員名單上標「公假」小字'] },
         { v: 'v11.43', d: '11/10', t: ['快速標記：拿掉「這是當日行程？」按鈕；當日行程只從當天詳細的「＋ 當日行程」新增，點了會先說明什麼算當日行程', '快速標記：字體分層（時間、日期、人名縮小）；警告改成精緻提示框，同一種狀況的人合併成一行（例：李宗穎、蔡同咨：當天已經排過這項）；「＋ 加人」「個別時間」改成小膠囊按鈕；自訂時間不會被切掉'] },
