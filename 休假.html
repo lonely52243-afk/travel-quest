@@ -3232,6 +3232,37 @@ body:has(#idGate.show) #sheetMask { z-index: 10010; } body:has(#idGate.show) #to
 #minePage .mi > i, #minePage .mtm { margin-top: 0; }
 [data-theme="dark"] #minePage .mncal2 .cc.empty { background: none !important; border: none; }
 [data-theme="dark"] #minePage .mncal2 .cc.today { background: rgba(245,184,0,.12) !important; border-color: #f0b400; }
+/* 編輯格子：公假（算休假）、「其他」分組 */
+#sheet .sh-grp[data-g="其他"]::before { background-image: var(--ix-n-guard); }
+#sheet .sh-btn.lv.pub { background: #e3f4f1; border-color: #7cc7b9; }
+#sheet .sh-btn.lv.pub.on { border-color: var(--ink); }
+[data-theme="dark"] #sheet .sh-btn.lv.pub { background: rgba(15,122,109,.18); border-color: rgba(124,199,185,.45); }
+#minePage .mncal2 .p-pub { background: #dcf3ef; color: #0f7a6d; }
+#sheet .sh-grp[data-g="公假"]::before { background-image: var(--ix-n-offl); }
+#sheet .sh-btn[data-l="上午公假"]::before { background-image: var(--ix-t-am); } #sheet .sh-btn[data-l="下午公假"]::before { background-image: var(--ix-t-pm); } #sheet .sh-btn[data-l="全天公假"]::before { background-image: var(--ix-t-day); }
+/* 編輯選單 v2：休假／公假只留文字（小方框）；其他用左邊圓形徽章 */
+#sheet .sh-grid .sh-btn.lv { min-height: 50px; padding: 6px 4px !important; border-radius: 12px; }
+#sheet .sh-grid .sh-btn.lv::before { display: none !important; }
+#sheet .sh-grid .sh-btn.lv small { font-size: 11.5px; }
+#sheet .sh-grid .sh-btn.duty, #sheet .sh-grid .sh-btn.away { --bc: var(--away); flex-direction: row; justify-content: flex-start; gap: 8px; min-height: 50px; padding: 6px 8px !important; border-left-width: 1.5px; border-radius: 12px; text-align: left; }
+#sheet .sh-grid .sh-btn.duty.stay { --bc: var(--stay); } #sheet .sh-grid .sh-btn.duty.mon { --bc: var(--mon); }
+#sheet .sh-grid .sh-btn.duty[data-l]::before, #sheet .sh-grid .sh-btn.away[data-l]::before { flex: none; width: 32px; height: 32px; margin: 0 !important; border-radius: 50%; background-color: color-mix(in srgb, var(--bc) 16%, #fff); box-shadow: inset 0 0 0 1.5px color-mix(in srgb, var(--bc) 45%, transparent); background-size: 20px 20px; }
+[data-theme="dark"] #sheet .sh-grid .sh-btn.duty[data-l]::before, [data-theme="dark"] #sheet .sh-grid .sh-btn.away[data-l]::before { background-color: color-mix(in srgb, var(--bc) 30%, #1c1f26); }
+#sheet .sh-grid .sh-btn.duty:not(.on), #sheet .sh-grid .sh-btn.away:not(.on) { border-left: 2px solid var(--line-strong); }
+#sheet .sh-grid .sh-btn.duty.on, #sheet .sh-grid .sh-btn.away.on { border-left-width: 2px; }
+/* 編輯選單 v3：徽章改成單色圓點＋白字；圓角統一；清除改成真正的按鈕 */
+#sheet .sh-grid .sh-btn { border-radius: 10px !important; }
+#sheet .sh-grid .sh-btn.duty[data-l]::before, #sheet .sh-grid .sh-btn.away[data-l]::before { width: 26px; height: 26px; line-height: 26px; background: var(--bc) !important; box-shadow: none; color: #fff; font-size: 13px; font-weight: 900; text-align: center; }
+#sheet .sh-btn[data-l="留守"]::before { content: '留' !important; } #sheet .sh-btn[data-l="監控"]::before { content: '監' !important; }
+#sheet .sh-btn[data-l="救災"]::before { content: '救' !important; } #sheet .sh-btn[data-l="出差"]::before { content: '差' !important; } #sheet .sh-btn[data-l="受訓"]::before { content: '訓' !important; }
+#sheet .sh-grid .sh-btn.duty, #sheet .sh-grid .sh-btn.away { font-weight: 800; }
+#sheet .sh-btn.clr { flex-direction: row; justify-content: center; gap: 8px; min-height: 46px; padding: 8px 14px !important; margin-top: 16px !important; border-radius: 10px; background: var(--card, #fff); border: 2px solid #d9493b; color: #c0392b; box-shadow: 0 2px 0 #d9493b; }
+#sheet .sh-btn.clr::before { display: none; }
+#sheet .sh-btn.clr small { font-size: 12px; font-weight: 700; color: #c0392b; opacity: .75; }
+#sheet .sh-btn.clr:active { transform: translateY(2px); box-shadow: none; }
+[data-theme="dark"] #sheet .sh-btn.clr { background: transparent; border-color: #ff8a7d; color: #ffb1a8; box-shadow: 0 2px 0 #ff8a7d; } [data-theme="dark"] #sheet .sh-btn.clr small { color: #ffb1a8; }
+.bmiss .bmc .mchip { padding: 4px 13px; }
+#sheet .sh-btn.clr::before { display: none !important; content: none !important; }
 </style>
 </head>
 <body>
@@ -4141,6 +4172,8 @@ body:has(#idGate.show) #sheetMask { z-index: 10010; } body:has(#idGate.show) #to
         banMap = {};
         groups.forEach(function (g) { if (g.name === cfg.banGroup) (g.employees || []).forEach(function (e) { banMap[e.name] = '彈射'; }); });
         groups.forEach(function (g) { if (g.name === (cfg.armGroup || '軍械班')) (g.employees || []).forEach(function (e) { if (!banMap[e.name]) banMap[e.name] = '軍械'; }); });
+        // 舊資料：公假以前記成「外勤」，現在公假算休假（全天）
+        [recsA, recsB].forEach(function (R) { Object.keys(R).forEach(function (k) { var d = R[k] || {}; Object.keys(d).forEach(function (n) { var r = d[n]; if (r && r.period === '外勤' && /^公假/.test(r.type || '')) d[n] = { period: '全天', type: r.type }; }); }); });
         var seen = {};
         Object.keys(recsA).concat(Object.keys(recsB)).forEach(function (k) { seen[k] = 1; });
         recordsMy = {}; recordsPub = {};
@@ -4150,9 +4183,10 @@ body:has(#idGate.show) #sheetMask { z-index: 10010; } body:has(#idGate.show) #to
       function sigOf(r) { return r ? (r.period === '外勤' ? '外勤:' + (r.type || '') : r.period) : ''; }
       function recOrBlank(r) { return r ? recLabel(r) : '（空白）'; }
       function isLeave(r) { return !!r && (r.period === '全天' || r.period === '上午' || r.period === '下午'); }
+      function isPub(r) { return isLeave(r) && /^公假/.test(r.type || ''); }
       function isDuty(r) { return !!r && (r.period === '留守' || r.period === '監控'); }
       function isAway(r) { return !!r && r.period === '外勤'; }
-      function recLabel(r) { return isLeave(r) ? r.period + '休' : (isAway(r) ? (r.type || '外勤') : r.period); }
+      function recLabel(r) { return isLeave(r) ? (isPub(r) ? r.type + (r.period === '全天' ? '' : '（' + r.period + '）') : r.period + '休') : (isAway(r) ? (r.type || '外勤') : r.period); }
       function leaveValue(rec) { return isLeave(rec) ? (rec.period === '全天' ? 1 : 0.5) : 0; }
       function cloneRec(r) { return r ? { period: r.period, type: r.type || '特休' } : null; }
       function periodClass(rec) {
@@ -4184,8 +4218,8 @@ body:has(#idGate.show) #sheetMask { z-index: 10010; } body:has(#idGate.show) #to
         var out = [];
         employees.forEach(function (e) {
           var r = getRec(k, e.name);
-          if (r && (r.period === '全天' || r.period === '上午' || r.period === '下午')) {
-            out.push({ name: e.name, period: r.period });
+          if (isLeave(r)) {
+            out.push({ name: e.name, period: r.period, type: r.type });
           }
         });
         return out;
@@ -4193,7 +4227,7 @@ body:has(#idGate.show) #sheetMask { z-index: 10010; } body:has(#idGate.show) #to
       function chipAttr(n, k) { return ' data-name="' + esc(n) + '"' + (k ? ' data-date="' + k + '"' : ''); }
       function meCls(n) { return prefs.me && n === prefs.me ? ' me' : ''; }
       function leaveChip(l, k) {
-        return '<span class="chip ' + (l.period === '全天' ? '' : (l.period === '上午' ? 'am' : 'pm')) + meCls(l.name) + '"' + chipAttr(l.name, k) + '>' + esc(fmtLeave(l)) + '</span>';
+        return '<span class="chip ' + (l.period === '全天' ? '' : periodClass(l)) + meCls(l.name) + '"' + chipAttr(l.name, k) + '>' + esc(fmtLeave(l)) + '</span>';
       }
       function stayChip(s, k) {
         return '<span class="chip stay' + meCls(s.name) + '"' + chipAttr(s.name, k) + '>' + esc(fmtStay(s)) + '</span>';
@@ -4208,7 +4242,7 @@ body:has(#idGate.show) #sheetMask { z-index: 10010; } body:has(#idGate.show) #to
         return '<div class="sec"><b>' + title + ' ' + arr.length + ' 人</b>' +
           (arr.length ? '<div class="chips">' + arr.map(fn).join('') + '</div>' : '<span class="muted">無</span>') + '</div>';
       }
-      function fmtLeave(l) { return l.period === '全天' ? honor(l.name) : honor(l.name) + '（' + l.period + '休）'; }
+      function fmtLeave(l) { return l.period === '全天' ? honor(l.name) + (/^公假/.test(l.type || '') ? '（公假）' : '') : honor(l.name) + '（' + (/^公假/.test(l.type || '') ? '公假 ' : '') + l.period + (/^公假/.test(l.type || '') ? '' : '休') + '）'; }
       // 留守＝被標記「留守」的人
       function stayOf(k) {
         var out = [];
@@ -4630,7 +4664,7 @@ body:has(#idGate.show) #sheetMask { z-index: 10010; } body:has(#idGate.show) #to
       function gsToggle(k, name) {
         var rec = getRec(k, name), ra = (recsA[k] || {})[name] || null, rb = (recsB[k] || {})[name] || null, st = function (r) { return r && r.period === '留守'; };
         if (k < todayKey()) { showToast('過去的日子不能改，要補請找班長', null, null, 2200); return; }
-        var on = st(rec) || st(ra) || st(rb), okR = function (r) { return !r || isLeave(r); };
+        var on = st(rec) || st(ra) || st(rb), okR = function (r) { return !r || (isLeave(r) && !isPub(r)); };
         if (!on && (rec || ra || rb) && !(rec && okR(rec) && okR(ra) && okR(rb))) {
           var lb = recLabel(rec || ra || rb);
           showToast(mdLabel(k) + ' 已經是「' + lb + '」，要改請找班長', '複製訊息', function () { copyText('班長您好，我是' + name + '，' + mdLabel(k) + '（' + wkOf(k) + '）原本是「' + lb + '」，想改成留守，麻煩幫我修改，謝謝！', function () { showToast('已複製，貼到 Juiker 給班長', null, null, 2000); }); }, 4500);
@@ -4735,39 +4769,27 @@ body:has(#idGate.show) #sheetMask { z-index: 10010; } body:has(#idGate.show) #to
         if (!canEditName(name)) { showCellInfo(el); return; }
         var rec = cloneRec(getRec(k, name));
         var info = dayInfo(k);
-        var actions = [], G1 = '休假', G2 = '在營勤務', G3 = '不在營';
-        [['上午', '08–12'], ['下午', '13:30–17'], ['全天', '一整天']].forEach(function (q) {
-          var p = q[0], on = rec && rec.period === p;
-          actions.push({ grp: G1, cols: 3, label: (on ? '✓ ' : '') + p + '休', small: q[1], cls: 'lv' + (on ? ' on' : ''),
-            fn: function () { applyState(k, name, { period: p, type: rec ? rec.type : '特休' }, rec, name + ' ' + mdLabel(k) + ' ' + p + '休'); } });
+        var actions = [], G1 = '休假', GP = '公假', G2 = '其他';
+        var lvType = rec && isLeave(rec) && !isPub(rec) ? rec.type : '特休';
+        // 休假、公假：一樣分上午／下午／全天
+        [[G1, lvType, '休', false], [GP, '公假', '公假', true]].forEach(function (g) {
+          [['上午', '08–12'], ['下午', '13:30–17'], ['全天', '一整天']].forEach(function (q) {
+            var p = q[0], on = rec && rec.period === p && isPub(rec) === g[3];
+            actions.push({ grp: g[0], cols: 3, label: (on ? '✓ ' : '') + p + g[2], small: q[1], cls: 'lv' + (g[3] ? ' pub' : '') + (on ? ' on' : ''),
+              fn: function () { applyState(k, name, { period: p, type: g[1] }, rec, name + ' ' + mdLabel(k) + ' ' + p + g[2]); } });
+          });
         });
+        // 其他：留守、監控、救災、出差、受訓
         ['留守', '監控'].forEach(function (p) {
           var on = rec && rec.period === p;
-          actions.push({ grp: G2, cols: 2, label: (on ? '✓ ' : '') + p, cls: 'duty ' + (p === '留守' ? 'stay' : 'mon') + (on ? ' on' : ''),
+          actions.push({ grp: G2, cols: 3, label: (on ? '✓ ' : '') + p, cls: 'duty ' + (p === '留守' ? 'stay' : 'mon') + (on ? ' on' : ''),
             fn: function () { applyState(k, name, { period: p, type: p }, rec, name + ' ' + mdLabel(k) + ' ' + p); } });
         });
-        function setAway(label) {
-          applyState(k, name, { period: '外勤', type: label }, rec, name + ' ' + mdLabel(k) + ' ' + label);
-        }
-        ['救災', '出差', '受訓'].concat(prefs.away || []).forEach(function (label) {
+        ['救災', '出差', '受訓'].forEach(function (label) {
           var on = rec && rec.period === '外勤' && rec.type === label;
-          actions.push({ grp: G3, cols: 3, label: (on ? '✓ ' : '') + label, cls: 'away' + (on ? ' on' : ''), fn: function () { setAway(label); } });
+          actions.push({ grp: G2, cols: 3, label: (on ? '✓ ' : '') + label, cls: 'away' + (on ? ' on' : ''),
+            fn: function () { applyState(k, name, { period: '外勤', type: label }, rec, name + ' ' + mdLabel(k) + ' ' + label); } });
         });
-        actions.push({ grp: G3, cols: 3, label: '其他…', small: '自己打', cls: 'away', fn: function () {
-          openSheet({
-            title: name, sub: dayHead(k) + '　填寫事由',
-            body: '<input id="awayIn" class="awayin" type="text" maxlength="10" placeholder="例如：支援、公差、補休" aria-label="事由">',
-            actions: [{ label: '確定', cls: 'main', fn: function () {
-              var v = ($('awayIn').value || '').trim();
-              if (!v) { showToast('請先填寫事由', null, null, 2000); return; }
-              if (v !== '救災' && v !== '出差' && v !== '受訓') {
-                prefs.away = [v].concat((prefs.away || []).filter(function (x) { return x !== v; })).slice(0, 4); savePrefs();
-              }
-              setAway(v);
-            } }]
-          });
-          setTimeout(function () { try { $('awayIn').focus(); } catch (e) { /* 忽略 */ } }, 120);
-        } });
         // 清除：班長、股總兩邊都刪（恢復成沒請假）
         var ra = (recsA[k] || {})[name] || null, rb = (recsB[k] || {})[name] || null;
         if (rec || ra || rb) {
@@ -5593,7 +5615,7 @@ body:has(#idGate.show) #sheetMask { z-index: 10010; } body:has(#idGate.show) #to
       // 表格上方的圖例：第一次用的人一眼知道每個顏色、字代表什麼
       function gridLegend() {
         var ed = !isRO(), sp = myRole() && cfg.splitFrom;
-        return '<div class="glb"><span><i class="gl hol">休</i>假日休</span><span><i class="gl comp">休</i>平日休（補休／慰休／公假）</span><span><i class="gl half">上</i><i class="gl half">下</i>上午／下午休</span>' +
+        return '<div class="glb"><span><i class="gl hol">休</i>假日休</span><span><i class="gl comp">休</i>平日休（補休／慰休）</span><span><i class="gl comp">公</i>公假</span><span><i class="gl half">上</i><i class="gl half">下</i>上午／下午休</span>' +
           '<span><i class="gl stay">留</i>留守</span><span><i class="gl away">差</i>出差</span><span><i class="gl away">訓</i>受訓</span><span><i class="gl away">救</i>救災</span><span><i class="gl none"></i>空白＝上班</span>' +
           (sp ? '<span><i class="gl glgh">休</i>淡色＝另一邊記的</span>' : '') +
           (ed ? '<div class="glhow"><b>點一下</b>＝全天休，再點取消　<b>按住</b>＝上午／下午、留守、清除</div>' : '') + '</div>';
@@ -5629,7 +5651,7 @@ body:has(#idGate.show) #sheetMask { z-index: 10010; } body:has(#idGate.show) #to
               if (gr0) { rec = gr0; ghost = true; cls += ' hint'; }
             }
             if (isLeave(rec)) {
-              cls += ' ' + periodClass(rec) + (!inf.off && rec.period === '全天' ? ' comp' : ''); txt = rec.period === '上午' ? '上' : (rec.period === '下午' ? '下' : '休');
+              cls += ' ' + periodClass(rec) + (!inf.off && rec.period === '全天' ? ' comp' : ''); txt = isPub(rec) ? '公' : (rec.period === '上午' ? '上' : (rec.period === '下午' ? '下' : '休'));
             } else if (isAway(rec)) {
               cls += ' away'; txt = awayCh(rec.type);
             } else if (isDuty(rec)) {
@@ -6350,7 +6372,7 @@ body:has(#idGate.show) #sheetMask { z-index: 10010; } body:has(#idGate.show) #to
         for (var d = 1; d <= last; d++) {
           var k = ym + '-' + pad(d), items = [];
           var r = (recordsPub[k] || {})[n];
-          if (r) { var cp = isLeave(r) && r.period === '全天' && !dayInfo(k).off; items.push({ c: isLeave(r) ? 'rest' + (cp ? ' comp' : '') : (r.period === '留守' ? 'stay' : (r.period === '監控' ? 'mon' : 'away')), t: cp ? '補休／慰休／公假' : recLabel(r) }); if (isLeave(r)) { if (dayInfo(k).off) cnt.offRest = (cnt.offRest || 0) + 1; else cnt.rest += r.period === '全天' ? 1 : 0.5; } else if (r.period === '留守') cnt.stay++; }
+          if (r) { var cp = isLeave(r) && r.period === '全天' && !dayInfo(k).off; items.push({ c: isLeave(r) ? 'rest' + (cp ? ' comp' : '') : (r.period === '留守' ? 'stay' : (r.period === '監控' ? 'mon' : 'away')), t: isPub(r) ? recLabel(r) : (cp ? '補休／慰休' : recLabel(r)) }); if (isLeave(r)) { if (dayInfo(k).off) cnt.offRest = (cnt.offRest || 0) + 1; else cnt.rest += r.period === '全天' ? 1 : 0.5; } else if (r.period === '留守') cnt.stay++; }
           (dutyAll[k] || []).forEach(function (x) { if (x.n !== n) return; var u = isUrine(x.why), o = isOT(x.why); items.push({ c: u ? 'urine' : (o ? 'ot' : (isShoot(x.why) ? 'shoot' : 'duty')), t: x.why + (x.time ? '　' + fmtTm(x.time) : ''), ic: whyIcon(x.why) }); if (u) cnt.urine++; else if (o) cnt.ot += otHours(x.time); else cnt.duty++; });
           try { var pl0 = dutyDayOf(k).plan || {}; Object.keys(pl0).forEach(function (it) { pl0[it].forEach(function (p) { if (p.n !== n) return; var pt = planTm(it); items.push({ c: 'plan', t: it + (pt ? '　' + pt.a + '–' + pt.b : '') + (p.est ? '（預估）' : '（表定）'), ic: whyIcon(it) }); cnt.plan = (cnt.plan || 0) + 1; }); }); } catch (e2) { /* 忽略 */ }
           eventsOf(k).forEach(function (e) { if (e.who !== '全員' && evHas(e, n)) items.push({ c: 'ev', t: '行程：' + (e.time ? e.time + ' ' : '') + e.title }); });
@@ -8310,6 +8332,7 @@ body:has(#idGate.show) #sheetMask { z-index: 10010; } body:has(#idGate.show) #to
           if (r.period === '留守') out.push({ st: 1, t: 'stay', s: '留', ttl: '留守', x: '留守' });
           else if (r.period === '監控') out.push({ st: 1, t: 'mon', s: '監', ttl: '監控', x: '監控' });
           else if (r.period === '外勤') out.push({ st: 1, t: 'away', s: awayCh(r.type), ttl: r.type || '外勤', x: r.type || '外勤' });
+          else if (isPub(r)) out.push({ st: 1, t: 'off', s: r.period === '全天' ? '公' : (r.period === '上午' ? '上' : '下'), ttl: '公假' + (hf ? '（' + hf + '）' : ''), x: '公假' + (hf ? '（' + hf + '）' : '') });
           else out.push({ st: 1, t: 'off', s: r.period === '全天' ? '休' : (r.period === '上午' ? '上' : '下'), ttl: hf ? hf + '休' : '休假', x: (hol ? '例假日休' : '補休／慰休／公假') + (hf ? '（' + hf + '）' : '') });
         }
         var add = function (o) { o.x = o.ttl + (o.tm ? ' ' + o.tm : '') + (o.nt ? '（' + o.nt + '）' : ''); out.push(o); };
@@ -8407,7 +8430,8 @@ body:has(#idGate.show) #sheetMask { z-index: 10010; } body:has(#idGate.show) #to
           var np = 0;
           if (r) {
             var pt, pc;
-            if (isLeave(r)) { pt = r.period === '上午' ? '上休' : r.period === '下午' ? '下休' : '休'; pc = (!inf.off && r.period === '全天') ? 'comp' : 'off'; }
+            if (isPub(r)) { pt = r.period === '上午' ? '上公' : r.period === '下午' ? '下公' : '公假'; pc = 'pub'; }
+            else if (isLeave(r)) { pt = r.period === '上午' ? '上休' : r.period === '下午' ? '下休' : '休'; pc = (!inf.off && r.period === '全天') ? 'comp' : 'off'; }
             else if (isAway(r)) { pt = awayCh(r.type); pc = 'away'; }
             else if (r.period === '留守') { pt = '留守'; pc = 'stay'; }
             else { pt = '監'; pc = 'mon'; }
@@ -8707,6 +8731,7 @@ body:has(#idGate.show) #sheetMask { z-index: 10010; } body:has(#idGate.show) #to
         { ic: '<span class="tic ic-ok"></span>', t: '3　按「新增」', d: '確認名稱後按<b>「新增」</b>，主畫面就有圖示，一點就開。' }
       ];
       var CHANGELOG = [
+        { v: 'v11.42', d: '11/10', t: ['點格子的選單重新排版：休假（上午休／下午休／全天休）、公假（上午／下午／全天公假）、其他（留守、監控、救災、出差、受訓），拿掉「不在營」分組和「其他…自己打」；休假、公假按鈕拿掉大圖示只留文字，其他按鈕改成左邊單色圓點（留／監／救／差／訓，跟班表一樣）；按鈕圓角統一；「清除」改成紅框按鈕，按下去會往下壓', '公假改成算休假（半天算 0.5），跟一般休假分開顯示：班表寫「公」、人員情況寫「（公假）」；以前記成外勤的公假會自動當休假看', '公差判斷：公假那天排到公差一樣會提醒「時間撞到」'] },
         { v: 'v11.41', d: '11/10', t: ['我的行程：統計移到月曆上面，預設收起（標題列直接看到 休・留・勤 的數字）', '月曆改成精緻版：日期縮小淡化放左上；休假、留守、公差改成淡色小標籤，一天兩件就上下兩行，第三件起變成底部小圓點；上午／下午休寫「上休／下休」，不再斜切', '月份列的箭頭和「標留守」按鈕縮小', '收折按鈕改成箭頭（收起 ›，打開 ⌄）', '每天要做什麼：字體縮小，日期、標籤、內容、時間都垂直置中；狀態標籤太長不會再折行'] },
         { v: 'v11.40', d: '11/10', t: ['首頁每日情況：今天、明天展開，其他天只顯示一行摘要（行程、休幾人、到班幾人、留守誰、未點幾人），點一下展開，可以「▴ 收起」；複製按鈕加圖示，按了變綠色「✓ 已複製」', '產出頁：選項按鈕統一圓角和高度，日期框和「夜間／假日／不寫」對齊；每區的標題和說明都放左上', '公差月曆：日期數字縮小放左上角，跟人名分開；今天的日期黃底', '底下的顏色說明可以點：點「打靶」就只亮有打靶的日子，其他變淡，再點一次或按「✕ 全部」恢復'] },
         { v: 'v11.39', d: '11/10', t: ['「訪客」改叫「一般」，「換身分」改叫「登出」；招呼改成「你好，志鵬」（不加姓）', '一般首頁重新設計：最上面紅色「假單還沒點」、橘色「時間撞到」通知條，按了直接看；下面兩週的滑動週曆（有事用小圓點、整天狀態用色塊），點哪天就在大卡片顯示那天要做什麼（今天綠框）；時間撞到的那天卡片紅框會亮，多一顆「📣 一鍵回報班長」複製訊息貼 Juiker', '要做的事標籤改成兩個字（公差、尿篩、打靶、輪值、衛哨、行程、加班），顏色分得更開', '行程排版統一：一天一列，左邊日期＋整天狀態色塊（留守、休假、出差），右邊一件事一行、時間靠右；留守的日子會列出「一起留守」的同仁；首頁、我的行程、點日子視窗都一樣', '訪客首頁改成以「我」為主：一打開就看到「你好，○○」、今天和接下來有事的日子（框裡往下滑看更多）、撞到／假單未點提醒，按「看我的行程」或「✎ 標留守」；全部人的休假班表、公差勤務放在下面', '選名字的分組直接讀股名冊的「班別」（彈射、軍械、股總、軍官…），以後換人、換班別只改股名冊', '公假＝休假：平日的休假都算「補休／慰休／公假」，說明文字跟著改', '「清除（恢復沒請假）」按復原時，會講清楚只復原你這份，另一份要請班長／股總重新點'] },
