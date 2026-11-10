@@ -4076,7 +4076,7 @@ var k = dutyDayK, o = dutyDayOf(k), h = '', info = dayInfo(k), tk = todayKey(); 
 $('dutyDayTitle').innerHTML = mdLabel(k) + '（' + wkOf(k) + '）' + (k === tk ? ' <em>今天</em>' : '') + (info.label ? ' <small>' + esc(info.label) + '</small>' : '');
 var top = evBannerHtml(k, dutyEditor()), stH = '', nTl = 0, acts = '';
 if (dutyEditor()) acts = '<div class="dayacts"><button class="primary" id="dayAdd">＋ 公差</button><button class="ghost evadd" id="evAdd">＋ 當日行程</button></div>';
-else acts = '<div class="dayunlock"><button class="ghost" id="dayUnlock">✎ 要新增／修改／刪除？解鎖編輯</button><div id="dayPwRow" hidden><input type="text" id="dayPwIn" inputmode="numeric" autocomplete="off" placeholder="彈射密碼" style="-webkit-text-security:disc"><button class="primary" id="dayPwOk">解鎖</button><div class="idmsg" id="dayPwMsg"></div></div></div>';
+else if (myId() !== 'guest') acts = '<div class="dayunlock"><button class="ghost" id="dayUnlock">✎ 要新增／修改／刪除？解鎖編輯</button><div id="dayPwRow" hidden><input type="text" id="dayPwIn" inputmode="numeric" autocomplete="off" placeholder="彈射密碼" style="-webkit-text-security:disc"><button class="primary" id="dayPwOk">解鎖</button><div class="idmsg" id="dayPwMsg"></div></div></div>';
 function hhmm(x) { return x.slice(0, 2) + ':' + x.slice(2); }
 function tmOf(tm) {
 tm = tmFix(String(tm || '')).replace(/\s/g, '');
@@ -4179,7 +4179,7 @@ var inRest = names.filter(function (n) { return kind === 'duty' && !!offClash(k,
 if (inRest.length) h += '<div class="evrow warn"><span class="evk">注意</span><span>' + esc(inRest.join('、')) + ' 當天有休假紀錄</span></div>';
 if (kind === 'duty') {
 if (dutyEditor()) h += '<div class="evbtns"><button class="primary" id="evEdit">編輯（事由、時間、增減人員）</button><button class="ghost" id="evDel">刪除這項</button></div>';
-else h += '<div class="evbtns"><button class="ghost" id="evUnlock">✎ 解鎖編輯（彈射／軍械／股總密碼）</button></div>';
+else if (myId() !== 'guest') h += '<div class="evbtns"><button class="ghost" id="evUnlock">✎ 解鎖編輯（彈射／軍械／股總密碼）</button></div>';
 } else if (kind === 'plan') {
 var pl0 = (o.plan[lab] || []).map(function (p) { return (p.sub ? '代:' : '') + p.n; }), isEst = (o.plan[lab] || []).some(function (p) { return p.est; });
 if (planEdit && planEdit.k === k && planEdit.lab === lab) {
@@ -4191,7 +4191,7 @@ h += '<div class="evbtns"><button class="primary" id="planSave">儲存到輪值�
 } else if (dutyEditor()) {
 h += '<div class="evbtns"><button class="primary" id="planEdit">修改人員' + (isEst ? '（預估改成正式）' : '') + '</button>' + ((o.plan[lab] || []).some(function (p) { return p.sub; }) ? '<button class="ghost" id="planUnsub">改回我們的人（取消代理）</button>' : '<button class="ghost" id="planSubBtn">' + ((o.plan[lab] || []).length ? '改成別單位代理' : '別單位代理') + '</button>') + '<button class="ghost danger" id="planStop">這天不用出（取消）</button>' + (lab === '衛哨' ? '<button class="ghost" id="guardSet2">衛哨設定（駐廠名單、每月時間）</button>' : '') + '</div>';
 h += '<div class="muted" style="text-align:center;margin-top:10px">' + (isEst ? '目前是依輪值順序推算的預估；改完會寫進「輪值表」，之後的預估也會跟著重算' : '改完會寫回試算表的「輪值表」分頁') + '</div>';
-} else h += '<div class="evbtns"><button class="ghost" id="evUnlock">✎ 解鎖編輯（彈射／軍械／股總密碼）</button></div>';
+} else if (myId() !== 'guest') h += '<div class="evbtns"><button class="ghost" id="evUnlock">✎ 解鎖編輯（彈射／軍械／股總密碼）</button></div>';
 evtCur = { lab: lab, why: why, kind: kind, plan: pl0 };
 $('evtBody').innerHTML = h; $('evtPage').classList.add('show'); if (!planEdit) $('evtPage').scrollTop = 0;
 return;
@@ -5382,6 +5382,7 @@ var INSTALL_IOS = [
 { ic: '<span class="tic ic-ok"></span>', t: '3　按「新增」', d: '確認名稱後按<b>「新增」</b>，主畫面就有圖示，一點就開。' }
 ];
 var CHANGELOG = [
+{ v: 'v11.59', d: '11/11', t: ['一般身分：當天詳細和公差項目裡的「要新增／修改／刪除？解鎖編輯」按鈕拿掉（這個身分用不到）；彈射、軍械、股總不變'] },
 { v: 'v11.58', d: '11/10', t: ['一般身分：「點名官」換成拿放聲筒的小人（封面、底下分頁、使用導覽）；「公差勤務」和股總／班長同一張'] },
 { v: 'v11.57', d: '11/10', t: ['封面兩張小人圖片對調：蓋印章的小人給「任務派遣」（點假單），拿無線電比手勢的給「公差勤務」（派公差）；底下分頁「任務派遣」也用蓋印章的小人'] },
 { v: 'v11.56', d: '11/10', t: ['「公差勤務」圖示換成拿夾板＋蓋章、徽章是月曆打勾的小人'] },
