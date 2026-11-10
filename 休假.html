@@ -2827,6 +2827,17 @@ table.grid.wk td.cell { font-size: calc(var(--bd, 34px) * .48); }
 [data-theme="dark"] .urpick button:not(.on) { background: #1c1f26; color: #e8eaee; }
 .urdl { display: flex; align-items: center; gap: 8px; margin-top: 10px; flex-wrap: wrap; } .urdl span { font-weight: 700; font-size: 14px; } .urdl input { width: 90px; min-height: 42px; text-align: center; font-size: 17px; } .urdl small { font-size: 12px; color: var(--muted, #6b7280); }
 .urdl[hidden] { display: none; }
+/* v11.36 訪客標留守 */
+.gsbar { display: flex; align-items: center; gap: 8px; margin: 0 0 8px; padding: 6px 10px; border-radius: 12px; background: var(--card, #fff); border: 1px solid var(--line, #d8d2c2); }
+.gsbar.on { background: #fff1e9; border: 1.5px solid #f0b48a; padding: 8px 12px; }
+.gsbar[hidden] { display: none; } .gsl { display: flex; flex-direction: column; min-width: 0; } .gsl b { font-size: 15px; } .gsl span { font-size: 12.5px; color: var(--muted, #4b5563); }
+.gsl i { font-style: normal; display: inline-block; min-width: 20px; padding: 0 4px; border-radius: 6px; text-align: center; font-weight: 800; font-size: 11.5px; } .gsl .gsd { border: 1px dashed #b8b0a0; color: #8a8270; } .gsl .gss { background: var(--stay, #e2572b); color: #fff; }
+.gsbar button { flex: none; min-height: 38px; } .gsbar .gsl { margin-right: auto; }
+body.gstay #gridBox td.namecol.me { background: #ffe9a8; font-weight: 800; }
+.gsnames { display: flex; flex-wrap: wrap; gap: 8px; margin-top: 10px; max-height: 46vh; overflow-y: auto; } .gsnames button { min-height: 44px; padding: 6px 14px; border-radius: 999px; border: 1.5px solid var(--line, #d8d2c2); background: var(--card, #fff); font: inherit; font-size: 16px; font-weight: 700; color: var(--ink, #1f2a44); } .gsnames button[hidden] { display: none; }
+#gsIn { width: 100%; min-height: 44px; font-size: 16px; }
+[data-theme="dark"] .gsbar.on { background: rgba(240,138,60,.12); border-color: rgba(240,138,60,.4); } [data-theme="dark"] body.gstay #gridBox td.namecol.me, body.gstay[data-theme="dark"] #gridBox td.namecol.me { background: rgba(245,184,0,.25); }
+[data-theme="dark"] .gsnames button { background: #1c1f26; color: #e8eaee; }
 </style>
 </head>
 <body>
@@ -2872,6 +2883,7 @@ table.grid.wk td.cell { font-size: calc(var(--bd, 34px) * .48); }
       </div>
       <div id="yearNote"></div>
       <div class="brief" id="brief"></div>
+      <div class="gsbar" id="gsBar" hidden></div>
       <div class="gridwrap" id="gridWrap">
         <div class="gpanel gside" id="gridPrev" aria-hidden="true"></div>
         <div class="gridbox gpanel" id="gridBox"></div>
@@ -4194,7 +4206,44 @@ table.grid.wk td.cell { font-size: calc(var(--bd, 34px) * .48); }
           actions: acts
         });
       }
+      // 訪客（門禁／查看密碼）：平常正常看；按「標留守」才進入——只有自己那排亮，點空白→留守，再點→取消（兩邊都刪）
+      var gsOn = false;
+      function gsMode() { return isRO() && !prefs.pw && !forcedRO; }
+      function gsTap(el) {
+        if (!gsOn) { showCellInfo(el); return; }
+        var k = el.dataset.date, name = el.dataset.name;
+        if (name !== prefs.me) { showToast('只能點自己那排（' + prefs.me + '）', '換人', gsAsk, 2200); return; }
+        var rec = getRec(k, name), ra = (recsA[k] || {})[name] || null, rb = (recsB[k] || {})[name] || null, st = function (r) { return r && r.period === '留守'; };
+        if (st(rec) || st(ra) || st(rb)) { clearBoth(k, name); fxBuzz(12); return; }
+        if (rec || ra || rb) { showToast('這天已經有「' + recLabel(rec || ra || rb) + '」，不能改', null, null, 2200); return; }
+        applyState(k, name, { period: '留守', type: '留守' }, null, '已標 ' + mdLabel(k) + ' 留守（再點一下取消）', true);
+      }
+      function gsStart() { if (!prefs.me) { gsAsk(); return; } gsOn = true; renderSched(); showToast('點自己那排就能標留守，好了按「完成」', null, null, 2400); }
+      function gsStop() { gsOn = false; renderSched(); }
+      function gsAsk() {
+        var ns = (empAll.length ? empAll : employees).map(function (e) { return e.name; });
+        openSheet({ title: '你是誰？', sub: '選你的名字，就能點自己那排標「留守」',
+          body: '<input type="search" id="gsIn" placeholder="打名字，例：志鵬" autocomplete="off"><div class="gsnames" id="gsNames">' + ns.map(function (n) { return '<button data-gn="' + esc(n) + '">' + esc(n) + '</button>'; }).join('') + '</div>',
+          actions: [{ label: '我只看，不標記', fn: function () { prefs.gsAsked = 1; savePrefs(); gsStop(); } }] });
+        setTimeout(function () {
+          var inp = $('gsIn'); if (!inp) return;
+          inp.addEventListener('input', function () { var q = inp.value.trim(); Array.prototype.forEach.call(document.querySelectorAll('#gsNames button'), function (b) { b.hidden = !!q && b.dataset.gn.indexOf(q) < 0 && !qkIs(q, b.dataset.gn); }); });
+          $('gsNames').addEventListener('click', function (ev) { var b = ev.target.closest('[data-gn]'); if (!b) return; prefs.me = b.dataset.gn; prefs.gsAsked = 1; savePrefs(); closeSheet(); gsOn = true; renderSched(); showToast('你是 ' + prefs.me + '：點自己那排就能標留守', null, null, 2400); });
+        }, 30);
+      }
+      function gsBarDraw() {
+        var on = gsMode() && (tab === 'sched' || tab === 'gu'), bar = $('gsBar'), me = on && gsOn && prefs.me ? prefs.me : '';
+        document.body.classList.toggle('gstay', !!me);
+        var sty = $('gsSty'); if (!sty) { sty = document.createElement('style'); sty.id = 'gsSty'; document.head.appendChild(sty); }
+        sty.textContent = me ? 'body.gstay #gridBox td[data-name]:not([data-name="' + me.replace(/"/g, '') + '"]){opacity:.28;filter:grayscale(.6)}' : '';
+        bar.hidden = !on; bar.classList.toggle('on', !!me);
+        if (!on) return;
+        if (!prefs.gsAsked && !prefs.me) setTimeout(gsAsk, 300);
+        bar.innerHTML = me ? '<div class="gsl"><b>標留守中：' + esc(me) + '</b><span>點自己格子 <i class="gsd">空</i>→<i class="gss">留</i>，再點→取消</span></div><button class="linkbtn" data-gs="ask">換人</button><button class="primary" data-gs="stop">完成</button>'
+          : '<div class="gsl"><b>要排留守？</b><span>按右邊開始，只會改到你自己</span></div><button class="primary" data-gs="start">標留守</button>';
+      }
       function onCellTap(el) {
+        if (gsMode()) { gsTap(el); return; }
         if (isRO()) { showCellInfo(el); return; }
         if (prefs.tapMenu) { onCellLong(el); return; }
         var k = el.dataset.date, name = el.dataset.name;
@@ -5218,6 +5267,7 @@ table.grid.wk td.cell { font-size: calc(var(--bd, 34px) * .48); }
         $('yearNote').innerHTML = yearNoteHtml(keys);
         renderModeBar();
         renderBrief();
+        gsBarDraw();
 
         var gt = gate(idsOfKeys(keys));
         if (gt) { $('gridBox').innerHTML = gt; fitRows(); return; }
@@ -7814,6 +7864,7 @@ table.grid.wk td.cell { font-size: calc(var(--bd, 34px) * .48); }
         { ic: '<span class="tic ic-ok"></span>', t: '3　按「新增」', d: '確認名稱後按<b>「新增」</b>，主畫面就有圖示，一點就開。' }
       ];
       var CHANGELOG = [
+        { v: 'v11.36', d: '11/10', t: ['門禁／查看身分標留守變簡單：平常照樣正常看全部人；按班表上方「標留守」才開始，只有自己那排亮、其他人變暗', '標留守時：點自己空白格＝留守，再點一下＝取消（班長、股總兩份一起刪），不用再跳選單；好了按「完成」恢復正常看', '第一次會問「你是誰」，打名字就能找到；不想標也能選「我只看，不標記」'] },
         { v: 'v11.35', d: '11/10', t: ['產出新增「尿篩」提醒：自動抓下一次尿篩；明天的寫「明日…如無法按時前往，請於 0900時前回復」，今天的寫「今日…請準時前往」', '回復截止時間可以自己填（空著＝尿篩前 1 小時）'] },
         { v: 'v11.34', d: '11/9', t: ['內部整理：程式依功能分檔、刪掉沒在用的程式和樣式、合併重複的寫法；畫面和功能都沒變，檔案變小'] },
         { v: 'v11.33', d: '11/9', t: ['用查看密碼或門禁密碼登入的人，也能新增、取消「留守」（點名字那格）；取消會把班長、股總兩份一起刪；其他（休假、外勤）還是只能看；後端第四十八版'] },
@@ -8216,6 +8267,7 @@ table.grid.wk td.cell { font-size: calc(var(--bd, 34px) * .48); }
           if (outType === 'ot' && !$('otDate').value) $('otDate').value = todayKey();
           renderOut(); ensureData(false);
         });
+        $('gsBar').addEventListener('click', function (ev) { var b = ev.target.closest('[data-gs]'); if (!b) return; ({ ask: gsAsk, stop: gsStop, start: gsStart })[b.dataset.gs](); });
         $('urDl').addEventListener('input', function () { if (outType === 'urine') renderOut(); });
         $('urPick').addEventListener('click', function (ev) { var b = ev.target.closest('[data-uk]'); if (!b) return; urOutK = b.dataset.uk; renderOut(); });
         $('outRangeSeg').addEventListener('click', function (ev) {
