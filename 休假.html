@@ -3138,6 +3138,28 @@ body:has(#idGate.show) #sheetMask { z-index: 10010; } body:has(#idGate.show) #to
 #dutyLegend button.on { background: #1f2a44; color: #fff; border-color: #1f2a44; }
 #dutyLegend.filtering button:not(.on) { opacity: .55; }
 .lfhint { flex-basis: 100%; font-size: 11.5px; color: var(--muted, #9ca3af); } .lfhint button { margin-left: 6px; border: 1px solid var(--line, #d8d2c2) !important; background: var(--card, #fff) !important; color: var(--ink, #1f2a44) !important; opacity: 1 !important; }
+/* 每日情況：摺疊的日子只顯示一行摘要 */
+.daycard.mini { cursor: pointer; padding-top: 8px; padding-bottom: 8px; min-height: 0; align-items: center; }
+.daycard.mini .dbadge b { font-size: 20px; } .daycard.mini .dtitle { font-size: 14px; margin-bottom: 4px; }
+.dsum { display: flex; flex-wrap: wrap; gap: 5px; }
+.ds { font-size: 12.5px; font-weight: 800; padding: 1px 8px; border-radius: 999px; background: var(--card2, #f3eee2); color: var(--ink, #1f2a44); }
+.ds.ev { background: #efe6fb; color: #5b3a9b; } .ds.lv { background: #e3edfb; color: #1f4f9a; } .ds.aw { background: #ece4f7; color: #6a3fb0; } .ds.stay { background: #fdebe4; color: #a63d1c; } .ds.uf { background: #fdeaea; color: #b3261e; } .ds.pc { background: #e6f4ea; color: #1f7a45; }
+.dchev { flex: none; font-size: 18px; color: var(--muted, #9ca3af); padding: 0 6px; }
+.dfold { margin-top: 6px; border: none; background: none; color: var(--muted, #6b7280); font: inherit; font-size: 13px; font-weight: 700; padding: 4px 0; }
+.copy-btn { display: inline-flex; align-items: center; gap: 4px; } .copy-btn .ico { width: 1.1em; height: 1.1em; }
+.copy-btn.copied { background: #1f8a4c !important; border-color: #1f8a4c !important; color: #fff !important; }
+[data-theme="dark"] .ds { background: rgba(255,255,255,.08); color: #e5e7eb; }
+/* 產出頁：選項按鈕統一（同樣圓角、同樣高度），區塊標題與說明固定在左上 */
+#page-out .seg.big { border-radius: 12px; border-width: 2px; }
+#page-out .seg.big button { min-height: 48px; font-size: 16px; border-radius: 0; }
+#page-out .otrow { display: flex; gap: 8px; align-items: stretch; }
+#page-out .otrow input[type="date"] { min-height: 52px; border-radius: 12px; box-sizing: border-box; }
+#page-out .otrow .seg.big { min-height: 52px; } #page-out .otrow .seg.big button { min-height: 48px; }
+#otBox > section.otsec > .otsh { flex-direction: column; align-items: flex-start; justify-content: flex-start; gap: 2px; margin-bottom: 10px; }
+#otBox > section.otsec > .otsh b { font-size: 17px; color: var(--ink, #1f2a44); }
+#otBox > section.otsec > .otsh span { font-size: 13px; font-weight: 600; color: var(--muted, #6b7280); }
+#page-out .field > label { font-size: 15px; }
+#otBox > section.otsec > .otsh b::before { display: none; } #otBox > section.otsec > .otsh { padding-left: 0; }
 </style>
 </head>
 <body>
@@ -5786,8 +5808,25 @@ body:has(#idGate.show) #sheetMask { z-index: 10010; } body:has(#idGate.show) #to
           '<button class="ufbtn" data-uf="' + k + '">收起 ▴</button>' + (inline ? '' : '</div>');
         return '<button class="ufbtn" data-uf="' + k + '">' + uf.length + ' 人　看名單 ▾</button>';
       }
+      // 每日情況：今天、明天展開；其他天只顯示一行摘要，點一下展開
+      function dayMini(k, tk) {
+        var inf = dayInfo(k), lv = leavesOf(k), ev = eventsOf(k), ag = awayGroups(k), sum = [];
+        if (ev.length) sum.push('<span class="ds ev">行程 ' + ev.length + '</span>');
+        if (inf.off) {
+          var st = stayOf(k), uf = unfiledOf(k);
+          sum.push('<span class="ds stay">留守 ' + (st.length ? st.map(function (x) { return esc(String(x.name || x).length >= 3 ? String(x.name || x).slice(1) : String(x.name || x)); }).join('、') : '無') + '</span>');
+          if (uf.length) sum.push('<span class="ds uf">未點 ' + uf.length + '</span>');
+        } else {
+          if (lv.length) sum.push('<span class="ds lv">休 ' + lv.length + '</span>');
+          var na = 0; ag.forEach(function (g) { na += g.list.length; }); if (na) sum.push('<span class="ds aw">外勤 ' + na + '</span>');
+          sum.push('<span class="ds pc">到班 ' + presentCount(k) + '</span>');
+        }
+        return '<div class="daycard mini' + (inf.off ? ' off' : '') + (k < tk ? ' past' : '') + '" data-mini="' + k + '"><div class="dbadge"><b>' + (+k.slice(8, 10)) + '</b><span>週' + wkOf(k) + '</span></div>' +
+          '<div class="dbody"><div class="dtitle">' + mdLabel(k) + '（' + wkOf(k) + '）' + (inf.tag ? ' <span class="tag">' + esc(inf.tag) + '</span>' : '') + '</div><div class="dsum">' + sum.join('') + '</div></div><span class="dchev">▾</span></div>';
+      }
       function dayCard(k, tk) {
         var inf = dayInfo(k), lv = leavesOf(k);
+        if (k !== tk && k !== addDays(tk, 1) && !dOpen[k]) return dayMini(k, tk);
         var quiet = !inf.off && !lv.length && !awayGroups(k).length && !monOf(k).length && !eventsOf(k).length;
         var cls = 'daycard' + (inf.off ? ' off' : '') + (k === tk ? ' today' : '') + (k < tk ? ' past' : '') + (quiet ? ' quiet' : '');
         var c = '<div class="' + cls + '" data-date="' + k + '"><div class="dbadge"><b>' + (+k.slice(8, 10)) + '</b><span>週' + wkOf(k) + '</span></div>' +
@@ -5809,7 +5848,7 @@ body:has(#idGate.show) #sheetMask { z-index: 10010; } body:has(#idGate.show) #to
         });
         var mo = monOf(k);
         if (mo.length) c += '<div class="drow"><span class="lbl">監控</span><div class="chips">' + mo.map(function (x) { return monChip(x, k); }).join('') + '</div></div>';
-        return c + '</div><button class="copy-btn" data-date="' + k + '">複製</button></div>';
+        return c + (dOpen[k] && k !== tk && k !== addDays(tk, 1) ? '<button class="dfold" data-dclose="' + k + '">▴ 收起</button>' : '') + '</div><button class="copy-btn" data-date="' + k + '"><span class="ico i-copy"></span>複製</button></div>';
       }
       function renderDays() {
         var tk = todayKey(), keys = daysKeys();
@@ -8553,6 +8592,7 @@ body:has(#idGate.show) #sheetMask { z-index: 10010; } body:has(#idGate.show) #to
       var dutyWeek = 0;
 
       var bDays = [], bExtra = [], bType = '留守', bSel = [], bInit = {};
+      var dOpen = {};   // 每日情況：手動展開的日子
       var dutyLF = '';   // 公差月曆：圖例篩選
       var B_TYPES = { '留守': { period: '留守', type: '留守' }, '監控': { period: '監控', type: '監控' }, '全天休': { period: '全天', type: '特休' },
         '救災': { period: '外勤', type: '救災' }, '出差': { period: '外勤', type: '出差' }, '受訓': { period: '外勤', type: '受訓' } };
@@ -8585,7 +8625,7 @@ body:has(#idGate.show) #sheetMask { z-index: 10010; } body:has(#idGate.show) #to
         { ic: '<span class="tic ic-ok"></span>', t: '3　按「新增」', d: '確認名稱後按<b>「新增」</b>，主畫面就有圖示，一點就開。' }
       ];
       var CHANGELOG = [
-        { v: 'v11.40', d: '11/10', t: ['公差月曆：日期數字縮小放左上角，跟人名分開；今天的日期黃底', '底下的顏色說明可以點：點「打靶」就只亮有打靶的日子，其他變淡，再點一次或按「✕ 全部」恢復'] },
+        { v: 'v11.40', d: '11/10', t: ['首頁每日情況：今天、明天展開，其他天只顯示一行摘要（行程、休幾人、到班幾人、留守誰、未點幾人），點一下展開，可以「▴ 收起」；複製按鈕加圖示，按了變綠色「✓ 已複製」', '產出頁：選項按鈕統一圓角和高度，日期框和「夜間／假日／不寫」對齊；每區的標題和說明都放左上', '公差月曆：日期數字縮小放左上角，跟人名分開；今天的日期黃底', '底下的顏色說明可以點：點「打靶」就只亮有打靶的日子，其他變淡，再點一次或按「✕ 全部」恢復'] },
         { v: 'v11.39', d: '11/10', t: ['「訪客」改叫「一般」，「換身分」改叫「登出」；招呼改成「你好，志鵬」（不加姓）', '一般首頁重新設計：最上面紅色「假單還沒點」、橘色「時間撞到」通知條，按了直接看；下面兩週的滑動週曆（有事用小圓點、整天狀態用色塊），點哪天就在大卡片顯示那天要做什麼（今天綠框）；時間撞到的那天卡片紅框會亮，多一顆「📣 一鍵回報班長」複製訊息貼 Juiker', '要做的事標籤改成兩個字（公差、尿篩、打靶、輪值、衛哨、行程、加班），顏色分得更開', '行程排版統一：一天一列，左邊日期＋整天狀態色塊（留守、休假、出差），右邊一件事一行、時間靠右；留守的日子會列出「一起留守」的同仁；首頁、我的行程、點日子視窗都一樣', '訪客首頁改成以「我」為主：一打開就看到「你好，○○」、今天和接下來有事的日子（框裡往下滑看更多）、撞到／假單未點提醒，按「看我的行程」或「✎ 標留守」；全部人的休假班表、公差勤務放在下面', '選名字的分組直接讀股名冊的「班別」（彈射、軍械、股總、軍官…），以後換人、換班別只改股名冊', '公假＝休假：平日的休假都算「補休／慰休／公假」，說明文字跟著改', '「清除（恢復沒請假）」按復原時，會講清楚只復原你這份，另一份要請班長／股總重新點'] },
         { v: 'v11.38', d: '11/10', t: ['班員（訪客）首頁新增「我的行程」：第一次進去點自己的名字（照股名冊的班別分組），之後自動記住；選錯按「不是我？」', '一張月曆看完這個月：留守、休假、出差顏色跟班表一樣，公差、尿篩、打靶、輪值、當日行程用小字標在格子下面；時間撞到的那天紅框', '假日沒標休也沒標留守的，月曆上寫紅色「未點」；「每天要做什麼」每週列出「假單還沒點 N 天」，分頁上有橘色數字', '月曆重新美化；平常點日子會看到「我這天」做什麼，再按「看當天全部公差勤務」就進到公差月曆的那一天；按月曆右上小小的「✎ 標留守」才能點一下標留守、再點取消（休假也能點成留守），好了按「完成」；左右滑或按 ‹ › 換月', '同仁標留守改成「先改、按確定才寫入」：點了只改在畫面上，下面出現「還沒儲存：N 天」，可以「↶ 復原」一步一步退回，按「確定儲存」才寫進班表；沒存就離開會問要不要存', '每一區（撞到、假單未點、月曆、統計、每天要做什麼、顏色說明）都能收折，會記住', '下面寫這個月：例假日休、補休／慰休／公假（平日的都算一起）各幾天，留守、勤務幾次；還有本週／下週／更多每天要做什麼；撞到的可以「複製訊息給班長」'] },
         { v: 'v11.36', d: '11/10', t: ['門禁／查看身分標留守變簡單：平常照樣正常看全部人；按班表上方「標留守」才開始，只有自己那排亮、其他人變暗', '標留守時：點自己空白格＝留守，再點一下＝取消（班長、股總兩份一起刪），不用再跳選單；好了按「完成」恢復正常看', '第一次會問「你是誰」，名字照股名冊的班別分組，跟「我的行程」同一個；不想標也能選「我只看，不標記」', '自己的休假可以直接點成留守（再點一下改回休假）；出差、受訓等不能自己改，按「複製訊息」貼給班長；過去的日子也不能改', '班長那邊會寫「郭蕙芳 休假改留守 11/15(日)　請確認假單已撤回」', '查看身分點格子只看資料，不再出現「換身分」，要換身分請登出再登入', '班長打開 App 會跳「○○ 改了留守」，待處理最上面「留守變更」一人一行：郭蕙芳 新增 11/10、11/19，取消的日期劃線；可能少人的日子另外紅色列出，看完按「都看過了」'] },
@@ -8934,6 +8974,10 @@ body:has(#idGate.show) #sheetMask { z-index: 10010; } body:has(#idGate.show) #to
           if (pv) { daysFrom = addDays(daysFrom, -7); daysCount += 7; renderDays(); ensureData(false); return; }
           var c = ev.target.closest ? ev.target.closest('.copy-btn') : null;
           if (c) { copyText(statusText(c.dataset.date)); return; }
+          var mi = ev.target.closest ? ev.target.closest('[data-mini]') : null;
+          if (mi) { dOpen[mi.dataset.mini] = 1; renderDays(); return; }
+          var dc = ev.target.closest ? ev.target.closest('[data-dclose]') : null;
+          if (dc) { delete dOpen[dc.dataset.dclose]; renderDays(); return; }
           if (chipOrRow(ev)) return;
           var card = ev.target.closest ? ev.target.closest('.daycard[data-date]') : null;
           if (card) onDayTap(card);
