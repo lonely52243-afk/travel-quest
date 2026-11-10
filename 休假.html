@@ -2956,6 +2956,23 @@ body.gstay #gridBox td.namecol.me { background: #ffe9a8; font-weight: 800; }
 #minePage .mnmh b { font-size: 16px; }
 #minePage .mnseg { position: static; top: auto; margin: 0 0 8px; padding: 0; background: none; box-shadow: none; }
 .mnlgd:not([open]) > summary::after { content: "+"; }
+.mnhits { display: block; } .mnban { margin-bottom: 10px; } .mnban > b { display: inline-block; font-size: 13px; font-weight: 900; padding: 1px 10px; border-radius: 999px; color: #fff; margin-bottom: 6px; }
+.mnban.b1 > b { background: #2468C9; } .mnban.b2 > b { background: #0E8C8C; }
+.mnban > div { display: flex; flex-wrap: wrap; gap: 8px; } .mnban button { min-height: 42px; padding: 4px 14px; border-radius: 999px; border: 1.5px solid var(--line, #d8d2c2); background: var(--card, #fff); color: var(--ink, #1f2a44); font: inherit; font-size: 16px; font-weight: 800; }
+.mnban button.on { background: #1f2a44; color: #fff; border-color: #1f2a44; }
+[data-theme="dark"] .mnban button { background: #1c1f26; color: #e8eaee; }
+#minePage .tdseg button i.u { background: #ea7a1f; }
+.mnunfw { background: #fff4e5; border: 1.5px solid #f0b48a; border-radius: 12px; padding: 8px 12px; margin-bottom: 8px; font-size: 14px; color: #8a3b12; } .mnunfw b { display: block; color: #c2410c; font-size: 15px; } .mnunfw small { display: block; opacity: .85; margin-top: 2px; }
+[data-theme="dark"] .mnunfw { background: rgba(240,138,60,.12); color: #fbc59b; border-color: rgba(240,138,60,.45); } [data-theme="dark"] .mnunfw b { color: #ffa37f; }
+.mnban.b2 > b { background: #2e9a50; }
+#minePage .t-comp { --c: var(--comp, #0E8C8C); }
+#minePage .mnsum { grid-template-columns: repeat(6, 1fr); } #minePage .mnsum span { grid-column: span 2; } #minePage .mnsum span:nth-child(4), #minePage .mnsum span:nth-child(5) { grid-column: span 3; }
+#minePage .mnsum span b { font-size: 22px; } #minePage .mnsum span { font-size: 12px; }
+.mnwho2 { display: flex; align-items: center; justify-content: space-between; gap: 10px; padding: 2px 4px 10px; } .mnwho2 span { font-size: 15px; color: var(--muted, #4b5563); } .mnwho2 b { font-size: 20px; font-weight: 900; color: var(--ink, #1f2a44); margin-left: 4px; }
+.mnwho2 .linkbtn { font-size: 13px; min-height: 32px; }
+.mnpick { padding: 6px 4px 12px; } .mnpick b { display: block; font-size: 19px; font-weight: 900; } .mnpick small { display: block; font-size: 13.5px; color: var(--muted, #6b7280); margin-top: 2px; }
+[data-theme="dark"] .mnwho2 b { color: #f3f4f6; }
+#minePage .mnsum { grid-template-columns: 1fr 1fr; } #minePage .mnsum span, #minePage .mnsum span:nth-child(4), #minePage .mnsum span:nth-child(5) { grid-column: auto; }
 </style>
 </head>
 <body>
@@ -7922,9 +7939,8 @@ body.gstay #gridBox td.namecol.me { background: #ffe9a8; font-weight: 800; }
       }
       function openMine() {
         $('idGate').classList.remove('show'); $('minePage').classList.add('show'); $('minePage').scrollTop = 0;
-        mineYM = todayKey().slice(0, 7); mineEdit = false;
+        mineYM = todayKey().slice(0, 7); mineEdit = false; minePick = false;
         renderMine(); todoEnsure();
-        if (!prefs.me) setTimeout(function () { try { $('mnIn').focus(); } catch (e) { /* 忽略 */ } }, 300);
       }
       // 月曆換月時，那個月的資料還沒讀就讀
       function mineLoad(ym) {
@@ -7940,7 +7956,7 @@ body.gstay #gridBox td.namecol.me { background: #ffe9a8; font-weight: 800; }
           if (r.period === '留守') out.push({ t: 'stay', s: '留', x: '留守' });
           else if (r.period === '監控') out.push({ t: 'mon', s: '監', x: '監控' });
           else if (r.period === '外勤') out.push({ t: 'away', s: awayCh(r.type), x: r.type || '外勤' });
-          else out.push({ t: 'off', s: r.period === '全天' ? '休' : (r.period === '上午' ? '上' : '下'), x: r.period === '全天' ? '休假' : r.period + '休' });
+          else { var hol = dayInfo(k).off, hf = r.period === '全天' ? '' : r.period; out.push({ t: 'off', s: r.period === '全天' ? '休' : (r.period === '上午' ? '上' : '下'), x: hol ? '例假日休' + (hf ? '（' + hf + '）' : '') : '補休／慰休' + (hf ? '（' + hf + '）' : '') }); }
         }
         (dutyAll[k] || []).forEach(function (d) {
           if (d.n !== me) return;
@@ -7980,14 +7996,25 @@ body.gstay #gridBox td.namecol.me { background: #ffe9a8; font-weight: 800; }
         var e = (empAll.length ? empAll : employees).filter(function (x) { return x.name === me; })[0];
         return !(e && e.officer && !e.chief && me !== chiefName());
       }
-      function mineNames() { return (empAll.length ? empAll : employees).map(function (e) { return e.name; }); }
+      // 名字只列彈射、軍械兩班（跟加班人員分層同一份：股名冊的班別）
+      function mineBans() {
+        var all = ((typeof stockGroup === 'function' && stockGroup()) || {}).employees || (empAll.length ? empAll : employees);
+        return [['彈射', '彈射班', 'b1'], ['軍械', '軍械班', 'b2']].map(function (sc) { return { b: sc[0], lab: sc[1], cls: sc[2], ns: all.filter(function (e) { return (banMap[e.name] || '') === sc[0]; }).map(function (e) { return e.name; }) }; });
+      }
+      function mineNames() { var o = []; mineBans().forEach(function (g) { o = o.concat(g.ns); }); return o; }
+      // 第一次：選名字（分彈射、軍械）；之後自動讀取，只顯示「我是 ○○」
+      var minePick = false;
       function mineWhoHtml() {
-        return '<div class="mnwho"><label for="mnIn">我是</label><input id="mnIn" type="search" autocomplete="off" placeholder="輸入你的名字" value="' + esc(prefs.me || '') + '"></div><div class="mnhits" id="mnHits"></div>';
+        if (prefs.me && !minePick && mineNames().indexOf(prefs.me) >= 0) return '<div class="mnwho2"><span>我是 <b>' + esc(prefs.me) + '</b></span><button class="linkbtn" data-mn="who">不是我？</button></div>';
+        return '<div class="mnpick"><b>第一次使用：選你的名字</b><small>點你的名字，之後打開就直接看到你的行程</small></div><div class="mnhits" id="mnHits"></div>';
       }
       function mineHits(q) {
         q = String(q || '').trim();
-        var ns = mineNames().filter(function (n) { return !q || n.indexOf(q) >= 0 || qkIs(q, n); });
-        $('mnHits').innerHTML = q === prefs.me ? '' : ns.slice(0, 12).map(function (n) { return '<button data-mnme="' + esc(n) + '">' + esc(n) + '</button>'; }).join('');
+        var hit = function (n) { return !q || n.indexOf(q) >= 0 || qkIs(q, n); };
+        $('mnHits').innerHTML = mineBans().map(function (g) {
+          var ns = g.ns.filter(hit); if (!ns.length) return '';
+          return '<div class="mnban ' + g.cls + '"><b>' + g.lab + '</b><div>' + ns.map(function (n) { return '<button data-mnme="' + esc(n) + '"' + (n === prefs.me ? ' class="on"' : '') + '>' + esc(n) + '</button>'; }).join('') + '</div></div>';
+        }).join('') || '<div class="mnhint">找不到「' + esc(q) + '」</div>';
       }
       // 月曆：顏色跟休假月曆一樣，下面加公差小字，撞到的那天紅框
       // 平常點日子＝看那天；按「編輯」才會點一下標／取消留守（防誤觸）
@@ -8011,7 +8038,7 @@ body.gstay #gridBox td.namecol.me { background: #ffe9a8; font-weight: 800; }
           h += '</div>';
         }
         h += '</div>';
-        h += '<details class="mnlgd"' + (mineFold('lg') ? ' open' : '') + ' data-mf="lg"><summary>顏色說明</summary><div class="mnlg"><span><i class="t-stay"></i>留守</span><span><i style="background:var(--comp)"></i>平日休</span><span><i class="t-off"></i>假日休</span><span><i class="t-duty"></i>公差</span><span><i class="t-ur"></i>尿篩</span><span><i class="t-shoot"></i>打靶</span><span><i class="t-plan"></i>輪值</span><span><i class="t-ev"></i>行程</span><span><i class="unfi"></i>假單未點</span></div></details>';
+        h += '<details class="mnlgd"' + (mineFold('lg') ? ' open' : '') + ' data-mf="lg"><summary>顏色說明</summary><div class="mnlg"><span><i class="t-stay"></i>留守</span><span><i style="background:var(--comp)"></i>補休／慰休</span><span><i class="t-off"></i>例假日休</span><span><i class="t-away"></i>出差・受訓・公假</span><span><i class="t-duty"></i>公差</span><span><i class="t-ur"></i>尿篩</span><span><i class="t-shoot"></i>打靶</span><span><i class="t-plan"></i>輪值</span><span><i class="t-ev"></i>行程</span><span><i class="unfi"></i>假單未點</span></div></details>';
         return h;
       }
       // 收折：記住每一區開或關（預設：顏色說明關，其他開）
@@ -8029,9 +8056,9 @@ body.gstay #gridBox td.namecol.me { background: #ffe9a8; font-weight: 800; }
       function renderMine() {
         var me = prefs.me, tk = todayKey(), h = mineWhoHtml();
         $('mineName').textContent = me ? me + ' 的行程' : '我的行程';
-        if (!me || mineNames().indexOf(me) < 0) {
-          $('mineBody').innerHTML = h + '<div class="mnnone">先輸入你的名字，就能看到自己的留守、休假、公差、尿篩</div>';
-          mineHits($('mnIn').value === me ? '' : $('mnIn').value);
+        if (!me || minePick || mineNames().indexOf(me) < 0) {
+          $('mineBody').innerHTML = h + (minePick && me ? '<button class="mncopy2" data-mn="keep">不用換，我是 ' + esc(me) + '</button>' : '');
+          mineHits('');
           return;
         }
         var R = mineRanges(), all = mineClash(R[0].a, R[2].b, me);
@@ -8039,35 +8066,38 @@ body.gstay #gridBox td.namecol.me { background: #ffe9a8; font-weight: 800; }
         // 要注意的（有才出現）
         var ck = Object.keys(all).filter(function (k) { return k >= tk; }).sort();
         if (ck.length) h += mineSec('clash', 'red', '⚠ 時間撞到了', ck.length + ' 天', ck.map(function (k) { return '<div class="mnli"><b>' + mdLabel(k) + '(' + wkOf(k) + ')</b> ' + esc(all[k].join('；')) + '</div>'; }).join('') + '<button class="mncopy" data-mn="tell">複製訊息給班長</button>');
-        var unf = []; for (var uk = tk.slice(0, 7) + '-01'; uk <= R[2].b; uk = addDays(uk, 1)) if (mineUnf(uk, me)) unf.push(uk);
-        if (unf.length) h += mineSec('unf', 'org', '假單還沒點', unf.length + ' 天', '<div class="mnli">' + unf.map(function (k) { return mdLabel(k) + '(' + wkOf(k) + ')'; }).join('、') + '</div><div class="mnhint">記得點假單；要留守就到月曆按「✎ 標留守」</div>');
         // 月曆
         var y0 = +mineYM.slice(0, 4), m0 = +mineYM.slice(5, 7);
         h += mineSec('cal', 'mcal', '月曆', m0 + ' 月', mineCal(mineYM, me, mineClash(mineYM + '-01', mineYM + '-' + pad(daysInMonth(y0, m0)), me)));
         // 這個月
-        var ym = tk.slice(0, 7), mc = { off: 0, stay: 0, duty: 0 };
+        var ym = tk.slice(0, 7), mc = { hol: 0, comp: 0, pub: 0, off: 0, stay: 0, duty: 0 };
         for (var mk = ym + '-01'; mk.slice(0, 7) === ym; mk = addDays(mk, 1)) {
-          mc.off += leaveValue((recordsPub[mk] || {})[me] || getRec(mk, me));
+          var r0 = (recordsPub[mk] || {})[me] || getRec(mk, me), lv = leaveValue(r0);
+          if (lv) { if (dayInfo(mk).off) mc.hol += lv; else mc.comp += lv; mc.off += lv; }
+          if (r0 && isAway(r0) && /公假/.test(r0.type || '')) mc.pub++;
           mineItems(mk, me).forEach(function (it) { if (it.t === 'stay') mc.stay++; else if (it.t !== 'off' && it.t !== 'away' && it.t !== 'mon') mc.duty++; });
         }
         var nu = mineNextUrine(me);
-        h += mineSec('sum', '', (+ym.slice(5)) + ' 月統計', '休 ' + mc.off + '・留 ' + mc.stay + '・勤 ' + mc.duty,
-          '<div class="mnsum"><span class="t-off"><b>' + mc.off + '</b>休假（天）</span><span class="t-stay"><b>' + mc.stay + '</b>留守</span><span class="t-duty"><b>' + mc.duty + '</b>勤務</span></div>' +
+        h += mineSec('sum', '', (+ym.slice(5)) + ' 月統計', '休 ' + (mc.off + mc.pub) + '・留 ' + mc.stay + '・勤 ' + mc.duty,
+          '<div class="mnsum"><span class="t-off"><b>' + mc.hol + '</b>例假日休</span><span class="t-comp"><b>' + (mc.comp + mc.pub) + '</b>補休／慰休／公假</span><span class="t-stay"><b>' + mc.stay + '</b>留守</span><span class="t-duty"><b>' + mc.duty + '</b>勤務</span></div><div class="mnhint">休假單位：天（半天算 0.5）</div>' +
           '<div class="mnur">下次尿篩：' + (nu ? '<b>' + mdLabel(nu.k) + '(' + wkOf(nu.k) + ')' + (nu.tm ? ' ' + esc(fmtTm(nu.tm)) : '') + '</b>' : '目前沒排') + '</div>');
         // 每天要做什麼
         var seg = '<div class="tdseg mnseg">' + R.map(function (r, i) {
-          var nc = Object.keys(all).filter(function (k) { return k >= r.a && k <= r.b; }).length;
-          return '<button class="' + (i === mineW ? 'on' : '') + '" data-mw="' + i + '">' + r.lab + (nc ? '<i>' + nc + '</i>' : '') + '<small>' + mdLabel(r.a) + '–' + mdLabel(r.b) + '</small></button>';
+          var nc = Object.keys(all).filter(function (k) { return k >= r.a && k <= r.b; }).length, nu2 = 0;
+          for (var q = r.a; q <= r.b; q = addDays(q, 1)) if (mineUnf(q, me)) nu2++;
+          return '<button class="' + (i === mineW ? 'on' : '') + '" data-mw="' + i + '">' + r.lab + (nc ? '<i>' + nc + '</i>' : '') + (nu2 ? '<i class="u">' + nu2 + '</i>' : '') + '<small>' + mdLabel(r.a) + '–' + mdLabel(r.b) + '</small></button>';
         }).join('') + '</div>';
         var rg = R[mineW], left = [];
         for (var k = rg.a; k <= rg.b; k = addDays(k, 1)) if (k >= tk) left.push({ k: k, its: mineItems(k, me) });
-        var busy = left.filter(function (d) { return d.its.length; }).length;
+        var busy = left.filter(function (d) { return d.its.length; }).length, unf = [];
+        for (var uk = rg.a; uk <= rg.b; uk = addDays(uk, 1)) if (mineUnf(uk, me)) unf.push(uk);
+        if (unf.length) seg += '<div class="mnunfw"><b>' + rg.lab + '假單還沒點 ' + unf.length + ' 天</b>' + unf.map(function (k) { return mdLabel(k) + '(' + wkOf(k) + ')'; }).join('、') + '<small>記得點假單；要留守就到月曆按「✎ 標留守」</small></div>';
         seg += '<div class="mnlist">' + left.map(function (d) {
           var free = !d.its.length;
           return '<div class="mnrow' + (all[d.k] ? ' clash' : '') + (d.k === tk ? ' today' : '') + (free ? ' free' : '') + '"><div class="mnk"><b>' + mdLabel(d.k) + '</b><small>' + wkOf(d.k) + (d.k === tk ? '・今天' : '') + '</small></div><div class="mnv">' +
             (free ? (dayInfo(d.k).off ? (mineUnf(d.k, me) ? '<div class="mnunf">放假・假單還沒點</div>' : '<div class="mnoff">放假</div>') : '<div class="mnfree">沒排事</div>') : d.its.map(function (it) { return '<div><i class="t-' + it.t + '">' + esc(it.s) + '</i>' + esc(it.x) + '</div>'; }).join('')) + (all[d.k] ? '<div class="mnc">⚠ 撞到了，請告訴班長</div>' : '') + '</div></div>';
         }).join('') + '</div><button class="mncopy2" data-mn="copy">複製' + rg.lab + '行程</button>';
-        h += mineSec('list', '', '每天要做什麼', rg.lab + ' ' + busy + ' 天有事', seg);
+        h += mineSec('list', '', '每天要做什麼', rg.lab + ' ' + busy + ' 天有事' + (unf.length ? '・未點 ' + unf.length + ' 天' : ''), seg);
         if (!todoReady() || !loaded[mineYM]) h += '<div class="tdload">資料讀取中…</div>';
         var st = $('minePage').scrollTop;
         $('mineBody').innerHTML = h;
@@ -8246,7 +8276,7 @@ body.gstay #gridBox td.namecol.me { background: #ffe9a8; font-weight: 800; }
         { ic: '<span class="tic ic-ok"></span>', t: '3　按「新增」', d: '確認名稱後按<b>「新增」</b>，主畫面就有圖示，一點就開。' }
       ];
       var CHANGELOG = [
-        { v: 'v11.38', d: '11/10', t: ['班員（訪客）首頁新增「我的行程」：最上面打自己的名字就好', '一張月曆看完這個月：留守、休假、出差顏色跟班表一樣，公差、尿篩、打靶、輪值、當日行程用小字標在格子下面；時間撞到的那天紅框', '假日沒標休也沒標留守的，月曆上寫紅色「未點」，上面也會列出「假單還沒點 N 天」', '月曆防誤觸：平常點日子只看那天；按月曆右上小小的「✎ 標留守」才能點一下標留守、再點取消（休假也能點成留守），好了按「完成」；左右滑或按 ‹ › 換月', '每一區（撞到、假單未點、月曆、統計、每天要做什麼、顏色說明）都能收折，會記住', '下面寫這個月休假幾天、留守、勤務，還有本週／下週／更多每天要做什麼；撞到的可以「複製訊息給班長」'] },
+        { v: 'v11.38', d: '11/10', t: ['班員（訪客）首頁新增「我的行程」：第一次進去點自己的名字（分彈射班、軍械班，跟加班人員分層同一份名冊），之後自動記住；選錯按「不是我？」', '一張月曆看完這個月：留守、休假、出差顏色跟班表一樣，公差、尿篩、打靶、輪值、當日行程用小字標在格子下面；時間撞到的那天紅框', '假日沒標休也沒標留守的，月曆上寫紅色「未點」；「每天要做什麼」每週列出「假單還沒點 N 天」，分頁上有橘色數字', '月曆防誤觸：平常點日子只看那天；按月曆右上小小的「✎ 標留守」才能點一下標留守、再點取消（休假也能點成留守），好了按「完成」；左右滑或按 ‹ › 換月', '每一區（撞到、假單未點、月曆、統計、每天要做什麼、顏色說明）都能收折，會記住', '下面寫這個月：例假日休、補休／慰休／公假（平日的都算一起）各幾天，留守、勤務幾次；還有本週／下週／更多每天要做什麼；撞到的可以「複製訊息給班長」'] },
         { v: 'v11.36', d: '11/10', t: ['門禁／查看身分標留守變簡單：平常照樣正常看全部人；按班表上方「標留守」才開始，只有自己那排亮、其他人變暗', '標留守時：點自己空白格＝留守，再點一下＝取消（班長、股總兩份一起刪），不用再跳選單；好了按「完成」恢復正常看', '第一次會問「你是誰」，打名字就能找到；不想標也能選「我只看，不標記」', '自己的休假可以直接點成留守（再點一下改回休假）；出差、受訓等不能自己改，按「複製訊息」貼給班長；過去的日子也不能改', '班長那邊會寫「郭蕙芳 休假改留守 11/15(日)　請確認假單已撤回」', '查看身分點格子只看資料，不再出現「換身分」，要換身分請登出再登入', '班長打開 App 會跳「○○ 改了留守」，待處理最上面「留守變更」一人一行：郭蕙芳 新增 11/10、11/19，取消的日期劃線；可能少人的日子另外紅色列出，看完按「都看過了」'] },
         { v: 'v11.35', d: '11/10', t: ['產出新增「尿篩」提醒：自動抓下一次尿篩；明天的寫「明日…如無法按時前往，請於 0900時前回復」，今天的寫「今日…請準時前往」', '回復截止時間可以自己填（空著＝尿篩前 1 小時）'] },
         { v: 'v11.34', d: '11/9', t: ['內部整理：程式依功能分檔、刪掉沒在用的程式和樣式、合併重複的寫法；畫面和功能都沒變，檔案變小'] },
@@ -9008,14 +9038,15 @@ body.gstay #gridBox td.namecol.me { background: #ffe9a8; font-weight: 800; }
         $('mineBack').addEventListener('click', function () { $('minePage').classList.remove('show'); mineEdit = false; showGate(); });
         $('mineBody').addEventListener('toggle', function (ev) { var t = ev.target; if (t.dataset && t.dataset.mf) { prefs.mineFold = prefs.mineFold || {}; prefs.mineFold[t.dataset.mf] = t.open; savePrefs(); } }, true);
         $('mineBody').addEventListener('input', function (ev) { if (ev.target.id === 'mnIn') mineHits(ev.target.value); });
-        $('mineBody').addEventListener('focusin', function (ev) { if (ev.target.id === 'mnIn') { try { ev.target.select(); } catch (e) { /* 忽略 */ } mineHits(''); } });
         $('mineBody').addEventListener('click', function (ev) {
           var c = ev.target.closest('[data-mk]');
           if (c) { gsToggle(c.dataset.mk, prefs.me); return; }
           var cv = ev.target.closest('[data-mv]'); if (cv) { mineDay(cv.dataset.mv); return; }
           if (ev.target.closest('summary')) return;
           var b = ev.target.closest('button'); if (!b) return;
-          if (b.dataset.mnme) { prefs.me = b.dataset.mnme; prefs.gsAsked = 1; savePrefs(); $('mnIn').blur(); renderMine(); return; }
+          if (b.dataset.mnme) { prefs.me = b.dataset.mnme; prefs.gsAsked = 1; savePrefs(); minePick = false; renderMine(); $('minePage').scrollTop = 0; return; }
+          if (b.dataset.mn === 'who') { minePick = true; renderMine(); $('minePage').scrollTop = 0; return; }
+          if (b.dataset.mn === 'keep') { minePick = false; renderMine(); return; }
           if (b.dataset.mm) { mineMonth(+b.dataset.mm); return; }
           if (b.dataset.mw) { mineW = +b.dataset.mw; renderMine(); return; }
           if (b.dataset.mn === 'edit') { mineEdit = !mineEdit; renderMine(); if (mineEdit) showToast('點日子就標留守，好了按「完成」', null, null, 2000); return; }
