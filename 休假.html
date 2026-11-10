@@ -77,7 +77,7 @@
     </section>
 
     <!-- ===== 每日 ===== -->
-    <section class="page active" id="page-days" aria-label="首頁">
+    <section class="page active" id="page-days" aria-label="任務派遣">
       <div id="rollBox" hidden></div>
       <div class="box duty" id="dutyCard">
         <div class="dutyhead">
@@ -381,8 +381,8 @@
             <summary>快速上手</summary>
             <div class="dbody2">
               <ol>
-                <li>打開先在封面<b>輸入密碼</b>，系統會自動認出身分：<b>彈射／軍械／股總</b>可以記錄，<b>查看密碼</b>只能看（可新增留守）。接著選<b>休假班表</b>或<b>公差勤務</b>。要換身分，按右上角「回入口」再按「換身分」。</li>
-                <li><b>首頁</b>最上面是當週留守，按「複製留守」就能貼到 Juiker；下面是每天的休假情況。</li>
+                <li>打開先在封面<b>輸入密碼</b>，系統會自動認出身分：<b>彈射／軍械／股總</b>可以記錄，<b>查看密碼</b>只能看（可新增留守）。接著選<b>任務派遣</b>或<b>公差勤務</b>。要換身分，按右上角「回入口」再按「換身分」。</li>
+                <li><b>任務派遣</b>（休假班表＋每日到班合在一起）：最上面是這天誰到班、誰休假、誰留守，左右滑動換天，按「複製這天人員情況」就能貼到 Juiker；往下是當週留守，按「複製留守」貼到 Juiker。</li>
                 <li><b>班表</b>（彈射班、軍械班或全部）：一人一天一格，空白＝未點假單。</li>
                 <li><b>產出</b>：複製留守、人員情況、加班文字。<b>休假統計</b>（在「更多」最上面）：每人每月平日休、假日休，點名字看休假月曆。</li>
                 <li>這裡只記錄誰休假、誰留守、誰公差，不等於正式請假。</li>
@@ -409,7 +409,7 @@
                 <li><b>一般</b>（休假班表）：輸入查看密碼（每台手機一次）後看全部（股總那份），只能新增留守。</li>
                 <li><b>彈射</b>：只看彈射班，只能記彈射班的人。</li>
                 <li><b>軍械</b>：只看軍械班，只能記軍械班的人。<b>股總</b>：看全部同仁，記自己那份。</li>
-                <li>從 11/1 起，彈射班、軍械班的人由各班和股總<b>各記一份</b>。兩份不一樣時，首頁上方會出現提示，各自修正自己那份就好。</li>
+                <li>從 11/1 起，彈射班、軍械班的人由各班和股總<b>各記一份</b>。兩份不一樣時，任務派遣上方會出現提示，各自修正自己那份就好。</li>
                 <li>股總還沒記的日子，一般人先看到彈射／軍械記的；股總記了就以股總為準。</li>
                 <li>「更多」裡有<b>修改紀錄</b>，可以查是誰、什麼時候、把哪一格改成什麼。</li>
               </ul>
@@ -436,7 +436,7 @@
             <div class="dbody2">
               <ul>
                 <li><b>排留守</b>：選哪幾天、選留守／監控／休假／救災／出差／受訓，再點人員，按「套用」一次完成。已經排好的人會先打勾，取消勾選就是取消那筆。</li>
-                <li><b>首頁每日卡片</b>：假日只列留守；「未點」收成一個按鈕，點開看名單。</li>
+                <li><b>假單還沒點</b>的名單在封面「待處理」裡看。</li>
                 <li><b>產出</b>：彈射、軍械各用自己班，股總用全部人員。選「假日留守」＋「本週」就是這週誰留守。</li>
                 <li><b>加班</b>：選日期、夜間／假日、督導（先列股長和幹部，「其他人…」看全部），再填時間、事由、點人員，文字會自動排好，按「複製文字」貼出去。</li>
                 <li>時間或事由不同就按<b>「＋ 再加一組」</b>，產出會用 1️⃣2️⃣ 分開；人員每 3 個換一行。</li>
@@ -685,7 +685,6 @@
         <div class="idsub2" id="gSub">
           <button class="idtile todo" id="gTodo"><span class="gi gi-todo"></span><span class="itx"><b>待處理</b><small id="gTodoSub">勤務重疊・假單還沒點</small></span><i class="tdbadge" id="gTodoN" hidden></i><i class="chev">›</i></button>
           <button class="idtile mine" id="gMine" hidden><span class="gi gi-mine"></span><span class="itx"><b>我的行程</b><small>我的留守・休假・公差・尿篩</small></span><i class="chev">›</i></button>
-          <button class="idtile" id="gAtt"><span class="gi gi-att"></span><span class="itx"><b>每日到班</b><small>今天誰在、誰不在</small></span><i class="chev">›</i></button>
           <button class="idtile" id="gLog" hidden><span class="gi gi-log"></span><span class="itx"><b>編輯紀錄</b><small>誰改了什麼、什麼時候改的</small></span><i class="chev">›</i></button>
         </div>
       </div>
@@ -695,7 +694,7 @@
   </div>
 
   <nav class="tabbar" aria-label="主選單">
-    <button data-t="days" class="on" aria-label="首頁"><span class="icw"><span class="ic week"></span></span>首頁</button>
+    <button data-t="days" class="on" aria-label="任務派遣"><span class="icw"><span class="ic roll"></span></span>任務派遣</button>
     <button data-t="sched" aria-label="彈射班"><span class="icw"><span class="ic sched"></span></span>彈射班</button>
     <button data-t="gu" id="tabGu" aria-label="軍械班"><span class="icw"><span class="ic sched"></span></span>軍械班</button>
     <button data-t="out" aria-label="產出"><span class="icw"><span class="ic out"></span></span>產出</button>
@@ -1797,10 +1796,9 @@ $('gRole').textContent = r; $('gRole').classList.toggle('guest', !prefs.pw && !!
 $('gNote').innerHTML = (prefs.pw
 ? ['休假：可登錄' + (r === '股總' ? '全員' : r + '班'), '公差：可新增修改']
 : ['只能查看', '自己的留守可以自己標']).map(function (t) { return '<span>' + esc(t) + '</span>'; }).join('') + (!prefs.pw && !prefs.guest ? '<small>要修改請按「換身分」</small>' : '');
-document.querySelector('.idbtn[data-id="leave"] b').textContent = prefs.pw ? '休假班表' : '點名官';
-document.querySelector('.idbtn[data-id="leave"]').classList.toggle('roll', !prefs.pw);
-$('gLeaveSub').textContent = prefs.pw ? '點假單・' + (r === '股總' ? '全員' : r + '班') : '誰在・誰休・誰留守';
-$('gAtt').hidden = !prefs.pw;
+document.querySelector('.idbtn[data-id="leave"] b').textContent = prefs.pw ? '任務派遣' : '點名官';
+document.querySelector('.idbtn[data-id="leave"]').classList.add('roll');
+$('gLeaveSub').textContent = prefs.pw ? '到班回報・點' + (r === '股總' ? '全員' : r + '班') + '假單' : '誰在・誰休・誰留守';
 $('gDutySub').textContent = prefs.pw ? '派公差・尿篩・加班' : '全部公差・尿篩・加班';
 $('gLog').hidden = !prefs.pw; $('gSub').classList.toggle('solo', !prefs.pw);
 $('gMine').hidden = true; $('gTodo').hidden = !prefs.pw; gMeDraw(); if (!prefs.pw) todoEnsure(); if (prefs.pw) { todoBadge(); todoEnsure(); gsLogLoad(); }
@@ -2173,7 +2171,7 @@ records = recordsMy;
 var d = new Date();
 $('todayLbl').innerHTML = '<b>' + (d.getMonth() + 1) + '/' + d.getDate() + '</b><small>週' + WK[d.getDay()] + '</small>';
 if (tab === 'sched') renderSched();
-else if (tab === 'days') { renderDuty(); if (myId() === 'guest') rollRender(); else renderDays(); }
+else if (tab === 'days') { renderDuty(); rollRender(); }
 else if (tab === 'out') renderOut();
 else if (tab === 'ana') renderAna();
 else if (tab === 'more') renderMore();
@@ -2185,9 +2183,9 @@ for (var i = 0; i < btns.length; i++) btns[i].style.display = vis[btns[i].datase
 document.body.classList.toggle('guest', id === 'guest');
 var ig = (groups.length && id !== 'guest' && id !== 'gu') ? idGroup() : null;
 function setLbl(t, txt) { var bt = document.querySelector('.tabbar button[data-t="' + t + '"]'); if (bt) { bt.lastChild.textContent = txt; bt.setAttribute('aria-label', txt); } }
-setLbl('sched', ig ? ig.name : '彈射班'); setLbl('gu', '全部'); setLbl('days', id === 'guest' ? '點名官' : '首頁');
-rollMount(id === 'guest');
-var dic = document.querySelector('.tabbar button[data-t="days"] .ic'); if (dic) { dic.classList.toggle('roll', id === 'guest'); dic.classList.toggle('week', id !== 'guest'); }
+setLbl('sched', ig ? ig.name : '彈射班'); setLbl('gu', '全部'); setLbl('days', id === 'guest' ? '點名官' : '任務派遣');
+rollMount(true);
+var dic = document.querySelector('.tabbar button[data-t="days"] .ic'); if (dic) { dic.classList.add('roll'); dic.classList.remove('week'); }
 var sic = document.querySelector('.tabbar button[data-t="sched"] .ic'); if (sic) { sic.classList.toggle('schedg', id === 'arm'); sic.classList.toggle('sched', id !== 'arm'); }
 }
 function setTab(t) {
@@ -2310,7 +2308,7 @@ function renderTips() {
 if (!prefs.tips || typeof prefs.tips !== 'object') prefs.tips = {};
 Object.keys(TIPS).forEach(function (k0) {
 var sec = $('page-' + k0); if (!sec) return;
-var k = k0 === 'days' && myId() === 'guest' ? 'roll' : k0, tx = k === 'roll' ? TIPS_ROLL : TIPS[k0];   // 一般身分的首頁＝點名官
+var k = k0 === 'days' ? 'roll' : k0, tx = k === 'roll' ? TIPS_ROLL : TIPS[k0];   // 一般身分的首頁＝點名官
 var el = sec.querySelector('.tip');
 if (el && el.dataset.tip !== k) { el.remove(); el = null; }
 if (prefs.tips[k]) { if (el) el.remove(); return; }
@@ -5365,6 +5363,7 @@ var INSTALL_IOS = [
 { ic: '<span class="tic ic-ok"></span>', t: '3　按「新增」', d: '確認名稱後按<b>「新增」</b>，主畫面就有圖示，一點就開。' }
 ];
 var CHANGELOG = [
+{ v: 'v11.51', d: '11/10', t: ['彈射、軍械、股總：「休假班表」和「每日到班」合成「任務派遣」（跟一般身分的點名官同一個畫面）。封面只剩一個入口；首頁最上面是每日到班（日期左右切換、應到／實到／不在、到班／休假／留守、複製這天人員情況），下面是當週留守（複製留守、排留守照舊）；原本的每日情況清單拿掉，假單還沒點的名單在「待處理」看', '封面的「每日到班」按鈕拿掉；底下分頁「首頁」改叫「任務派遣」；使用導覽、第一次提示同步更新', '彈射班／軍械班／全部（點格子登錄假單）、產出、更多都不變'] },
 { v: 'v11.50', d: '11/10', t: ['當天詳細：時間軸「代理」小標籤從實心青綠改成淡色底＋深綠字，比較不搶眼'] },
 { v: 'v11.49', d: '11/10', t: ['檔案瘦身：從約 2.1MB 降到約 1.5MB（圖示改用更小的格式、去掉多餘空白與註解、清掉不再使用的舊「我的行程」樣式），畫面和功能都跟 v11.48 一樣'] },
 { v: 'v11.48', d: '11/10', t: ['一般身分：「休假班表」和「每日到班」合成「點名官」。封面只剩一個入口；點名官首頁上面是每日到班（日期左右切換、一週日期列、應到／實到／不在、到班／休假／留守、公差、複製），下面是當週留守；原本的每日情況清單拿掉（同樣的資料）。底下分頁改成 點名官／全部／更多', '彈射、軍械、股總維持原本', '新圖示：休假班表（週曆）、公差勤務（安全帽＋扳手）、到班（報到小人）、點名官（點名夾板）；點名官也用在一般身分底下的分頁', '到班、休假、留守換成同一個可愛小人（敬禮＝到班、背包揮手＝休假、門前叉腰＝留守），點名官和每日到班的名單前面也加上這三個圖示', '再換 6 張同一套小人：監控、外勤、公假、假單還沒點、我的行程、換人', '再換 6 張：沒有人、名冊對不到、新排給你、幫我選人、沒問題、衛哨；編輯選單「休假」「其他」標題也改用小人', '點名官、每日到班：左右滑動換天（往左滑＝下一天），換天時內容會滑進來', '使用導覽：一般身分只顯示自己能用的功能（快速上手、我的行程、自己標留守、點名官、看懂顏色、常見問題），不再出現編輯、產出、加班等說明', '一般身分第一次用：選好名字後自動播 7 步導覽（30 秒）；封面多一張「第一次用？3 步就會」說明卡（按知道了就收掉）；點名官、我的行程第一次打開有一行小提示；使用導覽多「一般身分導覽」按鈕', '一般封面：拿掉「📣 一鍵回報班長」按鈕；「假單還沒點」「時間重疊」兩條大按鈕合成一張小卡，點上面的日期直接跳到那天（不再兩個都開同一頁）'] },
@@ -5514,7 +5513,7 @@ var APP_VER = CHANGELOG[0].v;
 var verAll = false;
 document.addEventListener('click', function (ev) { if (ev.target && ev.target.id === 'verMore') { verAll = true; renderVer(); } });
 var TOUR = [
-{ ic: '<span class="tic ic-home"></span>', t: '首頁：當週留守', d: '打開就看到<b>即將到來的假日</b>誰留守（連假整段都算）。按<b>「複製留守」</b>直接貼到 Juiker。往下滑是每天的休假情況。' },
+{ ic: '<span class="tic ic-home"></span>', t: '任務派遣：誰到班、誰休、誰留守', d: '打開就看到<b>這天</b>誰到班、誰休假、誰留守，<b>左右滑動換天</b>，按<b>「複製這天人員情況」</b>貼到 Juiker。往下是<b>當週留守</b>，按「複製留守」也能貼。' },
 { ic: '<span class="tic ic-sched"></span>', t: '表格：一人一天一格', d: '<b>空白＝未點假單</b>，左右滑動換週。<b>編輯中</b>點格子＝全天休、長按看更多；點錯按黃色列的<b>「復原」</b>。左上角 <b>≡</b> 切換週／月、看顏色說明，右下角圓鈕可以滿版。' },
 { ic: '<span class="tic ic-out"></span>', t: '產出：一鍵回報', d: '選<b>假日留守、人員情況或加班</b>，按「複製文字」就能貼到群組。文字框也可以直接改。' },
 { ic: '<span class="tic ic-ana"></span>', t: '分析：看每個人', d: '本月每人<b>平日休幾天、到班幾天</b>，點名字看個人月曆。' },
@@ -6110,7 +6109,6 @@ if (!res || !res.ok) { rmMsg((res && res.msg) || '寄送失敗', true); return; 
 rmMsg('✓ 已寄 2 封測試信到 ' + res.to.join('、') + '（兩種提醒各一封，可能在垃圾郵件）');
 }).catch(function (e) { $('rmTest').disabled = false; rmMsg('寄送失敗：' + e.message, true); });
 });
-$('gAtt').addEventListener('click', function () { openAtt(); });
 $('gMine').addEventListener('click', function () { openMine(); });
 $('mineBack').addEventListener('click', function () { gsLeave(function () { $('minePage').classList.remove('show'); mineEdit = false; showGate(); }); });
 $('gsSave').addEventListener('click', function (ev) { var b = ev.target.closest('[data-gv]'); if (!b) return; if (b.dataset.gv === 'undo') gsUndo(); else gsCommit(); });
