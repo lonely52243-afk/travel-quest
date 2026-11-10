@@ -3378,6 +3378,38 @@ body.roll #page-days .dayshead, body.roll #daysBody { display: none !important; 
 .idbtn[data-id="leave"].roll::before { background-image: var(--ix-e-roll); }
 .tabbar .ic.roll { background-image: var(--ix-t-roll); } .tabbar button.on .ic.roll { background-image: var(--ix-a-roll); }
 .dstat .tl.sm.here .tlm > b::before { content: '' !important; background: var(--ix-f-here) center / contain no-repeat !important; border-radius: 0; width: 22px; height: 22px; vertical-align: -5px; }
+/* 左右滑動換天：內容滑入 */
+@keyframes slL { from { transform: translateX(40px); opacity: .3; } to { transform: none; opacity: 1; } }
+@keyframes slR { from { transform: translateX(-40px); opacity: .3; } to { transform: none; opacity: 1; } }
+#attBody.slL { animation: slL .22s ease-out; } #attBody.slR { animation: slR .22s ease-out; }
+@media (prefers-reduced-motion: reduce) { #attBody.slL, #attBody.slR { animation: none; } }
+#rollBox { touch-action: pan-y; }
+
+/* 一般身分的使用導覽：沿用同樣外觀 */
+#guidePage #helpGen details { margin: 0; border-radius: 0; border-width: 0 1.5px 1.5px; border-style: solid; padding: 0 14px; }
+#guidePage #helpGen .gh + details { border-top-width: 1.5px; border-radius: 14px 14px 0 0; }
+#guidePage #helpGen details:not(:has(+ details)) { border-radius: 0 0 14px 14px; }
+#guidePage #helpGen .gh + details:not(:has(+ details)) { border-radius: 14px; }
+#guidePage #helpGen details > summary { padding: 13px 0; font-size: 15.5px; min-height: 48px; }
+#guidePage #helpGen details > summary::after { content: ""; width: 8px; height: 8px; border: 0; border-right: 2.5px solid var(--muted); border-bottom: 2.5px solid var(--muted); border-radius: 0; background: none; transform: rotate(45deg); margin: 0 6px 4px 0; transition: transform .15s; line-height: 0; }
+#guidePage #helpGen details[open] > summary::after { content: ""; transform: rotate(-135deg); margin-bottom: -2px; }
+#guidePage #helpGen details[open] { background: var(--card); }
+#guidePage #helpGen details[open] > summary { color: var(--ink); }
+#guidePage #helpList details > summary::after, #guidePage #helpGen details > summary::after { transform: none; margin: 0 4px 0 8px; }
+#guidePage #helpList details[open] > summary::after, #guidePage #helpGen details[open] > summary::after { transform: rotate(90deg); margin: 0 4px 0 8px; }
+/* 一般身分：第一次用的 3 步說明、導覽圖示 */
+.gcoach { margin: 4px 0 12px; padding: 12px 14px; border-radius: 14px; background: #fff8e1; border: 1.5px dashed #e3b23c; }
+.gcoach > b { display: block; font-size: 15px; font-weight: 900; color: #1E2A4A; margin-bottom: 4px; }
+.gcoach ol { margin: 0; padding-left: 20px; font-size: 13.5px; line-height: 1.75; color: #3a4256; } .gcoach ol b { color: #1E2A4A; }
+.gcbtn { display: flex; gap: 8px; margin-top: 8px; } .gcbtn button { flex: 1; min-height: 38px; font-size: 14px; border-radius: 10px; }
+[data-theme="dark"] .gcoach { background: rgba(245,184,0,.1); border-color: rgba(245,184,0,.45); } [data-theme="dark"] .gcoach > b, [data-theme="dark"] .gcoach ol b { color: #f5e6b8; } [data-theme="dark"] .gcoach ol { color: #d7dbe3; }
+#tour .ic-pick, #tour .ic-mine { background-image: var(--ix-n-pers); }
+#tour .ic-bell { background-image: var(--ix-d-bell); }
+#tour .ic-strip { background-image: var(--ix-e-guest); }
+#tour .ic-stay { background-image: var(--ix-f-stay); }
+#tour .ic-roll { background-image: var(--ix-e-roll); }
+#minePage .tip { margin: 0 0 10px; }
+#guidePage .gtours button[hidden] { display: none !important; } #guidePage .gtours #gTour3 { grid-column: 1 / -1; }
 </style>
 </head>
 <body>
@@ -3728,6 +3760,7 @@ body.roll #page-days .dayshead, body.roll #daysBody { display: none !important; 
     <div class="gtours">
       <button class="primary" id="gTour1">休假班表導覽<small>5 步</small></button>
       <button class="primary" id="gTour2">公差勤務導覽<small>6 步</small></button>
+      <button class="primary" id="gTour3" hidden>一般身分導覽<small>7 步・30 秒</small></button>
     </div>
     <div id="helpList">
       <h3 class="gh">休假班表</h3>
@@ -3914,6 +3947,82 @@ body.roll #page-days .dayshead, body.roll #daysBody { display: none !important; 
               </ul>
             </div>
           </details>
+    </div>
+    <!-- 一般身分（查看密碼）只看到這份說明 -->
+    <div id="helpGen" hidden>
+      <h3 class="gh">一般身分能做什麼</h3>
+      <details id="hg-start" open>
+        <summary>快速上手</summary>
+        <div class="dbody2">
+          <ol>
+            <li>封面輸入<b>查看密碼</b>（每台手機一次），再選<b>你是誰</b>，之後會自動記住；選錯按右上「不是我？」。</li>
+            <li>封面最上面：<b>紅條</b>＝假日假單還沒點、<b>橘條</b>＝時間重疊，點了直接看是哪天。</li>
+            <li>中間一排<b>日期</b>可以左右滑：有小圓點＝那天有事，下面標「留守」「休」。點一天，下面的大卡片就顯示那天要做什麼。</li>
+            <li>按<b>「看我的行程」</b>看自己的月曆和每天要做的事；按<b>「✎ 標留守」</b>自己標留守。</li>
+            <li>「看全部人」：<b>點名官</b>看大家誰在、誰休；<b>公差勤務</b>看全部公差、尿篩、加班（只能看）。</li>
+          </ol>
+        </div>
+      </details>
+      <details>
+        <summary>我的行程</summary>
+        <div class="dbody2">
+          <ul>
+            <li><b>月曆</b>：日期在左上，格子裡的小標籤＝那天的事（休、留守、公差、尿篩、打靶、輪值、行程），一天超過兩件就在底下用小圓點。點一天看詳細，也可以看當天全部公差。</li>
+            <li><b>月統計</b>：例假日休、補休／慰休／公假、留守、勤務各幾次（半天算 0.5）。</li>
+            <li><b>每天要做什麼</b>：分本週、下週、更多；假日假單還沒點的會特別列出來。按「複製本週行程」可以貼給自己或家人。</li>
+            <li>「時間重疊」＝同一時間排了兩件事，請告訴班長。</li>
+          </ul>
+        </div>
+      </details>
+      <details>
+        <summary>自己標留守</summary>
+        <div class="dbody2">
+          <ol>
+            <li>在我的行程月曆按<b>「✎ 標留守」</b>（或封面的「✎ 標留守」）。</li>
+            <li>點日子＝<b>留守</b>，再點一下取消；點錯按「復原」。</li>
+            <li>改完按<b>「確定儲存」</b>才會寫進去，離開前沒存會提醒你。</li>
+          </ol>
+          <ul>
+            <li>原本是<b>休假</b>的日子也能改成留守，班長會收到提醒；記得自己去<b>撤回假單</b>。</li>
+            <li>公假、出差、救災、受訓、監控不能自己改，要找班長。過去的日子也不能改。</li>
+          </ul>
+        </div>
+      </details>
+      <details>
+        <summary>點名官</summary>
+        <div class="dbody2">
+          <ul>
+            <li>上面是<b>這一天</b>：應到、實到、不在，再來是<b>到班</b>（綠色）、休假、外勤、留守、監控，下面是公差・勤務。</li>
+            <li>換天：<b>左右滑</b>、按 ‹ ›，或點上面一週的日期。</li>
+            <li>按「複製這天人員情況」可以貼到 Juiker。</li>
+            <li>最下面是<b>當週留守</b>，按「這次／下一次」切換。</li>
+            <li>底下分頁的<b>「全部」</b>是休假班表：一人一天一格，空白＝還沒點假單。</li>
+          </ul>
+        </div>
+      </details>
+      <details>
+        <summary>看懂顏色</summary>
+        <div class="dbody2">
+          <ul>
+            <li><span class="sw" style="background:var(--full);border-radius:50%"></span>藍色「休」＝休假；綠藍色＝平日休（補休、慰休）；「公」＝公假。</li>
+            <li><span class="sw am"></span><span class="sw pm"></span>半格＝上午休／下午休。</li>
+            <li><span class="sw" style="background:var(--stay);border-radius:4px"></span>橘紅「留」＝留守　<span class="sw" style="background:var(--mon)"></span>深藍「監」＝監控。</li>
+            <li><span class="sw" style="background:var(--away);border-radius:999px"></span>紫色＝救災、出差、受訓（當天不在）。</li>
+            <li>紅色虛線「未點」＝假日還沒點假單。</li>
+          </ul>
+        </div>
+      </details>
+      <details>
+        <summary>常見問題</summary>
+        <div class="dbody2">
+          <ul>
+            <li><b>加到手機主畫面？</b>iPhone：Safari「分享」→「加入主畫面」。Android：Chrome 右上角選單 →「加到主畫面」。</li>
+            <li><b>這裡等於正式請假嗎？</b>不是。正式假單在別的系統填，這裡只記錄誰休假、誰留守。</li>
+            <li><b>為什麼我的休假不能改？</b>休假、公差由班長記，一般身分只能標自己的留守。</li>
+            <li><b>沒有網路？</b>可以看上次載入的資料，但不能標留守。</li>
+          </ul>
+        </div>
+      </details>
     </div>
     <div class="btnrow" style="margin-top:14px"><button class="ghost" id="resetTips">重新顯示小提示</button></div>
   </div>
@@ -5174,7 +5283,7 @@ body.roll #page-days .dayshead, body.roll #daysBody { display: none !important; 
         setTab('days');
         if (prefs.pw) setEditing(true, '已登入（' + prefs.role + '），編輯中');
         ensureData(true);
-        if (!prefs.seen) setTimeout(showTour, 500);
+        if (!prefs.seen && prefs.pw) setTimeout(showTour, 500);
       }
       function pinRender() {
         var n = Math.max(4, pinVal.length), h = '';
@@ -5242,6 +5351,8 @@ body.roll #page-days .dayshead, body.roll #daysBody { display: none !important; 
             if (g === 'pick') { gsAsk(function () { gMeDraw(); }); return; }
 
             if (g === 'mine') { openMine(); return; }
+            if (g === 'tour') { showTour(TOUR_GEN); return; }
+            if (g === 'coachok') { prefs.tips = prefs.tips || {}; prefs.tips.gcoach = 1; savePrefs(); gMeDraw(); return; }
             if (g === 'tell') { copyText(mineTellOne(b.dataset.k), function () { showToast('已複製，打開 Juiker 貼給班長', null, null, 2400); }); return; }
             if (g === 'stay') { openMine(); mineEdit = true; renderMine(); showToast('點日子標留守，改完按下面「確定儲存」', null, null, 2200); return; }
           }
@@ -5612,6 +5723,12 @@ body.roll #page-days .dayshead, body.roll #daysBody { display: none !important; 
       function openVer() { verAll = false; renderVer(); $('verPage').classList.add('show'); $('verPage').scrollTop = 0; }
       function goHelp(sec) {
         $('guidePage').classList.add('show'); $('guidePage').scrollTop = 0;
+        // 一般身分（沒有編輯密碼）只看自己能用的功能說明
+        var gen = !prefs.pw;
+        $('helpGen').hidden = !gen; $('helpList').hidden = gen;
+        document.querySelector('#guidePage .ghero span').textContent = gen ? '下面是一般身分能用的功能，有問題再回來查。' : '先看 1 分鐘導覽，之後有問題再回來查。';
+        $('gTour3').hidden = !gen; $('gTour1').hidden = gen; $('gTour2').hidden = gen;
+        if (gen) return;
         var d = $(sec === 'duty' ? 'h-duty' : 'h-start');
         document.querySelectorAll('#helpList details').forEach(function (x) { x.open = false; });
         if (d) { d.open = true; if (sec === 'duty') setTimeout(function () { d.scrollIntoView({ block: 'start' }); }, 30); }
@@ -5650,13 +5767,15 @@ body.roll #page-days .dayshead, body.roll #daysBody { display: none !important; 
       function closeTour() { var m = $('tourMask'); if (m) m.classList.remove('show'); }
       function renderTips() {
         if (!prefs.tips || typeof prefs.tips !== 'object') prefs.tips = {};
-        Object.keys(TIPS).forEach(function (k) {
-          var sec = $('page-' + k); if (!sec) return;
+        Object.keys(TIPS).forEach(function (k0) {
+          var sec = $('page-' + k0); if (!sec) return;
+          var k = k0 === 'days' && myId() === 'guest' ? 'roll' : k0, tx = k === 'roll' ? TIPS_ROLL : TIPS[k0];   // 一般身分的首頁＝點名官
           var el = sec.querySelector('.tip');
+          if (el && el.dataset.tip !== k) { el.remove(); el = null; }
           if (prefs.tips[k]) { if (el) el.remove(); return; }
           if (el) return;
           el = document.createElement('div'); el.className = 'tip'; el.dataset.tip = k;
-          el.innerHTML = '<span class="tip-i">提示</span><span class="tip-t">' + TIPS[k] + '</span><button class="tip-x" aria-label="關閉提示">知道了</button>';
+          el.innerHTML = '<span class="tip-i">提示</span><span class="tip-t">' + tx + '</span><button class="tip-x" aria-label="關閉提示">知道了</button>';
           sec.insertBefore(el, sec.firstChild);
         });
       }
@@ -8622,6 +8741,7 @@ body.roll #page-days .dayshead, body.roll #daysBody { display: none !important; 
       function renderMine() {
         var me = prefs.me, tk = todayKey(), h = mineWhoHtml();
         $('mineName').textContent = me ? me + ' 的行程' : '我的行程';
+        if (me && gsMode() && !(prefs.tips || {}).mine) h = '<div class="tip" data-tip="mine"><span class="tip-i">提示</span><span class="tip-t">' + TIPS_MINE + '</span><button class="tip-x" aria-label="關閉提示">知道了</button></div>' + h;
         if (!me || minePick || mineNames().indexOf(me) < 0) {
           $('mineBody').innerHTML = h + (minePick && me ? '<button class="mncopy2" data-mn="keep">不用換，我是 ' + esc(me) + '</button>' : '');
           mineHits('');
@@ -8701,6 +8821,9 @@ body.roll #page-days .dayshead, body.roll #daysBody { display: none !important; 
         var nc = Object.keys(cl).length;
         if (!gSel || gSel < tk || gSel > addDays(tk, 13)) gSel = tk;
         var h = who + '<div class="gmhi"><b>你好，' + esc(me.length >= 3 ? me.slice(1) : me.slice(-1)) + '</b><button class="linkbtn" data-gm="pick">不是我？</button></div>';
+        // 第一次用：三步說明（按「知道了」就不再出現）
+        if (!(prefs.tips || {}).gcoach) h += '<div class="gcoach"><b>第一次用？3 步就會</b><ol><li><b>點日期</b>→ 看那天要做什麼</li><li><b>看我的行程</b>→ 整個月一次看完</li><li><b>✎ 標留守</b>→ 自己排留守</li></ol><div class="gcbtn"><button class="ghost" data-gm="tour">看 30 秒導覽</button><button class="primary" data-gm="coachok">知道了</button></div></div>';
+        if (!prefs.genTour) { prefs.genTour = 1; savePrefs(); setTimeout(function () { if ($('idGate').classList.contains('show')) showTour(TOUR_GEN); }, 600); }
         // 1. 要處理的事：紅底通知條（有才出現）
         if (unf.length) h += '<button class="gmbar red" data-gm="mine"><span><b>假單還沒點 ' + unf.length + ' 天</b><small>' + unf.slice(0, 4).map(function (k) { return mdLabel(k) + '(' + wkOf(k) + ')'; }).join('、') + (unf.length > 4 ? '…' : '') + '</small></span><em>看哪天 ›</em></button>';
         if (nc) h += '<button class="gmbar org" data-gm="mine"><span><b>⚠ 時間重疊 ' + nc + ' 天</b><small>' + Object.keys(cl).sort().slice(0, 3).map(function (k) { return mdLabel(k) + '(' + wkOf(k) + ')'; }).join('、') + '・請告訴班長</small></span><em>看詳細 ›</em></button>';
@@ -8890,7 +9013,7 @@ body.roll #page-days .dayshead, body.roll #daysBody { display: none !important; 
         { ic: '<span class="tic ic-ok"></span>', t: '3　按「新增」', d: '確認名稱後按<b>「新增」</b>，主畫面就有圖示，一點就開。' }
       ];
       var CHANGELOG = [
-        { v: 'v11.48', d: '11/10', t: ['一般身分：「休假班表」和「每日到班」合成「點名官」。封面只剩一個入口；點名官首頁上面是每日到班（日期左右切換、一週日期列、應到／實到／不在、到班／休假／留守、公差、複製），下面是當週留守；原本的每日情況清單拿掉（同樣的資料）。底下分頁改成 點名官／全部／更多', '彈射、軍械、股總維持原本', '新圖示：休假班表（週曆）、公差勤務（安全帽＋扳手）、到班（報到小人）、點名官（點名夾板）；點名官也用在一般身分底下的分頁'] },
+        { v: 'v11.48', d: '11/10', t: ['一般身分：「休假班表」和「每日到班」合成「點名官」。封面只剩一個入口；點名官首頁上面是每日到班（日期左右切換、一週日期列、應到／實到／不在、到班／休假／留守、公差、複製），下面是當週留守；原本的每日情況清單拿掉（同樣的資料）。底下分頁改成 點名官／全部／更多', '彈射、軍械、股總維持原本', '新圖示：休假班表（週曆）、公差勤務（安全帽＋扳手）、到班（報到小人）、點名官（點名夾板）；點名官也用在一般身分底下的分頁', '點名官、每日到班：左右滑動換天（往左滑＝下一天），換天時內容會滑進來', '使用導覽：一般身分只顯示自己能用的功能（快速上手、我的行程、自己標留守、點名官、看懂顏色、常見問題），不再出現編輯、產出、加班等說明', '一般身分第一次用：選好名字後自動播 7 步導覽（30 秒）；封面多一張「第一次用？3 步就會」說明卡（按知道了就收掉）；點名官、我的行程第一次打開有一行小提示；使用導覽多「一般身分導覽」按鈕'] },
         { v: 'v11.47', d: '11/10', t: ['我的行程：拿掉「一起留守／目前只有你」；沒排事的日子留空白；「時間重疊」拿掉「複製訊息給班長」按鈕', '畫面上的「撞到」全部改成「重疊」（例：時間重疊、休假／公差重疊）', '我的行程月曆：改成細格線（格子共用一條淡灰線），拿掉編輯時外圍的紅色虛線（編輯中格線變淡橘）；今天改成淡黃底＋黃色日期，不再雙層框；標籤統一滿寬單層；星期列縮小變淡'] },
         { v: 'v11.46', d: '11/10', t: ['待處理「留守變更」：拿掉「沒人留守，可能少人」；預設收起，標題列直接寫「5 人・新增 5 天・取消 2 天・休假改留守 1 天」，要看名單再點開', '全站收折按鈕統一：黃底 +／− 改成灰色小箭頭（收起 ›，打開 ⌄）'] },
         { v: 'v11.45', d: '11/10', t: ['快速標記：打靶職掌表（手槍／步槍、射手、救護員…）整則歸成一件「打靶」，括號裡的職掌不再拆成好幾件公差；名字只寫名（志鵬、瓊嵐）也抓得到', '快速標記：選到的人名改成橫排，不會一人一行', '快速標記：一則通知用空行隔開、每段有自己的日期和人（例：打靶職掌表＋「明（11）日擦槍」），會拆成兩件；看得懂「明（11）日」', '擦槍只寫開始時間：上午預設 2 小時（0900 → 09:00–11:00），下午做到 17:00（1330 → 13:30–17:00）'] },
@@ -9052,8 +9175,20 @@ body.roll #page-days .dayshead, body.roll #daysBody { display: none !important; 
         { ic: '<span class="tic ic-kl"></span>', t: '統計：派遣參考', d: '下方切到「統計」，上面可以選<b>公差／尿篩／加班</b>和期間。公差看每個人出了幾次；尿篩看誰最久沒去；加班看誰時數最多。點人名看每一次的紀錄。' },
         { ic: '<span class="tic ic-ok"></span>', t: '完成', d: '有輪值預排和每日備註，都在當天頁裡。忘記怎麼用，到入口或「更多」按<b>「使用導覽」</b>。' }
       ];
+      // 一般身分（查看密碼）：第一次進來的導覽
+      var TOUR_GEN = [
+        { ic: '<span class="tic ic-pick"></span>', t: '這是你的備忘', d: '上面寫<b>「你好，＿＿」</b>就是你。名字不對按右上<b>「不是我？」</b>重選，之後會自動記住。' },
+        { ic: '<span class="tic ic-bell"></span>', t: '有紅條就要處理', d: '<b>紅條</b>＝假日假單還沒點；<b>橘條</b>＝同一時間排了兩件事，請告訴班長。沒有就代表都沒問題。' },
+        { ic: '<span class="tic ic-strip"></span>', t: '點日期，看那天要做什麼', d: '中間一排日期可以<b>左右滑</b>。有小圓點＝那天有事；<b>點一下</b>，下面的大卡片就顯示那天的公差、尿篩、輪值、行程。' },
+        { ic: '<span class="tic ic-mine"></span>', t: '看我的行程', d: '按黃色<b>「看我的行程」</b>：整個月的月曆、這個月休了幾天、每週要做什麼，一頁看完。' },
+        { ic: '<span class="tic ic-stay"></span>', t: '自己標留守', d: '按<b>「✎ 標留守」</b>→ 點日子變<b>留守</b>（再點取消）→ 按<b>「確定儲存」</b>。原本是休假也能改，記得自己去撤回假單。' },
+        { ic: '<span class="tic ic-roll"></span>', t: '看全部人', d: '<b>點名官</b>：今天誰到班、誰休、誰留守，左右滑換天。<b>公差勤務</b>：全部人的公差、尿篩、加班月曆（只能看）。' },
+        { ic: '<span class="tic ic-ok"></span>', t: '就這樣！', d: '忘了怎麼用，按封面最下面的<b>「使用導覽」</b>再看一次。' }
+      ];
       var tourI = 0, tourSteps = TOUR;
 
+      var TIPS_ROLL = '左右滑動或點上面的日期換天；綠色是今天到班的人，最下面是當週留守。';
+      var TIPS_MINE = '點月曆上的日子看那天要做什麼；要排留守按月曆右上「✎ 標留守」，改完記得「確定儲存」。';
       var TIPS = {
         days: '點選姓名可查看詳情；假日卡片按「看名單」可查看未點假單人員。',
         sched: '左右滑動換週，點格子看詳情。週／月切換、顏色說明在表格左上角「≡」。',
@@ -9513,7 +9648,7 @@ body.roll #page-days .dayshead, body.roll #daysBody { display: none !important; 
           var x = ev.target.closest ? ev.target.closest('.tip-x') : null;
           if (!x) return;
           var tp = x.closest('.tip'); prefs.tips[tp.dataset.tip] = 1; savePrefs();
-          tp.classList.add('bye'); setTimeout(renderTips, 180);
+          tp.classList.add('bye'); setTimeout(function () { if (tp.parentNode && !/^page-/.test(tp.parentNode.id || '')) tp.remove(); renderTips(); }, 180);
         });
         $('instGo').addEventListener('click', function () { showTour(instIsIos() ? INSTALL_IOS : INSTALL_AND); });
         $('instNo').addEventListener('click', function () { try { localStorage.setItem('leave_inst_no', '1'); } catch (e) { /* 忽略 */ } instUpdate(); });
@@ -9536,6 +9671,7 @@ body.roll #page-days .dayshead, body.roll #daysBody { display: none !important; 
         $('dutyTabHelp').addEventListener('click', function () { goHelp('duty'); });
         $('gTour1').addEventListener('click', function () { showTour(); });
         $('gTour2').addEventListener('click', function () { showTour(TOUR_DUTY); });
+        $('gTour3').addEventListener('click', function () { showTour(TOUR_GEN); });
         $('guideBack').addEventListener('click', closeGuide);
         $('openGuide').addEventListener('click', function () { goHelp(); });
         $('idHelp').addEventListener('click', function () { goHelp(); });
@@ -9713,10 +9849,11 @@ body.roll #page-days .dayshead, body.roll #daysBody { display: none !important; 
         $('attNext').addEventListener('click', function () { attK = addDays(attK, 1); renderAtt(); attEnsure(); });
         $('attWeek').addEventListener('click', function (ev) { var b = ev.target.closest('button'); if (!b) return; attK = b.dataset.k; renderAtt(); });
         $('attBody').addEventListener('click', function (ev) { if (ev.target.closest('#attCopy')) copyText(attText()); });
-        (function () { var x0 = 0, y0 = 0, on = false, el = $('attPage');
+        // 每日到班、點名官：左右滑動換天（往左滑＝下一天）
+        [$('attPage'), $('rollBox')].forEach(function (el) { var x0 = 0, y0 = 0, on = false;
           el.addEventListener('touchstart', function (ev) { var t = ev.touches[0]; x0 = t.clientX; y0 = t.clientY; on = ev.touches.length === 1; }, { passive: true });
-          el.addEventListener('touchend', function (ev) { if (!on) return; on = false; var t = ev.changedTouches[0], dx = t.clientX - x0, dy = t.clientY - y0; if (Math.abs(dx) > 60 && Math.abs(dx) > Math.abs(dy) * 1.5) { attK = addDays(attK, dx < 0 ? 1 : -1); renderAtt(); attEnsure(); } }, { passive: true });
-        })();
+          el.addEventListener('touchend', function (ev) { if (!on) return; on = false; var t = ev.changedTouches[0], dx = t.clientX - x0, dy = t.clientY - y0; if (Math.abs(dx) > 50 && Math.abs(dx) > Math.abs(dy) * 1.3) { attK = addDays(attK, dx < 0 ? 1 : -1); renderAtt(); attEnsure(); var b = $('attBody'); b.classList.remove('slL', 'slR'); void b.offsetWidth; b.classList.add(dx < 0 ? 'slL' : 'slR'); } }, { passive: true });
+        });
         (function () { var x0 = 0, y0 = 0, on = false, el = $('dutyStat');
           el.addEventListener('touchstart', function (ev) { var t = ev.touches[0]; x0 = t.clientX; y0 = t.clientY; on = ev.touches.length === 1 && !ev.target.closest('.stbars, .ottrend, input, textarea'); }, { passive: true });
           el.addEventListener('touchend', function (ev) { if (!on) return; on = false; var t = ev.changedTouches[0], dx = t.clientX - x0, dy = t.clientY - y0;
@@ -9738,7 +9875,7 @@ body.roll #page-days .dayshead, body.roll #daysBody { display: none !important; 
         renderAll();
         ensureData(false);
         updateBanner();
-        if (prefs.duty && !forcedRO) showDuty(); else if (needGate()) showGate(); else if (!prefs.seen) setTimeout(showTour, 700);
+        if (prefs.duty && !forcedRO) showDuty(); else if (needGate()) showGate(); else if (!prefs.seen && prefs.pw) setTimeout(showTour, 700);
         if (prefs.pw) setTimeout(function () { gsLogLoad(); }, 2500);
       });
     })();
