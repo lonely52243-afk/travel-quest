@@ -3042,6 +3042,90 @@ details.mnban.b3 { border-color: #ddd3bf; background: #f7f2e8; } details.mnban.b
 [data-theme="dark"] .gmbtns button:not(.primary) { background: #1c1f26; color: #e8eaee; }
 body:has(#idGate.show) #sheetMask { z-index: 10010; } body:has(#idGate.show) #toast { z-index: 10020; }
 .gmhi small { white-space: normal; line-height: 1.5; }
+/* v11.39 一天一列（首頁、我的行程、點日子視窗共用） */
+.mdlist { --cs: var(--stay, #E2552B); }
+.mdlist .t-stay { --c: var(--stay, #E2552B); } .mdlist .t-off { --c: var(--full, #2468C9); } .mdlist .t-away { --c: var(--away, #7b4fbf); } .mdlist .t-mon { --c: var(--mon, #1E2A4A); }
+.mdlist .t-duty { --c: #c2410c; } .mdlist .t-ur { --c: #b98a00; } .mdlist .t-shoot { --c: #6d4c2f; } .mdlist .t-ot { --c: #0f766e; } .mdlist .t-plan { --c: #0E8C8C; } .mdlist .t-guard { --c: #4b5563; } .mdlist .t-ev { --c: #9a6b00; }
+.mdlist { background: var(--card, #fff); border: 1px solid var(--line, #e5dfcf); border-radius: 16px; overflow: hidden; }
+.md { display: grid; grid-template-columns: 74px 1fr; gap: 10px; padding: 12px 14px 12px 12px; position: relative; }
+.md + .md { border-top: 1px solid var(--line, #eee7d6); }
+.md::before { content: ''; position: absolute; left: 0; top: 0; bottom: 0; width: 4px; background: transparent; }
+.md.s-stay::before { background: var(--stay, #E2552B); } .md.s-off::before { background: var(--full, #2468C9); } .md.s-away::before { background: var(--away, #7b4fbf); } .md.s-mon::before { background: var(--mon, #1E2A4A); }
+.md.today { background: #fffaea; } .md.clash { background: #fdf1f0; } .md.clash::before { background: #d93a2b; }
+.mdk { display: flex; flex-direction: column; align-items: flex-start; gap: 1px; } .mdk b { font-size: 17px; font-weight: 900; line-height: 1.2; } .mdk small { font-size: 12px; color: var(--muted, #6b7280); font-weight: 700; }
+.mdk em { font-style: normal; margin-top: 4px; padding: 1px 8px; border-radius: 999px; background: var(--c); color: #fff; font-size: 12px; font-weight: 900; }
+.mdv { min-width: 0; display: flex; flex-direction: column; gap: 6px; justify-content: center; }
+.mi { display: flex; align-items: flex-start; gap: 8px; min-height: 24px; }
+.mi > i { flex: none; font-style: normal; width: 22px; height: 22px; line-height: 22px; text-align: center; border-radius: 7px; background: var(--c); color: #fff; font-size: 12px; font-weight: 900; margin-top: 1px; }
+.mtt { flex: 1; min-width: 0; font-size: 15.5px; font-weight: 700; line-height: 1.35; color: var(--ink, #1f2a44); } .mtt small { display: block; font-size: 12px; font-weight: 600; color: var(--muted, #6b7280); }
+.mtm { flex: none; font-size: 13.5px; font-weight: 700; color: var(--muted, #4b5563); font-variant-numeric: tabular-nums; margin-top: 2px; white-space: nowrap; }
+.mnone2 { font-size: 14.5px; color: var(--muted, #6b7280); font-weight: 600; }
+.md .mnc { font-size: 13px; }
+.gme .gmlab { font-size: 13px; font-weight: 900; color: var(--muted, #6b7280); margin: 10px 4px 6px; letter-spacing: 1px; }
+.gme .gmcard.mdlist { border: 2px solid var(--ink, #1f2a44); box-shadow: 0 3px 0 var(--ink, #1f2a44); }
+.gme .gmcard.mdlist.sub { border: 1px solid var(--line, #e5dfcf); box-shadow: none; }
+.gme .gmcard.mdlist .md.today { background: transparent; }
+.gmwarn { margin-top: 2px; }
+#minePage .mdlist .md.today { background: #fffaea; }
+.mnsheet.mdlist { border: none; } .mnsheet .md { padding-left: 2px; } .mnsheet .md::before { display: none; }
+[data-theme="dark"] .md.today, [data-theme="dark"] #minePage .mdlist .md.today { background: rgba(245,184,0,.08); } [data-theme="dark"] .md.clash { background: rgba(217,58,43,.12); }
+[data-theme="dark"] .mtt { color: #eef0f4; }
+.gme .gmcard.mdlist:not(.sub) { margin-top: 4px; } .gme .gmcard:not(.sub) .mdk b { font-size: 20px; }
+.mwith { display: flex; flex-wrap: wrap; align-items: center; gap: 5px; font-size: 13.5px; }
+.mwith span { font-size: 12px; font-weight: 800; color: var(--stay, #E2552B); margin-right: 2px; }
+.mwith b { font-weight: 800; padding: 1px 8px; border-radius: 999px; background: #fdebe4; color: #a63d1c; border: 1px solid #f3c3b0; }
+.mwith em { font-style: normal; color: var(--muted, #6b7280); font-size: 13px; }
+[data-theme="dark"] .mwith b { background: rgba(226,85,43,.15); color: #ffb39a; border-color: rgba(226,85,43,.4); }
+/* 拉桿：長清單在框裡往下滑，版面不拉長 */
+.gmscroll, .mnscroll { overflow-y: auto; overscroll-behavior: contain; -webkit-overflow-scrolling: touch; scrollbar-width: thin; }
+.gmscroll { max-height: 272px; } .mnscroll { max-height: 430px; }
+.gmscroll::-webkit-scrollbar, .mnscroll::-webkit-scrollbar { width: 5px; } .gmscroll::-webkit-scrollbar-thumb, .mnscroll::-webkit-scrollbar-thumb { background: rgba(0,0,0,.25); border-radius: 9px; }
+.gme .gmlab { display: flex; align-items: baseline; gap: 8px; } .gme .gmlab small { font-size: 12px; font-weight: 700; letter-spacing: 0; color: var(--muted, #9ca3af); }
+.gmscroll, .mnscroll { -webkit-mask-image: linear-gradient(#000 calc(100% - 22px), transparent); mask-image: linear-gradient(#000 calc(100% - 22px), transparent); }
+.gmscroll, .mnscroll { padding-bottom: 18px; }
+/* v11.39 一般首頁：通知條＋滑動週曆＋今天大卡 */
+.gmbar { display: flex; align-items: center; gap: 10px; width: 100%; text-align: left; padding: 10px 14px; border-radius: 14px; margin-bottom: 8px; font: inherit; border: none; color: #fff; box-shadow: 0 3px 0 rgba(0,0,0,.18); }
+.gmbar span { flex: 1; min-width: 0; display: flex; flex-direction: column; } .gmbar b { font-size: 16px; font-weight: 900; } .gmbar small { font-size: 12.5px; opacity: .92; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+.gmbar em { flex: none; font-style: normal; font-weight: 900; font-size: 14px; background: rgba(255,255,255,.22); padding: 6px 10px; border-radius: 10px; }
+.gmbar.red { background: #d93a2b; } .gmbar.org { background: #e07a16; }
+.gmstrip { display: flex; gap: 6px; overflow-x: auto; padding: 4px 2px 8px; margin: 2px -2px 4px; scroll-snap-type: x proximity; scrollbar-width: none; -webkit-overflow-scrolling: touch; }
+.gmstrip::-webkit-scrollbar { display: none; }
+.gsd2 { flex: none; scroll-snap-align: start; width: 52px; min-height: 76px; padding: 6px 2px 5px; border-radius: 14px; border: 1.5px solid var(--line, #e5dfcf); background: var(--card, #fff); display: flex; flex-direction: column; align-items: center; gap: 2px; font: inherit; color: var(--ink, #1f2a44); position: relative; overflow: hidden; }
+.gsd2::before { content: ''; position: absolute; left: 0; right: 0; top: 0; height: 4px; background: transparent; }
+.gsd2.s-stay::before { background: var(--stay, #E2552B); } .gsd2.s-off::before { background: var(--full, #2468C9); } .gsd2.s-away::before { background: var(--away, #7b4fbf); } .gsd2.s-mon::before { background: var(--mon, #1E2A4A); }
+.gsd2 small { font-size: 11px; font-weight: 800; color: var(--muted, #6b7280); } .gsd2 b { font-size: 19px; font-weight: 900; line-height: 1.1; }
+.gsd2.off b, .gsd2.off small { color: #c0392b; } .gsd2.today small { color: #1f8a4c; }
+.gsd2.sel { background: #1f2a44; border-color: #1f2a44; color: #fff; box-shadow: 0 3px 0 rgba(0,0,0,.25); } .gsd2.sel small, .gsd2.sel b { color: #fff; }
+.gsd2.clash { border-color: #d93a2b; border-width: 2px; }
+.gdot { display: flex; gap: 2px; margin-top: auto; } .gdot i { font-style: normal; width: 16px; height: 15px; line-height: 15px; border-radius: 4px; font-size: 10px; font-weight: 900; color: #fff; background: var(--c); }
+.gdot i.unf { background: #fff; color: #c0392b; border: 1px solid #e8a3a3; line-height: 13px; }
+.gmstrip .t-stay { --c: var(--stay, #E2552B); } .gmstrip .t-off { --c: var(--full, #2468C9); } .gmstrip .t-away { --c: var(--away, #7b4fbf); } .gmstrip .t-mon { --c: var(--mon, #1E2A4A); } .gmstrip .t-duty { --c: #c2410c; } .gmstrip .t-ur { --c: #ca8a04; } .gmstrip .t-shoot { --c: #6d4c2f; } .gmstrip .t-ot { --c: #0f766e; } .gmstrip .t-plan { --c: #0369a1; } .gmstrip .t-guard { --c: #475569; } .gmstrip .t-ev { --c: #be185d; }
+.gmday { border-radius: 18px; padding: 10px 10px 10px; background: var(--card, #fff); border: 2.5px solid var(--ink, #1f2a44); box-shadow: 0 4px 0 var(--ink, #1f2a44); }
+.gmday.is-today { border-color: #1f8a4c; box-shadow: 0 4px 0 #1f8a4c; background: #f3fbf5; }
+.gmdt { display: flex; align-items: baseline; gap: 8px; padding: 0 4px 6px; } .gmdt b { font-size: 22px; font-weight: 900; } .gmdt span { font-size: 13.5px; color: var(--muted, #6b7280); font-weight: 700; }
+.gmday.is-today .gmdt b { color: #1f8a4c; }
+.gmone { border: none; background: transparent; } .gmone .md { grid-template-columns: 0 1fr; gap: 0; padding: 4px 4px 2px; } .gmone .md::before { display: none; } .gmone .mdk b, .gmone .mdk small { display: none; } .gmone .md.today, .gmone .md.clash { background: transparent; }
+.gmone .mdk { position: absolute; right: 4px; top: -30px; } .gmone .mdk em { font-size: 13px; padding: 2px 10px; }
+.gmone .mdv { gap: 8px; } .gmone .mtt { font-size: 17px; } .gmone .mtm { font-size: 15px; } .gmone .mnone2 { font-size: 16px; padding: 6px 0; }
+/* 任務標籤：兩個字、底色分明 */
+.mi > i { width: auto; min-width: 22px; padding: 0 6px; height: 22px; line-height: 22px; font-size: 12px; border-radius: 6px; }
+.mdlist .t-ur { --c: #ca8a04; } .mdlist .t-plan { --c: #0369a1; } .mdlist .t-guard { --c: #475569; } .mdlist .t-ev { --c: #be185d; } .mdlist .t-duty { --c: #c2410c; } .mdlist .t-shoot { --c: #6d4c2f; } .mdlist .t-ot { --c: #0f766e; }
+[data-theme="dark"] .gmday.is-today { background: rgba(31,138,76,.12); } [data-theme="dark"] .gsd2:not(.sel) { background: #1c1f26; color: #e8eaee; } [data-theme="dark"] .gsd2.sel { background: #f0b400; border-color: #f0b400; } [data-theme="dark"] .gsd2.sel b, [data-theme="dark"] .gsd2.sel small { color: #1E2A4A; }
+.gmone .md { display: block; position: static; } .gmday { position: relative; }
+.gmone .mdk { position: absolute; right: 14px; top: 14px; top: 16px; }
+.gmone .mwith { margin-top: 2px; }
+/* 週曆：小圓點、加寬；撞到的卡片紅光＋一鍵回報 */
+.gsd2 { width: 58px; min-height: 84px; gap: 3px; }
+.gdot { gap: 4px; min-height: 8px; margin-top: 3px; } .gdot i { width: 8px; height: 8px; border-radius: 50%; padding: 0; line-height: 0; font-size: 0; }
+.gdot i.unf { width: 8px; height: 8px; background: #fff; border: 2px solid #d93a2b; box-sizing: border-box; }
+.gsd2 em { font-style: normal; margin-top: auto; font-size: 11px; font-weight: 900; color: #fff; background: var(--c); padding: 0 7px; border-radius: 999px; line-height: 17px; }
+.gsd2.sel .gdot i.unf { background: transparent; border-color: #fff; }
+.gmday.is-clash { border-color: #d93a2b; box-shadow: 0 4px 0 #d93a2b; animation: gmpulse 1.8s ease-in-out infinite; }
+@keyframes gmpulse { 0%, 100% { box-shadow: 0 4px 0 #d93a2b, 0 0 0 0 rgba(217,58,43,0); } 50% { box-shadow: 0 4px 0 #d93a2b, 0 0 0 6px rgba(217,58,43,.18); } }
+@media (prefers-reduced-motion: reduce) { .gmday.is-clash { animation: none; } }
+.gmtell { display: flex; flex-direction: column; align-items: center; width: 100%; margin-top: 8px; min-height: 52px; border-radius: 14px; border: none; background: #d93a2b; color: #fff; font: inherit; font-size: 16px; font-weight: 900; box-shadow: 0 3px 0 #9e2318; }
+.gmtell small { font-size: 12px; font-weight: 700; opacity: .9; }
+.gsd2.sel .gdot i:not(.unf) { box-shadow: 0 0 0 1.5px #fff; } .gdot i { box-shadow: 0 0 0 1px rgba(255,255,255,.6); }
 </style>
 </head>
 <body>
@@ -3618,7 +3702,7 @@ body:has(#idGate.show) #sheetMask { z-index: 10010; } body:has(#idGate.show) #to
       </div>
       <div id="gStep2" hidden>
         <div class="gme" id="gMe" hidden></div>
-        <div class="grole"><div class="grtop"><span>目前身分</span><b id="gRole">查看</b><button class="linkbtn" id="gChange">換身分</button></div><div class="grnote" id="gNote"></div></div>
+        <div class="grole"><div class="grtop"><span>目前身分</span><b id="gRole">查看</b><button class="linkbtn" id="gChange">登出</button></div><div class="grnote" id="gNote"></div></div>
         <div class="idgrid2">
           <button class="idbtn" data-id="leave"><b>休假班表</b><span id="gLeaveSub">看全部同仁</span></button>
           <button class="idbtn" data-id="duty"><b>公差勤務</b><span id="gDutySub">月曆總覽</span></button>
@@ -4801,7 +4885,7 @@ body:has(#idGate.show) #sheetMask { z-index: 10010; } body:has(#idGate.show) #to
         $('gStep1').hidden = n !== 1; $('gStep2').hidden = n !== 2;
         $('idGate').querySelector('.idsub').textContent = n === 1 ? '請輸入密碼' : mdLabel(todayKey()) + '（' + wkOf(todayKey()) + '）' + (dayInfo(todayKey()).off ? '・放假' : '');
         if (n === 1) { gVal = ''; $('gMsg').textContent = ''; gBusy = false; gRender(); return; }
-        var r = prefs.role || (prefs.guest ? '訪客' : '查看');
+        var r = prefs.role || '一般';
         $('gRole').textContent = r; $('gRole').classList.toggle('guest', !prefs.pw && !!prefs.guest);
         $('gNote').innerHTML = (prefs.pw
           ? ['休假：可登錄' + (r === '股總' ? '全員' : r + '班'), '公差：可新增修改']
@@ -4904,10 +4988,13 @@ body:has(#idGate.show) #sheetMask { z-index: 10010; } body:has(#idGate.show) #to
           var b = ev.target.closest('button'); if (!b) return;
           if (b.dataset.g) { try { fxBeep('tap'); } catch (e) { /* 忽略 */ } gKey(b.dataset.g); return; }
           if (b.id === 'gChange' || b.id === 'gChange2') { gStep(1); return; }
+          if (b.dataset.gd) { gSel = b.dataset.gd; var sx = $('gmStrip') ? $('gmStrip').scrollLeft : 0; gMeDraw(); if ($('gmStrip')) $('gmStrip').scrollLeft = sx; return; }
           if (b.dataset.gm) {
             var g = b.dataset.gm;
             if (g === 'pick') { gsAsk(function () { gMeDraw(); }); return; }
+
             if (g === 'mine') { openMine(); return; }
+            if (g === 'tell') { copyText(mineTellOne(b.dataset.k), function () { showToast('已複製，打開 Juiker 貼給班長', null, null, 2400); }); return; }
             if (g === 'stay') { openMine(); mineEdit = true; renderMine(); showToast('點日子標留守，改完按下面「確定儲存」', null, null, 2200); return; }
           }
           if (b.dataset.id === 'leave') { prefs.duty = false; hideDuty(); finishGate(); return; }
@@ -6165,7 +6252,7 @@ body:has(#idGate.show) #sheetMask { z-index: 10010; } body:has(#idGate.show) #to
         }).join('') + '</div>';
       }
       function evRerender() {
-        try { if ($('todoPage').classList.contains('show')) renderTodo(); if ($('dutyPage').classList.contains('show')) renderDutyMon(); if ($('dutyDay').classList.contains('show')) renderDutyDay(); if ($('attPage').classList.contains('show')) renderAtt(); if ($('minePage').classList.contains('show')) renderMine(); if (tab === 'days') safeRender(); } catch (e) { /* 忽略 */ }
+        try { if ($('todoPage').classList.contains('show')) renderTodo(); if ($('dutyPage').classList.contains('show')) renderDutyMon(); if ($('dutyDay').classList.contains('show')) renderDutyDay(); if ($('attPage').classList.contains('show')) renderAtt(); mineSync(); if (tab === 'days') safeRender(); } catch (e) { /* 忽略 */ }
       }
       function eventsLoad(force) {
         if (!force && Date.now() - evLoadAt < 60000) return;
@@ -6972,7 +7059,7 @@ body:has(#idGate.show) #sheetMask { z-index: 10010; } body:has(#idGate.show) #to
         if (c.guard && typeof c.guard === 'object') guardCfg = { ppl: c.guard.ppl || [], tm: c.guard.tm || {} };
         if (Array.isArray(c.estJG)) EST_JG = c.estJG;
         if (Array.isArray(c.skip)) STAT_SKIP = c.skip;
-        if (Array.isArray(c.people)) PEOPLE = c.people;
+        if (Array.isArray(c.people)) { PEOPLE = c.people; try { mineSync(); } catch (e) { /* 啟動時還沒定義 */ } }
         if (Array.isArray(c.whyPre) && c.whyPre.length) CFG_WHY_PRE = c.whyPre;
         if (Array.isArray(c.qkWhy) && c.qkWhy.length) QK_WHY = c.qkWhy;
         if (Array.isArray(c.qkMap) && c.qkMap.length) { try { var bk = c.qkMap.map(function (x) { return [new RegExp(String(x[0]).replace(/\|EMT|\|救護車/g, ''), 'i'), x[1]]; }), bn = {}; bk.forEach(function (x) { bn[x[1]] = 1; }); QK_MAP = bk.concat(QK_MAP0.filter(function (x) { return !bn[x[1]]; })); } catch (e) { /* 設定有誤時沿用預設 */ } }
@@ -7255,6 +7342,7 @@ body:has(#idGate.show) #sheetMask { z-index: 10010; } body:has(#idGate.show) #to
           if (res.cfg) { applyCfg(res.cfg); try { localStorage.setItem(CFG_KEY, JSON.stringify(res.cfg)); } catch (e) { /* 忽略 */ } try { if (statAll) renderStat(); } catch (e) { /* 忽略 */ } }
           rosterAll = m; try { localStorage.setItem(ROSTER_KEY, JSON.stringify(m)); } catch (e) { /* 忽略 */ }
           if ($('dutyPage').classList.contains('show')) renderDutyMon();
+          mineSync();
         }).catch(function (e) { rosterState = '讀取失敗：' + e.message; if ($('dutyDay').classList.contains('show')) renderDutyDay(); });
       }
       function dutyWarm() {
@@ -7270,7 +7358,7 @@ body:has(#idGate.show) #sheetMask { z-index: 10010; } body:has(#idGate.show) #to
         var pre = y + '-' + pad(m);
         Object.keys(dutyAll).forEach(function (k) { if (k.indexOf(pre) === 0) delete dutyAll[k]; });
         (res.items || []).forEach(function (it) { (dutyAll[it.date] = dutyAll[it.date] || []).push({ n: it.name, why: it.why, time: tmFix(it.time) }); });
-        dutyFetched[pre] = 1; dutyCacheSave();
+        dutyFetched[pre] = 1; dutyCacheSave(); mineSync();
       }
       function dutyBar() {
         var el = $('dutySync'); if (!el) return;
@@ -8084,32 +8172,52 @@ body:has(#idGate.show) #sheetMask { z-index: 10010; } body:has(#idGate.show) #to
         apiCall({ action: 'getDuty', year: y, month: m }).then(function (res) { if (!res || !res.ok) delete todoAsked[ym]; dutyFill(y, m, res); done(); }).catch(function () { delete todoAsked[ym]; });
       }
       // 一天裡我的事：t＝種類（決定顏色）、s＝一個字、x＝說明
+      // 一天裡我的事
+      //   st＝整天的狀態（留守、休假、外勤、監控），顯示成日期旁的色塊
+      //   其他＝要做的事：t 種類（顏色）、s 一個字、ttl 名稱、tm 時間、nt 小註；x＝複製用的整句
       function mineItems(k, me) {
         var out = [], r = (recordsPub[k] || {})[me] || getRec(k, me);
         if (r) {
-          if (r.period === '留守') out.push({ t: 'stay', s: '留', x: '留守' });
-          else if (r.period === '監控') out.push({ t: 'mon', s: '監', x: '監控' });
-          else if (r.period === '外勤') out.push({ t: 'away', s: awayCh(r.type), x: r.type || '外勤' });
-          else { var hol = dayInfo(k).off, hf = r.period === '全天' ? '' : r.period; out.push({ t: 'off', s: r.period === '全天' ? '休' : (r.period === '上午' ? '上' : '下'), x: hol ? '例假日休' + (hf ? '（' + hf + '）' : '') : '補休／慰休／公假' + (hf ? '（' + hf + '）' : '') }); }
+          var hol = dayInfo(k).off, hf = r.period === '全天' ? '' : r.period;
+          if (r.period === '留守') out.push({ st: 1, t: 'stay', s: '留', ttl: '留守', x: '留守' });
+          else if (r.period === '監控') out.push({ st: 1, t: 'mon', s: '監', ttl: '監控', x: '監控' });
+          else if (r.period === '外勤') out.push({ st: 1, t: 'away', s: awayCh(r.type), ttl: r.type || '外勤', x: r.type || '外勤' });
+          else out.push({ st: 1, t: 'off', s: r.period === '全天' ? '休' : (r.period === '上午' ? '上' : '下'), ttl: hf ? hf + '休' : '休假', x: (hol ? '例假日休' : '補休／慰休／公假') + (hf ? '（' + hf + '）' : '') });
         }
+        var add = function (o) { o.x = o.ttl + (o.tm ? ' ' + o.tm : '') + (o.nt ? '（' + o.nt + '）' : ''); out.push(o); };
         (dutyAll[k] || []).forEach(function (d) {
           if (d.n !== me) return;
-          var tm = String(d.time || '').trim(), x = d.why + (tm ? ' ' + fmtTm(tm) : '');
-          if (isUrine(d.why)) out.push({ t: 'ur', s: '尿', x: x });
-          else if (isShoot(d.why)) out.push({ t: 'shoot', s: '靶', x: x });
-          else if (isOT(d.why)) out.push({ t: 'ot', s: '加', x: x });
-          else out.push({ t: 'duty', s: '公', x: x });
+          var tm = String(d.time || '').trim(), o = { ttl: d.why, tm: tm ? fmtTm(tm) : '' };
+          if (isUrine(d.why)) { o.t = 'ur'; o.s = '尿'; } else if (isShoot(d.why)) { o.t = 'shoot'; o.s = '靶'; } else if (isOT(d.why)) { o.t = 'ot'; o.s = '加'; } else { o.t = 'duty'; o.s = '公'; }
+          add(o);
         });
         try {
           var pl = dutyDayOf(k).plan || {};
           Object.keys(pl).forEach(function (itm) {
             var q = pl[itm].filter(function (z) { return z.n === me; })[0]; if (!q) return;
             var pt = planTm(itm, k), g = itm === '衛哨';
-            out.push({ t: g ? 'guard' : 'plan', s: g ? '哨' : '輪', x: (g ? '衛哨（駐廠其中一人去）' : '輪值 ' + itm) + (pt ? ' ' + pt.a + '–' + pt.b : '') + (q.est ? '（預估）' : '') + (q.sub ? '（代理）' : '') });
+            add({ t: g ? 'guard' : 'plan', s: g ? '哨' : '輪', ttl: itm, tm: pt ? pt.a + '–' + pt.b : '', nt: g ? '駐廠其中一人去' : (q.est ? '預估' : (q.sub ? '代理' : '')) });
           });
         } catch (e) { /* 忽略 */ }
-        try { eventsOf(k).forEach(function (e) { if (evHas(e, me)) out.push({ t: 'ev', s: '行', x: (e.time ? e.time + ' ' : '') + e.title }); }); } catch (e2) { /* 忽略 */ }
-        return out;
+        try { eventsOf(k).forEach(function (e) { if (evHas(e, me)) add({ t: 'ev', s: '行', ttl: e.title, tm: e.time || '' }); }); } catch (e2) { /* 忽略 */ }
+        var st0 = function (o) { if (o.st) return -1; try { return dayRng(o.tm)[0]; } catch (e) { return 0; } };
+        return out.sort(function (p, q) { return st0(p) - st0(q); });
+      }
+      // 一件事一行：色塊字｜名稱（小註）｜時間靠右
+      function mineTaskHtml(it) {
+        return '<div class="mi t-' + it.t + '"><i>' + ({ duty: '公差', ur: '尿篩', shoot: '打靶', ot: '加班', plan: '輪值', guard: '衛哨', ev: '行程' }[it.t] || esc(it.s)) + '</i><span class="mtt">' + esc(it.ttl) + (it.nt ? '<small>' + esc(it.nt) + '</small>' : '') + '</span>' + (it.tm ? '<span class="mtm">' + esc(it.tm) + '</span>' : '') + '</div>';
+      }
+      // 一天一列：左邊日期＋整天狀態色塊，右邊要做的事
+      function mineDayHtml(k, its, o) {
+        o = o || {}; var tk = todayKey(), sts = its.filter(function (x) { return x.st; })[0], tasks = its.filter(function (x) { return !x.st; });
+        var with_ = '';
+        if (sts && sts.t === 'stay') {   // 同一天一起留守的人（互相提醒）
+          var me = prefs.me, mates = (empAll.length ? empAll : employees).filter(function (e) { if (e.name === me) return false; var r = (recordsPub[k] || {})[e.name] || getRec(k, e.name); return r && r.period === '留守'; }).map(function (e) { return e.name; });
+          with_ = '<div class="mwith"><span>一起留守</span>' + (mates.length ? mates.map(function (n) { return '<b>' + esc(n) + '</b>'; }).join('') : '<em>目前只有你</em>') + '</div>';
+        }
+        var empty = o.empty || (sts ? (with_ ? '' : '<div class="mnone2">整天' + esc(sts.ttl) + '</div>') : '<div class="mnone2">沒排事</div>');
+        return '<div class="md' + (k === tk ? ' today' : '') + (o.clash ? ' clash' : '') + (sts ? ' s-' + sts.t : '') + '"><div class="mdk"><b>' + (k === tk && o.todayWord ? '今天' : mdLabel(k)) + '</b><small>' + wkOf(k) + (k === tk && !o.todayWord ? '・今天' : '') + '</small>' + (sts ? '<em class="t-' + sts.t + '">' + esc(sts.ttl) + '</em>' : '') + '</div>' +
+          '<div class="mdv">' + (tasks.length ? tasks.map(mineTaskHtml).join('') : empty) + with_ + (o.clash ? '<div class="mnc">⚠ 時間撞到，請告訴班長</div>' : '') + '</div></div>';
       }
       function mineClash(a, b, me) {
         var sc = todoScan(a, b), m = {};
@@ -8186,8 +8294,8 @@ body:has(#idGate.show) #sheetMask { z-index: 10010; } body:has(#idGate.show) #to
       function mineDay(k) {
         var me = prefs.me, its = mineItems(k, me), cl = mineClash(k, k, me)[k], nAll = Object.keys((dutyAll[k] || []).reduce(function (o, x) { o[x.why] = 1; return o; }, {})).length;
         openSheet({ title: mdLabel(k) + '（' + wkOf(k) + '）' + (dayInfo(k).label ? '　' + dayInfo(k).label : ''), sub: '我這天',
-          body: '<div class="mnv mnsheet">' + (its.length ? its.map(function (it) { return '<div><i class="t-' + it.t + '">' + esc(it.s) + '</i>' + esc(it.x) + '</div>'; }).join('') : (mineUnf(k, me) ? '<div class="mnunf">放假・假單還沒點</div>' : '<div class="mnfree">沒排事</div>')) +
-            (cl ? '<div class="mnc">⚠ 撞到了：' + esc(cl.join('；')) + '</div>' : '') + '</div>' + (gsMode() ? '<div class="mnhint">要標留守：按月曆右上「✎ 標留守」</div>' : ''),
+          body: '<div class="mdlist mnsheet">' + mineDayHtml(k, its, { empty: mineUnf(k, me) ? '<div class="mnunf">放假・假單還沒點</div>' : '' }) + '</div>' +
+            (cl ? '<div class="mnc">⚠ 撞到了：' + esc(cl.join('；')) + '</div>' : '') + (gsMode() ? '<div class="mnhint">要標留守：按月曆右上「✎ 標留守」</div>' : ''),
           actions: [{ label: '看當天全部公差勤務' + (nAll ? '（' + nAll + ' 項）' : ''), cls: 'main', fn: function () { dutyOpen(k); } }] });
       }
       function renderMine() {
@@ -8228,10 +8336,9 @@ body:has(#idGate.show) #sheetMask { z-index: 10010; } body:has(#idGate.show) #to
         var busy = left.filter(function (d) { return d.its.length; }).length, unf = [];
         for (var uk = rg.a; uk <= rg.b; uk = addDays(uk, 1)) if (mineUnf(uk, me)) unf.push(uk);
         if (unf.length) seg += '<div class="mnunfw"><b>' + rg.lab + '假單還沒點 ' + unf.length + ' 天</b>' + unf.map(function (k) { return mdLabel(k) + '(' + wkOf(k) + ')'; }).join('、') + '<small>記得點假單；要留守就到月曆按「✎ 標留守」</small></div>';
-        seg += '<div class="mnlist">' + left.map(function (d) {
-          var free = !d.its.length;
-          return '<div class="mnrow' + (all[d.k] ? ' clash' : '') + (d.k === tk ? ' today' : '') + (free ? ' free' : '') + '"><div class="mnk"><b>' + mdLabel(d.k) + '</b><small>' + wkOf(d.k) + (d.k === tk ? '・今天' : '') + '</small></div><div class="mnv">' +
-            (free ? (dayInfo(d.k).off ? (mineUnf(d.k, me) ? '<div class="mnunf">放假・假單還沒點</div>' : '<div class="mnoff">放假</div>') : '<div class="mnfree">沒排事</div>') : d.its.map(function (it) { return '<div><i class="t-' + it.t + '">' + esc(it.s) + '</i>' + esc(it.x) + '</div>'; }).join('')) + (all[d.k] ? '<div class="mnc">⚠ 撞到了，請告訴班長</div>' : '') + '</div></div>';
+        seg += '<div class="mdlist mnscroll">' + left.map(function (d) {
+          var off = dayInfo(d.k).off;
+          return mineDayHtml(d.k, d.its, { clash: !!all[d.k], empty: off ? (mineUnf(d.k, me) ? '<div class="mnunf">放假・假單還沒點</div>' : '<div class="mnone2">放假</div>') : '' });
         }).join('') + '</div><button class="mncopy2" data-mn="copy">複製' + rg.lab + '行程</button>';
         h += mineSec('list', '', '每天要做什麼', rg.lab + ' ' + busy + ' 天有事' + (unf.length ? '・未點 ' + unf.length + ' 天' : ''), seg);
         if (!todoReady() || !loaded[mineYM]) h += '<div class="tdload">資料讀取中…</div>';
@@ -8243,6 +8350,10 @@ body:has(#idGate.show) #sheetMask { z-index: 10010; } body:has(#idGate.show) #to
         var d = parseKey(mineYM + '-01'); d.setMonth(d.getMonth() + dm);
         mineYM = d.getFullYear() + '-' + pad(d.getMonth() + 1); renderMine();
       }
+      function mineTellOne(k) {
+        var me = prefs.me, cl = mineClash(k, k, me)[k] || [];
+        return '班長您好，我是' + me + '，' + mdLabel(k) + '（' + wkOf(k) + '）時間撞到了：' + cl.join('；') + '，麻煩幫我確認，謝謝！';
+      }
       function mineTellText() {
         var me = prefs.me, R = mineRanges(), tk = todayKey(), cl = mineClash(R[0].a, R[2].b, me);
         return '班長您好，我是' + me + '，以下時間撞到了，麻煩幫我確認：\n' + Object.keys(cl).filter(function (k) { return k >= tk; }).sort().map(function (k) { return mdLabel(k) + '（' + wkOf(k) + '）' + cl[k].join('；'); }).join('\n') + '\n謝謝！';
@@ -8253,27 +8364,48 @@ body:has(#idGate.show) #sheetMask { z-index: 10010; } body:has(#idGate.show) #to
         return '【' + me + ' ' + rg.lab + '行程 ' + mdLabel(rg.a) + '–' + mdLabel(rg.b) + '】\n' + (L.length ? L.join('\n') : '沒有排任何事');
       }
       // ====== 訪客首頁：以「我」為主（今天、接下來、要注意的） ======
+      var gSel = '';
       function gMeDraw() {
         var box = $('gMe'); if (!box) return;
         var on = !prefs.pw; box.hidden = !on; $('gStep2').classList.toggle('gmeon', on);
         if (!on) return;
         var me = prefs.me && mineNames().indexOf(prefs.me) >= 0 ? prefs.me : '', tk = todayKey();
-        var who = '<div class="gmh"><span>' + (prefs.guest ? '訪客' : '查看') + '</span><button class="linkbtn" id="gChange2">換身分</button></div>';
+        var who = '<div class="gmh"><span>一般</span><button class="linkbtn" id="gChange2">登出</button></div>';
         if (!me) {
           box.innerHTML = who + '<div class="gmhi"><b>你好！</b><small>先選你的名字，就能看到自己的留守、休假、公差、尿篩</small></div><button class="primary gmbig" data-gm="pick">選我的名字</button>';
           return;
         }
-        var row = function (k, its) { return '<div class="gmr' + (k === tk ? ' today' : '') + '"><div class="gmk"><b>' + (k === tk ? '今天' : mdLabel(k)) + '</b><small>' + wkOf(k) + '</small></div><div class="mnv">' + its.map(function (it) { return '<div><i class="t-' + it.t + '">' + esc(it.s) + '</i>' + esc(it.x) + '</div>'; }).join('') + '</div></div>'; };
-        var ti = mineItems(tk, me), nx = [], cl = mineClash(tk, addDays(tk, 27), me), unf = 0;
-        for (var k = addDays(tk, 1); k <= addDays(tk, 27) && nx.length < 3; k = addDays(k, 1)) { var its = mineItems(k, me); if (its.length) nx.push(row(k, its)); }
-        for (var u = tk; u <= addDays(tk, 27); u = addDays(u, 1)) if (mineUnf(u, me)) unf++;
-        var nc = Object.keys(cl).length, ready = todoReady();
-        var h = who + '<div class="gmhi"><b>你好，' + esc(me) + '</b><button class="linkbtn" data-gm="pick">不是我？</button></div>';
-        if (nc || unf) h += '<div class="gmwarn">' + (nc ? '<button class="w1" data-gm="mine">⚠ 時間撞到 ' + nc + ' 天</button>' : '') + (unf ? '<button class="w2" data-gm="mine">假單還沒點 ' + unf + ' 天</button>' : '') + '</div>';
-        h += '<div class="gmcard">' + (ti.length ? row(tk, ti) : '<div class="gmr today"><div class="gmk"><b>今天</b><small>' + wkOf(tk) + '</small></div><div class="mnv"><div class="mnfree">' + (ready ? '沒排事' : '讀取中…') + '</div></div></div>') +
-          (nx.length ? '<div class="gmsep">接下來</div>' + nx.join('') : (ready ? '<div class="gmsep">接下來 4 週沒排事</div>' : '')) + '</div>';
+        var cl = mineClash(tk, addDays(tk, 27), me), unf = [], ready = todoReady();
+        for (var u = tk; u <= addDays(tk, 27); u = addDays(u, 1)) if (mineUnf(u, me)) unf.push(u);
+        var nc = Object.keys(cl).length;
+        if (!gSel || gSel < tk || gSel > addDays(tk, 13)) gSel = tk;
+        var h = who + '<div class="gmhi"><b>你好，' + esc(me.length >= 3 ? me.slice(1) : me.slice(-1)) + '</b><button class="linkbtn" data-gm="pick">不是我？</button></div>';
+        // 1. 要處理的事：紅底通知條（有才出現）
+        if (unf.length) h += '<button class="gmbar red" data-gm="mine"><span><b>假單還沒點 ' + unf.length + ' 天</b><small>' + unf.slice(0, 4).map(function (k) { return mdLabel(k) + '(' + wkOf(k) + ')'; }).join('、') + (unf.length > 4 ? '…' : '') + '</small></span><em>看哪天 ›</em></button>';
+        if (nc) h += '<button class="gmbar org" data-gm="mine"><span><b>⚠ 時間撞到 ' + nc + ' 天</b><small>' + Object.keys(cl).sort().slice(0, 3).map(function (k) { return mdLabel(k) + '(' + wkOf(k) + ')'; }).join('、') + '・請告訴班長</small></span><em>看詳細 ›</em></button>';
+        // 2. 滑動週曆：兩週，點哪天下面就顯示哪天
+        h += '<div class="gmstrip" id="gmStrip">';
+        for (var d = 0; d < 14; d++) {
+          var k = addDays(tk, d), its = mineItems(k, me), sts = its.filter(function (x) { return x.st; })[0], tasks = its.filter(function (x) { return !x.st; });
+          h += '<button class="gsd2' + (k === gSel ? ' sel' : '') + (k === tk ? ' today' : '') + (dayInfo(k).off ? ' off' : '') + (cl[k] ? ' clash' : '') + (sts ? ' s-' + sts.t : '') + '" data-gd="' + k + '"><small>' + (k === tk ? '今天' : '週' + wkOf(k)) + '</small><b>' + (+k.slice(8)) + '</b>' +
+            '<span class="gdot">' + tasks.slice(0, 3).map(function (t) { return '<i class="t-' + t.t + '"></i>'; }).join('') + (mineUnf(k, me) ? '<i class="unf"></i>' : '') + '</span>' + (sts ? '<em class="t-' + sts.t + '">' + esc(sts.ttl.length > 2 ? sts.s : sts.ttl) + '</em>' : '') + '</button>';
+        }
+        h += '</div>';
+        // 3. 選到的那天：大卡片（今天綠框）
+        var si = mineItems(gSel, me);
+        h += '<div class="gmday' + (gSel === tk ? ' is-today' : '') + (cl[gSel] ? ' is-clash' : '') + '"><div class="gmdt"><b>' + (gSel === tk ? '今天' : mdLabel(gSel)) + '</b><span>' + (gSel === tk ? mdLabel(gSel) + '（' + wkOf(gSel) + '）' : '週' + wkOf(gSel)) + (dayInfo(gSel).label ? '・' + esc(dayInfo(gSel).label) : '') + '</span></div>' +
+          '<div class="mdlist gmone">' + (ready || si.length ? mineDayHtml(gSel, si, { clash: !!cl[gSel], empty: mineUnf(gSel, me) ? '<div class="mnunf">放假・假單還沒點</div>' : (dayInfo(gSel).off ? '<div class="mnone2">放假</div>' : '') }) : '<div class="mnone2" style="padding:12px 14px">讀取中…</div>') + '</div>' +
+          (cl[gSel] ? '<button class="gmtell" data-gm="tell" data-k="' + gSel + '">📣 一鍵回報班長<small>複製訊息，貼到 Juiker</small></button>' : '') + '</div>';
         h += '<div class="gmbtns"><button class="primary" data-gm="mine">看我的行程 ›</button>' + (gsMode() ? '<button data-gm="stay">✎ 標留守</button>' : '') + '</div>';
         box.innerHTML = h;
+      }
+      // 同步：公差、輪值、行程、名冊、班表任何一邊更新，畫面上的「我的」區塊跟著重畫
+      var mineSyncT = 0;
+      function mineSync() {
+        clearTimeout(mineSyncT);
+        mineSyncT = setTimeout(function () {
+          try { if ($('minePage').classList.contains('show')) renderMine(); if ($('idGate').classList.contains('show')) gMeDraw(); } catch (e) { /* 忽略 */ }
+        }, 80);
       }
       var forcedRO = false;
       var lastSync = 0;
@@ -8435,7 +8567,7 @@ body:has(#idGate.show) #sheetMask { z-index: 10010; } body:has(#idGate.show) #to
         { ic: '<span class="tic ic-ok"></span>', t: '3　按「新增」', d: '確認名稱後按<b>「新增」</b>，主畫面就有圖示，一點就開。' }
       ];
       var CHANGELOG = [
-        { v: 'v11.39', d: '11/10', t: ['訪客首頁改成以「我」為主：一打開就看到「你好，○○」、今天和接下來 3 件事、撞到／假單未點提醒，按「看我的行程」或「✎ 標留守」；全部人的休假班表、公差勤務放在下面', '選名字的分組直接讀股名冊的「班別」（彈射、軍械、股總、軍官…），以後換人、換班別只改股名冊', '公假＝休假：平日的休假都算「補休／慰休／公假」，說明文字跟著改', '「清除（恢復沒請假）」按復原時，會講清楚只復原你這份，另一份要請班長／股總重新點'] },
+        { v: 'v11.39', d: '11/10', t: ['「訪客」改叫「一般」，「換身分」改叫「登出」；招呼改成「你好，志鵬」（不加姓）', '一般首頁重新設計：最上面紅色「假單還沒點」、橘色「時間撞到」通知條，按了直接看；下面兩週的滑動週曆（有事用小圓點、整天狀態用色塊），點哪天就在大卡片顯示那天要做什麼（今天綠框）；時間撞到的那天卡片紅框會亮，多一顆「📣 一鍵回報班長」複製訊息貼 Juiker', '要做的事標籤改成兩個字（公差、尿篩、打靶、輪值、衛哨、行程、加班），顏色分得更開', '行程排版統一：一天一列，左邊日期＋整天狀態色塊（留守、休假、出差），右邊一件事一行、時間靠右；留守的日子會列出「一起留守」的同仁；首頁、我的行程、點日子視窗都一樣', '訪客首頁改成以「我」為主：一打開就看到「你好，○○」、今天和接下來有事的日子（框裡往下滑看更多）、撞到／假單未點提醒，按「看我的行程」或「✎ 標留守」；全部人的休假班表、公差勤務放在下面', '選名字的分組直接讀股名冊的「班別」（彈射、軍械、股總、軍官…），以後換人、換班別只改股名冊', '公假＝休假：平日的休假都算「補休／慰休／公假」，說明文字跟著改', '「清除（恢復沒請假）」按復原時，會講清楚只復原你這份，另一份要請班長／股總重新點'] },
         { v: 'v11.38', d: '11/10', t: ['班員（訪客）首頁新增「我的行程」：第一次進去點自己的名字（照股名冊的班別分組），之後自動記住；選錯按「不是我？」', '一張月曆看完這個月：留守、休假、出差顏色跟班表一樣，公差、尿篩、打靶、輪值、當日行程用小字標在格子下面；時間撞到的那天紅框', '假日沒標休也沒標留守的，月曆上寫紅色「未點」；「每天要做什麼」每週列出「假單還沒點 N 天」，分頁上有橘色數字', '月曆重新美化；平常點日子會看到「我這天」做什麼，再按「看當天全部公差勤務」就進到公差月曆的那一天；按月曆右上小小的「✎ 標留守」才能點一下標留守、再點取消（休假也能點成留守），好了按「完成」；左右滑或按 ‹ › 換月', '同仁標留守改成「先改、按確定才寫入」：點了只改在畫面上，下面出現「還沒儲存：N 天」，可以「↶ 復原」一步一步退回，按「確定儲存」才寫進班表；沒存就離開會問要不要存', '每一區（撞到、假單未點、月曆、統計、每天要做什麼、顏色說明）都能收折，會記住', '下面寫這個月：例假日休、補休／慰休／公假（平日的都算一起）各幾天，留守、勤務幾次；還有本週／下週／更多每天要做什麼；撞到的可以「複製訊息給班長」'] },
         { v: 'v11.36', d: '11/10', t: ['門禁／查看身分標留守變簡單：平常照樣正常看全部人；按班表上方「標留守」才開始，只有自己那排亮、其他人變暗', '標留守時：點自己空白格＝留守，再點一下＝取消（班長、股總兩份一起刪），不用再跳選單；好了按「完成」恢復正常看', '第一次會問「你是誰」，名字照股名冊的班別分組，跟「我的行程」同一個；不想標也能選「我只看，不標記」', '自己的休假可以直接點成留守（再點一下改回休假）；出差、受訓等不能自己改，按「複製訊息」貼給班長；過去的日子也不能改', '班長那邊會寫「郭蕙芳 休假改留守 11/15(日)　請確認假單已撤回」', '查看身分點格子只看資料，不再出現「換身分」，要換身分請登出再登入', '班長打開 App 會跳「○○ 改了留守」，待處理最上面「留守變更」一人一行：郭蕙芳 新增 11/10、11/19，取消的日期劃線；可能少人的日子另外紅色列出，看完按「都看過了」'] },
         { v: 'v11.35', d: '11/10', t: ['產出新增「尿篩」提醒：自動抓下一次尿篩；明天的寫「明日…如無法按時前往，請於 0900時前回復」，今天的寫「今日…請準時前往」', '回復截止時間可以自己填（空著＝尿篩前 1 小時）'] },
