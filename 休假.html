@@ -3341,6 +3341,28 @@ details.filter > summary::after, details.filter[open] > summary::after { backgro
 #minePage details > summary::after { border: 0 none !important; width: 14px; height: 14px; background: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 14 14'%3E%3Cpath d='M5 2.5 9.5 7 5 11.5' fill='none' stroke='%238a8f9c' stroke-width='2' stroke-linecap='round' stroke-linejoin='round'/%3E%3C/svg%3E") center / 14px 14px no-repeat !important; transform: none; }
 #minePage details[open] > summary::after { transform: rotate(90deg); }
 details[open] summary::after { content: ''; }
+/* 我的行程月曆 v4：內網格線、單層標籤、星期列淡化 */
+#minePage .mncal2 { --gl: #e5e0d3; gap: 0 !important; max-width: 420px; }
+#minePage .mncal2.editing { outline: none !important; --gl: #f2c4ae; }
+#minePage .mncal2 .wh { font-size: 10.5px !important; font-weight: 600 !important; color: #a3a8b3 !important; padding: 0 0 5px !important; border: 0 !important; background: none !important; }
+#minePage .mncal2 .wh.we { color: #d9a39a !important; }
+#minePage .mncal2 .cc, #minePage .mncal2 .cc.off, #minePage .mncal2 .cc.today, #minePage .mncal2 .cc.clash { border: 0 !important; border-right: 1px solid var(--gl) !important; border-bottom: 1px solid var(--gl) !important; border-radius: 0 !important; box-shadow: none !important; padding: 3px 3px 4px; opacity: 1 !important; }
+#minePage .mncal2 .cc.cgl { border-left: 1px solid var(--gl) !important; }
+#minePage .mncal2 .cc.cgt { border-top: 1px solid var(--gl) !important; }
+#minePage .mncal2 .cc.empty { border: 0 !important; background: none !important; }
+#minePage .mncal2 .cc { background: var(--card, #fff) !important; }
+#minePage .mncal2 .cc.off { background: #fdf7f5 !important; }
+#minePage .mncal2 .cc.today { background: #fff8e1 !important; }
+#minePage .mncal2 .cc.today .n { display: inline-block; align-self: flex-start; min-width: 17px; padding: 0 3px; border-radius: 8px; background: #f0b400 !important; color: #1E2A4A !important; text-align: center; }
+#minePage .mncal2 .cc.clash { box-shadow: inset 0 0 0 1.5px #d93a2b !important; }
+#minePage .mncal2 .cc.past > * { opacity: .45; }
+#minePage .mncal2 .pl { gap: 2px; }
+#minePage .mncal2 .pl b { width: 100%; border-radius: 4px; box-shadow: none; } #minePage .mncal2 .pl b:not(.p-unf) { border: 0; }
+#minePage .mncal2 .cc[data-mk]:active { transform: none; background: #fdebe3 !important; }
+[data-theme="dark"] #minePage .mncal2 { --gl: #2c313b; } [data-theme="dark"] #minePage .mncal2.editing { --gl: #6b3a2a; }
+[data-theme="dark"] #minePage .mncal2 .cc { background: #1c1f26 !important; } [data-theme="dark"] #minePage .mncal2 .cc.off { background: #221d20 !important; } [data-theme="dark"] #minePage .mncal2 .cc.today { background: rgba(245,184,0,.1) !important; }
+[data-theme="dark"] #minePage .mncal2 .cc.empty { background: none !important; }
+[data-theme="dark"] #minePage .mncal2 .wh { color: #6b7280 !important; }
 </style>
 </head>
 <body>
@@ -6499,7 +6521,7 @@ details[open] summary::after { content: ''; }
         var who = e && e.who && e.who !== '全員' ? e.who.split(/[、,，\s]+/) : [];
         openSheet({
           title: (e ? '修改' : '新增') + '當日行程　' + mdLabel(k) + '（' + wkOf(k) + '）',
-          sub: '不算公差。有指定的人，派公差時間撞到會提醒',
+          sub: '不算公差。有指定的人，派公差時間重疊會提醒',
           body: '<div class="evhint"><b>當日行程</b>＝大家都要參加的整天活動（例：軍士官團、服裝儀容檢查），不用一個一個點人。<br>只有少數人去、會佔掉工作時間的，請用「＋ 公差」。</div>' +
             '<label class="evl">事項（自己填）<input type="text" id="evTitle" maxlength="20" value="' + esc(e ? e.title : '') + '" placeholder="例：服裝儀容檢查"></label>' +
             '<div class="evchips">' + tl.map(function (t) { return '<button data-evt="' + esc(t) + '">' + esc(t) + '</button>'; }).join('') + '</div>' +
@@ -7085,10 +7107,10 @@ details[open] summary::after { content: ''; }
             off.sort(function (a, b) { return shK(a.p.n) - shK(b.p.n); });
             h += '<div class="qknote"><span class="shno">橘＝多久沒打</span>（最久沒打的排前面）・<span class="shok">綠＝已經排了</span></div>';
           }
-          if (sugg.length && !res) h += '<button class="qkx qkauto" data-e="' + i + '" data-auto="' + sugg.map(function (n) { return off.filter(function (o) { return o.p.n === n; })[0].j; }).join(',') + '"><b>幫我選 ' + sugg.length + ' 人</b><span>' + sugg.map(esc).join('、') + '</span><small>' + (sKind ? '最久沒' + (sKind === isShoot ? '打' : '去') + '、沒撞到的' : '最該派、沒撞到的') + '</small></button>';
-          h += '<div class="qknote fq"><span class="fql low">綠＝該派</span><span class="fql hi">橘＝派多</span>右上＝每月幾次' + (fOk ? '' : '・休假資料讀取中') + (!e.time && !e.ptm ? '<br><b class="qkt">還沒選時間</b>：只先擋休假，選了時間才檢查撞時間' : '') + '</div>';
+          if (sugg.length && !res) h += '<button class="qkx qkauto" data-e="' + i + '" data-auto="' + sugg.map(function (n) { return off.filter(function (o) { return o.p.n === n; })[0].j; }).join(',') + '"><b>幫我選 ' + sugg.length + ' 人</b><span>' + sugg.map(esc).join('、') + '</span><small>' + (sKind ? '最久沒' + (sKind === isShoot ? '打' : '去') + '、沒重疊的' : '最該派、沒重疊的') + '</small></button>';
+          h += '<div class="qknote fq"><span class="fql low">綠＝該派</span><span class="fql hi">橘＝派多</span>右上＝每月幾次' + (fOk ? '' : '・休假資料讀取中') + (!e.time && !e.ptm ? '<br><b class="qkt">還沒選時間</b>：只先擋休假，選了時間才檢查時間重疊' : '') + '</div>';
           h += (res ? '<div class="qkres">「' + esc(res) + '」是誰？點下面的名字</div>' : '') ;
-          var G3 = [[], [], []], GL = ['可以派', '當天有事（只是提醒，可以選）', '不能派（休假、外勤或撞時間）'];
+          var G3 = [[], [], []], GL = ['可以派', '當天有事（只是提醒，可以選）', '不能派（休假、外勤或時間重疊）'];
           off.forEach(function (x) { var is0 = qkIssues(e, x.p); G3[is0.some(function (t) { return t[0] !== '~'; }) ? 2 : (is0.length ? 1 : 0)].push(x); });
           G3.forEach(function (grp, gi) {
           if (!grp.length) return;
@@ -8112,7 +8134,7 @@ details[open] summary::after { content: ''; }
               if (urS || isUrine(x.why)) { it2.note = '尿篩時間重疊，確認一下來不來得及'; if (!okd[key]) soft.push(it2); }
               else if (!tm || (oth && !otm)) { it2.note = '有一項時間還沒定'; if (!okd[key]) soft.push(it2); } else hard.push(it2);
             });
-            // 公差撞輪值（擴大FO、監工、查庫）
+            // 公差／輪值重疊（擴大FO、監工、查庫）
             try {
               var pl = dutyDayOf(k).plan || {}, ra = dayRng(x.time);
               Object.keys(pl).forEach(function (itm) {
@@ -8231,7 +8253,7 @@ details[open] summary::after { content: ''; }
         for (var i = 0; i < 3; i++) { var t = todoScan(R3[i].a, R3[i].b); if (t.hard.length + t.soft.length + t.nm) { todoW = i; break; } }
         todoStart = {}; renderTodo(); todoEnsure(); gsLogLoad();
       }
-      function todoTypeTx(it) { return { off: '休假撞公差', away: '外勤撞公差', duty: '公差撞公差', ev: '公差撞行程', plan: '公差撞輪值', leaveplan: '休假撞輪值' }[it.kind]; }
+      function todoTypeTx(it) { return { off: '休假／公差重疊', away: '外勤／公差重疊', duty: '公差／公差重疊', ev: '公差／行程重疊', plan: '公差／輪值重疊', leaveplan: '休假／輪值重疊' }[it.kind]; }
       function renderTodo() {
         var R3 = todoRanges(), sc = R3.map(function (r) { return todoScan(r.a, r.b); }), cur = sc[todoW], rg = R3[todoW], ro = isRO();
         $('todoSub').textContent = '勤務重疊：全員・假單：' + (prefs.role === '股總' ? '全員' : (prefs.role || '') + '班');
@@ -8469,14 +8491,10 @@ details[open] summary::after { content: ''; }
       // 一天一列：左邊日期＋整天狀態色塊，右邊要做的事
       function mineDayHtml(k, its, o) {
         o = o || {}; var tk = todayKey(), sts = its.filter(function (x) { return x.st; })[0], tasks = its.filter(function (x) { return !x.st; });
-        var with_ = '';
-        if (sts && sts.t === 'stay') {   // 同一天一起留守的人（互相提醒）
-          var me = prefs.me, mates = (empAll.length ? empAll : employees).filter(function (e) { if (e.name === me) return false; var r = (recordsPub[k] || {})[e.name] || getRec(k, e.name); return r && r.period === '留守'; }).map(function (e) { return e.name; });
-          with_ = '<div class="mwith"><span>一起留守</span>' + (mates.length ? mates.map(function (n) { return '<b>' + esc(n) + '</b>'; }).join('') : '<em>目前只有你</em>') + '</div>';
-        }
-        var empty = o.empty || (sts ? (with_ ? '' : '<div class="mnone2">' + (/^[上下]午/.test(sts.ttl) ? esc(sts.ttl) + '，其他時間沒排事' : '整天' + esc(sts.ttl)) + '</div>') : '<div class="mnone2">沒排事</div>');
+        var with_ = '';   // 一起留守：不顯示
+        var empty = o.empty || (sts ? (with_ ? '' : (/^[上下]午/.test(sts.ttl) ? '' : '<div class="mnone2">整天' + esc(sts.ttl) + '</div>')) : '');   // 沒排事＝空白
         return '<div class="md' + (k === tk ? ' today' : '') + (o.clash ? ' clash' : '') + (sts ? ' s-' + sts.t : '') + '"><div class="mdk"><b>' + (k === tk && o.todayWord ? '今天' : mdLabel(k)) + '</b><small>' + wkOf(k) + (k === tk && !o.todayWord ? '・今天' : '') + '</small>' + (sts ? '<em class="t-' + sts.t + '">' + esc(sts.ttl) + '</em>' : '') + '</div>' +
-          '<div class="mdv">' + (tasks.length ? tasks.map(mineTaskHtml).join('') : empty) + with_ + (o.clash ? '<div class="mnc">⚠ 時間撞到，請告訴班長</div>' : '') + '</div></div>';
+          '<div class="mdv">' + (tasks.length ? tasks.map(mineTaskHtml).join('') : empty) + with_ + (o.clash ? '<div class="mnc">⚠ 時間重疊，請告訴班長</div>' : '') + '</div></div>';
       }
       function mineClash(a, b, me) {
         var sc = todoScan(a, b), m = {};
@@ -8533,7 +8551,8 @@ details[open] summary::after { content: ''; }
         for (var d = 1; d <= n; d++) {
           var k = ym + '-' + pad(d), inf = dayInfo(k), r = (recordsPub[k] || {})[me] || getRec(k, me);
           var dut = mineItems(k, me).filter(function (it) { return it.t !== 'stay' && it.t !== 'off' && it.t !== 'away' && it.t !== 'mon'; });
-          var cls = 'cc' + (inf.off ? ' off' : '') + (k === tk ? ' today' : '') + (cl[k] ? ' clash' : '') + (k < tk ? ' past' : '');
+          var col = (lead + d - 1) % 7;
+          var cls = 'cc' + (inf.off ? ' off' : '') + (k === tk ? ' today' : '') + (cl[k] ? ' clash' : '') + (k < tk ? ' past' : '') + (col === 0 || d === 1 ? ' cgl' : '') + (d <= 7 ? ' cgt' : '');
           h += '<div class="' + cls + '" data-' + (ed ? 'mk' : 'mv') + '="' + k + '"><span class="n">' + d + '</span><span class="pl">';
           var np = 0;
           if (r) {
@@ -8565,7 +8584,7 @@ details[open] summary::after { content: ''; }
         var me = prefs.me, its = mineItems(k, me), cl = mineClash(k, k, me)[k], nAll = Object.keys((dutyAll[k] || []).reduce(function (o, x) { o[x.why] = 1; return o; }, {})).length;
         openSheet({ title: mdLabel(k) + '（' + wkOf(k) + '）' + (dayInfo(k).label ? '　' + dayInfo(k).label : ''), sub: '我這天',
           body: '<div class="mdlist mnsheet">' + mineDayHtml(k, its, { empty: mineUnf(k, me) ? '<div class="mnunf">放假・假單還沒點</div>' : '' }) + '</div>' +
-            (cl ? '<div class="mnc">⚠ 撞到了：' + esc(cl.join('；')) + '</div>' : '') + (gsMode() ? '<div class="mnhint">要標留守：按月曆右上「✎ 標留守」</div>' : ''),
+            (cl ? '<div class="mnc">⚠ 時間重疊：' + esc(cl.join('；')) + '</div>' : '') + (gsMode() ? '<div class="mnhint">要標留守：按月曆右上「✎ 標留守」</div>' : ''),
           actions: [{ label: '看當天全部公差勤務' + (nAll ? '（' + nAll + ' 項）' : ''), cls: 'main', fn: function () { dutyOpen(k); } }] });
       }
       function renderMine() {
@@ -8580,7 +8599,7 @@ details[open] summary::after { content: ''; }
         mineYM = mineYM || tk.slice(0, 7); mineLoad(mineYM);
         // 要注意的（有才出現）
         var ck = Object.keys(all).filter(function (k) { return k >= tk; }).sort();
-        if (ck.length) h += mineSec('clash', 'red', '⚠ 時間撞到了', ck.length + ' 天', ck.map(function (k) { return '<div class="mnli"><b>' + mdLabel(k) + '(' + wkOf(k) + ')</b> ' + esc(all[k].join('；')) + '</div>'; }).join('') + '<button class="mncopy" data-mn="tell">複製訊息給班長</button>');
+        if (ck.length) h += mineSec('clash', 'red', '⚠ 時間重疊', ck.length + ' 天', ck.map(function (k) { return '<div class="mnli"><b>' + mdLabel(k) + '(' + wkOf(k) + ')</b> ' + esc(all[k].join('；')) + '</div>'; }).join(''));
         // 這個月
         var ym = tk.slice(0, 7), mc = { hol: 0, comp: 0, pub: 0, off: 0, stay: 0, duty: 0 };
         for (var mk = ym + '-01'; mk.slice(0, 7) === ym; mk = addDays(mk, 1)) {
@@ -8622,11 +8641,11 @@ details[open] summary::after { content: ''; }
       }
       function mineTellOne(k) {
         var me = prefs.me, cl = mineClash(k, k, me)[k] || [];
-        return '班長您好，我是' + me + '，' + mdLabel(k) + '（' + wkOf(k) + '）時間撞到了：' + cl.join('；') + '，麻煩幫我確認，謝謝！';
+        return '班長您好，我是' + me + '，' + mdLabel(k) + '（' + wkOf(k) + '）時間重疊：' + cl.join('；') + '，麻煩幫我確認，謝謝！';
       }
       function mineTellText() {
         var me = prefs.me, R = mineRanges(), tk = todayKey(), cl = mineClash(R[0].a, R[2].b, me);
-        return '班長您好，我是' + me + '，以下時間撞到了，麻煩幫我確認：\n' + Object.keys(cl).filter(function (k) { return k >= tk; }).sort().map(function (k) { return mdLabel(k) + '（' + wkOf(k) + '）' + cl[k].join('；'); }).join('\n') + '\n謝謝！';
+        return '班長您好，我是' + me + '，以下時間重疊，麻煩幫我確認：\n' + Object.keys(cl).filter(function (k) { return k >= tk; }).sort().map(function (k) { return mdLabel(k) + '（' + wkOf(k) + '）' + cl[k].join('；'); }).join('\n') + '\n謝謝！';
       }
       function mineCopyText() {
         var me = prefs.me, rg = mineRanges()[mineW], L = [];
@@ -8652,7 +8671,7 @@ details[open] summary::after { content: ''; }
         var h = who + '<div class="gmhi"><b>你好，' + esc(me.length >= 3 ? me.slice(1) : me.slice(-1)) + '</b><button class="linkbtn" data-gm="pick">不是我？</button></div>';
         // 1. 要處理的事：紅底通知條（有才出現）
         if (unf.length) h += '<button class="gmbar red" data-gm="mine"><span><b>假單還沒點 ' + unf.length + ' 天</b><small>' + unf.slice(0, 4).map(function (k) { return mdLabel(k) + '(' + wkOf(k) + ')'; }).join('、') + (unf.length > 4 ? '…' : '') + '</small></span><em>看哪天 ›</em></button>';
-        if (nc) h += '<button class="gmbar org" data-gm="mine"><span><b>⚠ 時間撞到 ' + nc + ' 天</b><small>' + Object.keys(cl).sort().slice(0, 3).map(function (k) { return mdLabel(k) + '(' + wkOf(k) + ')'; }).join('、') + '・請告訴班長</small></span><em>看詳細 ›</em></button>';
+        if (nc) h += '<button class="gmbar org" data-gm="mine"><span><b>⚠ 時間重疊 ' + nc + ' 天</b><small>' + Object.keys(cl).sort().slice(0, 3).map(function (k) { return mdLabel(k) + '(' + wkOf(k) + ')'; }).join('、') + '・請告訴班長</small></span><em>看詳細 ›</em></button>';
         // 2. 滑動週曆：兩週，點哪天下面就顯示哪天
         h += '<div class="gmstrip" id="gmStrip">';
         for (var d = 0; d < 14; d++) {
@@ -8839,6 +8858,7 @@ details[open] summary::after { content: ''; }
         { ic: '<span class="tic ic-ok"></span>', t: '3　按「新增」', d: '確認名稱後按<b>「新增」</b>，主畫面就有圖示，一點就開。' }
       ];
       var CHANGELOG = [
+        { v: 'v11.47', d: '11/10', t: ['我的行程：拿掉「一起留守／目前只有你」；沒排事的日子留空白；「時間重疊」拿掉「複製訊息給班長」按鈕', '畫面上的「撞到」全部改成「重疊」（例：時間重疊、休假／公差重疊）', '我的行程月曆：改成細格線（格子共用一條淡灰線），拿掉編輯時外圍的紅色虛線（編輯中格線變淡橘）；今天改成淡黃底＋黃色日期，不再雙層框；標籤統一滿寬單層；星期列縮小變淡'] },
         { v: 'v11.46', d: '11/10', t: ['待處理「留守變更」：拿掉「沒人留守，可能少人」；預設收起，標題列直接寫「5 人・新增 5 天・取消 2 天・休假改留守 1 天」，要看名單再點開', '全站收折按鈕統一：黃底 +／− 改成灰色小箭頭（收起 ›，打開 ⌄）'] },
         { v: 'v11.45', d: '11/10', t: ['快速標記：打靶職掌表（手槍／步槍、射手、救護員…）整則歸成一件「打靶」，括號裡的職掌不再拆成好幾件公差；名字只寫名（志鵬、瓊嵐）也抓得到', '快速標記：選到的人名改成橫排，不會一人一行', '快速標記：一則通知用空行隔開、每段有自己的日期和人（例：打靶職掌表＋「明（11）日擦槍」），會拆成兩件；看得懂「明（11）日」', '擦槍只寫開始時間：上午預設 2 小時（0900 → 09:00–11:00），下午做到 17:00（1330 → 13:30–17:00）'] },
         { v: 'v11.44', d: '11/10', t: ['當天詳細：「當天情況」加上到班（綠色、放最前面），人數跟每日到班同步', '每日到班：到班、休假、外勤、留守、監控放在同一張卡，到班放最前面用綠框醒目；有排公差的到班人員右上有紫點', '每日到班：日期列、週曆、應到／實到／不在縮小；人名標籤縮小，一行放得下更多人；複製按鈕改成小的白色按鈕', '公假在人員名單上標「公假」小字'] },
