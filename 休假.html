@@ -2860,6 +2860,39 @@ body.gstay #gridBox td.namecol.me { background: #ffe9a8; font-weight: 800; }
 .gsp { display: block; font-size: 15px; line-height: 1.6; } .gsp b { font-weight: 800; margin-right: 2px; } .gsp em { font-style: normal; font-weight: 700; color: #b5431c; } .gsp s { color: var(--muted, #6b7280); }
 .gsp small { display: block; font-size: 12.5px; color: #a15c00; }
 [data-theme="dark"] .gsbad { color: #ff9b8f; } [data-theme="dark"] .gsp em { color: #ffa37f; } [data-theme="dark"] .gsp small { color: #f5c451; }
+.gsp .gslv { display: inline-block; margin-left: 6px; padding: 0 7px; border-radius: 6px; background: #fff0c2; color: #8a5a00; font-style: normal; font-size: 12.5px; font-weight: 800; }
+[data-theme="dark"] .gsp .gslv { background: rgba(245,184,0,.2); color: #f5c451; }
+/* v11.38 我的行程 */
+#minePage { display: none; position: fixed; top: 0; right: 0; bottom: 0; left: 0; z-index: 10055; background: var(--bg); overflow-y: auto; overscroll-behavior-y: contain; padding: calc(env(safe-area-inset-top) + 72px) 14px calc(28px + env(safe-area-inset-bottom)); }
+#minePage.show { display: block; animation: sheetup .24s cubic-bezier(.2,.8,.2,1); }
+#minePage > .appbar { position: fixed; top: 0; left: 0; right: 0; z-index: 20; margin: 0; justify-content: flex-start; gap: 12px; }
+#minePage > .appbar #mineBack { order: -1; display: inline-flex !important; align-items: center; min-height: 40px; }
+#minePage > .appbar .right { margin-left: auto; } #mineWho { min-height: 40px; padding: 0 8px; }
+.gi-mine { background-image: var(--ix-n-pers); }
+#minePage { --c-stay: var(--stay, #E2552B); --c-off: var(--full, #2468C9); --c-away: var(--away, #7b4fbf); --c-duty: #c2410c; --c-ur: #b07d00; --c-shoot: #6d4c2f; --c-ot: #0f766e; --c-plan: #0E8C8C; --c-guard: #4b5563; --c-mon: var(--mon, #1E2A4A); --c-free: #1f8a4c; }
+#minePage .t-stay { --c: var(--c-stay); } #minePage .t-off { --c: var(--c-off); } #minePage .t-away { --c: var(--c-away); } #minePage .t-duty { --c: var(--c-duty); } #minePage .t-ur { --c: var(--c-ur); } #minePage .t-shoot { --c: var(--c-shoot); } #minePage .t-ot { --c: var(--c-ot); } #minePage .t-plan { --c: var(--c-plan); } #minePage .t-guard { --c: var(--c-guard); } #minePage .t-mon { --c: var(--c-mon); } #minePage .t-free { --c: var(--c-free); }
+.mnclash { background: #fdeaea; border: 1.5px solid #e8a3a3; border-radius: 12px; padding: 8px 12px; margin-bottom: 10px; color: #a12b1f; font-size: 14px; } .mnclash b { display: block; font-size: 15px; } .mnclash small { color: #a12b1f; opacity: .8; }
+.mnsum { display: grid; grid-template-columns: repeat(4, 1fr); gap: 6px; margin-bottom: 6px; } .mnsum span { text-align: center; padding: 6px 2px; border-radius: 10px; background: var(--card, #fff); border: 1.5px solid var(--c); color: var(--c); font-size: 13px; font-weight: 800; } .mnsum b { font-size: 19px; }
+.mnur { font-size: 14px; margin: 4px 2px 10px; color: var(--muted, #4b5563); } .mnur b { color: var(--c-ur); }
+.mncal { background: var(--card, #fff); border: 1px solid var(--line, #e5dfcf); border-radius: 14px; padding: 6px; margin-bottom: 12px; }
+.mnhd, .mngrid { display: grid; grid-template-columns: repeat(7, 1fr); gap: 4px; } .mnhd span { text-align: center; font-size: 12px; font-weight: 800; color: var(--muted, #6b7280); } .mnhd .we { color: #c0392b; }
+.mnd { min-height: 64px; border-radius: 10px; background: var(--bg, #faf6ec); padding: 3px 2px; display: flex; flex-direction: column; align-items: center; gap: 2px; border: 2px solid transparent; }
+.mnd > b { font-size: 14px; } .mnd.off > b { color: #c0392b; } .mnd.today { border-color: #f0b400; } .mnd.past { opacity: .4; } .mnd.clash { border-color: #d93a2b; background: #fdeaea; }
+.mnd i { font-style: normal; width: 22px; height: 18px; line-height: 18px; text-align: center; border-radius: 6px; background: var(--c); color: #fff; font-size: 12px; font-weight: 800; } .mnd em { font-style: normal; font-size: 10px; color: var(--muted, #6b7280); }
+.mnd u { text-decoration: none; font-size: 11px; font-weight: 800; color: var(--c-free); margin-top: 4px; }
+.mnlist { background: var(--card, #fff); border: 1px solid var(--line, #e5dfcf); border-radius: 14px; overflow: hidden; }
+.mnrow { display: flex; gap: 10px; padding: 9px 12px; align-items: flex-start; } .mnrow + .mnrow { border-top: 1px solid var(--line, #eee7d6); }
+.mnrow.today { background: #fff8dc; } .mnrow.clash { background: #fdeaea; box-shadow: inset 4px 0 0 #d93a2b; }
+.mnk { flex: none; width: 3.4em; display: flex; flex-direction: column; } .mnk b { font-size: 16px; } .mnk small { font-size: 12px; color: var(--muted, #6b7280); }
+.mnv { flex: 1; min-width: 0; font-size: 15px; line-height: 1.7; } .mnv i { font-style: normal; display: inline-block; width: 22px; height: 20px; line-height: 20px; text-align: center; border-radius: 6px; background: var(--c); color: #fff; font-size: 12px; font-weight: 800; margin-right: 8px; vertical-align: 1px; }
+.mnfree { color: var(--c-free); font-weight: 700; } .mnrow.free .mnk b { color: var(--muted, #6b7280); } .mnc { color: #c0392b; font-weight: 800; font-size: 13.5px; }
+.mnact { display: flex; gap: 8px; margin-top: 12px; } .mnact button { flex: 1; min-height: 46px; border-radius: 12px; font: inherit; font-weight: 800; font-size: 15px; } .mnact button:not(.primary) { background: var(--card, #fff); border: 1.5px solid var(--line, #d8d2c2); color: var(--ink, #1f2a44); }
+[data-theme="dark"] .mnclash, [data-theme="dark"] .mnd.clash, [data-theme="dark"] .mnrow.clash { background: rgba(217,58,43,.15); } [data-theme="dark"] .mnclash, [data-theme="dark"] .mnclash small { color: #ff9b8f; }
+[data-theme="dark"] .mnrow.today { background: rgba(245,184,0,.12); } [data-theme="dark"] #minePage { --c-free: #4ade80; --c-ur: #f5c451; }
+.mncopy { display: block; width: 100%; margin-top: 8px; min-height: 42px; border-radius: 10px; border: 1.5px solid #d93a2b; background: #fff; color: #a12b1f; font: inherit; font-weight: 800; font-size: 14.5px; }
+[data-theme="dark"] .mncopy { background: #1c1f26; color: #ff9b8f; }
+.mnoff { color: var(--muted, #6b7280); font-weight: 600; }
+.mnsum { grid-template-columns: auto repeat(3, 1fr); align-items: center; } .mnsum em { font-style: normal; font-weight: 900; font-size: 15px; padding: 0 4px; }
 </style>
 </head>
 <body>
@@ -3162,6 +3195,11 @@ body.gstay #gridBox td.namecol.me { background: #ffe9a8; font-weight: 800; }
     <div class="tdseg" id="todoSeg"></div>
     <div id="todoBody"></div>
   </div>
+  <div id="minePage" role="dialog" aria-label="我的行程">
+    <header class="appbar"><button class="editbtn" id="mineBack" aria-label="返回">‹ 返回</button><div class="today"><b id="mineName">我的行程</b><small>留守・休假・公差・尿篩</small></div><div class="right"></div></header>
+    <div class="tdseg" id="mineSeg"></div>
+    <div id="mineBody"></div>
+  </div>
   <div id="attPage" role="dialog" aria-label="每日到班">
     <header class="appbar"><button class="editbtn" id="attBack" aria-label="返回">‹ 返回</button><div class="today"><b>每日到班</b><small>全員・股總有記以股總為準</small></div><div class="right"><button class="icon-btn" id="attRefresh" aria-label="重新整理" title="重新整理"><span class="ico i-refresh"></span></button></div></header>
     <div class="attnav"><button class="ghost" id="attPrev" aria-label="前一天">‹</button><div id="attTitle"></div><button class="ghost" id="attNext" aria-label="後一天">›</button></div>
@@ -3438,6 +3476,7 @@ body.gstay #gridBox td.namecol.me { background: #ffe9a8; font-weight: 800; }
         </div>
         <div class="idsub2" id="gSub">
           <button class="idtile todo" id="gTodo"><span class="gi gi-todo"></span><span class="itx"><b>待處理</b><small id="gTodoSub">勤務重疊・假單還沒點</small></span><i class="tdbadge" id="gTodoN" hidden></i><i class="chev">›</i></button>
+          <button class="idtile mine" id="gMine"><span class="gi gi-mine"></span><span class="itx"><b>我的行程</b><small>我的留守・休假・公差・尿篩</small></span><i class="chev">›</i></button>
           <button class="idtile" id="gAtt"><span class="gi gi-att"></span><span class="itx"><b>每日到班</b><small>今天誰在、誰不在</small></span><i class="chev">›</i></button>
           <button class="idtile" id="gLog" hidden><span class="gi gi-log"></span><span class="itx"><b>編輯紀錄</b><small>誰改了什麼、什麼時候改的</small></span><i class="chev">›</i></button>
         </div>
@@ -4180,8 +4219,10 @@ body.gstay #gridBox td.namecol.me { background: #ffe9a8; font-weight: 800; }
       }
       function clearBoth(k, name) {
         var pa = (recsA[k] || {})[name] || null, pb = (recsB[k] || {})[name] || null, own = cloneRec(getRec(k, name));
-        [recsA, recsB].forEach(function (bk) { if (bk[k]) { delete bk[k][name]; if (!Object.keys(bk[k]).length) delete bk[k]; } });
+        var gst = !prefs.pw;   // 訪客：後端只刪留守，本機也只刪留守（班長那份的休假會露出來）
+        [recsA, recsB].forEach(function (bk) { if (bk[k] && bk[k][name] && (!gst || bk[k][name].period === '留守')) { delete bk[k][name]; if (!Object.keys(bk[k]).length) delete bk[k]; } });
         rebuildDate(k); saveCache(); armEdit(); renderAll();
+        if (gst) { var back = getRec(k, name); showToast('已取消 ' + mdLabel(k) + ' 留守' + (back ? '，改回「' + recLabel(back) + '」' : ''), null, null, 2200); enqueue(function () { return apiCall({ action: 'removeLeave', date: k, name: name, both: 1 }); }); return; }
         enqueue(function () { return apiCall({ action: 'removeLeave', date: k, name: name, both: 1, token: prefs.pw }); });
         var msg = '已清除 ' + name + ' ' + mdLabel(k) + ((pa && pb) ? '（兩邊）' : '');
         var un = own ? undoPush(msg, function () { applyState(k, name, own, null, '已復原：' + name + ' ' + mdLabel(k), true); }) : null;
@@ -4212,12 +4253,7 @@ body.gstay #gridBox td.namecol.me { background: #ffe9a8; font-weight: 800; }
         if (!isRO() && !canEditName(name)) hint = '此人員不在本身分負責範圍，無法修改。';
         else if (forcedRO) hint = '這是唯讀連結，無法修改。';
         else if (!prefs.pw) {
-          var ra0 = (recsA[k] || {})[name] || null, rb0 = (recsB[k] || {})[name] || null, isStay = function (r) { return r && r.period === '留守'; };
-          var hasStay = isStay(rec) || isStay(ra0) || isStay(rb0), other = rec && !isStay(rec);
-          hint = hasStay ? '可以取消留守（班長、股總兩份一起刪）。其他要修改請換身分。' : (other ? '這格已經有紀錄，只能查看。要修改請換身分。' : '可以新增留守。其他要修改請換身分。');
-          if (!rec && !ra0 && !rb0) acts.push({ label: '＋ 新增留守', cls: 'main', fn: function () { applyState(k, name, { period: '留守', type: '留守' }, null, name + ' ' + mdLabel(k) + ' 留守', true); } });
-          if (hasStay) acts.push({ label: '取消留守', cls: 'danger', fn: function () { clearBoth(k, name); } });
-          acts.push({ label: '換身分', fn: goLogin });
+          hint = '要標自己的留守，按班表上方的「標留守」。';
         } else {
           hint = '目前是唯讀（防止誤點）。要修改請先開啟編輯。';
           acts.push({ label: '開啟編輯', cls: 'main', fn: function () { setEditing(true); } });
@@ -4238,18 +4274,23 @@ body.gstay #gridBox td.namecol.me { background: #ffe9a8; font-weight: 800; }
         var k = el.dataset.date, name = el.dataset.name;
         if (name !== prefs.me) { showToast('只能點自己那排（' + prefs.me + '）', '換人', gsAsk, 2200); return; }
         var rec = getRec(k, name), ra = (recsA[k] || {})[name] || null, rb = (recsB[k] || {})[name] || null, st = function (r) { return r && r.period === '留守'; };
+        if (k < todayKey()) { showToast('過去的日子不能改，要補請找班長', null, null, 2200); return; }
         if (st(rec) || st(ra) || st(rb)) { clearBoth(k, name); fxBuzz(12); return; }
+        var okR = function (r) { return !r || isLeave(r); };
+        if (rec && okR(rec) && okR(ra) && okR(rb)) {
+          applyState(k, name, { period: '留守', type: '留守' }, null, mdLabel(k) + ' 休假改成留守（記得撤回假單，再點一下改回）', true);
+          return;
+        }
         if (rec || ra || rb) {
           var lb = recLabel(rec || ra || rb);
           showToast(mdLabel(k) + ' 已經是「' + lb + '」，要改請找班長', '複製訊息', function () { copyText('班長您好，我是' + name + '，' + mdLabel(k) + '（' + wkOf(k) + '）原本是「' + lb + '」，想改成留守，麻煩幫我修改，謝謝！', function () { showToast('已複製，貼到 Juiker 給班長', null, null, 2000); }); }, 4500);
           return;
         }
-        if (k < todayKey()) { showToast('過去的日子不能改，要補請找班長', null, null, 2200); return; }
         applyState(k, name, { period: '留守', type: '留守' }, null, '已標 ' + mdLabel(k) + ' 留守（再點一下取消）', true);
       }
       function gsStart() { if (!prefs.me) { gsAsk(); return; } gsOn = true; renderSched(); showToast('點自己那排就能標留守，好了按「完成」', null, null, 2400); }
       function gsStop() { gsOn = false; renderSched(); }
-      function gsAsk() {
+      function gsAsk(cb) {
         var ns = (empAll.length ? empAll : employees).map(function (e) { return e.name; });
         openSheet({ title: '你是誰？', sub: '選你的名字，就能點自己那排標「留守」',
           body: '<input type="search" id="gsIn" placeholder="打名字，例：志鵬" autocomplete="off"><div class="gsnames" id="gsNames">' + ns.map(function (n) { return '<button data-gn="' + esc(n) + '">' + esc(n) + '</button>'; }).join('') + '</div>',
@@ -4257,7 +4298,7 @@ body.gstay #gridBox td.namecol.me { background: #ffe9a8; font-weight: 800; }
         setTimeout(function () {
           var inp = $('gsIn'); if (!inp) return;
           inp.addEventListener('input', function () { var q = inp.value.trim(); Array.prototype.forEach.call(document.querySelectorAll('#gsNames button'), function (b) { b.hidden = !!q && b.dataset.gn.indexOf(q) < 0 && !qkIs(q, b.dataset.gn); }); });
-          $('gsNames').addEventListener('click', function (ev) { var b = ev.target.closest('[data-gn]'); if (!b) return; prefs.me = b.dataset.gn; prefs.gsAsked = 1; savePrefs(); closeSheet(); gsOn = true; renderSched(); showToast('你是 ' + prefs.me + '：點自己那排就能標留守', null, null, 2400); });
+          $('gsNames').addEventListener('click', function (ev) { var b = ev.target.closest('[data-gn]'); if (!b) return; prefs.me = b.dataset.gn; prefs.gsAsked = 1; savePrefs(); closeSheet(); if (typeof cb === 'function') { cb(); return; } gsOn = true; renderSched(); showToast('你是 ' + prefs.me + '：點自己那排就能標留守', null, null, 2400); });
         }, 30);
       }
       function gsBarDraw() {
@@ -4557,7 +4598,7 @@ body.gstay #gridBox td.namecol.me { background: #ffe9a8; font-weight: 800; }
         $('gLeaveSub').textContent = prefs.pw ? '點假單・' + (r === '股總' ? '全員' : r + '班') : '誰休假・誰留守';
         $('gDutySub').textContent = prefs.pw ? '派公差・尿篩・加班' : '誰有公差・尿篩・加班';
         $('gLog').hidden = !prefs.pw; $('gSub').classList.toggle('solo', !prefs.pw);
-        $('gTodo').hidden = !prefs.pw; if (prefs.pw) { todoBadge(); todoEnsure(); gsLogLoad(); }
+        $('gMine').hidden = !!prefs.pw; $('gTodo').hidden = !prefs.pw; if (prefs.pw) { todoBadge(); todoEnsure(); gsLogLoad(); }
       }
       function showGate() {
         gStep((prefs.pw || prefs.viewPw) ? 2 : 1);
@@ -4729,7 +4770,7 @@ body.gstay #gridBox td.namecol.me { background: #ffe9a8; font-weight: 800; }
         // 安卓返回鍵／左滑返回：先關最上層的頁面，而不是直接離開
         var histOn = false;
         function histArm() { if (histOn) return; try { history.pushState({ bm: 1 }, ''); histOn = true; } catch (e) { /* 忽略 */ } }
-        var BACK_STACK = [['pinPad', function () { pinClose(); }], ['attPage', 'attBack'], ['logPage', 'logBack'], ['tourMask', function () { closeTour(); }], ['verPage', 'verBack'], ['guidePage', 'guideBack'], ['sheetMask', function () { closeSheet(); }], ['quickPage', 'qkClose'], ['evtPage', 'evtBack'], ['dutyDay', 'dutyDayBack'], ['dutyPage', 'dutyBack']];
+        var BACK_STACK = [['pinPad', function () { pinClose(); }], ['attPage', 'attBack'], ['minePage', 'mineBack'], ['logPage', 'logBack'], ['tourMask', function () { closeTour(); }], ['verPage', 'verBack'], ['guidePage', 'guideBack'], ['sheetMask', function () { closeSheet(); }], ['quickPage', 'qkClose'], ['evtPage', 'evtBack'], ['dutyDay', 'dutyDayBack'], ['dutyPage', 'dutyBack']];
         window.addEventListener('popstate', function () {
           histOn = false;
           for (var i = 0; i < BACK_STACK.length; i++) {
@@ -7484,7 +7525,7 @@ body.gstay #gridBox td.namecol.me { background: #ffe9a8; font-weight: 800; }
       function todoEnsure() {
         todoMonths().forEach(function (ym) {
           if (todoAsked[ym]) return; todoAsked[ym] = 1;
-          var y = +ym.slice(0, 4), m = +ym.slice(5, 7), done = function () { todoBadge(); if ($('todoPage').classList.contains('show')) renderTodo(); };
+          var y = +ym.slice(0, 4), m = +ym.slice(5, 7), done = function () { todoBadge(); if ($('todoPage').classList.contains('show')) renderTodo(); if ($('minePage').classList.contains('show')) renderMine(); };
           if (!loaded[ym]) fetchPeriod(y, m).then(done).catch(function () { delete todoAsked[ym]; });
           apiCall({ action: 'getDuty', year: y, month: m }).then(function (res) { if (!res || !res.ok) delete todoAsked[ym]; dutyFill(y, m, res); done(); }).catch(function () { delete todoAsked[ym]; });
         });
@@ -7552,7 +7593,7 @@ body.gstay #gridBox td.namecol.me { background: #ffe9a8; font-weight: 800; }
         apiCall({ action: 'getLog', token: prefs.pw, limit: 300 }).then(function (res) {
           if (!res || !res.ok) return;
           var from = Math.max(prefs.gsSeen || 0, Date.now() - 21 * 864e5);
-          gsLog = (res.log || []).filter(function (r) { return r.role === '一般' && (r.ts || 0) > from && (r.action === '新增' || /^取消留守/.test(r.action)); });
+          gsLog = (res.log || []).filter(function (r) { return r.role === '一般' && (r.ts || 0) > from && (r.action === '新增' || /^取消留守/.test(r.action) || (r.action === '修改' && r.after === '留守')); });
           todoBadge(); if ($('todoPage').classList.contains('show')) renderTodo();
           var g = gsDays();
           if (g.length && !gsToasted) {
@@ -7568,22 +7609,23 @@ body.gstay #gridBox td.namecol.me { background: #ffe9a8; font-weight: 800; }
         var by = {}, devs = {};
         gsLog.slice().sort(function (a, b) { return a.ts - b.ts; }).forEach(function (r) {
           if (!r.date || !mine[r.name]) return;
-          var d = by[r.date] = by[r.date] || {}, add = r.action === '新增', p = d[r.name];
-          if (!p) d[r.name] = { first: add, last: add, ts: r.ts, who: r.who || '' }; else { p.last = add; p.ts = r.ts; if (r.who) p.who = r.who; }
+          var d = by[r.date] = by[r.date] || {}, add = !/^取消/.test(r.action), p = d[r.name], lv = r.action === '修改' && /休$/.test(r.before || '');
+          if (!p) d[r.name] = { first: add, last: add, ts: r.ts, who: r.who || '', lv: lv }; else { p.last = add; p.ts = r.ts; if (r.who) p.who = r.who; if (lv) p.lv = true; }
           var dv = String(r.who || '').split('@')[1]; if (dv) (devs[dv] = devs[dv] || {})[String(r.who).split('@')[0]] = 1;
         });
         var out = [];
         Object.keys(by).sort().forEach(function (k) {
-          var add = [], del = [], ts = 0, odd = [];
+          var add = [], del = [], chg = [], ts = 0, odd = [];
           Object.keys(by[k]).forEach(function (n) {
             var p = by[k][n]; if (p.first !== p.last) return;
-            (p.last ? add : del).push(n); ts = Math.max(ts, p.ts);
+            var wasLv = p.lv || [recsA, recsB].some(function (bk) { return isLeave((bk[k] || {})[n]); });
+            (p.last ? (wasLv ? chg : add) : del).push(n); ts = Math.max(ts, p.ts);
             var w = p.who.split('@'); if (w[0] && w[0] !== n) odd.push(w[0] + ' 幫 ' + n + ' 改');
             if (w[1] && devs[w[1]] && Object.keys(devs[w[1]]).length > 1) odd.push('同一支手機改過 ' + Object.keys(devs[w[1]]).join('、'));
           });
-          if (!add.length && !del.length) return;
+          if (!add.length && !del.length && !chg.length) return;
           var now = gsStayN(k);
-          out.push({ k: k, add: add, del: del, ts: ts, now: now, short: del.length > add.length || (now === 0 && dayInfo(k).off), odd: odd.filter(function (x, i, a) { return a.indexOf(x) === i; }) });
+          out.push({ k: k, add: add, del: del, chg: chg, ts: ts, now: now, short: del.length > add.length + chg.length || (now === 0 && dayInfo(k).off), odd: odd.filter(function (x, i, a) { return a.indexOf(x) === i; }) });
         });
         return out;
       }
@@ -7591,9 +7633,10 @@ body.gstay #gridBox td.namecol.me { background: #ffe9a8; font-weight: 800; }
       function gsPeople() {
         var by = {}, ord = [];
         gsDays().forEach(function (d) {
-          d.add.forEach(function (n) { if (!by[n]) { by[n] = { n: n, add: [], del: [], odd: [], ts: 0 }; ord.push(n); } by[n].add.push(d.k); by[n].ts = Math.max(by[n].ts, d.ts); });
-          d.del.forEach(function (n) { if (!by[n]) { by[n] = { n: n, add: [], del: [], odd: [], ts: 0 }; ord.push(n); } by[n].del.push(d.k); by[n].ts = Math.max(by[n].ts, d.ts); });
-          d.odd.forEach(function (o) { var who = d.add.concat(d.del).filter(function (n) { return o.indexOf(n) >= 0; })[0] || d.add.concat(d.del)[0]; if (by[who] && by[who].odd.indexOf(o) < 0) by[who].odd.push(o); });
+          d.add.forEach(function (n) { if (!by[n]) { by[n] = { n: n, add: [], del: [], chg: [], odd: [], ts: 0 }; ord.push(n); } by[n].add.push(d.k); by[n].ts = Math.max(by[n].ts, d.ts); });
+          d.del.forEach(function (n) { if (!by[n]) { by[n] = { n: n, add: [], del: [], chg: [], odd: [], ts: 0 }; ord.push(n); } by[n].del.push(d.k); by[n].ts = Math.max(by[n].ts, d.ts); });
+          d.chg.forEach(function (n) { if (!by[n]) { by[n] = { n: n, add: [], del: [], chg: [], odd: [], ts: 0 }; ord.push(n); } by[n].chg.push(d.k); by[n].ts = Math.max(by[n].ts, d.ts); });
+          d.odd.forEach(function (o) { var who = d.add.concat(d.del, d.chg).filter(function (n) { return o.indexOf(n) >= 0; })[0] || d.add.concat(d.del, d.chg)[0]; if (by[who] && by[who].odd.indexOf(o) < 0) by[who].odd.push(o); });
         });
         return ord.map(function (n) { return by[n]; }).sort(function (a, b) { return b.ts - a.ts; });
       }
@@ -7601,14 +7644,15 @@ body.gstay #gridBox td.namecol.me { background: #ffe9a8; font-weight: 800; }
       function gsTodoHtml() {
         var g = gsDays(); if (!g.length) return '';
         var ppl = gsPeople(), bad = g.filter(function (d) { return d.short; });
-        var h = '<details class="tds" data-fold="gs" open><summary class="tdh ' + (bad.length ? 'red' : 'org') + '"><b>同仁自己改的留守</b><span>' + ppl.length + ' 人</span></summary>';
+        var h = '<details class="tds" data-fold="gs" open><summary class="tdh ' + (bad.length ? 'red' : 'org') + '"><b>留守變更</b><span>' + ppl.length + ' 人</span></summary>';
         if (bad.length) h += '<div class="gsbad">⚠ ' + bad.map(function (d) { return mdLabel(d.k) + '(' + wkOf(d.k) + ')' + (d.now ? '剩 ' + d.now + ' 人' : '沒人留守'); }).join('、') + '，可能少人</div>';
         var ds = function (ks) { return ks.map(function (k) { return mdLabel(k) + '(' + wkOf(k) + ')'; }).join('、'); };
         h += '<div class="gslist">' + ppl.map(function (p) {
           var t = [];
+          if (p.chg.length) t.push('休假改留守 <em>' + ds(p.chg) + '</em><i class="gslv">請確認假單已撤回</i>');
           if (p.add.length) t.push('新增留守 <em>' + ds(p.add) + '</em>');
           if (p.del.length) t.push('取消留守 <s>' + ds(p.del) + '</s>');
-          return '<div class="gsp"><b>' + esc(p.n) + '</b> ' + t.join('；') + (p.odd.length ? '<small>⚠ ' + esc(p.odd.join('；')) + '</small>' : '') + '</div>';
+          return '<div class="gsp' + (p.chg.length ? ' lv' : '') + '"><b>' + esc(p.n) + '</b> ' + t.join('<br>') + (p.odd.length ? '<small>⚠ ' + esc(p.odd.join('；')) + '</small>' : '') + '</div>';
         }).join('') + '</div>';
         return h + '<div class="gsact"><button class="primary" data-gsgo="1">打開休假班表</button><button data-gsseen="1">✓ 都看過了</button></div></details>';
       }
@@ -7803,6 +7847,113 @@ body.gstay #gridBox td.namecol.me { background: #ffe9a8; font-weight: 800; }
           }).join('') + '</div></div>';
         }).join('');
       }
+      // ====== 我的行程（個人專區）：本週／下週／更多，行事曆＋清單，重疊標紅 ======
+      var mineW = 0;
+      function mineRanges() {
+        var tk = todayKey(), m0 = mondayOf(tk);
+        return [{ lab: '本週', a: m0, b: addDays(m0, 6) }, { lab: '下週', a: addDays(m0, 7), b: addDays(m0, 13) }, { lab: '更多', a: addDays(m0, 14), b: addDays(m0, 27) }];
+      }
+      function openMine() {
+        if (!prefs.me) { gsAsk(function () { openMine(); }); return; }
+        $('idGate').classList.remove('show'); $('minePage').classList.add('show'); $('minePage').scrollTop = 0;
+        renderMine(); todoEnsure();
+      }
+      // 一天裡我的事：t＝種類（決定顏色）、s＝一個字（行事曆用）、x＝說明
+      function mineItems(k, me) {
+        var out = [], r = (recordsPub[k] || {})[me] || getRec(k, me);
+        if (r) {
+          if (r.period === '留守') out.push({ t: 'stay', s: '留', x: '留守' });
+          else if (r.period === '監控') out.push({ t: 'mon', s: '監', x: '監控' });
+          else if (r.period === '外勤') out.push({ t: 'away', s: String(r.type || '外').replace(/^出差$/, '差').replace(/^受訓$/, '訓').slice(0, 1), x: r.type || '外勤' });
+          else out.push({ t: 'off', s: r.period === '全天' ? '休' : (r.period === '上午' ? '上' : '下'), x: r.period === '全天' ? '休假' : r.period + '休' });
+        }
+        (dutyAll[k] || []).forEach(function (d) {
+          if (d.n !== me) return;
+          var tm = String(d.time || '').trim(), x = d.why + (tm ? ' ' + fmtTm(tm) : '');
+          if (isUrine(d.why)) out.push({ t: 'ur', s: '尿', x: x });
+          else if (isShoot(d.why)) out.push({ t: 'shoot', s: '靶', x: x });
+          else if (isOT(d.why)) out.push({ t: 'ot', s: '加', x: x });
+          else out.push({ t: 'duty', s: '公', x: x });
+        });
+        try {
+          var pl = dutyDayOf(k).plan || {};
+          Object.keys(pl).forEach(function (itm) {
+            var q = pl[itm].filter(function (z) { return z.n === me; })[0]; if (!q) return;
+            var pt = planTm(itm, k), g = itm === '衛哨';
+            out.push({ t: g ? 'guard' : 'plan', s: g ? '哨' : '輪', x: (g ? '衛哨（駐廠其中一人去）' : '輪值 ' + itm) + (pt ? ' ' + pt.a + '–' + pt.b : '') + (q.est ? '（預估）' : '') + (q.sub ? '（代理）' : '') });
+          });
+        } catch (e) { /* 忽略 */ }
+        return out;
+      }
+      function mineClash(a, b, me) {
+        var sc = todoScan(a, b), m = {};
+        sc.hard.concat(sc.soft).forEach(function (it) {
+          if (it.n !== me) return;
+          var tx = String(it.a).replace(/^輪值 /, '') + ' ↔ ' + String(it.b).replace(/^輪值 /, '');
+          (m[it.k] = m[it.k] || []).push({ tx: tx, soft: sc.soft.indexOf(it) >= 0 });
+        });
+        return m;
+      }
+      function mineNextUrine(me) {
+        var tk = todayKey(), ks = Object.keys(dutyAll).filter(function (k) { return k >= tk; }).sort();
+        for (var i = 0; i < ks.length; i++) { var d = (dutyAll[ks[i]] || []).filter(function (x) { return x.n === me && isUrine(x.why); })[0]; if (d) return { k: ks[i], tm: String(d.time || '').trim() }; }
+        return null;
+      }
+      function renderMine() {
+        var me = prefs.me; if (!me) return;
+        var R = mineRanges(), tk = todayKey();
+        $('mineName').textContent = me + ' 的行程';
+        $('mineSeg').innerHTML = R.map(function (r, i) {
+          var nc = Object.keys(mineClash(r.a, r.b, me)).length;
+          return '<button class="' + (i === mineW ? 'on' : '') + '" data-mw="' + i + '">' + r.lab + (nc ? '<i>' + nc + '</i>' : '') + '<small>' + mdLabel(r.a) + '–' + mdLabel(r.b) + '</small></button>';
+        }).join('');
+        var rg = R[mineW], cl = mineClash(rg.a, rg.b, me), h = '', days = [], cnt = { stay: 0, off: 0, duty: 0 };
+        for (var k = rg.a; k <= rg.b; k = addDays(k, 1)) {
+          var its = mineItems(k, me); days.push({ k: k, its: its });
+          its.forEach(function (it) { if (it.t === 'stay') cnt.stay++; else if (it.t === 'off') cnt.off++; else if (it.t !== 'away' && it.t !== 'mon') cnt.duty++; });
+        }
+        // 重疊（最上面）
+        var ck = Object.keys(cl).sort();
+        if (ck.length) h += '<div class="mnclash"><b>⚠ 時間撞到了</b>' + ck.map(function (k) { return '<div>' + mdLabel(k) + '(' + wkOf(k) + ') ' + esc(cl[k].map(function (c) { return c.tx; }).join('；')) + '</div>'; }).join('') + '<button class="mncopy" data-mn="tell">複製訊息給班長</button></div>';
+        // 數字
+        var nu = mineNextUrine(me);
+        var nu = mineNextUrine(me);
+        var nf = days.filter(function (d) { return d.k >= tk && !d.its.length && !dayInfo(d.k).off; }).length;
+        // 當月：休假幾天（半天算 0.5）、留守、勤務
+        var ym = tk.slice(0, 7), mc = { off: 0, stay: 0, duty: 0 }, d0 = ym + '-01';
+        for (var mk = d0; mk.slice(0, 7) === ym; mk = addDays(mk, 1)) {
+          var rr = (recordsPub[mk] || {})[me] || getRec(mk, me); mc.off += leaveValue(rr);
+          mineItems(mk, me).forEach(function (it) { if (it.t === 'stay') mc.stay++; else if (it.t !== 'off' && it.t !== 'away' && it.t !== 'mon') mc.duty++; });
+        }
+        h += '<div class="mnsum"><em>' + (+ym.slice(5)) + ' 月</em><span class="t-off">休假 <b>' + mc.off + '</b> 天</span><span class="t-stay">留守 <b>' + mc.stay + '</b></span><span class="t-duty">勤務 <b>' + mc.duty + '</b></span></div>';
+        h += '<div class="mnur">下次尿篩：' + (nu ? '<b>' + mdLabel(nu.k) + '(' + wkOf(nu.k) + ')' + (nu.tm ? ' ' + esc(fmtTm(nu.tm)) : '') + '</b>' : '目前沒排') + '</div>';
+        // 行事曆
+        var wk = ['一', '二', '三', '四', '五', '六', '日'];
+        h += '<div class="mncal"><div class="mnhd">' + wk.map(function (w, i) { return '<span' + (i > 4 ? ' class="we"' : '') + '>' + w + '</span>'; }).join('') + '</div><div class="mngrid">';
+        h += days.map(function (d) {
+          var di = dayInfo(d.k), c = (d.k === tk ? ' today' : '') + (di.off ? ' off' : '') + (cl[d.k] ? ' clash' : '') + (d.k < tk ? ' past' : '');
+          return '<div class="mnd' + c + '"><b>' + (+d.k.slice(8)) + '</b>' + d.its.slice(0, 3).map(function (it) { return '<i class="t-' + it.t + '">' + esc(it.s) + '</i>'; }).join('') + (d.its.length > 3 ? '<em>+' + (d.its.length - 3) + '</em>' : '') + (!d.its.length && d.k >= tk && !di.off ? '<u>可休</u>' : '') + '</div>';
+        }).join('') + '</div></div>';
+        // 每天要做什麼（今天以後每天都列；沒事＝可以休假）
+        var left = days.filter(function (d) { return d.k >= tk; });
+        h += '<div class="mnlist">' + left.map(function (d) {
+          var free = !d.its.length;
+          return '<div class="mnrow' + (cl[d.k] ? ' clash' : '') + (d.k === tk ? ' today' : '') + (free ? ' free' : '') + '"><div class="mnk"><b>' + mdLabel(d.k) + '</b><small>' + wkOf(d.k) + (d.k === tk ? '・今天' : '') + '</small></div><div class="mnv">' +
+            (free ? (dayInfo(d.k).off ? '<div class="mnoff">放假・沒排留守</div>' : '<div class="mnfree">✓ 沒排事，可以請假</div>') : d.its.map(function (it) { return '<div><i class="t-' + it.t + '">' + esc(it.s) + '</i>' + esc(it.x) + '</div>'; }).join('')) + (cl[d.k] ? '<div class="mnc">⚠ 撞到了，請告訴班長</div>' : '') + '</div></div>';
+        }).join('') + '</div>';
+        if (!todoReady()) h += '<div class="tdload">資料讀取中…</div>';
+        h += '<div class="mnact"><button class="primary" data-mn="copy">複製我的行程</button>' + (gsMode() ? '<button data-mn="stay">去標留守</button>' : '') + '</div>';
+        $('mineBody').innerHTML = h;
+      }
+      function mineTellText() {
+        var me = prefs.me, rg = mineRanges()[mineW], cl = mineClash(rg.a, rg.b, me);
+        return '班長您好，我是' + me + '，以下時間撞到了，麻煩幫我確認：\n' + Object.keys(cl).sort().map(function (k) { return mdLabel(k) + '（' + wkOf(k) + '）' + cl[k].map(function (c) { return c.tx; }).join('；'); }).join('\n') + '\n謝謝！';
+      }
+      function mineCopyText() {
+        var me = prefs.me, rg = mineRanges()[mineW], L = [];
+        for (var k = rg.a; k <= rg.b; k = addDays(k, 1)) { var its = mineItems(k, me); if (its.length) L.push(mdLabel(k) + '（' + wkOf(k) + '）' + its.map(function (it) { return it.x; }).join('、')); }
+        return '【' + me + ' ' + rg.lab + '行程 ' + mdLabel(rg.a) + '–' + mdLabel(rg.b) + '】\n' + (L.length ? L.join('\n') : '沒有排任何事');
+      }
       var forcedRO = false;
       var lastSync = 0;
       var loadError = '';
@@ -7963,7 +8114,8 @@ body.gstay #gridBox td.namecol.me { background: #ffe9a8; font-weight: 800; }
         { ic: '<span class="tic ic-ok"></span>', t: '3　按「新增」', d: '確認名稱後按<b>「新增」</b>，主畫面就有圖示，一點就開。' }
       ];
       var CHANGELOG = [
-        { v: 'v11.36', d: '11/10', t: ['門禁／查看身分標留守變簡單：平常照樣正常看全部人；按班表上方「標留守」才開始，只有自己那排亮、其他人變暗', '標留守時：點自己空白格＝留守，再點一下＝取消（班長、股總兩份一起刪），不用再跳選單；好了按「完成」恢復正常看', '第一次會問「你是誰」，打名字就能找到；不想標也能選「我只看，不標記」', '已經是休、出差等的格子不能自己改，按「複製訊息」直接貼給班長；過去的日子也不能改', '班長打開 App 會跳「○○ 改了留守」，待處理最上面一人一行：郭蕙芳 新增 11/10、11/19，取消的日期劃線；可能少人的日子另外紅色列出，看完按「都看過了」'] },
+        { v: 'v11.38', d: '11/10', t: ['班員（訪客）首頁新增「我的行程」：輸入名字就看到自己本週／下週／更多的留守、休假、公差、尿篩、打靶、加班、輪值', '上面寫這個月休假幾天、留守、勤務；再來是小行事曆（顏色跟班表一樣），下面只列有事的日子；平日沒排事的會寫「可以請假」；時間撞到的那天紅框，最上面可以「複製訊息給班長」', '可以「複製我的行程」貼到備忘錄；訪客可以直接「去標留守」'] },
+        { v: 'v11.36', d: '11/10', t: ['門禁／查看身分標留守變簡單：平常照樣正常看全部人；按班表上方「標留守」才開始，只有自己那排亮、其他人變暗', '標留守時：點自己空白格＝留守，再點一下＝取消（班長、股總兩份一起刪），不用再跳選單；好了按「完成」恢復正常看', '第一次會問「你是誰」，打名字就能找到；不想標也能選「我只看，不標記」', '自己的休假可以直接點成留守（再點一下改回休假）；出差、受訓等不能自己改，按「複製訊息」貼給班長；過去的日子也不能改', '班長那邊會寫「郭蕙芳 休假改留守 11/15(日)　請確認假單已撤回」', '查看身分點格子只看資料，不再出現「換身分」，要換身分請登出再登入', '班長打開 App 會跳「○○ 改了留守」，待處理最上面「留守變更」一人一行：郭蕙芳 新增 11/10、11/19，取消的日期劃線；可能少人的日子另外紅色列出，看完按「都看過了」'] },
         { v: 'v11.35', d: '11/10', t: ['產出新增「尿篩」提醒：自動抓下一次尿篩；明天的寫「明日…如無法按時前往，請於 0900時前回復」，今天的寫「今日…請準時前往」', '回復截止時間可以自己填（空著＝尿篩前 1 小時）'] },
         { v: 'v11.34', d: '11/9', t: ['內部整理：程式依功能分檔、刪掉沒在用的程式和樣式、合併重複的寫法；畫面和功能都沒變，檔案變小'] },
         { v: 'v11.33', d: '11/9', t: ['用查看密碼或門禁密碼登入的人，也能新增、取消「留守」（點名字那格）；取消會把班長、股總兩份一起刪；其他（休假、外勤）還是只能看；後端第四十八版'] },
@@ -8720,6 +8872,15 @@ body.gstay #gridBox td.namecol.me { background: #ffe9a8; font-weight: 800; }
           }).catch(function (e) { $('rmTest').disabled = false; rmMsg('寄送失敗：' + e.message, true); });
         });
         $('gAtt').addEventListener('click', function () { openAtt(); });
+        $('gMine').addEventListener('click', function () { openMine(); });
+        $('mineBack').addEventListener('click', function () { $('minePage').classList.remove('show'); showGate(); });
+        $('mineSeg').addEventListener('click', function (ev) { var b = ev.target.closest('[data-mw]'); if (!b) return; mineW = +b.dataset.mw; renderMine(); });
+        $('mineBody').addEventListener('click', function (ev) {
+          var b = ev.target.closest('[data-mn]'); if (!b) return;
+          if (b.dataset.mn === 'copy') { copyText(mineCopyText()); return; }
+          if (b.dataset.mn === 'tell') { copyText(mineTellText(), function () { showToast('已複製，貼到 Juiker 給班長', null, null, 2000); }); return; }
+          if (b.dataset.mn === 'stay') { $('minePage').classList.remove('show'); prefs.duty = false; hideDuty(); finishGate(); setTab('sched'); gsStart(); }
+        });
         $('attBack').addEventListener('click', function () { $('attPage').classList.remove('show'); });
         $('gTodo').addEventListener('click', function () { openTodo(); });
         $('todoBack').addEventListener('click', function () { $('todoPage').classList.remove('show'); showGate(); });
