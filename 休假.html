@@ -2838,6 +2838,12 @@ body.gstay #gridBox td.namecol.me { background: #ffe9a8; font-weight: 800; }
 #gsIn { width: 100%; min-height: 44px; font-size: 16px; }
 [data-theme="dark"] .gsbar.on { background: rgba(240,138,60,.12); border-color: rgba(240,138,60,.4); } [data-theme="dark"] body.gstay #gridBox td.namecol.me, body.gstay[data-theme="dark"] #gridBox td.namecol.me { background: rgba(245,184,0,.25); }
 [data-theme="dark"] .gsnames button { background: #1c1f26; color: #e8eaee; }
+.gsc .tdct { align-items: flex-start; } .gstx { flex: 1; font-size: 14.5px; line-height: 1.5; } .gstx s { color: var(--muted, #6b7280); } .gstx em { font-style: normal; font-weight: 800; }
+.gstx span { display: inline-block; margin-right: 6px; padding: 0 6px; border-radius: 6px; font-size: 11.5px; font-weight: 800; color: #fff; vertical-align: 1px; }
+.gstx .gsw { background: #3b82c4; } .gstx .gsa { background: #e2572b; } .gstx .gsx { background: #6b7280; }
+.gsnow { font-size: 13px; color: var(--muted, #4b5563); margin: 4px 0 2px; } .gsc.hard .gsnow { color: #c0392b; font-weight: 700; }
+.gsodd { font-size: 12.5px; color: #a15c00; background: #fff4d6; border-radius: 8px; padding: 4px 8px; margin: 4px 0; }
+[data-theme="dark"] .gsodd { background: rgba(245,184,0,.15); color: #f5c451; }
 </style>
 </head>
 <body>
@@ -3929,6 +3935,7 @@ body.gstay #gridBox td.namecol.me { background: #ffe9a8; font-weight: 800; }
               .catch(function () { return new Promise(function (r) { setTimeout(r, 2000); }).then(function () { return apiCall(p0, 2); }); });
           });
         }
+        if ((params.action === 'setLeave' || params.action === 'removeLeave') && !params.token && prefs.me) params.who = prefs.me + '@' + gsDev();
         if (params.view === undefined && params.action !== 'auth') { var vv = prefs.viewPw || prefs.pw || prefs.dutyPw; if (vv) params.view = vv; }
         var qs = Object.keys(params).map(function (k) {
           return encodeURIComponent(k) + '=' + encodeURIComponent(params[k]);
@@ -4208,6 +4215,7 @@ body.gstay #gridBox td.namecol.me { background: #ffe9a8; font-weight: 800; }
       }
       // 訪客（門禁／查看密碼）：平常正常看；按「標留守」才進入——只有自己那排亮，點空白→留守，再點→取消（兩邊都刪）
       var gsOn = false;
+      function gsDev() { var d = ''; try { d = localStorage.getItem('rm_dev') || ''; if (!d) { d = (Date.now().toString(36) + Math.random().toString(36).slice(2, 10)).replace(/[^a-z0-9]/g, ''); localStorage.setItem('rm_dev', d); } } catch (e) { d = 'x'; } return d.slice(-4); }
       function gsMode() { return isRO() && !prefs.pw && !forcedRO; }
       function gsTap(el) {
         if (!gsOn) { showCellInfo(el); return; }
@@ -4215,7 +4223,12 @@ body.gstay #gridBox td.namecol.me { background: #ffe9a8; font-weight: 800; }
         if (name !== prefs.me) { showToast('只能點自己那排（' + prefs.me + '）', '換人', gsAsk, 2200); return; }
         var rec = getRec(k, name), ra = (recsA[k] || {})[name] || null, rb = (recsB[k] || {})[name] || null, st = function (r) { return r && r.period === '留守'; };
         if (st(rec) || st(ra) || st(rb)) { clearBoth(k, name); fxBuzz(12); return; }
-        if (rec || ra || rb) { showToast('這天已經有「' + recLabel(rec || ra || rb) + '」，不能改', null, null, 2200); return; }
+        if (rec || ra || rb) {
+          var lb = recLabel(rec || ra || rb);
+          showToast(mdLabel(k) + ' 已經是「' + lb + '」，要改請找班長', '複製訊息', function () { copyText('班長您好，我是' + name + '，' + mdLabel(k) + '（' + wkOf(k) + '）原本是「' + lb + '」，想改成留守，麻煩幫我修改，謝謝！', function () { showToast('已複製，貼到 Juiker 給班長', null, null, 2000); }); }, 4500);
+          return;
+        }
+        if (k < todayKey()) { showToast('過去的日子不能改，要補請找班長', null, null, 2200); return; }
         applyState(k, name, { period: '留守', type: '留守' }, null, '已標 ' + mdLabel(k) + ' 留守（再點一下取消）', true);
       }
       function gsStart() { if (!prefs.me) { gsAsk(); return; } gsOn = true; renderSched(); showToast('點自己那排就能標留守，好了按「完成」', null, null, 2400); }
@@ -4524,11 +4537,11 @@ body.gstay #gridBox td.namecol.me { background: #ffe9a8; font-weight: 800; }
         $('gRole').textContent = r; $('gRole').classList.toggle('guest', !prefs.pw && !!prefs.guest);
         $('gNote').innerHTML = (prefs.pw
           ? ['休假：可登錄' + (r === '股總' ? '全員' : r + '班'), '公差：可新增修改']
-          : (prefs.guest ? ['只能查看'] : ['只能查看', '休假可加留守'])).map(function (t) { return '<span>' + esc(t) + '</span>'; }).join('') + (!prefs.pw && !prefs.guest ? '<small>要修改請按「換身分」</small>' : '');
+          : ['只能查看', '自己的留守可以自己標']).map(function (t) { return '<span>' + esc(t) + '</span>'; }).join('') + (!prefs.pw && !prefs.guest ? '<small>要修改請按「換身分」</small>' : '');
         $('gLeaveSub').textContent = prefs.pw ? '點假單・' + (r === '股總' ? '全員' : r + '班') : '誰休假・誰留守';
         $('gDutySub').textContent = prefs.pw ? '派公差・尿篩・加班' : '誰有公差・尿篩・加班';
         $('gLog').hidden = !prefs.pw; $('gSub').classList.toggle('solo', !prefs.pw);
-        $('gTodo').hidden = !prefs.pw; if (prefs.pw) { todoBadge(); todoEnsure(); }
+        $('gTodo').hidden = !prefs.pw; if (prefs.pw) { todoBadge(); todoEnsure(); gsLogLoad(); }
       }
       function showGate() {
         gStep((prefs.pw || prefs.viewPw) ? 2 : 1);
@@ -7515,17 +7528,77 @@ body.gstay #gridBox td.namecol.me { background: #ffe9a8; font-weight: 800; }
         var nm = 0; miss.forEach(function (d) { nm += d.l.length; });
         return { hard: hard, soft: soft, miss: miss, nm: nm };
       }
+      // ====== 同仁自己改的留守（修改紀錄裡身分＝一般） ======
+      var gsLog = [], gsLogAt = 0, gsToasted = false;
+      function gsLogLoad(force) {
+        if (!prefs.pw || forcedRO || (!force && Date.now() - gsLogAt < 60000)) return;
+        gsLogAt = Date.now();
+        apiCall({ action: 'getLog', token: prefs.pw, limit: 300 }).then(function (res) {
+          if (!res || !res.ok) return;
+          var from = Math.max(prefs.gsSeen || 0, Date.now() - 21 * 864e5);
+          gsLog = (res.log || []).filter(function (r) { return r.role === '一般' && (r.ts || 0) > from && (r.action === '新增' || /^取消留守/.test(r.action)); });
+          todoBadge(); if ($('todoPage').classList.contains('show')) renderTodo();
+          var g = gsDays();
+          if (g.length && !gsToasted) {
+            gsToasted = true; var bad = g.filter(function (d) { return d.short; }).length;
+            showToast('同仁自己改了留守 ' + g.length + ' 天' + (bad ? '，其中 ' + bad + ' 天少了人' : ''), '去看', openTodo, 6000);
+          }
+        }).catch(function () { gsLogAt = 0; });
+      }
+      function gsStayN(k) { var n = 0; (empAll.length ? empAll : employees).forEach(function (e) { var r = getRec(k, e.name); if (r && r.period === '留守') n++; }); return n; }
+      // 依日期整理：同一人先加後取消（或反過來）就抵掉；一人取消、一人加入＝換班
+      function gsDays() {
+        var mine = {}; employees.forEach(function (e) { mine[e.name] = 1; });
+        var by = {}, devs = {};
+        gsLog.slice().sort(function (a, b) { return a.ts - b.ts; }).forEach(function (r) {
+          if (!r.date || !mine[r.name]) return;
+          var d = by[r.date] = by[r.date] || {}, add = r.action === '新增', p = d[r.name];
+          if (!p) d[r.name] = { first: add, last: add, ts: r.ts, who: r.who || '' }; else { p.last = add; p.ts = r.ts; if (r.who) p.who = r.who; }
+          var dv = String(r.who || '').split('@')[1]; if (dv) (devs[dv] = devs[dv] || {})[String(r.who).split('@')[0]] = 1;
+        });
+        var out = [];
+        Object.keys(by).sort().forEach(function (k) {
+          var add = [], del = [], ts = 0, odd = [];
+          Object.keys(by[k]).forEach(function (n) {
+            var p = by[k][n]; if (p.first !== p.last) return;
+            (p.last ? add : del).push(n); ts = Math.max(ts, p.ts);
+            var w = p.who.split('@'); if (w[0] && w[0] !== n) odd.push(w[0] + ' 幫 ' + n + ' 改');
+            if (w[1] && devs[w[1]] && Object.keys(devs[w[1]]).length > 1) odd.push('同一支手機改過 ' + Object.keys(devs[w[1]]).join('、'));
+          });
+          if (!add.length && !del.length) return;
+          var now = gsStayN(k);
+          out.push({ k: k, add: add, del: del, ts: ts, now: now, short: del.length > add.length || (now === 0 && dayInfo(k).off), odd: odd.filter(function (x, i, a) { return a.indexOf(x) === i; }) });
+        });
+        return out;
+      }
+      function gsTodoHtml() {
+        var g = gsDays(); if (!g.length) return '';
+        g.sort(function (a, b) { return (b.short - a.short) || (a.k < b.k ? -1 : 1); });
+        var bad = g.filter(function (d) { return d.short; }).length;
+        var h = '<details class="tds" data-fold="gs" open><summary class="tdh ' + (bad ? 'red' : 'org') + '"><b>同仁自己改的留守</b><span>' + g.length + ' 天' + (bad ? '・' + bad + ' 天少人' : '') + '</span></summary><div class="tdhint">大家自己標的留守。紅色＝取消的比加入的多，那天可能少人；其他看過就好。</div>';
+        h += g.map(function (d) {
+          var sw = d.add.length && d.add.length === d.del.length, tx = sw
+            ? '<span class="gsw">換班</span><s>' + esc(d.del.join('、')) + '</s> → <em>' + esc(d.add.join('、')) + '</em>'
+            : (d.add.length ? '<span class="gsa">＋留守</span>' + esc(d.add.join('、')) + ' ' : '') + (d.del.length ? '<span class="gsx">－取消</span>' + esc(d.del.join('、')) : '');
+          return '<div class="tdc gsc ' + (d.short ? 'hard' : 'soft') + '"><div class="tdct"><b>' + mdLabel(d.k) + '<small>' + wkOf(d.k) + '</small></b><span class="gstx">' + tx + '</span></div>' +
+            '<div class="gsnow">' + (d.now ? '現在 ' + d.now + ' 人留守' : '<b>現在沒人留守</b>') + (d.short && d.now ? '・比原本少 ' + (d.del.length - d.add.length) + ' 人' : '') + '</div>' +
+            (d.odd.length ? '<div class="gsodd">⚠ ' + esc(d.odd.join('；')) + '</div>' : '') +
+            '<div class="tdact"><button class="primary" data-tdduty="' + d.k + '">看這天</button></div></div>';
+        }).join('');
+        return h + '<button class="tdcopy" data-gsseen="1">全部看過了（清掉）</button></details>';
+      }
+      function gsSeenAll() { var m = 0; gsLog.forEach(function (r) { m = Math.max(m, r.ts || 0); }); prefs.gsSeen = m || Date.now(); savePrefs(); gsLog = []; renderTodo(); }
       function todoBadge() {
         if (!$('gTodoN') || !employees.length) return;
-        var r = todoRanges()[0], t = todoScan(r.a, r.b), n = t.hard.length + t.soft.length + t.nm;
+        var r = todoRanges()[0], t = todoScan(r.a, r.b), gn = gsDays().length, n = t.hard.length + t.soft.length + t.nm + gn;
         $('gTodoN').hidden = !n; $('gTodoN').textContent = n;
-        $('gTodoSub').textContent = n ? (t.hard.length + t.soft.length ? '重疊 ' + (t.hard.length + t.soft.length) + ' 件' : '') + (t.hard.length + t.soft.length && t.nm ? '・' : '') + (t.nm ? '假單未點 ' + t.nm + ' 人次' : '') : '這週都處理好了';
+        $('gTodoSub').textContent = n ? (gn ? '留守有改 ' + gn + ' 天' + (n > gn ? '・' : '') : '') + (t.hard.length + t.soft.length ? '重疊 ' + (t.hard.length + t.soft.length) + ' 件' : '') + (t.hard.length + t.soft.length && t.nm ? '・' : '') + (t.nm ? '假單未點 ' + t.nm + ' 人次' : '') : '這週都處理好了';
       }
       function openTodo() {
         $('idGate').classList.remove('show'); $('todoPage').classList.add('show'); $('todoPage').scrollTop = 0;
         var R3 = todoRanges(); todoW = 0;
         for (var i = 0; i < 3; i++) { var t = todoScan(R3[i].a, R3[i].b); if (t.hard.length + t.soft.length + t.nm) { todoW = i; break; } }
-        todoStart = {}; renderTodo(); todoEnsure();
+        todoStart = {}; renderTodo(); todoEnsure(); gsLogLoad();
       }
       function todoTypeTx(it) { return { off: '休假撞公差', away: '外勤撞公差', duty: '公差撞公差', ev: '公差撞行程', plan: '公差撞輪值', leaveplan: '休假撞輪值' }[it.kind]; }
       function renderTodo() {
@@ -7548,6 +7621,7 @@ body.gstay #gridBox td.namecol.me { background: #ffe9a8; font-weight: 800; }
         }
         var fold = prefs.todoFold || {}, all = cur.hard.map(function (x) { x._s = 0; return x; }).concat(cur.soft.map(function (x) { x._s = 1; return x; }));
         all.sort(function (p, q) { return p.k < q.k ? -1 : (p.k > q.k ? 1 : p._s - q._s); });
+        h += gsTodoHtml();
         h += '<details class="tds" data-fold="dup"' + (fold.dup ? '' : ' open') + '><summary class="tdh red"><b>時間重疊</b><span>' + (all.length ? all.length + ' 件' : '沒有') + '</span></summary><div class="tdhint">同一個人、同一時間排了兩件事。按「看公差・換人」換掉一個；只是提醒的按「沒問題」。</div>';
         h += all.length ? all.map(function (it) { return card(it, !!it._s); }).join('') : '<div class="tdok">✓ ' + rg.lab + '沒有重疊</div>';
         h += '</details>';
@@ -7864,7 +7938,7 @@ body.gstay #gridBox td.namecol.me { background: #ffe9a8; font-weight: 800; }
         { ic: '<span class="tic ic-ok"></span>', t: '3　按「新增」', d: '確認名稱後按<b>「新增」</b>，主畫面就有圖示，一點就開。' }
       ];
       var CHANGELOG = [
-        { v: 'v11.36', d: '11/10', t: ['門禁／查看身分標留守變簡單：平常照樣正常看全部人；按班表上方「標留守」才開始，只有自己那排亮、其他人變暗', '標留守時：點自己空白格＝留守，再點一下＝取消（班長、股總兩份一起刪），不用再跳選單；好了按「完成」恢復正常看', '第一次會問「你是誰」，打名字就能找到；不想標也能選「我只看，不標記」'] },
+        { v: 'v11.36', d: '11/10', t: ['門禁／查看身分標留守變簡單：平常照樣正常看全部人；按班表上方「標留守」才開始，只有自己那排亮、其他人變暗', '標留守時：點自己空白格＝留守，再點一下＝取消（班長、股總兩份一起刪），不用再跳選單；好了按「完成」恢復正常看', '第一次會問「你是誰」，打名字就能找到；不想標也能選「我只看，不標記」', '已經是休、出差等的格子不能自己改，按「複製訊息」直接貼給班長；過去的日子也不能改', '班長打開 App 會跳「同仁自己改了留守」，待處理最上面列出：換班、＋留守、－取消，取消比加入多的那天標紅色「少人」，看完按「全部看過了」'] },
         { v: 'v11.35', d: '11/10', t: ['產出新增「尿篩」提醒：自動抓下一次尿篩；明天的寫「明日…如無法按時前往，請於 0900時前回復」，今天的寫「今日…請準時前往」', '回復截止時間可以自己填（空著＝尿篩前 1 小時）'] },
         { v: 'v11.34', d: '11/9', t: ['內部整理：程式依功能分檔、刪掉沒在用的程式和樣式、合併重複的寫法；畫面和功能都沒變，檔案變小'] },
         { v: 'v11.33', d: '11/9', t: ['用查看密碼或門禁密碼登入的人，也能新增、取消「留守」（點名字那格）；取消會把班長、股總兩份一起刪；其他（休假、外勤）還是只能看；後端第四十八版'] },
@@ -8633,6 +8707,7 @@ body.gstay #gridBox td.namecol.me { background: #ffe9a8; font-weight: 800; }
           if (b.dataset.tdcopy) { copyText(todoCopyText()); return; }
           if (b.dataset.tdok) { prefs.todoOk = prefs.todoOk || {}; prefs.todoOk[b.dataset.tdok] = 1; savePrefs(); renderTodo(); showToast('這筆不再提醒', null, null, 1500); return; }
           if (b.dataset.tdduty) { dutyOpen(b.dataset.tdduty); return; }
+          if (b.dataset.gsseen) { gsSeenAll(); return; }
           if (b.dataset.tdcell) {
             var go = function () { onCellLong({ dataset: { date: b.dataset.tdcell, name: b.dataset.tdname } }); };
             if (isRO()) { $('editBtn').click(); var tries = 0, w = setInterval(function () { tries++; if (!isRO()) { clearInterval(w); renderTodo(); go(); } else if (tries > 40) clearInterval(w); }, 250); return; }
@@ -8670,6 +8745,7 @@ body.gstay #gridBox td.namecol.me { background: #ffe9a8; font-weight: 800; }
         ensureData(false);
         updateBanner();
         if (prefs.duty && !forcedRO) showDuty(); else if (needGate()) showGate(); else if (!prefs.seen) setTimeout(showTour, 700);
+        if (prefs.pw) setTimeout(function () { gsLogLoad(); }, 2500);
       });
     })();
   
