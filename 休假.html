@@ -2893,6 +2893,34 @@ body.gstay #gridBox td.namecol.me { background: #ffe9a8; font-weight: 800; }
 [data-theme="dark"] .mncopy { background: #1c1f26; color: #ff9b8f; }
 .mnoff { color: var(--muted, #6b7280); font-weight: 600; }
 .mnsum { grid-template-columns: auto repeat(3, 1fr); align-items: center; } .mnsum em { font-style: normal; font-weight: 900; font-size: 15px; padding: 0 4px; }
+/* v11.38 我的行程：名字＋月曆 */
+.mnwho { display: flex; align-items: center; gap: 10px; background: var(--card, #fff); border: 2px solid var(--ink, #1f2a44); border-radius: 14px; padding: 6px 6px 6px 14px; box-shadow: 0 3px 0 var(--ink, #1f2a44); margin-bottom: 8px; }
+.mnwho label { flex: none; font-weight: 900; font-size: 16px; }
+.mnwho input { flex: 1; min-width: 0; min-height: 44px; border: none; background: transparent; font: inherit; font-size: 20px; font-weight: 900; color: var(--ink, #1f2a44); outline: none; }
+.mnwho input::placeholder { color: var(--muted, #9ca3af); font-weight: 600; font-size: 16px; }
+.mnhits { display: flex; flex-wrap: wrap; gap: 8px; margin: 0 0 10px; } .mnhits:empty { display: none; }
+.mnhits button { min-height: 42px; padding: 4px 14px; border-radius: 999px; border: 1.5px solid var(--line, #d8d2c2); background: var(--card, #fff); color: var(--ink, #1f2a44); font: inherit; font-size: 16px; font-weight: 800; }
+.mnnone { text-align: center; color: var(--muted, #6b7280); padding: 30px 10px; font-size: 15px; line-height: 1.6; }
+.mncalbox { background: var(--card, #fff); border: 1px solid var(--line, #e5dfcf); border-radius: 16px; padding: 8px 8px 10px; margin: 6px 0 14px; }
+.mnmh { display: flex; align-items: center; justify-content: space-between; margin-bottom: 6px; } .mnmh b { font-size: 17px; font-weight: 900; } .mnmh button { min-width: 44px; min-height: 40px; font-size: 22px; font-weight: 900; border-radius: 10px; }
+.mncal2 .wh.we { color: #c0392b; }
+.mncal2 .cc { min-height: 62px; display: flex; flex-direction: column; align-items: center; gap: 1px; padding: 4px 1px 3px; }
+.mncal2 .cc[data-mk] { cursor: pointer; } .mncal2 .cc[data-mk]:active { transform: scale(.94); }
+.mncal2 .cc.today { box-shadow: 0 0 0 2.5px #f0b400; } .mncal2 .cc.clash { box-shadow: 0 0 0 2.5px #d93a2b; } .mncal2 .cc.past { opacity: .45; }
+.mncal2 .cc .m { font-size: 14px; }
+.mncal2 .dd { display: flex; gap: 2px; margin-top: auto; } .mncal2 .dd i { font-style: normal; width: 18px; height: 16px; line-height: 16px; border-radius: 5px; font-size: 11px; font-weight: 900; color: #fff; background: var(--c); }
+.mnlg { display: flex; flex-wrap: wrap; gap: 4px 12px; margin: 10px 4px 0; font-size: 12.5px; color: var(--muted, #4b5563); } .mnlg i { display: inline-block; width: 11px; height: 11px; border-radius: 3px; background: var(--c); margin-right: 4px; vertical-align: -1px; }
+.mnedit { margin: 0 0 8px; padding: 9px 12px; border-radius: 12px; background: #fff1e9; border: 1.5px dashed #f0b48a; font-size: 14.5px; font-weight: 700; color: var(--ink, #1f2a44); }
+.mnedit b { color: #fff; background: var(--c); padding: 0 6px; border-radius: 6px; }
+.mnh3 { font-size: 17px; font-weight: 900; margin: 6px 2px 8px; }
+.mnseg { margin-bottom: 8px; }
+[data-theme="dark"] .mnedit { background: rgba(240,138,60,.12); border-color: rgba(240,138,60,.45); color: #e8eaee; }
+[data-theme="dark"] .mnwho input { color: #f3f4f6; } [data-theme="dark"] .mnhits button { background: #1c1f26; color: #e8eaee; }
+#minePage .t-ev { --c: #b07d00; } #minePage .t-ur { --c: #c79a00; }
+.mncal2 .cc .unf { font-size: 10.5px; font-weight: 900; color: #c0392b; background: #fff; border: 1px solid #e8a3a3; border-radius: 5px; padding: 0 3px; line-height: 15px; margin-top: 2px; }
+.mnunf { color: #c0392b; font-weight: 800; }
+.mnunfbox { background: #fff4e5; border: 1.5px solid #f0b48a; border-radius: 12px; padding: 8px 12px; margin-bottom: 10px; font-size: 14px; color: #8a3b12; } .mnunfbox b { display: block; font-size: 15px; color: #c2410c; } .mnunfbox small { display: block; margin-top: 2px; opacity: .85; }
+[data-theme="dark"] .mnunfbox { background: rgba(240,138,60,.12); color: #fbc59b; border-color: rgba(240,138,60,.45); } [data-theme="dark"] .mnunfbox b, [data-theme="dark"] .mnunf { color: #ffa37f; } [data-theme="dark"] .mncal2 .cc .unf { background: #1c1f26; color: #ff9b8f; }
 </style>
 </head>
 <body>
@@ -3196,8 +3224,7 @@ body.gstay #gridBox td.namecol.me { background: #ffe9a8; font-weight: 800; }
     <div id="todoBody"></div>
   </div>
   <div id="minePage" role="dialog" aria-label="我的行程">
-    <header class="appbar"><button class="editbtn" id="mineBack" aria-label="返回">‹ 返回</button><div class="today"><b id="mineName">我的行程</b><small>留守・休假・公差・尿篩</small></div><div class="right"></div></header>
-    <div class="tdseg" id="mineSeg"></div>
+    <header class="appbar"><button class="editbtn" id="mineBack" aria-label="返回">‹ 返回</button><div class="today"><b id="mineName">我的行程</b><small>點日子就能標留守</small></div><div class="right"></div></header>
     <div id="mineBody"></div>
   </div>
   <div id="attPage" role="dialog" aria-label="每日到班">
@@ -4273,6 +4300,10 @@ body.gstay #gridBox td.namecol.me { background: #ffe9a8; font-weight: 800; }
         if (!gsOn) { showCellInfo(el); return; }
         var k = el.dataset.date, name = el.dataset.name;
         if (name !== prefs.me) { showToast('只能點自己那排（' + prefs.me + '）', '換人', gsAsk, 2200); return; }
+        gsToggle(k, name);
+      }
+      // 訪客點自己的一天：空白→留守、留守→取消、休假→留守；其他鎖住；過去不能改
+      function gsToggle(k, name) {
         var rec = getRec(k, name), ra = (recsA[k] || {})[name] || null, rb = (recsB[k] || {})[name] || null, st = function (r) { return r && r.period === '留守'; };
         if (k < todayKey()) { showToast('過去的日子不能改，要補請找班長', null, null, 2200); return; }
         if (st(rec) || st(ra) || st(rb)) { clearBoth(k, name); fxBuzz(12); return; }
@@ -4958,6 +4989,7 @@ body.gstay #gridBox td.namecol.me { background: #ffe9a8; font-weight: 800; }
       // ====== 總繪製 ======
       function renderAll() {
         try { if ($('todoPage').classList.contains('show')) setTimeout(renderTodo, 0); else todoBadge(); } catch (e) { /* 忽略 */ }
+        try { if ($('minePage').classList.contains('show') && document.activeElement !== $('mnIn')) setTimeout(renderMine, 0); } catch (e) { /* 忽略 */ }
         useEmps(); applyFull();
         applyTabs();
         if (tab === 'out' && myId() === 'guest') { setTab('days'); return; }
@@ -5947,7 +5979,7 @@ body.gstay #gridBox td.namecol.me { background: #ffe9a8; font-weight: 800; }
         }).join('') + '</div>';
       }
       function evRerender() {
-        try { if ($('todoPage').classList.contains('show')) renderTodo(); if ($('dutyPage').classList.contains('show')) renderDutyMon(); if ($('dutyDay').classList.contains('show')) renderDutyDay(); if ($('attPage').classList.contains('show')) renderAtt(); if (tab === 'days') safeRender(); } catch (e) { /* 忽略 */ }
+        try { if ($('todoPage').classList.contains('show')) renderTodo(); if ($('dutyPage').classList.contains('show')) renderDutyMon(); if ($('dutyDay').classList.contains('show')) renderDutyDay(); if ($('attPage').classList.contains('show')) renderAtt(); if ($('minePage').classList.contains('show')) renderMine(); if (tab === 'days') safeRender(); } catch (e) { /* 忽略 */ }
       }
       function eventsLoad(force) {
         if (!force && Date.now() - evLoadAt < 60000) return;
@@ -7847,24 +7879,32 @@ body.gstay #gridBox td.namecol.me { background: #ffe9a8; font-weight: 800; }
           }).join('') + '</div></div>';
         }).join('');
       }
-      // ====== 我的行程（個人專區）：本週／下週／更多，行事曆＋清單，重疊標紅 ======
-      var mineW = 0;
+      // ====== 我的行程（班員個人專區）：輸入名字 → 月曆（可點標留守）→ 本週／下週／更多每天要做什麼 ======
+      var mineW = 0, mineYM = '';
       function mineRanges() {
         var tk = todayKey(), m0 = mondayOf(tk);
         return [{ lab: '本週', a: m0, b: addDays(m0, 6) }, { lab: '下週', a: addDays(m0, 7), b: addDays(m0, 13) }, { lab: '更多', a: addDays(m0, 14), b: addDays(m0, 27) }];
       }
       function openMine() {
-        if (!prefs.me) { gsAsk(function () { openMine(); }); return; }
         $('idGate').classList.remove('show'); $('minePage').classList.add('show'); $('minePage').scrollTop = 0;
+        mineYM = todayKey().slice(0, 7);
         renderMine(); todoEnsure();
+        if (!prefs.me) setTimeout(function () { try { $('mnIn').focus(); } catch (e) { /* 忽略 */ } }, 300);
       }
-      // 一天裡我的事：t＝種類（決定顏色）、s＝一個字（行事曆用）、x＝說明
+      // 月曆換月時，那個月的資料還沒讀就讀
+      function mineLoad(ym) {
+        if (todoAsked[ym]) return; todoAsked[ym] = 1;
+        var y = +ym.slice(0, 4), m = +ym.slice(5, 7), done = function () { if ($('minePage').classList.contains('show')) renderMine(); };
+        if (!loaded[ym]) fetchPeriod(y, m).then(done).catch(function () { delete todoAsked[ym]; });
+        apiCall({ action: 'getDuty', year: y, month: m }).then(function (res) { if (!res || !res.ok) delete todoAsked[ym]; dutyFill(y, m, res); done(); }).catch(function () { delete todoAsked[ym]; });
+      }
+      // 一天裡我的事：t＝種類（決定顏色）、s＝一個字、x＝說明
       function mineItems(k, me) {
         var out = [], r = (recordsPub[k] || {})[me] || getRec(k, me);
         if (r) {
           if (r.period === '留守') out.push({ t: 'stay', s: '留', x: '留守' });
           else if (r.period === '監控') out.push({ t: 'mon', s: '監', x: '監控' });
-          else if (r.period === '外勤') out.push({ t: 'away', s: String(r.type || '外').replace(/^出差$/, '差').replace(/^受訓$/, '訓').slice(0, 1), x: r.type || '外勤' });
+          else if (r.period === '外勤') out.push({ t: 'away', s: awayCh(r.type), x: r.type || '外勤' });
           else out.push({ t: 'off', s: r.period === '全天' ? '休' : (r.period === '上午' ? '上' : '下'), x: r.period === '全天' ? '休假' : r.period + '休' });
         }
         (dutyAll[k] || []).forEach(function (d) {
@@ -7883,14 +7923,14 @@ body.gstay #gridBox td.namecol.me { background: #ffe9a8; font-weight: 800; }
             out.push({ t: g ? 'guard' : 'plan', s: g ? '哨' : '輪', x: (g ? '衛哨（駐廠其中一人去）' : '輪值 ' + itm) + (pt ? ' ' + pt.a + '–' + pt.b : '') + (q.est ? '（預估）' : '') + (q.sub ? '（代理）' : '') });
           });
         } catch (e) { /* 忽略 */ }
+        try { eventsOf(k).forEach(function (e) { if (evHas(e, me)) out.push({ t: 'ev', s: '行', x: (e.time ? e.time + ' ' : '') + e.title }); }); } catch (e2) { /* 忽略 */ }
         return out;
       }
       function mineClash(a, b, me) {
         var sc = todoScan(a, b), m = {};
         sc.hard.concat(sc.soft).forEach(function (it) {
           if (it.n !== me) return;
-          var tx = String(it.a).replace(/^輪值 /, '') + ' ↔ ' + String(it.b).replace(/^輪值 /, '');
-          (m[it.k] = m[it.k] || []).push({ tx: tx, soft: sc.soft.indexOf(it) >= 0 });
+          (m[it.k] = m[it.k] || []).push(String(it.a).replace(/^輪值 /, '') + ' ↔ ' + String(it.b).replace(/^輪值 /, ''));
         });
         return m;
       }
@@ -7899,55 +7939,94 @@ body.gstay #gridBox td.namecol.me { background: #ffe9a8; font-weight: 800; }
         for (var i = 0; i < ks.length; i++) { var d = (dutyAll[ks[i]] || []).filter(function (x) { return x.n === me && isUrine(x.why); })[0]; if (d) return { k: ks[i], tm: String(d.time || '').trim() }; }
         return null;
       }
-      function renderMine() {
-        var me = prefs.me; if (!me) return;
-        var R = mineRanges(), tk = todayKey();
-        $('mineName').textContent = me + ' 的行程';
-        $('mineSeg').innerHTML = R.map(function (r, i) {
-          var nc = Object.keys(mineClash(r.a, r.b, me)).length;
-          return '<button class="' + (i === mineW ? 'on' : '') + '" data-mw="' + i + '">' + r.lab + (nc ? '<i>' + nc + '</i>' : '') + '<small>' + mdLabel(r.a) + '–' + mdLabel(r.b) + '</small></button>';
-        }).join('');
-        var rg = R[mineW], cl = mineClash(rg.a, rg.b, me), h = '', days = [], cnt = { stay: 0, off: 0, duty: 0 };
-        for (var k = rg.a; k <= rg.b; k = addDays(k, 1)) {
-          var its = mineItems(k, me); days.push({ k: k, its: its });
-          its.forEach(function (it) { if (it.t === 'stay') cnt.stay++; else if (it.t === 'off') cnt.off++; else if (it.t !== 'away' && it.t !== 'mon') cnt.duty++; });
+      // 假日沒標休、也沒標留守＝假單還沒點（軍官不算）
+      function mineUnf(k, me) {
+        if (!dayInfo(k).off || !loaded[k.slice(0, 7)] || (recordsPub[k] || {})[me] || getRec(k, me)) return false;
+        var e = (empAll.length ? empAll : employees).filter(function (x) { return x.name === me; })[0];
+        return !(e && e.officer && !e.chief && me !== chiefName());
+      }
+      function mineNames() { return (empAll.length ? empAll : employees).map(function (e) { return e.name; }); }
+      function mineWhoHtml() {
+        return '<div class="mnwho"><label for="mnIn">我是</label><input id="mnIn" type="search" autocomplete="off" placeholder="輸入你的名字" value="' + esc(prefs.me || '') + '"></div><div class="mnhits" id="mnHits"></div>';
+      }
+      function mineHits(q) {
+        q = String(q || '').trim();
+        var ns = mineNames().filter(function (n) { return !q || n.indexOf(q) >= 0 || qkIs(q, n); });
+        $('mnHits').innerHTML = q === prefs.me ? '' : ns.slice(0, 12).map(function (n) { return '<button data-mnme="' + esc(n) + '">' + esc(n) + '</button>'; }).join('');
+      }
+      // 月曆：顏色跟休假月曆一樣，下面加公差小字，撞到的那天紅框；訪客點一下標／取消留守
+      function mineCal(ym, me, cl) {
+        var y = +ym.slice(0, 4), m = +ym.slice(5, 7), lead = (parseKey(ym + '-01').getDay() + 6) % 7, n = daysInMonth(y, m), tk = todayKey(), edit = gsMode();
+        var h = '<div class="mncalbox"><div class="mnmh"><button class="ghost" data-mm="-1" aria-label="上個月">‹</button><b>' + y + ' 年 ' + m + ' 月</b><button class="ghost" data-mm="1" aria-label="下個月">›</button></div>';
+        if (edit) h += '<div class="mnedit">點一下日子＝<b class="t-stay">留守</b>，再點一下取消</div>';
+        h += '<div class="cal mncal2" id="mnCal">';
+        ['一', '二', '三', '四', '五', '六', '日'].forEach(function (w, i) { h += '<div class="wh' + (i > 4 ? ' we' : '') + '">' + w + '</div>'; });
+        for (var i = 0; i < lead; i++) h += '<div class="cc empty"></div>';
+        for (var d = 1; d <= n; d++) {
+          var k = ym + '-' + pad(d), inf = dayInfo(k), r = (recordsPub[k] || {})[me] || getRec(k, me);
+          var dut = mineItems(k, me).filter(function (it) { return it.t !== 'stay' && it.t !== 'off' && it.t !== 'away' && it.t !== 'mon'; });
+          var cls = 'cc' + (inf.off ? ' off' : '') + (r ? ' ' + periodClass(r) : '') + (r && !inf.off && isLeave(r) && r.period === '全天' ? ' comp' : '') + (k === tk ? ' today' : '') + (cl[k] ? ' clash' : '') + (k < tk ? ' past' : '');
+          h += '<div class="' + cls + '"' + (edit ? ' data-mk="' + k + '"' : '') + '><span class="n">' + d + '</span>';
+          if (r) h += '<span class="m">' + (isLeave(r) ? '休' : (isAway(r) ? awayCh(r.type) : (r.period === '留守' ? '留' : '監'))) + '</span>';
+          if (!r && mineUnf(k, me)) h += '<span class="unf">未點</span>';
+          if (dut.length) h += '<span class="dd">' + dut.slice(0, 2).map(function (it) { return '<i class="t-' + it.t + '">' + esc(it.s) + '</i>'; }).join('') + '</span>';
+          h += '</div>';
         }
-        // 重疊（最上面）
-        var ck = Object.keys(cl).sort();
-        if (ck.length) h += '<div class="mnclash"><b>⚠ 時間撞到了</b>' + ck.map(function (k) { return '<div>' + mdLabel(k) + '(' + wkOf(k) + ') ' + esc(cl[k].map(function (c) { return c.tx; }).join('；')) + '</div>'; }).join('') + '<button class="mncopy" data-mn="tell">複製訊息給班長</button></div>';
-        // 數字
-        var nu = mineNextUrine(me);
-        var nu = mineNextUrine(me);
-        var nf = days.filter(function (d) { return d.k >= tk && !d.its.length && !dayInfo(d.k).off; }).length;
-        // 當月：休假幾天（半天算 0.5）、留守、勤務
-        var ym = tk.slice(0, 7), mc = { off: 0, stay: 0, duty: 0 }, d0 = ym + '-01';
-        for (var mk = d0; mk.slice(0, 7) === ym; mk = addDays(mk, 1)) {
-          var rr = (recordsPub[mk] || {})[me] || getRec(mk, me); mc.off += leaveValue(rr);
+        h += '</div>';
+        h += '<div class="mnlg"><span><i class="t-stay"></i>留守</span><span><i style="background:var(--comp)"></i>平日休</span><span><i class="t-off"></i>假日休</span><span><i class="t-duty"></i>公差</span><span><i class="t-ur"></i>尿篩</span><span><i class="t-shoot"></i>打靶</span><span><i class="t-plan"></i>輪值</span><span><i class="t-ev"></i>行程</span></div>';
+        return h + '</div>';
+      }
+      function renderMine() {
+        var me = prefs.me, tk = todayKey(), h = mineWhoHtml();
+        $('mineName').textContent = me ? me + ' 的行程' : '我的行程';
+        if (!me || mineNames().indexOf(me) < 0) {
+          $('mineBody').innerHTML = h + '<div class="mnnone">先輸入你的名字，就能看到自己的留守、休假、公差、尿篩</div>';
+          mineHits($('mnIn').value === me ? '' : $('mnIn').value);
+          return;
+        }
+        var R = mineRanges(), all = mineClash(R[0].a, R[2].b, me);
+        mineYM = mineYM || tk.slice(0, 7); mineLoad(mineYM);
+        // 時間撞到（未來四週）
+        var ck = Object.keys(all).filter(function (k) { return k >= tk; }).sort();
+        if (ck.length) h += '<div class="mnclash"><b>⚠ 時間撞到了</b>' + ck.map(function (k) { return '<div>' + mdLabel(k) + '(' + wkOf(k) + ') ' + esc(all[k].join('；')) + '</div>'; }).join('') + '<button class="mncopy" data-mn="tell">複製訊息給班長</button></div>';
+        var unf = []; for (var uk = tk.slice(0, 7) + '-01'; uk <= R[2].b; uk = addDays(uk, 1)) if (mineUnf(uk, me)) unf.push(uk);
+        if (unf.length) h += '<div class="mnunfbox"><b>假單還沒點 ' + unf.length + ' 天</b>' + unf.map(function (k) { return mdLabel(k) + '(' + wkOf(k) + ')'; }).join('、') + '<small>記得點假單；要留守就在月曆上點那天</small></div>';
+        // 當月數字
+        var ym = tk.slice(0, 7), mc = { off: 0, stay: 0, duty: 0 };
+        for (var mk = ym + '-01'; mk.slice(0, 7) === ym; mk = addDays(mk, 1)) {
+          mc.off += leaveValue((recordsPub[mk] || {})[me] || getRec(mk, me));
           mineItems(mk, me).forEach(function (it) { if (it.t === 'stay') mc.stay++; else if (it.t !== 'off' && it.t !== 'away' && it.t !== 'mon') mc.duty++; });
         }
+        var nu = mineNextUrine(me);
+        // 月曆
+        h += mineCal(mineYM, me, mineClash(mineYM + '-01', mineYM + '-' + pad(daysInMonth(+mineYM.slice(0, 4), +mineYM.slice(5, 7))), me));
         h += '<div class="mnsum"><em>' + (+ym.slice(5)) + ' 月</em><span class="t-off">休假 <b>' + mc.off + '</b> 天</span><span class="t-stay">留守 <b>' + mc.stay + '</b></span><span class="t-duty">勤務 <b>' + mc.duty + '</b></span></div>';
         h += '<div class="mnur">下次尿篩：' + (nu ? '<b>' + mdLabel(nu.k) + '(' + wkOf(nu.k) + ')' + (nu.tm ? ' ' + esc(fmtTm(nu.tm)) : '') + '</b>' : '目前沒排') + '</div>';
-        // 行事曆
-        var wk = ['一', '二', '三', '四', '五', '六', '日'];
-        h += '<div class="mncal"><div class="mnhd">' + wk.map(function (w, i) { return '<span' + (i > 4 ? ' class="we"' : '') + '>' + w + '</span>'; }).join('') + '</div><div class="mngrid">';
-        h += days.map(function (d) {
-          var di = dayInfo(d.k), c = (d.k === tk ? ' today' : '') + (di.off ? ' off' : '') + (cl[d.k] ? ' clash' : '') + (d.k < tk ? ' past' : '');
-          return '<div class="mnd' + c + '"><b>' + (+d.k.slice(8)) + '</b>' + d.its.slice(0, 3).map(function (it) { return '<i class="t-' + it.t + '">' + esc(it.s) + '</i>'; }).join('') + (d.its.length > 3 ? '<em>+' + (d.its.length - 3) + '</em>' : '') + (!d.its.length && d.k >= tk && !di.off ? '<u>可休</u>' : '') + '</div>';
-        }).join('') + '</div></div>';
-        // 每天要做什麼（今天以後每天都列；沒事＝可以休假）
-        var left = days.filter(function (d) { return d.k >= tk; });
+        // 每天要做什麼
+        h += '<h3 class="mnh3">每天要做什麼</h3><div class="tdseg mnseg">' + R.map(function (r, i) {
+          var nc = Object.keys(all).filter(function (k) { return k >= r.a && k <= r.b; }).length;
+          return '<button class="' + (i === mineW ? 'on' : '') + '" data-mw="' + i + '">' + r.lab + (nc ? '<i>' + nc + '</i>' : '') + '<small>' + mdLabel(r.a) + '–' + mdLabel(r.b) + '</small></button>';
+        }).join('') + '</div>';
+        var rg = R[mineW], left = [];
+        for (var k = rg.a; k <= rg.b; k = addDays(k, 1)) if (k >= tk) left.push({ k: k, its: mineItems(k, me) });
         h += '<div class="mnlist">' + left.map(function (d) {
           var free = !d.its.length;
-          return '<div class="mnrow' + (cl[d.k] ? ' clash' : '') + (d.k === tk ? ' today' : '') + (free ? ' free' : '') + '"><div class="mnk"><b>' + mdLabel(d.k) + '</b><small>' + wkOf(d.k) + (d.k === tk ? '・今天' : '') + '</small></div><div class="mnv">' +
-            (free ? (dayInfo(d.k).off ? '<div class="mnoff">放假・沒排留守</div>' : '<div class="mnfree">✓ 沒排事，可以請假</div>') : d.its.map(function (it) { return '<div><i class="t-' + it.t + '">' + esc(it.s) + '</i>' + esc(it.x) + '</div>'; }).join('')) + (cl[d.k] ? '<div class="mnc">⚠ 撞到了，請告訴班長</div>' : '') + '</div></div>';
+          return '<div class="mnrow' + (all[d.k] ? ' clash' : '') + (d.k === tk ? ' today' : '') + (free ? ' free' : '') + '"><div class="mnk"><b>' + mdLabel(d.k) + '</b><small>' + wkOf(d.k) + (d.k === tk ? '・今天' : '') + '</small></div><div class="mnv">' +
+            (free ? (dayInfo(d.k).off ? (mineUnf(d.k, me) ? '<div class="mnunf">放假・假單還沒點</div>' : '<div class="mnoff">放假・沒排留守</div>') : '<div class="mnfree">沒排事</div>') : d.its.map(function (it) { return '<div><i class="t-' + it.t + '">' + esc(it.s) + '</i>' + esc(it.x) + '</div>'; }).join('')) + (all[d.k] ? '<div class="mnc">⚠ 撞到了，請告訴班長</div>' : '') + '</div></div>';
         }).join('') + '</div>';
-        if (!todoReady()) h += '<div class="tdload">資料讀取中…</div>';
-        h += '<div class="mnact"><button class="primary" data-mn="copy">複製我的行程</button>' + (gsMode() ? '<button data-mn="stay">去標留守</button>' : '') + '</div>';
+        if (!todoReady() || !loaded[mineYM]) h += '<div class="tdload">資料讀取中…</div>';
+        h += '<div class="mnact"><button class="primary" data-mn="copy">複製我的行程</button></div>';
+        var st = $('minePage').scrollTop;
         $('mineBody').innerHTML = h;
+        $('minePage').scrollTop = st;
+      }
+      function mineMonth(dm) {
+        var d = parseKey(mineYM + '-01'); d.setMonth(d.getMonth() + dm);
+        mineYM = d.getFullYear() + '-' + pad(d.getMonth() + 1); renderMine();
       }
       function mineTellText() {
-        var me = prefs.me, rg = mineRanges()[mineW], cl = mineClash(rg.a, rg.b, me);
-        return '班長您好，我是' + me + '，以下時間撞到了，麻煩幫我確認：\n' + Object.keys(cl).sort().map(function (k) { return mdLabel(k) + '（' + wkOf(k) + '）' + cl[k].map(function (c) { return c.tx; }).join('；'); }).join('\n') + '\n謝謝！';
+        var me = prefs.me, R = mineRanges(), tk = todayKey(), cl = mineClash(R[0].a, R[2].b, me);
+        return '班長您好，我是' + me + '，以下時間撞到了，麻煩幫我確認：\n' + Object.keys(cl).filter(function (k) { return k >= tk; }).sort().map(function (k) { return mdLabel(k) + '（' + wkOf(k) + '）' + cl[k].join('；'); }).join('\n') + '\n謝謝！';
       }
       function mineCopyText() {
         var me = prefs.me, rg = mineRanges()[mineW], L = [];
@@ -8114,7 +8193,7 @@ body.gstay #gridBox td.namecol.me { background: #ffe9a8; font-weight: 800; }
         { ic: '<span class="tic ic-ok"></span>', t: '3　按「新增」', d: '確認名稱後按<b>「新增」</b>，主畫面就有圖示，一點就開。' }
       ];
       var CHANGELOG = [
-        { v: 'v11.38', d: '11/10', t: ['班員（訪客）首頁新增「我的行程」：輸入名字就看到自己本週／下週／更多的留守、休假、公差、尿篩、打靶、加班、輪值', '上面寫這個月休假幾天、留守、勤務；再來是小行事曆（顏色跟班表一樣），下面只列有事的日子；平日沒排事的會寫「可以請假」；時間撞到的那天紅框，最上面可以「複製訊息給班長」', '可以「複製我的行程」貼到備忘錄；訪客可以直接「去標留守」'] },
+        { v: 'v11.38', d: '11/10', t: ['班員（訪客）首頁新增「我的行程」：最上面打自己的名字就好', '一張月曆看完這個月：留守、休假、出差顏色跟班表一樣，公差、尿篩、打靶、輪值、當日行程用小字標在格子下面；時間撞到的那天紅框', '假日沒標休也沒標留守的，月曆上寫紅色「未點」，上面也會列出「假單還沒點 N 天」', '在月曆上點一下日子就標留守，再點一下取消（休假也能點成留守）；左右滑或按 ‹ › 換月', '下面寫這個月休假幾天、留守、勤務，還有本週／下週／更多每天要做什麼；撞到的可以「複製訊息給班長」'] },
         { v: 'v11.36', d: '11/10', t: ['門禁／查看身分標留守變簡單：平常照樣正常看全部人；按班表上方「標留守」才開始，只有自己那排亮、其他人變暗', '標留守時：點自己空白格＝留守，再點一下＝取消（班長、股總兩份一起刪），不用再跳選單；好了按「完成」恢復正常看', '第一次會問「你是誰」，打名字就能找到；不想標也能選「我只看，不標記」', '自己的休假可以直接點成留守（再點一下改回休假）；出差、受訓等不能自己改，按「複製訊息」貼給班長；過去的日子也不能改', '班長那邊會寫「郭蕙芳 休假改留守 11/15(日)　請確認假單已撤回」', '查看身分點格子只看資料，不再出現「換身分」，要換身分請登出再登入', '班長打開 App 會跳「○○ 改了留守」，待處理最上面「留守變更」一人一行：郭蕙芳 新增 11/10、11/19，取消的日期劃線；可能少人的日子另外紅色列出，看完按「都看過了」'] },
         { v: 'v11.35', d: '11/10', t: ['產出新增「尿篩」提醒：自動抓下一次尿篩；明天的寫「明日…如無法按時前往，請於 0900時前回復」，今天的寫「今日…請準時前往」', '回復截止時間可以自己填（空著＝尿篩前 1 小時）'] },
         { v: 'v11.34', d: '11/9', t: ['內部整理：程式依功能分檔、刪掉沒在用的程式和樣式、合併重複的寫法；畫面和功能都沒變，檔案變小'] },
@@ -8874,13 +8953,23 @@ body.gstay #gridBox td.namecol.me { background: #ffe9a8; font-weight: 800; }
         $('gAtt').addEventListener('click', function () { openAtt(); });
         $('gMine').addEventListener('click', function () { openMine(); });
         $('mineBack').addEventListener('click', function () { $('minePage').classList.remove('show'); showGate(); });
-        $('mineSeg').addEventListener('click', function (ev) { var b = ev.target.closest('[data-mw]'); if (!b) return; mineW = +b.dataset.mw; renderMine(); });
+        $('mineBody').addEventListener('input', function (ev) { if (ev.target.id === 'mnIn') mineHits(ev.target.value); });
+        $('mineBody').addEventListener('focusin', function (ev) { if (ev.target.id === 'mnIn') { try { ev.target.select(); } catch (e) { /* 忽略 */ } mineHits(''); } });
         $('mineBody').addEventListener('click', function (ev) {
-          var b = ev.target.closest('[data-mn]'); if (!b) return;
+          var c = ev.target.closest('[data-mk]');
+          if (c) { gsToggle(c.dataset.mk, prefs.me); return; }
+          var b = ev.target.closest('button'); if (!b) return;
+          if (b.dataset.mnme) { prefs.me = b.dataset.mnme; prefs.gsAsked = 1; savePrefs(); $('mnIn').blur(); renderMine(); return; }
+          if (b.dataset.mm) { mineMonth(+b.dataset.mm); return; }
+          if (b.dataset.mw) { mineW = +b.dataset.mw; renderMine(); return; }
           if (b.dataset.mn === 'copy') { copyText(mineCopyText()); return; }
-          if (b.dataset.mn === 'tell') { copyText(mineTellText(), function () { showToast('已複製，貼到 Juiker 給班長', null, null, 2000); }); return; }
-          if (b.dataset.mn === 'stay') { $('minePage').classList.remove('show'); prefs.duty = false; hideDuty(); finishGate(); setTab('sched'); gsStart(); }
+          if (b.dataset.mn === 'tell') { copyText(mineTellText(), function () { showToast('已複製，貼到 Juiker 給班長', null, null, 2000); }); }
         });
+        (function () {   // 月曆左右滑換月
+          var x0 = null, y0 = 0;
+          $('mineBody').addEventListener('touchstart', function (ev) { x0 = ev.target.closest('#mnCal') ? ev.touches[0].clientX : null; y0 = ev.touches[0].clientY; }, { passive: true });
+          $('mineBody').addEventListener('touchend', function (ev) { if (x0 === null) return; var dx = ev.changedTouches[0].clientX - x0, dy = ev.changedTouches[0].clientY - y0; x0 = null; if (Math.abs(dx) > 60 && Math.abs(dx) > Math.abs(dy) * 1.5) mineMonth(dx < 0 ? 1 : -1); }, { passive: true });
+        })();
         $('attBack').addEventListener('click', function () { $('attPage').classList.remove('show'); });
         $('gTodo').addEventListener('click', function () { openTodo(); });
         $('todoBack').addEventListener('click', function () { $('todoPage').classList.remove('show'); showGate(); });
