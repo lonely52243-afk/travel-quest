@@ -3263,6 +3263,29 @@ body:has(#idGate.show) #sheetMask { z-index: 10010; } body:has(#idGate.show) #to
 [data-theme="dark"] #sheet .sh-btn.clr { background: transparent; border-color: #ff8a7d; color: #ffb1a8; box-shadow: 0 2px 0 #ff8a7d; } [data-theme="dark"] #sheet .sh-btn.clr small { color: #ffb1a8; }
 .bmiss .bmc .mchip { padding: 4px 13px; }
 #sheet .sh-btn.clr::before { display: none !important; content: none !important; }
+/* 快速標記：字體分層、精緻提示框、緊湊工具列 */
+#quickPage .qkh { font-size: 12.5px; font-weight: 700; margin: 12px 0 5px; }
+#quickPage .tpb { min-height: 44px; border-radius: 10px; }
+#quickPage .tpb b { font-size: 14px; } #quickPage .tpb small { font-size: 10.5px; }
+#quickPage .tpb::before { width: 20px !important; height: 20px !important; }
+#quickPage .qktime { font-size: 13px !important; padding-left: 4px !important; padding-right: 4px !important; text-align: center; letter-spacing: -.3px; }
+#quickPage .qkchip.dt { font-size: 14px; padding: 5px 12px; }
+#quickPage .qksel { gap: 6px; }
+#quickPage .qksel .qkchip { font-size: 13.5px; padding: 4px 8px 4px 12px; border-width: 1.5px; }
+#quickPage .qksel .qkx0 { font-size: 12px; margin-left: 2px; }
+#quickPage .qkprob { margin-top: 10px; padding: 7px 10px; border: 1px solid #f1c7c2; border-radius: 9px; background: #fdf3f2; font-size: 12px; line-height: 1.55; font-weight: 500; color: #b3261e; }
+#quickPage .qkprob b { color: #8f2018; font-weight: 800; }
+#quickPage .qkprob div.h::before { content: '⚠ '; } #quickPage .qkprob div.s { color: #8a5a12; } #quickPage .qkprob div.s b { color: #6e470c; } #quickPage .qkprob div.s::before { content: 'ⓘ '; }
+#quickPage .qkprob div + div { margin-top: 2px; }
+#quickPage .qktools { margin-top: 12px; gap: 6px; }
+#quickPage .qktools .qkx { font-size: 13px; min-height: 32px; padding: 0 14px; border-radius: 999px; border-width: 1.5px; font-weight: 700; }
+[data-theme="dark"] #quickPage .qkprob { background: rgba(217,58,43,.12); border-color: rgba(217,58,43,.4); color: #ffb1a8; } [data-theme="dark"] #quickPage .qkprob b { color: #ffd0ca; } [data-theme="dark"] #quickPage .qkprob div.s, [data-theme="dark"] #quickPage .qkprob div.s b { color: #f3c98a; }
+/* 當日行程：說明 */
+.evhint { margin: 0 0 10px; padding: 9px 11px; border-radius: 10px; background: #f3effb; border: 1px solid #d9cdf0; color: #4b3a78; font-size: 13px; line-height: 1.6; }
+.evhint b { color: #3b2a6a; }
+[data-theme="dark"] .evhint { background: rgba(123,79,191,.15); border-color: rgba(123,79,191,.45); color: #d8c9f5; } [data-theme="dark"] .evhint b { color: #efe6ff; }
+#quickPage .tpo input.qktime { min-height: 44px; border-radius: 10px; }
+#quickPage .qksel .qkchip.pp { font-size: 14px !important; } #quickPage .qksel .qkx0 { margin-left: 5px !important; }
 </style>
 </head>
 <body>
@@ -6422,7 +6445,8 @@ body:has(#idGate.show) #sheetMask { z-index: 10010; } body:has(#idGate.show) #to
         openSheet({
           title: (e ? '修改' : '新增') + '當日行程　' + mdLabel(k) + '（' + wkOf(k) + '）',
           sub: '不算公差。有指定的人，派公差時間撞到會提醒',
-          body: '<label class="evl">事項（自己填）<input type="text" id="evTitle" maxlength="20" value="' + esc(e ? e.title : '') + '" placeholder="例：服裝儀容檢查"></label>' +
+          body: '<div class="evhint"><b>當日行程</b>＝大家都要參加的整天活動（例：軍士官團、服裝儀容檢查），不用一個一個點人。<br>只有少數人去、會佔掉工作時間的，請用「＋ 公差」。</div>' +
+            '<label class="evl">事項（自己填）<input type="text" id="evTitle" maxlength="20" value="' + esc(e ? e.title : '') + '" placeholder="例：服裝儀容檢查"></label>' +
             '<div class="evchips">' + tl.map(function (t) { return '<button data-evt="' + esc(t) + '">' + esc(t) + '</button>'; }).join('') + '</div>' +
             '<label class="evl">時間（可不填，不填＝上班時間）<input type="text" id="evTime" maxlength="20" value="' + esc(e ? e.time : '') + '" placeholder="例：0730-0800"></label>' +
             '<div class="evl">對象（點人名＝只有這些人；都不點＝全員）</div><div class="evpick"><button data-evall="1"' + (who.length ? '' : ' class="on"') + '>全員</button>' +
@@ -6882,7 +6906,7 @@ body:has(#idGate.show) #sheetMask { z-index: 10010; } body:has(#idGate.show) #to
         qkEv.forEach(function (e, i) {
           h += '<div class="qkcard"><div class="qkh">事項 ' + (i + 1) + '</div>';
           h += '<label class="qkl">事由<input type="text" class="qkwhy" data-e="' + i + '" maxlength="10" list="qkWhys" value="' + esc(e.why) + '" placeholder="例：打靶"></label>';
-          if (!qkMode) h += '<button class="qkx qkevt' + (e.asEv ? ' on' : '') + '" data-e="' + i + '" data-asev="1">' + (e.asEv ? '✓ 當日行程（不算公差）' : '這是當日行程？（不算公差）') + '</button>';
+          if (false) h += '<button class="qkx qkevt' + (e.asEv ? ' on' : '') + '" data-e="' + i + '" data-asev="1">' + (e.asEv ? '✓ 當日行程（不算公差）' : '這是當日行程？（不算公差）') + '</button>';
           var tcur = e.time === '08:00–17:00' ? '整天' : (e.time || ''), tpb = function (t, sub) { return '<button class="tpb' + (tcur === t ? ' on' : '') + '" data-e="' + i + '" data-t="' + t + '"><b>' + t.replace(/:00/g, '') + '</b>' + (sub ? '<small>' + sub + '</small>' : '') + '</button>'; };
           var tPre = /^(整天|上午|下午|18:00–19:00|18:00–20:00)$/.test(tcur);
           h += '<div class="qkh">時間</div><div class="tpgrid"><span class="tpl">上班</span>' + tpb('整天', '08–17') + tpb('上午', '08–12') + tpb('下午', '13:30–17') +
@@ -6945,7 +6969,7 @@ body:has(#idGate.show) #sheetMask { z-index: 10010; } body:has(#idGate.show) #to
         var probs = [];
         h += '<div class="qksel">';
         on.forEach(function (x) {
-          var is = qkIssues(e, x.p), hard = is.some(function (t) { return t[0] !== '~'; }); if (is.length) probs.push((hard ? '⚠ ' : 'ⓘ ') + '<b>' + esc(x.p.n) + '</b>　' + esc(is.map(qkIsTxt).join('、')));
+          var is = qkIssues(e, x.p), hard = is.some(function (t) { return t[0] !== '~'; }); is.forEach(function (t) { var tx = qkIsTxt(t), key = (t[0] !== '~' ? 'h' : 's') + tx, g = probs.filter(function (q) { return q.key === key; })[0]; if (!g) probs.push(g = { key: key, hard: t[0] !== '~', tx: tx, ns: [] }); if (g.ns.indexOf(x.p.n) < 0) g.ns.push(x.p.n); });
           h += '<span class="qkp' + (hard ? ' off' : '') + '"><button class="qkchip pp on" data-e="' + i + '" data-p="' + x.j + '">' + esc(x.p.n) + (x.p.time && !e.ptm ? '<small> ' + esc(x.p.time) + '</small>' : '') + '<i class="qkx0">×</i></button>' +
             (e.ptm ? '<button class="qkchip tm' + (x.p.time ? ' on' : '') + '" data-e="' + i + '" data-p="' + x.j + '" data-cy="1">' + (x.p.time || '時間') + '</button>' : '') + '</span>';
         });
@@ -6953,7 +6977,9 @@ body:has(#idGate.show) #sheetMask { z-index: 10010; } body:has(#idGate.show) #to
         if (!on.length && !unk.length) h += '<span class="muted" style="font-size:13px">還沒選人</span>';
         h += '</div>';
         if (unk.length) h += '<div class="qkunk">「' + unk.map(esc).join('」「') + '」名冊對不到：點它，再從名單選是誰，下次會自動對到</div>';
-        if (probs.length) h += '<div class="qkprob">' + probs.map(function (t) { return '<div>' + t + '</div>'; }).join('') + '</div>';
+        // 同一種狀況的人合併成一行：「李宗穎、蔡同咨：已經排過這項」
+        probs.sort(function (a, b) { return b.hard - a.hard; });
+        if (probs.length) h += '<div class="qkprob">' + probs.map(function (g) { return '<div class="' + (g.hard ? 'h' : 's') + '"><b>' + g.ns.map(esc).join('、') + '</b>：' + esc(g.tx === '已經有了' ? '當天已經排過這項' : g.tx) + '</div>'; }).join('') + '</div>';
         h += '<div class="qktools"><button class="qkx qkadd2' + (pick ? ' on' : '') + '" data-e="' + i + '" data-pick="1">' + (pick ? '收起名單 ▴' : '＋ 加人') + '</button>' +
           (on.length ? '<button class="qkx qkptm' + (e.ptm ? ' on' : '') + '" data-e="' + i + '" data-ptm="1">個別時間</button>' : '') + '</div>';
         if (pick) {
@@ -8731,6 +8757,7 @@ body:has(#idGate.show) #sheetMask { z-index: 10010; } body:has(#idGate.show) #to
         { ic: '<span class="tic ic-ok"></span>', t: '3　按「新增」', d: '確認名稱後按<b>「新增」</b>，主畫面就有圖示，一點就開。' }
       ];
       var CHANGELOG = [
+        { v: 'v11.43', d: '11/10', t: ['快速標記：拿掉「這是當日行程？」按鈕；當日行程只從當天詳細的「＋ 當日行程」新增，點了會先說明什麼算當日行程', '快速標記：字體分層（時間、日期、人名縮小）；警告改成精緻提示框，同一種狀況的人合併成一行（例：李宗穎、蔡同咨：當天已經排過這項）；「＋ 加人」「個別時間」改成小膠囊按鈕；自訂時間不會被切掉'] },
         { v: 'v11.42', d: '11/10', t: ['點格子的選單重新排版：休假（上午休／下午休／全天休）、公假（上午／下午／全天公假）、其他（留守、監控、救災、出差、受訓），拿掉「不在營」分組和「其他…自己打」；休假、公假按鈕拿掉大圖示只留文字，其他按鈕改成左邊單色圓點（留／監／救／差／訓，跟班表一樣）；按鈕圓角統一；「清除」改成紅框按鈕，按下去會往下壓', '公假改成算休假（半天算 0.5），跟一般休假分開顯示：班表寫「公」、人員情況寫「（公假）」；以前記成外勤的公假會自動當休假看', '公差判斷：公假那天排到公差一樣會提醒「時間撞到」'] },
         { v: 'v11.41', d: '11/10', t: ['我的行程：統計移到月曆上面，預設收起（標題列直接看到 休・留・勤 的數字）', '月曆改成精緻版：日期縮小淡化放左上；休假、留守、公差改成淡色小標籤，一天兩件就上下兩行，第三件起變成底部小圓點；上午／下午休寫「上休／下休」，不再斜切', '月份列的箭頭和「標留守」按鈕縮小', '收折按鈕改成箭頭（收起 ›，打開 ⌄）', '每天要做什麼：字體縮小，日期、標籤、內容、時間都垂直置中；狀態標籤太長不會再折行'] },
         { v: 'v11.40', d: '11/10', t: ['首頁每日情況：今天、明天展開，其他天只顯示一行摘要（行程、休幾人、到班幾人、留守誰、未點幾人），點一下展開，可以「▴ 收起」；複製按鈕加圖示，按了變綠色「✓ 已複製」', '產出頁：選項按鈕統一圓角和高度，日期框和「夜間／假日／不寫」對齊；每區的標題和說明都放左上', '公差月曆：日期數字縮小放左上角，跟人名分開；今天的日期黃底', '底下的顏色說明可以點：點「打靶」就只亮有打靶的日子，其他變淡，再點一次或按「✕ 全部」恢復'] },
