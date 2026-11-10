@@ -3325,6 +3325,7 @@ body:has(#idGate.show) #sheetMask { z-index: 10010; } body:has(#idGate.show) #to
 #attBody .asec.who > .arow.here:first-child { margin-top: -8px; }
 #attBody .arow.here .ach { font-size: 13.5px; padding: 2px 9px; }
 .dstat .tl.sm.here .tlm > b::before { content: '✓'; display: inline-block; width: 20px; height: 20px; line-height: 20px; margin-right: 6px; border-radius: 50%; background: #2f8a55; color: #fff; font-size: 12px; font-weight: 900; text-align: center; vertical-align: 1px; background-image: none; }
+#quickPage .qksel { clear: both; width: 100%; }
 </style>
 </head>
 <body>
@@ -6522,6 +6523,8 @@ body:has(#idGate.show) #sheetMask { z-index: 10010; } body:has(#idGate.show) #to
         var W = { '一': 1, '二': 2, '三': 3, '四': 4, '五': 5, '六': 6, '日': 7, '天': 7 };
         var m = b.match(/(下|本|這)\s*(?:週|周|禮拜|星期)\s*([一二三四五六日天])/);
         if (m) return addDays(mon, (m[1] === '下' ? 7 : 0) + W[m[2]] - 1);
+        var mp = b.match(/(今|明|後)\s*[（(]\s*(\d{1,2})\s*[)）]\s*日/);
+        if (mp) { for (var q = 0; q < 4; q++) { var kq = addDays(tk, q); if (+kq.slice(8) === +mp[2]) return kq; } return addDays(tk, mp[1] === '今' ? 0 : mp[1] === '明' ? 1 : 2); }
         if (/後天/.test(b)) return addDays(tk, 2);
         if (/明日|明天/.test(b)) return addDays(tk, 1);
         if (/今日|今天|本日/.test(b)) return tk;
@@ -6780,6 +6783,8 @@ body:has(#idGate.show) #sheetMask { z-index: 10010; } body:has(#idGate.show) #to
         return '';
       }
       function qkPerTask(b) {
+        // 打靶職掌表：括號裡是各人的職掌（射手、救護員…），不是不同公差 → 整則當一件「打靶」
+        if (/職掌|手槍|步槍|射擊|打靶|輕兵器|射手/.test(b)) return [];
         var lines = b.split('\n'), cur = '', grp = {}, order = [], hits = 0;
         lines.forEach(function (ln) {
           var mm = ln.match(QK_DRX), rest = ln;
@@ -6827,6 +6832,21 @@ body:has(#idGate.show) #sheetMask { z-index: 10010; } body:has(#idGate.show) #to
           if (!qkDatesIn(head).length || segs.some(function (x) { return qkDatesIn(x).length || !qkNames(x).length; })) return [plain];
           return segs.map(function (x) { return head.trim() + '\n' + x.trim(); });
         }));
+        // 一則裡用空行隔開好幾段，每段都有自己的日期和人 → 拆成好幾件（例：打靶職掌表＋明天擦槍）
+        blocks = [].concat.apply([], blocks.map(function (b) {
+          var ps = b.split(/\n[ \t]*\n+/).map(function (x) { return x.trim(); }).filter(Boolean);
+          if (ps.length < 2) return [b];
+          var relP = function (p) { return /(今|明|後)\s*[（(]\s*\d{1,2}\s*[)）]\s*日/.test(p) ? qkRel(p) : ''; };
+          var own = function (p) { return (qkDatesIn(p).length || relP(p)) && (qkNames(p).length || /@/.test(p)); };
+          var ownP = ps.filter(own), dk = ownP.map(function (p) { return (qkDatesIn(p)[0] || relP(p)); });
+          if (ownP.length < 2 || dk.some(function (d, i) { return dk.indexOf(d) !== i; })) return [b];
+          // 開頭沒日期、沒人名的段落（通知本文）不拆
+          if (!own(ps[0])) return [b];
+          // 沒日期的段落併到前一段
+          var out = [];
+          ps.forEach(function (p) { if (own(p) || !out.length) out.push(p); else out[out.length - 1] += '\n' + p; });
+          return out;
+        }));
         // 沒有人名的那段（通知本文）跟下一段（派的人）合成同一則
         for (var bi = 0; bi < blocks.length - 1; bi++) {
           if (!qkNames(blocks[bi]).length && qkNames(blocks[bi + 1]).length) { blocks.splice(bi, 2, blocks[bi] + '\n' + blocks[bi + 1]); bi--; }
@@ -6854,6 +6874,8 @@ body:has(#idGate.show) #sheetMask { z-index: 10010; } body:has(#idGate.show) #to
           if (e.why === '加班' && d0) e.why = (dayInfo(d0).off ? '假日' : '夜間') + '加班';
           if (isOT(e.why) && d0 && dayInfo(d0).off && !e.time) e.time = '08:00–17:00';
         });
+        // 擦槍：只寫開始時間 → 上午預設 2 小時（0900 → 09:00–11:00），下午做到 17:00（1330 → 13:30–17:00）
+        evs.forEach(function (e) { if (/擦槍/.test(e.why || '') && /^\d{1,2}:\d{2}$/.test(e.time || '')) { var h0 = +e.time.slice(0, 2); e.time = e.time + '–' + (h0 >= 13 ? '17:00' : pad(h0 + 2) + e.time.slice(2)); } });
         var otBy = {};
         evs.forEach(function (e, i) {
           if (!isOT(e.why) || e.dates.length !== 1) return;
@@ -8659,7 +8681,7 @@ body:has(#idGate.show) #sheetMask { z-index: 10010; } body:has(#idGate.show) #to
       // 這個人這天要注意的事：全天休、已經有同一項、尿篩太近 → 不管時間都會標；
       var PEOPLE = [];   // 後端股名冊：[{n 姓名, c 班別, k 幹部, a 簡稱}]
       // 「上午／@某人／下午／@某人」「0600-0800／@某人」：標記行下面那個人的時間
-      var QK_MAP0, QK_MAP = QK_MAP0 = [[/輕兵器|射擊訓練|射擊預習|射手/, '打靶'], [/防水/, '頂樓防水監工'], [/平[台臺]監工|共構平[台臺]/, '平台監工'], [/小木屋|招待所/, '小木屋'], [/性別主流/, '性別主流講習'], [/球類競賽|慶球/, '球類競賽支援'], [/靶勤|靶溝/, '打靶'], [/體能戰技|鑑測/, '體測支援'], [/清運/, '清運公差'], [/桶裝水/, '搬桶裝水'], [/私章|印章/, '蓋印章'], [/衛生教育/, '衛生教育'], [/送校/, '裝備送校'], [/擴大\s*FO/i, '擴大FO'], [/無人機/, '無人機監工'], [/報廢/, '報廢公差'], [/擦槍/, '擦槍'], [/觀禮/, '觀禮'], [/打靶/, '打靶']];
+      var QK_MAP0, QK_MAP = QK_MAP0 = [[/輕兵器|射擊訓練|射擊預習|射手|手槍|步槍|打靶/, '打靶'], [/防水/, '頂樓防水監工'], [/平[台臺]監工|共構平[台臺]/, '平台監工'], [/小木屋|招待所/, '小木屋'], [/性別主流/, '性別主流講習'], [/球類競賽|慶球/, '球類競賽支援'], [/靶勤|靶溝/, '打靶'], [/體能戰技|鑑測/, '體測支援'], [/清運/, '清運公差'], [/桶裝水/, '搬桶裝水'], [/私章|印章/, '蓋印章'], [/衛生教育/, '衛生教育'], [/送校/, '裝備送校'], [/擴大\s*FO/i, '擴大FO'], [/無人機/, '無人機監工'], [/報廢/, '報廢公差'], [/擦槍/, '擦槍'], [/觀禮/, '觀禮'], [/打靶/, '打靶']];
       var QK_VAR = { '啓': '啟', '峯': '峰', '羣': '群', '衞': '衛', '裏': '裡', '着': '著', '綫': '線', '台': '臺', '鉅': '巨', '姍': '珊', '堃': '坤', '喆': '哲' };
       var qkMode = null;
       var EVENTS = {}, EV_KEY = 'leave_events_v1', evLoadAt = 0;
@@ -8800,6 +8822,7 @@ body:has(#idGate.show) #sheetMask { z-index: 10010; } body:has(#idGate.show) #to
         { ic: '<span class="tic ic-ok"></span>', t: '3　按「新增」', d: '確認名稱後按<b>「新增」</b>，主畫面就有圖示，一點就開。' }
       ];
       var CHANGELOG = [
+        { v: 'v11.45', d: '11/10', t: ['快速標記：打靶職掌表（手槍／步槍、射手、救護員…）整則歸成一件「打靶」，括號裡的職掌不再拆成好幾件公差；名字只寫名（志鵬、瓊嵐）也抓得到', '快速標記：選到的人名改成橫排，不會一人一行', '快速標記：一則通知用空行隔開、每段有自己的日期和人（例：打靶職掌表＋「明（11）日擦槍」），會拆成兩件；看得懂「明（11）日」', '擦槍只寫開始時間：上午預設 2 小時（0900 → 09:00–11:00），下午做到 17:00（1330 → 13:30–17:00）'] },
         { v: 'v11.44', d: '11/10', t: ['當天詳細：「當天情況」加上到班（綠色、放最前面），人數跟每日到班同步', '每日到班：到班、休假、外勤、留守、監控放在同一張卡，到班放最前面用綠框醒目；有排公差的到班人員右上有紫點', '每日到班：日期列、週曆、應到／實到／不在縮小；人名標籤縮小，一行放得下更多人；複製按鈕改成小的白色按鈕', '公假在人員名單上標「公假」小字'] },
         { v: 'v11.43', d: '11/10', t: ['快速標記：拿掉「這是當日行程？」按鈕；當日行程只從當天詳細的「＋ 當日行程」新增，點了會先說明什麼算當日行程', '快速標記：字體分層（時間、日期、人名縮小）；警告改成精緻提示框，同一種狀況的人合併成一行（例：李宗穎、蔡同咨：當天已經排過這項）；「＋ 加人」「個別時間」改成小膠囊按鈕；自訂時間不會被切掉'] },
         { v: 'v11.42', d: '11/10', t: ['點格子的選單重新排版：休假（上午休／下午休／全天休）、公假（上午／下午／全天公假）、其他（留守、監控、救災、出差、受訓），拿掉「不在營」分組和「其他…自己打」；休假、公假按鈕拿掉大圖示只留文字，其他按鈕改成左邊單色圓點（留／監／救／差／訓，跟班表一樣）；按鈕圓角統一；「清除」改成紅框按鈕，按下去會往下壓', '公假改成算休假（半天算 0.5），跟一般休假分開顯示：班表寫「公」、人員情況寫「（公假）」；以前記成外勤的公假會自動當休假看', '公差判斷：公假那天排到公差一樣會提醒「時間撞到」'] },
