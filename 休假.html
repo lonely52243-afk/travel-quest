@@ -3126,6 +3126,18 @@ body:has(#idGate.show) #sheetMask { z-index: 10010; } body:has(#idGate.show) #to
 .gmtell { display: flex; flex-direction: column; align-items: center; width: 100%; margin-top: 8px; min-height: 52px; border-radius: 14px; border: none; background: #d93a2b; color: #fff; font: inherit; font-size: 16px; font-weight: 900; box-shadow: 0 3px 0 #9e2318; }
 .gmtell small { font-size: 12px; font-weight: 700; opacity: .9; }
 .gsd2.sel .gdot i:not(.unf) { box-shadow: 0 0 0 1.5px #fff; } .gdot i { box-shadow: 0 0 0 1px rgba(255,255,255,.6); }
+/* 公差月曆：日期數字小、固定左上；圖例可以點來篩選 */
+#dutyGrid .dcell > b { align-self: flex-start; font-size: 12px; font-weight: 800; line-height: 18px; min-width: 18px; height: 18px; padding: 0 4px; margin: 0 0 1px 2px; border-radius: 9px; color: var(--muted, #6b7280); text-align: left; }
+#dutyGrid .dcell.off > b { color: #c0392b; }
+#dutyGrid .dcell.today > b { background: #f0b400; color: #1E2A4A; text-align: center; }
+#dutyPage .dmain.fit #dutyGrid .dcell > b { font-size: 11.5px; line-height: 17px; height: 17px; }
+#dutyGrid .dcell.lfdim { opacity: .22; filter: grayscale(.7); }
+#dutyGrid .dcell.lfhit { border-color: #1f2a44; border-width: 2px; }
+#dutyLegend { display: flex; flex-wrap: wrap; justify-content: center; gap: 4px 2px; }
+#dutyLegend button { border: 1px solid transparent; background: none; font: inherit; font-size: inherit; color: inherit; padding: 2px 6px; border-radius: 999px; min-height: 26px; display: inline-flex; align-items: center; }
+#dutyLegend button.on { background: #1f2a44; color: #fff; border-color: #1f2a44; }
+#dutyLegend.filtering button:not(.on) { opacity: .55; }
+.lfhint { flex-basis: 100%; font-size: 11.5px; color: var(--muted, #9ca3af); } .lfhint button { margin-left: 6px; border: 1px solid var(--line, #d8d2c2) !important; background: var(--card, #fff) !important; color: var(--ink, #1f2a44) !important; opacity: 1 !important; }
 </style>
 </head>
 <body>
@@ -3457,7 +3469,7 @@ body:has(#idGate.show) #sheetMask { z-index: 10010; } body:has(#idGate.show) #to
     <div class="dbar"><button class="linkbtn" id="dutyToday" hidden>回到本月</button><button class="linkbtn gdset" id="guardSet" hidden>衛哨設定</button><button class="dsync" id="dutySync"></button></div>
     <div id="dutyLoading" class="dloading" hidden>讀取中…</div>
     <div id="dutyGrid"></div>
-    <div class="dtip"><i class="lgb du"></i>公差 <i class="lgb ur"></i>尿篩 <i class="lgb sh"></i>打靶 <i class="lgb ot"></i>加班 <i class="lgb ev"></i>行程・<u class="dot stay"></u>留守 <u class="dot note"></u>備註 <u class="dot fo"></u>擴大FO</div>
+    <div class="dtip" id="dutyLegend"><button data-lf="du"><i class="lgb du"></i>公差</button><button data-lf="ur"><i class="lgb ur"></i>尿篩</button><button data-lf="sh"><i class="lgb sh"></i>打靶</button><button data-lf="ot"><i class="lgb ot"></i>加班</button><button data-lf="ev"><i class="lgb ev"></i>行程</button><button data-lf="stay"><u class="dot stay"></u>留守</button><button data-lf="note"><u class="dot note"></u>備註</button><button data-lf="fo"><u class="dot fo"></u>擴大FO</button><span class="lfhint" id="dutyLfHint"></span></div>
     </div>
     <div id="dutyStat" hidden><div id="statBody"></div></div>
     </div>
@@ -7150,11 +7162,16 @@ body:has(#idGate.show) #sheetMask { z-index: 10010; } body:has(#idGate.show) #to
           bars.sort(function (a, b) { return a.s - b.s; });
           if (bars.length) { var lim = bars.length > 3 ? 2 : 3; chips += '<span class="dbars">' + bars.slice(0, lim).map(function (x) { return '<i class="db ' + x.c + '"' + (x.w ? ' title="' + esc(x.w) + '"' : '') + '>' + (x.h || esc(x.t)) + '</i>'; }).join('') + (bars.length > lim ? '<i class="db more">＋' + (bars.length - lim) + '</i>' : '') + '</span>'; }
           var no = 0; Object.keys(o.out).forEach(function (w) { no += o.out[w].length; });
+          var ty = {}; bars.forEach(function (x) { ty[x.c] = 1; }); if (o.stay.length) ty.stay = 1; if (o.anyNote) ty.note = 1; if (!info.off && (d.getDay() === 2 || d.getDay() === 5)) ty.fo = 1;
+          var lfc = dutyLF ? (ty[dutyLF] ? ' lfhit' : ' lfdim') : '';
           var dots = (o.stay.length ? '<u class="dot stay"></u>' : '') + (o.mon.length ? '<u class="dot mon"></u>' : '') + (no ? '<u class="dot out"></u>' : '') + (o.anyNote ? '<u class="dot note"></u>' : '');
           if (dots) chips += '<span class="dots">' + dots + '</span>';
-          h += '<button class="dcell' + (inM ? '' : ' dim') + (k === tk ? ' today' : '') + (info.off ? ' off' : '') + (!info.off && (d.getDay() === 2 || d.getDay() === 5) ? ' fo' : '') + '" data-k="' + k + '"><b>' + d.getDate() + '</b>' + chips + '</button>';
+          h += '<button class="dcell' + lfc + (inM ? '' : ' dim') + (k === tk ? ' today' : '') + (info.off ? ' off' : '') + (!info.off && (d.getDay() === 2 || d.getDay() === 5) ? ' fo' : '') + '" data-k="' + k + '"><b>' + d.getDate() + '</b>' + chips + '</button>';
         }
         $('dutyGrid').innerHTML = h;
+        Array.prototype.forEach.call(document.querySelectorAll('#dutyLegend [data-lf]'), function (b) { b.classList.toggle('on', b.dataset.lf === dutyLF); });
+        $('dutyLegend').classList.toggle('filtering', !!dutyLF);
+        $('dutyLfHint').innerHTML = dutyLF ? '只看「' + ({ du: '公差', ur: '尿篩', sh: '打靶', ot: '加班', ev: '行程', stay: '留守', note: '備註', fo: '擴大FO' }[dutyLF]) + '」<button data-lf="">✕ 全部</button>' : '點上面的類別可以只看那一種';
         var nw = new Date(); $('dutyToday').hidden = (y === nw.getFullYear() && m === nw.getMonth() + 1);
         renderDutyToday();
       }
@@ -8536,6 +8553,7 @@ body:has(#idGate.show) #sheetMask { z-index: 10010; } body:has(#idGate.show) #to
       var dutyWeek = 0;
 
       var bDays = [], bExtra = [], bType = '留守', bSel = [], bInit = {};
+      var dutyLF = '';   // 公差月曆：圖例篩選
       var B_TYPES = { '留守': { period: '留守', type: '留守' }, '監控': { period: '監控', type: '監控' }, '全天休': { period: '全天', type: '特休' },
         '救災': { period: '外勤', type: '救災' }, '出差': { period: '外勤', type: '出差' }, '受訓': { period: '外勤', type: '受訓' } };
 
@@ -8567,6 +8585,7 @@ body:has(#idGate.show) #sheetMask { z-index: 10010; } body:has(#idGate.show) #to
         { ic: '<span class="tic ic-ok"></span>', t: '3　按「新增」', d: '確認名稱後按<b>「新增」</b>，主畫面就有圖示，一點就開。' }
       ];
       var CHANGELOG = [
+        { v: 'v11.40', d: '11/10', t: ['公差月曆：日期數字縮小放左上角，跟人名分開；今天的日期黃底', '底下的顏色說明可以點：點「打靶」就只亮有打靶的日子，其他變淡，再點一次或按「✕ 全部」恢復'] },
         { v: 'v11.39', d: '11/10', t: ['「訪客」改叫「一般」，「換身分」改叫「登出」；招呼改成「你好，志鵬」（不加姓）', '一般首頁重新設計：最上面紅色「假單還沒點」、橘色「時間撞到」通知條，按了直接看；下面兩週的滑動週曆（有事用小圓點、整天狀態用色塊），點哪天就在大卡片顯示那天要做什麼（今天綠框）；時間撞到的那天卡片紅框會亮，多一顆「📣 一鍵回報班長」複製訊息貼 Juiker', '要做的事標籤改成兩個字（公差、尿篩、打靶、輪值、衛哨、行程、加班），顏色分得更開', '行程排版統一：一天一列，左邊日期＋整天狀態色塊（留守、休假、出差），右邊一件事一行、時間靠右；留守的日子會列出「一起留守」的同仁；首頁、我的行程、點日子視窗都一樣', '訪客首頁改成以「我」為主：一打開就看到「你好，○○」、今天和接下來有事的日子（框裡往下滑看更多）、撞到／假單未點提醒，按「看我的行程」或「✎ 標留守」；全部人的休假班表、公差勤務放在下面', '選名字的分組直接讀股名冊的「班別」（彈射、軍械、股總、軍官…），以後換人、換班別只改股名冊', '公假＝休假：平日的休假都算「補休／慰休／公假」，說明文字跟著改', '「清除（恢復沒請假）」按復原時，會講清楚只復原你這份，另一份要請班長／股總重新點'] },
         { v: 'v11.38', d: '11/10', t: ['班員（訪客）首頁新增「我的行程」：第一次進去點自己的名字（照股名冊的班別分組），之後自動記住；選錯按「不是我？」', '一張月曆看完這個月：留守、休假、出差顏色跟班表一樣，公差、尿篩、打靶、輪值、當日行程用小字標在格子下面；時間撞到的那天紅框', '假日沒標休也沒標留守的，月曆上寫紅色「未點」；「每天要做什麼」每週列出「假單還沒點 N 天」，分頁上有橘色數字', '月曆重新美化；平常點日子會看到「我這天」做什麼，再按「看當天全部公差勤務」就進到公差月曆的那一天；按月曆右上小小的「✎ 標留守」才能點一下標留守、再點取消（休假也能點成留守），好了按「完成」；左右滑或按 ‹ › 換月', '同仁標留守改成「先改、按確定才寫入」：點了只改在畫面上，下面出現「還沒儲存：N 天」，可以「↶ 復原」一步一步退回，按「確定儲存」才寫進班表；沒存就離開會問要不要存', '每一區（撞到、假單未點、月曆、統計、每天要做什麼、顏色說明）都能收折，會記住', '下面寫這個月：例假日休、補休／慰休／公假（平日的都算一起）各幾天，留守、勤務幾次；還有本週／下週／更多每天要做什麼；撞到的可以「複製訊息給班長」'] },
         { v: 'v11.36', d: '11/10', t: ['門禁／查看身分標留守變簡單：平常照樣正常看全部人；按班表上方「標留守」才開始，只有自己那排亮、其他人變暗', '標留守時：點自己空白格＝留守，再點一下＝取消（班長、股總兩份一起刪），不用再跳選單；好了按「完成」恢復正常看', '第一次會問「你是誰」，名字照股名冊的班別分組，跟「我的行程」同一個；不想標也能選「我只看，不標記」', '自己的休假可以直接點成留守（再點一下改回休假）；出差、受訓等不能自己改，按「複製訊息」貼給班長；過去的日子也不能改', '班長那邊會寫「郭蕙芳 休假改留守 11/15(日)　請確認假單已撤回」', '查看身分點格子只看資料，不再出現「換身分」，要換身分請登出再登入', '班長打開 App 會跳「○○ 改了留守」，待處理最上面「留守變更」一人一行：郭蕙芳 新增 11/10、11/19，取消的日期劃線；可能少人的日子另外紅色列出，看完按「都看過了」'] },
@@ -9195,6 +9214,7 @@ body:has(#idGate.show) #sheetMask { z-index: 10010; } body:has(#idGate.show) #to
         $('homeBtn').addEventListener('click', function () { $('swId').click(); });
         document.querySelectorAll('[data-verbtn]').forEach(function (b) { b.textContent = APP_VER; b.addEventListener('click', openVer); });
         $('verBack').addEventListener('click', function () { $('verPage').classList.remove('show'); });
+        $('dutyLegend').addEventListener('click', function (ev) { var b = ev.target.closest('[data-lf]'); if (!b) return; dutyLF = b.dataset.lf && b.dataset.lf !== dutyLF ? b.dataset.lf : ''; renderDutyMon(); });
         $('dutyRefresh').addEventListener('click', function () { statAll = null; rosterLoad(); notesLoad(); eventsLoad(true); dutyLoad(); if (!$('dutyStat').hidden) statLoad(); });
         $('dutyTabHelp').addEventListener('click', function () { goHelp('duty'); });
         $('gTour1').addEventListener('click', function () { showTour(); });
