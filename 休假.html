@@ -3363,6 +3363,12 @@ details[open] summary::after { content: ''; }
 [data-theme="dark"] #minePage .mncal2 .cc { background: #1c1f26 !important; } [data-theme="dark"] #minePage .mncal2 .cc.off { background: #221d20 !important; } [data-theme="dark"] #minePage .mncal2 .cc.today { background: rgba(245,184,0,.1) !important; }
 [data-theme="dark"] #minePage .mncal2 .cc.empty { background: none !important; }
 [data-theme="dark"] #minePage .mncal2 .wh { color: #6b7280 !important; }
+/* 點名官（一般身分）：每日到班放首頁，取代每日情況 */
+body.roll #page-days .dayshead, body.roll #daysBody { display: none !important; }
+#rollBox { margin-bottom: 14px; }
+#rollBox .attnav { margin-top: 2px; }
+#rollBox .attcopy { margin-top: 10px; }
+#attBody .asec.who > .arow.here:last-child { margin-bottom: -8px; border-bottom: 0; }
 </style>
 </head>
 <body>
@@ -3418,6 +3424,7 @@ details[open] summary::after { content: ''; }
 
     <!-- ===== 每日 ===== -->
     <section class="page active" id="page-days" aria-label="首頁">
+      <div id="rollBox" hidden></div>
       <div class="box duty" id="dutyCard">
         <div class="dutyhead">
           <b>當週留守</b>
@@ -5118,7 +5125,10 @@ details[open] summary::after { content: ''; }
         $('gNote').innerHTML = (prefs.pw
           ? ['休假：可登錄' + (r === '股總' ? '全員' : r + '班'), '公差：可新增修改']
           : ['只能查看', '自己的留守可以自己標']).map(function (t) { return '<span>' + esc(t) + '</span>'; }).join('') + (!prefs.pw && !prefs.guest ? '<small>要修改請按「換身分」</small>' : '');
-        $('gLeaveSub').textContent = prefs.pw ? '點假單・' + (r === '股總' ? '全員' : r + '班') : '全部人誰休、誰留守';
+        // 一般（查看密碼）：休假班表＋每日到班合成「點名官」
+        document.querySelector('.idbtn[data-id="leave"] b').textContent = prefs.pw ? '休假班表' : '點名官';
+        $('gLeaveSub').textContent = prefs.pw ? '點假單・' + (r === '股總' ? '全員' : r + '班') : '誰在・誰休・誰留守';
+        $('gAtt').hidden = !prefs.pw;
         $('gDutySub').textContent = prefs.pw ? '派公差・尿篩・加班' : '全部公差・尿篩・加班';
         $('gLog').hidden = !prefs.pw; $('gSub').classList.toggle('solo', !prefs.pw);
         $('gMine').hidden = true; $('gTodo').hidden = !prefs.pw; gMeDraw(); if (!prefs.pw) todoEnsure(); if (prefs.pw) { todoBadge(); todoEnsure(); gsLogLoad(); }
@@ -5498,7 +5508,7 @@ details[open] summary::after { content: ''; }
         var d = new Date();
         $('todayLbl').innerHTML = '<b>' + (d.getMonth() + 1) + '/' + d.getDate() + '</b><small>週' + WK[d.getDay()] + '</small>';
         if (tab === 'sched') renderSched();
-        else if (tab === 'days') { renderDuty(); renderDays(); }
+        else if (tab === 'days') { renderDuty(); if (myId() === 'guest') rollRender(); else renderDays(); }
         else if (tab === 'out') renderOut();
         else if (tab === 'ana') renderAna();
         else if (tab === 'more') renderMore();
@@ -5511,7 +5521,8 @@ details[open] summary::after { content: ''; }
 
         var ig = (groups.length && id !== 'guest' && id !== 'gu') ? idGroup() : null;
         function setLbl(t, txt) { var bt = document.querySelector('.tabbar button[data-t="' + t + '"]'); if (bt) { bt.lastChild.textContent = txt; bt.setAttribute('aria-label', txt); } }
-        setLbl('sched', ig ? ig.name : '彈射班'); setLbl('gu', '全部');
+        setLbl('sched', ig ? ig.name : '彈射班'); setLbl('gu', '全部'); setLbl('days', id === 'guest' ? '點名官' : '首頁');
+        rollMount(id === 'guest');
         var sic = document.querySelector('.tabbar button[data-t="sched"] .ic'); if (sic) { sic.classList.toggle('schedg', id === 'arm'); sic.classList.toggle('sched', id !== 'arm'); }
       }
       function setTab(t) {
@@ -7509,7 +7520,7 @@ details[open] summary::after { content: ''; }
         if (!rosterAll[k].length) delete rosterAll[k];
         try { localStorage.setItem(ROSTER_KEY, JSON.stringify(rosterAll)); } catch (e) { /* 忽略 */ }
         planEdit = null; if ($('evtPage').classList.contains('show')) evtOpen('plan:' + lab); renderDutyMon(); if ($('dutyDay').classList.contains('show')) renderDutyDay();
-        try { if ($('todoPage').classList.contains('show')) renderTodo(); if ($('attPage').classList.contains('show')) renderAtt(); } catch (e) { /* 忽略 */ }
+        try { if ($('todoPage').classList.contains('show')) renderTodo(); if (attShown()) renderAtt(); } catch (e) { /* 忽略 */ }
         showToast(names.some(function (n) { return /^代[:：]/.test(n); }) ? lab + ' ' + mdLabel(k) + '：' + names.map(function (n) { return /^代[:：]/.test(n) ? n.slice(2) + '（代理）' : n; }).join('、') : names[0] === '停' ? lab + ' ' + mdLabel(k) + ' 已取消（不用出）' : (!names.length ? lab + ' ' + mdLabel(k) + ' 已恢復照輪值' : '已更新輪值表：' + lab + ' ' + names.join('、')), null, null, 2400);
         apiCall({ action: 'setRoster', token: prefs.dutyPw, date: k, item: lab, names: names.join('、') }).then(function (res) {
           if (!res || !res.ok) throw new Error((res && res.msg) || '儲存失敗');
@@ -8312,6 +8323,16 @@ details[open] summary::after { content: ''; }
         return o;
       }
       function attCount(k) { var o = attOf(k); return o.off ? o.stay.length + o.mon.length : o.here.length + o.stay.length + o.mon.length + o.rest.filter(function (x) { return x.half; }).length; }
+      // ====== 點名官（一般身分）：每日到班直接放在首頁，取代「每日情況」 ======
+      function rollOn() { return !$('rollBox').hidden; }
+      function attShown() { return $('attPage').classList.contains('show') || (rollOn() && tab === 'days' && $('page-days').classList.contains('active')); }
+      function rollMount(on) {
+        var box = $('rollBox'), pg = $('attPage'), nodes = [pg.querySelector('.attnav') || box.querySelector('.attnav'), $('attWeek'), $('attBody')];
+        if (on === rollOn()) return;
+        nodes.forEach(function (n) { (on ? box : pg).appendChild(n); });
+        box.hidden = !on; document.body.classList.toggle('roll', on);
+      }
+      function rollRender() { if (!attK) attK = todayKey(); renderAtt(); attEnsure(); }
       function openAtt(k) {
         attK = k || todayKey();
         $('attPage').classList.add('show'); $('attPage').scrollTop = 0;
@@ -8321,8 +8342,8 @@ details[open] summary::after { content: ''; }
         var ym = attK.slice(0, 7), y = +ym.slice(0, 4), m = +ym.slice(5, 7);
         var need = [[y, m]]; var wk = addDays(attK, -parseKey(attK).getDay()); if (wk.slice(0, 7) !== ym) need.push([+wk.slice(0, 4), +wk.slice(5, 7)]);
         var we = addDays(wk, 6); if (we.slice(0, 7) !== ym) need.push([+we.slice(0, 4), +we.slice(5, 7)]);
-        need.forEach(function (p) { var id = p[0] + '-' + pad(p[1]); if (!loaded[id]) fetchPeriod(p[0], p[1]).then(function () { if ($('attPage').classList.contains('show')) renderAtt(); }).catch(function (e) { $('attBody').innerHTML = '<div class="dnone">讀取失敗：' + esc(e.message) + '</div>'; }); });
-        if (!attDutyAsked[ym]) { attDutyAsked[ym] = 1; apiCall({ action: 'getDuty', year: y, month: m }).then(function (res) { if (res && res.ok) { dutyFill(y, m, res); if ($('attPage').classList.contains('show')) renderAtt(); } else delete attDutyAsked[ym]; }).catch(function () { delete attDutyAsked[ym]; }); }
+        need.forEach(function (p) { var id = p[0] + '-' + pad(p[1]); if (!loaded[id]) fetchPeriod(p[0], p[1]).then(function () { if (attShown()) renderAtt(); }).catch(function (e) { $('attBody').innerHTML = '<div class="dnone">讀取失敗：' + esc(e.message) + '</div>'; }); });
+        if (!attDutyAsked[ym]) { attDutyAsked[ym] = 1; apiCall({ action: 'getDuty', year: y, month: m }).then(function (res) { if (res && res.ok) { dutyFill(y, m, res); if (attShown()) renderAtt(); } else delete attDutyAsked[ym]; }).catch(function () { delete attDutyAsked[ym]; }); }
       }
       function renderAtt() {
         var k = attK, tk = todayKey(), info = dayInfo(k);
@@ -8858,6 +8879,7 @@ details[open] summary::after { content: ''; }
         { ic: '<span class="tic ic-ok"></span>', t: '3　按「新增」', d: '確認名稱後按<b>「新增」</b>，主畫面就有圖示，一點就開。' }
       ];
       var CHANGELOG = [
+        { v: 'v11.48', d: '11/10', t: ['一般身分：「休假班表」和「每日到班」合成「點名官」。封面只剩一個入口；點名官首頁上面是每日到班（日期左右切換、一週日期列、應到／實到／不在、到班／休假／留守、公差、複製），下面是當週留守；原本的每日情況清單拿掉（同樣的資料）。底下分頁改成 點名官／全部／更多', '彈射、軍械、股總維持原本'] },
         { v: 'v11.47', d: '11/10', t: ['我的行程：拿掉「一起留守／目前只有你」；沒排事的日子留空白；「時間重疊」拿掉「複製訊息給班長」按鈕', '畫面上的「撞到」全部改成「重疊」（例：時間重疊、休假／公差重疊）', '我的行程月曆：改成細格線（格子共用一條淡灰線），拿掉編輯時外圍的紅色虛線（編輯中格線變淡橘）；今天改成淡黃底＋黃色日期，不再雙層框；標籤統一滿寬單層；星期列縮小變淡'] },
         { v: 'v11.46', d: '11/10', t: ['待處理「留守變更」：拿掉「沒人留守，可能少人」；預設收起，標題列直接寫「5 人・新增 5 天・取消 2 天・休假改留守 1 天」，要看名單再點開', '全站收折按鈕統一：黃底 +／− 改成灰色小箭頭（收起 ›，打開 ⌄）'] },
         { v: 'v11.45', d: '11/10', t: ['快速標記：打靶職掌表（手槍／步槍、射手、救護員…）整則歸成一件「打靶」，括號裡的職掌不再拆成好幾件公差；名字只寫名（志鵬、瓊嵐）也抓得到', '快速標記：選到的人名改成橫排，不會一人一行', '快速標記：一則通知用空行隔開、每段有自己的日期和人（例：打靶職掌表＋「明（11）日擦槍」），會拆成兩件；看得懂「明（11）日」', '擦槍只寫開始時間：上午預設 2 小時（0900 → 09:00–11:00），下午做到 17:00（1330 → 13:30–17:00）'] },
