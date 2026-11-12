@@ -786,6 +786,371 @@
       height: 6px;
     }
   }
+
+  /* ================= 多人版新增 ================= */
+
+  /* ---------- 人名列 ---------- */
+  .people-bar {
+    display: flex;
+    gap: 8px;
+    overflow-x: auto;
+    padding: 2px 2px 10px;
+    margin: 0 0 4px;
+    -webkit-overflow-scrolling: touch;
+    scrollbar-width: none;
+  }
+
+  .people-bar::-webkit-scrollbar { display: none; }
+
+  .person-chip {
+    flex-shrink: 0;
+    padding: 9px 16px;
+    border-radius: 999px;
+    background: #fff;
+    border: 2px solid var(--border);
+    color: #6b7280;
+    font-size: 14px;
+    font-weight: 800;
+    font-family: inherit;
+    cursor: pointer;
+    white-space: nowrap;
+    touch-action: manipulation;
+    -webkit-user-select: none;
+    user-select: none;
+    -webkit-touch-callout: none;
+    -webkit-tap-highlight-color: transparent;
+  }
+
+  .person-chip.active {
+    background: var(--accent);
+    border-color: var(--accent);
+    color: #fff;
+    box-shadow: 0 3px 10px rgba(255,77,109,0.25);
+  }
+
+  .person-chip.add {
+    border-style: dashed;
+    border-color: #ffb3c0;
+    color: var(--accent);
+    background: #fff5f7;
+  }
+
+  /* ---------- 換班紀錄卡 ---------- */
+  .records {
+    display: none;
+    background: #fff;
+    border-radius: 18px;
+    box-shadow: 0 4px 20px rgba(31,41,55,0.07);
+    padding: 16px;
+    margin-top: 14px;
+  }
+
+  .records.show { display: block; }
+
+  .rec-sum {
+    background: var(--card2);
+    border-radius: 12px;
+    padding: 10px 14px;
+    margin-bottom: 14px;
+  }
+
+  .rec-sum div {
+    display: flex;
+    gap: 10px;
+    padding: 4px 0;
+    font-size: 15px;
+    line-height: 1.5;
+  }
+
+  .rec-k {
+    flex-shrink: 0;
+    color: var(--muted);
+    font-weight: 700;
+  }
+
+  .rec-v { color: var(--text); font-weight: 700; }
+  .rec-v.strong { color: var(--accent2); font-weight: 900; }
+
+  .rec-title {
+    font-size: 14px;
+    font-weight: 900;
+    color: var(--accent);
+    letter-spacing: 2px;
+    margin: 0 0 6px 2px;
+  }
+
+  .rec-item {
+    display: flex;
+    gap: 10px;
+    padding: 12px 2px;
+    border-bottom: 1px solid var(--border);
+  }
+
+  .rec-item:last-of-type { border-bottom: none; }
+
+  .rec-no {
+    flex-shrink: 0;
+    font-size: 18px;
+    font-weight: 900;
+    color: var(--accent);
+    line-height: 1.4;
+  }
+
+  .rec-body {
+    flex: 1;
+    font-size: 15px;
+    line-height: 1.65;
+    color: var(--text);
+    min-width: 0;
+  }
+
+  .rec-head { font-weight: 900; }
+  .rec-date { font-size: 12px; color: var(--muted); }
+  .rec-done { color: #10b981; font-weight: 700; }
+
+  .rec-acts {
+    display: flex;
+    flex-direction: column;
+    gap: 6px;
+    flex-shrink: 0;
+  }
+
+  .rec-btn {
+    background: var(--card2);
+    border: none;
+    border-radius: 8px;
+    padding: 6px 10px;
+    font-size: 12px;
+    font-weight: 700;
+    color: #6b7280;
+    font-family: inherit;
+    cursor: pointer;
+    touch-action: manipulation;
+  }
+
+  .rec-btn.ok { background: #ecfdf5; color: #059669; }
+
+  .rec-owe {
+    margin-top: 12px;
+    background: #fffbeb;
+    border-radius: 12px;
+    padding: 10px 14px;
+    font-size: 14px;
+    font-weight: 700;
+    color: #92400e;
+    line-height: 1.7;
+  }
+
+  /* ---------- 換班視窗 ---------- */
+  .modal.swap-box {
+    max-height: 92vh;
+    overflow-y: auto;
+    padding: 22px 18px;
+  }
+
+  .seg {
+    display: grid;
+    grid-template-columns: repeat(3, 1fr);
+    gap: 4px;
+    background: var(--card2);
+    border-radius: 12px;
+    padding: 4px;
+    margin-bottom: 14px;
+  }
+
+  .seg button {
+    border: none;
+    background: transparent;
+    border-radius: 9px;
+    padding: 9px 2px;
+    font-size: 13px;
+    font-weight: 800;
+    color: #6b7280;
+    font-family: inherit;
+    cursor: pointer;
+    touch-action: manipulation;
+  }
+
+  .seg button.on {
+    background: #fff;
+    color: var(--accent);
+    box-shadow: 0 2px 6px rgba(31,41,55,0.08);
+  }
+
+  .modal .swap-who { margin-bottom: 12px; font-size: 16px; padding: 12px 14px; }
+
+  .date-row {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 8px;
+    margin-bottom: 10px;
+  }
+
+  .date-row.one { grid-template-columns: 1fr; }
+
+  .date-field {
+    display: flex;
+    flex-direction: column;
+    align-items: flex-start;
+    gap: 2px;
+    padding: 10px 12px;
+    background: var(--card2);
+    border: 2px solid transparent;
+    border-radius: 12px;
+    font-family: inherit;
+    cursor: pointer;
+    text-align: left;
+    touch-action: manipulation;
+  }
+
+  .date-field.active { border-color: var(--accent); background: #fff5f7; }
+  .df-label { font-size: 12px; font-weight: 700; color: var(--muted); }
+  .df-val { font-size: 17px; font-weight: 900; color: var(--text); }
+  .df-val.empty { color: #c4c9d2; font-weight: 700; font-size: 15px; }
+
+  .mini-cal {
+    background: var(--card2);
+    border-radius: 14px;
+    padding: 10px;
+    margin-bottom: 12px;
+  }
+
+  .mc-head {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    margin-bottom: 6px;
+  }
+
+  .mc-head button {
+    width: 36px;
+    height: 36px;
+    border: none;
+    border-radius: 10px;
+    background: #fff;
+    font-size: 20px;
+    font-weight: 900;
+    color: var(--accent);
+    cursor: pointer;
+    touch-action: manipulation;
+  }
+
+  .mc-title { font-size: 16px; font-weight: 900; color: var(--text); }
+
+  .mc-week, .mc-days {
+    display: grid;
+    grid-template-columns: repeat(7, 1fr);
+    gap: 4px;
+  }
+
+  .mc-week div {
+    text-align: center;
+    font-size: 11px;
+    font-weight: 800;
+    color: var(--muted);
+    padding: 4px 0;
+  }
+
+  .mc-day {
+    aspect-ratio: 1 / 1;
+    border: none;
+    border-radius: 9px;
+    background: #fff;
+    font-size: 14px;
+    font-weight: 800;
+    color: var(--text);
+    font-family: inherit;
+    cursor: pointer;
+    position: relative;
+    touch-action: manipulation;
+    padding: 0;
+  }
+
+  .mc-day.blank { background: transparent; pointer-events: none; }
+  .mc-day.on { background: linear-gradient(135deg, var(--duty), var(--duty2)); color: #fff; }
+  .mc-day.sel-out { background: #9ca3af; color: #fff; text-decoration: line-through; }
+  .mc-day.sel-in { background: #f59e0b; color: #fff; }
+
+  .swap-preview {
+    min-height: 22px;
+    font-size: 14px;
+    line-height: 1.7;
+    color: var(--text);
+    background: #fff5f7;
+    border-radius: 12px;
+    padding: 10px 12px;
+    margin-bottom: 14px;
+  }
+
+  .swap-preview.empty { color: var(--muted); background: var(--card2); }
+
+  .mc-legend {
+    display: flex;
+    gap: 12px;
+    justify-content: center;
+    font-size: 11px;
+    color: var(--muted);
+    margin-top: 8px;
+  }
+
+  .mc-legend i {
+    display: inline-block;
+    width: 10px;
+    height: 10px;
+    border-radius: 3px;
+    margin-right: 4px;
+    vertical-align: -1px;
+  }
+
+  /* ---------- 人名選單、備份 ---------- */
+  .menu-list { display: flex; flex-direction: column; gap: 8px; }
+
+  .menu-list button {
+    padding: 14px;
+    border: none;
+    border-radius: 12px;
+    background: var(--card2);
+    font-size: 15px;
+    font-weight: 700;
+    color: var(--text);
+    font-family: inherit;
+    cursor: pointer;
+    touch-action: manipulation;
+  }
+
+  .menu-list button.danger { color: var(--holiday); }
+
+  .backup-text {
+    width: 100%;
+    height: 110px;
+    padding: 10px 12px;
+    font-size: 12px;
+    font-family: monospace;
+    background: var(--card2);
+    border: 2px solid var(--border);
+    border-radius: 12px;
+    color: var(--text);
+    margin-bottom: 8px;
+    resize: none;
+    outline: none;
+    word-break: break-all;
+  }
+
+  .backup-note {
+    font-size: 12px;
+    color: var(--muted);
+    line-height: 1.6;
+    margin-bottom: 14px;
+  }
+
+  .reset-bar { flex-wrap: wrap; gap: 2px; }
+
+  @media (max-width: 600px) {
+    .person-chip { padding: 8px 14px; font-size: 13px; }
+    .records { padding: 14px 12px; }
+    .rec-body { font-size: 14px; }
+  }
+
 </style>
 </head>
 <body>
@@ -809,6 +1174,8 @@
 
   <div class="signature">吱吱製作</div>
 
+  <div class="people-bar" id="peopleBar"></div>
+
   <div class="topbar">
     <div class="year-month">
       <select class="year-select" id="yearSelect"></select>
@@ -818,8 +1185,8 @@
 
   <div class="bottom-bar">
     <button class="mini-btn" id="quickBtn" onclick="toggleQuick()">📋 快速標記</button>
+    <button class="mini-btn" onclick="openSwap()">🔄 換班</button>
     <button class="mini-btn" onclick="makeImage()">🖼 產圖</button>
-    <button class="mini-btn" onclick="copyLink()">📤 分享本月</button>
   </div>
 
   <div class="quick-panel" id="quickPanel">
@@ -828,7 +1195,7 @@
     <div class="quick-btns">
       <button class="quick-clear" onclick="closeQuick()">取消</button>
       <button class="quick-paste" onclick="pasteQuick()">📋 貼上</button>
-      <button class="quick-go" onclick="applyQuick()">標記到本月</button>
+      <button class="quick-go" onclick="applyQuick()">標記</button>
     </div>
   </div>
 
@@ -849,21 +1216,28 @@
     </div>
   </div>
 
+  <div class="records" id="records"></div>
+
   <div class="app-bar" id="appBar">
     <button class="app-btn" id="installBtn" onclick="openInstall()">📲 存到桌面</button>
     <button class="app-btn" onclick="shareApp()">💌 分享給朋友</button>
   </div>
 
   <div class="reset-bar">
-    <button class="text-btn" onclick="resetMonth()">重置本月</button>
+    <button class="text-btn" onclick="resetMonth()">清除本月</button>
     <span class="reset-sep">·</span>
-    <button class="text-btn" onclick="resetAll()">重置全部</button>
+    <button class="text-btn" id="resetPersonBtn" onclick="resetPerson()">清除全部</button>
+    <span class="reset-sep">·</span>
+    <button class="text-btn" onclick="openBackup()">備份</button>
+    <span class="reset-sep">·</span>
+    <button class="text-btn" onclick="openRestore()">還原</button>
   </div>
 
 </div>
 
 <div class="toast" id="toast"></div>
 
+<!-- 長按日期：自訂文字 -->
 <div class="modal-overlay" id="modalOverlay">
   <div class="modal">
     <h2 id="modalTitle"></h2>
@@ -877,16 +1251,82 @@
   </div>
 </div>
 
+<!-- 換班 -->
+<div class="modal-overlay" id="swapOverlay">
+  <div class="modal swap-box">
+    <h2 id="swapTitle">🔄 換班</h2>
+    <div class="seg" id="swapSeg">
+      <button data-t="swap" onclick="setSwapType('swap')">互換</button>
+      <button data-t="cover" onclick="setSwapType('cover')">別人代我</button>
+      <button data-t="help" onclick="setSwapType('help')">我代別人</button>
+    </div>
+    <input type="text" class="swap-who" id="swapWho" list="peopleList" placeholder="跟誰？（例：裕盛）" maxlength="10" autocomplete="off">
+    <datalist id="peopleList"></datalist>
+    <div class="date-row" id="dateRow">
+      <button class="date-field" id="fieldOut" onclick="pickField('out')">
+        <span class="df-label" id="labelOut"></span>
+        <span class="df-val empty" id="valOut">點下方日期</span>
+      </button>
+      <button class="date-field" id="fieldIn" onclick="pickField('in')">
+        <span class="df-label" id="labelIn"></span>
+        <span class="df-val empty" id="valIn">點下方日期</span>
+      </button>
+    </div>
+    <div class="mini-cal">
+      <div class="mc-head">
+        <button onclick="mcMove(-1)">‹</button>
+        <span class="mc-title" id="mcTitle"></span>
+        <button onclick="mcMove(1)">›</button>
+      </div>
+      <div class="mc-week"><div>日</div><div>一</div><div>二</div><div>三</div><div>四</div><div>五</div><div>六</div></div>
+      <div class="mc-days" id="mcDays"></div>
+      <div class="mc-legend">
+        <span><i style="background:#3b82f6"></i>原本有排</span>
+        <span><i style="background:#9ca3af"></i>給出去</span>
+        <span><i style="background:#f59e0b"></i>換進來</span>
+      </div>
+    </div>
+    <div class="swap-preview empty" id="swapPreview"></div>
+    <div class="modal-btns">
+      <button class="btn-cancel" onclick="closeSwap()">取消</button>
+      <button class="btn-save" onclick="saveSwap()">儲存</button>
+    </div>
+  </div>
+</div>
+
+<!-- 人名選單（長按名字） -->
+<div class="modal-overlay" id="personOverlay">
+  <div class="modal">
+    <h2 id="personTitle"></h2>
+    <div class="menu-list">
+      <button onclick="renamePerson()">✏️ 改名字</button>
+      <button class="danger" onclick="deletePerson()">🗑 刪除這個人</button>
+      <button onclick="closePersonMenu()">取消</button>
+    </div>
+  </div>
+</div>
+
+<!-- 備份／還原 -->
+<div class="modal-overlay" id="backupOverlay">
+  <div class="modal">
+    <h2 id="backupTitle"></h2>
+    <textarea class="backup-text" id="backupText" spellcheck="false"></textarea>
+    <div class="backup-note" id="backupNote"></div>
+    <div class="modal-btns" id="backupBtns"></div>
+  </div>
+</div>
+
+<!-- 使用說明 -->
 <div class="modal-overlay" id="helpOverlay">
   <div class="modal">
     <h2>怎麼用</h2>
     <ul class="help-list">
-      <li><span class="help-icon dot">留</span><span><b>點一下</b>　標記留守</span></li>
-      <li><span class="help-icon">↩️</span><span><b>再點一下</b>　取消</span></li>
+      <li><span class="help-icon dot">留</span><span><b>點一下</b>　標記留守，再點取消</span></li>
       <li><span class="help-icon">✋</span><span><b>長按</b>　自訂文字</span></li>
+      <li><span class="help-icon">👤</span><span><b>上方名字</b>　切換要記誰，＋新增</span></li>
       <li><span class="help-icon">📋</span><span><b>快速標記</b>　貼上文字，自動抓日期</span></li>
+      <li><span class="help-icon">🔄</span><span><b>換班</b>　登記誰跟你換，留下紀錄</span></li>
       <li><span class="help-icon">🖼</span><span><b>產圖</b>　做成圖片傳給別人</span></li>
-      <li><span class="help-icon">📲</span><span><b>存到桌面</b>　像 App 一樣開</span></li>
     </ul>
     <div class="modal-btns">
       <button class="btn-save" onclick="closeHelp()">知道了</button>
@@ -894,6 +1334,7 @@
   </div>
 </div>
 
+<!-- 存到桌面 -->
 <div class="modal-overlay" id="installOverlay">
   <div class="modal">
     <div class="install-head">
@@ -912,6 +1353,7 @@
   </div>
 </div>
 
+<!-- 產圖 -->
 <div class="modal-overlay" id="imgOverlay">
   <div class="modal img-box">
     <img id="imgPreview" alt="月曆圖片">
@@ -925,20 +1367,1388 @@
 </div>
 
 <script>
-  const STORAGE_KEY = 'duty_calendar_notes';
+  /* =========================================================
+     基本設定
+     ========================================================= */
+  const DATA_KEY = 'duty_calendar_v2';
+  const OLD_NOTES_KEY = 'duty_calendar_notes';
+  const BRAND_KEY = 'duty_calendar_brand';
   const IMG_NAME_KEY = 'duty_calendar_imgname';
-  const HELP_KEY = 'duty_calendar_help_seen';
+  const HELP_KEY = 'duty_calendar_help_seen_v2';
+  const DEFAULT_BRAND = '點點月曆';
+  const DEFAULT_MARK = '留';
+  const ME = 'me';
 
+  let currentYear, currentMonth;
+  let selectedDateKey = null;
+  let modalOpenedAt = 0;
+  let suppressClickUntil = 0;
+
+  /* ---------- 國定假日（2026、2027 依人事行政總處公告；2028 依規則推算） ---------- */
+  const HOLIDAYS = {
+    2026: {
+      '2026-01-01': '開國紀念日',
+      '2026-02-15': '小年夜',
+      '2026-02-16': '除夕',
+      '2026-02-17': '春節',
+      '2026-02-18': '春節',
+      '2026-02-19': '春節',
+      '2026-02-20': '補假',
+      '2026-02-27': '補假',
+      '2026-02-28': '和平紀念日',
+      '2026-04-03': '補假',
+      '2026-04-04': '兒童節',
+      '2026-04-05': '清明節',
+      '2026-04-06': '補假',
+      '2026-05-01': '勞動節',
+      '2026-06-19': '端午節',
+      '2026-09-25': '中秋節',
+      '2026-09-28': '教師節',
+      '2026-10-09': '補假',
+      '2026-10-10': '國慶日',
+      '2026-10-25': '光復節',
+      '2026-10-26': '補假',
+      '2026-12-25': '行憲紀念日'
+    },
+    2027: {
+      '2027-01-01': '開國紀念日',
+      '2027-02-04': '小年夜',
+      '2027-02-05': '除夕',
+      '2027-02-06': '春節',
+      '2027-02-07': '春節',
+      '2027-02-08': '春節',
+      '2027-02-09': '補假',
+      '2027-02-10': '補假',
+      '2027-02-28': '和平紀念日',
+      '2027-03-01': '補假',
+      '2027-04-04': '兒童節',
+      '2027-04-05': '清明節',
+      '2027-04-06': '補假',
+      '2027-04-30': '補假',
+      '2027-05-01': '勞動節',
+      '2027-06-09': '端午節',
+      '2027-09-15': '中秋節',
+      '2027-09-28': '教師節',
+      '2027-10-10': '國慶日',
+      '2027-10-11': '補假',
+      '2027-10-25': '光復節',
+      '2027-12-24': '補假',
+      '2027-12-25': '行憲紀念日',
+      '2027-12-31': '補假'
+    },
+    2028: {
+      '2028-01-01': '開國紀念日',
+      '2028-01-24': '小年夜',
+      '2028-01-25': '除夕',
+      '2028-01-26': '春節',
+      '2028-01-27': '春節',
+      '2028-01-28': '春節',
+      '2028-02-28': '和平紀念日',
+      '2028-04-03': '兒童節',
+      '2028-04-04': '清明節',
+      '2028-05-01': '勞動節',
+      '2028-05-28': '端午節',
+      '2028-05-29': '補假',
+      '2028-09-28': '教師節',
+      '2028-10-03': '中秋節',
+      '2028-10-10': '國慶日',
+      '2028-10-25': '光復節',
+      '2028-12-25': '行憲紀念日'
+    }
+  };
+
+  function getHolidays(year) { return HOLIDAYS[year] || {}; }
+  function dateKey(y, m, d) { return `${y}-${String(m + 1).padStart(2, '0')}-${String(d).padStart(2, '0')}`; }
+  function monthPrefix(y, m) { return `${y}-${String(m + 1).padStart(2, '0')}-`; }
+  function parseKey(k) { const [y, m, d] = k.split('-').map(Number); return { y, m: m - 1, d }; }
+
+  function lsGet(k) { try { return localStorage.getItem(k); } catch { return null; } }
+  function lsSet(k, v) { try { localStorage.setItem(k, v); } catch {} }
+  function lsDel(k) { try { localStorage.removeItem(k); } catch {} }
+
+  /* =========================================================
+     資料：多人 + 換班紀錄
+     state = { people: [ { id, name, marks:{日期:文字}, swaps:[...], used } ] }
+     月曆只顯示 marks（換完的最終結果）；swaps 是過程紀錄
+     ========================================================= */
+  let state = null;
+  let curId = ME;
+
+  function newPersonObj(id, name) {
+    return { id, name, marks: {}, swaps: [], used: Date.now() };
+  }
+
+  function loadState() {
+    let s = null;
+    try { s = JSON.parse(lsGet(DATA_KEY)); } catch {}
+    if (!s || !Array.isArray(s.people)) {
+      s = { people: [] };
+      // 舊版資料搬進「我」
+      let old = {};
+      try { old = JSON.parse(lsGet(OLD_NOTES_KEY)) || {}; } catch {}
+      const me = newPersonObj(ME, '我');
+      me.marks = old;
+      s.people.push(me);
+    }
+    if (!s.people.some(p => p.id === ME)) s.people.unshift(newPersonObj(ME, '我'));
+    s.people.forEach(p => {
+      if (!p.marks || typeof p.marks !== 'object') p.marks = {};
+      if (!Array.isArray(p.swaps)) p.swaps = [];
+      if (!p.used) p.used = 0;
+    });
+    state = s;
+    saveState();
+  }
+
+  function saveState() { lsSet(DATA_KEY, JSON.stringify(state)); }
+
+  function P() { return state.people.find(p => p.id === curId) || state.people.find(p => p.id === ME); }
+  function findPerson(id) { return state.people.find(p => p.id === id); }
+  function ownerWord(p) { p = p || P(); return p.id === ME ? '我' : p.name; }
+
+  function loadBrand() { return lsGet(BRAND_KEY) || DEFAULT_BRAND; }
+  function saveBrand(n) { lsSet(BRAND_KEY, n); }
+
+  /* =========================================================
+     音效（有 mp3 檔就用，沒有就用內建合成音）
+     ========================================================= */
+  let audioCtx = null;
+  function getCtx() {
+    if (!audioCtx) audioCtx = new (window.AudioContext || window.webkitAudioContext)();
+    if (audioCtx.state === 'suspended') audioCtx.resume();
+    return audioCtx;
+  }
+
+  const soundFiles = {};
+  function loadSound(name, file) {
+    const a = new Audio(file);
+    a.volume = 0.5;
+    let ok = null;
+    a.addEventListener('canplaythrough', () => { ok = true; });
+    a.addEventListener('error', () => { ok = false; });
+    setTimeout(() => { if (ok === null) ok = false; }, 500);
+    soundFiles[name] = { audio: a, available: () => ok === true };
+  }
+  loadSound('mark',   'mark.mp3');
+  loadSound('unmark', 'unmark.mp3');
+  loadSound('hold',   'hold.mp3');
+  loadSound('flip',   'flip.mp3');
+
+  function tryPlayFile(name) {
+    const s = soundFiles[name];
+    if (s && s.available()) {
+      try {
+        s.audio.currentTime = 0;
+        s.audio.play().catch(() => {});
+        return true;
+      } catch {}
+    }
+    return false;
+  }
+
+  function synthDing() {
+    try {
+      const ctx = getCtx();
+      const now = ctx.currentTime;
+
+      const osc = ctx.createOscillator();
+      const gain = ctx.createGain();
+      osc.type = 'sine';
+      osc.frequency.setValueAtTime(880, now);
+      osc.frequency.exponentialRampToValueAtTime(1760, now + 0.06);
+      gain.gain.setValueAtTime(0.0001, now);
+      gain.gain.exponentialRampToValueAtTime(0.22, now + 0.008);
+      gain.gain.exponentialRampToValueAtTime(0.0001, now + 0.35);
+      osc.connect(gain);
+      gain.connect(ctx.destination);
+      osc.start(now);
+      osc.stop(now + 0.36);
+
+      const osc2 = ctx.createOscillator();
+      const gain2 = ctx.createGain();
+      osc2.type = 'sine';
+      osc2.frequency.setValueAtTime(2637, now);
+      gain2.gain.setValueAtTime(0.0001, now);
+      gain2.gain.exponentialRampToValueAtTime(0.08, now + 0.005);
+      gain2.gain.exponentialRampToValueAtTime(0.0001, now + 0.2);
+      osc2.connect(gain2);
+      gain2.connect(ctx.destination);
+      osc2.start(now);
+      osc2.stop(now + 0.21);
+    } catch {}
+  }
+
+  function synthTick() {
+    try {
+      const ctx = getCtx();
+      const now = ctx.currentTime;
+      const osc = ctx.createOscillator();
+      const gain = ctx.createGain();
+      osc.type = 'triangle';
+      osc.frequency.setValueAtTime(900, now);
+      osc.frequency.exponentialRampToValueAtTime(320, now + 0.05);
+      gain.gain.setValueAtTime(0.0001, now);
+      gain.gain.exponentialRampToValueAtTime(0.18, now + 0.004);
+      gain.gain.exponentialRampToValueAtTime(0.0001, now + 0.07);
+      osc.connect(gain);
+      gain.connect(ctx.destination);
+      osc.start(now);
+      osc.stop(now + 0.08);
+    } catch {}
+  }
+
+  function synthDull() {
+    try {
+      const ctx = getCtx();
+      const now = ctx.currentTime;
+      const osc = ctx.createOscillator();
+      const gain = ctx.createGain();
+      osc.type = 'sine';
+      osc.frequency.setValueAtTime(300, now);
+      osc.frequency.linearRampToValueAtTime(240, now + 0.18);
+      gain.gain.setValueAtTime(0.0001, now);
+      gain.gain.exponentialRampToValueAtTime(0.2, now + 0.02);
+      gain.gain.exponentialRampToValueAtTime(0.0001, now + 0.2);
+      osc.connect(gain);
+      gain.connect(ctx.destination);
+      osc.start(now);
+      osc.stop(now + 0.22);
+    } catch {}
+  }
+
+  function synthFlip() {
+    try {
+      const ctx = getCtx();
+      const now = ctx.currentTime;
+      const dur = 0.22;
+      const bufferSize = Math.floor(ctx.sampleRate * dur);
+      const buffer = ctx.createBuffer(1, bufferSize, ctx.sampleRate);
+      const data = buffer.getChannelData(0);
+      for (let i = 0; i < bufferSize; i++) {
+        const t = i / bufferSize;
+        data[i] = (Math.random() * 2 - 1) * Math.pow(1 - t, 2);
+      }
+      const source = ctx.createBufferSource();
+      source.buffer = buffer;
+      const filter = ctx.createBiquadFilter();
+      filter.type = 'bandpass';
+      filter.frequency.setValueAtTime(2400, now);
+      filter.frequency.exponentialRampToValueAtTime(1200, now + dur);
+      filter.Q.value = 0.8;
+      const gain = ctx.createGain();
+      gain.gain.setValueAtTime(0.001, now);
+      gain.gain.exponentialRampToValueAtTime(0.2, now + 0.015);
+      gain.gain.exponentialRampToValueAtTime(0.0001, now + dur);
+      source.connect(filter);
+      filter.connect(gain);
+      gain.connect(ctx.destination);
+      source.start(now);
+      source.stop(now + dur);
+    } catch {}
+  }
+
+  function playMark()   { if (!tryPlayFile('mark'))   synthDing(); }
+  function playUnmark() { if (!tryPlayFile('unmark')) synthTick(); }
+  function playHold()   { if (!tryPlayFile('hold'))   synthDull(); }
+  function playFlip()   { if (!tryPlayFile('flip'))   synthFlip(); }
+
+  /* =========================================================
+     標題
+     ========================================================= */
+  function initBrand() {
+    const el = document.getElementById('brandText');
+    el.textContent = loadBrand();
+    document.title = loadBrand();
+    el.addEventListener('blur', () => {
+      const n = el.textContent.trim() || DEFAULT_BRAND;
+      el.textContent = n; saveBrand(n); document.title = n;
+    });
+    el.addEventListener('keydown', (e) => {
+      if (e.key === 'Enter') { e.preventDefault(); el.blur(); }
+    });
+  }
+
+  function focusBrand() {
+    const el = document.getElementById('brandText');
+    const r = document.createRange(), s = window.getSelection();
+    r.selectNodeContents(el); r.collapse(false);
+    s.removeAllRanges(); s.addRange(r); el.focus();
+  }
+
+  /* =========================================================
+     人名列
+     ========================================================= */
+  function sortedPeople() {
+    const me = state.people.filter(p => p.id === ME);
+    const others = state.people.filter(p => p.id !== ME).sort((a, b) => (b.used || 0) - (a.used || 0));
+    return me.concat(others);
+  }
+
+  function renderPeople() {
+    const bar = document.getElementById('peopleBar');
+    bar.innerHTML = '';
+
+    sortedPeople().forEach(p => {
+      const chip = document.createElement('button');
+      chip.className = 'person-chip' + (p.id === curId ? ' active' : '');
+      chip.textContent = p.name;
+      bindChip(chip, p.id);
+      bar.appendChild(chip);
+    });
+
+    const add = document.createElement('button');
+    add.className = 'person-chip add';
+    add.textContent = '＋ 新的';
+    add.onclick = addPerson;
+    bar.appendChild(add);
+
+    const btn = document.getElementById('resetPersonBtn');
+    btn.textContent = curId === ME ? '清除全部' : `刪除${P().name}`;
+
+    const active = bar.querySelector('.person-chip.active');
+    if (active && active.scrollIntoView) {
+      try { active.scrollIntoView({ inline: 'nearest', block: 'nearest' }); } catch {}
+    }
+  }
+
+  function bindChip(chip, id) {
+    let timer = null, longPressed = false;
+    const clear = () => { if (timer) { clearTimeout(timer); timer = null; } };
+
+    chip.addEventListener('pointerdown', () => {
+      longPressed = false;
+      clear();
+      if (id === ME) return;
+      timer = setTimeout(() => {
+        timer = null;
+        longPressed = true;
+        if (navigator.vibrate) navigator.vibrate(15);
+        openPersonMenu(id);
+      }, 550);
+    });
+    chip.addEventListener('pointerup', clear);
+    chip.addEventListener('pointercancel', clear);
+    chip.addEventListener('pointerleave', clear);
+    chip.addEventListener('contextmenu', (e) => e.preventDefault());
+    chip.addEventListener('click', () => {
+      if (longPressed) { longPressed = false; return; }
+      switchPerson(id);
+    });
+  }
+
+  function switchPerson(id) {
+    curId = id;
+    const p = P();
+    if (p.id !== ME) p.used = Date.now();
+    saveState();
+    renderPeople();
+    render();
+  }
+
+  function addPerson() {
+    const input = prompt('要幫誰記？輸入名字（例：裕盛）');
+    if (input === null) return;
+    const name = input.trim().slice(0, 10);
+    if (!name) return;
+    if (name === '我') { switchPerson(ME); return; }
+    const exist = state.people.find(p => p.name === name);
+    if (exist) {
+      switchPerson(exist.id);
+      showToast(`已切換到 ${name}`);
+      return;
+    }
+    const p = newPersonObj('p' + Date.now(), name);
+    state.people.push(p);
+    switchPerson(p.id);
+    showToast(`已新增 ${name}，可以開始記了`);
+  }
+
+  let menuPersonId = null;
+
+  function openPersonMenu(id) {
+    menuPersonId = id;
+    document.getElementById('personTitle').textContent = findPerson(id).name;
+    document.getElementById('personOverlay').classList.add('active');
+  }
+
+  function closePersonMenu() {
+    document.getElementById('personOverlay').classList.remove('active');
+    menuPersonId = null;
+  }
+
+  function renamePerson() {
+    const p = findPerson(menuPersonId);
+    if (!p) return closePersonMenu();
+    const input = prompt('新的名字', p.name);
+    if (input === null) return;
+    const name = input.trim().slice(0, 10);
+    if (!name || name === '我') return;
+    if (state.people.some(o => o.id !== p.id && o.name === name)) {
+      showToast('已經有這個名字了');
+      return;
+    }
+    p.name = name;
+    saveState();
+    closePersonMenu();
+    renderPeople();
+    render();
+  }
+
+  function deletePerson() {
+    const p = findPerson(menuPersonId);
+    if (!p || p.id === ME) return closePersonMenu();
+    if (!confirm(`確定刪除「${p.name}」？\n他的標記和換班紀錄都會一起刪掉。`)) return;
+    state.people = state.people.filter(o => o.id !== p.id);
+    if (curId === p.id) curId = ME;
+    saveState();
+    closePersonMenu();
+    renderPeople();
+    render();
+    showToast(`已刪除 ${p.name}`);
+  }
+
+  /* =========================================================
+     月曆畫面
+     ========================================================= */
+  function getOffsetMonth(y, m, delta) {
+    let nm = m + delta, ny = y;
+    if (nm > 11) { nm = 0; ny++; }
+    if (nm < 0) { nm = 11; ny--; }
+    return { y: ny, m: nm };
+  }
+
+  function renderMonthTo(containerId, year, month) {
+    const marks = P().marks;
+    const holidays = getHolidays(year);
+    const daysEl = document.getElementById(containerId);
+    daysEl.innerHTML = '';
+
+    const firstDay = new Date(year, month, 1).getDay();
+    const daysInMonth = new Date(year, month + 1, 0).getDate();
+    const today = new Date();
+    const todayKey = dateKey(today.getFullYear(), today.getMonth(), today.getDate());
+
+    for (let i = 0; i < firstDay; i++) {
+      const empty = document.createElement('div');
+      empty.className = 'day empty';
+      daysEl.appendChild(empty);
+    }
+
+    for (let d = 1; d <= daysInMonth; d++) {
+      const key = dateKey(year, month, d);
+      const dayEl = document.createElement('div');
+      dayEl.className = 'day';
+
+      const dow = new Date(year, month, d).getDay();
+      if (dow === 0) dayEl.classList.add('sunday');
+      if (dow === 6) dayEl.classList.add('saturday');
+      if (key === todayKey) dayEl.classList.add('today');
+      if (holidays[key]) dayEl.classList.add('holiday');
+
+      const numEl = document.createElement('div');
+      numEl.className = 'day-num';
+      numEl.textContent = d;
+      dayEl.appendChild(numEl);
+
+      if (marks[key]) {
+        const badgeWrap = document.createElement('div');
+        badgeWrap.className = 'duty-badge';
+        const dot = document.createElement('div');
+        dot.className = 'duty-dot';
+        dot.textContent = marks[key].slice(0, 1);
+        badgeWrap.appendChild(dot);
+        dayEl.appendChild(badgeWrap);
+      }
+
+      bindDayEvents(dayEl, key, d, year, month);
+      daysEl.appendChild(dayEl);
+    }
+
+    for (let i = firstDay + daysInMonth; i < 42; i++) {
+      const empty = document.createElement('div');
+      empty.className = 'day empty';
+      daysEl.appendChild(empty);
+    }
+  }
+
+  /* 短按用瀏覽器原生 click（安卓最穩），長按另外計時 */
+  function bindDayEvents(el, key, day, year, month) {
+    let timer = null;
+    let longPressed = false;
+    let sx = 0, sy = 0;
+    const LONG = 500;
+    const TOL = 12;
+
+    const clearTimer = () => { if (timer) { clearTimeout(timer); timer = null; } };
+
+    el.addEventListener('pointerdown', (e) => {
+      if (e.button !== undefined && e.button !== 0) return;
+      longPressed = false;
+      sx = e.clientX;
+      sy = e.clientY;
+      clearTimer();
+      timer = setTimeout(() => {
+        timer = null;
+        longPressed = true;
+        if (navigator.vibrate) navigator.vibrate(15);
+        playHold();
+        openModal(key, day, year, month);
+      }, LONG);
+    });
+
+    el.addEventListener('pointermove', (e) => {
+      if (!timer) return;
+      if (Math.abs(e.clientX - sx) > TOL || Math.abs(e.clientY - sy) > TOL) clearTimer();
+    });
+
+    el.addEventListener('pointerup', clearTimer);
+    el.addEventListener('pointercancel', clearTimer);
+    el.addEventListener('pointerleave', clearTimer);
+
+    el.addEventListener('click', () => {
+      if (longPressed) { longPressed = false; return; }
+      if (Date.now() < suppressClickUntil) return;
+      toggleMark(key);
+    });
+
+    el.addEventListener('contextmenu', (e) => e.preventDefault());
+  }
+
+  function toggleMark(key) {
+    const marks = P().marks;
+    if (marks[key]) {
+      delete marks[key];
+      playUnmark();
+    } else {
+      marks[key] = DEFAULT_MARK;
+      playMark();
+    }
+    saveState();
+    render();
+  }
+
+  function render() {
+    document.getElementById('monthLabel').textContent = `${currentMonth + 1} 月`;
+    syncYearSelect();
+
+    const prev = getOffsetMonth(currentYear, currentMonth, -1);
+    const next = getOffsetMonth(currentYear, currentMonth, 1);
+
+    renderMonthTo('daysPrev', prev.y, prev.m);
+    renderMonthTo('days', currentYear, currentMonth);
+    renderMonthTo('daysNext', next.y, next.m);
+
+    const track = document.getElementById('calendarTrack');
+    track.classList.add('no-anim');
+    track.style.transform = 'translateX(-33.3333%)';
+    requestAnimationFrame(() => track.classList.remove('no-anim'));
+
+    renderRecords();
+    updateQuickPreview();
+  }
+
+  function changeMonth(delta) {
+    const o = getOffsetMonth(currentYear, currentMonth, delta);
+    currentYear = o.y;
+    currentMonth = o.m;
+    render();
+  }
+
+  function goToMonth(y, m) {
+    currentYear = y;
+    currentMonth = m;
+    render();
+  }
+
+  function syncYearSelect() {
+    const sel = document.getElementById('yearSelect');
+    if (![...sel.options].some(o => parseInt(o.value) === currentYear)) {
+      const opt = document.createElement('option');
+      opt.value = currentYear;
+      opt.textContent = currentYear + ' 年';
+      sel.appendChild(opt);
+      const opts = [...sel.options].sort((a, b) => parseInt(a.value) - parseInt(b.value));
+      sel.innerHTML = '';
+      opts.forEach(o => sel.appendChild(o));
+    }
+    sel.value = currentYear;
+  }
+
+  function initYearSelect() {
+    const sel = document.getElementById('yearSelect');
+    const thisYear = new Date().getFullYear();
+    for (let y = thisYear - 1; y <= thisYear + 2; y++) {
+      const opt = document.createElement('option');
+      opt.value = y;
+      opt.textContent = y + ' 年';
+      sel.appendChild(opt);
+    }
+    sel.onchange = () => {
+      currentYear = parseInt(sel.value);
+      render();
+    };
+  }
+
+  /* =========================================================
+     換班紀錄
+     swap:  type 'swap'  互換：out 給對方、in 換進來
+            type 'cover' 別人代我：out 由對方站，我欠對方一天
+            type 'help'  我代別人：in 我幫對方站，對方欠我一天
+     ========================================================= */
+  function applySwapTo(marks, s) {
+    if (s.out) {
+      s.outLabel = marks[s.out] || DEFAULT_MARK;
+      delete marks[s.out];
+    }
+    if (s.in) {
+      s.inPrev = marks[s.in] || '';
+      marks[s.in] = s.type === 'swap' ? (s.outLabel || DEFAULT_MARK) : DEFAULT_MARK;
+    }
+  }
+
+  function undoSwapOn(marks, s) {
+    if (s.in) {
+      if (s.inPrev) marks[s.in] = s.inPrev;
+      else delete marks[s.in];
+    }
+    if (s.out) marks[s.out] = s.outLabel || DEFAULT_MARK;
+  }
+
+  // 把所有換班倒回去，就是「原本排的」
+  function originalMarks(p) {
+    const m = Object.assign({}, p.marks);
+    for (let i = p.swaps.length - 1; i >= 0; i--) undoSwapOn(m, p.swaps[i]);
+    return m;
+  }
+
+  function swapsInMonth(p, y, m) {
+    const pre = monthPrefix(y, m);
+    return p.swaps.filter(s => (s.out && s.out.startsWith(pre)) || (s.in && s.in.startsWith(pre)));
+  }
+
+  function dayListText(marks, y, m) {
+    const pre = monthPrefix(y, m);
+    const keys = Object.keys(marks).filter(k => k.startsWith(pre)).sort();
+    if (!keys.length) return '（沒有）';
+    return keys.map(k => {
+      const d = parseKey(k).d;
+      const v = marks[k];
+      return v === DEFAULT_MARK ? `${d}` : `${d}(${v})`;
+    }).join('、');
+  }
+
+  function fmtDay(key, vy, vm) {
+    const k = parseKey(key);
+    if (k.y === vy && k.m === vm) return `${k.d} 號`;
+    if (k.y === vy) return `${k.m + 1}/${k.d}`;
+    return `${k.y}/${k.m + 1}/${k.d}`;
+  }
+
+  function tidy(s) {
+    return s.replace(/\s+的/g, '的')
+            .replace(/\s*我\s*/g, '我')
+            .replace(/\s+/g, ' ')
+            .trim();
+  }
+
+  // 一筆換班紀錄 → 好懂的句子
+  function swapLines(s, ow, vy, vm) {
+    const who = s.who;
+    let head = '', lines = [];
+    if (s.type === 'swap') {
+      head = `跟 ${who} 換`;
+      lines = [
+        `${ow} 的 ${fmtDay(s.out, vy, vm)} 給 ${who}`,
+        `${who} 的 ${fmtDay(s.in, vy, vm)} 給 ${ow}`
+      ];
+    } else if (s.type === 'cover') {
+      head = `${who} 幫 ${ow} 代班`;
+      lines = [
+        `${ow} 的 ${fmtDay(s.out, vy, vm)} 由 ${who} 站`,
+        s.settled ? `✓ 已經還 ${who} 了` : `${ow} 欠 ${who} 一天`
+      ];
+    } else {
+      head = `${ow} 幫 ${who} 代班`;
+      lines = [
+        `${who} 的 ${fmtDay(s.in, vy, vm)} 由 ${ow} 站`,
+        s.settled ? `✓ ${who} 已經還了` : `${who} 欠 ${ow} 一天`
+      ];
+    }
+    return { head: tidy(head), lines: lines.map(tidy) };
+  }
+
+  function regText(s) {
+    const d = new Date(s.at);
+    return `（${d.getMonth() + 1}/${d.getDate()} 登記）`;
+  }
+
+  function oweLines(p) {
+    const ow = ownerWord(p);
+    const iOwe = {}, oweMe = {};
+    p.swaps.forEach(s => {
+      if (s.settled) return;
+      if (s.type === 'cover') iOwe[s.who] = (iOwe[s.who] || 0) + 1;
+      if (s.type === 'help') oweMe[s.who] = (oweMe[s.who] || 0) + 1;
+    });
+    const out = [];
+    Object.keys(iOwe).forEach(w => out.push(tidy(`${ow} 欠 ${w} ${iOwe[w]} 天`)));
+    Object.keys(oweMe).forEach(w => out.push(tidy(`${w} 欠 ${ow} ${oweMe[w]} 天`)));
+    return out;
+  }
+
+  function circled(i) {
+    return i < 20 ? String.fromCharCode(0x2460 + i) : `${i + 1}.`;
+  }
+
+  function esc(s) {
+    return String(s).replace(/[&<>"']/g, c => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;' }[c]));
+  }
+
+  function renderRecords() {
+    const box = document.getElementById('records');
+    const p = P();
+    const y = currentYear, m = currentMonth;
+    const list = swapsInMonth(p, y, m);
+    const owe = oweLines(p);
+    const ow = ownerWord(p);
+
+    if (!list.length && !owe.length) {
+      box.classList.remove('show');
+      box.innerHTML = '';
+      return;
+    }
+
+    let html = '';
+
+    if (list.length) {
+      const orig = originalMarks(p);
+      html += `
+        <div class="rec-sum">
+          <div><span class="rec-k">原本排的</span><span class="rec-v">${esc(dayListText(orig, y, m))}</span></div>
+          <div><span class="rec-k">現在要站</span><span class="rec-v strong">${esc(dayListText(p.marks, y, m))}</span></div>
+        </div>
+        <div class="rec-title">${esc(ow === '我' ? '' : ow + ' ')}換班紀錄</div>`;
+
+      list.forEach((s, i) => {
+        const t = swapLines(s, ow, y, m);
+        const canSettle = s.type !== 'swap';
+        html += `
+          <div class="rec-item">
+            <div class="rec-no">${circled(i)}</div>
+            <div class="rec-body">
+              <div class="rec-head">${esc(t.head)}</div>
+              ${t.lines.map(l => `<div${l.startsWith('✓') ? ' class="rec-done"' : ''}>${esc(l)}</div>`).join('')}
+              <div class="rec-date">${regText(s)}</div>
+            </div>
+            <div class="rec-acts">
+              ${canSettle ? `<button class="rec-btn${s.settled ? '' : ' ok'}" onclick="toggleSettle('${s.id}')">${s.settled ? '改回未還' : '已還'}</button>` : ''}
+              <button class="rec-btn" onclick="deleteSwap('${s.id}')">刪除</button>
+            </div>
+          </div>`;
+      });
+    }
+
+    if (owe.length) {
+      html += `<div class="rec-owe">📌 目前欠班<br>${owe.map(esc).join('<br>')}</div>`;
+    }
+
+    box.innerHTML = html;
+    box.classList.add('show');
+  }
+
+  function deleteSwap(id) {
+    const p = P();
+    const idx = p.swaps.findIndex(s => s.id === id);
+    if (idx < 0) return;
+    if (!confirm('刪除這筆換班？\n月曆會改回換班前的樣子。')) return;
+    // 後面的紀錄先倒回，再刪這筆，再把後面的重新套用
+    const later = p.swaps.slice(idx + 1);
+    for (let i = later.length - 1; i >= 0; i--) undoSwapOn(p.marks, later[i]);
+    undoSwapOn(p.marks, p.swaps[idx]);
+    p.swaps.splice(idx, 1);
+    later.forEach(s => applySwapTo(p.marks, s));
+    saveState();
+    playUnmark();
+    render();
+    showToast('已刪除，月曆已改回');
+  }
+
+  function toggleSettle(id) {
+    const s = P().swaps.find(x => x.id === id);
+    if (!s) return;
+    s.settled = !s.settled;
+    saveState();
+    render();
+    showToast(s.settled ? '已標記還清' : '已改回未還');
+  }
+
+  /* ---------- 換班視窗 ---------- */
+  let swapType = 'swap';
+  let swapOut = null, swapIn = null;
+  let swapField = 'out';
+  let mcY = 0, mcM = 0;
+
+  function openSwap() {
+    swapType = 'swap';
+    swapOut = null;
+    swapIn = null;
+    swapField = 'out';
+    mcY = currentYear;
+    mcM = currentMonth;
+    document.getElementById('swapWho').value = '';
+
+    const dl = document.getElementById('peopleList');
+    const names = new Set();
+    state.people.forEach(p => { if (p.id !== curId && p.id !== ME) names.add(p.name); });
+    P().swaps.forEach(s => names.add(s.who));
+    dl.innerHTML = [...names].map(n => `<option value="${esc(n)}">`).join('');
+
+    const ow = ownerWord();
+    document.getElementById('swapTitle').textContent = ow === '我' ? '🔄 換班' : `🔄 ${ow} 的換班`;
+    const segBtns = document.querySelectorAll('#swapSeg button');
+    segBtns[1].textContent = `別人代${ow}`;
+    segBtns[2].textContent = `${ow}代別人`;
+
+    setSwapType('swap');
+    document.getElementById('swapOverlay').classList.add('active');
+  }
+
+  function closeSwap() {
+    document.getElementById('swapOverlay').classList.remove('active');
+  }
+
+  function setSwapType(t) {
+    swapType = t;
+    if (t === 'cover') swapIn = null;
+    if (t === 'help') swapOut = null;
+    swapField = t === 'help' ? 'in' : (swapOut && t === 'swap' ? 'in' : 'out');
+    document.querySelectorAll('#swapSeg button').forEach(b => b.classList.toggle('on', b.dataset.t === t));
+
+    const ow = ownerWord();
+    const row = document.getElementById('dateRow');
+    const fOut = document.getElementById('fieldOut');
+    const fIn = document.getElementById('fieldIn');
+    fOut.style.display = t === 'help' ? 'none' : '';
+    fIn.style.display = t === 'cover' ? 'none' : '';
+    row.classList.toggle('one', t !== 'swap');
+
+    document.getElementById('labelOut').textContent =
+      t === 'swap' ? `${ow}給出去的日子` : `要找人代的日子`;
+    document.getElementById('labelIn').textContent =
+      t === 'swap' ? `${ow}換到的日子` : `${ow}幫忙站的日子`;
+
+    refreshSwapUI();
+  }
+
+  function pickField(f) {
+    swapField = f;
+    const key = f === 'out' ? swapOut : swapIn;
+    if (key) { const k = parseKey(key); mcY = k.y; mcM = k.m; }
+    refreshSwapUI();
+  }
+
+  function mcMove(delta) {
+    const o = getOffsetMonth(mcY, mcM, delta);
+    mcY = o.y;
+    mcM = o.m;
+    renderMiniCal();
+  }
+
+  function renderMiniCal() {
+    document.getElementById('mcTitle').textContent = `${mcY} 年 ${mcM + 1} 月`;
+    const wrap = document.getElementById('mcDays');
+    wrap.innerHTML = '';
+    const marks = P().marks;
+    const first = new Date(mcY, mcM, 1).getDay();
+    const dim = new Date(mcY, mcM + 1, 0).getDate();
+
+    for (let i = 0; i < first; i++) {
+      const b = document.createElement('button');
+      b.className = 'mc-day blank';
+      wrap.appendChild(b);
+    }
+    for (let d = 1; d <= dim; d++) {
+      const key = dateKey(mcY, mcM, d);
+      const b = document.createElement('button');
+      b.className = 'mc-day';
+      if (marks[key]) b.classList.add('on');
+      if (key === swapOut) b.classList.add('sel-out');
+      if (key === swapIn) b.classList.add('sel-in');
+      b.textContent = d;
+      b.onclick = () => pickDay(key);
+      wrap.appendChild(b);
+    }
+  }
+
+  function pickDay(key) {
+    const marks = P().marks;
+    const ow = ownerWord();
+    if (swapField === 'out') {
+      if (!marks[key]) {
+        showToast(`${parseKey(key).d} 號${ow === '我' ? '你' : ow}本來就沒排`);
+        return;
+      }
+      swapOut = key;
+      if (swapType === 'swap' && !swapIn) swapField = 'in';
+    } else {
+      if (marks[key] && key !== swapOut) {
+        showToast(`${parseKey(key).d} 號已經有排了`);
+        return;
+      }
+      if (key === swapOut) {
+        showToast('不能選同一天');
+        return;
+      }
+      swapIn = key;
+      if (swapType === 'swap' && !swapOut) swapField = 'out';
+    }
+    refreshSwapUI();
+  }
+
+  function fmtPick(key) {
+    if (!key) return null;
+    const k = parseKey(key);
+    const w = '日一二三四五六'[new Date(k.y, k.m, k.d).getDay()];
+    return `${k.m + 1}/${k.d}（${w}）`;
+  }
+
+  function refreshSwapUI() {
+    const fOut = document.getElementById('fieldOut');
+    const fIn = document.getElementById('fieldIn');
+    fOut.classList.toggle('active', swapField === 'out');
+    fIn.classList.toggle('active', swapField === 'in');
+
+    const vo = document.getElementById('valOut');
+    const vi = document.getElementById('valIn');
+    vo.textContent = fmtPick(swapOut) || '點下方日期';
+    vo.classList.toggle('empty', !swapOut);
+    vi.textContent = fmtPick(swapIn) || '點下方日期';
+    vi.classList.toggle('empty', !swapIn);
+
+    renderMiniCal();
+    updateSwapPreview();
+  }
+
+  function updateSwapPreview() {
+    const pv = document.getElementById('swapPreview');
+    const who = document.getElementById('swapWho').value.trim() || '○○';
+    const ready =
+      (swapType === 'swap' && swapOut && swapIn) ||
+      (swapType === 'cover' && swapOut) ||
+      (swapType === 'help' && swapIn);
+    if (!ready) {
+      pv.textContent = swapType === 'swap' ? '選好兩個日子，這裡會顯示結果' : '選好日子，這裡會顯示結果';
+      pv.classList.add('empty');
+      return;
+    }
+    const t = swapLines({ type: swapType, who, out: swapOut, in: swapIn }, ownerWord(), currentYear, currentMonth);
+    pv.innerHTML = `<b>${esc(t.head)}</b><br>${t.lines.map(esc).join('<br>')}`;
+    pv.classList.remove('empty');
+  }
+
+  function saveSwap() {
+    const who = document.getElementById('swapWho').value.trim().slice(0, 10);
+    if (!who) { showToast('請輸入跟誰'); document.getElementById('swapWho').focus(); return; }
+    if (swapType === 'swap' && (!swapOut || !swapIn)) { showToast('兩個日子都要選'); return; }
+    if (swapType === 'cover' && !swapOut) { showToast('請選要代的日子'); return; }
+    if (swapType === 'help' && !swapIn) { showToast('請選幫忙站的日子'); return; }
+
+    const p = P();
+    const s = {
+      id: 's' + Date.now(),
+      type: swapType,
+      who,
+      out: swapType === 'help' ? null : swapOut,
+      in: swapType === 'cover' ? null : swapIn,
+      at: Date.now(),
+      settled: false
+    };
+    applySwapTo(p.marks, s);
+    p.swaps.push(s);
+    saveState();
+    closeSwap();
+    playMark();
+
+    // 跳到相關的月份
+    const k = parseKey(s.out || s.in);
+    if (k.y !== currentYear || k.m !== currentMonth) goToMonth(k.y, k.m);
+    else render();
+    showToast('✅ 換班已登記');
+  }
+
+  /* =========================================================
+     快速標記：貼一段文字，自動抓日期和月份
+     ========================================================= */
+  function toggleQuick() {
+    const panel = document.getElementById('quickPanel');
+    const btn = document.getElementById('quickBtn');
+    const open = !panel.classList.contains('open');
+    panel.classList.toggle('open', open);
+    btn.classList.toggle('on', open);
+    if (open) updateQuickPreview();
+  }
+
+  function normDigits(text) {
+    return text.replace(/[０-９]/g, c => String.fromCharCode(c.charCodeAt(0) - 0xFEE0));
+  }
+
+  // 文字裡有「12月」或「12/3」就用那個月份，否則用目前畫面的月份
+  function detectTarget(text) {
+    const s = normDigits(text);
+    let mm = null, yy = null;
+    const my = s.match(/(\d{4})\s*年/);
+    if (my) yy = parseInt(my[1], 10);
+    const m1 = s.match(/(\d{1,2})\s*月/);
+    if (m1) mm = parseInt(m1[1], 10);
+    if (mm === null) {
+      const m2 = s.match(/(\d{1,2})\s*[\/／]\s*\d{1,2}/);
+      if (m2) mm = parseInt(m2[1], 10);
+    }
+    if (mm === null || mm < 1 || mm > 12) return { y: currentYear, m: currentMonth, auto: false };
+    const m = mm - 1;
+    let y = yy || currentYear;
+    if (!yy) {
+      const diff = m - currentMonth;
+      if (diff < -6) y++;
+      if (diff > 6) y--;
+    }
+    return { y, m, auto: !(y === currentYear && m === currentMonth) };
+  }
+
+  function parseDays(text, year, month) {
+    const max = new Date(year, month + 1, 0).getDate();
+    let s = normDigits(text);
+    s = s.replace(/\d+\s*[\/／]\s*(\d+)/g, ' $1 ');   // 10/8 → 只留 8
+    s = s.replace(/\d+\s*[年月]/g, ' ');              // 拿掉「10月」「2026年」
+    s = s.replace(/\d{3,}/g, ' ');                     // 拿掉年份、電話之類長數字
+    const set = new Set();
+    (s.match(/\d+/g) || []).forEach(n => {
+      const d = parseInt(n, 10);
+      if (d >= 1 && d <= max) set.add(d);
+    });
+    return [...set].sort((a, b) => a - b);
+  }
+
+  function quickMark(text) {
+    return /監/.test(text) ? '監' : DEFAULT_MARK;
+  }
+
+  function updateQuickPreview() {
+    const input = document.getElementById('quickInput');
+    const pv = document.getElementById('quickPreview');
+    if (!input || !pv) return;
+    const text = input.value;
+    const ow = ownerWord();
+    const whoTxt = ow === '我' ? '' : `${ow}：`;
+    if (!text.trim()) {
+      pv.textContent = `會標記到 ${whoTxt}${currentYear} 年 ${currentMonth + 1} 月`;
+      pv.classList.remove('ok');
+      return;
+    }
+    const t = detectTarget(text);
+    const days = parseDays(text, t.y, t.m);
+    if (days.length) {
+      pv.textContent = `${whoTxt}${t.y !== currentYear ? t.y + ' 年 ' : ''}${t.m + 1} 月 → ${days.join('、')} 日（標「${quickMark(text)}」）`;
+      pv.classList.add('ok');
+    } else {
+      pv.textContent = '找不到日期';
+      pv.classList.remove('ok');
+    }
+  }
+
+  function closeQuick() {
+    const input = document.getElementById('quickInput');
+    input.value = '';
+    input.blur();
+    updateQuickPreview();
+    document.getElementById('quickPanel').classList.remove('open');
+    document.getElementById('quickBtn').classList.remove('on');
+  }
+
+  async function pasteQuick() {
+    const input = document.getElementById('quickInput');
+    try {
+      const text = await navigator.clipboard.readText();
+      if (!text || !text.trim()) {
+        showToast('剪貼簿是空的，先去複製文字');
+        return;
+      }
+      input.value = text;
+      updateQuickPreview();
+      showToast('已貼上');
+    } catch {
+      // 讀不到剪貼簿時，改用手機原生輸入框（桌面 App 模式也能長按貼上）
+      const text = prompt('長按下方輸入框，選「貼上」');
+      if (text && text.trim()) {
+        input.value = text;
+        updateQuickPreview();
+      }
+    }
+  }
+
+  function applyQuick() {
+    const input = document.getElementById('quickInput');
+    const text = input.value;
+    const t = detectTarget(text);
+    const days = parseDays(text, t.y, t.m);
+    if (!days.length) {
+      showToast('沒有找到日期');
+      return;
+    }
+    const mark = quickMark(text);
+    const marks = P().marks;
+    days.forEach(d => { marks[dateKey(t.y, t.m, d)] = mark; });
+    saveState();
+    playMark();
+    closeQuick();
+    goToMonth(t.y, t.m);
+    showToast(`✅ 已標記 ${t.m + 1} 月 ${days.join('、')} 日`);
+  }
+
+  /* =========================================================
+     長按：自訂文字
+     ========================================================= */
+  function modalReady() {
+    return Date.now() - modalOpenedAt > 400;
+  }
+
+  function openModal(key, day, year, month) {
+    selectedDateKey = key;
+    modalOpenedAt = Date.now();
+    const marks = P().marks;
+    const holidayName = getHolidays(year)[key];
+    const ow = ownerWord();
+
+    document.getElementById('modalTitle').textContent =
+      `${ow === '我' ? '' : ow + '・'}${year} 年 ${month + 1} 月 ${day} 日`;
+
+    const subEl = document.getElementById('modalHoliday');
+    if (holidayName) {
+      subEl.textContent = `🎌 ${holidayName}`;
+      subEl.style.display = 'block';
+    } else {
+      subEl.textContent = '';
+      subEl.style.display = 'none';
+    }
+
+    document.getElementById('noteInput').value = marks[key] || DEFAULT_MARK;
+    document.getElementById('modalOverlay').classList.add('active');
+    setTimeout(() => document.getElementById('noteInput').focus(), 100);
+  }
+
+  function closeModal() {
+    document.getElementById('modalOverlay').classList.remove('active');
+    selectedDateKey = null;
+  }
+
+  function saveNote() {
+    if (!selectedDateKey) return;
+    const marks = P().marks;
+    const val = document.getElementById('noteInput').value.trim();
+    if (val) marks[selectedDateKey] = val;
+    else delete marks[selectedDateKey];
+    saveState();
+    closeModal();
+    render();
+  }
+
+  function deleteNote() {
+    if (!selectedDateKey) return;
+    delete P().marks[selectedDateKey];
+    saveState();
+    closeModal();
+    render();
+  }
+
+  /* =========================================================
+     清除
+     ========================================================= */
+  function resetMonth() {
+    const p = P();
+    const pre = monthPrefix(currentYear, currentMonth);
+    const keys = Object.keys(p.marks).filter(k => k.startsWith(pre));
+    const swaps = swapsInMonth(p, currentYear, currentMonth);
+    const ow = ownerWord();
+
+    if (!keys.length && !swaps.length) {
+      showToast('本月沒有紀錄');
+      return;
+    }
+    const msg = `確定清除${ow === '我' ? '' : '「' + ow + '」'} ${currentMonth + 1} 月？\n\n` +
+      (keys.length ? `• ${keys.length} 個標記\n` : '') +
+      (swaps.length ? `• ${swaps.length} 筆換班紀錄\n` : '');
+    if (!confirm(msg)) return;
+
+    keys.forEach(k => delete p.marks[k]);
+    const ids = new Set(swaps.map(s => s.id));
+    p.swaps = p.swaps.filter(s => !ids.has(s.id));
+    saveState();
+    render();
+    showToast('已清除本月');
+  }
+
+  function resetPerson() {
+    const p = P();
+    if (p.id !== ME) {
+      menuPersonId = p.id;
+      deletePerson();
+      return;
+    }
+    const n = Object.keys(p.marks).length;
+    if (!n && !p.swaps.length) {
+      showToast('目前沒有紀錄');
+      return;
+    }
+    if (!confirm(`確定清除「我」的全部資料？\n\n• ${n} 個標記\n• ${p.swaps.length} 筆換班紀錄\n\n其他人的資料不會動。`)) return;
+    p.marks = {};
+    p.swaps = [];
+    saveState();
+    render();
+    showToast('已清除');
+  }
+
+  /* =========================================================
+     備份／還原
+     ========================================================= */
+  const BACKUP_HEAD = 'DDCAL1:';
+
+  function makeBackupCode() {
+    const json = JSON.stringify({ v: 2, brand: loadBrand(), people: state.people });
+    return BACKUP_HEAD + btoa(unescape(encodeURIComponent(json)));
+  }
+
+  function openBackup() {
+    const code = makeBackupCode();
+    document.getElementById('backupTitle').textContent = '💾 備份';
+    const ta = document.getElementById('backupText');
+    ta.value = code;
+    ta.readOnly = true;
+    const count = state.people.length;
+    document.getElementById('backupNote').textContent =
+      `共 ${count} 人的資料。把這段文字存起來（傳給自己或貼到備忘錄），換手機時按「還原」貼回來就好。`;
+    const btns = document.getElementById('backupBtns');
+    btns.innerHTML = `
+      <button class="btn-cancel" onclick="closeBackup()">關閉</button>
+      ${navigator.share ? '<button class="btn-delete" onclick="shareBackup()">分享</button>' : ''}
+      <button class="btn-save" onclick="copyBackup()">複製</button>`;
+    document.getElementById('backupOverlay').classList.add('active');
+  }
+
+  function openRestore() {
+    document.getElementById('backupTitle').textContent = '📥 還原';
+    const ta = document.getElementById('backupText');
+    ta.value = '';
+    ta.readOnly = false;
+    ta.placeholder = '貼上備份文字（DDCAL1: 開頭）';
+    document.getElementById('backupNote').textContent = '注意：還原會用備份蓋掉目前全部的資料。';
+    const btns = document.getElementById('backupBtns');
+    btns.innerHTML = `
+      <button class="btn-cancel" onclick="closeBackup()">取消</button>
+      <button class="btn-delete" onclick="pasteBackup()">📋 貼上</button>
+      <button class="btn-save" onclick="doRestore()">還原</button>`;
+    document.getElementById('backupOverlay').classList.add('active');
+  }
+
+  function closeBackup() {
+    document.getElementById('backupOverlay').classList.remove('active');
+  }
+
+  async function copyBackup() {
+    const code = document.getElementById('backupText').value;
+    try {
+      await navigator.clipboard.writeText(code);
+      showToast('✅ 已複製備份');
+    } catch {
+      const ta = document.getElementById('backupText');
+      ta.readOnly = false;
+      ta.select();
+      try { document.execCommand('copy'); showToast('✅ 已複製備份'); }
+      catch { showToast('請長按文字框，全選後複製'); }
+      ta.readOnly = true;
+    }
+  }
+
+  async function shareBackup() {
+    try {
+      await navigator.share({ title: '點點月曆備份', text: document.getElementById('backupText').value });
+    } catch {}
+  }
+
+  async function pasteBackup() {
+    const ta = document.getElementById('backupText');
+    try {
+      const t = await navigator.clipboard.readText();
+      if (t) ta.value = t.trim();
+    } catch {
+      const t = prompt('長按下方輸入框，選「貼上」');
+      if (t) ta.value = t.trim();
+    }
+  }
+
+  function doRestore() {
+    let code = document.getElementById('backupText').value.trim();
+    const i = code.indexOf(BACKUP_HEAD);
+    if (i < 0) { showToast('這不是點點月曆的備份'); return; }
+    code = code.slice(i + BACKUP_HEAD.length).replace(/\s/g, '');
+    let data = null;
+    try { data = JSON.parse(decodeURIComponent(escape(atob(code)))); } catch {}
+    if (!data || !Array.isArray(data.people)) { showToast('備份內容壞掉了，請重新複製'); return; }
+    if (!confirm(`要還原 ${data.people.length} 人的資料嗎？\n目前的資料會被蓋掉。`)) return;
+
+    state = { people: data.people };
+    loadStateFix();
+    if (data.brand) {
+      saveBrand(data.brand);
+      document.getElementById('brandText').textContent = data.brand;
+      document.title = data.brand;
+    }
+    curId = ME;
+    closeBackup();
+    renderPeople();
+    render();
+    showToast('✅ 已還原');
+  }
+
+  function loadStateFix() {
+    if (!state.people.some(p => p.id === ME)) state.people.unshift(newPersonObj(ME, '我'));
+    state.people.forEach(p => {
+      if (!p.marks || typeof p.marks !== 'object') p.marks = {};
+      if (!Array.isArray(p.swaps)) p.swaps = [];
+      if (!p.used) p.used = 0;
+    });
+    saveState();
+  }
+
+  /* =========================================================
+     提示訊息
+     ========================================================= */
+  function showToast(msg) {
+    const t = document.getElementById('toast');
+    t.textContent = msg;
+    t.classList.add('show');
+    clearTimeout(t._timer);
+    t._timer = setTimeout(() => t.classList.remove('show'), 2200);
+  }
+
+  /* =========================================================
+     使用說明（第一次自動出現）
+     ========================================================= */
   function openHelp() {
     document.getElementById('helpOverlay').classList.add('active');
   }
 
   function closeHelp() {
     document.getElementById('helpOverlay').classList.remove('active');
-    try { localStorage.setItem(HELP_KEY, '1'); } catch {}
+    lsSet(HELP_KEY, '1');
   }
 
-  /* ---------- App 模式／存到桌面 ---------- */
+  function initHelp() {
+    if (lsGet(HELP_KEY) !== '1') openHelp();
+  }
+
+  /* =========================================================
+     App 模式／存到桌面
+     ========================================================= */
   let deferredInstall = null;
 
   function isAppMode() {
@@ -994,8 +2804,7 @@
     const steps = document.getElementById('installSteps');
     const note = document.getElementById('installNote');
     const go = document.getElementById('installGo');
-    const ua = navigator.userAgent;
-    const inLine = /Line\//i.test(ua);
+    const inLine = /Line\//i.test(navigator.userAgent);
 
     let html = '';
     note.textContent = '';
@@ -1080,514 +2889,9 @@
     }
   }
 
-  function initHelp() {
-    let seen = false;
-    try { seen = localStorage.getItem(HELP_KEY) === '1'; } catch {}
-    if (!seen) openHelp();
-  }
-  const BRAND_KEY = 'duty_calendar_brand';
-  const DEFAULT_BRAND = '點點月曆';
-  const DEFAULT_MARK = '留';
-  const YEAR_RANGE = [2025, 2026, 2027, 2028, 2029, 2030, 2031];
-
-  let currentYear, currentMonth;
-  let selectedDateKey = null;
-  let modalOpenedAt = 0;
-  let suppressClickUntil = 0;
-
-  const HOLIDAYS = {
-    2026: {
-      '2026-01-01': '開國紀念日',
-      '2026-02-15': '小年夜',
-      '2026-02-16': '除夕',
-      '2026-02-17': '春節',
-      '2026-02-18': '春節',
-      '2026-02-19': '春節',
-      '2026-02-20': '補假',
-      '2026-02-27': '補假',
-      '2026-02-28': '和平紀念日',
-      '2026-04-03': '補假',
-      '2026-04-04': '兒童節',
-      '2026-04-05': '清明節',
-      '2026-04-06': '補假',
-      '2026-05-01': '勞動節',
-      '2026-06-19': '端午節',
-      '2026-09-25': '中秋節',
-      '2026-09-28': '教師節',
-      '2026-10-09': '補假',
-      '2026-10-10': '國慶日',
-      '2026-10-25': '光復節',
-      '2026-10-26': '補假',
-      '2026-12-25': '行憲紀念日'
-    },
-    2027: {
-      '2027-01-01': '開國紀念日',
-      '2027-02-04': '小年夜',
-      '2027-02-05': '除夕',
-      '2027-02-06': '春節',
-      '2027-02-07': '春節',
-      '2027-02-08': '春節',
-      '2027-02-09': '補假',
-      '2027-02-10': '補假',
-      '2027-02-28': '和平紀念日',
-      '2027-04-04': '兒童節',
-      '2027-04-05': '清明節',
-      '2027-04-06': '補假',
-      '2027-05-01': '勞動節',
-      '2027-06-09': '端午節',
-      '2027-09-15': '中秋節',
-      '2027-10-10': '國慶日',
-      '2027-10-25': '光復節',
-      '2027-12-25': '行憲紀念日',
-      '2027-12-31': '補假'
-    },
-    2028: {
-      '2028-01-01': '開國紀念日',
-      '2028-01-25': '小年夜',
-      '2028-01-26': '除夕',
-      '2028-01-27': '春節',
-      '2028-01-28': '春節',
-      '2028-01-29': '春節',
-      '2028-01-30': '春節',
-      '2028-02-28': '和平紀念日',
-      '2028-04-04': '兒童節、民族掃墓節',
-      '2028-04-05': '補假',
-      '2028-05-01': '勞動節',
-      '2028-05-28': '端午節',
-      '2028-05-29': '補假',
-      '2028-09-28': '教師節',
-      '2028-10-03': '中秋節',
-      '2028-10-10': '國慶日',
-      '2028-10-25': '光復節',
-      '2028-12-25': '行憲紀念日'
-    }
-  };
-
-  function getHolidays(year) { return HOLIDAYS[year] || {}; }
-  function loadBrand() { return localStorage.getItem(BRAND_KEY) || DEFAULT_BRAND; }
-  function saveBrand(n) { localStorage.setItem(BRAND_KEY, n); }
-  function loadNotes() { try { return JSON.parse(localStorage.getItem(STORAGE_KEY)) || {}; } catch { return {}; } }
-  function saveNotes(n) { localStorage.setItem(STORAGE_KEY, JSON.stringify(n)); }
-  function dateKey(y, m, d) { return `${y}-${String(m + 1).padStart(2, '0')}-${String(d).padStart(2, '0')}`; }
-
-  let audioCtx = null;
-  function getCtx() {
-    if (!audioCtx) audioCtx = new (window.AudioContext || window.webkitAudioContext)();
-    if (audioCtx.state === 'suspended') audioCtx.resume();
-    return audioCtx;
-  }
-
-  const soundFiles = {};
-  function loadSound(name, file) {
-    const a = new Audio(file);
-    a.volume = 0.5;
-    let ok = null;
-    a.addEventListener('canplaythrough', () => { ok = true; });
-    a.addEventListener('error', () => { ok = false; });
-    setTimeout(() => { if (ok === null) ok = false; }, 500);
-    soundFiles[name] = { audio: a, available: () => ok === true };
-  }
-  loadSound('mark',   'mark.mp3');
-  loadSound('unmark', 'unmark.mp3');
-  loadSound('hold',   'hold.mp3');
-  loadSound('flip',   'flip.mp3');
-
-  function tryPlayFile(name) {
-    const s = soundFiles[name];
-    if (s && s.available()) {
-      try {
-        s.audio.currentTime = 0;
-        s.audio.play().catch(() => {});
-        return true;
-      } catch {}
-    }
-    return false;
-  }
-
-  function synthDing() {
-    try {
-      const ctx = getCtx();
-      const now = ctx.currentTime;
-
-      const osc = ctx.createOscillator();
-      const gain = ctx.createGain();
-      osc.type = 'sine';
-      osc.frequency.setValueAtTime(880, now);
-      osc.frequency.exponentialRampToValueAtTime(1760, now + 0.06);
-
-      gain.gain.setValueAtTime(0.0001, now);
-      gain.gain.exponentialRampToValueAtTime(0.22, now + 0.008);
-      gain.gain.exponentialRampToValueAtTime(0.0001, now + 0.35);
-
-      osc.connect(gain);
-      gain.connect(ctx.destination);
-      osc.start(now);
-      osc.stop(now + 0.36);
-
-      const osc2 = ctx.createOscillator();
-      const gain2 = ctx.createGain();
-      osc2.type = 'sine';
-      osc2.frequency.setValueAtTime(2637, now);
-      gain2.gain.setValueAtTime(0.0001, now);
-      gain2.gain.exponentialRampToValueAtTime(0.08, now + 0.005);
-      gain2.gain.exponentialRampToValueAtTime(0.0001, now + 0.2);
-
-      osc2.connect(gain2);
-      gain2.connect(ctx.destination);
-      osc2.start(now);
-      osc2.stop(now + 0.21);
-    } catch {}
-  }
-
-  function synthTick() {
-    try {
-      const ctx = getCtx();
-      const now = ctx.currentTime;
-
-      const osc = ctx.createOscillator();
-      const gain = ctx.createGain();
-      osc.type = 'triangle';
-      osc.frequency.setValueAtTime(900, now);
-      osc.frequency.exponentialRampToValueAtTime(320, now + 0.05);
-
-      gain.gain.setValueAtTime(0.0001, now);
-      gain.gain.exponentialRampToValueAtTime(0.18, now + 0.004);
-      gain.gain.exponentialRampToValueAtTime(0.0001, now + 0.07);
-
-      osc.connect(gain);
-      gain.connect(ctx.destination);
-      osc.start(now);
-      osc.stop(now + 0.08);
-    } catch {}
-  }
-
-  function synthDull() {
-    try {
-      const ctx = getCtx();
-      const now = ctx.currentTime;
-
-      const osc = ctx.createOscillator();
-      const gain = ctx.createGain();
-      osc.type = 'sine';
-      osc.frequency.setValueAtTime(300, now);
-      osc.frequency.linearRampToValueAtTime(240, now + 0.18);
-
-      gain.gain.setValueAtTime(0.0001, now);
-      gain.gain.exponentialRampToValueAtTime(0.2, now + 0.02);
-      gain.gain.exponentialRampToValueAtTime(0.0001, now + 0.2);
-
-      osc.connect(gain);
-      gain.connect(ctx.destination);
-      osc.start(now);
-      osc.stop(now + 0.22);
-    } catch {}
-  }
-
-  function synthFlip() {
-    try {
-      const ctx = getCtx();
-      const now = ctx.currentTime;
-      const dur = 0.22;
-      const bufferSize = Math.floor(ctx.sampleRate * dur);
-      const buffer = ctx.createBuffer(1, bufferSize, ctx.sampleRate);
-      const data = buffer.getChannelData(0);
-
-      for (let i = 0; i < bufferSize; i++) {
-        const t = i / bufferSize;
-        data[i] = (Math.random() * 2 - 1) * Math.pow(1 - t, 2);
-      }
-
-      const source = ctx.createBufferSource();
-      source.buffer = buffer;
-
-      const filter = ctx.createBiquadFilter();
-      filter.type = 'bandpass';
-      filter.frequency.setValueAtTime(2400, now);
-      filter.frequency.exponentialRampToValueAtTime(1200, now + dur);
-      filter.Q.value = 0.8;
-
-      const gain = ctx.createGain();
-      gain.gain.setValueAtTime(0.001, now);
-      gain.gain.exponentialRampToValueAtTime(0.2, now + 0.015);
-      gain.gain.exponentialRampToValueAtTime(0.0001, now + dur);
-
-      source.connect(filter);
-      filter.connect(gain);
-      gain.connect(ctx.destination);
-      source.start(now);
-      source.stop(now + dur);
-    } catch {}
-  }
-
-  function playMark()   { if (!tryPlayFile('mark'))   synthDing(); }
-  function playUnmark() { if (!tryPlayFile('unmark')) synthTick(); }
-  function playHold()   { if (!tryPlayFile('hold'))   synthDull(); }
-  function playFlip()   { if (!tryPlayFile('flip'))   synthFlip(); }
-
-  function initBrand() {
-    const el = document.getElementById('brandText');
-    el.textContent = loadBrand();
-    document.title = loadBrand();
-    el.addEventListener('blur', () => {
-      let n = el.textContent.trim() || DEFAULT_BRAND;
-      el.textContent = n; saveBrand(n); document.title = n;
-    });
-    el.addEventListener('keydown', (e) => {
-      if (e.key === 'Enter') { e.preventDefault(); el.blur(); }
-    });
-  }
-
-  function focusBrand() {
-    const el = document.getElementById('brandText');
-    const r = document.createRange(), s = window.getSelection();
-    r.selectNodeContents(el); r.collapse(false);
-    s.removeAllRanges(); s.addRange(r); el.focus();
-  }
-
-  function getOffsetMonth(y, m, delta) {
-    let nm = m + delta, ny = y;
-    if (nm > 11) { nm = 0; ny++; }
-    if (nm < 0) { nm = 11; ny--; }
-    return { y: ny, m: nm };
-  }
-
-  function renderMonthTo(containerId, year, month) {
-    const notes = loadNotes();
-    const holidays = getHolidays(year);
-    const daysEl = document.getElementById(containerId);
-    daysEl.innerHTML = '';
-
-    const firstDay = new Date(year, month, 1).getDay();
-    const daysInMonth = new Date(year, month + 1, 0).getDate();
-    const today = new Date();
-    const todayKey = dateKey(today.getFullYear(), today.getMonth(), today.getDate());
-
-    for (let i = 0; i < firstDay; i++) {
-      const empty = document.createElement('div');
-      empty.className = 'day empty';
-      daysEl.appendChild(empty);
-    }
-
-    for (let d = 1; d <= daysInMonth; d++) {
-      const key = dateKey(year, month, d);
-      const dayEl = document.createElement('div');
-      dayEl.className = 'day';
-
-      const dow = new Date(year, month, d).getDay();
-      if (dow === 0) dayEl.classList.add('sunday');
-      if (dow === 6) dayEl.classList.add('saturday');
-      if (key === todayKey) dayEl.classList.add('today');
-      if (holidays[key]) dayEl.classList.add('holiday');
-
-      const numEl = document.createElement('div');
-      numEl.className = 'day-num';
-      numEl.textContent = d;
-      dayEl.appendChild(numEl);
-
-      if (notes[key]) {
-        const badgeWrap = document.createElement('div');
-        badgeWrap.className = 'duty-badge';
-        const dot = document.createElement('div');
-        dot.className = 'duty-dot';
-        dot.textContent = notes[key].slice(0, 1);
-        badgeWrap.appendChild(dot);
-        dayEl.appendChild(badgeWrap);
-      }
-
-      bindDayEvents(dayEl, key, d, year, month);
-      daysEl.appendChild(dayEl);
-    }
-
-    const totalCells = firstDay + daysInMonth;
-    const TOTAL = 42;
-    for (let i = totalCells; i < TOTAL; i++) {
-      const empty = document.createElement('div');
-      empty.className = 'day empty';
-      daysEl.appendChild(empty);
-    }
-  }
-
-  /* ---------- 事件綁定：短按用瀏覽器原生 click（安卓最穩），長按另外計時 ---------- */
-  function bindDayEvents(el, key, day, year, month) {
-    let timer = null;
-    let longPressed = false;
-    let sx = 0, sy = 0;
-    const LONG = 500;
-    const TOL = 12;
-
-    const clearTimer = () => {
-      if (timer) { clearTimeout(timer); timer = null; }
-    };
-
-    el.addEventListener('pointerdown', (e) => {
-      if (e.button !== undefined && e.button !== 0) return;
-      longPressed = false;
-      sx = e.clientX;
-      sy = e.clientY;
-      clearTimer();
-      timer = setTimeout(() => {
-        timer = null;
-        longPressed = true;
-        if (navigator.vibrate) navigator.vibrate(15);
-        playHold();
-        openModal(key, day, year, month);
-      }, LONG);
-    });
-
-    el.addEventListener('pointermove', (e) => {
-      if (!timer) return;
-      if (Math.abs(e.clientX - sx) > TOL || Math.abs(e.clientY - sy) > TOL) clearTimer();
-    });
-
-    el.addEventListener('pointerup', clearTimer);
-    el.addEventListener('pointercancel', clearTimer);
-    el.addEventListener('pointerleave', clearTimer);
-
-    el.addEventListener('click', () => {
-      if (longPressed) { longPressed = false; return; }
-      if (Date.now() < suppressClickUntil) return;
-      toggleMark(key);
-    });
-
-    el.addEventListener('contextmenu', (e) => e.preventDefault());
-  }
-
-  function toggleMark(key) {
-    const notes = loadNotes();
-    if (notes[key]) {
-      delete notes[key];
-      playUnmark();
-    } else {
-      notes[key] = DEFAULT_MARK;
-      playMark();
-    }
-    saveNotes(notes);
-    render();
-  }
-
-  function render() {
-    document.getElementById('monthLabel').textContent = `${currentMonth + 1} 月`;
-
-    const prev = getOffsetMonth(currentYear, currentMonth, -1);
-    const next = getOffsetMonth(currentYear, currentMonth, 1);
-
-    renderMonthTo('daysPrev', prev.y, prev.m);
-    renderMonthTo('days', currentYear, currentMonth);
-    renderMonthTo('daysNext', next.y, next.m);
-
-    const track = document.getElementById('calendarTrack');
-    track.classList.add('no-anim');
-    track.style.transform = 'translateX(-33.3333%)';
-    requestAnimationFrame(() => track.classList.remove('no-anim'));
-
-    updateQuickPreview();
-  }
-
-  /* ---------- 快速標記：貼一段文字，自動抓出日期 ---------- */
-  function toggleQuick() {
-    const panel = document.getElementById('quickPanel');
-    const btn = document.getElementById('quickBtn');
-    const open = !panel.classList.contains('open');
-    panel.classList.toggle('open', open);
-    btn.classList.toggle('on', open);
-    if (open) updateQuickPreview();
-  }
-
-  async function pasteQuick() {
-    const input = document.getElementById('quickInput');
-    try {
-      const text = await navigator.clipboard.readText();
-      if (!text || !text.trim()) {
-        showToast('剪貼簿是空的，先去複製文字');
-        return;
-      }
-      input.value = text;
-      updateQuickPreview();
-      showToast('已貼上');
-    } catch {
-      // 讀不到剪貼簿時，改用手機原生輸入框（桌面 App 模式也能長按貼上）
-      const text = prompt('長按下方輸入框，選「貼上」');
-      if (text && text.trim()) {
-        input.value = text;
-        updateQuickPreview();
-      }
-    }
-  }
-
-  function parseDays(text, year, month) {
-    const max = new Date(year, month + 1, 0).getDate();
-    let s = text.replace(/[０-９]/g, c => String.fromCharCode(c.charCodeAt(0) - 0xFEE0));
-    s = s.replace(/\d+\s*[\/／]\s*(\d+)/g, ' $1 ');   // 10/8 → 只留 8
-    s = s.replace(/\d+\s*[年月]/g, ' ');              // 拿掉「10月」「2026年」
-    s = s.replace(/\d{3,}/g, ' ');                     // 拿掉年份、電話之類長數字
-    const set = new Set();
-    (s.match(/\d+/g) || []).forEach(n => {
-      const d = parseInt(n, 10);
-      if (d >= 1 && d <= max) set.add(d);
-    });
-    return [...set].sort((a, b) => a - b);
-  }
-
-  function quickMark(text) {
-    return /監/.test(text) ? '監' : DEFAULT_MARK;
-  }
-
-  function updateQuickPreview() {
-    const input = document.getElementById('quickInput');
-    const pv = document.getElementById('quickPreview');
-    if (!input || !pv) return;
-    const text = input.value;
-    if (!text.trim()) {
-      pv.textContent = `會標記到 ${currentYear} 年 ${currentMonth + 1} 月`;
-      pv.classList.remove('ok');
-      return;
-    }
-    const days = parseDays(text, currentYear, currentMonth);
-    if (days.length) {
-      pv.textContent = `${currentMonth + 1} 月 → ${days.join('、')} 日（標「${quickMark(text)}」）`;
-      pv.classList.add('ok');
-    } else {
-      pv.textContent = '找不到日期';
-      pv.classList.remove('ok');
-    }
-  }
-
-  function clearQuick() {
-    document.getElementById('quickInput').value = '';
-    updateQuickPreview();
-  }
-
-  function closeQuick() {
-    const input = document.getElementById('quickInput');
-    input.value = '';
-    input.blur();
-    updateQuickPreview();
-    document.getElementById('quickPanel').classList.remove('open');
-    document.getElementById('quickBtn').classList.remove('on');
-  }
-
-  function applyQuick() {
-    const input = document.getElementById('quickInput');
-    const text = input.value;
-    const days = parseDays(text, currentYear, currentMonth);
-    if (!days.length) {
-      showToast('沒有找到日期');
-      return;
-    }
-    const mark = quickMark(text);
-    const notes = loadNotes();
-    days.forEach(d => { notes[dateKey(currentYear, currentMonth, d)] = mark; });
-    saveNotes(notes);
-    playMark();
-    input.value = '';
-    input.blur();
-    document.getElementById('quickPanel').classList.remove('open');
-    document.getElementById('quickBtn').classList.remove('on');
-    render();
-    showToast(`✅ 已標記 ${currentMonth + 1} 月 ${days.join('、')} 日`);
-  }
-
-  /* ---------- 產圖：把本月畫成 PNG ---------- */
+  /* =========================================================
+     產圖：把目前這個人的本月畫成 PNG（含換班紀錄）
+     ========================================================= */
   let imgBlob = null;
   let imgFileName = '';
 
@@ -1617,14 +2921,19 @@
   }
 
   function makeImage() {
-    let last = '';
-    try { last = localStorage.getItem(IMG_NAME_KEY) || ''; } catch {}
-    const input = prompt('圖片上要寫誰的名字？（例：王學長）', last);
-    if (input === null) return;
-    const who = input.trim();
-    try { localStorage.setItem(IMG_NAME_KEY, who); } catch {}
+    const p = P();
+    let who;
+    if (p.id === ME) {
+      const last = lsGet(IMG_NAME_KEY) || '';
+      const input = prompt('圖片上要寫你的名字嗎？（可留空）', last);
+      if (input === null) return;
+      who = input.trim();
+      lsSet(IMG_NAME_KEY, who);
+    } else {
+      who = p.name;
+    }
 
-    const canvas = drawMonthImage(who);
+    const canvas = drawMonthImage(who, p);
     document.getElementById('imgPreview').src = canvas.toDataURL('image/png');
     imgFileName = `${who || '月曆'}_${currentYear}年${currentMonth + 1}月.png`;
     imgBlob = null;
@@ -1644,33 +2953,55 @@
     document.getElementById('imgOverlay').classList.add('active');
   }
 
-  function drawMonthImage(who) {
+  function drawMonthImage(who, p) {
     const y = currentYear, m = currentMonth;
-    const notes = loadNotes();
+    const marks = p.marks;
     const holidays = getHolidays(y);
     const firstDay = new Date(y, m, 1).getDay();
     const dim = new Date(y, m + 1, 0).getDate();
     const rows = Math.ceil((firstDay + dim) / 7);
+    const ow = who || ownerWord(p);
 
     const FONT = '"PingFang TC", "Microsoft JhengHei", "Noto Sans TC", sans-serif';
     const W = 1080, PAD = 48, GAP = 12;
     const cellW = (W - PAD * 2 - GAP * 6) / 7;
     const cellH = cellW * 1.05;
+    const TEXT_W = W - PAD * 2 - 56;
 
-    // 統計：依標記文字分組
+    const measure = document.createElement('canvas').getContext('2d');
+
+    // 上方統計：依標記文字分組
     const groups = {};
     for (let d = 1; d <= dim; d++) {
-      const v = notes[dateKey(y, m, d)];
+      const v = marks[dateKey(y, m, d)];
       if (v) (groups[v] = groups[v] || []).push(d);
     }
     const summary = Object.keys(groups).map(k => `${k}（${groups[k].length} 天）：${groups[k].join('、')}`);
-
-    const measure = document.createElement('canvas').getContext('2d');
     measure.font = `700 34px ${FONT}`;
     let sumLines = [];
-    summary.forEach(s => { sumLines = sumLines.concat(wrapText(measure, s, W - PAD * 2 - 56)); });
+    summary.forEach(s => { sumLines = sumLines.concat(wrapText(measure, s, TEXT_W)); });
     if (!sumLines.length) sumLines = ['本月沒有標記'];
     const LINE_H = 52;
+
+    // 下方換班紀錄
+    const swaps = swapsInMonth(p, y, m);
+    const recRows = [];  // { text, font, color, gapBefore }
+    if (swaps.length) {
+      const orig = originalMarks(p);
+      const push = (text, font, color, gapBefore) => {
+        measure.font = font;
+        wrapText(measure, text, TEXT_W).forEach((t, i) => recRows.push({ text: t, font, color, gapBefore: i === 0 ? gapBefore : 0 }));
+      };
+      push(`原本排的：${dayListText(orig, y, m)}`, `700 32px ${FONT}`, '#6b7280', 0);
+      push(`現在要站：${dayListText(marks, y, m)}`, `900 32px ${FONT}`, '#3b82f6', 4);
+      swaps.forEach((s, i) => {
+        const t = swapLines(s, ow, y, m);
+        push(`${circled(i)} ${t.head}`, `900 32px ${FONT}`, '#ff4d6d', 22);
+        t.lines.forEach(l => push(`　 ${l}`, `600 30px ${FONT}`, l.startsWith('✓') ? '#059669' : '#1f2937', 4));
+      });
+    }
+    const REC_LINE = 46;
+    const recH = recRows.length ? 28 * 2 + recRows.reduce((a, r) => a + REC_LINE + r.gapBefore, 0) - (REC_LINE - 34) + 56 : 0;
 
     // 版面高度
     const titleTop = PAD + 12;
@@ -1680,7 +3011,8 @@
     const weekTop = boxTop + boxH + 32;
     const gridTop = weekTop + 56 + 8;
     const gridH = rows * cellH + (rows - 1) * GAP;
-    const footTop = gridTop + gridH + 36;
+    const recTop = gridTop + gridH + 32;
+    const footTop = recTop + (recH ? recH + 32 : 4);
     const H = footTop + 26 + PAD;
 
     const canvas = document.createElement('canvas');
@@ -1751,7 +3083,7 @@
         ctx.fill();
       }
 
-      if (notes[key]) {
+      if (marks[key]) {
         const r = cellW * 0.27;
         const dx = x + cellW / 2, dy = cy + cellH * 0.62;
         const g = ctx.createLinearGradient(dx - r, dy - r, dx + r, dy + r);
@@ -1766,9 +3098,28 @@
         ctx.textAlign = 'center';
         ctx.textBaseline = 'middle';
         ctx.font = `800 36px ${FONT}`;
-        ctx.fillText(notes[key].slice(0, 1), dx, dy + 2);
+        ctx.fillText(marks[key].slice(0, 1), dx, dy + 2);
         ctx.textBaseline = 'top';
       }
+    }
+
+    // 換班紀錄
+    if (recRows.length) {
+      ctx.fillStyle = '#f8fafc';
+      rr(ctx, PAD, recTop, W - PAD * 2, recH, 20);
+      ctx.fill();
+      ctx.textAlign = 'left';
+      ctx.fillStyle = '#ff4d6d';
+      ctx.font = `900 30px ${FONT}`;
+      ctx.fillText('換班紀錄', PAD + 28, recTop + 28);
+      let yy = recTop + 28 + 56;
+      recRows.forEach(r => {
+        yy += r.gapBefore;
+        ctx.font = r.font;
+        ctx.fillStyle = r.color;
+        ctx.fillText(r.text, PAD + 28, yy);
+        yy += REC_LINE;
+      });
     }
 
     // 頁尾
@@ -1785,18 +3136,15 @@
   }
 
   function downloadImage() {
-    const go = (blob) => {
-      const a = document.createElement('a');
-      a.href = URL.createObjectURL(blob);
-      a.download = imgFileName;
-      document.body.appendChild(a);
-      a.click();
-      document.body.removeChild(a);
-      setTimeout(() => URL.revokeObjectURL(a.href), 3000);
-      showToast('已下載，若沒反應請長按圖片儲存');
-    };
-    if (imgBlob) go(imgBlob);
-    else showToast('圖片還在產生，請再按一次');
+    if (!imgBlob) { showToast('圖片還在產生，請再按一次'); return; }
+    const a = document.createElement('a');
+    a.href = URL.createObjectURL(imgBlob);
+    a.download = imgFileName;
+    document.body.appendChild(a);
+    a.click();
+    document.body.removeChild(a);
+    setTimeout(() => URL.revokeObjectURL(a.href), 3000);
+    showToast('已下載，若沒反應請長按圖片儲存');
   }
 
   async function shareImage() {
@@ -1809,214 +3157,9 @@
     }
   }
 
-  function modalReady() {
-    return Date.now() - modalOpenedAt > 400;
-  }
-
-  function openModal(key, day, year, month) {
-    selectedDateKey = key;
-    modalOpenedAt = Date.now();
-    const notes = loadNotes();
-    const holidays = getHolidays(year);
-    const holidayName = holidays[key];
-
-    const titleEl = document.getElementById('modalTitle');
-    const subEl = document.getElementById('modalHoliday');
-
-    titleEl.textContent = `${year} 年 ${month + 1} 月 ${day} 日`;
-
-    if (holidayName) {
-      subEl.textContent = `🎌 ${holidayName}`;
-      subEl.style.display = 'block';
-    } else {
-      subEl.textContent = '';
-      subEl.style.display = 'none';
-    }
-
-    document.getElementById('noteInput').value = notes[key] || DEFAULT_MARK;
-    document.getElementById('modalOverlay').classList.add('active');
-    setTimeout(() => document.getElementById('noteInput').focus(), 100);
-  }
-
-  function closeModal() {
-    document.getElementById('modalOverlay').classList.remove('active');
-    selectedDateKey = null;
-  }
-
-  function saveNote() {
-    if (!selectedDateKey) return;
-    const notes = loadNotes();
-    const val = document.getElementById('noteInput').value.trim();
-    if (val) notes[selectedDateKey] = val;
-    else delete notes[selectedDateKey];
-    saveNotes(notes);
-    closeModal();
-    render();
-  }
-
-  function deleteNote() {
-    if (!selectedDateKey) return;
-    const notes = loadNotes();
-    delete notes[selectedDateKey];
-    saveNotes(notes);
-    closeModal();
-    render();
-  }
-
-  function resetMonth() {
-    const notes = loadNotes();
-    const prefix = `${currentYear}-${String(currentMonth + 1).padStart(2, '0')}-`;
-    const keys = Object.keys(notes).filter(k => k.startsWith(prefix));
-
-    if (keys.length === 0) {
-      showToast('本月沒有紀錄');
-      return;
-    }
-    if (confirm(`確定要清除本月的 ${keys.length} 筆紀錄嗎？`)) {
-      keys.forEach(k => delete notes[k]);
-      saveNotes(notes);
-      render();
-      showToast('已清除本月紀錄');
-    }
-  }
-
-  function resetAll() {
-    const notes = loadNotes();
-    const noteCount = Object.keys(notes).length;
-    const brandChanged = loadBrand() !== DEFAULT_BRAND;
-
-    if (noteCount === 0 && !brandChanged) {
-      showToast('目前沒有可重置的內容');
-      return;
-    }
-
-    const msg = `確定要重置嗎？\n\n` +
-      (noteCount > 0 ? `• 清除 ${noteCount} 筆留守紀錄\n` : '') +
-      (brandChanged ? `• 標題還原成「${DEFAULT_BRAND}」\n` : '');
-
-    if (confirm(msg)) {
-      localStorage.removeItem(STORAGE_KEY);
-      localStorage.removeItem(BRAND_KEY);
-      document.getElementById('brandText').textContent = DEFAULT_BRAND;
-      document.title = DEFAULT_BRAND;
-      render();
-      showToast('已重置全部');
-    }
-  }
-
-  function changeMonth(delta) {
-    let y = currentYear;
-    let m = currentMonth + delta;
-
-    if (m > 11) { m = 0; y++; }
-    if (m < 0) { m = 11; y--; }
-
-    currentYear = y;
-    currentMonth = m;
-
-    const sel = document.getElementById('yearSelect');
-    if (![...sel.options].some(o => parseInt(o.value) === currentYear)) {
-      const opt = document.createElement('option');
-      opt.value = currentYear;
-      opt.textContent = currentYear + ' 年';
-      sel.appendChild(opt);
-      const opts = [...sel.options].sort((a, b) => parseInt(a.value) - parseInt(b.value));
-      sel.innerHTML = '';
-      opts.forEach(o => sel.appendChild(o));
-    }
-
-    sel.value = currentYear;
-    render();
-  }
-
-  function initYearSelect() {
-    const sel = document.getElementById('yearSelect');
-    YEAR_RANGE.forEach(y => {
-      const opt = document.createElement('option');
-      opt.value = y;
-      opt.textContent = y + ' 年';
-      sel.appendChild(opt);
-    });
-    if (![...sel.options].some(o => parseInt(o.value) === currentYear)) {
-      const opt = document.createElement('option');
-      opt.value = currentYear;
-      opt.textContent = currentYear + ' 年';
-      sel.appendChild(opt);
-    }
-    sel.value = currentYear;
-    sel.onchange = () => {
-      currentYear = parseInt(sel.value);
-      render();
-    };
-  }
-
-  function showToast(msg) {
-    const t = document.getElementById('toast');
-    t.textContent = msg;
-    t.classList.add('show');
-    clearTimeout(t._timer);
-    t._timer = setTimeout(() => t.classList.remove('show'), 2000);
-  }
-
-  function getShareUrl() {
-    const url = new URL(window.location.href.split('?')[0]);
-    url.searchParams.set('y', currentYear);
-    url.searchParams.set('m', currentMonth + 1);
-
-    const notes = loadNotes();
-    const prefix = `${currentYear}-${String(currentMonth + 1).padStart(2, '0')}-`;
-    const parts = [];
-    Object.keys(notes).forEach(k => {
-      if (k.startsWith(prefix)) {
-        const day = parseInt(k.split('-')[2]);
-        parts.push(`${day}:${encodeURIComponent(notes[k])}`);
-      }
-    });
-    if (parts.length) url.searchParams.set('d', parts.join(','));
-
-    return url.toString();
-  }
-
-  async function copyLink() {
-    const url = getShareUrl();
-    try {
-      await navigator.clipboard.writeText(url);
-      showToast('✅ 已複製連結，貼給朋友即可');
-    } catch {
-      const ta = document.createElement('textarea');
-      ta.value = url;
-      ta.style.position = 'fixed';
-      ta.style.opacity = '0';
-      document.body.appendChild(ta);
-      ta.select();
-      try {
-        document.execCommand('copy');
-        showToast('✅ 已複製連結，貼給朋友即可');
-      } catch {
-        showToast('複製失敗，請手動複製');
-      }
-      document.body.removeChild(ta);
-    }
-  }
-
-  function applySharedNotes() {
-    const params = new URLSearchParams(window.location.search);
-    const d = params.get('d');
-    if (!d) return;
-
-    const notes = loadNotes();
-    d.split(',').forEach(item => {
-      const [dayStr, val] = item.split(':');
-      const day = parseInt(dayStr);
-      if (!day || !val) return;
-      const key = `${currentYear}-${String(currentMonth + 1).padStart(2, '0')}-${String(day).padStart(2, '0')}`;
-      notes[key] = decodeURIComponent(val);
-    });
-    saveNotes(notes);
-
-    window.history.replaceState({}, '', window.location.pathname);
-  }
-
+  /* =========================================================
+     左右滑動換月份
+     ========================================================= */
   (function initSwipe() {
     const cal = document.getElementById('calendar');
     const track = document.getElementById('calendarTrack');
@@ -2041,13 +3184,11 @@
       if (!dragging) return;
       const dx = e.touches[0].clientX - startX;
       const dy = e.touches[0].clientY - startY;
-
       if (!locked) {
         if (Math.abs(dx) > Math.abs(dy) + 4) locked = 'h';
         else if (Math.abs(dy) > Math.abs(dx) + 4) locked = 'v';
       }
       if (locked !== 'h') return;
-
       if (Math.abs(dx) > MOVE_MIN) moved = true;
       curX = dx;
       track.style.transform = `translateX(${-W() + dx}px)`;
@@ -2057,20 +3198,16 @@
       if (!dragging) return;
       dragging = false;
       track.classList.remove('no-anim');
-
       if (!moved) {
         track.style.transform = `translateX(-${W()}px)`;
         curX = 0;
         return;
       }
-
       suppressClickUntil = Date.now() + 400;
-
       const threshold = W() * 0.25;
       if (curX < -threshold) slideTo(1);
       else if (curX > threshold) slideTo(-1);
       else track.style.transform = `translateX(-${W()}px)`;
-
       curX = 0;
     };
 
@@ -2099,15 +3236,12 @@
       if (!dragging) return;
       dragging = false;
       track.classList.remove('no-anim');
-
       if (!moved) {
         track.style.transform = `translateX(-${W()}px)`;
         curX = 0;
         return;
       }
-
       suppressClickUntil = Date.now() + 400;
-
       const threshold = W() * 0.2;
       if (curX < -threshold) slideTo(1);
       else if (curX > threshold) slideTo(-1);
@@ -2124,19 +3258,26 @@
     }
   })();
 
-  const params = new URLSearchParams(window.location.search);
-  const urlYear = parseInt(params.get('y'));
-  const urlMonth = parseInt(params.get('m'));
-
+  /* =========================================================
+     啟動
+     ========================================================= */
   const now = new Date();
-  currentYear = !isNaN(urlYear) ? urlYear : now.getFullYear();
-  currentMonth = !isNaN(urlMonth) ? urlMonth - 1 : now.getMonth();
+  currentYear = now.getFullYear();
+  currentMonth = now.getMonth();
+
+  // 舊版「分享本月」連結帶的參數，直接清掉，不寫入資料
+  if (window.location.search) {
+    try { window.history.replaceState({}, '', window.location.pathname); } catch {}
+  }
 
   document.getElementById('quickInput').addEventListener('input', updateQuickPreview);
+  document.getElementById('swapWho').addEventListener('input', updateSwapPreview);
 
+  loadState();
+  curId = ME;
   initBrand();
   initYearSelect();
-  applySharedNotes();
+  renderPeople();
   render();
   initManifest();
   initAppBar();
