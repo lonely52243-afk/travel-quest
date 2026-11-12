@@ -15,11 +15,23 @@
 <title>誰誰誰</title>
 <style>
   :root {
-    --bg:#f2f4f7; --card:#ffffff; --card2:#f7f9fb; --card3:#eceff4;
-    --line:#e1e6ed; --line2:#cfd7e2; --txt:#1b2533; --sub:#56657a; --dim:#8794a6;
-    --acc:#1f4f86; --acc-a:#e8eff7; --acc-b:#b9cbe0;
-    --amber:#a85d00; --amber-a:#fbf2e6; --ok:#2f7a4e; --err:#b3362b;
-    --r:12px; --tb:56px;
+    /* ── 全站設計變數（唯一來源） ── */
+    --primary:#24558D; --primary-dark:#193F6B; --primary-light:#E7F0FA;
+    --background:#F2F5F9; --surface:#FFFFFF; --surface-soft:#F8FAFD;
+    --text-primary:#202D40; --text-secondary:#687990; --text-muted:#94A2B4;
+    --border:#DCE4EF; --border-strong:#C9D5E4;
+    --warning:#B56808; --warning-light:#FFF2E2; --warning-soft:#C98A3E;
+    --success:#2C865A; --success-light:#E7F5EC; --danger:#B3362B;
+    --shadow-card:0 3px 12px rgba(29,61,102,.045), 0 1px 3px rgba(29,61,102,.035);
+    --shadow-floating:0 12px 32px rgba(29,61,102,.12);
+    --shadow-bar:0 1px 0 rgba(29,61,102,.05), 0 2px 10px rgba(29,61,102,.04);
+    --radius-card:18px; --radius-button:13px; --ease:180ms ease;
+    /* ── 舊名稱對應到新變數（元件沿用） ── */
+    --bg:var(--background); --card:var(--surface); --card2:var(--surface-soft); --card3:#EDF2F8;
+    --line:var(--border); --line2:var(--border-strong); --txt:var(--text-primary); --sub:var(--text-secondary); --dim:var(--text-muted);
+    --acc:var(--primary); --acc-a:var(--primary-light); --acc-b:#BCD0E8;
+    --amber:var(--warning); --amber-a:var(--warning-light); --ok:var(--success); --err:var(--danger);
+    --r:var(--radius-card); --tb:56px;
     --sb: env(safe-area-inset-bottom, 0px); --st: env(safe-area-inset-top, 0px);
   }
   * { box-sizing:border-box; -webkit-tap-highlight-color:transparent; }
@@ -318,9 +330,141 @@
   .toast img { width:22px; height:22px; vertical-align:-6px; margin-right:6px; }
   .toast.ok { background:var(--card); color:var(--txt); border:1px solid var(--line2); box-shadow:0 6px 20px rgba(20,35,58,.15); }
 
-  /* ===== 回饋（低調） ===== */
-  .row, .tile, .kpi, .pill, .lrow, .ac, .qc, .hb, .mile, .lg, .chip.tap { transition:background .15s, transform .1s; }
-  .row:active, .tile:active, .kpi:active, .pill:active, .lrow:active, .ac:active, .qc:active, .hb:active, .mile:active, .lg:active { transform:scale(.98); background:var(--card2); }
+  /* 人員卡分區 */
+  .sec-hd { display:flex; align-items:flex-end; justify-content:space-between; margin-top:14px; }
+  .tabh { display:inline-flex; align-items:center; gap:8px; padding:7px 26px 6px 12px; background:var(--acc-a); color:var(--acc); font-size:15px; font-weight:700; border-radius:10px 0 0 0; clip-path:polygon(0 0, calc(100% - 16px) 0, 100% 100%, 0 100%); }
+  .tabh svg.ico { width:20px; height:20px; }
+  .sec-link { min-height:36px; border:0; background:none; color:var(--acc); font-size:14px; cursor:pointer; padding:0 2px; }
+  .sec { background:var(--card); border:1px solid var(--line); border-radius:0 12px 12px 12px; padding:4px 14px; }
+  .g3 { display:grid; grid-template-columns:1.25fr 1fr 1fr; }
+  .g2 { display:grid; grid-template-columns:.8fr 1.4fr; }
+  .g3 > .fd + .fd, .g2 > .fd + .fd { border-left:1px solid var(--line); padding-left:10px; }
+  .hr { height:1px; background:var(--line); }
+  .fd { display:flex; gap:9px; padding:11px 0; min-width:0; }
+  .fd > svg.ico { margin-top:2px; color:var(--dim); }
+  .fd .fb { flex:1; min-width:0; }
+  .fd label { display:block; font-size:13px; color:var(--sub); }
+  .fd .v { font-size:16px; font-weight:600; word-break:break-all; }
+  .fd .na { color:var(--dim); font-weight:400; font-size:14px; }
+  .fd.link { cursor:pointer; }
+  .fd.link label::after { content:" ›"; color:var(--acc); }
+  .g3 .fd { flex-direction:column; gap:2px; }
+  .g3 .fd > svg.ico { margin:0; }
+  /* 電話專區 */
+  .plist { background:var(--card); border:1px solid var(--line); border-radius:var(--r); overflow:hidden; margin-bottom:70px; }
+  .prow { display:flex; align-items:center; gap:10px; min-height:54px; padding:4px 6px 4px 12px; cursor:pointer; }
+  .prow + .prow { border-top:1px solid var(--line); }
+  .prow .ck { flex:0 0 auto; width:22px; height:22px; border-radius:6px; border:2px solid var(--line2); display:grid; place-items:center; }
+  .prow.on { background:var(--acc-a); }
+  .prow.on .ck { background:var(--acc); border-color:var(--acc); }
+  .prow.on .ck::after { content:""; width:6px; height:11px; border:solid #fff; border-width:0 2.5px 2.5px 0; transform:rotate(45deg) translate(-1px,-1px); }
+  .prow.no { cursor:default; color:var(--dim); }
+  .prow.no .ck { opacity:.3; }
+  .prow .pn { flex:1; min-width:0; font-weight:700; white-space:nowrap; overflow:hidden; text-overflow:ellipsis; }
+  .prow .pn small { margin-left:6px; font-weight:400; font-size:12.5px; color:var(--gc); }
+  .prow .pp { font-size:15px; color:var(--sub); }
+  .pcp { flex:0 0 44px; width:44px; height:44px; display:grid; place-items:center; border:0; background:none; color:var(--acc); cursor:pointer; border-radius:10px; }
+  .pcp:active { background:var(--card3); }
+  .pbar { position:fixed; left:0; right:0; bottom:calc(60px + var(--sb)); z-index:39; display:flex; align-items:center; gap:6px; padding:8px 12px; background:var(--card); border-top:1px solid var(--line); box-shadow:0 -4px 14px rgba(20,35,58,.06); }
+  .pbar span { flex:1; font-size:14px; color:var(--sub); }
+  .pbar button { min-height:42px; padding:0 13px; border:1px solid var(--line2); border-radius:10px; background:var(--card); font-size:14px; cursor:pointer; }
+  .pbar button.pri { background:var(--acc); border-color:var(--acc); color:#fff; font-weight:700; }
+  #pzone .sbox { margin-bottom:2px; }
+  #pzone .ch-note { margin:6px 2px 8px; }
+
+  /* ===== 設計系統：層次與元件規範（覆蓋上方樣式） ===== */
+  /* 頂部與底部列：白底＋極淡陰影 */
+  .top { border-bottom-color:transparent; box-shadow:var(--shadow-bar); }
+  .top small { color:var(--text-secondary); }
+  .ibtn { width:44px; height:44px; border-radius:var(--radius-button); color:var(--text-secondary); }
+  .nav { border-top-color:transparent; box-shadow:0 -1px 0 rgba(29,61,102,.05), 0 -4px 14px rgba(29,61,102,.05); }
+  .nav button { color:var(--text-muted); font-weight:500; }
+  .nav button.on { color:var(--primary); font-weight:700; }
+  .nav button.on::before { left:34%; right:34%; background:var(--primary); }
+  .nb { background:var(--warning); }
+  .pbar { border-top-color:transparent; box-shadow:0 -1px 0 rgba(29,61,102,.05), 0 -6px 16px rgba(29,61,102,.06); }
+
+  /* 卡片：白底、淡邊框、柔和陰影、統一圓角 */
+  .card, .kpi, .skpi div, .tile, .row, .sec, .plist, .info, .ynav button, .ynav div, .cmenu { border-color:rgba(220,228,239,.7); box-shadow:var(--shadow-card); }
+  .card { border-radius:var(--radius-card); padding:16px; }
+  .row { border-radius:16px; border-color:transparent; margin-bottom:8px; }
+  .tile, .kpi, .skpi div { border-radius:16px; }
+  .sec { border-radius:0 var(--radius-card) var(--radius-card) var(--radius-card); border-color:transparent; }
+  .plist { border-radius:var(--radius-card); border-color:transparent; }
+  .sheet { background:var(--background); }
+  .grab { background:var(--background); }
+
+  /* 搜尋框與篩選按鈕 */
+  .sbox input { border-color:var(--border); border-radius:14px; box-shadow:var(--shadow-card); }
+  .sbox input:focus { border-color:#9DBBE0; box-shadow:0 0 0 4px var(--primary-light); }
+  .qc { border-color:var(--border); background:var(--surface); box-shadow:0 1px 2px rgba(29,61,102,.04); color:var(--text-primary); }
+  .qc.on { background:var(--primary); border-color:var(--primary); color:#fff; box-shadow:0 2px 6px rgba(36,85,141,.25); }
+  .seg { background:#E6ECF4; }
+  .seg button.on { color:var(--primary); box-shadow:0 1px 4px rgba(29,61,102,.12); }
+
+  /* 文字層級 */
+  .rn, .sh-head h3, .tile b, .kpi b, .skpi b { color:var(--text-primary); }
+  .rs, .tile span, .kpi span, .skpi span, .ch-note, .vhead p, .hero span { color:var(--text-secondary); }
+  .kpi b, .skpi b { font-weight:800; letter-spacing:-.01em; }
+  .card > h3 { color:var(--text-primary); }
+  .card > h3 em, .card > h3 small { color:var(--text-secondary); }
+
+  /* 按鈕規範 */
+  .more, .mini, .pager button, .rbar button, .sec-link, .pbar button, .cmenu button, .snav button { border-radius:var(--radius-button); }
+  .more { border-style:solid; border-color:transparent; background:var(--primary-light); color:var(--primary); font-weight:600; }
+  .mini { border-color:transparent; background:var(--primary-light); color:var(--primary); font-weight:600; }
+  .btnrow button { border-color:transparent; background:var(--primary-light); color:var(--primary); border-radius:var(--radius-button); }
+  .pbar button { border-color:var(--border); }
+  .pbar button.pri, .btn { background:var(--primary); }
+  .btn { border-radius:var(--radius-button); box-shadow:0 4px 12px rgba(36,85,141,.25); }
+  .snav button { border-color:transparent; background:var(--surface); box-shadow:var(--shadow-card); color:var(--primary); }
+
+  /* 人員卡動作列：撥打深藍、其他白底 */
+  .ac { border-color:transparent; background:var(--surface); box-shadow:var(--shadow-card); border-radius:16px; }
+  .ac.pri { background:var(--primary); box-shadow:0 4px 12px rgba(36,85,141,.25); }
+  .ac.on { background:var(--warning-light); }
+  .tabh { background:var(--primary-light); color:var(--primary); }
+  .sh-head { padding:2px 0 10px; }
+  .sec-hd { margin-top:12px; }
+
+  /* 標籤：生日倒數一致尺寸；今天＝暖橘、近期＝低飽和橘、一般＝中性灰藍 */
+  .tag { display:inline-flex; align-items:center; justify-content:center; min-width:62px; height:26px; padding:0 10px; border-radius:13px; font-size:12.5px; background:#EEF2F7; color:var(--text-secondary); }
+  .tag.today { background:var(--warning); color:#fff; }
+  .tag.soon { background:var(--warning-light); color:var(--warning-soft); }
+  .bt { background:var(--warning-light); color:var(--warning); }
+  .chip { background:#EEF2F7; color:var(--text-secondary); }
+  .chip.tap { background:var(--primary-light); color:var(--primary); }
+  .chip.hot { background:var(--warning-light); color:var(--warning); }
+  .chk .tag.warn { background:var(--warning-light); color:var(--warning); }
+
+  /* 生日相關卡片：淡暖色，不用粗橘框 */
+  .card.gold { border-left:0; border-color:#F3E1C8; background:linear-gradient(180deg, var(--warning-light), var(--surface) 75%); }
+  .tile.now { border-color:#F3E1C8; background:var(--warning-light); }
+  .tile.now b { color:var(--warning); }
+  .pill { border-color:var(--border); background:var(--surface-soft); }
+  .pill.hot { border-color:#F3E1C8; background:var(--warning-light); }
+
+  /* 色條與圖表 */
+  .cbar, .hb .t { background:#E9EEF5; }
+  .vl { border-top-color:var(--border); }
+  .clegend { color:var(--text-secondary); }
+
+  /* 狀態色 */
+  .okline { color:var(--success); }
+  .toast.ok { border-color:#CFE8DA; }
+  .top small i { background:var(--success); }
+
+  .g2 { grid-template-columns:.75fr 1.6fr; }
+  .idr span { white-space:nowrap; }
+  .mini { white-space:nowrap; flex:0 0 auto; }
+  .g2 .idr span { font-size:15px; letter-spacing:.02em; }
+  .tile.now b { font-size:20px; }
+
+  /* ===== 回饋（150–220ms，輕微變化） ===== */
+  .row, .tile, .kpi, .pill, .lrow, .ac, .qc, .hb, .mile, .lg, .chip.tap, .prow, .cell.link, .fd.link, button { transition:background-color var(--ease), box-shadow var(--ease), color var(--ease), transform 150ms ease; }
+  .row:active, .tile:active, .kpi:active, .pill:active, .lrow:active, .ac:active, .hb:active, .mile:active, .lg:active { transform:scale(.99); background:var(--surface-soft); }
+  .qc:active { background:var(--primary-light); }
+  .ac.pri:active, .btn:active, .pbar button.pri:active { background:var(--primary-dark); }
   @keyframes spin { to { transform:rotate(360deg); } }
   @keyframes shake { 20%,80% { transform:translateX(4px); } 30%,50%,70% { transform:translateX(-6px); } 40%,60% { transform:translateX(6px); } }
   @keyframes fade { from { opacity:0; } }
@@ -360,7 +504,7 @@
       <div class="sbar">
         <div class="sbox">
           <svg viewBox="0 0 24 24"><circle cx="11" cy="11" r="7"/><path d="M21 21l-4.5-4.5"/></svg>
-          <input id="q" type="text" placeholder="搜尋姓名、單位、年班、生日、星座" autocomplete="off" autocapitalize="off" spellcheck="false" enterkeyhint="search">
+          <input id="q" type="text" placeholder="姓名、單位、年班、生日、星座" autocomplete="off" autocapitalize="off" spellcheck="false" enterkeyhint="search">
           <button class="clr hidden" id="clr" aria-label="清除">✕</button>
           <div id="sug" class="sug hidden"></div>
         </div>
@@ -380,9 +524,15 @@
 
     <!-- 瀏覽 -->
     <section id="v-browse" class="hidden">
-      <div class="vhead"><h2>瀏覽</h2><p>依單位或年班列出人員，色條為身分比例</p></div>
-      <div class="seg" id="bseg"><button data-act="bmode" data-v="unit" class="on">單位</button><button data-act="bmode" data-v="year">年班</button></div>
+      <div class="vhead"><h2>瀏覽</h2><p>依單位、年班列出人員，或到「電話」快速複製姓名電話</p></div>
+      <div class="seg" id="bseg"><button data-act="bmode" data-v="unit" class="on">單位</button><button data-act="bmode" data-v="year">年班</button><button data-act="bmode" data-v="phone">電話</button></div>
       <div id="browse"></div>
+      <div id="pzone" class="hidden">
+        <div class="sbox"><svg viewBox="0 0 24 24"><circle cx="11" cy="11" r="7"/><path d="M21 21l-4.5-4.5"/></svg><input id="pq" type="text" placeholder="篩選姓名、單位、階級" autocomplete="off" enterkeyhint="search"></div>
+        <div class="quick" id="pscope"></div>
+        <p class="ch-note">點一列＝勾選，右邊按鈕＝只複製這一位。格式：姓名 電話</p>
+        <div id="plist" class="plist"></div>
+      </div>
     </section>
 
     <!-- 生日 -->
@@ -408,6 +558,10 @@
     <button data-tab="bday"><svg class="ico" viewBox="0 0 24 24" aria-hidden="true"><path d="M4 21h16M5 21v-7h14v7M5 17.5c2.3 1 4.7-1 7 0s4.7 1 7 0M12 14v-4M12 7.5c-1-.8-1-2 0-3.2 1 1.2 1 2.4 0 3.2z"/></svg>生日<span class="nb hidden" id="bdayBadge"></span></button>
     <button data-tab="stats"><svg class="ico" viewBox="0 0 24 24" aria-hidden="true"><path d="M4 4v16h16M8 16v-4M12 16V8M16 16v-6"/></svg>統計</button>
   </nav>
+  <div id="pbar" class="pbar hidden">
+    <span id="pcount" class="num">已選 0 人</span>
+    <button data-act="pall">全選</button><button data-act="pclear">清除</button><button class="pri" data-act="pcopyall" id="pcopyBtn">複製</button>
+  </div>
   <button class="totop hidden" id="toTop" aria-label="回到頂端"><svg class="ico" viewBox="0 0 24 24" aria-hidden="true"><path d="M12 19V5M6 11l6-6 6 6"/></svg></button>
 
   <div class="scrim hidden" id="scrim" data-act="close"></div>
@@ -982,6 +1136,7 @@ function setTab(name) {
   restart($('v-' + name), 'show');
   document.querySelectorAll('.nav button').forEach(function (b) { b.classList.toggle('on', b.getAttribute('data-tab') === name); });
   hideSug(); window.scrollTo(0, 0); buzz(6);
+  if ($('pbar')) updatePbar();
 }
 
 // ---------- 篩選 ----------
@@ -1032,6 +1187,7 @@ function quickHtml() {
 // ---------- 渲染 ----------
 function renderAll() {
   renderSearch(); renderBrowse(); renderBday(); renderStats();
+  if (browseMode === 'phone') renderPhone();
   const now = new Date();
   const n = people.filter(function (p) { return isBirthdayOn(p, now); }).length;
   $('bdayBadge').textContent = n; $('bdayBadge').classList.toggle('hidden', !n);
@@ -1163,8 +1319,36 @@ function tile(o) {
   return '<button class="tile ' + (o.cls || '') + '" data-act="filter" data-k="' + o.k + '" data-v="' + esc(o.v) + '"' + (o.extra ? ' data-extra="' + esc(JSON.stringify(o.extra)) + '"' : '') + '>' +
     img(o.icon) + '<b>' + esc(o.label) + '</b><span class="num">' + esc(o.sub) + '</span>' + (o.hint ? '<em>' + esc(o.hint) + '</em>' : '') + (o.bar || '') + '</button>';
 }
+let phoneQ = '', phoneScope = '', phoneView = [];
+const phoneSel = {};
+function updatePbar() {
+  const show = tab === 'browse' && browseMode === 'phone';
+  $('pbar').classList.toggle('hidden', !show);
+  $('pzone').classList.toggle('hidden', browseMode !== 'phone');
+  const n = Object.keys(phoneSel).length;
+  $('pcount').textContent = n ? '已選 ' + n + ' 人' : '共 ' + phoneView.filter(function (p) { return dialPhone(p.phone); }).length + ' 人有電話';
+  $('pcopyBtn').textContent = n ? '複製 ' + n + ' 人' : '複製全部';
+}
+function renderPhone() {
+  const scopes = [['', '全部']].concat(UNITS.map(function (g) { return ['g:' + g.name, g.name]; }));
+  $('pscope').innerHTML = scopes.map(function (s) { return '<button class="qc' + (phoneScope === s[0] ? ' on' : '') + '" data-act="pscope" data-v="' + s[0] + '">' + s[1] + '</button>'; }).join('');
+  renderPlist();
+}
+function renderPlist() {
+  phoneView = filterPeople(people, Object.assign({}, EMPTY, { unit: phoneScope, q: phoneQ }));
+  $('plist').innerHTML = phoneView.length ? phoneView.map(function (p) {
+    const ph = firstPhone(p.phone), ok = !!dialPhone(p.phone), on = !!phoneSel[p._i];
+    return '<div class="prow' + (on ? ' on' : '') + (ok ? '' : ' no') + '"' + (ok ? ' data-act="psel"' : '') + ' data-i="' + p._i + '" style="--gc:' + catColor(p) + '">' +
+      '<span class="ck" aria-hidden="true"></span><span class="pn">' + esc(p.name) + '<small>' + esc(p.rank || '') + '</small></span>' +
+      '<span class="pp num">' + (ok ? esc(ph) : '未填') + '</span>' +
+      (ok ? '<button class="pcp" data-act="pcopy" data-i="' + p._i + '" aria-label="複製' + esc(p.name) + '的電話">' + img(IMG.b.copy) + '</button>' : '<span class="pcp"></span>') + '</div>';
+  }).join('') : '<div class="empty">' + img(IMG.empty) + '<br>沒有符合的人</div>';
+  updatePbar();
+}
+function phoneLine(p) { return p.name + ' ' + firstPhone(p.phone); }
 function renderBrowse() {
   document.querySelectorAll('#bseg button').forEach(function (b) { b.classList.toggle('on', b.getAttribute('data-v') === browseMode); });
+  updatePbar();
   let h = '';
   if (browseMode === 'unit') {
     UNITS.forEach(function (g) {
@@ -1180,6 +1364,8 @@ function renderBrowse() {
     });
     const known = people.filter(function (p) { return unitSel(p.unit); }).length;
     if (known < people.length) h += '<p class="ch-note">另有 ' + (people.length - known) + ' 人的單位不在上面分類中，可用搜尋找到。</p>';
+  } else if (browseMode === 'phone') {
+    $('browse').innerHTML = ''; renderPhone(); return;
   } else {
     const ys = allYears(people);
     h += '<div class="tiles">' + (ys.map(function (y) {
@@ -1195,9 +1381,9 @@ function renderBday() {
   const weekN = filterPeople(people, Object.assign({}, EMPTY, { week: '1' }), now).length;
   const monthN = people.filter(function (p) { return Number(p.birthM) === cm; }).length;
   let h = '<div class="tiles">' +
-    tile({ label: '今天', sub: todayN + ' 人', k: 'month', v: String(cm), extra: { day: String(now.getDate()) }, icon: IMG.st[1], cls: 'now ' + (todayN ? '' : 'zero') }) +
-    tile({ label: '本週', sub: weekN + ' 人', k: 'week', v: '1', icon: IMG.st[2], cls: 'now ' + (weekN ? '' : 'zero') }) +
-    tile({ label: '本月', sub: monthN + ' 人', k: 'month', v: String(cm), icon: IMG.st[3], cls: 'now ' + (monthN ? '' : 'zero') }) + '</div>';
+    tile({ label: todayN + ' 人', sub: '今天', k: 'month', v: String(cm), extra: { day: String(now.getDate()) }, icon: IMG.st[1], cls: 'now ' + (todayN ? '' : 'zero') }) +
+    tile({ label: weekN + ' 人', sub: '本週', k: 'week', v: '1', icon: IMG.st[2], cls: 'now ' + (weekN ? '' : 'zero') }) +
+    tile({ label: monthN + ' 人', sub: '本月', k: 'month', v: String(cm), icon: IMG.st[3], cls: 'now ' + (monthN ? '' : 'zero') }) + '</div>';
   h += '<div class="btnrow"><button data-act="notice" data-v="week">' + img(IMG.b.copy) + '複製本週壽星通知</button><button data-act="notice" data-v="month">' + img(IMG.b.copy) + '複製本月壽星通知</button></div>';
   const soon = people.map(function (p) { return { p: p, d: daysToNext(p, now) }; }).filter(function (x) { return x.d !== null && x.d <= 30; })
     .sort(function (a, b) { return a.d - b.d || rankInfo(a.p.rank).order - rankInfo(b.p.rank).order; });
@@ -1261,15 +1447,15 @@ function lineChart(series, keyBase) {
   const step = Math.ceil(series.length / 7);
   let svg = '<svg viewBox="0 0 ' + W + ' ' + H + '" role="img">';
   [0, .5, 1].forEach(function (f) { const yy = y(max * f); svg += '<line x1="' + L + '" x2="' + (W - R) + '" y1="' + yy + '" y2="' + yy + '" stroke="#e1e6ed" stroke-width="1"/><text x="' + (L - 6) + '" y="' + (yy + 4) + '" fill="#8794a6" font-size="10" text-anchor="end">' + Math.round(max * f) + '</text>'; });
-  svg += '<polygon points="' + x(0) + ',' + y(0) + ' ' + pts.join(' ') + ' ' + x(series.length - 1) + ',' + y(0) + '" fill="rgba(31,79,134,.07)"/>';
-  svg += '<polyline points="' + pts.join(' ') + '" fill="none" stroke="#1f4f86" stroke-width="2" stroke-linejoin="round"/>';
+  svg += '<polygon points="' + x(0) + ',' + y(0) + ' ' + pts.join(' ') + ' ' + x(series.length - 1) + ',' + y(0) + '" fill="rgba(36,85,141,.07)"/>';
+  svg += '<polyline points="' + pts.join(' ') + '" fill="none" stroke="#24558D" stroke-width="2" stroke-linejoin="round"/>';
   series.forEach(function (s, i) {
     if (i % step === 0 || (i === series.length - 1 && (series.length - 1) % step >= step / 2)) svg += '<text x="' + x(i) + '" y="' + (H - 6) + '" fill="#8794a6" font-size="10" text-anchor="middle">' + s.year + '</text>';
     if (!s.items.length) return;
     const key = regSet(keyBase + s.year, s.year + ' 年入伍（民國 ' + (s.year - 1911) + '）', s.items);
-    svg += '<g class="dot" data-act="set" data-v="' + key + '"><circle cx="' + x(i) + '" cy="' + y(s.items.length) + '" r="11" fill="transparent"/><circle cx="' + x(i) + '" cy="' + y(s.items.length) + '" r="' + (i === peak ? 4.5 : 3) + '" fill="' + (i === peak ? '#a85d00' : '#1f4f86') + '"/></g>';
+    svg += '<g class="dot" data-act="set" data-v="' + key + '"><circle cx="' + x(i) + '" cy="' + y(s.items.length) + '" r="11" fill="transparent"/><circle cx="' + x(i) + '" cy="' + y(s.items.length) + '" r="' + (i === peak ? 4.5 : 3) + '" fill="' + (i === peak ? '#B56808' : '#24558D') + '"/></g>';
   });
-  svg += '<text x="' + x(peak) + '" y="' + (y(series[peak].items.length) - 8) + '" fill="#a85d00" font-size="10.5" font-weight="700" text-anchor="middle">' + series[peak].year + '：' + series[peak].items.length + ' 人</text>';
+  svg += '<text x="' + x(peak) + '" y="' + (y(series[peak].items.length) - 8) + '" fill="#B56808" font-size="10.5" font-weight="700" text-anchor="middle">' + series[peak].year + '：' + series[peak].items.length + ' 人</text>';
   return '<div class="lc">' + svg + '</svg></div>';
 }
 function renderStats() {
@@ -1405,14 +1591,14 @@ function renderSheet() {
   const ph = firstPhone(p.phone), dial = dialPhone(p.phone), bd = isBirthdayOn(p, now);
   const zi = zodiacIdx(p.birthM, p.birthD), age = ageText(p, now), svc = serviceText(p, now), next = daysToNext(p, now);
   const us = unitSel(p.unit), yn = yearNum(p.yearClass), real = idState[p.row];
-  function cell(icon, label, val, extra, wide, link) {
-    if (!val) return '';
-    return '<div class="cell' + (link ? ' link' : '') + '"' + (link || '') + '>' + img(icon) + '<div class="cb"><label>' + label + (link ? '<span class="lk">看同' + label + ' ›</span>' : '') + '</label><div class="v">' + esc(val) + '</div>' + (extra ? '<div class="chips">' + extra + '</div>' : '') + '</div></div>';
+  function fd(icon, label, val, attrs, extra) {
+    return '<div class="fd' + (attrs ? ' link' : '') + '"' + (attrs || '') + '>' + img(icon) + '<div class="fb"><label>' + label + '</label><div class="v">' + (val ? esc(val) : '<span class="na">未填</span>') + '</div>' + (extra || '') + '</div></div>';
   }
+  function sec(icon, title, link) { return '<div class="sec-hd"><span class="tabh">' + img(icon) + title + '</span>' + (link || '') + '</div>'; }
   let bchips = '';
   if (zi >= 0) bchips += '<span class="chip tap" data-act="filter" data-k="zod" data-v="' + zi + '">' + img(IMG.zi[zi]) + ZODIACS[zi].name + '</span>';
   if (age) bchips += '<span class="chip">' + age + '</span>';
-  if (next !== null) bchips += '<span class="chip' + (next <= 7 ? ' hot' : '') + '">' + (next === 0 ? '今天生日' : '下次生日 ' + relText(next)) + '</span>';
+  if (next !== null) bchips += '<span class="chip' + (next <= 7 ? ' hot' : '') + '">' + img('svg:calendar') + (next === 0 ? '今天生日' : '下次生日 ' + relText(next)) + '</span>';
   let h = '<div class="grab" id="grab"></div><div class="sh-head"><div class="av" style="--gc:' + c + '">' + esc(p.name.charAt(0)) + '</div><div class="m"><h3>' + esc(p.name) +
     (p.rank ? '<span class="rk" style="--gc:' + c + '">' + esc(p.rank) + '</span>' : '') + (bd ? '<span class="bt">今天生日</span>' : '') + '</h3><p>' + esc([ul, CATS[rankInfo(p.rank).cat].name].filter(Boolean).join(' · ')) + '</p></div>' +
     '<button class="sh-x" data-act="close" aria-label="關閉">✕</button></div>';
@@ -1424,13 +1610,21 @@ function renderSheet() {
     '<button class="ac' + (isFav(p) ? ' on' : '') + '" data-act="fav">' + img(IMG.b.star) + (isFav(p) ? '已常用' : '加常用') + '</button>' +
     '<button class="ac" data-act="copy">' + img(IMG.b.copy) + '複製</button>' +
     '<button class="ac' + (dial ? '' : ' off') + '" data-act="vcf">' + img(IMG.b.contact) + '存聯絡人</button></div>';
-  h += '<div class="info">' +
-    cell(IMG.f.unit, '單位', ul, '', false, us ? ' data-act="filter" data-k="unit" data-v="' + esc(us) + '"' : '') +
-    cell(IMG.f.year, '年班', p.yearClass, '', false, yn ? ' data-act="filter" data-k="year" data-v="' + esc(yn) + '"' : '') +
-    cell(IMG.f.skill, '專長', p.skill) + cell(IMG.f.blood, '血型', p.blood ? p.blood + ' 型' : '');
-  if (p.idMask) h += '<div class="cell">' + img(IMG.f.id) + '<div class="cb"><label>身分證</label><div class="v idr"><span id="sid">' + esc(real || p.idMask) + '</span><button class="mini" data-act="id">' + (real ? '隱藏' : '顯示') + '</button></div></div></div>';
-  h += cell(IMG.f.bday, '生日', birthText(p), bchips, true) + cell(IMG.f.phone, '電話', ph, '', true) +
-    cell(IMG.f.enlist, '入伍', joinText(p), svc ? '<span class="chip">' + img(IMG.f.service) + '年資 ' + svc + '</span>' : '', true) + '</div>';
+  // 基本資料
+  h += sec('svg:id', '基本資料', us ? '<button class="sec-link" data-act="filter" data-k="unit" data-v="' + esc(us) + '">看同單位 ›</button>' : '');
+  h += '<div class="sec"><div class="g3">' + fd(IMG.f.unit, '單位', ul) +
+    fd(IMG.f.year, '年班', p.yearClass, yn ? ' data-act="filter" data-k="year" data-v="' + esc(yn) + '"' : '') +
+    fd(IMG.f.skill, '專長', p.skill) + '</div></div>';
+  // 個人資料
+  h += sec('svg:users', '個人資料');
+  h += '<div class="sec"><div class="g2">' + fd(IMG.f.blood, '血型', p.blood ? p.blood + ' 型' : '') +
+    (p.idMask ? '<div class="fd">' + img(IMG.f.id) + '<div class="fb"><label>身分證</label><div class="v idr"><span id="sid">' + esc(real || p.idMask) + '</span><button class="mini" data-act="id">' + (real ? '隱藏' : '顯示') + '</button></div></div></div>' : fd(IMG.f.id, '身分證', '')) +
+    '</div><div class="hr"></div>' + fd(IMG.f.bday, '生日', birthText(p), '', bchips ? '<div class="chips">' + bchips + '</div>' : '') + '</div>';
+  // 聯絡與服役
+  h += sec('svg:phone', '聯絡與服役資訊');
+  h += '<div class="sec"><div class="fd">' + img(IMG.f.phone) + '<div class="fb"><label>電話</label><div class="v idr"><span class="num">' + (ph ? esc(ph) : '<span class="na">未填</span>') + '</span>' +
+    (dial ? '<button class="mini" data-act="copyphone">複製姓名電話</button>' : '') + '</div></div></div><div class="hr"></div>' +
+    fd(IMG.f.enlist, '入伍', joinText(p), '', svc ? '<div class="chips"><span class="chip">' + img(IMG.f.service) + '年資 ' + svc + '</span></div>' : '') + '</div>';
   $('sheet').innerHTML = h;
 }
 // 往下拖曳關閉
@@ -1553,6 +1747,25 @@ $('app').addEventListener('click', function (e) {
   else if (act === 'grp') { const c = Number(el.getAttribute('data-c')); collapsed[c] = !collapsed[c]; renderResults(); }
   else if (act === 'tab') setTab(v);
   else if (act === 'bmode') { browseMode = v; renderBrowse(); buzz(6); }
+  else if (act === 'pscope') { phoneScope = v; renderPhone(); buzz(6); }
+  else if (act === 'psel') {
+    const i = Number(el.getAttribute('data-i'));
+    if (phoneSel[i]) delete phoneSel[i]; else phoneSel[i] = 1;
+    el.classList.toggle('on', !!phoneSel[i]); updatePbar(); buzz(5);
+  }
+  else if (act === 'pall') { phoneView.forEach(function (p) { if (dialPhone(p.phone)) phoneSel[p._i] = 1; }); renderPlist(); buzz(); }
+  else if (act === 'pclear') { for (const k in phoneSel) delete phoneSel[k]; renderPlist(); buzz(); }
+  else if (act === 'pcopy') {
+    const pp = people[Number(el.getAttribute('data-i'))];
+    copyToClipboard(phoneLine(pp)).then(function () { buzz(); toast('已複製：' + pp.name, 'ok'); }, function () { toast('複製失敗', 'err'); });
+  }
+  else if (act === 'pcopyall') {
+    const ids = Object.keys(phoneSel).map(Number);
+    const L = ids.length ? filterPeople(people, EMPTY).filter(function (p) { return phoneSel[p._i]; }) : phoneView.filter(function (p) { return dialPhone(p.phone); });
+    if (!L.length) { toast('沒有可複製的電話'); return; }
+    copyToClipboard(L.map(phoneLine).join('\n')).then(function () { buzz(); toast('已複製 ' + L.length + ' 人的電話', 'ok'); }, function () { toast('複製失敗', 'err'); });
+  }
+  else if (act === 'copyphone' && cur) copyToClipboard(phoneLine(cur)).then(function () { buzz(); toast('已複製：' + phoneLine(cur), 'ok'); }, function () { toast('複製失敗', 'err'); });
   else if (act === 'scope') { statScope = v; renderStats(); buzz(6); }
   else if (act === 'try') { $('q').value = el.getAttribute('data-t'); flt.q = $('q').value; shown = PAGE; renderSearch(); }
   else if (act === 'id') toggleId(el);
@@ -1581,6 +1794,7 @@ document.addEventListener('keydown', function (e) {
   if (cur && navList && (e.key === 'ArrowRight' || e.key === 'ArrowLeft')) sheetStep(e.key === 'ArrowRight' ? 1 : -1);
   if (e.key === '/' && token && document.activeElement !== $('q') && document.activeElement !== $('pw')) { e.preventDefault(); closeSheet(); setTab('search'); $('q').focus(); }
 });
+$('pq').addEventListener('input', function () { phoneQ = $('pq').value; clearTimeout(qT); qT = setTimeout(renderPlist, 90); });
 $('loginBtn').addEventListener('click', login);
 $('pw').addEventListener('keydown', function (e) { if (e.key === 'Enter') login(); });
 
