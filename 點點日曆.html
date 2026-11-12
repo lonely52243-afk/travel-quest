@@ -90,6 +90,38 @@
     flex-shrink: 0;
   }
 
+  .sync-dot.ok { background: #10b981; box-shadow: 0 0 10px rgba(16,185,129,0.8); }
+  .sync-dot.busy { background: #f59e0b; box-shadow: 0 0 10px rgba(245,158,11,0.9); animation-duration: 0.8s; }
+  .sync-dot.err { background: #c4c9d2; box-shadow: none; animation: none; }
+
+  .cloud-status {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    background: var(--card2);
+    border-radius: 12px;
+    padding: 12px 14px;
+    margin-bottom: 14px;
+    font-size: 14px;
+    font-weight: 700;
+    line-height: 1.5;
+  }
+
+  .cloud-status .sync-dot { animation: none; }
+  .cloud-sub { font-size: 12px; color: var(--muted); font-weight: 600; }
+  .cloud-label { font-size: 13px; font-weight: 700; color: #6b7280; margin: 0 0 6px 2px; }
+  .modal .cloud-key { margin-bottom: 8px; }
+  .cloud-link {
+    display: block;
+    text-align: center;
+    font-size: 13px;
+    font-weight: 700;
+    color: var(--accent2);
+    text-decoration: none;
+    padding: 10px;
+    margin: 4px 0 10px;
+  }
+
   @keyframes pulse {
     0%, 100% { opacity: 1; transform: scale(1); }
     50% { opacity: 0.4; transform: scale(0.7); }
@@ -145,6 +177,43 @@
     opacity: 0.5;
     font-style: normal;
   }
+
+  .version-tag {
+    display: block;
+    margin: -12px auto 14px;
+    padding: 3px 10px;
+    border: none;
+    border-radius: 999px;
+    background: transparent;
+    color: #d1d5db;
+    font-size: 10px;
+    font-weight: 700;
+    letter-spacing: 1px;
+    font-family: inherit;
+    cursor: pointer;
+    touch-action: manipulation;
+  }
+
+  .version-tag:active { color: var(--accent); }
+
+  .log-list { max-height: 55vh; overflow-y: auto; margin: 0 0 16px; }
+  .log-ver { padding: 10px 0; border-bottom: 1px solid var(--border); }
+  .log-ver:last-child { border-bottom: none; }
+  .log-ver-head { display: flex; align-items: baseline; gap: 8px; margin-bottom: 4px; }
+  .log-ver-no { font-size: 15px; font-weight: 900; color: var(--accent); }
+  .log-ver-no.now::after {
+    content: '目前';
+    margin-left: 6px;
+    padding: 1px 6px;
+    border-radius: 6px;
+    background: var(--accent);
+    color: #fff;
+    font-size: 10px;
+    vertical-align: 2px;
+  }
+  .log-ver-date { font-size: 12px; color: var(--muted); font-weight: 600; }
+  .log-ver ul { margin: 0; padding-left: 18px; }
+  .log-ver li { font-size: 13px; line-height: 1.7; color: var(--text); }
 
   .signature::after {
     content: ' ·';
@@ -1198,6 +1267,7 @@
   </div>
 
   <div class="signature">吱吱製作</div>
+  <button class="version-tag" id="versionTag" onclick="openChangelog()"></button>
 
   <div class="people-bar" id="peopleBar"></div>
 
@@ -1256,6 +1326,8 @@
     <button class="text-btn" onclick="openBackup()">備份</button>
     <span class="reset-sep">·</span>
     <button class="text-btn" onclick="openRestore()">還原</button>
+    <span class="reset-sep">·</span>
+    <button class="text-btn" onclick="openCloud()">☁️ 雲端</button>
   </div>
 
 </div>
@@ -1281,9 +1353,9 @@
   <div class="modal swap-box">
     <h2 id="swapTitle">🔄 調班</h2>
     <div class="seg" id="swapSeg">
+      <button data-t="cover" onclick="setSwapType('cover')">別人代理我</button>
+      <button data-t="help" onclick="setSwapType('help')">我代理別人</button>
       <button data-t="swap" onclick="setSwapType('swap')">互換</button>
-      <button data-t="cover" onclick="setSwapType('cover')">別人代我</button>
-      <button data-t="help" onclick="setSwapType('help')">我代別人</button>
     </div>
     <input type="text" class="swap-who" id="swapWho" list="peopleList" placeholder="跟誰？（例：裕盛）" maxlength="10" autocomplete="off">
     <datalist id="peopleList"></datalist>
@@ -1342,6 +1414,39 @@
   </div>
 </div>
 
+<!-- 更新紀錄 -->
+<div class="modal-overlay" id="changelogOverlay">
+  <div class="modal">
+    <h2>📝 更新紀錄</h2>
+    <div class="log-list" id="changelogList"></div>
+    <div class="modal-btns">
+      <button class="btn-save" onclick="closeChangelog()">知道了</button>
+    </div>
+  </div>
+</div>
+
+<!-- 雲端同步 -->
+<div class="modal-overlay" id="cloudOverlay">
+  <div class="modal">
+    <h2>☁️ 雲端同步</h2>
+    <div class="cloud-status">
+      <span class="sync-dot" id="cloudDot"></span>
+      <div>
+        <div id="cloudText">尚未設定</div>
+        <div class="cloud-sub" id="cloudSub"></div>
+      </div>
+    </div>
+    <div class="cloud-label">密碼（跟 Apps Script 裡的 PASSWORD 一樣）</div>
+    <input type="text" class="cloud-key" id="cloudKey" placeholder="輸入密碼" autocomplete="off" spellcheck="false">
+    <a class="cloud-link" id="cloudSheetLink" target="_blank" rel="noopener">📊 打開試算表看紀錄</a>
+    <div class="modal-btns">
+      <button class="btn-cancel" onclick="closeCloud()">關閉</button>
+      <button class="btn-delete" onclick="cloudSyncNow()">立即同步</button>
+      <button class="btn-save" onclick="saveCloudKey()">儲存</button>
+    </div>
+  </div>
+</div>
+
 <!-- 使用說明 -->
 <div class="modal-overlay" id="helpOverlay">
   <div class="modal">
@@ -1351,7 +1456,7 @@
       <li><span class="help-icon">✋</span><span><b>長按</b>　自訂文字</span></li>
       <li><span class="help-icon">👤</span><span><b>上方名字</b>　切換要記誰，＋新增</span></li>
       <li><span class="help-icon">📋</span><span><b>快速標記</b>　貼上文字，自動抓日期</span></li>
-      <li><span class="help-icon">🔄</span><span><b>調班</b>　互換、代班都會留下紀錄</span></li>
+      <li><span class="help-icon">🔄</span><span><b>調班</b>　代理、互換都會留下紀錄</span></li>
       <li><span class="help-icon">🖼</span><span><b>產圖</b>　做成圖片傳給別人</span></li>
     </ul>
     <div class="modal-btns">
@@ -1404,6 +1509,52 @@
   const DEFAULT_BRAND = '點點月曆';
   const DEFAULT_MARK = '留';
   const ME = 'me';
+
+  /* ---------- 版本 ---------- */
+  const APP_VERSION = '2.3';
+  const VERSION_SEEN_KEY = 'duty_calendar_version_seen';
+  const CHANGELOG = [
+    { v: '2.3', date: '2026/11/12', items: [
+      '加上版本標示與更新紀錄',
+      '雲端視窗會顯示後端版本'
+    ]},
+    { v: '2.2', date: '2026/11/12', items: [
+      '接上 Google 試算表後端，網頁和桌面 App 看到同一份資料',
+      '自動同步，標題左邊小圓點顯示同步狀態',
+      '試算表留下目前標記、調班紀錄、異動紀錄'
+    ]},
+    { v: '2.1', date: '2026/11/12', items: [
+      '調班視窗優化：步驟提示、沒選好不能儲存',
+      '「換班」改名「調班」，「代班」改名「代理」',
+      '代理排第一，打開預設選代理'
+    ]},
+    { v: '2.0', date: '2026/11/12', items: [
+      '多人：上方名字切換，幫別人記不用再重置',
+      '調班紀錄：原本排的／現在要站，過程用文字記錄',
+      '快速標記自動認月份',
+      '備份／還原',
+      '拿掉「分享本月」，修正 2027、2028 假日'
+    ]},
+    { v: '1.4', date: '2026/10/20', items: [
+      '存到桌面：App 模式、桌面圖示',
+      '分享給朋友',
+      '快速標記加「貼上」按鈕'
+    ]},
+    { v: '1.3', date: '2026/10/19', items: [
+      '第一次打開顯示使用說明',
+      '按鈕版面整理，快速標記可以收起來'
+    ]},
+    { v: '1.2', date: '2026/10/19', items: [
+      '產圖：做成圖片傳給別人'
+    ]},
+    { v: '1.1', date: '2026/10/19', items: [
+      '修正部分安卓手機點不到日期',
+      '快速標記：貼上文字自動抓日期'
+    ]},
+    { v: '1.0', date: '', items: [
+      '點一下標記、長按自訂文字、左右滑換月份'
+    ]}
+  ];
 
   let currentYear, currentMonth;
   let selectedDateKey = null;
@@ -1523,10 +1674,16 @@
       if (!p.used) p.used = 0;
     });
     state = s;
-    saveState();
+    saveLocal();
   }
 
-  function saveState() { lsSet(DATA_KEY, JSON.stringify(state)); }
+  function saveLocal() { lsSet(DATA_KEY, JSON.stringify(state)); }
+
+  function saveState() {
+    state.updatedAt = Date.now();
+    saveLocal();
+    scheduleSync();
+  }
 
   function P() { return state.people.find(p => p.id === curId) || state.people.find(p => p.id === ME); }
   function findPerson(id) { return state.people.find(p => p.id === id); }
@@ -1766,7 +1923,7 @@
     curId = id;
     const p = P();
     if (p.id !== ME) p.used = Date.now();
-    saveState();
+    saveLocal();
     renderPeople();
     render();
   }
@@ -1785,6 +1942,8 @@
     }
     const p = newPersonObj('p' + Date.now(), name);
     state.people.push(p);
+    logAction(name, '新增這個人');
+    saveState();
     switchPerson(p.id);
     showToast(`已新增 ${name}，可以開始記了`);
   }
@@ -1813,6 +1972,7 @@
       showToast('已經有這個名字了');
       return;
     }
+    logAction(name, `改名（原本叫 ${p.name}）`);
     p.name = name;
     saveState();
     closePersonMenu();
@@ -1825,6 +1985,7 @@
     if (!p || p.id === ME) return closePersonMenu();
     if (!confirm(`確定刪除「${p.name}」？\n他的標記和調班紀錄都會一起刪掉。`)) return;
     state.people = state.people.filter(o => o.id !== p.id);
+    logAction(p.name, '刪除這個人（含所有標記和調班紀錄）');
     if (curId === p.id) curId = ME;
     saveState();
     closePersonMenu();
@@ -1943,10 +2104,12 @@
   function toggleMark(key) {
     const marks = P().marks;
     if (marks[key]) {
+      logAction(P().name, `取消 ${kd(key)}（原本是「${marks[key]}」）`);
       delete marks[key];
       playUnmark();
     } else {
       marks[key] = DEFAULT_MARK;
+      logAction(P().name, `標記 ${kd(key)}「${DEFAULT_MARK}」`);
       playMark();
     }
     saveState();
@@ -2018,8 +2181,8 @@
   /* =========================================================
      調班紀錄
      swap:  type 'swap'  互換：out 給對方、in 換進來
-            type 'cover' 別人代我：out 由對方站，我欠對方一天
-            type 'help'  我代別人：in 我幫對方站，對方欠我一天
+            type 'cover' 別人代理我：out 由對方站，我欠對方一天
+            type 'help'  我代理別人：in 我幫對方站，對方欠我一天
      ========================================================= */
   function applySwapTo(marks, s) {
     if (s.out) {
@@ -2088,15 +2251,15 @@
         `${who} 的 ${fmtDay(s.in, vy, vm)} 給 ${ow}`
       ];
     } else if (s.type === 'cover') {
-      head = `${who} 幫 ${ow} 代班`;
+      head = `${who} 代理 ${ow}`;
       lines = [
-        `${ow} 的 ${fmtDay(s.out, vy, vm)} 由 ${who} 站`,
+        `${ow} 的 ${fmtDay(s.out, vy, vm)} 由 ${who} 代理`,
         s.settled ? `✓ 已經還 ${who} 了` : `${ow} 欠 ${who} 一天`
       ];
     } else {
-      head = `${ow} 幫 ${who} 代班`;
+      head = `${ow} 代理 ${who}`;
       lines = [
-        `${who} 的 ${fmtDay(s.in, vy, vm)} 由 ${ow} 站`,
+        `${who} 的 ${fmtDay(s.in, vy, vm)} 由 ${ow} 代理`,
         s.settled ? `✓ ${who} 已經還了` : `${who} 欠 ${ow} 一天`
       ];
     }
@@ -2188,6 +2351,7 @@
     if (idx < 0) return;
     if (!confirm('刪除這筆調班？\n月曆會改回調班前的樣子。')) return;
     // 後面的紀錄先倒回，再刪這筆，再把後面的重新套用
+    logAction(p.name, `刪除調班：${swapSentence(p.swaps[idx], p)}`);
     const later = p.swaps.slice(idx + 1);
     for (let i = later.length - 1; i >= 0; i--) undoSwapOn(p.marks, later[i]);
     undoSwapOn(p.marks, p.swaps[idx]);
@@ -2203,6 +2367,7 @@
     const s = P().swaps.find(x => x.id === id);
     if (!s) return;
     s.settled = !s.settled;
+    logAction(P().name, `${s.settled ? '標記已還' : '改回未還'}：${swapSentence(s, P())}`);
     saveState();
     render();
     showToast(s.settled ? '已標記還清' : '已改回未還');
@@ -2231,11 +2396,10 @@
 
     const ow = ownerWord();
     document.getElementById('swapTitle').textContent = ow === '我' ? '🔄 調班' : `🔄 ${ow} 的調班`;
-    const segBtns = document.querySelectorAll('#swapSeg button');
-    segBtns[1].textContent = `別人代${ow}`;
-    segBtns[2].textContent = `${ow}代別人`;
+    document.querySelector('#swapSeg button[data-t="cover"]').textContent = `別人代理${ow}`;
+    document.querySelector('#swapSeg button[data-t="help"]').textContent = `${ow}代理別人`;
 
-    setSwapType('swap');
+    setSwapType('cover');
     document.getElementById('swapOverlay').classList.add('active');
   }
 
@@ -2259,9 +2423,9 @@
     row.classList.toggle('one', t !== 'swap');
 
     document.getElementById('labelOut').textContent =
-      t === 'swap' ? `${ow}給出去的日子` : `要找人代的日子`;
+      t === 'swap' ? `${ow}給出去的日子` : `要找人代理的日子`;
     document.getElementById('labelIn').textContent =
-      t === 'swap' ? `${ow}換到的日子` : `${ow}幫忙站的日子`;
+      t === 'swap' ? `${ow}換到的日子` : `${ow}代理的日子`;
 
     refreshSwapUI();
   }
@@ -2357,11 +2521,11 @@
     if (swapType === 'swap') {
       hint.textContent = ready ? '✓ 日期已選好，確認對象後即可完成' : swapField === 'out' ? '① 點藍色日期，選擇原本要給出去的班' : '② 點白色日期，選擇要換進來的班';
     } else {
-      hint.textContent = ready ? '✓ 日期已選好，確認對象後即可完成' : swapType === 'cover' ? '① 點藍色日期，選擇別人要代的班' : '① 點白色日期，選擇要幫別人站的班';
+      hint.textContent = ready ? '✓ 日期已選好，確認對象後即可完成' : swapType === 'cover' ? '① 點藍色日期，選擇別人要代理的班' : '① 點白色日期，選擇要代理別人的班';
     }
     hint.classList.toggle('done', ready);
     saveBtn.disabled = !ready;
-    saveBtn.textContent = swapType === 'swap' ? '完成互換' : swapType === 'cover' ? '確認代班' : '確認幫班';
+    saveBtn.textContent = swapType === 'swap' ? '完成互換' : swapType === 'cover' ? '確認代理' : '確認代理';
     renderMiniCal();
     updateSwapPreview();
   }
@@ -2387,8 +2551,8 @@
     const who = document.getElementById('swapWho').value.trim().slice(0, 10);
     if (!who) { showToast('請輸入跟誰'); document.getElementById('swapWho').focus(); return; }
     if (swapType === 'swap' && (!swapOut || !swapIn)) { showToast('兩個日子都要選'); return; }
-    if (swapType === 'cover' && !swapOut) { showToast('請選要代的日子'); return; }
-    if (swapType === 'help' && !swapIn) { showToast('請選幫忙站的日子'); return; }
+    if (swapType === 'cover' && !swapOut) { showToast('請選要代理的日子'); return; }
+    if (swapType === 'help' && !swapIn) { showToast('請選代理的日子'); return; }
 
     // 儲存前再次檢查：避免選完日期後，資料已被其他操作改動。
     const p = P();
@@ -2405,6 +2569,7 @@
     };
     applySwapTo(p.marks, s);
     p.swaps.push(s);
+    logAction(p.name, `登記調班：${swapSentence(s, p)}`);
     saveState();
     closeSwap();
     playMark();
@@ -2538,6 +2703,7 @@
     const mark = quickMark(text);
     const marks = P().marks;
     days.forEach(d => { marks[dateKey(t.y, t.m, d)] = mark; });
+    logAction(P().name, `快速標記 ${t.y}/${t.m + 1} 月：${days.join('、')}（${mark}）`);
     saveState();
     playMark();
     closeQuick();
@@ -2585,8 +2751,13 @@
     if (!selectedDateKey) return;
     const marks = P().marks;
     const val = document.getElementById('noteInput').value.trim();
-    if (val) marks[selectedDateKey] = val;
-    else delete marks[selectedDateKey];
+    if (val) {
+      if (marks[selectedDateKey] !== val) logAction(P().name, `${kd(selectedDateKey)} 改成「${val}」`);
+      marks[selectedDateKey] = val;
+    } else {
+      if (marks[selectedDateKey]) logAction(P().name, `清除 ${kd(selectedDateKey)}`);
+      delete marks[selectedDateKey];
+    }
     saveState();
     closeModal();
     render();
@@ -2594,6 +2765,7 @@
 
   function deleteNote() {
     if (!selectedDateKey) return;
+    if (P().marks[selectedDateKey]) logAction(P().name, `清除 ${kd(selectedDateKey)}`);
     delete P().marks[selectedDateKey];
     saveState();
     closeModal();
@@ -2620,6 +2792,7 @@
     if (!confirm(msg)) return;
 
     keys.forEach(k => delete p.marks[k]);
+    logAction(p.name, `清除 ${currentYear}/${currentMonth + 1} 月（${keys.length} 個標記、${swaps.length} 筆調班）`);
     const ids = new Set(swaps.map(s => s.id));
     p.swaps = p.swaps.filter(s => !ids.has(s.id));
     saveState();
@@ -2640,6 +2813,7 @@
       return;
     }
     if (!confirm(`確定清除「我」的全部資料？\n\n• ${n} 個標記\n• ${p.swaps.length} 筆調班紀錄\n\n其他人的資料不會動。`)) return;
+    logAction(p.name, `清除全部資料（${n} 個標記、${p.swaps.length} 筆調班）`);
     p.marks = {};
     p.swaps = [];
     saveState();
@@ -2736,6 +2910,7 @@
     if (!confirm(`要還原 ${data.people.length} 人的資料嗎？\n目前的資料會被蓋掉。`)) return;
 
     state = { people: data.people };
+    logAction('—', `從備份還原（${data.people.length} 人）`);
     loadStateFix();
     if (data.brand) {
       saveBrand(data.brand);
@@ -2749,14 +2924,284 @@
     showToast('✅ 已還原');
   }
 
-  function loadStateFix() {
+  function fixState() {
     if (!state.people.some(p => p.id === ME)) state.people.unshift(newPersonObj(ME, '我'));
     state.people.forEach(p => {
       if (!p.marks || typeof p.marks !== 'object') p.marks = {};
       if (!Array.isArray(p.swaps)) p.swaps = [];
       if (!p.used) p.used = 0;
     });
+  }
+
+  function loadStateFix() {
+    fixState();
     saveState();
+  }
+
+  /* =========================================================
+     雲端同步（Google 試算表）
+     - 每次改動後 1.5 秒自動上傳整份資料 + 異動紀錄
+     - 打開網頁、切回網頁時，若雲端比較新就自動下載
+     ========================================================= */
+  const CLOUD_URL = 'https://script.google.com/macros/s/AKfycbyHojZl_JLEYWbgkPIfJ0WBu8ya9kjtY5AGsR90Wuk9UmYYUadUSWhVpnyBUxAU-NQC/exec';
+  const SHEET_URL = 'https://docs.google.com/spreadsheets/d/1543CWfF-A5jEmnm11n5sLpjeD-CmpDlr693QlK0obLc/edit';
+  const CLOUD_KEY = 'duty_calendar_cloud_key';
+  const LOGQ_KEY = 'duty_calendar_logq';
+
+  let syncTimer = null;
+  let syncing = false;
+  let syncAgain = false;
+  let lastSyncAt = 0;
+  let cloudState = 'off';
+  let cloudMsg = '';
+  let warnedKey = false;
+  let backendVersion = '';
+
+  function cloudKey() { return lsGet(CLOUD_KEY) || ''; }
+
+  function pad2(n) { return String(n).padStart(2, '0'); }
+
+  function nowStr(t) {
+    const d = t ? new Date(t) : new Date();
+    return `${d.getFullYear()}/${pad2(d.getMonth() + 1)}/${pad2(d.getDate())} ${pad2(d.getHours())}:${pad2(d.getMinutes())}`;
+  }
+
+  function kd(key) {
+    const k = parseKey(key);
+    return `${k.m + 1}/${k.d}`;
+  }
+
+  function swapSentence(s, p) {
+    const t = swapLines(s, ownerWord(p), -1, -1);
+    return `${t.head}｜${t.lines.join('；')}`;
+  }
+
+  function getLogQ() {
+    try { return JSON.parse(lsGet(LOGQ_KEY)) || []; } catch { return []; }
+  }
+
+  function logAction(name, text) {
+    const q = getLogQ();
+    q.push([nowStr(), name, text]);
+    lsSet(LOGQ_KEY, JSON.stringify(q.slice(-1000)));
+  }
+
+  function setCloud(st, msg) {
+    cloudState = st;
+    cloudMsg = msg || '';
+    const dot = document.querySelector('.brand .sync-dot');
+    dot.classList.remove('ok', 'busy', 'err');
+    if (st !== 'off') dot.classList.add(st);
+    updateCloudModal();
+  }
+
+  function updateCloudModal() {
+    const dot = document.getElementById('cloudDot');
+    if (!dot) return;
+    dot.classList.remove('ok', 'busy', 'err');
+    if (cloudState !== 'off') dot.classList.add(cloudState);
+    const text = {
+      off: '尚未設定密碼',
+      busy: '同步中…',
+      ok: '已同步 ✓',
+      err: cloudMsg || '同步失敗'
+    }[cloudState];
+    document.getElementById('cloudText').textContent = text;
+    const pending = getLogQ().length;
+    document.getElementById('cloudSub').textContent =
+      (lastSyncAt ? `上次同步 ${nowStr(lastSyncAt)}` : '還沒同步過') +
+      (pending ? `・${pending} 筆紀錄等待上傳` : '') +
+      (backendVersion ? `・後端 v${backendVersion}` : '');
+  }
+
+  function buildMarkRows() {
+    const rows = [];
+    sortedPeople().forEach(p => {
+      Object.keys(p.marks).sort().forEach(k => {
+        const d = parseKey(k);
+        const w = '日一二三四五六'[new Date(d.y, d.m, d.d).getDay()];
+        rows.push([p.name, `${d.y}/${pad2(d.m + 1)}/${pad2(d.d)}`, `週${w}`, p.marks[k]]);
+      });
+    });
+    return rows;
+  }
+
+  function buildSwapRows() {
+    const rows = [];
+    const typeName = { swap: '互換', cover: '別人代理', help: '代理別人' };
+    sortedPeople().forEach(p => {
+      p.swaps.forEach(s => {
+        const t = swapLines(s, ownerWord(p), -1, -1);
+        rows.push([
+          p.name,
+          nowStr(s.at),
+          typeName[s.type] || s.type,
+          s.who,
+          `${t.head}：${t.lines.filter(l => !l.startsWith('✓')).join('；')}`,
+          s.type === 'swap' ? '—' : (s.settled ? '已還' : '未還')
+        ]);
+      });
+    });
+    return rows;
+  }
+
+  function scheduleSync() {
+    if (!cloudKey()) return;
+    clearTimeout(syncTimer);
+    setCloud('busy');
+    syncTimer = setTimeout(() => { syncTimer = null; cloudSave(); }, 1500);
+  }
+
+  function handleCloudError(err) {
+    if (err === '密碼錯誤') {
+      setCloud('err', '密碼錯誤，請到「☁️ 雲端」重新輸入');
+      if (!warnedKey) { warnedKey = true; showToast('☁️ 雲端密碼錯誤'); }
+    } else {
+      setCloud('err', err || '同步失敗');
+    }
+  }
+
+  async function cloudSave() {
+    const key = cloudKey();
+    if (!key) return;
+    if (syncing) { syncAgain = true; return; }
+    syncing = true;
+    setCloud('busy');
+    const logs = getLogQ();
+    const payload = {
+      action: 'save',
+      key,
+      state: { people: state.people, updatedAt: state.updatedAt || Date.now(), brand: loadBrand() },
+      marks: buildMarkRows(),
+      swaps: buildSwapRows(),
+      logs
+    };
+    try {
+      const res = await fetch(CLOUD_URL, { method: 'POST', body: JSON.stringify(payload) });
+      const j = await res.json();
+      if (j.version) backendVersion = j.version;
+      if (j.ok) {
+        lsSet(LOGQ_KEY, JSON.stringify(getLogQ().slice(logs.length)));
+        lastSyncAt = Date.now();
+        setCloud('ok');
+      } else {
+        handleCloudError(j.error);
+      }
+    } catch {
+      setCloud('err', '連不上雲端（沒有網路？）');
+    }
+    syncing = false;
+    if (syncAgain) { syncAgain = false; scheduleSync(); }
+  }
+
+  async function cloudLoad(silent) {
+    const key = cloudKey();
+    if (!key || syncing || syncTimer) return;
+    setCloud('busy');
+    try {
+      const res = await fetch(`${CLOUD_URL}?action=load&key=${encodeURIComponent(key)}&t=${Date.now()}`);
+      const j = await res.json();
+      if (j.version) backendVersion = j.version;
+      if (!j.ok) { handleCloudError(j.error); return; }
+      const data = j.data;
+      const cloudTime = (data && data.updatedAt) || 0;
+      const localTime = state.updatedAt || 0;
+
+      if (data && Array.isArray(data.people) && cloudTime > localTime) {
+        state = { people: data.people, updatedAt: cloudTime };
+        fixState();
+        saveLocal();
+        if (data.brand) {
+          saveBrand(data.brand);
+          document.getElementById('brandText').textContent = data.brand;
+          document.title = data.brand;
+        }
+        if (!findPerson(curId)) curId = ME;
+        renderPeople();
+        render();
+        lastSyncAt = Date.now();
+        setCloud('ok');
+        if (!silent) showToast('☁️ 已載入雲端最新資料');
+      } else if (!data || localTime > cloudTime || getLogQ().length) {
+        cloudSave();
+      } else {
+        lastSyncAt = Date.now();
+        setCloud('ok');
+      }
+    } catch {
+      setCloud('err', '連不上雲端（沒有網路？）');
+    }
+  }
+
+  function openCloud() {
+    document.getElementById('cloudKey').value = cloudKey();
+    document.getElementById('cloudSheetLink').href = SHEET_URL;
+    updateCloudModal();
+    document.getElementById('cloudOverlay').classList.add('active');
+  }
+
+  function closeCloud() {
+    document.getElementById('cloudOverlay').classList.remove('active');
+  }
+
+  function saveCloudKey() {
+    const key = document.getElementById('cloudKey').value.trim();
+    if (!key) {
+      lsDel(CLOUD_KEY);
+      setCloud('off');
+      showToast('已關閉雲端同步');
+      return;
+    }
+    lsSet(CLOUD_KEY, key);
+    warnedKey = false;
+    showToast('已儲存，開始同步');
+    cloudLoad(false);
+  }
+
+  function cloudSyncNow() {
+    if (!cloudKey()) { showToast('請先輸入密碼並按儲存'); return; }
+    clearTimeout(syncTimer);
+    syncTimer = null;
+    cloudLoad(false);
+  }
+
+  function initCloud() {
+    if (!cloudKey()) { setCloud('off'); return; }
+    cloudLoad(true);
+    document.addEventListener('visibilitychange', () => {
+      if (document.visibilityState === 'visible') cloudLoad(true);
+    });
+    window.addEventListener('online', () => cloudLoad(true));
+  }
+
+  /* =========================================================
+     版本／更新紀錄
+     ========================================================= */
+  function openChangelog() {
+    document.getElementById('changelogList').innerHTML = CHANGELOG.map(c => `
+      <div class="log-ver">
+        <div class="log-ver-head">
+          <span class="log-ver-no${c.v === APP_VERSION ? ' now' : ''}">v${c.v}</span>
+          <span class="log-ver-date">${c.date}</span>
+        </div>
+        <ul>${c.items.map(i => `<li>${esc(i)}</li>`).join('')}</ul>
+      </div>`).join('');
+    document.getElementById('changelogOverlay').classList.add('active');
+  }
+
+  function closeChangelog() {
+    document.getElementById('changelogOverlay').classList.remove('active');
+    lsSet(VERSION_SEEN_KEY, APP_VERSION);
+  }
+
+  // 更新後第一次打開，提示已經是新版本
+  function initVersion() {
+    document.getElementById('versionTag').textContent = `v${APP_VERSION} · 更新紀錄`;
+    const seen = lsGet(VERSION_SEEN_KEY);
+    lsSet(VERSION_SEEN_KEY, APP_VERSION);
+    if (seen && seen !== APP_VERSION) {
+      setTimeout(() => showToast(`✨ 已更新到 v${APP_VERSION}，點版本號看新功能`), 600);
+    }
   }
 
   /* =========================================================
@@ -3166,7 +3611,7 @@
     ctx.textAlign = 'center';
     ctx.fillStyle = '#c4c9d2';
     ctx.font = `500 24px ${FONT}`;
-    ctx.fillText(`${loadBrand()} · 吱吱製作`, W / 2, footTop);
+    ctx.fillText(`${loadBrand()} · 吱吱製作 · v${APP_VERSION}`, W / 2, footTop);
 
     return canvas;
   }
@@ -3322,6 +3767,8 @@
   initManifest();
   initAppBar();
   initHelp();
+  initCloud();
+  initVersion();
 </script>
 
 </body>
