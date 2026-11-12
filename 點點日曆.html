@@ -1556,9 +1556,12 @@
         <div class="cloud-sub" id="cloudSub"></div>
       </div>
     </div>
-    <div class="field-label">密碼（跟 Apps Script 裡的 PASSWORD 一樣）</div>
+    <div class="field-label">後端網址（Apps Script 部署網址）</div>
+    <input type="url" class="field" id="cloudUrl" placeholder="https://script.google.com/macros/s/…/exec" autocomplete="off" spellcheck="false" inputmode="url">
+    <div class="field-label">同步密碼</div>
     <input type="text" class="field" id="cloudKey" placeholder="輸入密碼" autocomplete="off" spellcheck="false">
-    <a class="cloud-link" id="cloudSheetLink" target="_blank" rel="noopener"><svg class="ic sm"><use href="#i-sheet"/></svg>打開試算表看紀錄</a>
+    <div class="backup-note">網址和密碼只存在這支手機，不寫在程式裡。後端還沒設定密碼時，第一次同步輸入的密碼會自動成為正式密碼。</div>
+    <a class="cloud-link" id="cloudSheetLink" target="_blank" rel="noopener" style="display:none"><svg class="ic sm"><use href="#i-sheet"/></svg>打開試算表看紀錄</a>
     <div class="btn-row">
       <button class="btn btn-soft" onclick="closeCloud()">關閉</button>
       <button class="btn btn-pink" onclick="cloudSyncNow()">立即同步</button>
@@ -1690,9 +1693,14 @@
   const ME = 'me';
 
   /* ---------- 版本 ---------- */
-  const APP_VERSION = '2.7';
+  const APP_VERSION = '2.8';
   const VERSION_SEEN_KEY = 'duty_calendar_version_seen';
   const CHANGELOG = [
+    { v: '2.8', date: '2026/11/12', items: [
+      '資料不寫死在程式：後端網址、密碼、試算表都改成在設定裡填',
+      '後端密碼、試算表改存在 Apps Script 指令碼屬性',
+      '後端第一次同步時可直接設定密碼'
+    ]},
     { v: '2.7', date: '2026/11/12', items: [
       '新設計：白色極簡 × 復古印刷，留守改成墨藍印章',
       '調班歷程預設收合，展開是精簡的紙本備註',
@@ -3144,7 +3152,7 @@
   function openManage() {
     document.getElementById('manageVersion').textContent = `v${APP_VERSION}`;
     document.getElementById('installRow').style.display = isAppMode() ? 'none' : '';
-    document.getElementById('manageCloudSub').textContent = cloudKey() ? cloudStatusText() : '進階功能，需要密碼；一般使用不用設定';
+    document.getElementById('manageCloudSub').textContent = cloudReady() ? cloudStatusText() : '進階功能，需要後端網址和密碼；一般使用不用設定';
     document.getElementById('manageSheet').classList.add('active');
   }
 
@@ -3243,8 +3251,9 @@
      - 每次改動後 1.5 秒自動上傳整份資料 + 異動紀錄
      - 打開網頁、切回網頁時，若雲端比較新就自動下載
      ========================================================= */
-  const CLOUD_URL = 'https://script.google.com/macros/s/AKfycbyHojZl_JLEYWbgkPIfJ0WBu8ya9kjtY5AGsR90Wuk9UmYYUadUSWhVpnyBUxAU-NQC/exec';
-  const SHEET_URL = 'https://docs.google.com/spreadsheets/d/1543CWfF-A5jEmnm11n5sLpjeD-CmpDlr693QlK0obLc/edit';
+  // 網址、密碼、試算表連結都存在這支手機，不寫在程式裡
+  const CLOUD_URL_KEY = 'duty_calendar_cloud_url';
+  const SHEET_LINK_KEY = 'duty_calendar_sheet_url';
   const CLOUD_KEY = 'duty_calendar_cloud_key';
   const LOGQ_KEY = 'duty_calendar_logq';
 
@@ -3258,6 +3267,19 @@
   let backendVersion = '';
 
   function cloudKey() { return lsGet(CLOUD_KEY) || ''; }
+  function cloudUrl() { return lsGet(CLOUD_URL_KEY) || ''; }
+  function cloudReady() { return !!(cloudKey() && cloudUrl()); }
+
+  function isScriptUrl(u) {
+    return /^https:\/\/script\.google\.com\/macros\/s\/[\w-]+\/exec(\?.*)?$/.test(u);
+  }
+
+  // 後端每次回應都會帶試算表連結、版本；第一次設定密碼時會帶 claimed
+  function readBackendInfo(j) {
+    if (j.version) backendVersion = j.version;
+    if (j.sheetUrl) lsSet(SHEET_LINK_KEY, j.sheetUrl);
+    if (j.claimed) showToast('已設定雲端密碼');
+  }
 
   function nowStr(t) {
     const d = t ? new Date(t) : new Date();
@@ -3295,14 +3317,18 @@
   }
 
   function updateCloudModal() {
+    const link = document.getElementById('cloudSheetLink');
+    const sheet = lsGet(SHEET_LINK_KEY);
+    link.style.display = sheet && cloudReady() ? '' : 'none';
+    if (sheet) link.href = sheet;
     const dot = document.getElementById('cloudDot');
     dot.classList.remove('ok', 'busy', 'err');
     if (cloudState !== 'off') dot.classList.add(cloudState);
-    document.getElementById('cloudText').textContent = cloudState === 'off' ? '尚未設定密碼' : cloudStatusText() + (cloudState === 'ok' ? ' ✓' : '');
+    document.getElementById('cloudText').textContent = cloudState === 'off' ? '尚未設定網址和密碼' : cloudStatusText() + (cloudState === 'ok' ? ' ✓' : '');
     const pending = getLogQ().length;
     document.getElementById('cloudSub').textContent =
       (lastSyncAt ? `上次同步 ${nowStr(lastSyncAt)}` : '還沒同步過') +
-      (pending && cloudKey() ? `・${pending} 筆紀錄等待上傳` : '') +
+      (pending && cloudReady() ? `・${pending} 筆紀錄等待上傳` : '') +
       (backendVersion ? `・後端 v${backendVersion}` : '');
   }
 
@@ -3348,7 +3374,7 @@
   }
 
   function scheduleSync() {
-    if (!cloudKey()) return;
+    if (!cloudReady()) return;
     clearTimeout(syncTimer);
     setCloud('busy');
     syncTimer = setTimeout(() => { syncTimer = null; cloudSave(); }, 1500);
@@ -3365,7 +3391,7 @@
 
   async function cloudSave() {
     const key = cloudKey();
-    if (!key) return;
+    if (!cloudReady()) return;
     if (syncing) { syncAgain = true; return; }
     syncing = true;
     setCloud('busy');
@@ -3380,9 +3406,9 @@
       logs
     };
     try {
-      const res = await fetch(CLOUD_URL, { method: 'POST', body: JSON.stringify(payload) });
+      const res = await fetch(cloudUrl(), { method: 'POST', body: JSON.stringify(payload) });
       const j = await res.json();
-      if (j.version) backendVersion = j.version;
+      readBackendInfo(j);
       if (j.ok) {
         lsSet(LOGQ_KEY, JSON.stringify(getLogQ().slice(logs.length)));
         lastSyncAt = Date.now();
@@ -3399,12 +3425,13 @@
 
   async function cloudLoad(silent) {
     const key = cloudKey();
-    if (!key || syncing || syncTimer) return;
+    if (!cloudReady() || syncing || syncTimer) return;
     setCloud('busy');
     try {
-      const res = await fetch(`${CLOUD_URL}?action=load&key=${encodeURIComponent(key)}&t=${Date.now()}`);
+      const sep = cloudUrl().includes('?') ? '&' : '?';
+      const res = await fetch(`${cloudUrl()}${sep}action=load&key=${encodeURIComponent(key)}&t=${Date.now()}`);
       const j = await res.json();
-      if (j.version) backendVersion = j.version;
+      readBackendInfo(j);
       if (!j.ok) { handleCloudError(j.error); return; }
       const data = j.data;
       const cloudTime = (data && data.updatedAt) || 0;
@@ -3437,8 +3464,8 @@
   }
 
   function openCloud() {
+    document.getElementById('cloudUrl').value = cloudUrl();
     document.getElementById('cloudKey').value = cloudKey();
-    document.getElementById('cloudSheetLink').href = SHEET_URL;
     updateCloudModal();
     document.getElementById('cloudOverlay').classList.add('active');
   }
@@ -3446,16 +3473,24 @@
   function closeCloud() {
     document.getElementById('cloudOverlay').classList.remove('active');
     document.getElementById('cloudKey').blur();
+    document.getElementById('cloudUrl').blur();
   }
 
   function saveCloudKey() {
+    const url = document.getElementById('cloudUrl').value.trim();
     const key = document.getElementById('cloudKey').value.trim();
-    if (!key) {
+    if (!url && !key) {
+      lsDel(CLOUD_URL_KEY);
       lsDel(CLOUD_KEY);
+      lsDel(SHEET_LINK_KEY);
       setCloud('off');
       showToast('已關閉雲端同步');
       return;
     }
+    if (!isScriptUrl(url)) { showToast('後端網址不對，要是 script.google.com 開頭、/exec 結尾'); return; }
+    if (!key) { showToast('請輸入同步密碼'); return; }
+    if (url !== cloudUrl()) lsDel(SHEET_LINK_KEY);
+    lsSet(CLOUD_URL_KEY, url);
     lsSet(CLOUD_KEY, key);
     warnedKey = false;
     showToast('已儲存，開始同步');
@@ -3463,7 +3498,7 @@
   }
 
   function cloudSyncNow() {
-    if (!cloudKey()) { showToast('請先輸入密碼並按儲存'); return; }
+    if (!cloudReady()) { showToast('請先填好網址和密碼，按儲存'); return; }
     clearTimeout(syncTimer);
     syncTimer = null;
     cloudLoad(false);
@@ -3475,7 +3510,7 @@
       if (document.visibilityState === 'visible') cloudLoad(true);
     });
     window.addEventListener('online', () => cloudLoad(true));
-    if (!cloudKey()) { setCloud('off'); return; }
+    if (!cloudReady()) { setCloud('off'); return; }
     cloudLoad(true);
   }
 
