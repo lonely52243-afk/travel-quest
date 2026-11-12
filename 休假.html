@@ -953,6 +953,7 @@ if (r === '股總' || !cfg.splitFrom) return true;  // 交接中（沒設定分�
 return banMap[name] === r;
 }
 function getRec(k, name) { return (records[k] || {})[name] || null; }
+function getRecV(k, name) { var r = getRec(k, name); if (r) return r; var v = (recordsPub[k] || {})[name]; return v && v.virt ? v : null; }
 function rebuildDate(k) {
 var role = myRole();
 delete recordsMy[k]; delete recordsPub[k];
@@ -1343,6 +1344,12 @@ if (!fresh[id] && !inflight[id]) fetchPeriod(want[id][0], want[id][1]).then(func
 });
 }, 350);
 }
+function queued(fn) {
+pendingOps++; setSync('儲存中…');
+var p = opQueue.then(fn);
+opQueue = p.then(function () {}, function () {}).then(function () { pendingOps--; if (pendingOps === 0) setSync(''); });
+return p;
+}
 function enqueue(fn) {
 pendingOps++;
 setSync('儲存中…');
@@ -1635,9 +1642,11 @@ items.push({ date: k, name: n, why: why, time: tm }); (dutyAll[k] = dutyAll[k] |
 if (!items.length) return;
 dutyCacheSave(); statAll = null; renderAll(); renderDutyMon(); if ($('dutyDay').classList.contains('show')) renderDutyDay();
 if (!prefs.dutyPw) { showToast('名目要有勤務權限才能存', null, null, 3000); dutyLoad(); return; }
-var p = apiCall({ action: 'addDuty', token: prefs.dutyPw, items: JSON.stringify(items) }).then(function (res) { if (!res || !res.ok) throw new Error((res && res.msg) || '新增失敗'); });
-dels.forEach(function (d) { p = p.then(function () { return apiCall({ action: 'removeDuty', date: k, name: d.n, why: d.why, token: prefs.dutyPw }); }); });
-p.catch(function (err) { showToast('名目沒存成功：' + err.message + '，已重新讀取', null, null, 4000); dutyLoad(); });
+var p = Promise.resolve();
+dels.forEach(function (d) { p = p.then(function () { return queued(function () { return apiCall({ action: 'removeDuty', date: k, name: d.n, why: d.why, token: prefs.dutyPw }); }); }); });
+p.then(function () { return queued(function () { return apiCall({ action: 'addDuty', token: prefs.dutyPw, items: JSON.stringify(items) }); }); })
+.then(function (res) { if (!res || !res.ok) throw new Error((res && res.msg) || '新增失敗'); })
+.catch(function (err) { showToast('出差名目沒存成功：' + err.message + '，已重新讀取', null, null, 4000); dutyLoad(); });
 }
 function tripHint() { return kindHint('trip'); }
 function tripAsk(k, name) {
@@ -1715,8 +1724,10 @@ if (!who.length) { showToast('還沒選人', null, null, 2200); return; }
 if (!prefs.pw && !prefs.dutyPw) { showToast('要先解鎖編輯才能標出差', null, null, 2600); return; }
 tripMark(k, who);
 armEdit(); statAll = null; renderAll(); renderDutyMon(); if ($('dutyDay').classList.contains('show')) renderDutyDay();
-if (v) tripSave(k, who, v, tm);
-showToast('✓ ' + who.join('、') + ' 出差' + (v ? '・' + v : '') + (tm !== '全天' ? ' ' + tm : ''), null, null, 2800);
+var noRec = who.filter(function (n) { return !prefs.pw || !canEditName(n); });
+if (!prefs.dutyPw && noRec.length) { showToast(noRec.join('、') + ' 不是你負責的班，要有勤務權限（彈射／軍械／股總密碼）才能標', null, null, 4000); return; }
+if (v && prefs.dutyPw) tripSave(k, who, v, tm);
+showToast('✓ ' + who.join('、') + ' 出差' + (v ? '・' + v : '') + (tm !== '全天' ? ' ' + tm : '') + (v && !prefs.dutyPw ? '（名目要有勤務權限才能存，這次只標了假單）' : ''), null, null, 3200);
 } }]
 });
 tripTmBind();
@@ -3180,7 +3191,7 @@ var dsum = 0;
 var past = true; // 到班＝整個月（年）的上班日 − 休假
 if (!inf.off && past) wdays++;
 employees.forEach(function (e) {
-var r = getRec(k, e.name);
+var r = getRecV(k, e.name);
 if (!r) return;
 if (isAway(r)) { if (!inf.off) per[e.name].away++; return; }
 if (isDuty(r)) {
@@ -3219,7 +3230,7 @@ for (var i = 0; i < lead; i++) h += '<div class="cc empty"></div>';
 for (var d = 1; d <= n; d++) {
 var k = y + '-' + pad(m) + '-' + pad(d);
 var inf = dayInfo(k);
-var r = getRec(k, name);
+var r = getRecV(k, name);
 var cls = 'cc' + (inf.off ? ' off' : '') + (r ? ' ' + periodClass(r) + (r.period === '留守' && cvIs(k, name) ? ' cvc' : '') : '') + (r && !inf.off && isLeave(r) && r.period === '全天' ? ' comp' : '') + (k === tk ? ' today' : '');
 h += '<div class="' + cls + '"><span class="n">' + d + '</span>';
 if (!mini) {
@@ -3279,7 +3290,7 @@ var calBody = calHtml(anaYear, anaMonth, P.name, false) +
 h += mineSec('ac', 'anfold', '休假月曆', '左右滑換月', calBody);
 var rows = '';
 keys.forEach(function (k) {
-var r = getRec(k, P.name);
+var r = getRecV(k, P.name);
 if (!r) return;
 var inf = dayInfo(k);
 rows += '<div class="detail-row"><span>' + dayHead(k) + (inf.label ? ' <span class="tag">' + esc(inf.label) + '</span>' : '') +
@@ -3722,10 +3733,11 @@ if (who) out.push({ k: k, n: who, drv: m[4], br: cvBrief(k) });
 return out;
 }
 function cvApply(list) {
-var items = [], pre = [];
+var items = [], pre = [], other = [];
 list.forEach(function (c) {
 var r = getRec(c.k, c.n);
-if (!r || r.period !== '留守') {
+if (!prefs.pw || !canEditName(c.n)) { if (other.indexOf(c.n) < 0) other.push(c.n); }   // 別班的人：假單寫不進去，只存車長／勤前提示
+else if (!r || r.period !== '留守') {
 if (r && isLeave(r)) return;   // 當天休假：不蓋掉，交給班長處理
 setLocal(c.k, c.n, { period: '留守', type: '留守' });
 enqueue(function () { return pushState(c.k, c.n, { period: '留守', type: '留守' }); });
@@ -3738,8 +3750,8 @@ items = items.filter(function (it) { var id = it.date + '|' + it.name + '|' + it
 items.forEach(function (it) { (dutyAll[it.date] = dutyAll[it.date] || []).push({ n: it.name, why: it.why, time: it.time }); });
 saveCache(); dutyCacheSave(); statAll = null; renderAll(); renderDutyMon();
 $('quickPage').classList.remove('show');
-showToast('✓ 已標 ' + list.length + ' 天留守＋車長，勤前提示已排入月曆', null, null, 3200);
-if (items.length) apiCall({ action: 'addDuty', token: prefs.dutyPw, items: JSON.stringify(items) }).then(function (res) { if (!res || !res.ok) throw new Error((res && res.msg) || '新增失敗'); }).catch(function (err) { showToast('車長／勤前提示沒存成功：' + err.message + '，已重新讀取', null, null, 4200); dutyLoad(); });
+showToast('✓ 已標 ' + list.length + ' 天車長，勤前提示已排入月曆' + (other.length ? '；' + other.join('、') + ' 不是你負責的班，留守請該班標' : '，並標了留守'), null, null, other.length ? 5000 : 3200);
+if (items.length) queued(function () { return apiCall({ action: 'addDuty', token: prefs.dutyPw, items: JSON.stringify(items) }); }).then(function (res) { if (!res || !res.ok) throw new Error((res && res.msg) || '新增失敗'); }).catch(function (err) { showToast('車長／勤前提示沒存成功：' + err.message + '，已重新讀取', null, null, 4200); dutyLoad(); });
 }
 function cvAsk(list) {
 openSheet({
@@ -4182,7 +4194,7 @@ if (ex) { if (it.time) ex.time = it.time; } else { l.push({ n: it.name, why: it.
 dutyCacheSave(); statAll = null; var qkRaw = $('quickPage').classList.contains('qkform') ? '' : ($('qkText').value || '').trim();
 $('quickPage').classList.remove('show'); renderDutyMon(); if ($('dutyDay').classList.contains('show')) renderDutyDay();
 FX.ok(); $('okCatTxt').textContent = '已加入 ' + arr.length + ' 筆'; $('okCat').classList.add('show'); clearTimeout(window.okCatT); window.okCatT = setTimeout(function () { $('okCat').classList.remove('show'); }, 1300);
-(wasEdit ? opQueue.then(function () { return apiCall({ action: 'addDuty', token: prefs.dutyPw, items: JSON.stringify(arr) }); }) : apiCall({ action: 'addDuty', token: prefs.dutyPw, items: JSON.stringify(arr) })).then(function (res) {
+queued(function () { return apiCall({ action: 'addDuty', token: prefs.dutyPw, items: JSON.stringify(arr) }); }).then(function (res) {
 if (!res || !res.ok) throw new Error((res && res.msg) || '新增失敗');
 qkSaveRaw(arr, qkRaw);
 var labOf = function (x) { return x.why + (x.time ? '　' + x.time : ''); };
@@ -5827,7 +5839,7 @@ m.innerHTML = '<div id="a2hs" role="dialog" aria-modal="true" aria-label="加入
 m.classList.add('show');
 }
 var CHANGELOG = [
-{ v: 'v11.70', d: '11/11', t: ['勤務月曆：出差變獨立分類（紫色），格子裡顯示出差的人、名目那筆不再算成一般勤務；底部分類多了「出差」可單獨篩選（共九類）；上方改兩層：月份一行、「衛哨設定｜＋貼上標記」一行，更新時間縮成小字不再擠到衛哨設定換行', '出差標到別班的人（例：彈射標軍械、股總的人）不再寫入失敗：只寫自己負責班的假單，其他人存「出差：名目」那筆，畫面和點名一樣算出差', '快速標記頁也套用新的表單樣式（細框、淡紫選取、底部新增＋關閉）；出差的時間「自訂」整行可填', '快速標記每個事項可以切「勤務｜出差｜行程」；通知裡有出差、岡山、指部、前往、赴…會自動切成出差（可切回）；出差存檔＝假單標出差＋名目；認得「人：事：時：地：」格式與 115.10.21-22 這種日期區間；@ 的人優先，「向某某詢問」的聯絡窗口不算被派', '儲存等太久（60 秒）才算逾時，並提示可能已經存了', '當天詳細精簡：到班超過 8 人先顯示 6 位＋「＋N 人」，點標題展開／收合；人數統一寫「N 人」、姓名標籤同一種高度；勤務清單改三層（名稱／時間＋人數／人員），長名稱換行不擠時間；三顆新增按鈕稍矮；實線＝確認、虛線＝表定照舊', '當天頁「外勤：出差」跟其他項目一樣點一下就能進去：改名目、時間，或「刪除出差」（假單的出差清掉、名目那筆一起刪）；同一天多人出差會先問要改哪一位', '新增行程：參加的人預設「全員」收起來，只剩名目和時間；只有部分人參加才點「只有部分人參加？點這裡選人」展開選人，可一鍵「改回全員」', '選人不再鎖死：「當天有事」和「有衝突」合併成一組「當天有事（提醒，可以選）」：黃框＝還有別的事、紅虛線＝時間撞到／休假／外勤（排在後面），一樣可以選，新增時跳「先記下來，之後再調整」，之後會列在待處理；重疊判斷照舊', '新增勤務表單精緻化：卡片改細框、名目輸入框統一規格、時間三欄等寬（選取淡紫）、日期標籤一致、人員區一行顯示「已選 N 人｜人數未定」＋加減、已選人員淡紫標籤（有衝突的紅色），主要按鈕貼在畫面底部；衝突／重疊提醒照舊', '三種新增表單統一：標題「新增勤務／新增出差／新增行程」，欄位統一叫「名目／時間／人員」，最下面一律是主要按鈕（新增…／編輯時「儲存修改」）＋「關閉」；當天頁按鈕改叫「＋ 行程」', '「公差」全部改叫「勤務」（跟「出差」只差一個字容易選錯）：按鈕、標題、說明、待處理、統計、個人行程、複製文字都同步；快速標記照樣認得通知裡的「公差」', '出差／公差／行程表單精簡：每張表單只說明自己那一種（假單點出差只講出差），三種比較放在當天頁按鈕下方「公差、出差、行程怎麼分？」，名目、時間、人一頁看完；當天頁三顆按鈕等高不擠', '新增公差／出差／當日行程的表單上方都加了三種怎麼分的說明：公差＝部內、出差＝不在部內、行程＝很多人或全員參加的活動（高裝、漢光、服儀檢查、尾牙、軍士官活動、視察）', '出差可以選時間（全天／上午／下午／自訂）：全天出差，當天其他公差都會提醒重疊；有填時間的只在時間撞到時提醒；假單和當天頁填的是同一份資料，各頁同步顯示「出差・名目 時間」', '當天頁新增「＋ 出差」：填名目、點人名（可多選），假單同步標出差、名目存成全天公差，附說明', '出差：假單點「出差」後可以填「名目」（例：保指部開標），存成當天一筆全天公差；各處顯示「出差・名目」，名目那筆不再另外列一張公差卡，也不再誤報「外勤／公差重疊」', '個人行程月曆改成圓角小卡片風格（跟公差勤務月曆一致），格子間留縫、今天用深藍粗框；標籤和顏色不變', '任務派遣／點名官頁面風格統一：日期格、統計、到班／休假／留守同一種標題（圖示＋名稱＋人數＋箭頭）、姓名標籤同規格、公差紫點移到名字後面不壓字，勤務實線＝確認、虛線＝表定維持不變；字重統一、不再出現斜體', '點名官休假欄自動排版：只有一種假別就單獨顯示、兩種才並排並出現「全部展開」；只列有人的時段（全天／上午／下午），預設收合，點開看名單；沒人休假顯示「今日無休假人員」', '安全性：儲存時伺服器回應異常不再自動用舊方式重送，避免同一筆被寫兩次、密碼出現在網址', '留守若同天是車長：格子仍顯示「留」但改深藍綠底，名字後註明（車）', '車長改成貼在留守名字旁的「（車）」標示（首頁、當天詳細），不再另外多一張公差卡', '快速標記：貼上生品課「廠車車長/駕駛」，抓到同仁當車長 → 標留守＋車長，前一個上班日自動排勤前提示（週四 17:20、其餘 15:30；遇週末連假往前推），月曆同步顯示', '休假表人員選擇改成預設收合：只顯示目前人員與「切換人員」，點開可搜尋姓名、第一項是「全體統計」，選完自動收合；姓名與平日休／假日休併成同一區塊', '個人休假表更緊湊：姓名、本月休、平日休、假日休併成一個精簡標題區，縮小工具列與間距，第一個畫面就能看到整個月曆', '休假表視覺優化：月份工具列變精簡、姓名改成較小的膠囊、全班摘要拆成「平日休／假日休」兩格、人員表行距與數字對齊、個人標題改成「姓名｜11 月休 N 天」、月曆格略矮且顏色稍降飽和', '底部分頁改名：點名官／假單／休假表（休假表＝原本的休假分析）；「更多」分頁拿掉，設定改由封面進入', '「休假統計」改名「休假分析」', '休假分析入口改成頁面最下面右邊的小膠囊（點名官／任務派遣頁、假單／休假表頁）', '封面「設定」改成和兩個大按鈕同款的橫式卡片（矮一點），放在兩個大按鈕正下方', '封面「設定」細列固定放在兩個大按鈕（點名官／任務派遣、公差勤務）正下方', '設定頁插圖統一：身分、換身分、我的姓名、使用導覽都配班長小圖；「使用導覽」改成淡色按鈕不搶戲', '封面最下面（兩個大按鈕下方）加「設定」低調細列，所有身分都有', '新增班長插圖：休假統計、設定（分頁圖示）、留守提醒信、身分設定選單', '封面最下面加「設定」低調細列（彈射／軍械／股總）；休假統計改放在點名官／任務派遣頁最下面（一般、班長、股總都看得到）', '最後一個分頁「更多」改名「設定」：身分、個人、提醒、紀錄、連結、說明都在裡面；休假統計細列放在說明上方', '休假統計入口改成低調細列：一般首頁放在最下面；彈射／軍械／股總的「更多」頁也移到最下面，不再佔最上方大卡片', '一般首頁最下面新增「休假統計」入口，同仁可看每人每月休假天數（返回回到首頁）', '版本更新頁簡約化：上方只列最新版摘要，歷史版本改成可展開列表（一次展開一個、每次 10 筆）；有新版本時版本號旁顯示小紅點，看過就消失', '一般首頁頂部：「看導覽」「登出」「不是我？」整合為單一「身分設定」選單（切換使用者、登出各自保留原功能）；問候文字放大；底部版本號去底線', '加入主畫面提醒改為單行；教學改成小視窗，依 iPhone Safari／Chrome、Android、Juiker 內建瀏覽器顯示對應步驟；已從主畫面開啟時不再顯示', '當天詳細精簡：時間併成一行（08:00–12:00）、人數靠標題右側、列距與姓名標籤縮小，可一次看到更多勤務', '標留守不再限制過去的日子，同仁可自行補標', '新增輕量動畫回饋：按鈕按壓、標留守日期彈跳、進度條平順變動、完成圖示彈出、展開淡入（系統開啟「減少動態效果」時自動關閉）', '拿掉深色模式（只剩淺色），「更多」裡的外觀選項一併移除，樣式檔縮小約 24KB', '使用導覽極簡化：提示列縮成一行、貓換成班長、說明預設收合且一次只開一項、常見問題改問答收合、看懂顏色先列紅橘兩色', '點名官頁：最上面加「這週待處理」提醒條（沿用待處理頁的數字，點了直接進待處理）；到班名單預設收成一行', '一般首頁重新排版：我的行程置頂（今天／明天切換、週曆、查看完整月曆），下面依序是提醒、下次休假、需要留意（假單、重疊，沒事就隱藏）、黃色標留守、看全部人；移除重複的「今天」列與「看我的行程」按鈕', '一般首頁加「貼心提醒」卡：早上提醒今天、下午晚上提醒明天，一次一則，點下去看那天（只讀現有資料，不用改後端）', '統計頁整理成三層：數字總覽、還沒派到、公差種類排行，每一層都能收折；拿掉和數字重複的那句總結；底部加「統計說明」收折區', '統計每個人列表：加欄位標題（派遣比例／次／最近／已排）、已排日期獨立標示、可切換原始順序／次數少到多／多到少（不影響「誰該先派」）', '我的行程「每天要做什麼」：沒事的日子（放假）縮成一行，點日期跳到上面看詳情', '統計：誰該先派改成表格（近3月次數、最近派遣、平均）；加班「加班天數」與每月天數更清楚', '我的行程：月統計改成常駐色塊；點哪天，明細接在月曆下；圖例收成一行；同天同類標籤合併（輪值 ×2）；過去的日子不再變淡；每一區都能收折', '一般首頁：兩個大按鈕放大、與彈射封面一致；假日那列改成直接寫「留守」或「休假」', '週曆和當天明細合成一張卡；時間重疊不再整圈紅框，只在撞到的那兩行加淡粉底', '顏色統一：公差、尿篩、打靶、加班、輪值、行程各一個固定顏色，一般、彈射、軍械、股總全部同一套；加班改綠、輪值改青，不再和別的類別像', '「我的重點」合併成一張可收合的卡：今天、假日、假單、重疊；假單與重疊點開直接看日期，原本重複的紅色提醒卡拿掉'] },
+{ v: 'v11.70', d: '11/11', t: ['穩定性修正：出差只改時間不會再把名目那筆刪掉（先刪舊的再新增）；車長標到別班的人不再寫入失敗（只存車長／勤前提示，留守請該班標）；勤務、出差、車長的寫入改成排隊一筆一筆送，減少連線逾時；權限不足時提示講清楚；休假表也看得到別班標的出差', '勤務月曆：出差變獨立分類（紫色），格子裡顯示出差的人、名目那筆不再算成一般勤務；底部分類多了「出差」可單獨篩選（共九類）；上方改兩層：月份一行、「衛哨設定｜＋貼上標記」一行，更新時間縮成小字不再擠到衛哨設定換行', '出差標到別班的人（例：彈射標軍械、股總的人）不再寫入失敗：只寫自己負責班的假單，其他人存「出差：名目」那筆，畫面和點名一樣算出差', '快速標記頁也套用新的表單樣式（細框、淡紫選取、底部新增＋關閉）；出差的時間「自訂」整行可填', '快速標記每個事項可以切「勤務｜出差｜行程」；通知裡有出差、岡山、指部、前往、赴…會自動切成出差（可切回）；出差存檔＝假單標出差＋名目；認得「人：事：時：地：」格式與 115.10.21-22 這種日期區間；@ 的人優先，「向某某詢問」的聯絡窗口不算被派', '儲存等太久（60 秒）才算逾時，並提示可能已經存了', '當天詳細精簡：到班超過 8 人先顯示 6 位＋「＋N 人」，點標題展開／收合；人數統一寫「N 人」、姓名標籤同一種高度；勤務清單改三層（名稱／時間＋人數／人員），長名稱換行不擠時間；三顆新增按鈕稍矮；實線＝確認、虛線＝表定照舊', '當天頁「外勤：出差」跟其他項目一樣點一下就能進去：改名目、時間，或「刪除出差」（假單的出差清掉、名目那筆一起刪）；同一天多人出差會先問要改哪一位', '新增行程：參加的人預設「全員」收起來，只剩名目和時間；只有部分人參加才點「只有部分人參加？點這裡選人」展開選人，可一鍵「改回全員」', '選人不再鎖死：「當天有事」和「有衝突」合併成一組「當天有事（提醒，可以選）」：黃框＝還有別的事、紅虛線＝時間撞到／休假／外勤（排在後面），一樣可以選，新增時跳「先記下來，之後再調整」，之後會列在待處理；重疊判斷照舊', '新增勤務表單精緻化：卡片改細框、名目輸入框統一規格、時間三欄等寬（選取淡紫）、日期標籤一致、人員區一行顯示「已選 N 人｜人數未定」＋加減、已選人員淡紫標籤（有衝突的紅色），主要按鈕貼在畫面底部；衝突／重疊提醒照舊', '三種新增表單統一：標題「新增勤務／新增出差／新增行程」，欄位統一叫「名目／時間／人員」，最下面一律是主要按鈕（新增…／編輯時「儲存修改」）＋「關閉」；當天頁按鈕改叫「＋ 行程」', '「公差」全部改叫「勤務」（跟「出差」只差一個字容易選錯）：按鈕、標題、說明、待處理、統計、個人行程、複製文字都同步；快速標記照樣認得通知裡的「公差」', '出差／公差／行程表單精簡：每張表單只說明自己那一種（假單點出差只講出差），三種比較放在當天頁按鈕下方「公差、出差、行程怎麼分？」，名目、時間、人一頁看完；當天頁三顆按鈕等高不擠', '新增公差／出差／當日行程的表單上方都加了三種怎麼分的說明：公差＝部內、出差＝不在部內、行程＝很多人或全員參加的活動（高裝、漢光、服儀檢查、尾牙、軍士官活動、視察）', '出差可以選時間（全天／上午／下午／自訂）：全天出差，當天其他公差都會提醒重疊；有填時間的只在時間撞到時提醒；假單和當天頁填的是同一份資料，各頁同步顯示「出差・名目 時間」', '當天頁新增「＋ 出差」：填名目、點人名（可多選），假單同步標出差、名目存成全天公差，附說明', '出差：假單點「出差」後可以填「名目」（例：保指部開標），存成當天一筆全天公差；各處顯示「出差・名目」，名目那筆不再另外列一張公差卡，也不再誤報「外勤／公差重疊」', '個人行程月曆改成圓角小卡片風格（跟公差勤務月曆一致），格子間留縫、今天用深藍粗框；標籤和顏色不變', '任務派遣／點名官頁面風格統一：日期格、統計、到班／休假／留守同一種標題（圖示＋名稱＋人數＋箭頭）、姓名標籤同規格、公差紫點移到名字後面不壓字，勤務實線＝確認、虛線＝表定維持不變；字重統一、不再出現斜體', '點名官休假欄自動排版：只有一種假別就單獨顯示、兩種才並排並出現「全部展開」；只列有人的時段（全天／上午／下午），預設收合，點開看名單；沒人休假顯示「今日無休假人員」', '安全性：儲存時伺服器回應異常不再自動用舊方式重送，避免同一筆被寫兩次、密碼出現在網址', '留守若同天是車長：格子仍顯示「留」但改深藍綠底，名字後註明（車）', '車長改成貼在留守名字旁的「（車）」標示（首頁、當天詳細），不再另外多一張公差卡', '快速標記：貼上生品課「廠車車長/駕駛」，抓到同仁當車長 → 標留守＋車長，前一個上班日自動排勤前提示（週四 17:20、其餘 15:30；遇週末連假往前推），月曆同步顯示', '休假表人員選擇改成預設收合：只顯示目前人員與「切換人員」，點開可搜尋姓名、第一項是「全體統計」，選完自動收合；姓名與平日休／假日休併成同一區塊', '個人休假表更緊湊：姓名、本月休、平日休、假日休併成一個精簡標題區，縮小工具列與間距，第一個畫面就能看到整個月曆', '休假表視覺優化：月份工具列變精簡、姓名改成較小的膠囊、全班摘要拆成「平日休／假日休」兩格、人員表行距與數字對齊、個人標題改成「姓名｜11 月休 N 天」、月曆格略矮且顏色稍降飽和', '底部分頁改名：點名官／假單／休假表（休假表＝原本的休假分析）；「更多」分頁拿掉，設定改由封面進入', '「休假統計」改名「休假分析」', '休假分析入口改成頁面最下面右邊的小膠囊（點名官／任務派遣頁、假單／休假表頁）', '封面「設定」改成和兩個大按鈕同款的橫式卡片（矮一點），放在兩個大按鈕正下方', '封面「設定」細列固定放在兩個大按鈕（點名官／任務派遣、公差勤務）正下方', '設定頁插圖統一：身分、換身分、我的姓名、使用導覽都配班長小圖；「使用導覽」改成淡色按鈕不搶戲', '封面最下面（兩個大按鈕下方）加「設定」低調細列，所有身分都有', '新增班長插圖：休假統計、設定（分頁圖示）、留守提醒信、身分設定選單', '封面最下面加「設定」低調細列（彈射／軍械／股總）；休假統計改放在點名官／任務派遣頁最下面（一般、班長、股總都看得到）', '最後一個分頁「更多」改名「設定」：身分、個人、提醒、紀錄、連結、說明都在裡面；休假統計細列放在說明上方', '休假統計入口改成低調細列：一般首頁放在最下面；彈射／軍械／股總的「更多」頁也移到最下面，不再佔最上方大卡片', '一般首頁最下面新增「休假統計」入口，同仁可看每人每月休假天數（返回回到首頁）', '版本更新頁簡約化：上方只列最新版摘要，歷史版本改成可展開列表（一次展開一個、每次 10 筆）；有新版本時版本號旁顯示小紅點，看過就消失', '一般首頁頂部：「看導覽」「登出」「不是我？」整合為單一「身分設定」選單（切換使用者、登出各自保留原功能）；問候文字放大；底部版本號去底線', '加入主畫面提醒改為單行；教學改成小視窗，依 iPhone Safari／Chrome、Android、Juiker 內建瀏覽器顯示對應步驟；已從主畫面開啟時不再顯示', '當天詳細精簡：時間併成一行（08:00–12:00）、人數靠標題右側、列距與姓名標籤縮小，可一次看到更多勤務', '標留守不再限制過去的日子，同仁可自行補標', '新增輕量動畫回饋：按鈕按壓、標留守日期彈跳、進度條平順變動、完成圖示彈出、展開淡入（系統開啟「減少動態效果」時自動關閉）', '拿掉深色模式（只剩淺色），「更多」裡的外觀選項一併移除，樣式檔縮小約 24KB', '使用導覽極簡化：提示列縮成一行、貓換成班長、說明預設收合且一次只開一項、常見問題改問答收合、看懂顏色先列紅橘兩色', '點名官頁：最上面加「這週待處理」提醒條（沿用待處理頁的數字，點了直接進待處理）；到班名單預設收成一行', '一般首頁重新排版：我的行程置頂（今天／明天切換、週曆、查看完整月曆），下面依序是提醒、下次休假、需要留意（假單、重疊，沒事就隱藏）、黃色標留守、看全部人；移除重複的「今天」列與「看我的行程」按鈕', '一般首頁加「貼心提醒」卡：早上提醒今天、下午晚上提醒明天，一次一則，點下去看那天（只讀現有資料，不用改後端）', '統計頁整理成三層：數字總覽、還沒派到、公差種類排行，每一層都能收折；拿掉和數字重複的那句總結；底部加「統計說明」收折區', '統計每個人列表：加欄位標題（派遣比例／次／最近／已排）、已排日期獨立標示、可切換原始順序／次數少到多／多到少（不影響「誰該先派」）', '我的行程「每天要做什麼」：沒事的日子（放假）縮成一行，點日期跳到上面看詳情', '統計：誰該先派改成表格（近3月次數、最近派遣、平均）；加班「加班天數」與每月天數更清楚', '我的行程：月統計改成常駐色塊；點哪天，明細接在月曆下；圖例收成一行；同天同類標籤合併（輪值 ×2）；過去的日子不再變淡；每一區都能收折', '一般首頁：兩個大按鈕放大、與彈射封面一致；假日那列改成直接寫「留守」或「休假」', '週曆和當天明細合成一張卡；時間重疊不再整圈紅框，只在撞到的那兩行加淡粉底', '顏色統一：公差、尿篩、打靶、加班、輪值、行程各一個固定顏色，一般、彈射、軍械、股總全部同一套；加班改綠、輪值改青，不再和別的類別像', '「我的重點」合併成一張可收合的卡：今天、假日、假單、重疊；假單與重疊點開直接看日期，原本重複的紅色提醒卡拿掉'] },
 { v: 'v11.69', d: '11/11', t: ['封面放大：標題、身分卡、兩個大按鈕（圖示、字）、待處理／編輯紀錄都加大，間距拉開，上下留白更平衡（螢幕夠高才放大，小螢幕不變）'] },
 { v: 'v11.68', d: '11/11', t: ['「我的重點」今天那行改簡短：只列類別（尿篩・公差・行程）加「共幾件」，時間重疊會直接標出來'] },
 { v: 'v11.67', d: '11/11', t: ['一般首頁最上面新增「我的重點」三行：今天要做什麼、下個假日（留守／休／還沒點幾天）、假單有沒有點好，打開 3 秒就知道'] },
@@ -6360,7 +6372,7 @@ var ex = l.filter(function (x) { return x.n === it.name && x.why === it.why; })[
 if (ex) { if (it.time) ex.time = it.time; } else l.push({ n: it.name, why: it.why, time: it.time });
 });
 dutyCacheSave(); statAll = null;
-apiCall({ action: 'addDuty', token: prefs.dutyPw, items: JSON.stringify(arr) }).then(function (res) {
+queued(function () { return apiCall({ action: 'addDuty', token: prefs.dutyPw, items: JSON.stringify(arr) }); }).then(function (res) {
 if (!res || !res.ok) throw new Error((res && res.msg) || '新增失敗');
 prefs.tips.otduty = 1; savePrefs(); if ($('otTip')) $('otTip').hidden = true; $('otToDuty').classList.remove('pulse');
 $('okCatTxt').textContent = '已加入勤務月曆 ' + arr.length + ' 筆'; $('okCat').classList.add('show'); clearTimeout(window.okCatT); window.okCatT = setTimeout(function () { $('okCat').classList.remove('show'); }, 1500);
