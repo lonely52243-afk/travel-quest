@@ -835,7 +835,7 @@
     background: #fff5f7;
   }
 
-  /* ---------- 換班紀錄卡 ---------- */
+  /* ---------- 調班紀錄卡 ---------- */
   .records {
     display: none;
     background: #fff;
@@ -941,7 +941,7 @@
     line-height: 1.7;
   }
 
-  /* ---------- 換班視窗 ---------- */
+  /* ---------- 調班視窗 ---------- */
   .modal.swap-box {
     max-height: 92vh;
     overflow-y: auto;
@@ -1151,6 +1151,31 @@
     .rec-body { font-size: 14px; }
   }
 
+
+  /* 2026 快速調班視覺升級：只改調班視窗，不改主月曆單點邏輯 */
+  .modal.swap-box { border-radius: 25px; background: #fffdfd; box-shadow: 0 24px 70px rgba(65,69,99,.19); }
+  .swap-box h2 { letter-spacing: .3px; }
+  .swap-box .seg { background: #f2f4fa; border: 1px solid #e9ecf3; border-radius: 15px; padding: 5px; }
+  .swap-box .seg button { min-height: 43px; border-radius: 11px; transition: background .16s, color .16s; }
+  .swap-box .seg button.on { background: #fff; color: #df668b; box-shadow: 0 2px 10px rgba(51,64,93,.10); }
+  .swap-box .swap-who { border-radius: 14px; background: #fff; border: 1.5px solid #e6eaf2; }
+  .swap-step-hint { font-size: 12px; font-weight: 800; color: #bf6080; background: #fff0f5; padding: 9px 12px; border-radius: 11px; margin: 0 0 10px; }
+  .swap-step-hint.done { color: #187d6c; background: #eaf9f4; }
+  .swap-box .date-field { min-height: 73px; background: #f8f9fd; border: 1.5px solid #e9ecf3; border-radius: 15px; transition: border-color .16s, background .16s; }
+  .swap-box .date-field.active { border-color: #e98cab; background: #fff0f5; box-shadow: 0 0 0 2px rgba(233,140,171,.10); }
+  .swap-box .date-field:focus-visible, .swap-box .mc-day:focus-visible { outline: 3px solid #e98cab; outline-offset: 2px; }
+  .swap-box .mini-cal { background: #f6f8fc; border: 1px solid #edf0f6; border-radius: 18px; padding: 12px 10px; }
+  .swap-box .mc-head button { background: white; box-shadow: 0 2px 7px rgba(39,52,84,.07); }
+  .swap-box .mc-day { border-radius: 11px; min-height: 38px; box-shadow: 0 1px 3px rgba(37,52,82,.05); }
+  .swap-box .mc-day.blank { box-shadow: none; }
+  .swap-box .mc-day.on { background: #548bdb; }
+  .swap-box .mc-day.sel-out { background: #9298a9; }
+  .swap-box .mc-day.sel-in { background: #f4b55b; color: #543c18; }
+  .swap-box .swap-preview { border: 1px solid #f9dce6; background: #fff5f8; border-radius: 15px; }
+  .swap-box .swap-preview.empty { border-color: #e9ecf3; background: #f8f9fd; }
+  .swap-box #swapSaveBtn:disabled { opacity: .45; filter: grayscale(.3); cursor: not-allowed; }
+  @media(max-width:370px) { .swap-box .mc-day { min-height: 34px; } .swap-box .seg button { font-size: 12px; } }
+
 </style>
 </head>
 <body>
@@ -1185,12 +1210,12 @@
 
   <div class="bottom-bar">
     <button class="mini-btn" id="quickBtn" onclick="toggleQuick()">📋 快速標記</button>
-    <button class="mini-btn" onclick="openSwap()">🔄 換班</button>
+    <button class="mini-btn" onclick="openSwap()">🔄 調班</button>
     <button class="mini-btn" onclick="makeImage()">🖼 產圖</button>
   </div>
 
   <div class="quick-panel" id="quickPanel">
-    <textarea id="quickInput" placeholder="貼上文字，例如：&#10;學長的留守是&#10;8,22,9,11"></textarea>
+    <textarea id="quickInput" placeholder="貼上文字，例如：&#10;本月留守是&#10;8,22,9,11"></textarea>
     <div class="quick-preview" id="quickPreview"></div>
     <div class="quick-btns">
       <button class="quick-clear" onclick="closeQuick()">取消</button>
@@ -1251,10 +1276,10 @@
   </div>
 </div>
 
-<!-- 換班 -->
+<!-- 調班 -->
 <div class="modal-overlay" id="swapOverlay">
   <div class="modal swap-box">
-    <h2 id="swapTitle">🔄 換班</h2>
+    <h2 id="swapTitle">🔄 調班</h2>
     <div class="seg" id="swapSeg">
       <button data-t="swap" onclick="setSwapType('swap')">互換</button>
       <button data-t="cover" onclick="setSwapType('cover')">別人代我</button>
@@ -1262,6 +1287,7 @@
     </div>
     <input type="text" class="swap-who" id="swapWho" list="peopleList" placeholder="跟誰？（例：裕盛）" maxlength="10" autocomplete="off">
     <datalist id="peopleList"></datalist>
+    <div class="swap-step-hint" id="swapStepHint" aria-live="polite">① 先點選原本排定的日期</div>
     <div class="date-row" id="dateRow">
       <button class="date-field" id="fieldOut" onclick="pickField('out')">
         <span class="df-label" id="labelOut"></span>
@@ -1289,7 +1315,7 @@
     <div class="swap-preview empty" id="swapPreview"></div>
     <div class="modal-btns">
       <button class="btn-cancel" onclick="closeSwap()">取消</button>
-      <button class="btn-save" onclick="saveSwap()">儲存</button>
+      <button class="btn-save" id="swapSaveBtn" onclick="saveSwap()" disabled>完成互換</button>
     </div>
   </div>
 </div>
@@ -1325,7 +1351,7 @@
       <li><span class="help-icon">✋</span><span><b>長按</b>　自訂文字</span></li>
       <li><span class="help-icon">👤</span><span><b>上方名字</b>　切換要記誰，＋新增</span></li>
       <li><span class="help-icon">📋</span><span><b>快速標記</b>　貼上文字，自動抓日期</span></li>
-      <li><span class="help-icon">🔄</span><span><b>換班</b>　登記誰跟你換，留下紀錄</span></li>
+      <li><span class="help-icon">🔄</span><span><b>調班</b>　互換、代班都會留下紀錄</span></li>
       <li><span class="help-icon">🖼</span><span><b>產圖</b>　做成圖片傳給別人</span></li>
     </ul>
     <div class="modal-btns">
@@ -1467,7 +1493,7 @@
   function lsDel(k) { try { localStorage.removeItem(k); } catch {} }
 
   /* =========================================================
-     資料：多人 + 換班紀錄
+     資料：多人 + 調班紀錄
      state = { people: [ { id, name, marks:{日期:文字}, swaps:[...], used } ] }
      月曆只顯示 marks（換完的最終結果）；swaps 是過程紀錄
      ========================================================= */
@@ -1797,7 +1823,7 @@
   function deletePerson() {
     const p = findPerson(menuPersonId);
     if (!p || p.id === ME) return closePersonMenu();
-    if (!confirm(`確定刪除「${p.name}」？\n他的標記和換班紀錄都會一起刪掉。`)) return;
+    if (!confirm(`確定刪除「${p.name}」？\n他的標記和調班紀錄都會一起刪掉。`)) return;
     state.people = state.people.filter(o => o.id !== p.id);
     if (curId === p.id) curId = ME;
     saveState();
@@ -1990,7 +2016,7 @@
   }
 
   /* =========================================================
-     換班紀錄
+     調班紀錄
      swap:  type 'swap'  互換：out 給對方、in 換進來
             type 'cover' 別人代我：out 由對方站，我欠對方一天
             type 'help'  我代別人：in 我幫對方站，對方欠我一天
@@ -2014,7 +2040,7 @@
     if (s.out) marks[s.out] = s.outLabel || DEFAULT_MARK;
   }
 
-  // 把所有換班倒回去，就是「原本排的」
+  // 把所有調班倒回去，就是「原本排的」
   function originalMarks(p) {
     const m = Object.assign({}, p.marks);
     for (let i = p.swaps.length - 1; i >= 0; i--) undoSwapOn(m, p.swaps[i]);
@@ -2051,7 +2077,7 @@
             .trim();
   }
 
-  // 一筆換班紀錄 → 好懂的句子
+  // 一筆調班紀錄 → 好懂的句子
   function swapLines(s, ow, vy, vm) {
     const who = s.who;
     let head = '', lines = [];
@@ -2127,7 +2153,7 @@
           <div><span class="rec-k">原本排的</span><span class="rec-v">${esc(dayListText(orig, y, m))}</span></div>
           <div><span class="rec-k">現在要站</span><span class="rec-v strong">${esc(dayListText(p.marks, y, m))}</span></div>
         </div>
-        <div class="rec-title">${esc(ow === '我' ? '' : ow + ' ')}換班紀錄</div>`;
+        <div class="rec-title">${esc(ow === '我' ? '' : ow + ' ')}調班紀錄</div>`;
 
       list.forEach((s, i) => {
         const t = swapLines(s, ow, y, m);
@@ -2160,7 +2186,7 @@
     const p = P();
     const idx = p.swaps.findIndex(s => s.id === id);
     if (idx < 0) return;
-    if (!confirm('刪除這筆換班？\n月曆會改回換班前的樣子。')) return;
+    if (!confirm('刪除這筆調班？\n月曆會改回調班前的樣子。')) return;
     // 後面的紀錄先倒回，再刪這筆，再把後面的重新套用
     const later = p.swaps.slice(idx + 1);
     for (let i = later.length - 1; i >= 0; i--) undoSwapOn(p.marks, later[i]);
@@ -2182,7 +2208,7 @@
     showToast(s.settled ? '已標記還清' : '已改回未還');
   }
 
-  /* ---------- 換班視窗 ---------- */
+  /* ---------- 調班視窗 ---------- */
   let swapType = 'swap';
   let swapOut = null, swapIn = null;
   let swapField = 'out';
@@ -2204,7 +2230,7 @@
     dl.innerHTML = [...names].map(n => `<option value="${esc(n)}">`).join('');
 
     const ow = ownerWord();
-    document.getElementById('swapTitle').textContent = ow === '我' ? '🔄 換班' : `🔄 ${ow} 的換班`;
+    document.getElementById('swapTitle').textContent = ow === '我' ? '🔄 調班' : `🔄 ${ow} 的調班`;
     const segBtns = document.querySelectorAll('#swapSeg button');
     segBtns[1].textContent = `別人代${ow}`;
     segBtns[2].textContent = `${ow}代別人`;
@@ -2325,6 +2351,17 @@
     vi.textContent = fmtPick(swapIn) || '點下方日期';
     vi.classList.toggle('empty', !swapIn);
 
+    const hint = document.getElementById('swapStepHint');
+    const saveBtn = document.getElementById('swapSaveBtn');
+    const ready = swapType === 'swap' ? !!(swapOut && swapIn) : swapType === 'cover' ? !!swapOut : !!swapIn;
+    if (swapType === 'swap') {
+      hint.textContent = ready ? '✓ 日期已選好，確認對象後即可完成' : swapField === 'out' ? '① 點藍色日期，選擇原本要給出去的班' : '② 點白色日期，選擇要換進來的班';
+    } else {
+      hint.textContent = ready ? '✓ 日期已選好，確認對象後即可完成' : swapType === 'cover' ? '① 點藍色日期，選擇別人要代的班' : '① 點白色日期，選擇要幫別人站的班';
+    }
+    hint.classList.toggle('done', ready);
+    saveBtn.disabled = !ready;
+    saveBtn.textContent = swapType === 'swap' ? '完成互換' : swapType === 'cover' ? '確認代班' : '確認幫班';
     renderMiniCal();
     updateSwapPreview();
   }
@@ -2353,7 +2390,10 @@
     if (swapType === 'cover' && !swapOut) { showToast('請選要代的日子'); return; }
     if (swapType === 'help' && !swapIn) { showToast('請選幫忙站的日子'); return; }
 
+    // 儲存前再次檢查：避免選完日期後，資料已被其他操作改動。
     const p = P();
+    if (swapOut && !p.marks[swapOut]) { showToast('原本日期已沒有排班，請重新選擇'); refreshSwapUI(); return; }
+    if (swapIn && (swapIn === swapOut || p.marks[swapIn])) { showToast('換入日期不可與原日期相同或已有排班'); refreshSwapUI(); return; }
     const s = {
       id: 's' + Date.now(),
       type: swapType,
@@ -2373,7 +2413,7 @@
     const k = parseKey(s.out || s.in);
     if (k.y !== currentYear || k.m !== currentMonth) goToMonth(k.y, k.m);
     else render();
-    showToast('✅ 換班已登記');
+    showToast('✅ 調班已登記');
   }
 
   /* =========================================================
@@ -2576,7 +2616,7 @@
     }
     const msg = `確定清除${ow === '我' ? '' : '「' + ow + '」'} ${currentMonth + 1} 月？\n\n` +
       (keys.length ? `• ${keys.length} 個標記\n` : '') +
-      (swaps.length ? `• ${swaps.length} 筆換班紀錄\n` : '');
+      (swaps.length ? `• ${swaps.length} 筆調班紀錄\n` : '');
     if (!confirm(msg)) return;
 
     keys.forEach(k => delete p.marks[k]);
@@ -2599,7 +2639,7 @@
       showToast('目前沒有紀錄');
       return;
     }
-    if (!confirm(`確定清除「我」的全部資料？\n\n• ${n} 個標記\n• ${p.swaps.length} 筆換班紀錄\n\n其他人的資料不會動。`)) return;
+    if (!confirm(`確定清除「我」的全部資料？\n\n• ${n} 個標記\n• ${p.swaps.length} 筆調班紀錄\n\n其他人的資料不會動。`)) return;
     p.marks = {};
     p.swaps = [];
     saveState();
@@ -2890,7 +2930,7 @@
   }
 
   /* =========================================================
-     產圖：把目前這個人的本月畫成 PNG（含換班紀錄）
+     產圖：把目前這個人的本月畫成 PNG（含調班紀錄）
      ========================================================= */
   let imgBlob = null;
   let imgFileName = '';
@@ -2983,7 +3023,7 @@
     if (!sumLines.length) sumLines = ['本月沒有標記'];
     const LINE_H = 52;
 
-    // 下方換班紀錄
+    // 下方調班紀錄
     const swaps = swapsInMonth(p, y, m);
     const recRows = [];  // { text, font, color, gapBefore }
     if (swaps.length) {
@@ -3103,7 +3143,7 @@
       }
     }
 
-    // 換班紀錄
+    // 調班紀錄
     if (recRows.length) {
       ctx.fillStyle = '#f8fafc';
       rr(ctx, PAD, recTop, W - PAD * 2, recH, 20);
@@ -3111,7 +3151,7 @@
       ctx.textAlign = 'left';
       ctx.fillStyle = '#ff4d6d';
       ctx.font = `900 30px ${FONT}`;
-      ctx.fillText('換班紀錄', PAD + 28, recTop + 28);
+      ctx.fillText('調班紀錄', PAD + 28, recTop + 28);
       let yy = recTop + 28 + 56;
       recRows.forEach(r => {
         yy += r.gapBefore;
