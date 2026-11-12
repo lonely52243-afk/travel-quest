@@ -2716,7 +2716,7 @@ var inf = dayInfo(k), lv = leavesOf(k), ev = eventsOf(k), ag = awayGroups(k), su
 if (ev.length) sum.push('<span class="ds ev">行程 ' + ev.length + '</span>');
 if (inf.off) {
 var st = stayOf(k), uf = unfiledOf(k);
-sum.push('<span class="ds stay">留守 ' + (st.length ? st.map(function (x) { return esc(String(x.name || x).length >= 3 ? String(x.name || x).slice(1) : String(x.name || x)); }).join('、') : '無') + '</span>');
+sum.push('<span class="ds stay">留守 ' + (st.length ? st.map(function (x) { return esc(String(x.name || x).length >= 3 ? String(x.name || x).slice(1) : String(x.name || x)) + (cvIs(k, x.name || x) ? '（車）' : ''); }).join('、') : '無') + '</span>');
 if (uf.length) sum.push('<span class="ds uf">未點 ' + uf.length + '</span>');
 } else {
 if (lv.length) sum.push('<span class="ds lv">休 ' + lv.length + '</span>');
