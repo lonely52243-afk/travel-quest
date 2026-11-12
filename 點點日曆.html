@@ -18,20 +18,31 @@
   :root {
     --bg: #f5f7fa;
     --card: #ffffff;
-    --card2: #f0f3f8;
-    --card-hover: #e8edf5;
+    --card2: #f3f5f9;
+    --day: #f5f7fb;
+    --line: #e8ecf3;
     --accent: #ff4d6d;
-    --accent2: #3b82f6;
+    --accent-soft: #fff1f4;
+    --accent-line: #ffd0d8;
+    --blue: #3b82f6;
+    --blue2: #60a5fa;
+    --blue-soft: #eef4ff;
+    --orange: #f59e0b;
+    --orange-soft: #fff7e8;
+    --green: #059669;
+    --green-soft: #ecfdf5;
     --holiday: #e63946;
-    --holiday-bg: #ffe5e8;
-    --duty: #3b82f6;
-    --duty2: #60a5fa;
+    --holiday-bg: #ffe9ec;
     --today: #f59e0b;
     --today-bg: #fffbeb;
     --text: #1f2937;
-    --muted: #9ca3af;
-    --border: #e5e9f0;
-    --radius: 16px;
+    --text2: #4b5563;
+    --muted: #8a93a3;
+    --shadow: 0 1px 2px rgba(31,41,55,0.04), 0 6px 20px rgba(31,41,55,0.06);
+    --shadow-lg: 0 20px 60px rgba(31,41,55,0.18);
+    --r-lg: 20px;
+    --r-md: 14px;
+    --r-sm: 10px;
   }
 
   html, body { width: 100%; overflow-x: hidden; }
@@ -43,161 +54,968 @@
     min-height: 100vh;
     display: flex;
     justify-content: center;
-    padding: 20px 16px 24px;
+    padding: 16px 12px 32px;
     -webkit-font-smoothing: antialiased;
+    -webkit-tap-highlight-color: transparent;
   }
 
-  .container {
-    width: 100%;
-    max-width: 900px;
-    display: flex;
-    flex-direction: column;
+  @media (display-mode: standalone) {
+    body {
+      padding-top: calc(12px + env(safe-area-inset-top));
+      padding-bottom: calc(32px + env(safe-area-inset-bottom));
+    }
   }
 
+  .container { width: 100%; max-width: 640px; display: flex; flex-direction: column; }
+
+  button { font-family: inherit; touch-action: manipulation; }
+
+  input, textarea {
+    font-family: inherit;
+    -webkit-user-select: text;
+    user-select: text;
+    -webkit-touch-callout: default;
+  }
+
+  /* ---------- 線性圖示 ---------- */
+  .ic {
+    width: 18px;
+    height: 18px;
+    flex-shrink: 0;
+    fill: none;
+    stroke: currentColor;
+    stroke-width: 1.9;
+    stroke-linecap: round;
+    stroke-linejoin: round;
+  }
+
+  .ic.sm { width: 15px; height: 15px; }
+  .ic.lg { width: 22px; height: 22px; }
+
+  /* ---------- 標題 ---------- */
   .brand {
     display: flex;
     align-items: center;
     justify-content: center;
-    gap: 14px;
+    gap: 12px;
     background: #fff;
-    border: 2px solid #ffd0d8;
+    border: 1.5px solid var(--accent-line);
     color: var(--accent);
-    font-size: 22px;
+    font-size: 20px;
     font-weight: 900;
-    padding: 18px 24px;
-    border-radius: var(--radius);
-    margin-bottom: 10px;
-    letter-spacing: 6px;
-    cursor: pointer;
-    transition: all 0.2s;
-    position: relative;
-    box-shadow: 0 2px 14px rgba(255,77,109,0.12);
-    text-indent: 6px;
+    padding: 14px 20px;
+    border-radius: var(--r-lg);
+    letter-spacing: 5px;
+    text-indent: 5px;
+    box-shadow: 0 2px 14px rgba(255,77,109,0.10);
+    cursor: text;
   }
 
-  .brand:hover {
-    background: #fff5f7;
-    border-color: var(--accent);
-    box-shadow: 0 4px 20px rgba(255,77,109,0.2);
-  }
+  .brand-text { outline: none; min-width: 60px; text-align: center; }
+  .brand-text:focus { border-bottom: 2px dashed rgba(255,77,109,0.5); }
 
   .sync-dot {
-    width: 10px; height: 10px;
+    width: 9px;
+    height: 9px;
     border-radius: 50%;
     background: var(--accent);
-    box-shadow: 0 0 10px rgba(255,77,109,0.9);
+    box-shadow: 0 0 10px rgba(255,77,109,0.8);
     animation: pulse 2s infinite;
     flex-shrink: 0;
   }
 
-  .sync-dot.ok { background: #10b981; box-shadow: 0 0 10px rgba(16,185,129,0.8); }
-  .sync-dot.busy { background: #f59e0b; box-shadow: 0 0 10px rgba(245,158,11,0.9); animation-duration: 0.8s; }
+  .sync-dot.ok { background: #10b981; box-shadow: 0 0 10px rgba(16,185,129,0.7); }
+  .sync-dot.busy { background: var(--orange); box-shadow: 0 0 10px rgba(245,158,11,0.8); animation-duration: 0.8s; }
   .sync-dot.err { background: #c4c9d2; box-shadow: none; animation: none; }
-
-  .cloud-status {
-    display: flex;
-    align-items: center;
-    gap: 10px;
-    background: var(--card2);
-    border-radius: 12px;
-    padding: 12px 14px;
-    margin-bottom: 14px;
-    font-size: 14px;
-    font-weight: 700;
-    line-height: 1.5;
-  }
-
-  .cloud-status .sync-dot { animation: none; }
-  .cloud-sub { font-size: 12px; color: var(--muted); font-weight: 600; }
-  .cloud-label { font-size: 13px; font-weight: 700; color: #6b7280; margin: 0 0 6px 2px; }
-  .modal .cloud-key { margin-bottom: 8px; }
-  .cloud-link {
-    display: block;
-    text-align: center;
-    font-size: 13px;
-    font-weight: 700;
-    color: var(--accent2);
-    text-decoration: none;
-    padding: 10px;
-    margin: 4px 0 10px;
-  }
 
   @keyframes pulse {
     0%, 100% { opacity: 1; transform: scale(1); }
     50% { opacity: 0.4; transform: scale(0.7); }
   }
 
-  .brand-text { outline: none; min-width: 60px; text-align: center; }
-  .brand-text:focus { border-bottom: 2px dashed rgba(255,77,109,0.5); }
-
-  .brand-hint {
-    position: absolute;
-    right: 16px;
-    font-size: 11px;
-    color: rgba(255,77,109,0.4);
-    font-weight: 400;
-    letter-spacing: 0;
-    text-indent: 0;
-  }
-
-  .tagline {
+  .subline {
     display: flex;
     align-items: center;
     justify-content: center;
-    gap: 10px;
-    margin: 0 0 4px;
+    gap: 8px;
+    margin: 8px 0 2px;
     font-size: 12px;
-    color: #9ca3af;
-    letter-spacing: 2px;
-    font-weight: 500;
+    color: var(--muted);
+    letter-spacing: 1.5px;
   }
 
-  .tagline-item { position: relative; }
+  .subline .dot { color: #ffb3c0; font-weight: 900; }
 
-  .tagline-dot {
-    color: #ffb3c0;
-    font-weight: 900;
-    font-size: 14px;
-    line-height: 1;
+  .help-link {
+    display: inline-flex;
+    border: none;
+    background: none;
+    color: #ff9aae;
+    cursor: pointer;
+    padding: 2px;
   }
 
   .signature {
-    text-align: center;
-    font-size: 10px;
-    color: #d1d5db;
-    letter-spacing: 5px;
-    font-weight: 400;
-    font-style: italic;
-    margin: 4px 0 16px;
-    user-select: none;
-  }
-
-  .signature::before {
-    content: '· ';
-    opacity: 0.5;
-    font-style: normal;
-  }
-
-  .version-tag {
     display: block;
-    margin: -12px auto 14px;
-    padding: 3px 10px;
+    margin: 0 auto 14px;
+    border: none;
+    background: none;
+    font-size: 10px;
+    color: #c4c9d2;
+    letter-spacing: 3px;
+    font-style: italic;
+    cursor: pointer;
+    padding: 4px 8px;
+  }
+
+  .signature b { font-style: normal; font-weight: 700; letter-spacing: 1px; }
+
+  /* ---------- 人員選擇 ---------- */
+  .person-btn {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    width: 100%;
+    padding: 12px 16px;
+    background: #fff;
+    border: 1px solid var(--line);
+    border-radius: var(--r-md);
+    box-shadow: var(--shadow);
+    color: var(--text);
+    cursor: pointer;
+    margin-bottom: 10px;
+    text-align: left;
+  }
+
+  .person-btn .avatar {
+    width: 30px;
+    height: 30px;
+    border-radius: 50%;
+    background: var(--accent-soft);
+    color: var(--accent);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    flex-shrink: 0;
+  }
+
+  .person-btn .pname { flex: 1; font-size: 17px; font-weight: 800; min-width: 0; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+  .person-btn .pcount { font-size: 12px; color: var(--muted); font-weight: 600; }
+  .person-btn .chev { color: var(--muted); }
+
+  /* ---------- 月份 ---------- */
+  .month-bar {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 8px;
+    margin-bottom: 10px;
+  }
+
+  .nav-btn {
+    width: 42px;
+    height: 42px;
+    border-radius: 12px;
+    border: 1px solid var(--line);
+    background: #fff;
+    color: var(--accent);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    cursor: pointer;
+    box-shadow: var(--shadow);
+    flex-shrink: 0;
+  }
+
+  .nav-btn:active { transform: scale(0.95); }
+
+  .month-center { display: flex; align-items: center; gap: 10px; }
+
+  .year-select {
+    background: #fff;
+    color: var(--text);
+    border: 1px solid var(--line);
+    border-radius: 12px;
+    padding: 8px 10px;
+    font-size: 18px;
+    font-weight: 800;
+    cursor: pointer;
+    outline: none;
+    font-family: inherit;
+  }
+
+  .month-label { font-size: 22px; font-weight: 900; color: var(--accent); min-width: 64px; text-align: center; }
+
+  /* ---------- 主要動作 ---------- */
+  .action-bar {
+    display: grid;
+    grid-template-columns: repeat(3, 1fr);
+    gap: 8px;
+    margin-bottom: 10px;
+  }
+
+  .act-btn {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 6px;
+    padding: 12px 4px;
+    background: #fff;
+    border: 1px solid var(--line);
+    border-radius: var(--r-md);
+    box-shadow: var(--shadow);
+    color: var(--text2);
+    font-size: 14px;
+    font-weight: 800;
+    cursor: pointer;
+    white-space: nowrap;
+    transition: transform 0.12s, border-color 0.15s, color 0.15s;
+  }
+
+  .act-btn .ic { color: var(--accent); }
+  .act-btn:active { transform: scale(0.97); }
+  .act-btn.on { border-color: var(--accent); color: var(--accent); background: var(--accent-soft); }
+
+  /* ---------- 快速標記 ---------- */
+  .quick-panel {
+    display: none;
+    background: #fff;
+    border: 1px solid var(--accent-line);
+    border-radius: var(--r-md);
+    padding: 12px;
+    margin-bottom: 10px;
+    box-shadow: var(--shadow);
+  }
+
+  .quick-panel.open { display: block; animation: fadeDown 0.18s ease-out; }
+
+  @keyframes fadeDown {
+    from { opacity: 0; transform: translateY(-6px); }
+    to { opacity: 1; transform: none; }
+  }
+
+  .quick-panel textarea {
+    width: 100%;
+    min-height: 92px;
+    padding: 10px 12px;
+    font-size: 16px;
+    line-height: 1.5;
+    background: var(--card2);
+    border: 1.5px solid var(--line);
+    border-radius: var(--r-sm);
+    color: var(--text);
+    outline: none;
+    resize: vertical;
+  }
+
+  .quick-panel textarea:focus { border-color: var(--accent); }
+  .quick-panel textarea::placeholder { color: var(--muted); }
+
+  .quick-preview { font-size: 13px; font-weight: 700; color: var(--muted); margin: 8px 2px 10px; min-height: 18px; }
+  .quick-preview.ok { color: var(--blue); }
+
+  .btn-row { display: flex; gap: 8px; }
+
+  .btn {
+    flex: 1;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 6px;
+    padding: 13px 8px;
+    font-size: 15px;
+    font-weight: 800;
+    border: none;
+    border-radius: 12px;
+    cursor: pointer;
+    transition: transform 0.12s, opacity 0.15s;
+  }
+
+  .btn:active { transform: scale(0.97); }
+  .btn:disabled { opacity: 0.45; filter: grayscale(0.3); cursor: not-allowed; transform: none; }
+  .btn-primary { background: var(--accent); color: #fff; }
+  .btn-soft { background: var(--card2); color: var(--text); }
+  .btn-pink { background: var(--accent-soft); color: var(--accent); }
+  .btn-danger { background: var(--holiday); color: #fff; }
+
+  /* ---------- 月曆 ---------- */
+  .calendar {
+    background: var(--card);
+    border-radius: var(--r-lg);
+    box-shadow: var(--shadow);
+    overflow: hidden;
+    touch-action: pan-y;
+    overscroll-behavior: contain;
+    position: relative;
+    transition: height 0.22s ease;
+  }
+
+  .calendar-track {
+    display: flex;
+    align-items: flex-start;
+    width: 300%;
+    transition: transform 0.28s cubic-bezier(0.22, 1, 0.36, 1);
+    will-change: transform;
+  }
+
+  .calendar-track.no-anim { transition: none; }
+
+  .calendar-panel { width: 33.3333%; flex-shrink: 0; padding: 10px; }
+
+  .weekdays { display: grid; grid-template-columns: repeat(7, 1fr); margin-bottom: 4px; }
+
+  .weekdays div {
+    text-align: center;
+    padding: 8px 0;
+    font-size: 12px;
+    font-weight: 800;
+    color: var(--muted);
+  }
+
+  .weekdays div:first-child { color: var(--holiday); }
+  .weekdays div:last-child { color: var(--blue); }
+
+  .days { display: grid; grid-template-columns: repeat(7, 1fr); gap: 5px; }
+
+  .day {
+    min-height: 58px;
+    background: var(--day);
+    border-radius: 12px;
+    padding: 6px;
+    cursor: pointer;
+    position: relative;
+    display: flex;
+    flex-direction: column;
+    border: 2px solid transparent;
+    overflow: hidden;
+    user-select: none;
+    -webkit-user-select: none;
+    -webkit-touch-callout: none;
+    touch-action: manipulation;
+    transition: background 0.15s, transform 0.1s;
+  }
+
+  .day:active { transform: scale(0.96); }
+
+  @media (hover: hover) {
+    .day:hover { background: #edf1f7; }
+  }
+
+  .day.empty { background: transparent; cursor: default; pointer-events: none; }
+  .day.today { border-color: var(--today); background: var(--today-bg); }
+  .day.holiday { background: var(--holiday-bg); }
+  .day.holiday .day-num { color: var(--holiday); font-weight: 900; }
+
+  .day.holiday::after {
+    content: '';
+    position: absolute;
+    bottom: 5px;
+    right: 5px;
+    width: 6px;
+    height: 6px;
+    border-radius: 50%;
+    background: var(--holiday);
+  }
+
+  .day-num { font-size: 15px; font-weight: 800; color: var(--text); opacity: 0.85; line-height: 1; pointer-events: none; }
+  .day.sunday .day-num { color: var(--holiday); }
+  .day.saturday .day-num { color: var(--blue); }
+
+  .duty-badge { flex: 1; display: flex; align-items: center; justify-content: center; margin-top: 2px; pointer-events: none; }
+
+  .duty-dot {
+    width: 30px;
+    height: 30px;
+    flex-shrink: 0;
+    border-radius: 50%;
+    background: linear-gradient(135deg, var(--blue), var(--blue2));
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 13px;
+    font-weight: 800;
+    color: #fff;
+    box-shadow: 0 3px 10px rgba(59,130,246,0.35);
+    animation: pop 0.3s cubic-bezier(0.34, 1.56, 0.64, 1);
+  }
+
+  @keyframes pop {
+    0% { transform: scale(0.3); opacity: 0; }
+    60% { transform: scale(1.15); opacity: 1; }
+    100% { transform: scale(1); }
+  }
+
+  /* ---------- 卡片（統計、調班紀錄） ---------- */
+  .card {
+    background: #fff;
+    border-radius: var(--r-lg);
+    box-shadow: var(--shadow);
+    padding: 14px;
+    margin-top: 12px;
+  }
+
+  .card-head {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    margin-bottom: 10px;
+  }
+
+  .card-title { font-size: 16px; font-weight: 800; color: var(--text); }
+  .card-title small { font-size: 12px; font-weight: 700; color: var(--muted); margin-left: 4px; }
+  .card-head .spacer { flex: 1; }
+
+  .chip-btn {
+    display: inline-flex;
+    align-items: center;
+    gap: 4px;
+    padding: 6px 10px;
+    border: none;
+    border-radius: 999px;
+    background: var(--card2);
+    color: var(--text2);
+    font-size: 12px;
+    font-weight: 800;
+    cursor: pointer;
+  }
+
+  .chip-btn:active { background: var(--line); }
+
+  .stat-row {
+    display: flex;
+    gap: 10px;
+    align-items: baseline;
+    padding: 6px 2px;
+    font-size: 15px;
+    line-height: 1.6;
+  }
+
+  .stat-k { flex-shrink: 0; width: 64px; color: var(--muted); font-weight: 700; font-size: 13px; }
+  .stat-v { flex: 1; min-width: 0; font-weight: 800; color: var(--text); word-break: break-all; }
+  .stat-v.now { color: var(--blue); }
+  .stat-v .gone { color: #a3aab6; text-decoration: line-through; font-weight: 700; }
+  .stat-v .add { color: #d97706; }
+  .stat-empty { color: var(--muted); font-size: 14px; font-weight: 600; padding: 4px 2px; }
+
+  /* 調班紀錄卡 */
+  .rc-list { display: flex; flex-direction: column; gap: 10px; }
+
+  .rc {
+    background: #fbfcfe;
+    border: 1px solid var(--line);
+    border-radius: 16px;
+    padding: 12px 12px 10px;
+    animation: fadeDown 0.18s ease-out;
+  }
+
+  .rc-top { display: flex; align-items: center; gap: 8px; margin-bottom: 10px; }
+
+  .rc-ico {
+    width: 28px;
+    height: 28px;
+    border-radius: 9px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    flex-shrink: 0;
+  }
+
+  .rc-ico.swap { background: var(--orange-soft); color: #d97706; }
+  .rc-ico.cover { background: var(--blue-soft); color: var(--blue); }
+  .rc-ico.help { background: var(--accent-soft); color: var(--accent); }
+
+  .rc-title { flex: 1; min-width: 0; font-size: 16px; font-weight: 800; color: var(--text); overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+  .rc-reg { flex-shrink: 0; font-size: 12px; color: var(--muted); font-weight: 600; }
+
+  .rc-body {
+    display: grid;
+    grid-template-columns: 1fr 28px 1fr;
+    align-items: center;
+    gap: 4px;
+    background: #fff;
+    border-radius: 12px;
+    padding: 10px 8px;
+  }
+
+  .rc-col { min-width: 0; text-align: center; }
+  .rc-lab { font-size: 13px; font-weight: 700; color: var(--text2); }
+  .rc-date { font-size: 24px; font-weight: 900; color: var(--text); line-height: 1.25; letter-spacing: 0.5px; }
+  .rc-date small { font-size: 12px; font-weight: 700; color: var(--muted); margin-left: 3px; letter-spacing: 0; }
+  .rc-date.out { color: #9aa1ad; }
+  .rc-date.in { color: var(--blue); }
+  .rc-who { font-size: 17px; font-weight: 800; color: var(--text); line-height: 1.6; }
+  .rc-sub { font-size: 13px; font-weight: 700; color: var(--text2); margin-top: 1px; overflow-wrap: anywhere; }
+  .rc-arrow { display: flex; justify-content: center; color: #b3bac6; }
+
+  .rc-foot { display: flex; align-items: center; gap: 8px; margin-top: 8px; min-height: 28px; }
+  .rc-foot .spacer { flex: 1; }
+
+  .owe-chip {
+    display: inline-flex;
+    align-items: center;
+    gap: 4px;
+    padding: 5px 10px;
+    border: none;
+    border-radius: 999px;
+    font-size: 12px;
+    font-weight: 800;
+    cursor: pointer;
+    background: var(--orange-soft);
+    color: #b45309;
+  }
+
+  .owe-chip.done { background: var(--green-soft); color: var(--green); }
+
+  .rc-del {
+    border: none;
+    background: none;
+    color: #a3aab6;
+    font-size: 12px;
+    font-weight: 700;
+    padding: 6px 4px;
+    cursor: pointer;
+    display: inline-flex;
+    align-items: center;
+    gap: 3px;
+  }
+
+  .rc-del:active { color: var(--holiday); }
+
+  .rc-more {
+    width: 100%;
+    margin-top: 10px;
+    padding: 10px;
+    border: none;
+    border-radius: 12px;
+    background: var(--card2);
+    color: var(--text2);
+    font-size: 13px;
+    font-weight: 800;
+    cursor: pointer;
+  }
+
+  .rc-empty {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    color: var(--muted);
+    font-size: 14px;
+    font-weight: 600;
+    padding: 2px;
+  }
+
+  .owe-sum {
+    margin-top: 10px;
+    padding: 9px 12px;
+    border-radius: 12px;
+    background: var(--orange-soft);
+    color: #92400e;
+    font-size: 13px;
+    font-weight: 700;
+    line-height: 1.7;
+  }
+
+  /* ---------- 頁尾 ---------- */
+  .footer-btn {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 6px;
+    margin: 18px auto 0;
+    padding: 10px 18px;
     border: none;
     border-radius: 999px;
     background: transparent;
-    color: #d1d5db;
-    font-size: 10px;
+    color: var(--muted);
+    font-size: 13px;
     font-weight: 700;
-    letter-spacing: 1px;
-    font-family: inherit;
     cursor: pointer;
-    touch-action: manipulation;
   }
 
-  .version-tag:active { color: var(--accent); }
+  .footer-btn:active { background: var(--card2); }
+
+  /* ---------- 提示訊息 ---------- */
+  .toast {
+    position: fixed;
+    bottom: calc(28px + env(safe-area-inset-bottom));
+    left: 50%;
+    transform: translateX(-50%) translateY(80px);
+    background: #1f2937;
+    color: #fff;
+    padding: 12px 22px;
+    border-radius: 12px;
+    font-size: 14px;
+    font-weight: 600;
+    box-shadow: 0 8px 30px rgba(0,0,0,0.2);
+    opacity: 0;
+    transition: all 0.3s cubic-bezier(0.16, 1, 0.3, 1);
+    z-index: 300;
+    pointer-events: none;
+    max-width: 90vw;
+    text-align: center;
+  }
+
+  .toast.show { transform: translateX(-50%) translateY(0); opacity: 1; }
+
+  /* ---------- 彈出視窗 ---------- */
+  .modal-overlay {
+    display: none;
+    position: fixed;
+    inset: 0;
+    background: rgba(31,41,55,0.38);
+    -webkit-backdrop-filter: blur(4px);
+    backdrop-filter: blur(4px);
+    justify-content: center;
+    align-items: center;
+    padding: 16px;
+    z-index: 120;
+  }
+
+  .modal-overlay.active { display: flex; animation: fadeIn 0.16s ease-out; }
+  .modal-overlay.top { z-index: 200; }
+
+  @keyframes fadeIn { from { opacity: 0; } to { opacity: 1; } }
+
+  .modal {
+    background: #fff;
+    border-radius: 22px;
+    padding: 22px 18px 18px;
+    width: 100%;
+    max-width: 420px;
+    max-height: 92vh;
+    overflow-y: auto;
+    box-shadow: var(--shadow-lg);
+    animation: popIn 0.2s cubic-bezier(0.2, 0.9, 0.3, 1.1);
+  }
+
+  @keyframes popIn {
+    from { opacity: 0; transform: translateY(10px) scale(0.98); }
+    to { opacity: 1; transform: none; }
+  }
+
+  .modal h2 { font-size: 18px; font-weight: 800; margin-bottom: 14px; color: var(--text); display: flex; align-items: center; gap: 8px; }
+  .modal h2 .ic { color: var(--accent); }
+
+  .modal-holiday {
+    display: none;
+    font-size: 14px;
+    font-weight: 700;
+    color: var(--holiday);
+    background: var(--holiday-bg);
+    border-radius: 10px;
+    padding: 8px 12px;
+    margin-bottom: 12px;
+  }
+
+  .field {
+    width: 100%;
+    padding: 13px 14px;
+    font-size: 16px;
+    background: var(--card2);
+    border: 1.5px solid var(--line);
+    border-radius: 12px;
+    color: var(--text);
+    outline: none;
+    margin-bottom: 14px;
+  }
+
+  .field:focus { border-color: var(--accent); background: #fff; }
+  .field::placeholder { color: var(--muted); }
+
+  .note-quick { display: flex; gap: 8px; margin: -4px 0 14px; }
+  .note-quick .btn { padding: 11px 6px; font-size: 14px; }
+
+  .confirm-msg { font-size: 15px; line-height: 1.7; color: var(--text2); margin: -4px 0 18px; white-space: pre-line; }
+
+  /* ---------- 底部滑出選單 ---------- */
+  .sheet-overlay {
+    display: none;
+    position: fixed;
+    inset: 0;
+    background: rgba(31,41,55,0.38);
+    z-index: 110;
+    align-items: flex-end;
+    justify-content: center;
+  }
+
+  .sheet-overlay.active { display: flex; animation: fadeIn 0.16s ease-out; }
+
+  .sheet {
+    width: 100%;
+    max-width: 640px;
+    max-height: 86vh;
+    display: flex;
+    flex-direction: column;
+    background: #fff;
+    border-radius: 22px 22px 0 0;
+    padding: 8px 16px calc(16px + env(safe-area-inset-bottom));
+    box-shadow: var(--shadow-lg);
+    animation: slideUp 0.24s cubic-bezier(0.2, 0.9, 0.3, 1);
+  }
+
+  @keyframes slideUp { from { transform: translateY(100%); } to { transform: none; } }
+
+  .sheet-grip { width: 38px; height: 5px; border-radius: 3px; background: #dfe3ea; margin: 4px auto 12px; flex-shrink: 0; }
+
+  .sheet-head { display: flex; align-items: baseline; gap: 8px; margin-bottom: 12px; flex-shrink: 0; }
+  .sheet-head h2 { font-size: 18px; font-weight: 800; }
+  .sheet-head .count { font-size: 13px; color: var(--muted); font-weight: 700; }
+  .sheet-head .spacer { flex: 1; }
+
+  .sheet-close {
+    border: none;
+    background: var(--card2);
+    color: var(--text2);
+    width: 32px;
+    height: 32px;
+    border-radius: 50%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    cursor: pointer;
+    align-self: center;
+  }
+
+  .sheet-scroll { overflow-y: auto; -webkit-overflow-scrolling: touch; flex: 1; min-height: 0; margin: 0 -4px; padding: 0 4px; }
+
+  .search-box { position: relative; margin-bottom: 12px; flex-shrink: 0; }
+  .search-box .ic { position: absolute; left: 12px; top: 50%; transform: translateY(-50%); color: var(--muted); }
+  .search-box input {
+    width: 100%;
+    padding: 11px 12px 11px 38px;
+    font-size: 16px;
+    border: 1.5px solid var(--line);
+    border-radius: 12px;
+    background: var(--card2);
+    outline: none;
+    color: var(--text);
+  }
+  .search-box input:focus { border-color: var(--accent); background: #fff; }
+
+  .group-label { font-size: 12px; font-weight: 800; color: var(--muted); letter-spacing: 1px; margin: 4px 2px 8px; }
+
+  .recent-row { display: flex; flex-wrap: wrap; gap: 8px; margin-bottom: 14px; }
+
+  .name-chip {
+    padding: 8px 14px;
+    border-radius: 999px;
+    border: 1.5px solid var(--line);
+    background: #fff;
+    color: var(--text);
+    font-size: 14px;
+    font-weight: 700;
+    cursor: pointer;
+    max-width: 100%;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    white-space: nowrap;
+  }
+
+  .name-chip.on { border-color: var(--accent); color: var(--accent); background: var(--accent-soft); }
+
+  .list { background: var(--card2); border-radius: 14px; overflow: hidden; margin-bottom: 14px; }
+
+  .list-row {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+    width: 100%;
+    padding: 13px 14px;
+    border: none;
+    background: #fff;
+    border-bottom: 1px solid var(--line);
+    font-size: 16px;
+    font-weight: 700;
+    color: var(--text);
+    cursor: pointer;
+    text-align: left;
+  }
+
+  .list-row:last-child { border-bottom: none; }
+  .list-row:active { background: var(--card2); }
+  .list-row .grow { flex: 1; min-width: 0; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+  .list-row .meta { font-size: 12px; color: var(--muted); font-weight: 600; flex-shrink: 0; }
+  .list-row .check { color: var(--accent); }
+  .list-row .row-ic { color: var(--accent); }
+  .list-row .chev { color: #c4c9d2; }
+  .list-row.danger, .list-row.danger .row-ic { color: var(--holiday); }
+  .list-row .sub { display: block; font-size: 12px; font-weight: 600; color: var(--muted); margin-top: 2px; }
+
+  .list-empty { padding: 16px; text-align: center; color: var(--muted); font-size: 14px; background: #fff; }
+
+  .add-row { display: flex; gap: 8px; flex-shrink: 0; }
+  .add-row input {
+    flex: 1;
+    min-width: 0;
+    padding: 12px 14px;
+    font-size: 16px;
+    border: 1.5px solid var(--line);
+    border-radius: 12px;
+    background: var(--card2);
+    outline: none;
+    color: var(--text);
+  }
+  .add-row input:focus { border-color: var(--accent); background: #fff; }
+  .add-row .btn { flex: 0 0 auto; padding: 12px 18px; }
+
+  /* ---------- 調班視窗 ---------- */
+  .seg {
+    display: grid;
+    grid-template-columns: repeat(3, 1fr);
+    gap: 4px;
+    background: #f2f4fa;
+    border: 1px solid #e9ecf3;
+    border-radius: 15px;
+    padding: 5px;
+    margin-bottom: 12px;
+  }
+
+  .seg button {
+    border: none;
+    background: transparent;
+    border-radius: 11px;
+    min-height: 42px;
+    padding: 6px 2px;
+    font-size: 14px;
+    font-weight: 800;
+    color: var(--text2);
+    cursor: pointer;
+    transition: background 0.16s, color 0.16s;
+  }
+
+  .seg button.on { background: #fff; color: var(--accent); box-shadow: 0 2px 10px rgba(51,64,93,0.10); }
+
+  .swap-hint {
+    font-size: 13px;
+    font-weight: 800;
+    color: #bf6080;
+    background: var(--accent-soft);
+    padding: 9px 12px;
+    border-radius: 11px;
+    margin-bottom: 10px;
+  }
+
+  .swap-hint.done { color: #187d6c; background: #eaf9f4; }
+
+  .date-row { display: grid; grid-template-columns: 1fr 1fr; gap: 8px; margin-bottom: 10px; }
+  .date-row.one { grid-template-columns: 1fr; }
+
+  .date-field {
+    display: flex;
+    flex-direction: column;
+    align-items: flex-start;
+    gap: 2px;
+    min-height: 66px;
+    padding: 10px 12px;
+    background: #f8f9fd;
+    border: 1.5px solid #e9ecf3;
+    border-radius: 15px;
+    cursor: pointer;
+    text-align: left;
+    transition: border-color 0.16s, background 0.16s;
+  }
+
+  .date-field.active { border-color: #e98cab; background: #fff0f5; box-shadow: 0 0 0 2px rgba(233,140,171,0.10); }
+  .df-label { font-size: 12px; font-weight: 700; color: var(--text2); }
+  .df-val { font-size: 18px; font-weight: 900; color: var(--text); }
+  .df-val.empty { color: #b8bec9; font-weight: 700; font-size: 15px; }
+
+  .mini-cal { background: #f6f8fc; border: 1px solid #edf0f6; border-radius: 18px; padding: 10px; margin-bottom: 12px; }
+  .mc-head { display: flex; align-items: center; justify-content: space-between; margin-bottom: 6px; }
+
+  .mc-head button {
+    width: 36px;
+    height: 36px;
+    border: none;
+    border-radius: 10px;
+    background: #fff;
+    color: var(--accent);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    cursor: pointer;
+    box-shadow: 0 2px 7px rgba(39,52,84,0.07);
+  }
+
+  .mc-title { font-size: 15px; font-weight: 900; color: var(--text); }
+
+  .mc-week, .mc-days { display: grid; grid-template-columns: repeat(7, 1fr); gap: 4px; }
+  .mc-week div { text-align: center; font-size: 11px; font-weight: 800; color: var(--muted); padding: 4px 0; }
+
+  .mc-day {
+    min-height: 36px;
+    border: none;
+    border-radius: 10px;
+    background: #fff;
+    font-size: 14px;
+    font-weight: 800;
+    color: var(--text);
+    cursor: pointer;
+    padding: 0;
+    box-shadow: 0 1px 3px rgba(37,52,82,0.05);
+  }
+
+  .mc-day.blank { background: transparent; box-shadow: none; pointer-events: none; }
+  .mc-day.on { background: #548bdb; color: #fff; }
+  .mc-day.sel-out { background: #9298a9; color: #fff; text-decoration: line-through; }
+  .mc-day.sel-in { background: #f4b55b; color: #543c18; }
+
+  .mc-legend { display: flex; gap: 12px; justify-content: center; font-size: 11px; color: var(--text2); margin-top: 8px; }
+  .mc-legend i { display: inline-block; width: 10px; height: 10px; border-radius: 3px; margin-right: 4px; vertical-align: -1px; }
+
+  .field-label { font-size: 12px; font-weight: 800; color: var(--text2); margin: 0 2px 6px; }
+  .swap-who { margin-bottom: 8px; }
+  .who-chips { display: flex; flex-wrap: wrap; gap: 6px; margin-bottom: 12px; }
+  .who-chips .name-chip { padding: 6px 12px; font-size: 13px; }
+
+  .swap-preview-wrap { margin-bottom: 14px; }
+  .swap-preview-empty {
+    font-size: 14px;
+    color: var(--muted);
+    background: #f8f9fd;
+    border: 1px solid #e9ecf3;
+    border-radius: 15px;
+    padding: 12px;
+  }
+
+  /* ---------- 說明、安裝、更新紀錄 ---------- */
+  .help-list { list-style: none; margin: 0 0 18px; }
+
+  .help-list li {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+    padding: 10px 0;
+    font-size: 15px;
+    color: var(--text);
+    border-bottom: 1px solid var(--line);
+  }
+
+  .help-list li:last-child { border-bottom: none; }
+
+  .help-icon {
+    width: 34px;
+    height: 34px;
+    flex-shrink: 0;
+    border-radius: 10px;
+    background: var(--accent-soft);
+    color: var(--accent);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-weight: 900;
+  }
+
+  .help-list b { color: var(--accent); font-weight: 800; }
+
+  .install-head { display: flex; align-items: center; gap: 14px; margin-bottom: 14px; }
+  .install-head img { width: 56px; height: 56px; border-radius: 14px; box-shadow: 0 4px 14px rgba(255,77,109,0.18); }
+  .install-head h2 { margin: 0; }
+  .install-sub { font-size: 13px; color: var(--muted); margin-top: 4px; }
+  .install-note { font-size: 12px; color: var(--muted); text-align: center; margin: -8px 0 16px; line-height: 1.6; }
 
   .log-list { max-height: 55vh; overflow-y: auto; margin: 0 0 16px; }
-  .log-ver { padding: 10px 0; border-bottom: 1px solid var(--border); }
+  .log-ver { padding: 10px 0; border-bottom: 1px solid var(--line); }
   .log-ver:last-child { border-bottom: none; }
   .log-ver-head { display: flex; align-items: baseline; gap: 8px; margin-bottom: 4px; }
   .log-ver-no { font-size: 15px; font-weight: 900; color: var(--accent); }
@@ -215,979 +1033,34 @@
   .log-ver ul { margin: 0; padding-left: 18px; }
   .log-ver li { font-size: 13px; line-height: 1.7; color: var(--text); }
 
-  .signature::after {
-    content: ' ·';
-    opacity: 0.5;
-    font-style: normal;
-  }
-
-  .topbar {
+  /* ---------- 雲端、備份 ---------- */
+  .cloud-status {
     display: flex;
     align-items: center;
-    justify-content: center;
-    gap: 14px;
-    margin-bottom: 12px;
-  }
-
-  .year-month {
-    display: flex;
-    align-items: center;
-    gap: 14px;
-    justify-content: center;
-  }
-
-  .year-select {
-    background: #fff;
-    color: var(--text);
-    border: 2px solid var(--border);
-    border-radius: 12px;
-    padding: 10px 16px;
-    font-size: 22px;
-    font-weight: 800;
-    cursor: pointer;
-    outline: none;
-    transition: border-color 0.15s;
-  }
-
-  .year-select:hover { border-color: var(--accent); }
-
-  .month-label {
-    font-size: 24px;
-    font-weight: 800;
-    color: var(--accent);
-    min-width: 90px;
-    text-align: center;
-  }
-
-  .bottom-bar {
-    margin: 0 0 14px;
-    display: grid;
-    grid-template-columns: repeat(3, 1fr);
     gap: 10px;
-  }
-
-  .bottom-bar .mini-btn { justify-content: center; }
-
-  .reset-bar {
-    display: flex;
-    justify-content: center;
-    align-items: center;
-    gap: 6px;
-    margin-top: 18px;
-  }
-
-  .text-btn {
-    background: none;
-    border: none;
-    color: var(--muted);
-    font-size: 13px;
-    font-weight: 600;
-    padding: 8px 10px;
-    cursor: pointer;
-    font-family: inherit;
-    touch-action: manipulation;
-  }
-
-  .text-btn:active { color: var(--holiday); }
-
-  .reset-sep { color: #d1d5db; font-size: 12px; }
-
-  /* ---------- 存到桌面／分享給朋友 ---------- */
-  .app-bar {
-    display: grid;
-    grid-template-columns: 1fr 1fr;
-    gap: 10px;
-    margin-top: 16px;
-  }
-
-  .app-bar.one { grid-template-columns: 1fr; }
-
-  .app-btn {
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    gap: 6px;
-    padding: 13px 8px;
-    background: #fff5f7;
-    color: var(--accent);
-    border: 2px solid #ffd0d8;
-    border-radius: 14px;
-    font-size: 14px;
-    font-weight: 800;
-    font-family: inherit;
-    cursor: pointer;
-    touch-action: manipulation;
-    transition: all 0.15s;
-  }
-
-  .app-btn:active { background: #ffe5ea; transform: scale(0.98); }
-
-  .install-head {
-    display: flex;
-    align-items: center;
-    gap: 14px;
-    margin-bottom: 16px;
-  }
-
-  .install-head img {
-    width: 56px;
-    height: 56px;
-    border-radius: 14px;
-    box-shadow: 0 4px 14px rgba(255,77,109,0.18);
-  }
-
-  .install-head h2 { margin: 0; }
-
-  .install-sub {
-    font-size: 13px;
-    color: var(--muted);
-    margin-top: 4px;
-  }
-
-  .install-note {
-    font-size: 12px;
-    color: var(--muted);
-    text-align: center;
-    margin: -8px 0 16px;
-    line-height: 1.6;
-  }
-
-  /* App 模式：避開瀏海與底部橫條 */
-  @media (display-mode: standalone) {
-    body {
-      padding-top: calc(12px + env(safe-area-inset-top));
-      padding-bottom: calc(24px + env(safe-area-inset-bottom));
-    }
-  }
-
-  .mini-btn {
-    background: #fff;
-    color: #6b7280;
-    border: 2px solid var(--border);
+    background: var(--card2);
     border-radius: 12px;
-    padding: 10px 18px;
-    font-size: 14px;
-    font-weight: 700;
-    cursor: pointer;
-    transition: all 0.15s;
-    display: flex;
-    align-items: center;
-    gap: 6px;
-    white-space: nowrap;
-    touch-action: manipulation;
-  }
-
-  .mini-btn:hover {
-    background: var(--card2);
-    border-color: var(--accent);
-    color: var(--accent);
-    transform: translateY(-1px);
-  }
-
-  .mini-btn.danger:hover {
-    border-color: var(--holiday);
-    color: var(--holiday);
-  }
-
-  .mini-btn.on {
-    border-color: var(--accent);
-    color: var(--accent);
-  }
-
-  @media (hover: none) {
-    .mini-btn:hover {
-      background: #fff;
-      border-color: var(--border);
-      color: #6b7280;
-      transform: none;
-    }
-    .mini-btn.danger:hover {
-      border-color: var(--border);
-      color: #6b7280;
-    }
-    .mini-btn.on, .mini-btn.on:hover {
-      border-color: var(--accent);
-      color: var(--accent);
-    }
-  }
-
-  /* ---------- 快速標記面板 ---------- */
-  .quick-panel {
-    display: none;
-    background: #fff;
-    border: 2px solid #ffd0d8;
-    border-radius: 14px;
-    padding: 12px;
-    margin: 0 0 14px;
-  }
-
-  .quick-panel.open { display: block; }
-
-  .quick-panel textarea {
-    width: 100%;
-    min-height: 96px;
-    padding: 10px 12px;
-    line-height: 1.5;
-    font-size: 16px;
-    font-family: inherit;
-    background: var(--card2);
-    border: 2px solid var(--border);
-    border-radius: 10px;
-    color: var(--text);
-    outline: none;
-    resize: vertical;
-  }
-
-  .quick-panel textarea:focus { border-color: var(--accent); }
-  .quick-panel textarea::placeholder { color: var(--muted); }
-
-  .quick-preview {
-    font-size: 13px;
-    font-weight: 700;
-    color: var(--muted);
-    margin: 8px 2px 10px;
-    min-height: 18px;
-  }
-
-  .quick-preview.ok { color: var(--accent2); }
-
-  .quick-btns { display: flex; gap: 8px; }
-
-  .quick-btns button {
-    flex: 1;
-    padding: 12px;
-    font-size: 15px;
-    font-weight: 700;
-    border: none;
-    border-radius: 10px;
-    cursor: pointer;
-    touch-action: manipulation;
-  }
-
-  .quick-go { background: var(--accent); color: #fff; }
-  .quick-clear { background: var(--card2); color: var(--text); }
-  .quick-paste { background: #fff5f7; color: var(--accent); border: 2px solid #ffd0d8 !important; }
-
-  /* 輸入框一定要能選字、長按出現「貼上」 */
-  input, textarea {
-    -webkit-user-select: text;
-    user-select: text;
-    -webkit-touch-callout: default;
-  }
-
-  .calendar {
-    background: var(--card);
-    border-radius: 20px;
-    box-shadow: 0 4px 28px rgba(31,41,55,0.09);
-    overflow: hidden;
-    touch-action: pan-y;
-    overscroll-behavior: contain;
-    position: relative;
-  }
-
-  .calendar-track {
-    display: flex;
-    width: 300%;
-    transition: transform 0.28s cubic-bezier(0.22, 1, 0.36, 1);
-    will-change: transform;
-  }
-
-  .calendar-track.no-anim { transition: none; }
-
-  .calendar-panel {
-    width: 33.3333%;
-    flex-shrink: 0;
-    padding: 14px;
-  }
-
-  .weekdays {
-    display: grid;
-    grid-template-columns: repeat(7, 1fr);
-    margin-bottom: 8px;
-  }
-
-  .weekdays div {
-    text-align: center;
-    padding: 12px 0;
-    font-size: 15px;
-    font-weight: 800;
-    color: var(--muted);
-    letter-spacing: 1px;
-  }
-
-  .weekdays div:first-child { color: var(--holiday); }
-  .weekdays div:last-child { color: var(--accent2); }
-
-  .days {
-    display: grid;
-    grid-template-columns: repeat(7, 1fr);
-    gap: 7px;
-  }
-
-  .day {
-    min-height: 74px;
-    background: var(--card2);
-    border-radius: 14px;
-    padding: 10px;
-    cursor: pointer;
-    position: relative;
-    transition: all 0.15s;
-    display: flex;
-    flex-direction: column;
-    border: 2px solid transparent;
-    overflow: hidden;
-    user-select: none;
-    -webkit-user-select: none;
-    -webkit-touch-callout: none;
-    -webkit-tap-highlight-color: transparent;
-    touch-action: manipulation;
-  }
-
-  @media (hover: hover) {
-    .day:hover {
-      background: var(--card-hover);
-      transform: translateY(-2px);
-    }
-  }
-
-  .day.empty {
-    background: transparent;
-    cursor: default;
-    pointer-events: none;
-  }
-
-  .day.today {
-    border-color: var(--today);
-    background: var(--today-bg);
-  }
-
-  .day.holiday { background: var(--holiday-bg); }
-
-  .day.holiday .day-num {
-    color: var(--holiday);
-    font-weight: 900;
-  }
-
-  .day.holiday::after {
-    content: '';
-    position: absolute;
-    bottom: 6px;
-    right: 6px;
-    width: 7px;
-    height: 7px;
-    border-radius: 50%;
-    background: var(--holiday);
-  }
-
-  .day-num {
-    font-size: 17px;
-    font-weight: 800;
-    color: var(--text);
-    opacity: 0.85;
-    line-height: 1;
-    pointer-events: none;
-  }
-
-  .day.sunday .day-num { color: var(--holiday); }
-  .day.saturday .day-num { color: var(--accent2); }
-
-  .duty-badge {
-    flex: 1;
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    margin-top: 3px;
-    pointer-events: none;
-  }
-
-  .duty-dot {
-    width: 40px;
-    height: 40px;
-    aspect-ratio: 1 / 1;
-    flex-shrink: 0;
-    border-radius: 50%;
-    background: linear-gradient(135deg, var(--duty), var(--duty2));
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    font-size: 17px;
-    font-weight: 800;
-    color: #fff;
-    box-shadow: 0 4px 12px rgba(59,130,246,0.4);
-    animation: pop 0.3s cubic-bezier(0.34, 1.56, 0.64, 1);
-  }
-
-  @keyframes pop {
-    0% { transform: scale(0.3); opacity: 0; }
-    60% { transform: scale(1.15); opacity: 1; }
-    100% { transform: scale(1); }
-  }
-
-  .toast {
-    position: fixed;
-    bottom: 32px;
-    left: 50%;
-    transform: translateX(-50%) translateY(80px);
-    background: #1f2937;
-    color: #fff;
-    padding: 13px 26px;
-    border-radius: 12px;
-    font-size: 15px;
-    font-weight: 600;
-    border: 1px solid var(--accent);
-    box-shadow: 0 8px 30px rgba(0,0,0,0.2);
-    opacity: 0;
-    transition: all 0.3s cubic-bezier(0.16, 1, 0.3, 1);
-    z-index: 200;
-    pointer-events: none;
-    max-width: 90vw;
-    text-align: center;
-  }
-
-  .toast.show {
-    transform: translateX(-50%) translateY(0);
-    opacity: 1;
-  }
-
-  .modal-overlay {
-    display: none;
-    position: fixed;
-    inset: 0;
-    background: rgba(31,41,55,0.4);
-    backdrop-filter: blur(4px);
-    justify-content: center;
-    align-items: center;
-    padding: 16px;
-    z-index: 100;
-  }
-
-  .modal-overlay.active { display: flex; }
-
-  .modal {
-    background: var(--card);
-    border: 1px solid var(--border);
-    border-radius: 18px;
-    padding: 28px;
-    width: 100%;
-    max-width: 400px;
-    box-shadow: 0 20px 60px rgba(0,0,0,0.15);
-  }
-
-  .modal h2 {
-    font-size: 18px;
+    padding: 12px 14px;
     margin-bottom: 14px;
-    color: var(--text);
-  }
-
-  .modal-holiday {
-    display: none;
     font-size: 14px;
     font-weight: 700;
-    color: var(--holiday);
-    background: var(--holiday-bg);
-    border-radius: 10px;
-    padding: 8px 12px;
-    margin-bottom: 14px;
-    letter-spacing: 1px;
-  }
-
-  .modal input {
-    width: 100%;
-    padding: 14px 16px;
-    font-size: 17px;
-    background: var(--card2);
-    border: 2px solid var(--border);
-    border-radius: 12px;
-    color: var(--text);
-    margin-bottom: 18px;
-    outline: none;
-    transition: border-color 0.15s;
-  }
-
-  .modal input:focus { border-color: var(--accent); }
-  .modal input::placeholder { color: var(--muted); }
-
-  .modal-btns { display: flex; gap: 10px; }
-
-  .modal-btns button {
-    flex: 1;
-    padding: 14px;
-    font-size: 15px;
-    border: none;
-    border-radius: 12px;
-    cursor: pointer;
-    font-weight: 700;
-    transition: all 0.15s;
-    touch-action: manipulation;
-  }
-
-  .btn-save { background: var(--accent); color: #fff; }
-  .btn-save:hover { opacity: 0.85; }
-
-  .btn-delete { background: var(--card2); color: var(--muted); }
-  .btn-delete:hover { color: var(--accent); }
-
-  .btn-cancel { background: var(--card2); color: var(--text); }
-  .btn-cancel:hover { background: var(--card-hover); }
-
-  /* ---------- 使用說明 ---------- */
-  .help-list { list-style: none; margin: 4px 0 20px; }
-
-  .help-list li {
-    display: flex;
-    align-items: center;
-    gap: 12px;
-    padding: 10px 0;
-    font-size: 15px;
-    color: var(--text);
-    border-bottom: 1px solid var(--border);
-  }
-
-  .help-list li:last-child { border-bottom: none; }
-
-  .help-icon {
-    width: 34px;
-    height: 34px;
-    flex-shrink: 0;
-    border-radius: 50%;
-    background: var(--card2);
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    font-size: 16px;
-  }
-
-  .help-icon.dot {
-    background: linear-gradient(135deg, var(--duty), var(--duty2));
-    color: #fff;
-    font-weight: 800;
-    font-size: 15px;
-  }
-
-  .help-list b { color: var(--accent); font-weight: 800; }
-
-  .help-link {
-    cursor: pointer;
-    color: #ffb3c0;
-    font-weight: 800;
-    margin-left: 2px;
-  }
-
-  /* ---------- 產圖預覽 ---------- */
-  .modal.img-box { padding: 18px; max-width: 460px; }
-
-  .img-box img {
-    width: 100%;
-    max-height: 62vh;
-    object-fit: contain;
-    border-radius: 12px;
-    display: block;
-    background: var(--bg);
-  }
-
-  .img-tip {
-    font-size: 12px;
-    color: var(--muted);
-    text-align: center;
-    margin: 10px 0 14px;
-  }
-
-  @media (max-width: 600px) {
-    body { padding: 12px 8px 24px; }
-
-    .brand {
-      font-size: 18px;
-      padding: 14px;
-      letter-spacing: 5px;
-      text-indent: 5px;
-      margin-bottom: 8px;
-    }
-    .brand-hint { display: none; }
-
-    .tagline {
-      font-size: 11px;
-      gap: 8px;
-      margin: 0 0 3px;
-      letter-spacing: 1.5px;
-    }
-
-    .signature {
-      font-size: 9px;
-      letter-spacing: 4px;
-      margin: 3px 0 12px;
-    }
-
-    .topbar { margin-bottom: 10px; }
-    .year-month { justify-content: center; gap: 10px; }
-    .year-select, .month-label { font-size: 19px; }
-    .year-select { padding: 8px 12px; }
-
-    .bottom-bar { gap: 8px; margin: 0 0 12px; }
-    .mini-btn { padding: 11px 6px; font-size: 13px; gap: 4px; }
-
-    .quick-panel { margin: 0 0 12px; }
-
-    .calendar-panel { padding: 8px; }
-
-    .weekdays div {
-      padding: 9px 0;
-      font-size: 12px;
-      letter-spacing: 0;
-    }
-
-    .days { gap: 4px; }
-
-    .day { min-height: 54px; border-radius: 11px; padding: 6px; }
-    .day-num { font-size: 14px; }
-
-    .duty-dot {
-      width: 28px;
-      height: 28px;
-      aspect-ratio: 1 / 1;
-      flex-shrink: 0;
-      font-size: 12px;
-    }
-
-    .day.holiday::after {
-      bottom: 4px;
-      right: 4px;
-      width: 6px;
-      height: 6px;
-    }
-  }
-
-  /* ================= 多人版新增 ================= */
-
-  /* ---------- 人名列 ---------- */
-  .people-bar {
-    display: flex;
-    gap: 8px;
-    overflow-x: auto;
-    padding: 2px 2px 10px;
-    margin: 0 0 4px;
-    -webkit-overflow-scrolling: touch;
-    scrollbar-width: none;
-  }
-
-  .people-bar::-webkit-scrollbar { display: none; }
-
-  .person-chip {
-    flex-shrink: 0;
-    padding: 9px 16px;
-    border-radius: 999px;
-    background: #fff;
-    border: 2px solid var(--border);
-    color: #6b7280;
-    font-size: 14px;
-    font-weight: 800;
-    font-family: inherit;
-    cursor: pointer;
-    white-space: nowrap;
-    touch-action: manipulation;
-    -webkit-user-select: none;
-    user-select: none;
-    -webkit-touch-callout: none;
-    -webkit-tap-highlight-color: transparent;
-  }
-
-  .person-chip.active {
-    background: var(--accent);
-    border-color: var(--accent);
-    color: #fff;
-    box-shadow: 0 3px 10px rgba(255,77,109,0.25);
-  }
-
-  .person-chip.add {
-    border-style: dashed;
-    border-color: #ffb3c0;
-    color: var(--accent);
-    background: #fff5f7;
-  }
-
-  /* ---------- 調班紀錄卡 ---------- */
-  .records {
-    display: none;
-    background: #fff;
-    border-radius: 18px;
-    box-shadow: 0 4px 20px rgba(31,41,55,0.07);
-    padding: 16px;
-    margin-top: 14px;
-  }
-
-  .records.show { display: block; }
-
-  .rec-sum {
-    background: var(--card2);
-    border-radius: 12px;
-    padding: 10px 14px;
-    margin-bottom: 14px;
-  }
-
-  .rec-sum div {
-    display: flex;
-    gap: 10px;
-    padding: 4px 0;
-    font-size: 15px;
     line-height: 1.5;
   }
 
-  .rec-k {
-    flex-shrink: 0;
-    color: var(--muted);
-    font-weight: 700;
-  }
+  .cloud-status .sync-dot { animation: none; }
+  .cloud-sub { font-size: 12px; color: var(--muted); font-weight: 600; }
 
-  .rec-v { color: var(--text); font-weight: 700; }
-  .rec-v.strong { color: var(--accent2); font-weight: 900; }
-
-  .rec-title {
-    font-size: 14px;
-    font-weight: 900;
-    color: var(--accent);
-    letter-spacing: 2px;
-    margin: 0 0 6px 2px;
-  }
-
-  .rec-item {
-    display: flex;
-    gap: 10px;
-    padding: 12px 2px;
-    border-bottom: 1px solid var(--border);
-  }
-
-  .rec-item:last-of-type { border-bottom: none; }
-
-  .rec-no {
-    flex-shrink: 0;
-    font-size: 18px;
-    font-weight: 900;
-    color: var(--accent);
-    line-height: 1.4;
-  }
-
-  .rec-body {
-    flex: 1;
-    font-size: 15px;
-    line-height: 1.65;
-    color: var(--text);
-    min-width: 0;
-  }
-
-  .rec-head { font-weight: 900; }
-  .rec-date { font-size: 12px; color: var(--muted); }
-  .rec-done { color: #10b981; font-weight: 700; }
-
-  .rec-acts {
-    display: flex;
-    flex-direction: column;
-    gap: 6px;
-    flex-shrink: 0;
-  }
-
-  .rec-btn {
-    background: var(--card2);
-    border: none;
-    border-radius: 8px;
-    padding: 6px 10px;
-    font-size: 12px;
-    font-weight: 700;
-    color: #6b7280;
-    font-family: inherit;
-    cursor: pointer;
-    touch-action: manipulation;
-  }
-
-  .rec-btn.ok { background: #ecfdf5; color: #059669; }
-
-  .rec-owe {
-    margin-top: 12px;
-    background: #fffbeb;
-    border-radius: 12px;
-    padding: 10px 14px;
-    font-size: 14px;
-    font-weight: 700;
-    color: #92400e;
-    line-height: 1.7;
-  }
-
-  /* ---------- 調班視窗 ---------- */
-  .modal.swap-box {
-    max-height: 92vh;
-    overflow-y: auto;
-    padding: 22px 18px;
-  }
-
-  .seg {
-    display: grid;
-    grid-template-columns: repeat(3, 1fr);
-    gap: 4px;
-    background: var(--card2);
-    border-radius: 12px;
-    padding: 4px;
-    margin-bottom: 14px;
-  }
-
-  .seg button {
-    border: none;
-    background: transparent;
-    border-radius: 9px;
-    padding: 9px 2px;
-    font-size: 13px;
-    font-weight: 800;
-    color: #6b7280;
-    font-family: inherit;
-    cursor: pointer;
-    touch-action: manipulation;
-  }
-
-  .seg button.on {
-    background: #fff;
-    color: var(--accent);
-    box-shadow: 0 2px 6px rgba(31,41,55,0.08);
-  }
-
-  .modal .swap-who { margin-bottom: 12px; font-size: 16px; padding: 12px 14px; }
-
-  .date-row {
-    display: grid;
-    grid-template-columns: 1fr 1fr;
-    gap: 8px;
-    margin-bottom: 10px;
-  }
-
-  .date-row.one { grid-template-columns: 1fr; }
-
-  .date-field {
-    display: flex;
-    flex-direction: column;
-    align-items: flex-start;
-    gap: 2px;
-    padding: 10px 12px;
-    background: var(--card2);
-    border: 2px solid transparent;
-    border-radius: 12px;
-    font-family: inherit;
-    cursor: pointer;
-    text-align: left;
-    touch-action: manipulation;
-  }
-
-  .date-field.active { border-color: var(--accent); background: #fff5f7; }
-  .df-label { font-size: 12px; font-weight: 700; color: var(--muted); }
-  .df-val { font-size: 17px; font-weight: 900; color: var(--text); }
-  .df-val.empty { color: #c4c9d2; font-weight: 700; font-size: 15px; }
-
-  .mini-cal {
-    background: var(--card2);
-    border-radius: 14px;
-    padding: 10px;
-    margin-bottom: 12px;
-  }
-
-  .mc-head {
+  .cloud-link {
     display: flex;
     align-items: center;
-    justify-content: space-between;
-    margin-bottom: 6px;
-  }
-
-  .mc-head button {
-    width: 36px;
-    height: 36px;
-    border: none;
-    border-radius: 10px;
-    background: #fff;
-    font-size: 20px;
-    font-weight: 900;
-    color: var(--accent);
-    cursor: pointer;
-    touch-action: manipulation;
-  }
-
-  .mc-title { font-size: 16px; font-weight: 900; color: var(--text); }
-
-  .mc-week, .mc-days {
-    display: grid;
-    grid-template-columns: repeat(7, 1fr);
-    gap: 4px;
-  }
-
-  .mc-week div {
-    text-align: center;
-    font-size: 11px;
-    font-weight: 800;
-    color: var(--muted);
-    padding: 4px 0;
-  }
-
-  .mc-day {
-    aspect-ratio: 1 / 1;
-    border: none;
-    border-radius: 9px;
-    background: #fff;
-    font-size: 14px;
-    font-weight: 800;
-    color: var(--text);
-    font-family: inherit;
-    cursor: pointer;
-    position: relative;
-    touch-action: manipulation;
-    padding: 0;
-  }
-
-  .mc-day.blank { background: transparent; pointer-events: none; }
-  .mc-day.on { background: linear-gradient(135deg, var(--duty), var(--duty2)); color: #fff; }
-  .mc-day.sel-out { background: #9ca3af; color: #fff; text-decoration: line-through; }
-  .mc-day.sel-in { background: #f59e0b; color: #fff; }
-
-  .swap-preview {
-    min-height: 22px;
-    font-size: 14px;
-    line-height: 1.7;
-    color: var(--text);
-    background: #fff5f7;
-    border-radius: 12px;
-    padding: 10px 12px;
-    margin-bottom: 14px;
-  }
-
-  .swap-preview.empty { color: var(--muted); background: var(--card2); }
-
-  .mc-legend {
-    display: flex;
-    gap: 12px;
     justify-content: center;
-    font-size: 11px;
-    color: var(--muted);
-    margin-top: 8px;
-  }
-
-  .mc-legend i {
-    display: inline-block;
-    width: 10px;
-    height: 10px;
-    border-radius: 3px;
-    margin-right: 4px;
-    vertical-align: -1px;
-  }
-
-  /* ---------- 人名選單、備份 ---------- */
-  .menu-list { display: flex; flex-direction: column; gap: 8px; }
-
-  .menu-list button {
-    padding: 14px;
-    border: none;
-    border-radius: 12px;
-    background: var(--card2);
-    font-size: 15px;
+    gap: 6px;
+    font-size: 14px;
     font-weight: 700;
-    color: var(--text);
-    font-family: inherit;
-    cursor: pointer;
-    touch-action: manipulation;
+    color: var(--blue);
+    text-decoration: none;
+    padding: 6px 10px 14px;
   }
-
-  .menu-list button.danger { color: var(--holiday); }
 
   .backup-text {
     width: 100%;
@@ -1196,7 +1069,7 @@
     font-size: 12px;
     font-family: monospace;
     background: var(--card2);
-    border: 2px solid var(--border);
+    border: 1.5px solid var(--line);
     border-radius: 12px;
     color: var(--text);
     margin-bottom: 8px;
@@ -1205,92 +1078,109 @@
     word-break: break-all;
   }
 
-  .backup-note {
-    font-size: 12px;
-    color: var(--muted);
-    line-height: 1.6;
-    margin-bottom: 14px;
+  .backup-note { font-size: 13px; color: var(--text2); line-height: 1.6; margin-bottom: 14px; }
+
+  /* ---------- 產圖 ---------- */
+  .modal.img-box { padding: 16px; max-width: 460px; }
+  .img-box img { width: 100%; max-height: 62vh; object-fit: contain; border-radius: 12px; display: block; background: var(--bg); }
+  .img-tip { font-size: 12px; color: var(--muted); text-align: center; margin: 10px 0 14px; }
+
+  @media (max-width: 370px) {
+    .act-btn { font-size: 13px; gap: 4px; }
+    .seg button { font-size: 12px; }
+    .rc-date { font-size: 21px; }
+    .day { min-height: 52px; }
+    .duty-dot { width: 26px; height: 26px; font-size: 12px; }
   }
 
-  .reset-bar { flex-wrap: wrap; gap: 2px; }
-
-  @media (max-width: 600px) {
-    .person-chip { padding: 8px 14px; font-size: 13px; }
-    .records { padding: 14px 12px; }
-    .rec-body { font-size: 14px; }
+  @media (min-width: 600px) {
+    .day { min-height: 74px; padding: 9px; }
+    .day-num { font-size: 17px; }
+    .duty-dot { width: 38px; height: 38px; font-size: 16px; }
   }
-
-
-  /* 2026 快速調班視覺升級：只改調班視窗，不改主月曆單點邏輯 */
-  .modal.swap-box { border-radius: 25px; background: #fffdfd; box-shadow: 0 24px 70px rgba(65,69,99,.19); }
-  .swap-box h2 { letter-spacing: .3px; }
-  .swap-box .seg { background: #f2f4fa; border: 1px solid #e9ecf3; border-radius: 15px; padding: 5px; }
-  .swap-box .seg button { min-height: 43px; border-radius: 11px; transition: background .16s, color .16s; }
-  .swap-box .seg button.on { background: #fff; color: #df668b; box-shadow: 0 2px 10px rgba(51,64,93,.10); }
-  .swap-box .swap-who { border-radius: 14px; background: #fff; border: 1.5px solid #e6eaf2; }
-  .swap-step-hint { font-size: 12px; font-weight: 800; color: #bf6080; background: #fff0f5; padding: 9px 12px; border-radius: 11px; margin: 0 0 10px; }
-  .swap-step-hint.done { color: #187d6c; background: #eaf9f4; }
-  .swap-box .date-field { min-height: 73px; background: #f8f9fd; border: 1.5px solid #e9ecf3; border-radius: 15px; transition: border-color .16s, background .16s; }
-  .swap-box .date-field.active { border-color: #e98cab; background: #fff0f5; box-shadow: 0 0 0 2px rgba(233,140,171,.10); }
-  .swap-box .date-field:focus-visible, .swap-box .mc-day:focus-visible { outline: 3px solid #e98cab; outline-offset: 2px; }
-  .swap-box .mini-cal { background: #f6f8fc; border: 1px solid #edf0f6; border-radius: 18px; padding: 12px 10px; }
-  .swap-box .mc-head button { background: white; box-shadow: 0 2px 7px rgba(39,52,84,.07); }
-  .swap-box .mc-day { border-radius: 11px; min-height: 38px; box-shadow: 0 1px 3px rgba(37,52,82,.05); }
-  .swap-box .mc-day.blank { box-shadow: none; }
-  .swap-box .mc-day.on { background: #548bdb; }
-  .swap-box .mc-day.sel-out { background: #9298a9; }
-  .swap-box .mc-day.sel-in { background: #f4b55b; color: #543c18; }
-  .swap-box .swap-preview { border: 1px solid #f9dce6; background: #fff5f8; border-radius: 15px; }
-  .swap-box .swap-preview.empty { border-color: #e9ecf3; background: #f8f9fd; }
-  .swap-box #swapSaveBtn:disabled { opacity: .45; filter: grayscale(.3); cursor: not-allowed; }
-  @media(max-width:370px) { .swap-box .mc-day { min-height: 34px; } .swap-box .seg button { font-size: 12px; } }
-
 </style>
+
 </head>
 <body>
+
+<!-- 線性圖示 -->
+<svg width="0" height="0" style="position:absolute" aria-hidden="true">
+  <symbol id="i-user" viewBox="0 0 24 24"><circle cx="12" cy="8" r="4"/><path d="M4 21c0-4 3.6-7 8-7s8 3 8 7"/></symbol>
+  <symbol id="i-users" viewBox="0 0 24 24"><circle cx="9" cy="8" r="3.5"/><path d="M2.5 20c0-3.6 2.9-6 6.5-6s6.5 2.4 6.5 6"/><path d="M16 4.6a3.5 3.5 0 0 1 0 6.8M18 14.3c2.2.7 3.5 2.8 3.5 5.7"/></symbol>
+  <symbol id="i-down" viewBox="0 0 24 24"><path d="m6 9 6 6 6-6"/></symbol>
+  <symbol id="i-left" viewBox="0 0 24 24"><path d="m15 6-6 6 6 6"/></symbol>
+  <symbol id="i-right" viewBox="0 0 24 24"><path d="m9 6 6 6-6 6"/></symbol>
+  <symbol id="i-clip" viewBox="0 0 24 24"><rect x="5" y="4" width="14" height="17" rx="2.5"/><path d="M9 4h6v3H9zM9 12h6M9 16h4"/></symbol>
+  <symbol id="i-swap" viewBox="0 0 24 24"><path d="M4 8h14l-3.5-3.5M20 16H6l3.5 3.5"/></symbol>
+  <symbol id="i-arrow" viewBox="0 0 24 24"><path d="M5 12h14m-5-5 5 5-5 5"/></symbol>
+  <symbol id="i-image" viewBox="0 0 24 24"><rect x="3" y="4" width="18" height="16" rx="3"/><circle cx="9" cy="10" r="2"/><path d="m21 16-5-5-9 9"/></symbol>
+  <symbol id="i-copy" viewBox="0 0 24 24"><rect x="8" y="8" width="12" height="12" rx="2.5"/><path d="M16 8V6.5A2.5 2.5 0 0 0 13.5 4h-7A2.5 2.5 0 0 0 4 6.5v7A2.5 2.5 0 0 0 6.5 16H8"/></symbol>
+  <symbol id="i-gear" viewBox="0 0 24 24"><circle cx="12" cy="12" r="3"/><path d="M19.4 15a1.7 1.7 0 0 0 .3 1.8l.1.1a2 2 0 1 1-2.8 2.8l-.1-.1a1.7 1.7 0 0 0-1.8-.3 1.7 1.7 0 0 0-1 1.5V21a2 2 0 1 1-4 0v-.1a1.7 1.7 0 0 0-1.1-1.5 1.7 1.7 0 0 0-1.8.3l-.1.1a2 2 0 1 1-2.8-2.8l.1-.1a1.7 1.7 0 0 0 .3-1.8 1.7 1.7 0 0 0-1.5-1H3a2 2 0 1 1 0-4h.1a1.7 1.7 0 0 0 1.5-1.1 1.7 1.7 0 0 0-.3-1.8l-.1-.1a2 2 0 1 1 2.8-2.8l.1.1a1.7 1.7 0 0 0 1.8.3H9a1.7 1.7 0 0 0 1-1.5V3a2 2 0 1 1 4 0v.1a1.7 1.7 0 0 0 1 1.5 1.7 1.7 0 0 0 1.8-.3l.1-.1a2 2 0 1 1 2.8 2.8l-.1.1a1.7 1.7 0 0 0-.3 1.8V9a1.7 1.7 0 0 0 1.5 1H21a2 2 0 1 1 0 4h-.1a1.7 1.7 0 0 0-1.5 1z"/></symbol>
+  <symbol id="i-cloud" viewBox="0 0 24 24"><path d="M7 18a4.5 4.5 0 0 1-.6-9A6 6 0 0 1 18 8.5a4.8 4.8 0 0 1-.5 9.5z"/></symbol>
+  <symbol id="i-save" viewBox="0 0 24 24"><path d="M12 4v11m-4.5-4.5L12 15l4.5-4.5M5 19h14"/></symbol>
+  <symbol id="i-restore" viewBox="0 0 24 24"><path d="M12 15V4m-4.5 4.5L12 4l4.5 4.5M5 19h14"/></symbol>
+  <symbol id="i-phone" viewBox="0 0 24 24"><rect x="6" y="2.5" width="12" height="19" rx="3"/><path d="M12 9v6m-3-3h6"/></symbol>
+  <symbol id="i-share" viewBox="0 0 24 24"><path d="M12 15V3m-4 4 4-4 4 4M6 11H5a1.5 1.5 0 0 0-1.5 1.5v7A1.5 1.5 0 0 0 5 21h14a1.5 1.5 0 0 0 1.5-1.5v-7A1.5 1.5 0 0 0 19 11h-1"/></symbol>
+  <symbol id="i-help" viewBox="0 0 24 24"><circle cx="12" cy="12" r="9"/><path d="M9.5 9.5a2.5 2.5 0 1 1 3.5 2.3c-.6.3-1 .9-1 1.6v.6M12 17h.01"/></symbol>
+  <symbol id="i-info" viewBox="0 0 24 24"><circle cx="12" cy="12" r="9"/><path d="M12 11v5M12 8h.01"/></symbol>
+  <symbol id="i-note" viewBox="0 0 24 24"><path d="M14 3H7a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h10a2 2 0 0 0 2-2V8z"/><path d="M14 3v5h5M9 13h6M9 17h4"/></symbol>
+  <symbol id="i-search" viewBox="0 0 24 24"><circle cx="11" cy="11" r="6.5"/><path d="m20 20-4.2-4.2"/></symbol>
+  <symbol id="i-check" viewBox="0 0 24 24"><path d="m5 12.5 4.5 4.5L19 7.5"/></symbol>
+  <symbol id="i-plus" viewBox="0 0 24 24"><path d="M12 5v14M5 12h14"/></symbol>
+  <symbol id="i-x" viewBox="0 0 24 24"><path d="M6 6l12 12M18 6 6 18"/></symbol>
+  <symbol id="i-trash" viewBox="0 0 24 24"><path d="M4 7h16M9 7V4.5h6V7M6.5 7l1 13h9l1-13"/></symbol>
+  <symbol id="i-edit" viewBox="0 0 24 24"><path d="M4 20h4L19 9a2.8 2.8 0 0 0-4-4L4 16z"/></symbol>
+  <symbol id="i-erase" viewBox="0 0 24 24"><path d="M8 20h12M5.5 15.5l9-9a2 2 0 0 1 2.8 0l1.2 1.2a2 2 0 0 1 0 2.8L13 16H8z"/></symbol>
+  <symbol id="i-hand" viewBox="0 0 24 24"><path d="M9 11V5.5a1.5 1.5 0 0 1 3 0V10m0-1.5a1.5 1.5 0 0 1 3 0V11m0-1a1.5 1.5 0 0 1 3 0v4.5a6.5 6.5 0 0 1-6.5 6.5h-.6a6 6 0 0 1-4.6-2.2L4.6 15a1.5 1.5 0 0 1 2.3-1.9L9 15"/></symbol>
+  <symbol id="i-tap" viewBox="0 0 24 24"><circle cx="12" cy="12" r="3.5"/><circle cx="12" cy="12" r="8"/></symbol>
+  <symbol id="i-more" viewBox="0 0 24 24"><circle cx="5" cy="12" r="1.3"/><circle cx="12" cy="12" r="1.3"/><circle cx="19" cy="12" r="1.3"/></symbol>
+  <symbol id="i-compass" viewBox="0 0 24 24"><circle cx="12" cy="12" r="9"/><path d="m15.5 8.5-2 5-5 2 2-5z"/></symbol>
+  <symbol id="i-sheet" viewBox="0 0 24 24"><rect x="4" y="4" width="16" height="16" rx="2.5"/><path d="M4 10h16M4 15h16M10 4v16"/></symbol>
+</svg>
 
 <div class="container">
 
   <div class="brand" onclick="focusBrand()">
-    <span class="sync-dot"></span>
+    <span class="sync-dot" id="brandDot"></span>
     <span class="brand-text" id="brandText" contenteditable="true" spellcheck="false"></span>
-    <span class="brand-hint">點擊改名</span>
   </div>
 
-  <div class="tagline">
-    <span class="tagline-item">短按標記</span>
-    <span class="tagline-dot">·</span>
-    <span class="tagline-item">再按取消</span>
-    <span class="tagline-dot">·</span>
-    <span class="tagline-item">長按編輯</span>
-    <span class="help-link" onclick="openHelp()">ⓘ</span>
+  <div class="subline">
+    <span>短按標記</span><span class="dot">·</span><span>再按取消</span><span class="dot">·</span><span>長按調班</span>
+    <button class="help-link" onclick="openHelp()" aria-label="使用說明"><svg class="ic sm"><use href="#i-info"/></svg></button>
   </div>
 
-  <div class="signature">吱吱製作</div>
-  <button class="version-tag" id="versionTag" onclick="openChangelog()"></button>
+  <button class="signature" onclick="openChangelog()">吱吱製作 · <b id="versionTag"></b></button>
 
-  <div class="people-bar" id="peopleBar"></div>
+  <button class="person-btn" onclick="openPeople()">
+    <span class="avatar"><svg class="ic"><use href="#i-user"/></svg></span>
+    <span class="pname" id="personName"></span>
+    <span class="pcount" id="personCount"></span>
+    <svg class="ic chev"><use href="#i-down"/></svg>
+  </button>
 
-  <div class="topbar">
-    <div class="year-month">
+  <div class="month-bar">
+    <button class="nav-btn" onclick="navMonth(-1)" aria-label="上個月"><svg class="ic"><use href="#i-left"/></svg></button>
+    <div class="month-center">
       <select class="year-select" id="yearSelect"></select>
       <span class="month-label" id="monthLabel"></span>
     </div>
+    <button class="nav-btn" onclick="navMonth(1)" aria-label="下個月"><svg class="ic"><use href="#i-right"/></svg></button>
   </div>
 
-  <div class="bottom-bar">
-    <button class="mini-btn" id="quickBtn" onclick="toggleQuick()">📋 快速標記</button>
-    <button class="mini-btn" onclick="openSwap()">🔄 調班</button>
-    <button class="mini-btn" onclick="makeImage()">🖼 產圖</button>
+  <div class="action-bar">
+    <button class="act-btn" id="quickBtn" onclick="toggleQuick()"><svg class="ic"><use href="#i-clip"/></svg>快速標記</button>
+    <button class="act-btn" onclick="openSwap()"><svg class="ic"><use href="#i-swap"/></svg>調班</button>
+    <button class="act-btn" onclick="makeImage()"><svg class="ic"><use href="#i-image"/></svg>產圖</button>
   </div>
 
   <div class="quick-panel" id="quickPanel">
     <textarea id="quickInput" placeholder="貼上文字，例如：&#10;本月留守是&#10;8,22,9,11"></textarea>
     <div class="quick-preview" id="quickPreview"></div>
-    <div class="quick-btns">
-      <button class="quick-clear" onclick="closeQuick()">取消</button>
-      <button class="quick-paste" onclick="pasteQuick()">📋 貼上</button>
-      <button class="quick-go" onclick="applyQuick()">標記</button>
+    <div class="btn-row">
+      <button class="btn btn-soft" onclick="closeQuick()">取消</button>
+      <button class="btn btn-pink" onclick="pasteQuick()"><svg class="ic sm"><use href="#i-clip"/></svg>貼上</button>
+      <button class="btn btn-primary" onclick="applyQuick()">標記</button>
     </div>
   </div>
 
@@ -1300,7 +1190,7 @@
         <div class="weekdays"><div>日</div><div>一</div><div>二</div><div>三</div><div>四</div><div>五</div><div>六</div></div>
         <div class="days" id="daysPrev"></div>
       </div>
-      <div class="calendar-panel">
+      <div class="calendar-panel" id="panelCur">
         <div class="weekdays"><div>日</div><div>一</div><div>二</div><div>三</div><div>四</div><div>五</div><div>六</div></div>
         <div class="days" id="days"></div>
       </div>
@@ -1311,55 +1201,44 @@
     </div>
   </div>
 
-  <div class="records" id="records"></div>
+  <!-- 留守統計 -->
+  <div class="card" id="statCard"></div>
 
-  <div class="app-bar" id="appBar">
-    <button class="app-btn" id="installBtn" onclick="openInstall()">📲 存到桌面</button>
-    <button class="app-btn" onclick="shareApp()">💌 分享給朋友</button>
-  </div>
+  <!-- 調班紀錄 -->
+  <div class="card" id="recCard"></div>
 
-  <div class="reset-bar">
-    <button class="text-btn" onclick="resetMonth()">清除本月</button>
-    <span class="reset-sep">·</span>
-    <button class="text-btn" id="resetPersonBtn" onclick="resetPerson()">清除全部</button>
-    <span class="reset-sep">·</span>
-    <button class="text-btn" onclick="openBackup()">備份</button>
-    <span class="reset-sep">·</span>
-    <button class="text-btn" onclick="openRestore()">還原</button>
-    <span class="reset-sep">·</span>
-    <button class="text-btn" onclick="openCloud()">☁️ 雲端</button>
-  </div>
+  <button class="footer-btn" onclick="openManage()"><svg class="ic sm"><use href="#i-gear"/></svg>資料管理</button>
 
 </div>
 
 <div class="toast" id="toast"></div>
 
-<!-- 長按日期：自訂文字 -->
+<!-- 長按日期 -->
 <div class="modal-overlay" id="modalOverlay">
   <div class="modal">
     <h2 id="modalTitle"></h2>
     <div id="modalHoliday" class="modal-holiday"></div>
-    <input type="text" id="noteInput" placeholder="輸入文字（例：休）" maxlength="4">
-    <div class="modal-btns">
-      <button class="btn-delete" onclick="modalReady() && deleteNote()">清除</button>
-      <button class="btn-cancel" onclick="modalReady() && closeModal()">取消</button>
-      <button class="btn-save" onclick="modalReady() && saveNote()">儲存</button>
+    <div class="note-quick" id="noteQuick"></div>
+    <div class="field-label">標記文字</div>
+    <input type="text" class="field" id="noteInput" placeholder="輸入文字（例：休）" maxlength="4">
+    <div class="btn-row">
+      <button class="btn btn-soft" onclick="modalReady() && deleteNote()">清除</button>
+      <button class="btn btn-soft" onclick="modalReady() && closeModal()">取消</button>
+      <button class="btn btn-primary" onclick="modalReady() && saveNote()">儲存</button>
     </div>
   </div>
 </div>
 
 <!-- 調班 -->
 <div class="modal-overlay" id="swapOverlay">
-  <div class="modal swap-box">
-    <h2 id="swapTitle">🔄 調班</h2>
+  <div class="modal">
+    <h2 id="swapTitle"></h2>
     <div class="seg" id="swapSeg">
-      <button data-t="cover" onclick="setSwapType('cover')">別人代理我</button>
-      <button data-t="help" onclick="setSwapType('help')">我代理別人</button>
-      <button data-t="swap" onclick="setSwapType('swap')">互換</button>
+      <button data-t="cover" onclick="setSwapType('cover')">找人代班</button>
+      <button data-t="help" onclick="setSwapType('help')">幫人代班</button>
+      <button data-t="swap" onclick="setSwapType('swap')">互相換班</button>
     </div>
-    <input type="text" class="swap-who" id="swapWho" list="peopleList" placeholder="跟誰？（例：裕盛）" maxlength="10" autocomplete="off">
-    <datalist id="peopleList"></datalist>
-    <div class="swap-step-hint" id="swapStepHint" aria-live="polite">① 先點選原本排定的日期</div>
+    <div class="swap-hint" id="swapHint" aria-live="polite"></div>
     <div class="date-row" id="dateRow">
       <button class="date-field" id="fieldOut" onclick="pickField('out')">
         <span class="df-label" id="labelOut"></span>
@@ -1372,34 +1251,148 @@
     </div>
     <div class="mini-cal">
       <div class="mc-head">
-        <button onclick="mcMove(-1)">‹</button>
+        <button onclick="mcMove(-1)" aria-label="上個月"><svg class="ic"><use href="#i-left"/></svg></button>
         <span class="mc-title" id="mcTitle"></span>
-        <button onclick="mcMove(1)">›</button>
+        <button onclick="mcMove(1)" aria-label="下個月"><svg class="ic"><use href="#i-right"/></svg></button>
       </div>
       <div class="mc-week"><div>日</div><div>一</div><div>二</div><div>三</div><div>四</div><div>五</div><div>六</div></div>
       <div class="mc-days" id="mcDays"></div>
       <div class="mc-legend">
-        <span><i style="background:#3b82f6"></i>原本有排</span>
-        <span><i style="background:#9ca3af"></i>給出去</span>
-        <span><i style="background:#f59e0b"></i>換進來</span>
+        <span><i style="background:#548bdb"></i>原本有排</span>
+        <span><i style="background:#9298a9"></i>交出去</span>
+        <span><i style="background:#f4b55b"></i>換進來</span>
       </div>
     </div>
-    <div class="swap-preview empty" id="swapPreview"></div>
-    <div class="modal-btns">
-      <button class="btn-cancel" onclick="closeSwap()">取消</button>
-      <button class="btn-save" id="swapSaveBtn" onclick="saveSwap()" disabled>完成互換</button>
+    <div class="field-label" id="whoLabel"></div>
+    <input type="text" class="field swap-who" id="swapWho" maxlength="10" autocomplete="off" placeholder="名字（可不填）">
+    <div class="who-chips" id="whoChips"></div>
+    <div class="swap-preview-wrap" id="swapPreview"></div>
+    <div class="btn-row">
+      <button class="btn btn-soft" onclick="closeSwap()">取消</button>
+      <button class="btn btn-primary" id="swapSaveBtn" onclick="saveSwap()" disabled>確認</button>
     </div>
   </div>
 </div>
 
-<!-- 人名選單（長按名字） -->
+<!-- 確認視窗 -->
+<div class="modal-overlay top" id="confirmOverlay">
+  <div class="modal">
+    <h2 id="confirmTitle"></h2>
+    <div class="confirm-msg" id="confirmMsg"></div>
+    <div class="btn-row">
+      <button class="btn btn-soft" id="confirmNo">取消</button>
+      <button class="btn btn-danger" id="confirmYes">確認</button>
+    </div>
+  </div>
+</div>
+
+<!-- 選擇人員 -->
+<div class="sheet-overlay" id="peopleSheet" onclick="if (event.target === this) closePeople()">
+  <div class="sheet">
+    <div class="sheet-grip"></div>
+    <div class="sheet-head">
+      <h2>選擇人員</h2>
+      <span class="count" id="peopleTotal"></span>
+      <span class="spacer"></span>
+      <button class="sheet-close" onclick="closePeople()" aria-label="關閉"><svg class="ic sm"><use href="#i-x"/></svg></button>
+    </div>
+    <div class="search-box">
+      <svg class="ic sm"><use href="#i-search"/></svg>
+      <input type="search" id="peopleSearch" placeholder="搜尋姓名" autocomplete="off">
+    </div>
+    <div class="sheet-scroll" id="peopleScroll"></div>
+    <div class="add-row">
+      <input type="text" id="newPersonInput" placeholder="新增人員姓名" maxlength="10" autocomplete="off">
+      <button class="btn btn-primary" onclick="addPersonFromSheet()"><svg class="ic sm"><use href="#i-plus"/></svg>新增</button>
+    </div>
+  </div>
+</div>
+
+<!-- 資料管理 -->
+<div class="sheet-overlay" id="manageSheet" onclick="if (event.target === this) closeManage()">
+  <div class="sheet">
+    <div class="sheet-grip"></div>
+    <div class="sheet-head">
+      <h2>資料管理</h2>
+      <span class="spacer"></span>
+      <button class="sheet-close" onclick="closeManage()" aria-label="關閉"><svg class="ic sm"><use href="#i-x"/></svg></button>
+    </div>
+    <div class="sheet-scroll">
+      <div class="group-label">資料</div>
+      <div class="list">
+        <button class="list-row" onclick="closeManage(); openCloud()">
+          <svg class="ic row-ic"><use href="#i-cloud"/></svg>
+          <span class="grow">雲端同步設定<span class="sub" id="manageCloudSub"></span></span>
+          <svg class="ic sm chev"><use href="#i-right"/></svg>
+        </button>
+        <button class="list-row" onclick="closeManage(); openBackup()">
+          <svg class="ic row-ic"><use href="#i-save"/></svg>
+          <span class="grow">備份所有資料<span class="sub">複製備份內容，方便保存或轉移</span></span>
+          <svg class="ic sm chev"><use href="#i-right"/></svg>
+        </button>
+        <button class="list-row" onclick="closeManage(); openRestore()">
+          <svg class="ic row-ic"><use href="#i-restore"/></svg>
+          <span class="grow">還原備份資料<span class="sub">用先前的備份內容還原</span></span>
+          <svg class="ic sm chev"><use href="#i-right"/></svg>
+        </button>
+      </div>
+      <div class="group-label">人員</div>
+      <div class="list">
+        <button class="list-row" onclick="closeManage(); openPersonManage()">
+          <svg class="ic row-ic"><use href="#i-users"/></svg>
+          <span class="grow">人員管理<span class="sub">改名、清空紀錄、刪除人員</span></span>
+          <svg class="ic sm chev"><use href="#i-right"/></svg>
+        </button>
+      </div>
+      <div class="group-label">其他</div>
+      <div class="list">
+        <button class="list-row" id="installRow" onclick="closeManage(); openInstall()">
+          <svg class="ic row-ic"><use href="#i-phone"/></svg>
+          <span class="grow">存到桌面</span>
+          <svg class="ic sm chev"><use href="#i-right"/></svg>
+        </button>
+        <button class="list-row" onclick="closeManage(); shareApp()">
+          <svg class="ic row-ic"><use href="#i-share"/></svg>
+          <span class="grow">分享給朋友<span class="sub">只傳網址，不含你的資料</span></span>
+          <svg class="ic sm chev"><use href="#i-right"/></svg>
+        </button>
+        <button class="list-row" onclick="closeManage(); openHelp()">
+          <svg class="ic row-ic"><use href="#i-help"/></svg>
+          <span class="grow">使用說明</span>
+          <svg class="ic sm chev"><use href="#i-right"/></svg>
+        </button>
+        <button class="list-row" onclick="closeManage(); openChangelog()">
+          <svg class="ic row-ic"><use href="#i-note"/></svg>
+          <span class="grow">更新紀錄</span>
+          <span class="meta" id="manageVersion"></span>
+          <svg class="ic sm chev"><use href="#i-right"/></svg>
+        </button>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- 人員管理 -->
+<div class="sheet-overlay" id="pmSheet" onclick="if (event.target === this) closePersonManage()">
+  <div class="sheet">
+    <div class="sheet-grip"></div>
+    <div class="sheet-head">
+      <h2>人員管理</h2>
+      <span class="count" id="pmTotal"></span>
+      <span class="spacer"></span>
+      <button class="sheet-close" onclick="closePersonManage()" aria-label="關閉"><svg class="ic sm"><use href="#i-x"/></svg></button>
+    </div>
+    <div class="sheet-scroll" id="pmScroll"></div>
+  </div>
+</div>
+
+<!-- 單一人員操作 -->
 <div class="modal-overlay" id="personOverlay">
   <div class="modal">
     <h2 id="personTitle"></h2>
-    <div class="menu-list">
-      <button onclick="renamePerson()">✏️ 改名字</button>
-      <button class="danger" onclick="deletePerson()">🗑 刪除這個人</button>
-      <button onclick="closePersonMenu()">取消</button>
+    <div class="list" id="personActions"></div>
+    <div class="btn-row">
+      <button class="btn btn-soft" onclick="closePersonMenu()">關閉</button>
     </div>
   </div>
 </div>
@@ -1410,25 +1403,14 @@
     <h2 id="backupTitle"></h2>
     <textarea class="backup-text" id="backupText" spellcheck="false"></textarea>
     <div class="backup-note" id="backupNote"></div>
-    <div class="modal-btns" id="backupBtns"></div>
+    <div class="btn-row" id="backupBtns"></div>
   </div>
 </div>
 
-<!-- 更新紀錄 -->
-<div class="modal-overlay" id="changelogOverlay">
-  <div class="modal">
-    <h2>📝 更新紀錄</h2>
-    <div class="log-list" id="changelogList"></div>
-    <div class="modal-btns">
-      <button class="btn-save" onclick="closeChangelog()">知道了</button>
-    </div>
-  </div>
-</div>
-
-<!-- 雲端同步 -->
+<!-- 雲端同步設定 -->
 <div class="modal-overlay" id="cloudOverlay">
   <div class="modal">
-    <h2>☁️ 雲端同步</h2>
+    <h2><svg class="ic"><use href="#i-cloud"/></svg>雲端同步設定</h2>
     <div class="cloud-status">
       <span class="sync-dot" id="cloudDot"></span>
       <div>
@@ -1436,13 +1418,24 @@
         <div class="cloud-sub" id="cloudSub"></div>
       </div>
     </div>
-    <div class="cloud-label">密碼（跟 Apps Script 裡的 PASSWORD 一樣）</div>
-    <input type="text" class="cloud-key" id="cloudKey" placeholder="輸入密碼" autocomplete="off" spellcheck="false">
-    <a class="cloud-link" id="cloudSheetLink" target="_blank" rel="noopener">📊 打開試算表看紀錄</a>
-    <div class="modal-btns">
-      <button class="btn-cancel" onclick="closeCloud()">關閉</button>
-      <button class="btn-delete" onclick="cloudSyncNow()">立即同步</button>
-      <button class="btn-save" onclick="saveCloudKey()">儲存</button>
+    <div class="field-label">密碼（跟 Apps Script 裡的 PASSWORD 一樣）</div>
+    <input type="text" class="field" id="cloudKey" placeholder="輸入密碼" autocomplete="off" spellcheck="false">
+    <a class="cloud-link" id="cloudSheetLink" target="_blank" rel="noopener"><svg class="ic sm"><use href="#i-sheet"/></svg>打開試算表看紀錄</a>
+    <div class="btn-row">
+      <button class="btn btn-soft" onclick="closeCloud()">關閉</button>
+      <button class="btn btn-pink" onclick="cloudSyncNow()">立即同步</button>
+      <button class="btn btn-primary" onclick="saveCloudKey()">儲存</button>
+    </div>
+  </div>
+</div>
+
+<!-- 更新紀錄 -->
+<div class="modal-overlay" id="changelogOverlay">
+  <div class="modal">
+    <h2><svg class="ic"><use href="#i-note"/></svg>更新紀錄</h2>
+    <div class="log-list" id="changelogList"></div>
+    <div class="btn-row">
+      <button class="btn btn-primary" onclick="closeChangelog()">知道了</button>
     </div>
   </div>
 </div>
@@ -1452,15 +1445,15 @@
   <div class="modal">
     <h2>怎麼用</h2>
     <ul class="help-list">
-      <li><span class="help-icon dot">留</span><span><b>點一下</b>　標記留守，再點取消</span></li>
-      <li><span class="help-icon">✋</span><span><b>長按</b>　自訂文字</span></li>
-      <li><span class="help-icon">👤</span><span><b>上方名字</b>　切換要記誰，＋新增</span></li>
-      <li><span class="help-icon">📋</span><span><b>快速標記</b>　貼上文字，自動抓日期</span></li>
-      <li><span class="help-icon">🔄</span><span><b>調班</b>　代理、互換都會留下紀錄</span></li>
-      <li><span class="help-icon">🖼</span><span><b>產圖</b>　做成圖片傳給別人</span></li>
+      <li><span class="help-icon"><svg class="ic"><use href="#i-tap"/></svg></span><span><b>點一下</b>　標記留守，再點取消</span></li>
+      <li><span class="help-icon"><svg class="ic"><use href="#i-hand"/></svg></span><span><b>長按</b>　調班或改文字</span></li>
+      <li><span class="help-icon"><svg class="ic"><use href="#i-user"/></svg></span><span><b>上方名字</b>　切換或新增人員</span></li>
+      <li><span class="help-icon"><svg class="ic"><use href="#i-clip"/></svg></span><span><b>快速標記</b>　貼上文字，自動抓日期</span></li>
+      <li><span class="help-icon"><svg class="ic"><use href="#i-swap"/></svg></span><span><b>調班</b>　找人代班、幫人代班、互相換班</span></li>
+      <li><span class="help-icon"><svg class="ic"><use href="#i-copy"/></svg></span><span><b>複製</b>　本月留守文字，貼到群組</span></li>
     </ul>
-    <div class="modal-btns">
-      <button class="btn-save" onclick="closeHelp()">知道了</button>
+    <div class="btn-row">
+      <button class="btn btn-primary" onclick="closeHelp()">知道了</button>
     </div>
   </div>
 </div>
@@ -1477,9 +1470,9 @@
     </div>
     <ul class="help-list" id="installSteps"></ul>
     <div class="install-note" id="installNote"></div>
-    <div class="modal-btns">
-      <button class="btn-cancel" onclick="closeInstall()">關閉</button>
-      <button class="btn-save" id="installGo" style="display:none" onclick="doInstall()">立即安裝</button>
+    <div class="btn-row">
+      <button class="btn btn-soft" onclick="closeInstall()">關閉</button>
+      <button class="btn btn-primary" id="installGo" style="display:none" onclick="doInstall()">立即安裝</button>
     </div>
   </div>
 </div>
@@ -1489,17 +1482,17 @@
   <div class="modal img-box">
     <img id="imgPreview" alt="月曆圖片">
     <div class="img-tip">長按圖片也可以儲存</div>
-    <div class="modal-btns">
-      <button class="btn-cancel" onclick="closeImage()">關閉</button>
-      <button class="btn-delete" onclick="downloadImage()">下載</button>
-      <button class="btn-save" id="imgShareBtn" onclick="shareImage()">分享</button>
+    <div class="btn-row">
+      <button class="btn btn-soft" onclick="closeImage()">關閉</button>
+      <button class="btn btn-pink" onclick="downloadImage()">下載</button>
+      <button class="btn btn-primary" id="imgShareBtn" onclick="shareImage()">分享</button>
     </div>
   </div>
 </div>
 
 <script>
   /* =========================================================
-     基本設定
+     基本設定（儲存鍵值與舊版相同，資料完全相容）
      ========================================================= */
   const DATA_KEY = 'duty_calendar_v2';
   const OLD_NOTES_KEY = 'duty_calendar_notes';
@@ -1509,11 +1502,21 @@
   const DEFAULT_BRAND = '點點月曆';
   const DEFAULT_MARK = '留';
   const ME = 'me';
+  const REC_SHOW = 3;
 
   /* ---------- 版本 ---------- */
-  const APP_VERSION = '2.3';
+  const APP_VERSION = '2.4';
   const VERSION_SEEN_KEY = 'duty_calendar_version_seen';
   const CHANGELOG = [
+    { v: '2.4', date: '2026/11/12', items: [
+      '人員改成收合式選擇器：搜尋、最近使用、新增',
+      '調班紀錄改成資訊卡片：大日期、交換方向一眼看懂',
+      '調班改名：找人代班、幫人代班、互相換班；對象可不填',
+      '長按日期可以直接調班',
+      '留守統計卡：標出換掉／換進來的日子，一鍵複製文字',
+      '低頻功能集中到「資料管理」，移除「清除本月」',
+      '月曆高度跟著當月排數調整，改用線性圖示'
+    ]},
     { v: '2.3', date: '2026/11/12', items: [
       '加上版本標示與更新紀錄',
       '雲端視窗會顯示後端版本'
@@ -1525,41 +1528,35 @@
     ]},
     { v: '2.1', date: '2026/11/12', items: [
       '調班視窗優化：步驟提示、沒選好不能儲存',
-      '「換班」改名「調班」，「代班」改名「代理」',
-      '代理排第一，打開預設選代理'
+      '「換班」改名「調班」'
     ]},
     { v: '2.0', date: '2026/11/12', items: [
-      '多人：上方名字切換，幫別人記不用再重置',
-      '調班紀錄：原本排的／現在要站，過程用文字記錄',
-      '快速標記自動認月份',
-      '備份／還原',
-      '拿掉「分享本月」，修正 2027、2028 假日'
+      '多人：切換人員，幫別人記不用再重置',
+      '調班紀錄：原本排的／現在要站',
+      '快速標記自動認月份、備份／還原',
+      '修正 2027、2028 假日'
     ]},
     { v: '1.4', date: '2026/10/20', items: [
       '存到桌面：App 模式、桌面圖示',
-      '分享給朋友',
-      '快速標記加「貼上」按鈕'
+      '分享給朋友、快速標記加「貼上」'
     ]},
     { v: '1.3', date: '2026/10/19', items: [
       '第一次打開顯示使用說明',
-      '按鈕版面整理，快速標記可以收起來'
+      '按鈕版面整理'
     ]},
-    { v: '1.2', date: '2026/10/19', items: [
-      '產圖：做成圖片傳給別人'
-    ]},
+    { v: '1.2', date: '2026/10/19', items: [ '產圖：做成圖片傳給別人' ]},
     { v: '1.1', date: '2026/10/19', items: [
       '修正部分安卓手機點不到日期',
       '快速標記：貼上文字自動抓日期'
     ]},
-    { v: '1.0', date: '', items: [
-      '點一下標記、長按自訂文字、左右滑換月份'
-    ]}
+    { v: '1.0', date: '', items: [ '點一下標記、長按自訂文字、左右滑換月份' ]}
   ];
 
   let currentYear, currentMonth;
   let selectedDateKey = null;
   let modalOpenedAt = 0;
   let suppressClickUntil = 0;
+  let recExpanded = false;
 
   /* ---------- 國定假日（2026、2027 依人事行政總處公告；2028 依規則推算） ---------- */
   const HOLIDAYS = {
@@ -1634,18 +1631,30 @@
     }
   };
 
+  const WEEK = '日一二三四五六';
+
   function getHolidays(year) { return HOLIDAYS[year] || {}; }
-  function dateKey(y, m, d) { return `${y}-${String(m + 1).padStart(2, '0')}-${String(d).padStart(2, '0')}`; }
-  function monthPrefix(y, m) { return `${y}-${String(m + 1).padStart(2, '0')}-`; }
+  function pad2(n) { return String(n).padStart(2, '0'); }
+  function dateKey(y, m, d) { return `${y}-${pad2(m + 1)}-${pad2(d)}`; }
+  function monthPrefix(y, m) { return `${y}-${pad2(m + 1)}-`; }
   function parseKey(k) { const [y, m, d] = k.split('-').map(Number); return { y, m: m - 1, d }; }
+  function weekOf(key) { const k = parseKey(key); return WEEK[new Date(k.y, k.m, k.d).getDay()]; }
+  function md(key) { const k = parseKey(key); return `${k.m + 1}/${k.d}`; }
+  function mdw(key) { return `${md(key)}(${weekOf(key)})`; }
 
   function lsGet(k) { try { return localStorage.getItem(k); } catch { return null; } }
   function lsSet(k, v) { try { localStorage.setItem(k, v); } catch {} }
   function lsDel(k) { try { localStorage.removeItem(k); } catch {} }
 
+  function esc(s) {
+    return String(s).replace(/[&<>"']/g, c => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;' }[c]));
+  }
+
+  function icon(id, cls) { return `<svg class="ic${cls ? ' ' + cls : ''}"><use href="#i-${id}"/></svg>`; }
+
   /* =========================================================
      資料：多人 + 調班紀錄
-     state = { people: [ { id, name, marks:{日期:文字}, swaps:[...], used } ] }
+     state = { people: [ { id, name, marks:{日期:文字}, swaps:[...], used } ], updatedAt }
      月曆只顯示 marks（換完的最終結果）；swaps 是過程紀錄
      ========================================================= */
   let state = null;
@@ -1655,25 +1664,30 @@
     return { id, name, marks: {}, swaps: [], used: Date.now() };
   }
 
+  function fixState() {
+    if (!state.people.some(p => p.id === ME)) state.people.unshift(newPersonObj(ME, '我'));
+    state.people.forEach(p => {
+      if (!p.marks || typeof p.marks !== 'object') p.marks = {};
+      if (!Array.isArray(p.swaps)) p.swaps = [];
+      if (!p.used) p.used = 0;
+      p.swaps.forEach(s => { if (typeof s.who !== 'string') s.who = ''; });
+    });
+  }
+
   function loadState() {
     let s = null;
     try { s = JSON.parse(lsGet(DATA_KEY)); } catch {}
     if (!s || !Array.isArray(s.people)) {
       s = { people: [] };
-      // 舊版資料搬進「我」
+      // 最早的版本只有一份資料，搬進「我」
       let old = {};
       try { old = JSON.parse(lsGet(OLD_NOTES_KEY)) || {}; } catch {}
       const me = newPersonObj(ME, '我');
       me.marks = old;
       s.people.push(me);
     }
-    if (!s.people.some(p => p.id === ME)) s.people.unshift(newPersonObj(ME, '我'));
-    s.people.forEach(p => {
-      if (!p.marks || typeof p.marks !== 'object') p.marks = {};
-      if (!Array.isArray(p.swaps)) p.swaps = [];
-      if (!p.used) p.used = 0;
-    });
     state = s;
+    fixState();
     saveLocal();
   }
 
@@ -1729,73 +1743,23 @@
     return false;
   }
 
-  function synthDing() {
-    try {
-      const ctx = getCtx();
-      const now = ctx.currentTime;
-
-      const osc = ctx.createOscillator();
-      const gain = ctx.createGain();
-      osc.type = 'sine';
-      osc.frequency.setValueAtTime(880, now);
-      osc.frequency.exponentialRampToValueAtTime(1760, now + 0.06);
-      gain.gain.setValueAtTime(0.0001, now);
-      gain.gain.exponentialRampToValueAtTime(0.22, now + 0.008);
-      gain.gain.exponentialRampToValueAtTime(0.0001, now + 0.35);
-      osc.connect(gain);
-      gain.connect(ctx.destination);
-      osc.start(now);
-      osc.stop(now + 0.36);
-
-      const osc2 = ctx.createOscillator();
-      const gain2 = ctx.createGain();
-      osc2.type = 'sine';
-      osc2.frequency.setValueAtTime(2637, now);
-      gain2.gain.setValueAtTime(0.0001, now);
-      gain2.gain.exponentialRampToValueAtTime(0.08, now + 0.005);
-      gain2.gain.exponentialRampToValueAtTime(0.0001, now + 0.2);
-      osc2.connect(gain2);
-      gain2.connect(ctx.destination);
-      osc2.start(now);
-      osc2.stop(now + 0.21);
-    } catch {}
-  }
-
-  function synthTick() {
+  function tone(type, f1, f2, dur, vol, glide) {
     try {
       const ctx = getCtx();
       const now = ctx.currentTime;
       const osc = ctx.createOscillator();
       const gain = ctx.createGain();
-      osc.type = 'triangle';
-      osc.frequency.setValueAtTime(900, now);
-      osc.frequency.exponentialRampToValueAtTime(320, now + 0.05);
+      osc.type = type;
+      osc.frequency.setValueAtTime(f1, now);
+      if (glide === 'lin') osc.frequency.linearRampToValueAtTime(f2, now + dur * 0.9);
+      else osc.frequency.exponentialRampToValueAtTime(f2, now + Math.min(0.06, dur));
       gain.gain.setValueAtTime(0.0001, now);
-      gain.gain.exponentialRampToValueAtTime(0.18, now + 0.004);
-      gain.gain.exponentialRampToValueAtTime(0.0001, now + 0.07);
+      gain.gain.exponentialRampToValueAtTime(vol, now + 0.008);
+      gain.gain.exponentialRampToValueAtTime(0.0001, now + dur);
       osc.connect(gain);
       gain.connect(ctx.destination);
       osc.start(now);
-      osc.stop(now + 0.08);
-    } catch {}
-  }
-
-  function synthDull() {
-    try {
-      const ctx = getCtx();
-      const now = ctx.currentTime;
-      const osc = ctx.createOscillator();
-      const gain = ctx.createGain();
-      osc.type = 'sine';
-      osc.frequency.setValueAtTime(300, now);
-      osc.frequency.linearRampToValueAtTime(240, now + 0.18);
-      gain.gain.setValueAtTime(0.0001, now);
-      gain.gain.exponentialRampToValueAtTime(0.2, now + 0.02);
-      gain.gain.exponentialRampToValueAtTime(0.0001, now + 0.2);
-      osc.connect(gain);
-      gain.connect(ctx.destination);
-      osc.start(now);
-      osc.stop(now + 0.22);
+      osc.stop(now + dur + 0.01);
     } catch {}
   }
 
@@ -1804,13 +1768,10 @@
       const ctx = getCtx();
       const now = ctx.currentTime;
       const dur = 0.22;
-      const bufferSize = Math.floor(ctx.sampleRate * dur);
-      const buffer = ctx.createBuffer(1, bufferSize, ctx.sampleRate);
+      const size = Math.floor(ctx.sampleRate * dur);
+      const buffer = ctx.createBuffer(1, size, ctx.sampleRate);
       const data = buffer.getChannelData(0);
-      for (let i = 0; i < bufferSize; i++) {
-        const t = i / bufferSize;
-        data[i] = (Math.random() * 2 - 1) * Math.pow(1 - t, 2);
-      }
+      for (let i = 0; i < size; i++) data[i] = (Math.random() * 2 - 1) * Math.pow(1 - i / size, 2);
       const source = ctx.createBufferSource();
       source.buffer = buffer;
       const filter = ctx.createBiquadFilter();
@@ -1830,9 +1791,9 @@
     } catch {}
   }
 
-  function playMark()   { if (!tryPlayFile('mark'))   synthDing(); }
-  function playUnmark() { if (!tryPlayFile('unmark')) synthTick(); }
-  function playHold()   { if (!tryPlayFile('hold'))   synthDull(); }
+  function playMark()   { if (!tryPlayFile('mark'))   { tone('sine', 880, 1760, 0.35, 0.22); tone('sine', 2637, 2637, 0.2, 0.08); } }
+  function playUnmark() { if (!tryPlayFile('unmark')) tone('triangle', 900, 320, 0.07, 0.18); }
+  function playHold()   { if (!tryPlayFile('hold'))   tone('sine', 300, 240, 0.2, 0.2, 'lin'); }
   function playFlip()   { if (!tryPlayFile('flip'))   synthFlip(); }
 
   /* =========================================================
@@ -1859,84 +1820,108 @@
   }
 
   /* =========================================================
-     人名列
+     確認視窗（取代瀏覽器內建的 confirm，畫面一致）
      ========================================================= */
-  function sortedPeople() {
-    const me = state.people.filter(p => p.id === ME);
-    const others = state.people.filter(p => p.id !== ME).sort((a, b) => (b.used || 0) - (a.used || 0));
-    return me.concat(others);
+  function confirmBox(title, msg, okText, danger) {
+    return new Promise(resolve => {
+      document.getElementById('confirmTitle').textContent = title;
+      document.getElementById('confirmMsg').textContent = msg;
+      const yes = document.getElementById('confirmYes');
+      const no = document.getElementById('confirmNo');
+      yes.textContent = okText || '確認';
+      yes.className = 'btn ' + (danger === false ? 'btn-primary' : 'btn-danger');
+      const overlay = document.getElementById('confirmOverlay');
+      const done = (v) => {
+        overlay.classList.remove('active');
+        yes.onclick = null;
+        no.onclick = null;
+        resolve(v);
+      };
+      yes.onclick = () => done(true);
+      no.onclick = () => done(false);
+      overlay.classList.add('active');
+    });
   }
 
-  function renderPeople() {
-    const bar = document.getElementById('peopleBar');
-    bar.innerHTML = '';
+  /* =========================================================
+     人員選擇器（收合列 + 底部選單）
+     ========================================================= */
+  function marksCount(p) { return Object.keys(p.marks).length; }
 
-    sortedPeople().forEach(p => {
-      const chip = document.createElement('button');
-      chip.className = 'person-chip' + (p.id === curId ? ' active' : '');
-      chip.textContent = p.name;
-      bindChip(chip, p.id);
-      bar.appendChild(chip);
-    });
+  function renderPersonBtn() {
+    document.getElementById('personName').textContent = P().name;
+    document.getElementById('personCount').textContent = state.people.length > 1 ? `共 ${state.people.length} 人` : '';
+  }
 
-    const add = document.createElement('button');
-    add.className = 'person-chip add';
-    add.textContent = '＋ 新的';
-    add.onclick = addPerson;
-    bar.appendChild(add);
+  function openPeople() {
+    document.getElementById('peopleSearch').value = '';
+    document.getElementById('newPersonInput').value = '';
+    renderPeopleList();
+    document.getElementById('peopleSheet').classList.add('active');
+  }
 
-    const btn = document.getElementById('resetPersonBtn');
-    btn.textContent = curId === ME ? '清除全部' : `刪除${P().name}`;
+  function closePeople() {
+    document.getElementById('peopleSheet').classList.remove('active');
+    document.getElementById('peopleSearch').blur();
+    document.getElementById('newPersonInput').blur();
+  }
 
-    const active = bar.querySelector('.person-chip.active');
-    if (active && active.scrollIntoView) {
-      try { active.scrollIntoView({ inline: 'nearest', block: 'nearest' }); } catch {}
+  function renderPeopleList() {
+    const q = document.getElementById('peopleSearch').value.trim();
+    const box = document.getElementById('peopleScroll');
+    document.getElementById('peopleTotal').textContent = `共 ${state.people.length} 人`;
+    const pre = monthPrefix(currentYear, currentMonth);
+
+    const row = (p) => {
+      const n = Object.keys(p.marks).filter(k => k.startsWith(pre)).length;
+      return `<button class="list-row" onclick="pickPerson('${p.id}')">
+        <span class="grow">${esc(p.name)}</span>
+        <span class="meta">${n ? `${currentMonth + 1} 月 ${n} 天` : ''}</span>
+        ${p.id === curId ? icon('check', 'check') : ''}
+      </button>`;
+    };
+
+    let html = '';
+    if (q) {
+      const hits = state.people.filter(p => p.name.includes(q));
+      html += `<div class="group-label">搜尋結果</div><div class="list">${hits.length ? hits.map(row).join('') : '<div class="list-empty">找不到「' + esc(q) + '」，可以在下方新增</div>'}</div>`;
+    } else {
+      const recent = state.people.filter(p => p.id !== ME && p.used)
+        .sort((a, b) => b.used - a.used).slice(0, 5);
+      if (recent.length) {
+        html += `<div class="group-label">最近使用</div><div class="recent-row">` +
+          recent.map(p => `<button class="name-chip${p.id === curId ? ' on' : ''}" onclick="pickPerson('${p.id}')">${esc(p.name)}</button>`).join('') +
+          `</div>`;
+      }
+      html += `<div class="group-label">全部人員</div><div class="list">${state.people.map(row).join('')}</div>`;
     }
+    box.innerHTML = html;
+    if (q) document.getElementById('newPersonInput').value = q;
   }
 
-  function bindChip(chip, id) {
-    let timer = null, longPressed = false;
-    const clear = () => { if (timer) { clearTimeout(timer); timer = null; } };
-
-    chip.addEventListener('pointerdown', () => {
-      longPressed = false;
-      clear();
-      if (id === ME) return;
-      timer = setTimeout(() => {
-        timer = null;
-        longPressed = true;
-        if (navigator.vibrate) navigator.vibrate(15);
-        openPersonMenu(id);
-      }, 550);
-    });
-    chip.addEventListener('pointerup', clear);
-    chip.addEventListener('pointercancel', clear);
-    chip.addEventListener('pointerleave', clear);
-    chip.addEventListener('contextmenu', (e) => e.preventDefault());
-    chip.addEventListener('click', () => {
-      if (longPressed) { longPressed = false; return; }
-      switchPerson(id);
-    });
+  function pickPerson(id) {
+    switchPerson(id);
+    closePeople();
   }
 
   function switchPerson(id) {
     curId = id;
     const p = P();
     if (p.id !== ME) p.used = Date.now();
+    recExpanded = false;
     saveLocal();
-    renderPeople();
+    renderPersonBtn();
     render();
   }
 
-  function addPerson() {
-    const input = prompt('要幫誰記？輸入名字（例：裕盛）');
-    if (input === null) return;
-    const name = input.trim().slice(0, 10);
-    if (!name) return;
-    if (name === '我') { switchPerson(ME); return; }
+  function addPersonFromSheet() {
+    const input = document.getElementById('newPersonInput');
+    const name = input.value.trim().slice(0, 10);
+    if (!name) { input.focus(); showToast('請輸入姓名'); return; }
+    if (name === '我') { pickPerson(ME); return; }
     const exist = state.people.find(p => p.name === name);
     if (exist) {
-      switchPerson(exist.id);
+      pickPerson(exist.id);
       showToast(`已切換到 ${name}`);
       return;
     }
@@ -1944,15 +1929,41 @@
     state.people.push(p);
     logAction(name, '新增這個人');
     saveState();
-    switchPerson(p.id);
-    showToast(`已新增 ${name}，可以開始記了`);
+    pickPerson(p.id);
+    showToast(`已新增 ${name}`);
   }
 
+  /* ---------- 人員管理 ---------- */
   let menuPersonId = null;
+
+  function openPersonManage() {
+    const box = document.getElementById('pmScroll');
+    document.getElementById('pmTotal').textContent = `共 ${state.people.length} 人`;
+    box.innerHTML = `<div class="list">${state.people.map(p => `
+      <button class="list-row" onclick="openPersonMenu('${p.id}')">
+        <span class="grow">${esc(p.name)}<span class="sub">${marksCount(p)} 個標記・${p.swaps.length} 筆調班</span></span>
+        ${icon('right', 'sm chev')}
+      </button>`).join('')}</div>`;
+    document.getElementById('pmSheet').classList.add('active');
+  }
+
+  function closePersonManage() {
+    document.getElementById('pmSheet').classList.remove('active');
+  }
 
   function openPersonMenu(id) {
     menuPersonId = id;
-    document.getElementById('personTitle').textContent = findPerson(id).name;
+    const p = findPerson(id);
+    document.getElementById('personTitle').textContent = p.name;
+    let html = '';
+    if (p.id !== ME) {
+      html += `<button class="list-row" onclick="renamePerson()">${icon('edit', 'row-ic')}<span class="grow">改名字</span></button>`;
+    }
+    html += `<button class="list-row danger" onclick="clearPersonRecords()">${icon('erase', 'row-ic')}<span class="grow">清空全部紀錄<span class="sub">刪除所有月份的標記與調班，人員保留</span></span></button>`;
+    if (p.id !== ME) {
+      html += `<button class="list-row danger" onclick="deletePerson()">${icon('trash', 'row-ic')}<span class="grow">刪除人員<span class="sub">連同所有紀錄一起刪除</span></span></button>`;
+    }
+    document.getElementById('personActions').innerHTML = html;
     document.getElementById('personOverlay').classList.add('active');
   }
 
@@ -1961,13 +1972,19 @@
     menuPersonId = null;
   }
 
+  function afterPeopleChange() {
+    if (document.getElementById('pmSheet').classList.contains('active')) openPersonManage();
+    renderPersonBtn();
+    render();
+  }
+
   function renamePerson() {
     const p = findPerson(menuPersonId);
-    if (!p) return closePersonMenu();
+    if (!p || p.id === ME) return closePersonMenu();
     const input = prompt('新的名字', p.name);
     if (input === null) return;
     const name = input.trim().slice(0, 10);
-    if (!name || name === '我') return;
+    if (!name || name === '我' || name === p.name) return;
     if (state.people.some(o => o.id !== p.id && o.name === name)) {
       showToast('已經有這個名字了');
       return;
@@ -1976,21 +1993,45 @@
     p.name = name;
     saveState();
     closePersonMenu();
-    renderPeople();
-    render();
+    afterPeopleChange();
+    showToast('已改名');
   }
 
-  function deletePerson() {
+  async function clearPersonRecords() {
+    const p = findPerson(menuPersonId);
+    if (!p) return closePersonMenu();
+    const n = marksCount(p);
+    if (!n && !p.swaps.length) { showToast('這個人目前沒有紀錄'); return; }
+    const ok = await confirmBox(
+      `清空「${p.name}」的全部紀錄？`,
+      `操作對象：${p.name}\n影響範圍：所有月份的 ${n} 個標記、${p.swaps.length} 筆調班紀錄\n人員本身會保留，其他人不受影響。\n\n這個動作無法復原，建議先備份。`,
+      '確認清空'
+    );
+    if (!ok) return;
+    logAction(p.name, `清空全部紀錄（${n} 個標記、${p.swaps.length} 筆調班）`);
+    p.marks = {};
+    p.swaps = [];
+    saveState();
+    closePersonMenu();
+    afterPeopleChange();
+    showToast('已清空');
+  }
+
+  async function deletePerson() {
     const p = findPerson(menuPersonId);
     if (!p || p.id === ME) return closePersonMenu();
-    if (!confirm(`確定刪除「${p.name}」？\n他的標記和調班紀錄都會一起刪掉。`)) return;
+    const ok = await confirmBox(
+      `刪除人員「${p.name}」？`,
+      `操作對象：${p.name}\n影響範圍：這個人和他的 ${marksCount(p)} 個標記、${p.swaps.length} 筆調班紀錄\n\n這個動作無法復原，建議先備份。`,
+      '確認刪除'
+    );
+    if (!ok) return;
     state.people = state.people.filter(o => o.id !== p.id);
-    logAction(p.name, '刪除這個人（含所有標記和調班紀錄）');
+    logAction(p.name, '刪除人員（含所有標記和調班紀錄）');
     if (curId === p.id) curId = ME;
     saveState();
     closePersonMenu();
-    renderPeople();
-    render();
+    afterPeopleChange();
     showToast(`已刪除 ${p.name}`);
   }
 
@@ -2008,7 +2049,7 @@
     const marks = P().marks;
     const holidays = getHolidays(year);
     const daysEl = document.getElementById(containerId);
-    daysEl.innerHTML = '';
+    const frag = document.createDocumentFragment();
 
     const firstDay = new Date(year, month, 1).getDay();
     const daysInMonth = new Date(year, month + 1, 0).getDate();
@@ -2018,7 +2059,7 @@
     for (let i = 0; i < firstDay; i++) {
       const empty = document.createElement('div');
       empty.className = 'day empty';
-      daysEl.appendChild(empty);
+      frag.appendChild(empty);
     }
 
     for (let d = 1; d <= daysInMonth; d++) {
@@ -2048,14 +2089,20 @@
       }
 
       bindDayEvents(dayEl, key, d, year, month);
-      daysEl.appendChild(dayEl);
+      frag.appendChild(dayEl);
     }
 
-    for (let i = firstDay + daysInMonth; i < 42; i++) {
+    // 只補滿最後一排，月曆高度跟著當月排數
+    const used = firstDay + daysInMonth;
+    const total = Math.ceil(used / 7) * 7;
+    for (let i = used; i < total; i++) {
       const empty = document.createElement('div');
       empty.className = 'day empty';
-      daysEl.appendChild(empty);
+      frag.appendChild(empty);
     }
+
+    daysEl.innerHTML = '';
+    daysEl.appendChild(frag);
   }
 
   /* 短按用瀏覽器原生 click（安卓最穩），長按另外計時 */
@@ -2104,16 +2151,22 @@
   function toggleMark(key) {
     const marks = P().marks;
     if (marks[key]) {
-      logAction(P().name, `取消 ${kd(key)}（原本是「${marks[key]}」）`);
+      logAction(P().name, `取消 ${md(key)}（原本是「${marks[key]}」）`);
       delete marks[key];
       playUnmark();
     } else {
       marks[key] = DEFAULT_MARK;
-      logAction(P().name, `標記 ${kd(key)}「${DEFAULT_MARK}」`);
+      logAction(P().name, `標記 ${md(key)}「${DEFAULT_MARK}」`);
       playMark();
     }
     saveState();
     render();
+  }
+
+  function fitCalendarHeight() {
+    const cal = document.getElementById('calendar');
+    const cur = document.getElementById('panelCur');
+    cal.style.height = cur.offsetHeight + 'px';
   }
 
   function render() {
@@ -2132,6 +2185,8 @@
     track.style.transform = 'translateX(-33.3333%)';
     requestAnimationFrame(() => track.classList.remove('no-anim'));
 
+    fitCalendarHeight();
+    renderStats();
     renderRecords();
     updateQuickPreview();
   }
@@ -2140,7 +2195,13 @@
     const o = getOffsetMonth(currentYear, currentMonth, delta);
     currentYear = o.y;
     currentMonth = o.m;
+    recExpanded = false;
     render();
+  }
+
+  function navMonth(delta) {
+    playFlip();
+    changeMonth(delta);
   }
 
   function goToMonth(y, m) {
@@ -2179,10 +2240,10 @@
   }
 
   /* =========================================================
-     調班紀錄
-     swap:  type 'swap'  互換：out 給對方、in 換進來
-            type 'cover' 別人代理我：out 由對方站，我欠對方一天
-            type 'help'  我代理別人：in 我幫對方站，對方欠我一天
+     調班資料邏輯（與舊版相同，紀錄完全相容）
+     type 'cover' 找人代班：out 交出去，由對方站
+     type 'help'  幫人代班：in 我幫對方站
+     type 'swap'  互相換班：out 交出去、in 換進來
      ========================================================= */
   function applySwapTo(marks, s) {
     if (s.out) {
@@ -2215,148 +2276,239 @@
     return p.swaps.filter(s => (s.out && s.out.startsWith(pre)) || (s.in && s.in.startsWith(pre)));
   }
 
-  function dayListText(marks, y, m) {
-    const pre = monthPrefix(y, m);
-    const keys = Object.keys(marks).filter(k => k.startsWith(pre)).sort();
-    if (!keys.length) return '（沒有）';
-    return keys.map(k => {
-      const d = parseKey(k).d;
-      const v = marks[k];
-      return v === DEFAULT_MARK ? `${d}` : `${d}(${v})`;
-    }).join('、');
-  }
-
-  function fmtDay(key, vy, vm) {
-    const k = parseKey(key);
-    if (k.y === vy && k.m === vm) return `${k.d} 號`;
-    if (k.y === vy) return `${k.m + 1}/${k.d}`;
-    return `${k.y}/${k.m + 1}/${k.d}`;
-  }
-
-  function tidy(s) {
-    return s.replace(/\s+的/g, '的')
-            .replace(/\s*我\s*/g, '我')
-            .replace(/\s+/g, ' ')
-            .trim();
-  }
-
-  // 一筆調班紀錄 → 好懂的句子
-  function swapLines(s, ow, vy, vm) {
-    const who = s.who;
-    let head = '', lines = [];
+  /* ---------- 一筆調班 → 卡片用的資訊 ---------- */
+  function swapInfo(s, p) {
+    const ow = ownerWord(p);
+    const who = s.who || '';
+    const other = who || '對方';
     if (s.type === 'swap') {
-      head = `跟 ${who} 換`;
-      lines = [
-        `${ow} 的 ${fmtDay(s.out, vy, vm)} 給 ${who}`,
-        `${who} 的 ${fmtDay(s.in, vy, vm)} 給 ${ow}`
-      ];
-    } else if (s.type === 'cover') {
-      head = `${who} 代理 ${ow}`;
-      lines = [
-        `${ow} 的 ${fmtDay(s.out, vy, vm)} 由 ${who} 代理`,
-        s.settled ? `✓ 已經還 ${who} 了` : `${ow} 欠 ${who} 一天`
-      ];
-    } else {
-      head = `${ow} 代理 ${who}`;
-      lines = [
-        `${who} 的 ${fmtDay(s.in, vy, vm)} 由 ${ow} 代理`,
-        s.settled ? `✓ ${who} 已經還了` : `${who} 欠 ${ow} 一天`
-      ];
+      return {
+        kind: 'swap',
+        title: who ? `與${who}互換` : '互相換班',
+        left: { lab: `${ow}交出去`, key: s.out, cls: 'out', sub: `${other}代站` },
+        right: { lab: `${ow}換進來`, key: s.in, cls: 'in', sub: `${ow}來站` }
+      };
     }
-    return { head: tidy(head), lines: lines.map(tidy) };
+    if (s.type === 'cover') {
+      return {
+        kind: 'cover',
+        title: who ? `請${who}代班` : '找人代班',
+        left: { lab: `原本${ow}的班`, key: s.out, cls: 'out' },
+        right: { lab: '改由', who: `${who || '別人'}代站` }
+      };
+    }
+    return {
+      kind: 'help',
+      title: who ? `幫${who}代班` : '幫人代班',
+      left: { lab: `原本${who || '別人'}的班`, key: s.in },
+      right: { lab: '改由', who: `${ow}代站` }
+    };
   }
 
-  function regText(s) {
-    const d = new Date(s.at);
-    return `（${d.getMonth() + 1}/${d.getDate()} 登記）`;
+  // 一行文字（異動紀錄、試算表、圖片、刪除確認用）
+  function swapText(s, p) {
+    const i = swapInfo(s, p);
+    if (s.type === 'swap') return `${i.title}：${i.left.lab} ${mdw(s.out)}，${i.right.lab} ${mdw(s.in)}`;
+    if (s.type === 'cover') return `${i.title}：${mdw(s.out)} ${i.left.lab}，改由${i.right.who}`;
+    return `${i.title}：${mdw(s.in)} ${i.left.lab}，改由${i.right.who}`;
   }
 
-  function oweLines(p) {
+  function oweText(s, p) {
+    const ow = ownerWord(p);
+    const who = s.who || '別人';
+    if (s.type === 'cover') return s.settled ? '已還' : `${ow}欠${who} 1 天`;
+    if (s.type === 'help') return s.settled ? '已還' : `${who}欠${ow} 1 天`;
+    return '';
+  }
+
+  function dateHtml(key, cls) {
+    return `<div class="rc-date${cls ? ' ' + cls : ''}">${md(key)}<small>週${weekOf(key)}</small></div>`;
+  }
+
+  function colHtml(c) {
+    return `<div class="rc-col">
+      <div class="rc-lab">${esc(c.lab)}</div>
+      ${c.key ? dateHtml(c.key, c.cls) : `<div class="rc-who">${esc(c.who)}</div>`}
+      ${c.sub ? `<div class="rc-sub">${esc(c.sub)}</div>` : ''}
+    </div>`;
+  }
+
+  function swapCardHtml(s, p, withActions) {
+    const i = swapInfo(s, p);
+    const ico = { swap: 'swap', cover: 'arrow', help: 'hand' }[i.kind];
+    const arrow = i.kind === 'swap' ? 'swap' : 'arrow';
+    const reg = s.at ? `${new Date(s.at).getMonth() + 1}/${new Date(s.at).getDate()} 登記` : '';
+    let foot = '';
+    if (withActions) {
+      const owe = oweText(s, p);
+      foot = `<div class="rc-foot">
+        ${owe ? `<button class="owe-chip${s.settled ? ' done' : ''}" onclick="toggleSettle('${s.id}')">${s.settled ? icon('check', 'sm') : ''}${esc(owe)}</button>` : ''}
+        <span class="spacer"></span>
+        <button class="rc-del" onclick="deleteSwap('${s.id}')">${icon('trash', 'sm')}刪除</button>
+      </div>`;
+    }
+    return `<div class="rc">
+      <div class="rc-top">
+        <span class="rc-ico ${i.kind}">${icon(ico, 'sm')}</span>
+        <span class="rc-title">${esc(i.title)}</span>
+        <span class="rc-reg">${reg}</span>
+      </div>
+      <div class="rc-body">
+        ${colHtml(i.left)}
+        <div class="rc-arrow">${icon(arrow)}</div>
+        ${colHtml(i.right)}
+      </div>
+      ${foot}
+    </div>`;
+  }
+
+  /* ---------- 留守統計卡 ---------- */
+  function dayNums(marks, y, m) {
+    const pre = monthPrefix(y, m);
+    return Object.keys(marks).filter(k => k.startsWith(pre)).sort().map(k => ({ d: parseKey(k).d, v: marks[k], k }));
+  }
+
+  function dayLabel(x) { return x.v === DEFAULT_MARK ? `${x.d}` : `${x.d}(${x.v})`; }
+
+  function renderStats() {
+    const box = document.getElementById('statCard');
+    const p = P();
+    const y = currentYear, m = currentMonth;
+    const now = dayNums(p.marks, y, m);
+    const hasSwap = swapsInMonth(p, y, m).length > 0;
+
+    let html = `<div class="card-head">
+      <span class="card-title">${m + 1} 月留守<small>${now.length} 天</small></span>
+      <span class="spacer"></span>
+      ${now.length ? `<button class="chip-btn" onclick="copyMonthText()">${icon('copy', 'sm')}複製</button>` : ''}
+    </div>`;
+
+    if (!now.length && !hasSwap) {
+      html += `<div class="stat-empty">本月還沒有標記，點日期就能標記</div>`;
+    } else if (hasSwap) {
+      const orig = dayNums(originalMarks(p), y, m);
+      const nowSet = new Set(now.map(x => x.k));
+      const origSet = new Set(orig.map(x => x.k));
+      const origHtml = orig.length
+        ? orig.map(x => nowSet.has(x.k) ? esc(dayLabel(x)) : `<span class="gone">${esc(dayLabel(x))}</span>`).join('、')
+        : '（沒有）';
+      const nowHtml = now.length
+        ? now.map(x => origSet.has(x.k) ? esc(dayLabel(x)) : `<span class="add">${esc(dayLabel(x))}</span>`).join('、')
+        : '（沒有）';
+      html += `<div class="stat-row"><span class="stat-k">原本排的</span><span class="stat-v">${origHtml}</span></div>
+        <div class="stat-row"><span class="stat-k">現在要站</span><span class="stat-v now">${nowHtml}</span></div>`;
+    } else {
+      const groups = {};
+      now.forEach(x => { (groups[x.v] = groups[x.v] || []).push(x.d); });
+      html += Object.keys(groups).map(v =>
+        `<div class="stat-row"><span class="stat-k">${esc(v)}（${groups[v].length}）</span><span class="stat-v now">${groups[v].join('、')}</span></div>`
+      ).join('');
+    }
+    box.innerHTML = html;
+  }
+
+  function monthText(p, y, m) {
+    const now = dayNums(p.marks, y, m);
+    const name = p.id === ME ? (lsGet(IMG_NAME_KEY) || '我') : p.name;
+    const groups = {};
+    now.forEach(x => { (groups[x.v] = groups[x.v] || []).push(x.d); });
+    const lines = [];
+    Object.keys(groups).forEach(v => {
+      const label = v === DEFAULT_MARK ? '留守' : v;
+      lines.push(`${name} ${m + 1} 月${label}：${groups[v].join('、')}`);
+    });
+    swapsInMonth(p, y, m).forEach(s => lines.push(`（${swapText(s, p)}）`));
+    return lines.join('\n');
+  }
+
+  async function copyText(text, okMsg) {
+    try {
+      await navigator.clipboard.writeText(text);
+      showToast(okMsg);
+    } catch {
+      const ta = document.createElement('textarea');
+      ta.value = text;
+      ta.style.position = 'fixed';
+      ta.style.opacity = '0';
+      document.body.appendChild(ta);
+      ta.select();
+      try { document.execCommand('copy'); showToast(okMsg); }
+      catch { showToast('複製失敗，請改用產圖'); }
+      document.body.removeChild(ta);
+    }
+  }
+
+  function copyMonthText() {
+    copyText(monthText(P(), currentYear, currentMonth), '已複製，可以貼到群組');
+  }
+
+  /* ---------- 調班紀錄卡 ---------- */
+  function oweSummary(p) {
     const ow = ownerWord(p);
     const iOwe = {}, oweMe = {};
     p.swaps.forEach(s => {
       if (s.settled) return;
-      if (s.type === 'cover') iOwe[s.who] = (iOwe[s.who] || 0) + 1;
-      if (s.type === 'help') oweMe[s.who] = (oweMe[s.who] || 0) + 1;
+      const w = s.who || '別人';
+      if (s.type === 'cover') iOwe[w] = (iOwe[w] || 0) + 1;
+      if (s.type === 'help') oweMe[w] = (oweMe[w] || 0) + 1;
     });
     const out = [];
-    Object.keys(iOwe).forEach(w => out.push(tidy(`${ow} 欠 ${w} ${iOwe[w]} 天`)));
-    Object.keys(oweMe).forEach(w => out.push(tidy(`${w} 欠 ${ow} ${oweMe[w]} 天`)));
+    Object.keys(iOwe).forEach(w => out.push(`${ow}欠${w} ${iOwe[w]} 天`));
+    Object.keys(oweMe).forEach(w => out.push(`${w}欠${ow} ${oweMe[w]} 天`));
     return out;
   }
 
-  function circled(i) {
-    return i < 20 ? String.fromCharCode(0x2460 + i) : `${i + 1}.`;
-  }
-
-  function esc(s) {
-    return String(s).replace(/[&<>"']/g, c => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;' }[c]));
-  }
-
   function renderRecords() {
-    const box = document.getElementById('records');
+    const box = document.getElementById('recCard');
     const p = P();
-    const y = currentYear, m = currentMonth;
-    const list = swapsInMonth(p, y, m);
-    const owe = oweLines(p);
-    const ow = ownerWord(p);
+    const list = swapsInMonth(p, currentYear, currentMonth).slice().sort((a, b) => (b.at || 0) - (a.at || 0));
+    const owe = oweSummary(p);
 
-    if (!list.length && !owe.length) {
-      box.classList.remove('show');
-      box.innerHTML = '';
-      return;
+    let html = `<div class="card-head">
+      <span class="card-title">調班紀錄${list.length ? `<small>${list.length} 筆</small>` : ''}</span>
+      <span class="spacer"></span>
+      <button class="chip-btn" onclick="openSwap()">${icon('plus', 'sm')}新增</button>
+    </div>`;
+
+    if (!list.length) {
+      html += `<div class="rc-empty">${icon('swap', 'sm')}本月沒有調班，長按日期就能調班</div>`;
+    } else {
+      const shown = recExpanded ? list : list.slice(0, REC_SHOW);
+      html += `<div class="rc-list">${shown.map(s => swapCardHtml(s, p, true)).join('')}</div>`;
+      if (list.length > REC_SHOW) {
+        html += `<button class="rc-more" onclick="toggleRecExpand()">${recExpanded ? '收合紀錄' : `展開全部（${list.length} 筆）`}</button>`;
+      }
     }
 
-    let html = '';
-
-    if (list.length) {
-      const orig = originalMarks(p);
-      html += `
-        <div class="rec-sum">
-          <div><span class="rec-k">原本排的</span><span class="rec-v">${esc(dayListText(orig, y, m))}</span></div>
-          <div><span class="rec-k">現在要站</span><span class="rec-v strong">${esc(dayListText(p.marks, y, m))}</span></div>
-        </div>
-        <div class="rec-title">${esc(ow === '我' ? '' : ow + ' ')}調班紀錄</div>`;
-
-      list.forEach((s, i) => {
-        const t = swapLines(s, ow, y, m);
-        const canSettle = s.type !== 'swap';
-        html += `
-          <div class="rec-item">
-            <div class="rec-no">${circled(i)}</div>
-            <div class="rec-body">
-              <div class="rec-head">${esc(t.head)}</div>
-              ${t.lines.map(l => `<div${l.startsWith('✓') ? ' class="rec-done"' : ''}>${esc(l)}</div>`).join('')}
-              <div class="rec-date">${regText(s)}</div>
-            </div>
-            <div class="rec-acts">
-              ${canSettle ? `<button class="rec-btn${s.settled ? '' : ' ok'}" onclick="toggleSettle('${s.id}')">${s.settled ? '改回未還' : '已還'}</button>` : ''}
-              <button class="rec-btn" onclick="deleteSwap('${s.id}')">刪除</button>
-            </div>
-          </div>`;
-      });
-    }
-
-    if (owe.length) {
-      html += `<div class="rec-owe">📌 目前欠班<br>${owe.map(esc).join('<br>')}</div>`;
-    }
-
+    if (owe.length) html += `<div class="owe-sum">目前欠班：${owe.map(esc).join('、')}</div>`;
     box.innerHTML = html;
-    box.classList.add('show');
   }
 
-  function deleteSwap(id) {
+  function toggleRecExpand() {
+    recExpanded = !recExpanded;
+    renderRecords();
+  }
+
+  async function deleteSwap(id) {
     const p = P();
     const idx = p.swaps.findIndex(s => s.id === id);
     if (idx < 0) return;
-    if (!confirm('刪除這筆調班？\n月曆會改回調班前的樣子。')) return;
+    const s = p.swaps[idx];
+    const i = swapInfo(s, p);
+    const dates = [s.out, s.in].filter(Boolean).map(md).join('、');
+    const ok = await confirmBox(
+      '刪除調班紀錄？',
+      `確定刪除「${i.title} ${dates}」的紀錄？\n月曆會改回調班前的樣子。`,
+      '確認刪除'
+    );
+    if (!ok) return;
+    logAction(p.name, `刪除調班：${swapText(s, p)}`);
     // 後面的紀錄先倒回，再刪這筆，再把後面的重新套用
-    logAction(p.name, `刪除調班：${swapSentence(p.swaps[idx], p)}`);
     const later = p.swaps.slice(idx + 1);
-    for (let i = later.length - 1; i >= 0; i--) undoSwapOn(p.marks, later[i]);
-    undoSwapOn(p.marks, p.swaps[idx]);
+    for (let k = later.length - 1; k >= 0; k--) undoSwapOn(p.marks, later[k]);
+    undoSwapOn(p.marks, s);
     p.swaps.splice(idx, 1);
-    later.forEach(s => applySwapTo(p.marks, s));
+    later.forEach(x => applySwapTo(p.marks, x));
     saveState();
     playUnmark();
     render();
@@ -2367,65 +2519,84 @@
     const s = P().swaps.find(x => x.id === id);
     if (!s) return;
     s.settled = !s.settled;
-    logAction(P().name, `${s.settled ? '標記已還' : '改回未還'}：${swapSentence(s, P())}`);
+    logAction(P().name, `${s.settled ? '標記已還' : '改回未還'}：${swapText(s, P())}`);
     saveState();
     render();
     showToast(s.settled ? '已標記還清' : '已改回未還');
   }
 
-  /* ---------- 調班視窗 ---------- */
-  let swapType = 'swap';
+  /* =========================================================
+     調班視窗
+     ========================================================= */
+  let swapType = 'cover';
   let swapOut = null, swapIn = null;
   let swapField = 'out';
   let mcY = 0, mcM = 0;
 
-  function openSwap() {
-    swapType = 'swap';
+  function openSwap(preset) {
     swapOut = null;
     swapIn = null;
-    swapField = 'out';
     mcY = currentYear;
     mcM = currentMonth;
     document.getElementById('swapWho').value = '';
-
-    const dl = document.getElementById('peopleList');
-    const names = new Set();
-    state.people.forEach(p => { if (p.id !== curId && p.id !== ME) names.add(p.name); });
-    P().swaps.forEach(s => names.add(s.who));
-    dl.innerHTML = [...names].map(n => `<option value="${esc(n)}">`).join('');
-
     const ow = ownerWord();
-    document.getElementById('swapTitle').textContent = ow === '我' ? '🔄 調班' : `🔄 ${ow} 的調班`;
-    document.querySelector('#swapSeg button[data-t="cover"]').textContent = `別人代理${ow}`;
-    document.querySelector('#swapSeg button[data-t="help"]').textContent = `${ow}代理別人`;
+    document.getElementById('swapTitle').innerHTML = `${icon('swap')}${ow === '我' ? '調班' : esc(ow) + ' 的調班'}`;
 
-    setSwapType('cover');
+    let type = 'cover';
+    if (preset) {
+      type = preset.type;
+      if (preset.out) swapOut = preset.out;
+      if (preset.in) swapIn = preset.in;
+      const k = parseKey(preset.out || preset.in);
+      mcY = k.y;
+      mcM = k.m;
+    }
+    renderWhoChips();
+    setSwapType(type);
     document.getElementById('swapOverlay').classList.add('active');
   }
 
   function closeSwap() {
     document.getElementById('swapOverlay').classList.remove('active');
+    document.getElementById('swapWho').blur();
+  }
+
+  function renderWhoChips() {
+    const names = [];
+    const add = (n) => { if (n && n !== P().name && !names.includes(n)) names.push(n); };
+    P().swaps.slice().sort((a, b) => (b.at || 0) - (a.at || 0)).forEach(s => add(s.who));
+    state.people.filter(p => p.id !== ME).sort((a, b) => (b.used || 0) - (a.used || 0)).forEach(p => add(p.name));
+    const cur = document.getElementById('swapWho').value.trim();
+    document.getElementById('whoChips').innerHTML = names.slice(0, 6).map(n =>
+      `<button class="name-chip${n === cur ? ' on' : ''}" onclick="pickWho(this)" data-n="${esc(n)}">${esc(n)}</button>`
+    ).join('');
+  }
+
+  function pickWho(btn) {
+    const input = document.getElementById('swapWho');
+    const n = btn.dataset.n;
+    input.value = input.value.trim() === n ? '' : n;
+    renderWhoChips();
+    updateSwapPreview();
   }
 
   function setSwapType(t) {
     swapType = t;
     if (t === 'cover') swapIn = null;
     if (t === 'help') swapOut = null;
-    swapField = t === 'help' ? 'in' : (swapOut && t === 'swap' ? 'in' : 'out');
+    swapField = t === 'help' ? 'in' : (swapOut && t === 'swap' && !swapIn ? 'in' : 'out');
     document.querySelectorAll('#swapSeg button').forEach(b => b.classList.toggle('on', b.dataset.t === t));
 
     const ow = ownerWord();
-    const row = document.getElementById('dateRow');
-    const fOut = document.getElementById('fieldOut');
-    const fIn = document.getElementById('fieldIn');
-    fOut.style.display = t === 'help' ? 'none' : '';
-    fIn.style.display = t === 'cover' ? 'none' : '';
-    row.classList.toggle('one', t !== 'swap');
+    document.getElementById('fieldOut').style.display = t === 'help' ? 'none' : '';
+    document.getElementById('fieldIn').style.display = t === 'cover' ? 'none' : '';
+    document.getElementById('dateRow').classList.toggle('one', t !== 'swap');
 
-    document.getElementById('labelOut').textContent =
-      t === 'swap' ? `${ow}給出去的日子` : `要找人代理的日子`;
-    document.getElementById('labelIn').textContent =
-      t === 'swap' ? `${ow}換到的日子` : `${ow}代理的日子`;
+    document.getElementById('labelOut').textContent = t === 'swap' ? `${ow}交出去` : `${ow}要交出的日期`;
+    document.getElementById('labelIn').textContent = t === 'swap' ? `${ow}換進來` : `${ow}要代站的日期`;
+
+    const whoLabel = { cover: '幫忙代班的人', help: '原本排班的人', swap: '交換對象' }[t];
+    document.getElementById('whoLabel').textContent = `${whoLabel}（可不填）`;
 
     refreshSwapUI();
   }
@@ -2446,28 +2617,20 @@
 
   function renderMiniCal() {
     document.getElementById('mcTitle').textContent = `${mcY} 年 ${mcM + 1} 月`;
-    const wrap = document.getElementById('mcDays');
-    wrap.innerHTML = '';
     const marks = P().marks;
     const first = new Date(mcY, mcM, 1).getDay();
     const dim = new Date(mcY, mcM + 1, 0).getDate();
-
-    for (let i = 0; i < first; i++) {
-      const b = document.createElement('button');
-      b.className = 'mc-day blank';
-      wrap.appendChild(b);
-    }
+    let html = '';
+    for (let i = 0; i < first; i++) html += '<button class="mc-day blank" tabindex="-1"></button>';
     for (let d = 1; d <= dim; d++) {
       const key = dateKey(mcY, mcM, d);
-      const b = document.createElement('button');
-      b.className = 'mc-day';
-      if (marks[key]) b.classList.add('on');
-      if (key === swapOut) b.classList.add('sel-out');
-      if (key === swapIn) b.classList.add('sel-in');
-      b.textContent = d;
-      b.onclick = () => pickDay(key);
-      wrap.appendChild(b);
+      let cls = 'mc-day';
+      if (marks[key]) cls += ' on';
+      if (key === swapOut) cls += ' sel-out';
+      if (key === swapIn) cls += ' sel-in';
+      html += `<button class="${cls}" onclick="pickDay('${key}')">${d}</button>`;
     }
+    document.getElementById('mcDays').innerHTML = html;
   }
 
   function pickDay(key) {
@@ -2475,89 +2638,83 @@
     const ow = ownerWord();
     if (swapField === 'out') {
       if (!marks[key]) {
-        showToast(`${parseKey(key).d} 號${ow === '我' ? '你' : ow}本來就沒排`);
+        showToast(`${md(key)} ${ow === '我' ? '你' : ow}本來就沒排班`);
         return;
       }
+      if (key === swapIn) { showToast('不能選同一天'); return; }
       swapOut = key;
       if (swapType === 'swap' && !swapIn) swapField = 'in';
     } else {
       if (marks[key] && key !== swapOut) {
-        showToast(`${parseKey(key).d} 號已經有排了`);
+        showToast(`${md(key)} 已經有排班了`);
         return;
       }
-      if (key === swapOut) {
-        showToast('不能選同一天');
-        return;
-      }
+      if (key === swapOut) { showToast('不能選同一天'); return; }
       swapIn = key;
       if (swapType === 'swap' && !swapOut) swapField = 'out';
     }
     refreshSwapUI();
   }
 
-  function fmtPick(key) {
-    if (!key) return null;
-    const k = parseKey(key);
-    const w = '日一二三四五六'[new Date(k.y, k.m, k.d).getDay()];
-    return `${k.m + 1}/${k.d}（${w}）`;
+  function swapReady() {
+    return swapType === 'swap' ? !!(swapOut && swapIn) : swapType === 'cover' ? !!swapOut : !!swapIn;
   }
 
   function refreshSwapUI() {
-    const fOut = document.getElementById('fieldOut');
-    const fIn = document.getElementById('fieldIn');
-    fOut.classList.toggle('active', swapField === 'out');
-    fIn.classList.toggle('active', swapField === 'in');
+    document.getElementById('fieldOut').classList.toggle('active', swapField === 'out');
+    document.getElementById('fieldIn').classList.toggle('active', swapField === 'in');
 
     const vo = document.getElementById('valOut');
     const vi = document.getElementById('valIn');
-    vo.textContent = fmtPick(swapOut) || '點下方日期';
+    vo.textContent = swapOut ? mdw(swapOut) : '點下方日期';
     vo.classList.toggle('empty', !swapOut);
-    vi.textContent = fmtPick(swapIn) || '點下方日期';
+    vi.textContent = swapIn ? mdw(swapIn) : '點下方日期';
     vi.classList.toggle('empty', !swapIn);
 
-    const hint = document.getElementById('swapStepHint');
-    const saveBtn = document.getElementById('swapSaveBtn');
-    const ready = swapType === 'swap' ? !!(swapOut && swapIn) : swapType === 'cover' ? !!swapOut : !!swapIn;
-    if (swapType === 'swap') {
-      hint.textContent = ready ? '✓ 日期已選好，確認對象後即可完成' : swapField === 'out' ? '① 點藍色日期，選擇原本要給出去的班' : '② 點白色日期，選擇要換進來的班';
+    const ready = swapReady();
+    const hint = document.getElementById('swapHint');
+    if (ready) {
+      hint.textContent = '✓ 日期選好了，確認下方結果即可完成';
+    } else if (swapType === 'cover') {
+      hint.textContent = '步驟 1：點藍色日期，選擇要交出的班';
+    } else if (swapType === 'help') {
+      hint.textContent = '步驟 1：點白色日期，選擇要代站的班';
     } else {
-      hint.textContent = ready ? '✓ 日期已選好，確認對象後即可完成' : swapType === 'cover' ? '① 點藍色日期，選擇別人要代理的班' : '① 點白色日期，選擇要代理別人的班';
+      hint.textContent = swapField === 'out' ? '步驟 1：點藍色日期，選擇要交出去的班' : '步驟 2：點白色日期，選擇要換進來的班';
     }
     hint.classList.toggle('done', ready);
+
+    const saveBtn = document.getElementById('swapSaveBtn');
     saveBtn.disabled = !ready;
-    saveBtn.textContent = swapType === 'swap' ? '完成互換' : swapType === 'cover' ? '確認代理' : '確認代理';
+    saveBtn.textContent = { cover: '確認代班', help: '確認代班', swap: '確認換班' }[swapType];
+
     renderMiniCal();
     updateSwapPreview();
   }
 
   function updateSwapPreview() {
-    const pv = document.getElementById('swapPreview');
-    const who = document.getElementById('swapWho').value.trim() || '○○';
-    const ready =
-      (swapType === 'swap' && swapOut && swapIn) ||
-      (swapType === 'cover' && swapOut) ||
-      (swapType === 'help' && swapIn);
-    if (!ready) {
-      pv.textContent = swapType === 'swap' ? '選好兩個日子，這裡會顯示結果' : '選好日子，這裡會顯示結果';
-      pv.classList.add('empty');
+    const box = document.getElementById('swapPreview');
+    if (!swapReady()) {
+      box.innerHTML = `<div class="swap-preview-empty">${swapType === 'swap' ? '選好兩個日期，這裡會顯示結果' : '選好日期，這裡會顯示結果'}</div>`;
       return;
     }
-    const t = swapLines({ type: swapType, who, out: swapOut, in: swapIn }, ownerWord(), currentYear, currentMonth);
-    pv.innerHTML = `<b>${esc(t.head)}</b><br>${t.lines.map(esc).join('<br>')}`;
-    pv.classList.remove('empty');
+    const draft = {
+      type: swapType,
+      who: document.getElementById('swapWho').value.trim(),
+      out: swapType === 'help' ? null : swapOut,
+      in: swapType === 'cover' ? null : swapIn
+    };
+    box.innerHTML = swapCardHtml(draft, P(), false);
   }
 
   function saveSwap() {
+    if (!swapReady()) return;
     const who = document.getElementById('swapWho').value.trim().slice(0, 10);
-    if (!who) { showToast('請輸入跟誰'); document.getElementById('swapWho').focus(); return; }
-    if (swapType === 'swap' && (!swapOut || !swapIn)) { showToast('兩個日子都要選'); return; }
-    if (swapType === 'cover' && !swapOut) { showToast('請選要代理的日子'); return; }
-    if (swapType === 'help' && !swapIn) { showToast('請選代理的日子'); return; }
-
-    // 儲存前再次檢查：避免選完日期後，資料已被其他操作改動。
     const p = P();
-    if (swapOut && !p.marks[swapOut]) { showToast('原本日期已沒有排班，請重新選擇'); refreshSwapUI(); return; }
-    if (swapIn && (swapIn === swapOut || p.marks[swapIn])) { showToast('換入日期不可與原日期相同或已有排班'); refreshSwapUI(); return; }
+    // 儲存前再檢查一次：避免選完日期後資料被改動
+    if (swapType !== 'help' && !p.marks[swapOut]) { showToast('交出的日期已經沒有排班，請重新選擇'); refreshSwapUI(); return; }
+    if (swapType !== 'cover' && (swapIn === swapOut || p.marks[swapIn])) { showToast('換進來的日期不可重複或已有排班'); refreshSwapUI(); return; }
+
     const s = {
       id: 's' + Date.now(),
       type: swapType,
@@ -2569,16 +2726,15 @@
     };
     applySwapTo(p.marks, s);
     p.swaps.push(s);
-    logAction(p.name, `登記調班：${swapSentence(s, p)}`);
+    logAction(p.name, `登記調班：${swapText(s, p)}`);
     saveState();
     closeSwap();
     playMark();
 
-    // 跳到相關的月份
     const k = parseKey(s.out || s.in);
     if (k.y !== currentYear || k.m !== currentMonth) goToMonth(k.y, k.m);
     else render();
-    showToast('✅ 調班已登記');
+    showToast('✓ 調班已登記');
   }
 
   /* =========================================================
@@ -2586,10 +2742,9 @@
      ========================================================= */
   function toggleQuick() {
     const panel = document.getElementById('quickPanel');
-    const btn = document.getElementById('quickBtn');
     const open = !panel.classList.contains('open');
     panel.classList.toggle('open', open);
-    btn.classList.toggle('on', open);
+    document.getElementById('quickBtn').classList.toggle('on', open);
     if (open) updateQuickPreview();
   }
 
@@ -2609,7 +2764,7 @@
       const m2 = s.match(/(\d{1,2})\s*[\/／]\s*\d{1,2}/);
       if (m2) mm = parseInt(m2[1], 10);
     }
-    if (mm === null || mm < 1 || mm > 12) return { y: currentYear, m: currentMonth, auto: false };
+    if (mm === null || mm < 1 || mm > 12) return { y: currentYear, m: currentMonth };
     const m = mm - 1;
     let y = yy || currentYear;
     if (!yy) {
@@ -2617,7 +2772,7 @@
       if (diff < -6) y++;
       if (diff > 6) y--;
     }
-    return { y, m, auto: !(y === currentYear && m === currentMonth) };
+    return { y, m };
   }
 
   function parseDays(text, year, month) {
@@ -2641,7 +2796,6 @@
   function updateQuickPreview() {
     const input = document.getElementById('quickInput');
     const pv = document.getElementById('quickPreview');
-    if (!input || !pv) return;
     const text = input.value;
     const ow = ownerWord();
     const whoTxt = ow === '我' ? '' : `${ow}：`;
@@ -2692,8 +2846,7 @@
   }
 
   function applyQuick() {
-    const input = document.getElementById('quickInput');
-    const text = input.value;
+    const text = document.getElementById('quickInput').value;
     const t = detectTarget(text);
     const days = parseDays(text, t.y, t.m);
     if (!days.length) {
@@ -2708,11 +2861,11 @@
     playMark();
     closeQuick();
     goToMonth(t.y, t.m);
-    showToast(`✅ 已標記 ${t.m + 1} 月 ${days.join('、')} 日`);
+    showToast(`已標記 ${t.m + 1} 月 ${days.join('、')} 日`);
   }
 
   /* =========================================================
-     長按：自訂文字
+     長按日期：調班捷徑＋自訂文字
      ========================================================= */
   function modalReady() {
     return Date.now() - modalOpenedAt > 400;
@@ -2726,24 +2879,36 @@
     const ow = ownerWord();
 
     document.getElementById('modalTitle').textContent =
-      `${ow === '我' ? '' : ow + '・'}${year} 年 ${month + 1} 月 ${day} 日`;
+      `${ow === '我' ? '' : ow + '・'}${month + 1} 月 ${day} 日（${weekOf(key)}）`;
 
     const subEl = document.getElementById('modalHoliday');
     if (holidayName) {
-      subEl.textContent = `🎌 ${holidayName}`;
+      subEl.textContent = holidayName;
       subEl.style.display = 'block';
     } else {
-      subEl.textContent = '';
       subEl.style.display = 'none';
     }
 
+    const quick = document.getElementById('noteQuick');
+    quick.innerHTML = marks[key]
+      ? `<button class="btn btn-pink" onclick="modalReady() && swapFromDay('cover')">${icon('arrow', 'sm')}找人代班</button>
+         <button class="btn btn-pink" onclick="modalReady() && swapFromDay('swap')">${icon('swap', 'sm')}互相換班</button>`
+      : `<button class="btn btn-pink" onclick="modalReady() && swapFromDay('help')">${icon('hand', 'sm')}幫人代班</button>`;
+
     document.getElementById('noteInput').value = marks[key] || DEFAULT_MARK;
     document.getElementById('modalOverlay').classList.add('active');
-    setTimeout(() => document.getElementById('noteInput').focus(), 100);
+  }
+
+  function swapFromDay(type) {
+    const key = selectedDateKey;
+    closeModal();
+    if (type === 'help') openSwap({ type, in: key });
+    else openSwap({ type, out: key });
   }
 
   function closeModal() {
     document.getElementById('modalOverlay').classList.remove('active');
+    document.getElementById('noteInput').blur();
     selectedDateKey = null;
   }
 
@@ -2752,10 +2917,10 @@
     const marks = P().marks;
     const val = document.getElementById('noteInput').value.trim();
     if (val) {
-      if (marks[selectedDateKey] !== val) logAction(P().name, `${kd(selectedDateKey)} 改成「${val}」`);
+      if (marks[selectedDateKey] !== val) logAction(P().name, `${md(selectedDateKey)} 改成「${val}」`);
       marks[selectedDateKey] = val;
     } else {
-      if (marks[selectedDateKey]) logAction(P().name, `清除 ${kd(selectedDateKey)}`);
+      if (marks[selectedDateKey]) logAction(P().name, `清除 ${md(selectedDateKey)}`);
       delete marks[selectedDateKey];
     }
     saveState();
@@ -2765,7 +2930,7 @@
 
   function deleteNote() {
     if (!selectedDateKey) return;
-    if (P().marks[selectedDateKey]) logAction(P().name, `清除 ${kd(selectedDateKey)}`);
+    if (P().marks[selectedDateKey]) logAction(P().name, `清除 ${md(selectedDateKey)}`);
     delete P().marks[selectedDateKey];
     saveState();
     closeModal();
@@ -2773,57 +2938,20 @@
   }
 
   /* =========================================================
-     清除
+     資料管理
      ========================================================= */
-  function resetMonth() {
-    const p = P();
-    const pre = monthPrefix(currentYear, currentMonth);
-    const keys = Object.keys(p.marks).filter(k => k.startsWith(pre));
-    const swaps = swapsInMonth(p, currentYear, currentMonth);
-    const ow = ownerWord();
-
-    if (!keys.length && !swaps.length) {
-      showToast('本月沒有紀錄');
-      return;
-    }
-    const msg = `確定清除${ow === '我' ? '' : '「' + ow + '」'} ${currentMonth + 1} 月？\n\n` +
-      (keys.length ? `• ${keys.length} 個標記\n` : '') +
-      (swaps.length ? `• ${swaps.length} 筆調班紀錄\n` : '');
-    if (!confirm(msg)) return;
-
-    keys.forEach(k => delete p.marks[k]);
-    logAction(p.name, `清除 ${currentYear}/${currentMonth + 1} 月（${keys.length} 個標記、${swaps.length} 筆調班）`);
-    const ids = new Set(swaps.map(s => s.id));
-    p.swaps = p.swaps.filter(s => !ids.has(s.id));
-    saveState();
-    render();
-    showToast('已清除本月');
+  function openManage() {
+    document.getElementById('manageVersion').textContent = `v${APP_VERSION}`;
+    document.getElementById('installRow').style.display = isAppMode() ? 'none' : '';
+    document.getElementById('manageCloudSub').textContent = cloudStatusText();
+    document.getElementById('manageSheet').classList.add('active');
   }
 
-  function resetPerson() {
-    const p = P();
-    if (p.id !== ME) {
-      menuPersonId = p.id;
-      deletePerson();
-      return;
-    }
-    const n = Object.keys(p.marks).length;
-    if (!n && !p.swaps.length) {
-      showToast('目前沒有紀錄');
-      return;
-    }
-    if (!confirm(`確定清除「我」的全部資料？\n\n• ${n} 個標記\n• ${p.swaps.length} 筆調班紀錄\n\n其他人的資料不會動。`)) return;
-    logAction(p.name, `清除全部資料（${n} 個標記、${p.swaps.length} 筆調班）`);
-    p.marks = {};
-    p.swaps = [];
-    saveState();
-    render();
-    showToast('已清除');
+  function closeManage() {
+    document.getElementById('manageSheet').classList.remove('active');
   }
 
-  /* =========================================================
-     備份／還原
-     ========================================================= */
+  /* ---------- 備份／還原（格式與舊版相同） ---------- */
   const BACKUP_HEAD = 'DDCAL1:';
 
   function makeBackupCode() {
@@ -2832,34 +2960,30 @@
   }
 
   function openBackup() {
-    const code = makeBackupCode();
-    document.getElementById('backupTitle').textContent = '💾 備份';
+    document.getElementById('backupTitle').innerHTML = `${icon('save')}備份所有資料`;
     const ta = document.getElementById('backupText');
-    ta.value = code;
+    ta.value = makeBackupCode();
     ta.readOnly = true;
-    const count = state.people.length;
     document.getElementById('backupNote').textContent =
-      `共 ${count} 人的資料。把這段文字存起來（傳給自己或貼到備忘錄），換手機時按「還原」貼回來就好。`;
-    const btns = document.getElementById('backupBtns');
-    btns.innerHTML = `
-      <button class="btn-cancel" onclick="closeBackup()">關閉</button>
-      ${navigator.share ? '<button class="btn-delete" onclick="shareBackup()">分享</button>' : ''}
-      <button class="btn-save" onclick="copyBackup()">複製</button>`;
+      `共 ${state.people.length} 人的資料。把這段文字存起來（傳給自己或貼到備忘錄），換手機時用「還原備份資料」貼回來。`;
+    document.getElementById('backupBtns').innerHTML = `
+      <button class="btn btn-soft" onclick="closeBackup()">關閉</button>
+      ${navigator.share ? '<button class="btn btn-pink" onclick="shareBackup()">分享</button>' : ''}
+      <button class="btn btn-primary" onclick="copyText(document.getElementById('backupText').value, '已複製備份')">複製</button>`;
     document.getElementById('backupOverlay').classList.add('active');
   }
 
   function openRestore() {
-    document.getElementById('backupTitle').textContent = '📥 還原';
+    document.getElementById('backupTitle').innerHTML = `${icon('restore')}還原備份資料`;
     const ta = document.getElementById('backupText');
     ta.value = '';
     ta.readOnly = false;
     ta.placeholder = '貼上備份文字（DDCAL1: 開頭）';
     document.getElementById('backupNote').textContent = '注意：還原會用備份蓋掉目前全部的資料。';
-    const btns = document.getElementById('backupBtns');
-    btns.innerHTML = `
-      <button class="btn-cancel" onclick="closeBackup()">取消</button>
-      <button class="btn-delete" onclick="pasteBackup()">📋 貼上</button>
-      <button class="btn-save" onclick="doRestore()">還原</button>`;
+    document.getElementById('backupBtns').innerHTML = `
+      <button class="btn btn-soft" onclick="closeBackup()">取消</button>
+      <button class="btn btn-pink" onclick="pasteBackup()">貼上</button>
+      <button class="btn btn-primary" onclick="doRestore()">還原</button>`;
     document.getElementById('backupOverlay').classList.add('active');
   }
 
@@ -2867,25 +2991,8 @@
     document.getElementById('backupOverlay').classList.remove('active');
   }
 
-  async function copyBackup() {
-    const code = document.getElementById('backupText').value;
-    try {
-      await navigator.clipboard.writeText(code);
-      showToast('✅ 已複製備份');
-    } catch {
-      const ta = document.getElementById('backupText');
-      ta.readOnly = false;
-      ta.select();
-      try { document.execCommand('copy'); showToast('✅ 已複製備份'); }
-      catch { showToast('請長按文字框，全選後複製'); }
-      ta.readOnly = true;
-    }
-  }
-
   async function shareBackup() {
-    try {
-      await navigator.share({ title: '點點月曆備份', text: document.getElementById('backupText').value });
-    } catch {}
+    try { await navigator.share({ title: '點點月曆備份', text: document.getElementById('backupText').value }); } catch {}
   }
 
   async function pasteBackup() {
@@ -2899,7 +3006,7 @@
     }
   }
 
-  function doRestore() {
+  async function doRestore() {
     let code = document.getElementById('backupText').value.trim();
     const i = code.indexOf(BACKUP_HEAD);
     if (i < 0) { showToast('這不是點點月曆的備份'); return; }
@@ -2907,11 +3014,17 @@
     let data = null;
     try { data = JSON.parse(decodeURIComponent(escape(atob(code)))); } catch {}
     if (!data || !Array.isArray(data.people)) { showToast('備份內容壞掉了，請重新複製'); return; }
-    if (!confirm(`要還原 ${data.people.length} 人的資料嗎？\n目前的資料會被蓋掉。`)) return;
+    const ok = await confirmBox(
+      '還原備份？',
+      `備份裡有 ${data.people.length} 人的資料。\n目前手機上的全部資料會被蓋掉，無法復原。`,
+      '確認還原'
+    );
+    if (!ok) return;
 
     state = { people: data.people };
+    fixState();
     logAction('—', `從備份還原（${data.people.length} 人）`);
-    loadStateFix();
+    saveState();
     if (data.brand) {
       saveBrand(data.brand);
       document.getElementById('brandText').textContent = data.brand;
@@ -2919,23 +3032,9 @@
     }
     curId = ME;
     closeBackup();
-    renderPeople();
+    renderPersonBtn();
     render();
-    showToast('✅ 已還原');
-  }
-
-  function fixState() {
-    if (!state.people.some(p => p.id === ME)) state.people.unshift(newPersonObj(ME, '我'));
-    state.people.forEach(p => {
-      if (!p.marks || typeof p.marks !== 'object') p.marks = {};
-      if (!Array.isArray(p.swaps)) p.swaps = [];
-      if (!p.used) p.used = 0;
-    });
-  }
-
-  function loadStateFix() {
-    fixState();
-    saveState();
+    showToast('已還原');
   }
 
   /* =========================================================
@@ -2959,21 +3058,9 @@
 
   function cloudKey() { return lsGet(CLOUD_KEY) || ''; }
 
-  function pad2(n) { return String(n).padStart(2, '0'); }
-
   function nowStr(t) {
     const d = t ? new Date(t) : new Date();
     return `${d.getFullYear()}/${pad2(d.getMonth() + 1)}/${pad2(d.getDate())} ${pad2(d.getHours())}:${pad2(d.getMinutes())}`;
-  }
-
-  function kd(key) {
-    const k = parseKey(key);
-    return `${k.m + 1}/${k.d}`;
-  }
-
-  function swapSentence(s, p) {
-    const t = swapLines(s, ownerWord(p), -1, -1);
-    return `${t.head}｜${t.lines.join('；')}`;
   }
 
   function getLogQ() {
@@ -2986,10 +3073,19 @@
     lsSet(LOGQ_KEY, JSON.stringify(q.slice(-1000)));
   }
 
+  function cloudStatusText() {
+    return {
+      off: '尚未設定',
+      busy: '同步中…',
+      ok: '已同步',
+      err: cloudMsg || '同步失敗'
+    }[cloudState];
+  }
+
   function setCloud(st, msg) {
     cloudState = st;
     cloudMsg = msg || '';
-    const dot = document.querySelector('.brand .sync-dot');
+    const dot = document.getElementById('brandDot');
     dot.classList.remove('ok', 'busy', 'err');
     if (st !== 'off') dot.classList.add(st);
     updateCloudModal();
@@ -2997,30 +3093,22 @@
 
   function updateCloudModal() {
     const dot = document.getElementById('cloudDot');
-    if (!dot) return;
     dot.classList.remove('ok', 'busy', 'err');
     if (cloudState !== 'off') dot.classList.add(cloudState);
-    const text = {
-      off: '尚未設定密碼',
-      busy: '同步中…',
-      ok: '已同步 ✓',
-      err: cloudMsg || '同步失敗'
-    }[cloudState];
-    document.getElementById('cloudText').textContent = text;
+    document.getElementById('cloudText').textContent = cloudState === 'off' ? '尚未設定密碼' : cloudStatusText() + (cloudState === 'ok' ? ' ✓' : '');
     const pending = getLogQ().length;
     document.getElementById('cloudSub').textContent =
       (lastSyncAt ? `上次同步 ${nowStr(lastSyncAt)}` : '還沒同步過') +
-      (pending ? `・${pending} 筆紀錄等待上傳` : '') +
+      (pending && cloudKey() ? `・${pending} 筆紀錄等待上傳` : '') +
       (backendVersion ? `・後端 v${backendVersion}` : '');
   }
 
   function buildMarkRows() {
     const rows = [];
-    sortedPeople().forEach(p => {
+    state.people.forEach(p => {
       Object.keys(p.marks).sort().forEach(k => {
         const d = parseKey(k);
-        const w = '日一二三四五六'[new Date(d.y, d.m, d.d).getDay()];
-        rows.push([p.name, `${d.y}/${pad2(d.m + 1)}/${pad2(d.d)}`, `週${w}`, p.marks[k]]);
+        rows.push([p.name, `${d.y}/${pad2(d.m + 1)}/${pad2(d.d)}`, `週${weekOf(k)}`, p.marks[k]]);
       });
     });
     return rows;
@@ -3028,16 +3116,15 @@
 
   function buildSwapRows() {
     const rows = [];
-    const typeName = { swap: '互換', cover: '別人代理', help: '代理別人' };
-    sortedPeople().forEach(p => {
+    const typeName = { swap: '互相換班', cover: '找人代班', help: '幫人代班' };
+    state.people.forEach(p => {
       p.swaps.forEach(s => {
-        const t = swapLines(s, ownerWord(p), -1, -1);
         rows.push([
           p.name,
           nowStr(s.at),
           typeName[s.type] || s.type,
-          s.who,
-          `${t.head}：${t.lines.filter(l => !l.startsWith('✓')).join('；')}`,
+          s.who || '（未填）',
+          swapText(s, p),
           s.type === 'swap' ? '—' : (s.settled ? '已還' : '未還')
         ]);
       });
@@ -3054,8 +3141,8 @@
 
   function handleCloudError(err) {
     if (err === '密碼錯誤') {
-      setCloud('err', '密碼錯誤，請到「☁️ 雲端」重新輸入');
-      if (!warnedKey) { warnedKey = true; showToast('☁️ 雲端密碼錯誤'); }
+      setCloud('err', '密碼錯誤，請到「雲端同步設定」重新輸入');
+      if (!warnedKey) { warnedKey = true; showToast('雲端密碼錯誤'); }
     } else {
       setCloud('err', err || '同步失敗');
     }
@@ -3117,11 +3204,11 @@
           document.title = data.brand;
         }
         if (!findPerson(curId)) curId = ME;
-        renderPeople();
+        renderPersonBtn();
         render();
         lastSyncAt = Date.now();
         setCloud('ok');
-        if (!silent) showToast('☁️ 已載入雲端最新資料');
+        if (!silent) showToast('已載入雲端最新資料');
       } else if (!data || localTime > cloudTime || getLogQ().length) {
         cloudSave();
       } else {
@@ -3142,6 +3229,7 @@
 
   function closeCloud() {
     document.getElementById('cloudOverlay').classList.remove('active');
+    document.getElementById('cloudKey').blur();
   }
 
   function saveCloudKey() {
@@ -3194,13 +3282,12 @@
     lsSet(VERSION_SEEN_KEY, APP_VERSION);
   }
 
-  // 更新後第一次打開，提示已經是新版本
   function initVersion() {
-    document.getElementById('versionTag').textContent = `v${APP_VERSION} · 更新紀錄`;
+    document.getElementById('versionTag').textContent = `v${APP_VERSION}`;
     const seen = lsGet(VERSION_SEEN_KEY);
     lsSet(VERSION_SEEN_KEY, APP_VERSION);
     if (seen && seen !== APP_VERSION) {
-      setTimeout(() => showToast(`✨ 已更新到 v${APP_VERSION}，點版本號看新功能`), 600);
+      setTimeout(() => showToast(`已更新到 v${APP_VERSION}，點版本號看新功能`), 600);
     }
   }
 
@@ -3253,7 +3340,7 @@
   // 安卓 Chrome 需要 manifest 才會用 App 模式開
   function initManifest() {
     if (window.location.protocol === 'file:') return;
-    const icon = document.getElementById('appIcon').href;
+    const icon512 = document.getElementById('appIcon').href;
     const base = appUrl();
     const manifest = {
       name: '點點月曆',
@@ -3263,9 +3350,7 @@
       display: 'standalone',
       background_color: '#f5f7fa',
       theme_color: '#f5f7fa',
-      icons: [
-        { src: icon, sizes: '512x512', type: 'image/png', purpose: 'any' }
-      ]
+      icons: [{ src: icon512, sizes: '512x512', type: 'image/png', purpose: 'any' }]
     };
     const link = document.createElement('link');
     link.rel = 'manifest';
@@ -3281,12 +3366,15 @@
   window.addEventListener('appinstalled', () => {
     deferredInstall = null;
     closeInstall();
-    showToast('✅ 已存到桌面');
+    showToast('已存到桌面');
   });
+
+  function stepLi(ic, html) {
+    return `<li><span class="help-icon">${icon(ic)}</span><span>${html}</span></li>`;
+  }
 
   function openInstall() {
     document.getElementById('installIcon').src = document.getElementById('appIcon').href;
-    const steps = document.getElementById('installSteps');
     const note = document.getElementById('installNote');
     const go = document.getElementById('installGo');
     const inLine = /Line\//i.test(navigator.userAgent);
@@ -3296,30 +3384,26 @@
     go.style.display = 'none';
 
     if (inLine) {
-      html =
-        '<li><span class="help-icon">⋯</span><span>點右下角 <b>⋯</b></span></li>' +
-        '<li><span class="help-icon">🧭</span><span>選 <b>用預設瀏覽器開啟</b></span></li>' +
-        '<li><span class="help-icon">📲</span><span>開啟後再按一次 <b>存到桌面</b></span></li>';
+      html = stepLi('more', '點右下角 <b>⋯</b>') +
+             stepLi('compass', '選 <b>用預設瀏覽器開啟</b>') +
+             stepLi('phone', '開啟後再到「資料管理」按 <b>存到桌面</b>');
     } else if (isIOS()) {
-      html =
-        '<li><span class="help-icon">⬆️</span><span>點下方 <b>分享</b> 按鈕</span></li>' +
-        '<li><span class="help-icon">➕</span><span>選 <b>加入主畫面</b></span></li>' +
-        '<li><span class="help-icon">✅</span><span>右上角按 <b>新增</b></span></li>';
+      html = stepLi('share', '點下方 <b>分享</b> 按鈕') +
+             stepLi('plus', '選 <b>加入主畫面</b>') +
+             stepLi('check', '右上角按 <b>新增</b>');
       note.textContent = '請用 Safari 開啟這個網頁再操作';
     } else if (deferredInstall) {
-      html =
-        '<li><span class="help-icon">📲</span><span>按下方 <b>立即安裝</b></span></li>' +
-        '<li><span class="help-icon">✅</span><span>桌面就會出現圖示</span></li>';
+      html = stepLi('phone', '按下方 <b>立即安裝</b>') +
+             stepLi('check', '桌面就會出現圖示');
       go.style.display = '';
     } else {
-      html =
-        '<li><span class="help-icon">⋮</span><span>點右上角 <b>⋮</b></span></li>' +
-        '<li><span class="help-icon">➕</span><span>選 <b>加到主畫面</b> 或 <b>安裝應用程式</b></span></li>' +
-        '<li><span class="help-icon">✅</span><span>按 <b>新增</b></span></li>';
+      html = stepLi('more', '點右上角 <b>⋮</b>') +
+             stepLi('plus', '選 <b>加到主畫面</b> 或 <b>安裝應用程式</b>') +
+             stepLi('check', '按 <b>新增</b>');
       note.textContent = '請用 Chrome 開啟這個網頁再操作';
     }
 
-    steps.innerHTML = html;
+    document.getElementById('installSteps').innerHTML = html;
     document.getElementById('installOverlay').classList.add('active');
   }
 
@@ -3338,40 +3422,15 @@
   /* ---------- 分享給朋友：只傳月曆網址，不帶標記 ---------- */
   async function shareApp() {
     const url = appUrl();
-    const text = '點點月曆：記錄留守、監控的小月曆，存到桌面就像 App';
     if (navigator.share) {
       try {
-        await navigator.share({ title: '點點月曆', text: text, url: url });
+        await navigator.share({ title: '點點月曆', text: '點點月曆：記錄留守、監控的小月曆，存到桌面就像 App', url });
         return;
       } catch (e) {
         if (e && e.name === 'AbortError') return;
       }
     }
-    try {
-      await navigator.clipboard.writeText(url);
-      showToast('✅ 已複製網址，貼給朋友即可');
-    } catch {
-      const ta = document.createElement('textarea');
-      ta.value = url;
-      ta.style.position = 'fixed';
-      ta.style.opacity = '0';
-      document.body.appendChild(ta);
-      ta.select();
-      try {
-        document.execCommand('copy');
-        showToast('✅ 已複製網址，貼給朋友即可');
-      } catch {
-        showToast('複製失敗：' + url);
-      }
-      document.body.removeChild(ta);
-    }
-  }
-
-  function initAppBar() {
-    if (isAppMode()) {
-      document.getElementById('installBtn').style.display = 'none';
-      document.getElementById('appBar').classList.add('one');
-    }
+    copyText(url, '已複製網址，貼給朋友即可');
   }
 
   /* =========================================================
@@ -3429,9 +3488,7 @@
       imgBlob = blob;
       try {
         const file = new File([blob], imgFileName, { type: 'image/png' });
-        if (navigator.canShare && navigator.canShare({ files: [file] })) {
-          shareBtn.style.display = '';
-        }
+        if (navigator.canShare && navigator.canShare({ files: [file] })) shareBtn.style.display = '';
       } catch {}
     }, 'image/png');
 
@@ -3445,14 +3502,12 @@
     const firstDay = new Date(y, m, 1).getDay();
     const dim = new Date(y, m + 1, 0).getDate();
     const rows = Math.ceil((firstDay + dim) / 7);
-    const ow = who || ownerWord(p);
 
     const FONT = '"PingFang TC", "Microsoft JhengHei", "Noto Sans TC", sans-serif';
     const W = 1080, PAD = 48, GAP = 12;
     const cellW = (W - PAD * 2 - GAP * 6) / 7;
     const cellH = cellW * 1.05;
     const TEXT_W = W - PAD * 2 - 56;
-
     const measure = document.createElement('canvas').getContext('2d');
 
     // 上方統計：依標記文字分組
@@ -3469,26 +3524,30 @@
     const LINE_H = 52;
 
     // 下方調班紀錄
-    const swaps = swapsInMonth(p, y, m);
-    const recRows = [];  // { text, font, color, gapBefore }
+    const swaps = swapsInMonth(p, y, m).slice().sort((a, b) => (a.at || 0) - (b.at || 0));
+    const imgP = who && p.id === ME ? Object.assign({}, p, { id: 'img', name: who }) : p;
+    const recRows = [];
     if (swaps.length) {
-      const orig = originalMarks(p);
       const push = (text, font, color, gapBefore) => {
         measure.font = font;
         wrapText(measure, text, TEXT_W).forEach((t, i) => recRows.push({ text: t, font, color, gapBefore: i === 0 ? gapBefore : 0 }));
       };
-      push(`原本排的：${dayListText(orig, y, m)}`, `700 32px ${FONT}`, '#6b7280', 0);
-      push(`現在要站：${dayListText(marks, y, m)}`, `900 32px ${FONT}`, '#3b82f6', 4);
-      swaps.forEach((s, i) => {
-        const t = swapLines(s, ow, y, m);
-        push(`${circled(i)} ${t.head}`, `900 32px ${FONT}`, '#ff4d6d', 22);
-        t.lines.forEach(l => push(`　 ${l}`, `600 30px ${FONT}`, l.startsWith('✓') ? '#059669' : '#1f2937', 4));
+      const listTxt = (arr) => arr.length ? arr.map(dayLabel).join('、') : '（沒有）';
+      push(`原本排的：${listTxt(dayNums(originalMarks(p), y, m))}`, `700 32px ${FONT}`, '#6b7280', 0);
+      push(`現在要站：${listTxt(dayNums(marks, y, m))}`, `900 32px ${FONT}`, '#3b82f6', 4);
+      swaps.forEach(s => {
+        const i = swapInfo(s, imgP);
+        push(i.title, `900 32px ${FONT}`, '#ff4d6d', 22);
+        if (s.type === 'swap') {
+          push(`　${i.left.lab} ${mdw(s.out)}　⇄　${i.right.lab} ${mdw(s.in)}`, `700 30px ${FONT}`, '#1f2937', 4);
+        } else {
+          push(`　${i.left.lab} ${mdw(s.out || s.in)}　→　改由${i.right.who}`, `700 30px ${FONT}`, '#1f2937', 4);
+        }
       });
     }
     const REC_LINE = 46;
     const recH = recRows.length ? 28 * 2 + recRows.reduce((a, r) => a + REC_LINE + r.gapBefore, 0) - (REC_LINE - 34) + 56 : 0;
 
-    // 版面高度
     const titleTop = PAD + 12;
     const monthTop = titleTop + 64 + 14;
     const boxTop = monthTop + 44 + 28;
@@ -3506,13 +3565,11 @@
     const ctx = canvas.getContext('2d');
     ctx.textBaseline = 'top';
 
-    // 背景
     ctx.fillStyle = '#ffffff';
     ctx.fillRect(0, 0, W, H);
     ctx.fillStyle = '#ff4d6d';
     ctx.fillRect(0, 0, W, 12);
 
-    // 標題
     ctx.textAlign = 'center';
     ctx.fillStyle = '#1f2937';
     ctx.font = `900 64px ${FONT}`;
@@ -3521,27 +3578,21 @@
     ctx.font = `800 44px ${FONT}`;
     ctx.fillText(`${y} 年 ${m + 1} 月`, W / 2, monthTop);
 
-    // 統計框
     ctx.fillStyle = '#fff5f7';
     rr(ctx, PAD, boxTop, W - PAD * 2, boxH, 20);
     ctx.fill();
     ctx.textAlign = 'left';
     ctx.fillStyle = summary.length ? '#1f2937' : '#9ca3af';
     ctx.font = `700 34px ${FONT}`;
-    sumLines.forEach((line, i) => {
-      ctx.fillText(line, PAD + 28, boxTop + 28 + i * LINE_H);
-    });
+    sumLines.forEach((line, i) => ctx.fillText(line, PAD + 28, boxTop + 28 + i * LINE_H));
 
-    // 星期列
-    const WEEK = ['日', '一', '二', '三', '四', '五', '六'];
     ctx.textAlign = 'center';
     ctx.font = `800 30px ${FONT}`;
-    WEEK.forEach((w, i) => {
+    [...WEEK].forEach((w, i) => {
       ctx.fillStyle = i === 0 ? '#e63946' : (i === 6 ? '#3b82f6' : '#9ca3af');
       ctx.fillText(w, PAD + i * (cellW + GAP) + cellW / 2, weekTop + 12);
     });
 
-    // 日期格
     for (let d = 1; d <= dim; d++) {
       const idx = firstDay + d - 1;
       const col = idx % 7, row = Math.floor(idx / 7);
@@ -3550,7 +3601,7 @@
       const key = dateKey(y, m, d);
       const isHoliday = !!holidays[key];
 
-      ctx.fillStyle = isHoliday ? '#ffe5e8' : '#f0f3f8';
+      ctx.fillStyle = isHoliday ? '#ffe9ec' : '#f3f5f9';
       rr(ctx, x, cy, cellW, cellH, 18);
       ctx.fill();
 
@@ -3578,7 +3629,6 @@
         ctx.beginPath();
         ctx.arc(dx, dy, r, 0, Math.PI * 2);
         ctx.fill();
-
         ctx.fillStyle = '#ffffff';
         ctx.textAlign = 'center';
         ctx.textBaseline = 'middle';
@@ -3588,7 +3638,6 @@
       }
     }
 
-    // 調班紀錄
     if (recRows.length) {
       ctx.fillStyle = '#f8fafc';
       rr(ctx, PAD, recTop, W - PAD * 2, recH, 20);
@@ -3607,7 +3656,6 @@
       });
     }
 
-    // 頁尾
     ctx.textAlign = 'center';
     ctx.fillStyle = '#c4c9d2';
     ctx.font = `500 24px ${FONT}`;
@@ -3654,15 +3702,36 @@
     const MOVE_MIN = 10;
     const W = () => cal.clientWidth;
 
-    cal.addEventListener('touchstart', (e) => {
-      if (e.touches.length !== 1) return;
-      startX = e.touches[0].clientX;
-      startY = e.touches[0].clientY;
+    const begin = (x, y, lock) => {
+      startX = x;
+      startY = y;
       curX = 0;
       dragging = true;
-      locked = null;
+      locked = lock;
       moved = false;
       track.classList.add('no-anim');
+    };
+
+    const finish = (ratio) => {
+      if (!dragging) return;
+      dragging = false;
+      track.classList.remove('no-anim');
+      if (!moved) {
+        track.style.transform = `translateX(-${W()}px)`;
+        curX = 0;
+        return;
+      }
+      suppressClickUntil = Date.now() + 400;
+      const threshold = W() * ratio;
+      if (curX < -threshold) slideTo(1);
+      else if (curX > threshold) slideTo(-1);
+      else track.style.transform = `translateX(-${W()}px)`;
+      curX = 0;
+    };
+
+    cal.addEventListener('touchstart', (e) => {
+      if (e.touches.length !== 1) return;
+      begin(e.touches[0].clientX, e.touches[0].clientY, null);
     }, { passive: true });
 
     cal.addEventListener('touchmove', (e) => {
@@ -3679,34 +3748,12 @@
       track.style.transform = `translateX(${-W() + dx}px)`;
     }, { passive: true });
 
-    const touchFinish = () => {
-      if (!dragging) return;
-      dragging = false;
-      track.classList.remove('no-anim');
-      if (!moved) {
-        track.style.transform = `translateX(-${W()}px)`;
-        curX = 0;
-        return;
-      }
-      suppressClickUntil = Date.now() + 400;
-      const threshold = W() * 0.25;
-      if (curX < -threshold) slideTo(1);
-      else if (curX > threshold) slideTo(-1);
-      else track.style.transform = `translateX(-${W()}px)`;
-      curX = 0;
-    };
-
-    cal.addEventListener('touchend', touchFinish);
-    cal.addEventListener('touchcancel', touchFinish);
+    cal.addEventListener('touchend', () => finish(0.25));
+    cal.addEventListener('touchcancel', () => finish(0.25));
 
     cal.addEventListener('mousedown', (e) => {
       if (e.button !== 0) return;
-      startX = e.clientX;
-      curX = 0;
-      dragging = true;
-      locked = 'h';
-      moved = false;
-      track.classList.add('no-anim');
+      begin(e.clientX, e.clientY, 'h');
       e.preventDefault();
     });
 
@@ -3717,30 +3764,16 @@
       track.style.transform = `translateX(${-W() + curX}px)`;
     });
 
-    window.addEventListener('mouseup', () => {
-      if (!dragging) return;
-      dragging = false;
-      track.classList.remove('no-anim');
-      if (!moved) {
-        track.style.transform = `translateX(-${W()}px)`;
-        curX = 0;
-        return;
-      }
-      suppressClickUntil = Date.now() + 400;
-      const threshold = W() * 0.2;
-      if (curX < -threshold) slideTo(1);
-      else if (curX > threshold) slideTo(-1);
-      else track.style.transform = `translateX(-${W()}px)`;
-      curX = 0;
-    });
+    window.addEventListener('mouseup', () => finish(0.2));
 
     function slideTo(delta) {
-      const w = W();
-      const target = delta > 0 ? -2 * w : 0;
+      const target = delta > 0 ? -2 * W() : 0;
       track.style.transform = `translateX(${target}px)`;
       playFlip();
       setTimeout(() => changeMonth(delta), 280);
     }
+
+    window.addEventListener('resize', fitCalendarHeight);
   })();
 
   /* =========================================================
@@ -3756,16 +3789,19 @@
   }
 
   document.getElementById('quickInput').addEventListener('input', updateQuickPreview);
-  document.getElementById('swapWho').addEventListener('input', updateSwapPreview);
+  document.getElementById('swapWho').addEventListener('input', () => { renderWhoChips(); updateSwapPreview(); });
+  document.getElementById('peopleSearch').addEventListener('input', renderPeopleList);
+  document.getElementById('newPersonInput').addEventListener('keydown', (e) => {
+    if (e.key === 'Enter') { e.preventDefault(); addPersonFromSheet(); }
+  });
 
   loadState();
   curId = ME;
   initBrand();
   initYearSelect();
-  renderPeople();
+  renderPersonBtn();
   render();
   initManifest();
-  initAppBar();
   initHelp();
   initCloud();
   initVersion();
