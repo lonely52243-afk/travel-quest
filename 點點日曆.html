@@ -1264,6 +1264,33 @@
 
   .backup-note { font-size: 13px; color: var(--text2); line-height: 1.6; margin-bottom: 14px; }
 
+  /* ---------- 團隊共用 ---------- */
+  .team-me {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    padding: 10px 12px;
+    border: 1px solid var(--line);
+    border-radius: 12px;
+    margin-bottom: 12px;
+    font-size: 14px;
+    color: var(--text2);
+  }
+
+  .team-me b { color: var(--text); font-size: 16px; }
+  .team-me .ic { color: var(--red); }
+
+  .adv { margin: 0 0 14px; }
+  .adv summary { font-size: 12px; color: var(--muted); cursor: pointer; padding: 4px 2px; list-style: none; }
+  .adv summary::-webkit-details-marker { display: none; }
+  .adv[open] summary { margin-bottom: 8px; }
+
+  .join-text { font-size: 14px; color: var(--text2); line-height: 1.7; margin: -4px 0 14px; }
+  .join-list { max-height: 42vh; overflow-y: auto; }
+  .join-link { display: block; width: 100%; margin-top: 10px; border: none; background: none; color: var(--muted); font-size: 14px; font-weight: 700; padding: 8px; cursor: pointer; }
+  .list-row .owner { font-size: 11px; color: var(--muted); font-weight: 600; flex-shrink: 0; }
+  .view-only { display: inline-flex; align-items: center; gap: 4px; font-size: 11px; color: var(--muted); font-weight: 600; margin-left: 6px; }
+
   /* ---------- 產圖 ---------- */
   .modal.img-box { padding: 16px; max-width: 460px; }
   .img-box img { width: 100%; max-height: 62vh; object-fit: contain; border-radius: 12px; display: block; background: var(--bg); border: 1px solid var(--line); }
@@ -1505,8 +1532,8 @@
       <div class="group-label">資料</div>
       <div class="list">
         <button class="list-row" onclick="closeManage(); openCloud()">
-          <svg class="ic row-ic"><use href="#i-cloud"/></svg>
-          <span class="grow">雲端同步設定<span class="sub" id="manageCloudSub"></span></span>
+          <svg class="ic row-ic"><use href="#i-users"/></svg>
+          <span class="grow">團隊共用<span class="sub" id="manageCloudSub"></span></span>
           <svg class="ic sm chev"><use href="#i-right"/></svg>
         </button>
         <button class="list-row" onclick="closeManage(); openBackup()">
@@ -1594,26 +1621,28 @@
 <!-- 雲端同步設定 -->
 <div class="modal-overlay" id="cloudOverlay">
   <div class="modal">
-    <h2><svg class="ic"><use href="#i-cloud"/></svg>雲端同步設定</h2>
+    <h2><svg class="ic"><use href="#i-users"/></svg>團隊共用</h2>
     <div class="cloud-status">
       <span class="sync-dot" id="cloudDot"></span>
       <div>
-        <div id="cloudText">尚未設定</div>
+        <div id="cloudText">尚未加入</div>
         <div class="cloud-sub" id="cloudSub"></div>
       </div>
     </div>
-    <div class="field-label">後端網址（Apps Script 部署網址）</div>
-    <input type="url" class="field" id="cloudUrl" placeholder="https://script.google.com/macros/s/…/exec" autocomplete="off" spellcheck="false" inputmode="url">
-    <div class="field-label">同步密碼</div>
-    <input type="text" class="field" id="cloudKey" placeholder="輸入密碼" autocomplete="off" spellcheck="false">
-    <div class="backup-note">網址和密碼只存在這支手機，不寫在程式裡。後端還沒設定密碼時，第一次同步輸入的密碼會自動成為正式密碼。</div>
+    <div id="teamBody"></div>
     <a class="cloud-link" id="cloudSheetLink" target="_blank" rel="noopener" style="display:none"><svg class="ic sm"><use href="#i-sheet"/></svg>打開試算表看紀錄</a>
-    <div class="btn-row">
-      <button class="btn btn-soft" onclick="closeCloud()">關閉</button>
-      <button class="btn btn-pink" onclick="cloudSyncNow()">立即同步</button>
-      <button class="btn btn-primary" onclick="saveCloudKey()">儲存</button>
-    </div>
+    <details class="adv">
+      <summary>進階：後端網址</summary>
+      <input type="url" class="field" id="cloudUrl" autocomplete="off" spellcheck="false" inputmode="url">
+      <div class="btn-row"><button class="btn btn-soft" onclick="saveBackendUrl()">儲存網址</button><button class="btn btn-soft" onclick="resetBackendUrl()">還原預設</button></div>
+    </details>
+    <div class="btn-row" id="teamBtns"></div>
   </div>
+</div>
+
+<!-- 加入團隊 -->
+<div class="modal-overlay" id="joinOverlay">
+  <div class="modal" id="joinBox"></div>
 </div>
 
 <!-- 更新紀錄 -->
@@ -1663,6 +1692,10 @@
       <details>
         <summary><span class="help-icon"><svg class="ic sm"><use href="#i-image"/></svg></span><span class="grow">產生月曆圖片</span><svg class="ic sm chev"><use href="#i-right"/></svg></summary>
         <div class="help-body">按「<b>產圖</b>」，可以下載、分享，或長按圖片儲存。只想傳文字的話，按留守統計右上角的「複製」。<img data-pic="image" src="data:image/jpeg;base64,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" alt=""></div>
+      </details>
+      <details>
+        <summary><span class="help-icon"><svg class="ic sm"><use href="#i-users"/></svg></span><span class="grow">團隊共用</span><svg class="ic sm chev"><use href="#i-right"/></svg></summary>
+        <div class="help-body">「資料管理 → <b>團隊共用</b>」輸入團隊密碼、選自己的名字，就能看到大家的月曆。<b>只能修改自己新增的人</b>，別人新增的只能看。不想加入也可以只在自己手機用。</div>
       </details>
       <details>
         <summary><span class="help-icon"><svg class="ic sm"><use href="#i-save"/></svg></span><span class="grow">備份及還原</span><svg class="ic sm chev"><use href="#i-right"/></svg></summary>
@@ -1743,9 +1776,15 @@
   const ME = 'me';
 
   /* ---------- 版本 ---------- */
-  const APP_VERSION = '2.9';
+  const APP_VERSION = '3.0';
   const VERSION_SEEN_KEY = 'duty_calendar_version_seen';
   const CHANGELOG = [
+    { v: '3.0', date: '2026/11/15', items: [
+      '團隊共用：輸入團隊密碼就能看到大家的月曆（也可以不加入，只在自己手機用）',
+      '每個人只能修改自己新增的人，別人新增的只能看',
+      '個人密碼：換手機、換 App 都能改到自己的資料',
+      '每個改動分開存到試算表，多人同時使用不會互相覆蓋；約每分鐘自動更新'
+    ]},
     { v: '2.9', date: '2026/11/13', items: [
       '新增「返家」綠色標示：長按日期點「返家」即可',
       '長按視窗可快選留守、返家、監控',
@@ -1930,20 +1969,35 @@
   let curId = ME;
 
   function newPersonObj(id, name) {
-    return { id, name, marks: {}, swaps: [], used: Date.now() };
+    const p = { id, name, marks: {}, swaps: [], used: Date.now() };
+    if (isShared()) { p.ownerId = selfId(); p.ownerName = selfName(); }
+    return p;
   }
 
   function fixState() {
-    if (!state.people.some(p => p.id === ME)) state.people.unshift(newPersonObj(ME, '我'));
+    if (!Array.isArray(state.people)) state.people = [];
+    if (isShared()) {
+      // 團隊資料還沒載入前，先放自己一筆，畫面才不會空掉
+      if (!state.people.some(p => p.id === selfId())) {
+        state.people.unshift({ id: selfId(), name: selfName(), ownerId: selfId(), ownerName: selfName(), isAccount: true, marks: {}, swaps: [] });
+      }
+    } else if (!state.people.some(p => p.id === ME)) {
+      state.people.unshift(newPersonObj(ME, '我'));
+    }
     state.people.forEach(p => {
       if (!p.marks || typeof p.marks !== 'object') p.marks = {};
       if (!Array.isArray(p.swaps)) p.swaps = [];
-      if (!p.used) p.used = 0;
       p.swaps.forEach(s => { if (typeof s.who !== 'string') s.who = ''; });
     });
   }
 
   function loadState() {
+    if (isShared()) {
+      try { state = JSON.parse(lsGet(TEAM_CACHE_KEY)); } catch { state = null; }
+      if (!state || !Array.isArray(state.people)) state = { people: [] };
+      fixState();
+      return;
+    }
     let s = null;
     try { s = JSON.parse(lsGet(DATA_KEY)); } catch {}
     if (!s || !Array.isArray(s.people)) {
@@ -1960,7 +2014,7 @@
     saveLocal();
   }
 
-  function saveLocal() { lsSet(DATA_KEY, JSON.stringify(state)); }
+  function saveLocal() { lsSet(isShared() ? TEAM_CACHE_KEY : DATA_KEY, JSON.stringify(state)); }
 
   function saveState() {
     state.updatedAt = Date.now();
@@ -1968,9 +2022,9 @@
     scheduleSync();
   }
 
-  function P() { return state.people.find(p => p.id === curId) || state.people.find(p => p.id === ME); }
+  function P() { return state.people.find(p => p.id === curId) || state.people.find(p => p.id === selfId()) || state.people[0]; }
   function findPerson(id) { return state.people.find(p => p.id === id); }
-  function ownerWord(p) { p = p || P(); return p.id === ME ? '我' : p.name; }
+  function ownerWord(p) { p = p || P(); return p.id === selfId() ? '我' : p.name; }
 
   function loadBrand() { return lsGet(BRAND_KEY) || DEFAULT_BRAND; }
   function saveBrand(n) { lsSet(BRAND_KEY, n); }
@@ -2117,27 +2171,34 @@
 
     const row = (p) => {
       const n = Object.keys(p.marks).filter(k => k.startsWith(pre)).length;
+      const mine = canEdit(p);
       return `<div class="list-row" role="button" onclick="pickPerson('${p.id}')">
         <span class="grow">${esc(p.name)}</span>
+        ${!mine && p.ownerName && !p.isAccount ? `<span class="owner">${esc(p.ownerName)}新增</span>` : ''}
         <span class="meta">${n ? `${currentMonth + 1} 月 ${n} 天` : ''}</span>
         ${p.id === curId ? icon('check', 'check') : ''}
-        <button class="row-edit" onclick="event.stopPropagation(); editPersonName('${p.id}')" aria-label="改名字">${icon('edit', 'sm')}</button>
+        ${mine ? `<button class="row-edit" onclick="event.stopPropagation(); editPersonName('${p.id}')" aria-label="改名字">${icon('edit', 'sm')}</button>` : ''}
       </div>`;
     };
+    // 團隊共用時：自己新增的排前面
+    const sorted = isShared()
+      ? state.people.filter(p => canEdit(p)).concat(state.people.filter(p => !canEdit(p)))
+      : state.people;
 
     let html = '';
     if (q) {
       const hits = state.people.filter(p => p.name.includes(q));
       html += `<div class="group-label">搜尋結果</div><div class="list">${hits.length ? hits.map(row).join('') : '<div class="list-empty">找不到「' + esc(q) + '」，可以在下方新增</div>'}</div>`;
     } else {
-      const recent = state.people.filter(p => p.id !== ME && p.used)
-        .sort((a, b) => b.used - a.used).slice(0, 5);
+      const rc = getRecent();
+      const recent = state.people.filter(p => p.id !== selfId() && rc[p.id])
+        .sort((a, b) => rc[b.id] - rc[a.id]).slice(0, 5);
       if (recent.length) {
         html += `<div class="group-label">最近使用</div><div class="recent-row">` +
           recent.map(p => `<button class="name-chip${p.id === curId ? ' on' : ''}" onclick="pickPerson('${p.id}')">${esc(p.name)}</button>`).join('') +
           `</div>`;
       }
-      html += `<div class="group-label">全部人員</div><div class="list">${state.people.map(row).join('')}</div>`;
+      html += `<div class="group-label">全部人員</div><div class="list">${sorted.map(row).join('')}</div>`;
     }
     box.innerHTML = html;
     if (q) document.getElementById('newPersonInput').value = q;
@@ -2152,10 +2213,8 @@
 
   function switchPerson(id) {
     curId = id;
-    const p = P();
-    if (p.id !== ME) p.used = Date.now();
+    if (id !== selfId()) touchRecent(id);
     recExpanded = false;
-    saveLocal();
     renderPersonBtn();
     render();
   }
@@ -2164,14 +2223,14 @@
     const input = document.getElementById('newPersonInput');
     const name = input.value.trim().slice(0, 10);
     if (!name) { input.focus(); showToast('請輸入姓名'); return; }
-    if (name === '我' && !state.people.some(p => p.name === '我')) { pickPerson(ME); return; }
-    const exist = state.people.find(p => p.name === name);
+    if (!isShared() && name === '我' && !state.people.some(p => p.name === '我')) { pickPerson(ME); return; }
+    const exist = state.people.find(p => p.name === name && canEdit(p));
     if (exist) {
       pickPerson(exist.id);
       showToast(`已切換到 ${name}`);
       return;
     }
-    const p = newPersonObj('p' + Date.now(), name);
+    const p = newPersonObj('p' + Date.now() + Math.random().toString(36).slice(2, 6), name);
     state.people.push(p);
     logAction(p, '新增這個人');
     saveState();
@@ -2185,11 +2244,16 @@
   function openPersonManage() {
     const box = document.getElementById('pmScroll');
     document.getElementById('pmTotal').textContent = `共 ${state.people.length} 人`;
-    box.innerHTML = `<div class="list">${state.people.map(p => `
+    const mine = state.people.filter(p => canEdit(p));
+    const others = state.people.filter(p => !canEdit(p));
+    const item = p => `
       <button class="list-row" onclick="openPersonMenu('${p.id}')">
-        <span class="grow">${esc(p.name)}<span class="sub">${marksCount(p)} 個標記・${p.swaps.length} 筆調班</span></span>
-        ${icon('right', 'sm chev')}
-      </button>`).join('')}</div>`;
+        <span class="grow">${esc(p.name)}<span class="sub">${marksCount(p)} 個標記・${p.swaps.length} 筆調班${canEdit(p) ? '' : p.isAccount ? '・只能看' : `・${esc(p.ownerName || '別人')}新增，只能看`}</span></span>
+        ${canEdit(p) ? icon('right', 'sm chev') : ''}
+      </button>`;
+    box.innerHTML = (isShared() ? '<div class="group-label">我新增的</div>' : '') +
+      `<div class="list">${mine.map(item).join('')}</div>` +
+      (others.length ? `<div class="group-label">其他人新增的（只能看）</div><div class="list">${others.map(item).join('')}</div>` : '');
     document.getElementById('pmSheet').classList.add('active');
   }
 
@@ -2198,12 +2262,13 @@
   }
 
   function openPersonMenu(id) {
-    menuPersonId = id;
     const p = findPerson(id);
+    if (!guardEdit(p)) return;
+    menuPersonId = id;
     document.getElementById('personTitle').textContent = p.name;
     let html = `<button class="list-row" onclick="renamePerson()">${icon('edit', 'row-ic')}<span class="grow">改名字</span></button>`;
     html += `<button class="list-row danger" onclick="clearPersonRecords()">${icon('erase', 'row-ic')}<span class="grow">清空全部紀錄<span class="sub">刪除所有月份的標記與調班，人員保留</span></span></button>`;
-    if (p.id !== ME) {
+    if (p.id !== selfId()) {
       html += `<button class="list-row danger" onclick="deletePerson()">${icon('trash', 'row-ic')}<span class="grow">刪除人員<span class="sub">連同所有紀錄一起刪除</span></span></button>`;
     }
     document.getElementById('personActions').innerHTML = html;
@@ -2221,10 +2286,10 @@
     render();
   }
 
-  // 改名字（任何人都可以，包含「我」）；回傳是否有改
+  // 改名字（只能改自己新增的人）；回傳是否有改
   function editPersonName(id) {
     const p = findPerson(id);
-    if (!p) return false;
+    if (!p || !guardEdit(p)) return false;
     const input = prompt('改名字', p.name);
     if (input === null) return false;
     const name = input.trim().slice(0, 10);
@@ -2235,11 +2300,14 @@
     }
     const oldName = p.name;
     p.name = name;
-    // 別人調班紀錄裡寫的對象名字也一起改，紀錄才對得上
+    if (p.id === selfId() && isShared()) lsSet(SELF_NAME_KEY, name);
+    // 調班紀錄裡寫的對象名字也一起改（團隊共用時由後端統一改）
     let linked = 0;
-    state.people.forEach(o => o.swaps.forEach(sw => {
-      if (sw.who === oldName) { sw.who = name; linked++; }
-    }));
+    if (!isShared()) {
+      state.people.forEach(o => o.swaps.forEach(sw => {
+        if (sw.who === oldName) { sw.who = name; linked++; }
+      }));
+    }
     logAction(p, `改名（原本叫 ${oldName}${linked ? `，同步更新 ${linked} 筆調班對象` : ''}）`);
     saveState();
     renderPersonBtn();
@@ -2256,7 +2324,7 @@
 
   async function clearPersonRecords() {
     const p = findPerson(menuPersonId);
-    if (!p) return closePersonMenu();
+    if (!p || !guardEdit(p)) return closePersonMenu();
     const n = marksCount(p);
     if (!n && !p.swaps.length) { showToast('這個人目前沒有紀錄'); return; }
     const ok = await confirmBox(
@@ -2276,7 +2344,7 @@
 
   async function deletePerson() {
     const p = findPerson(menuPersonId);
-    if (!p || p.id === ME) return closePersonMenu();
+    if (!p || p.id === selfId() || !guardEdit(p)) return closePersonMenu();
     const ok = await confirmBox(
       `刪除人員「${p.name}」？`,
       `操作對象：${p.name}\n影響範圍：這個人和他的 ${marksCount(p)} 個標記、${p.swaps.length} 筆調班歷程\n\n這個動作無法復原，建議先備份。`,
@@ -2285,7 +2353,7 @@
     if (!ok) return;
     state.people = state.people.filter(o => o.id !== p.id);
     logAction(p, '刪除人員（含所有標記和調班歷程）');
-    if (curId === p.id) curId = ME;
+    if (curId === p.id) curId = selfId();
     saveState();
     closePersonMenu();
     afterPeopleChange();
@@ -2406,6 +2474,7 @@
   }
 
   function toggleMark(key) {
+    if (!guardEdit(P())) return;
     const marks = P().marks;
     if (marks[key]) {
       logAction(P(), `取消 ${md(key)}（原本是「${marks[key]}」）`);
@@ -2683,7 +2752,7 @@
 
   function monthText(p, y, m) {
     const now = dayNums(p.marks, y, m, false);
-    const name = p.id === ME ? (lsGet(IMG_NAME_KEY) || '我') : p.name;
+    const name = p.id === selfId() && !isShared() ? (lsGet(IMG_NAME_KEY) || '我') : p.name;
     const groups = {};
     now.forEach(x => { (groups[x.v] = groups[x.v] || []).push(x.d); });
     const lines = [];
@@ -2767,6 +2836,7 @@
 
   async function deleteSwap(id) {
     const p = P();
+    if (!guardEdit(p)) return;
     const idx = p.swaps.findIndex(s => s.id === id);
     if (idx < 0) return;
     const s = p.swaps[idx];
@@ -2792,6 +2862,7 @@
   }
 
   function toggleSettle(id) {
+    if (!guardEdit(P())) return;
     const s = P().swaps.find(x => x.id === id);
     if (!s) return;
     s.settled = !s.settled;
@@ -2810,6 +2881,7 @@
   let mcY = 0, mcM = 0;
 
   function openSwap(preset) {
+    if (!guardEdit(P())) return;
     swapOut = null;
     swapIn = null;
     mcY = currentYear;
@@ -2841,7 +2913,8 @@
     const names = [];
     const add = (n) => { if (n && n !== P().name && !names.includes(n)) names.push(n); };
     P().swaps.slice().sort((a, b) => (b.at || 0) - (a.at || 0)).forEach(s => add(s.who));
-    state.people.filter(p => p.id !== ME).sort((a, b) => (b.used || 0) - (a.used || 0)).forEach(p => add(p.name));
+    const rc = getRecent();
+    state.people.filter(p => p.id !== selfId()).sort((a, b) => (rc[b.id] || 0) - (rc[a.id] || 0)).forEach(p => add(p.name));
     const cur = document.getElementById('swapWho').value.trim();
     document.getElementById('whoChips').innerHTML = names.slice(0, 6).map(n =>
       `<button class="name-chip${n === cur ? ' on' : ''}" onclick="pickWho(this)" data-n="${esc(n)}">${esc(n)}</button>`
@@ -3020,6 +3093,7 @@
   function toggleQuick() {
     const panel = document.getElementById('quickPanel');
     const open = !panel.classList.contains('open');
+    if (open && !guardEdit(P())) return;
     panel.classList.toggle('open', open);
     document.getElementById('quickBtn').classList.toggle('on', open);
     if (open) updateQuickPreview();
@@ -3124,6 +3198,7 @@
   }
 
   function applyQuick() {
+    if (!guardEdit(P())) return;
     const text = document.getElementById('quickInput').value;
     const t = detectTarget(text);
     const days = parseDays(text, t.y, t.m);
@@ -3150,6 +3225,7 @@
   }
 
   function openModal(key, day, year, month) {
+    if (!guardEdit(P())) return;
     selectedDateKey = key;
     modalOpenedAt = Date.now();
     const marks = P().marks;
@@ -3242,7 +3318,7 @@
   function openManage() {
     document.getElementById('manageVersion').textContent = `v${APP_VERSION}`;
     document.getElementById('installRow').style.display = isAppMode() ? 'none' : '';
-    document.getElementById('manageCloudSub').textContent = cloudReady() ? cloudStatusText() : '進階功能，需要後端網址和密碼；一般使用不用設定';
+    document.getElementById('manageCloudSub').textContent = isShared() ? `${selfName()}・${cloudStatusText()}` : '加入後可以看到大家的月曆（可不加入）';
     document.getElementById('manageSheet').classList.add('active');
   }
 
@@ -3273,6 +3349,7 @@
   }
 
   function openRestore() {
+    if (isShared()) { showToast('團隊共用中不能還原，避免蓋掉大家的資料', 2600); return; }
     document.getElementById('backupTitle').innerHTML = `${icon('restore')}還原備份資料`;
     const ta = document.getElementById('backupText');
     ta.value = '';
@@ -3306,6 +3383,7 @@
   }
 
   async function doRestore() {
+    if (isShared()) { showToast('團隊共用中不能還原', 2200); return; }
     let code = document.getElementById('backupText').value.trim();
     const i = code.indexOf(BACKUP_HEAD);
     if (i < 0) { showToast('這不是點點月曆的備份'); return; }
@@ -3329,7 +3407,7 @@
       document.getElementById('brandText').textContent = data.brand;
       document.title = data.brand;
     }
-    curId = ME;
+    curId = selfId();
     closeBackup();
     renderPersonBtn();
     render();
@@ -3337,15 +3415,25 @@
   }
 
   /* =========================================================
-     雲端同步（Google 試算表）
-     - 每次改動後 1.5 秒自動上傳整份資料 + 異動紀錄
-     - 打開網頁、切回網頁時，若雲端比較新就自動下載
+     團隊共用（Google 試算表）
+     - 加入後以試算表為準；每個改動分開送出，多人同時用不會互相覆蓋
+     - 每個人只能改自己新增的人（後端也會檢查）
+     - 不加入時，資料只存在這支手機
      ========================================================= */
-  // 網址、密碼、試算表連結都存在這支手機，不寫在程式裡
+  // 預設後端網址（這是設定，不是資料；可在「團隊共用 → 進階」更改）。團隊密碼不寫在程式裡。
+  const DEFAULT_BACKEND_URL = 'https://script.google.com/macros/s/AKfycbyHojZl_JLEYWbgkPIfJ0WBu8ya9kjtY5AGsR90Wuk9UmYYUadUSWhVpnyBUxAU-NQC/exec';
   const CLOUD_URL_KEY = 'duty_calendar_cloud_url';
   const SHEET_LINK_KEY = 'duty_calendar_sheet_url';
-  const CLOUD_KEY = 'duty_calendar_cloud_key';
+  const CLOUD_KEY = 'duty_calendar_cloud_key';        // 團隊密碼
+  const SELF_KEY = 'duty_calendar_self';              // 我的帳號編號
+  const SELF_NAME_KEY = 'duty_calendar_self_name';
+  const PIN_KEY = 'duty_calendar_pin';                // 我的個人密碼
+  const SOLO_KEY = 'duty_calendar_solo';              // 選了「先自己用」
+  const TEAM_CACHE_KEY = 'duty_calendar_team_cache';  // 團隊資料（離線時用）
+  const TEAM_SNAP_KEY = 'duty_calendar_team_snap';    // 最後一次跟試算表一致的資料
+  const RECENT_KEY = 'duty_calendar_recent';
   const LOGQ_KEY = 'duty_calendar_logq';
+  const POLL_MS = 60000;
 
   let syncTimer = null;
   let syncing = false;
@@ -3353,22 +3441,31 @@
   let lastSyncAt = 0;
   let cloudState = 'off';
   let cloudMsg = '';
-  let warnedKey = false;
+  let warned = false;
   let backendVersion = '';
+  let teamSnap = null;
+  let pollTimer = null;
 
   function cloudKey() { return lsGet(CLOUD_KEY) || ''; }
-  function cloudUrl() { return lsGet(CLOUD_URL_KEY) || ''; }
-  function cloudReady() { return !!(cloudKey() && cloudUrl()); }
+  function cloudUrl() { return lsGet(CLOUD_URL_KEY) || DEFAULT_BACKEND_URL; }
+  function isShared() { return !!(cloudKey() && lsGet(SELF_KEY) && lsGet(PIN_KEY)); }
+  function selfId() { return isShared() ? lsGet(SELF_KEY) : ME; }
+  function selfName() { return lsGet(SELF_NAME_KEY) || '我'; }
+  function canEdit(p) { return !isShared() || (!!p && p.ownerId === selfId()); }
+
+  function guardEdit(p) {
+    if (canEdit(p)) return true;
+    showToast(`${p ? p.name : ''} 是${p && p.ownerName ? p.ownerName : '別人'}新增的，只能看`, 2200);
+    return false;
+  }
+
+  function clone(o) { return JSON.parse(JSON.stringify(o)); }
+
+  function getRecent() { try { return JSON.parse(lsGet(RECENT_KEY)) || {}; } catch { return {}; } }
+  function touchRecent(id) { const r = getRecent(); r[id] = Date.now(); lsSet(RECENT_KEY, JSON.stringify(r)); }
 
   function isScriptUrl(u) {
     return /^https:\/\/script\.google\.com\/macros\/s\/[\w-]+\/exec(\?.*)?$/.test(u);
-  }
-
-  // 後端每次回應都會帶試算表連結、版本；第一次設定密碼時會帶 claimed
-  function readBackendInfo(j) {
-    if (j.version) backendVersion = j.version;
-    if (j.sheetUrl) lsSet(SHEET_LINK_KEY, j.sheetUrl);
-    if (j.claimed) showToast('已設定雲端密碼');
   }
 
   function nowStr(t) {
@@ -3380,21 +3477,109 @@
     try { return JSON.parse(lsGet(LOGQ_KEY)) || []; } catch { return []; }
   }
 
-  // p 可以是人員物件（會記下人員編號）或文字
+  // 異動紀錄：只有團隊共用時才送到試算表
   function logAction(p, text) {
+    if (!isShared()) return;
     const q = getLogQ();
     const isObj = p && typeof p === 'object';
     q.push([nowStr(), isObj ? p.name : String(p), text, isObj ? p.id : '']);
     lsSet(LOGQ_KEY, JSON.stringify(q.slice(-1000)));
   }
 
+  /* ---------- 算出「跟試算表不一樣」的地方，變成一筆一筆的修改 ---------- */
+  // 比較調班紀錄用（欄位順序、空值寫法不同也算一樣）
+  function swapSig(x) {
+    return JSON.stringify([x.id, x.type, x.who || '', x.out || null, x.in || null, x.outLabel || '', x.inPrev || '', Number(x.at) || 0, !!x.settled]);
+  }
+  function diffOps(base, cur) {
+    const A = {}, B = {};
+    (base.people || []).forEach(p => { A[p.id] = p; });
+    (cur.people || []).forEach(p => { B[p.id] = p; });
+    const adds = [], renames = [], marks = [], swaps = [], swapDels = [], dels = [];
+    (cur.people || []).forEach(p => {
+      const a = A[p.id];
+      if (!a) { if (!p.isAccount) adds.push({ op: 'addPerson', id: p.id, name: p.name }); }
+      else if (a.name !== p.name) renames.push({ op: 'rename', id: p.id, name: p.name });
+      const am = (a && a.marks) || {};
+      const keys = new Set(Object.keys(am).concat(Object.keys(p.marks || {})));
+      keys.forEach(k => {
+        const before = am[k] || '', after = (p.marks || {})[k] || '';
+        if (before !== after) marks.push({ op: 'mark', pid: p.id, date: k, v: after });
+      });
+      const as = {};
+      ((a && a.swaps) || []).forEach(x => { as[x.id] = x; });
+      (p.swaps || []).forEach(x => {
+        if (!as[x.id] || swapSig(as[x.id]) !== swapSig(x)) swaps.push({ op: 'swap', pid: p.id, swap: x });
+        delete as[x.id];
+      });
+      Object.keys(as).forEach(id => swapDels.push({ op: 'swapDel', id }));
+    });
+    (base.people || []).forEach(p => { if (!B[p.id]) dels.push({ op: 'deletePerson', id: p.id }); });
+    return adds.concat(renames, marks, swaps, swapDels, dels);
+  }
+
+  // 把修改套到資料上（送出途中又改的部分，收到新資料後要重新套回去）
+  function applyOpsLocal(st, ops) {
+    const find = id => st.people.find(p => p.id === id);
+    ops.forEach(op => {
+      if (op.op === 'addPerson' && !find(op.id)) {
+        st.people.push({ id: op.id, name: op.name, ownerId: selfId(), ownerName: selfName(), marks: {}, swaps: [] });
+      } else if (op.op === 'rename' && find(op.id)) {
+        find(op.id).name = op.name;
+      } else if (op.op === 'deletePerson') {
+        st.people = st.people.filter(p => p.id !== op.id);
+      } else if (op.op === 'mark' && find(op.pid)) {
+        if (op.v) find(op.pid).marks[op.date] = op.v; else delete find(op.pid).marks[op.date];
+      } else if (op.op === 'swap' && find(op.pid)) {
+        const list = find(op.pid).swaps;
+        const i = list.findIndex(x => x.id === op.swap.id);
+        if (i >= 0) list[i] = op.swap; else list.push(op.swap);
+      } else if (op.op === 'swapDel') {
+        st.people.forEach(p => { p.swaps = p.swaps.filter(x => x.id !== op.id); });
+      }
+    });
+  }
+
+  function saveTeam() {
+    lsSet(TEAM_CACHE_KEY, JSON.stringify(state));
+    lsSet(TEAM_SNAP_KEY, JSON.stringify(teamSnap));
+  }
+
+  // 收到試算表的最新資料
+  function adoptServer(srv, laterOps) {
+    teamSnap = clone(srv);
+    state = clone(srv);
+    if (laterOps && laterOps.length) applyOpsLocal(state, laterOps);
+    fixState();
+    const me = findPerson(selfId());
+    if (me) lsSet(SELF_NAME_KEY, me.name);
+    saveTeam();
+    if (!findPerson(curId)) curId = selfId();
+    renderPersonBtn();
+    render();
+    if (document.getElementById('peopleSheet').classList.contains('active')) renderPeopleList();
+  }
+
+  function readBackendInfo(j) {
+    if (j.version) backendVersion = j.version;
+    if (j.sheetUrl) lsSet(SHEET_LINK_KEY, j.sheetUrl);
+  }
+
+  async function teamGet(params) {
+    const sep = cloudUrl().includes('?') ? '&' : '?';
+    const q = Object.keys(params).map(k => `${k}=${encodeURIComponent(params[k])}`).join('&');
+    const res = await fetch(`${cloudUrl()}${sep}${q}&t=${Date.now()}`);
+    return res.json();
+  }
+
+  async function teamPost(body) {
+    const res = await fetch(cloudUrl(), { method: 'POST', body: JSON.stringify(body) });
+    return res.json();
+  }
+
+  /* ---------- 狀態顯示 ---------- */
   function cloudStatusText() {
-    return {
-      off: '尚未設定',
-      busy: '同步中…',
-      ok: '已同步',
-      err: cloudMsg || '同步失敗'
-    }[cloudState];
+    return { off: '尚未加入', busy: '同步中…', ok: '已同步', err: cloudMsg || '同步失敗' }[cloudState];
   }
 
   function setCloud(st, msg) {
@@ -3403,205 +3588,324 @@
     const dot = document.getElementById('brandDot');
     dot.classList.remove('ok', 'busy', 'err');
     if (st !== 'off') dot.classList.add(st);
-    updateCloudModal();
+    if (document.getElementById('cloudOverlay').classList.contains('active')) updateCloudModal();
   }
 
-  function updateCloudModal() {
-    const link = document.getElementById('cloudSheetLink');
-    const sheet = lsGet(SHEET_LINK_KEY);
-    link.style.display = sheet && cloudReady() ? '' : 'none';
-    if (sheet) link.href = sheet;
-    const dot = document.getElementById('cloudDot');
-    dot.classList.remove('ok', 'busy', 'err');
-    if (cloudState !== 'off') dot.classList.add(cloudState);
-    document.getElementById('cloudText').textContent = cloudState === 'off' ? '尚未設定網址和密碼' : cloudStatusText() + (cloudState === 'ok' ? ' ✓' : '');
-    const pending = getLogQ().length;
-    document.getElementById('cloudSub').textContent =
-      (lastSyncAt ? `上次同步 ${nowStr(lastSyncAt)}` : '還沒同步過') +
-      (pending && cloudReady() ? `・${pending} 筆紀錄等待上傳` : '') +
-      (backendVersion ? `・後端 v${backendVersion}` : '');
+  function handleTeamError(err) {
+    const msg = err || '同步失敗';
+    setCloud('err', msg);
+    if (!warned && /密碼/.test(msg)) { warned = true; showToast(msg + '，請到「資料管理 → 團隊共用」重新加入', 2800); }
   }
 
-  function buildMarkRows() {
-    const rows = [];
-    state.people.forEach(p => {
-      Object.keys(p.marks).sort().forEach(k => {
-        const d = parseKey(k);
-        rows.push([p.name, `${d.y}/${pad2(d.m + 1)}/${pad2(d.d)}`, `週${weekOf(k)}`, p.marks[k], p.id]);
-      });
-    });
-    return rows;
-  }
-
-  function buildSwapRows() {
-    const rows = [];
-    const typeName = { swap: '互相調班', cover: '找人代班', help: '幫人代班' };
-    state.people.forEach(p => {
-      p.swaps.forEach(s => {
-        rows.push([
-          p.name,
-          nowStr(s.at),
-          typeName[s.type] || s.type,
-          s.who || '（未填）',
-          swapText(s, p),
-          s.type === 'swap' ? '—' : (s.settled ? '已還' : '未還'),
-          p.id
-        ]);
-      });
-    });
-    return rows;
-  }
-
-  function buildPeopleRows() {
-    return state.people.map(p => [
-      p.name,
-      Object.keys(p.marks).length,
-      p.swaps.length,
-      p.swaps.filter(s => s.type !== 'swap' && !s.settled).length,
-      p.used ? nowStr(p.used) : '',
-      p.id
-    ]);
-  }
-
+  /* ---------- 送出修改、讀取最新資料 ---------- */
   function scheduleSync() {
-    if (!cloudReady()) return;
+    if (!isShared()) return;
     clearTimeout(syncTimer);
     setCloud('busy');
-    syncTimer = setTimeout(() => { syncTimer = null; cloudSave(); }, 1500);
+    syncTimer = setTimeout(() => { syncTimer = null; teamFlush(); }, 1200);
   }
 
-  function handleCloudError(err) {
-    if (err === '密碼錯誤') {
-      setCloud('err', '密碼錯誤，請到「雲端同步設定」重新輸入');
-      if (!warnedKey) { warnedKey = true; showToast('雲端密碼錯誤'); }
-    } else {
-      setCloud('err', err || '同步失敗');
-    }
-  }
-
-  async function cloudSave() {
-    const key = cloudKey();
-    if (!cloudReady()) return;
+  async function teamFlush() {
+    if (!isShared()) return;
     if (syncing) { syncAgain = true; return; }
+    const sent = clone(state);
+    const ops = diffOps(teamSnap || { people: [] }, sent);
+    const logs = getLogQ();
+    if (!ops.length && !logs.length) { setCloud(lastSyncAt ? 'ok' : cloudState); return; }
     syncing = true;
     setCloud('busy');
-    const logs = getLogQ();
-    const payload = {
-      action: 'save',
-      key,
-      state: { people: state.people, updatedAt: state.updatedAt || Date.now(), brand: loadBrand() },
-      marks: buildMarkRows(),
-      swaps: buildSwapRows(),
-      people: buildPeopleRows(),
-      logs
-    };
     try {
-      const res = await fetch(cloudUrl(), { method: 'POST', body: JSON.stringify(payload) });
-      const j = await res.json();
+      const j = await teamPost({ action: 'ops', key: cloudKey(), selfId: selfId(), pin: lsGet(PIN_KEY), ops, logs });
       readBackendInfo(j);
       if (j.ok) {
         lsSet(LOGQ_KEY, JSON.stringify(getLogQ().slice(logs.length)));
+        const later = diffOps(sent, state);   // 送出途中又改的
+        adoptServer(j.state, later);
         lastSyncAt = Date.now();
         setCloud('ok');
+        if (j.rejected && j.rejected.length) showToast(`有 ${j.rejected.length} 筆修改沒有權限，已改回`, 2600);
+        if (later.length) syncAgain = true;
       } else {
-        handleCloudError(j.error);
+        handleTeamError(j.error);
       }
     } catch {
-      setCloud('err', '連不上雲端（沒有網路？）');
+      setCloud('err', '連不上，改動先存在手機，有網路會自動補傳');
     }
     syncing = false;
     if (syncAgain) { syncAgain = false; scheduleSync(); }
   }
 
-  async function cloudLoad(silent) {
-    const key = cloudKey();
-    if (!cloudReady() || syncing || syncTimer) return;
+  async function teamLoad(silent) {
+    if (!isShared() || syncing || syncTimer) return;
+    if ((teamSnap && diffOps(teamSnap, state).length) || getLogQ().length) return teamFlush();
+    syncing = true;
     setCloud('busy');
     try {
-      const sep = cloudUrl().includes('?') ? '&' : '?';
-      const res = await fetch(`${cloudUrl()}${sep}action=load&key=${encodeURIComponent(key)}&t=${Date.now()}`);
-      const j = await res.json();
+      const j = await teamGet({ action: 'load', key: cloudKey() });
       readBackendInfo(j);
-      if (!j.ok) { handleCloudError(j.error); return; }
-      const data = j.data;
-      const cloudTime = (data && data.updatedAt) || 0;
-      const localTime = state.updatedAt || 0;
-
-      if (data && Array.isArray(data.people) && cloudTime > localTime) {
-        state = { people: data.people, updatedAt: cloudTime };
-        fixState();
-        saveLocal();
-        if (data.brand) {
-          saveBrand(data.brand);
-          document.getElementById('brandText').textContent = data.brand;
-          document.title = data.brand;
-        }
-        if (!findPerson(curId)) curId = ME;
-        renderPersonBtn();
-        render();
+      if (j.ok && !(j.state && Array.isArray(j.state.people))) {
+        setCloud('err', '後端還沒更新');
+      } else if (j.ok) {
+        // 讀取途中使用者又改了，就保留那些修改
+        const later = teamSnap ? diffOps(teamSnap, state) : [];
+        adoptServer(j.state, later);
         lastSyncAt = Date.now();
         setCloud('ok');
-        if (!silent) showToast('已載入雲端最新資料');
-      } else if (!data || localTime > cloudTime || getLogQ().length) {
-        cloudSave();
+        if (!silent) showToast('已讀取最新資料', 1200);
+        if (later.length) syncAgain = true;
       } else {
-        lastSyncAt = Date.now();
-        setCloud('ok');
+        handleTeamError(j.error);
       }
     } catch {
-      setCloud('err', '連不上雲端（沒有網路？）');
+      setCloud('err', '連不上，先顯示手機裡的資料');
     }
+    syncing = false;
+    if (syncAgain) { syncAgain = false; scheduleSync(); }
   }
 
+  function startPoll() {
+    clearInterval(pollTimer);
+    pollTimer = setInterval(() => {
+      if (document.visibilityState === 'visible') teamLoad(true);
+    }, POLL_MS);
+  }
+
+  /* ---------- 團隊共用視窗 ---------- */
   function openCloud() {
-    document.getElementById('cloudUrl').value = cloudUrl();
-    document.getElementById('cloudKey').value = cloudKey();
     updateCloudModal();
+    document.getElementById('cloudUrl').value = cloudUrl();
     document.getElementById('cloudOverlay').classList.add('active');
   }
 
   function closeCloud() {
     document.getElementById('cloudOverlay').classList.remove('active');
-    document.getElementById('cloudKey').blur();
     document.getElementById('cloudUrl').blur();
   }
 
-  function saveCloudKey() {
-    const url = document.getElementById('cloudUrl').value.trim();
-    const key = document.getElementById('cloudKey').value.trim();
-    if (!url && !key) {
-      lsDel(CLOUD_URL_KEY);
-      lsDel(CLOUD_KEY);
-      lsDel(SHEET_LINK_KEY);
+  function updateCloudModal() {
+    const dot = document.getElementById('cloudDot');
+    dot.classList.remove('ok', 'busy', 'err');
+    if (cloudState !== 'off') dot.classList.add(cloudState);
+    document.getElementById('cloudText').textContent = isShared() ? cloudStatusText() + (cloudState === 'ok' ? ' ✓' : '') : '尚未加入（資料只存在這支手機）';
+    const pending = getLogQ().length;
+    document.getElementById('cloudSub').textContent = isShared()
+      ? (lastSyncAt ? `上次同步 ${nowStr(lastSyncAt)}` : '還沒同步過') + (pending ? `・${pending} 筆等待上傳` : '') + (backendVersion ? `・後端 v${backendVersion}` : '')
+      : '加入後可以看到大家的月曆，只能修改自己新增的人';
+
+    const link = document.getElementById('cloudSheetLink');
+    const sheet = lsGet(SHEET_LINK_KEY);
+    link.style.display = sheet && isShared() ? '' : 'none';
+    if (sheet) link.href = sheet;
+
+    document.getElementById('teamBody').innerHTML = isShared()
+      ? `<div class="team-me">${icon('user')}<span>目前身分 <b>${esc(selfName())}</b></span></div>`
+      : '';
+    document.getElementById('teamBtns').innerHTML = isShared()
+      ? `<button class="btn btn-soft" onclick="closeCloud()">關閉</button>
+         <button class="btn btn-pink" onclick="leaveTeam()">離開</button>
+         <button class="btn btn-primary" onclick="teamLoad(false)">立即同步</button>`
+      : `<button class="btn btn-soft" onclick="closeCloud()">關閉</button>
+         <button class="btn btn-primary" onclick="closeCloud(); openJoin('team')">加入團隊</button>`;
+  }
+
+  function saveBackendUrl() {
+    const u = document.getElementById('cloudUrl').value.trim();
+    if (!isScriptUrl(u)) { showToast('網址不對，要是 script.google.com 開頭、/exec 結尾', 2400); return; }
+    lsSet(CLOUD_URL_KEY, u);
+    lsDel(SHEET_LINK_KEY);
+    showToast('已儲存網址');
+    if (isShared()) teamLoad(false);
+  }
+
+  function resetBackendUrl() {
+    lsDel(CLOUD_URL_KEY);
+    lsDel(SHEET_LINK_KEY);
+    document.getElementById('cloudUrl').value = cloudUrl();
+    showToast('已還原預設網址');
+  }
+
+  async function leaveTeam() {
+    const ok = await confirmBox(
+      '離開團隊？',
+      '這支手機會回到「自己用」的資料。\n團隊的資料還在試算表裡，之後可以再加入。',
+      '離開', false
+    );
+    if (!ok) return;
+    [SELF_KEY, SELF_NAME_KEY, PIN_KEY, TEAM_CACHE_KEY, TEAM_SNAP_KEY, LOGQ_KEY].forEach(lsDel);
+    lsSet(SOLO_KEY, '1');
+    clearInterval(pollTimer);
+    teamSnap = null;
+    loadState();
+    curId = selfId();
+    setCloud('off');
+    closeCloud();
+    renderPersonBtn();
+    render();
+    showToast('已離開團隊');
+  }
+
+  /* ---------- 加入團隊（團隊密碼 → 我是誰 → 個人密碼） ---------- */
+  let joinState = null;   // 加入途中拿到的團隊資料
+  let joinPick = null;    // 選到的帳號
+
+  function maybeAskJoin() {
+    if (!isShared() && lsGet(SOLO_KEY) !== '1') openJoin('team');
+  }
+
+  function joinBtns(left, right) {
+    return `<div class="btn-row">${left}${right}</div>`;
+  }
+
+  function openJoin(step) {
+    const box = document.getElementById('joinBox');
+    let html = '';
+    if (step === 'team') {
+      html = `<h2>${icon('users')}加入團隊</h2>
+        <div class="join-text">輸入團隊密碼，就能看到大家的月曆。<br>每個人<b>只能修改自己新增的人</b>，別人的只能看。</div>
+        <div class="field-label">團隊密碼</div>
+        <input type="text" class="field" id="joinKey" autocomplete="off" spellcheck="false" inputmode="numeric" value="${esc(cloudKey())}">
+        ${joinBtns('<button class="btn btn-soft" onclick="joinSolo()">先自己用</button>', '<button class="btn btn-primary" id="joinGo" onclick="joinTeam()">下一步</button>')}`;
+    } else if (step === 'who') {
+      const accounts = joinState.people.filter(p => p.isAccount);
+      html = `<h2>${icon('user')}你是誰？</h2>
+        <div class="join-text">點自己的名字；名單裡沒有，就按「我是新的人」。</div>
+        <div class="list join-list">${accounts.length ? accounts.map(p => `
+          <button class="list-row" onclick="joinChoose('${p.id}')">
+            <span class="grow">${esc(p.name)}</span>
+            <span class="meta">${p.hasPin ? '' : '尚未設定密碼'}</span>
+            ${icon('right', 'sm chev')}
+          </button>`).join('') : '<div class="list-empty">目前還沒有人加入</div>'}</div>
+        ${joinBtns('<button class="btn btn-soft" onclick="openJoin(\'team\')">上一步</button>', '<button class="btn btn-primary" onclick="openJoin(\'new\')">我是新的人</button>')}`;
+    } else if (step === 'pin') {
+      const first = !joinPick.hasPin;
+      html = `<h2>${icon('user')}${esc(joinPick.name)}</h2>
+        <div class="join-text">${first ? '第一次登入，請<b>設定</b>你的個人密碼（4～8 位數字）。<br>換手機、換 App 都用這組。' : '輸入你的個人密碼。'}</div>
+        <div class="field-label">個人密碼</div>
+        <input type="password" class="field" id="joinPin" inputmode="numeric" autocomplete="off" maxlength="8">
+        ${joinBtns('<button class="btn btn-soft" onclick="openJoin(\'who\')">上一步</button>', `<button class="btn btn-primary" id="joinGo" onclick="joinLogin()">${first ? '設定並進入' : '進入'}</button>`)}`;
+    } else if (step === 'new') {
+      html = `<h2>${icon('plus')}建立我的帳號</h2>
+        <div class="join-text">個人密碼用來證明是你本人，換手機、換 App 都要用，請記好。</div>
+        <div class="field-label">名字</div>
+        <input type="text" class="field" id="joinName" maxlength="10" autocomplete="off">
+        <div class="field-label">個人密碼（4～8 位數字）</div>
+        <input type="password" class="field" id="joinPin" inputmode="numeric" autocomplete="off" maxlength="8">
+        ${joinBtns('<button class="btn btn-soft" onclick="openJoin(\'who\')">上一步</button>', '<button class="btn btn-primary" id="joinGo" onclick="joinRegister()">建立並進入</button>')}`;
+    }
+    box.innerHTML = html;
+    document.getElementById('joinOverlay').classList.add('active');
+  }
+
+  function closeJoin() {
+    document.getElementById('joinOverlay').classList.remove('active');
+  }
+
+  function joinSolo() {
+    lsSet(SOLO_KEY, '1');
+    closeJoin();
+    showToast('好，資料只存在這支手機。之後可到「資料管理 → 團隊共用」加入', 2800);
+  }
+
+  function joinBusy(on) {
+    const b = document.getElementById('joinGo');
+    if (b) { b.disabled = on; if (on) b.dataset.t = b.textContent; b.textContent = on ? '處理中…' : (b.dataset.t || b.textContent); }
+  }
+
+  async function joinTeam() {
+    const key = document.getElementById('joinKey').value.trim();
+    if (!key) { showToast('請輸入團隊密碼'); return; }
+    joinBusy(true);
+    try {
+      const sep = cloudUrl().includes('?') ? '&' : '?';
+      const res = await fetch(`${cloudUrl()}${sep}action=load&key=${encodeURIComponent(key)}&t=${Date.now()}`);
+      const j = await res.json();
+      readBackendInfo(j);
+      if (!j.ok) { joinBusy(false); showToast(j.error || '加入失敗', 2200); return; }
+      if (!j.state || !Array.isArray(j.state.people)) {
+        // 後端還是舊版（沒有團隊共用功能）
+        joinBusy(false);
+        showToast('團隊功能還沒開通，請先自己用', 2600);
+        return;
+      }
+      lsSet(CLOUD_KEY, key);
+      joinState = j.state;
+      openJoin('who');
+    } catch {
+      joinBusy(false);
+      showToast('連不上，請確認有網路', 2200);
+    }
+  }
+
+  function joinChoose(id) {
+    joinPick = joinState.people.find(p => p.id === id);
+    openJoin('pin');
+  }
+
+  function validPin(pin) { return /^\d{4,8}$/.test(pin); }
+
+  async function joinLogin() {
+    const pin = document.getElementById('joinPin').value.trim();
+    if (!validPin(pin)) { showToast('個人密碼要 4～8 位數字'); return; }
+    joinBusy(true);
+    try {
+      const j = await teamPost({ action: 'login', key: cloudKey(), selfId: joinPick.id, pin });
+      readBackendInfo(j);
+      if (!j.ok) { joinBusy(false); showToast(j.error || '登入失敗', 2200); return; }
+      finishJoin(j, pin);
+    } catch {
+      joinBusy(false);
+      showToast('連不上，請確認有網路', 2200);
+    }
+  }
+
+  async function joinRegister() {
+    const name = document.getElementById('joinName').value.trim().slice(0, 10);
+    const pin = document.getElementById('joinPin').value.trim();
+    if (!name) { showToast('請輸入名字'); return; }
+    if (!validPin(pin)) { showToast('個人密碼要 4～8 位數字'); return; }
+    joinBusy(true);
+    try {
+      const id = 'u' + Date.now() + Math.random().toString(36).slice(2, 6);
+      const j = await teamPost({ action: 'register', key: cloudKey(), id, name, pin });
+      readBackendInfo(j);
+      if (!j.ok) { joinBusy(false); showToast(j.error || '建立失敗', 2200); return; }
+      finishJoin(j, pin);
+    } catch {
+      joinBusy(false);
+      showToast('連不上，請確認有網路', 2200);
+    }
+  }
+
+  function finishJoin(j, pin) {
+    lsSet(SELF_KEY, j.selfId);
+    lsSet(PIN_KEY, pin);
+    lsDel(SOLO_KEY);
+    lsDel(LOGQ_KEY);
+    const me = j.state.people.find(p => p.id === j.selfId);
+    lsSet(SELF_NAME_KEY, me ? me.name : '我');
+    curId = j.selfId;
+    adoptServer(j.state);
+    lastSyncAt = Date.now();
+    warned = false;
+    setCloud('ok');
+    startPoll();
+    closeJoin();
+    showToast(`歡迎，${selfName()}`, 1800);
+  }
+
+  function initTeam() {
+    try { teamSnap = JSON.parse(lsGet(TEAM_SNAP_KEY)); } catch { teamSnap = null; }
+    document.addEventListener('visibilitychange', () => {
+      if (document.visibilityState === 'visible') teamLoad(true);
+    });
+    window.addEventListener('online', () => teamLoad(true));
+    if (!isShared()) {
       setCloud('off');
-      showToast('已關閉雲端同步');
+      if (lsGet(ONBOARD_KEY) === '1') maybeAskJoin();
       return;
     }
-    if (!isScriptUrl(url)) { showToast('後端網址不對，要是 script.google.com 開頭、/exec 結尾'); return; }
-    if (!key) { showToast('請輸入同步密碼'); return; }
-    if (url !== cloudUrl()) lsDel(SHEET_LINK_KEY);
-    lsSet(CLOUD_URL_KEY, url);
-    lsSet(CLOUD_KEY, key);
-    warnedKey = false;
-    showToast('已儲存，開始同步');
-    cloudLoad(false);
-  }
-
-  function cloudSyncNow() {
-    if (!cloudReady()) { showToast('請先填好網址和密碼，按儲存'); return; }
-    clearTimeout(syncTimer);
-    syncTimer = null;
-    cloudLoad(false);
-  }
-
-  function initCloud() {
-    // 監聽一律先掛上；沒設密碼時 cloudLoad 自己會跳過
-    document.addEventListener('visibilitychange', () => {
-      if (document.visibilityState === 'visible') cloudLoad(true);
-    });
-    window.addEventListener('online', () => cloudLoad(true));
-    if (!cloudReady()) { setCloud('off'); return; }
-    cloudLoad(true);
+    teamLoad(true);
+    startPoll();
   }
 
   /* =========================================================
@@ -3702,6 +4006,7 @@
   function finishOnboard() {
     lsSet(ONBOARD_KEY, '1');
     document.getElementById('onboardOverlay').classList.remove('active');
+    maybeAskJoin();
   }
 
   function initHelp() {
@@ -3857,7 +4162,7 @@
   function makeImage() {
     const p = P();
     let who;
-    if (p.id === ME) {
+    if (p.id === selfId() && !isShared()) {
       const last = lsGet(IMG_NAME_KEY) || '';
       const input = prompt('圖片上要寫你的名字嗎？（可留空）', last);
       if (input === null) return;
@@ -3915,7 +4220,7 @@
 
     // 下方調班紀錄
     const swaps = swapsInMonth(p, y, m).slice().sort((a, b) => (a.at || 0) - (b.at || 0));
-    const imgP = who && p.id === ME ? Object.assign({}, p, { id: 'img', name: who }) : p;
+    const imgP = who && p.id === selfId() ? Object.assign({}, p, { id: 'img', name: who }) : p;
     const recRows = [];
     if (swaps.length) {
       const push = (text, font, color, gapBefore) => {
@@ -4187,14 +4492,14 @@
   });
 
   loadState();
-  curId = ME;
+  curId = selfId();
   initBrand();
   initYearSelect();
   renderPersonBtn();
   render();
   initManifest();
   initHelp();
-  initCloud();
+  initTeam();
   initVersion();
 </script>
 
