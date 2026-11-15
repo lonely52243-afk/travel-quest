@@ -863,6 +863,7 @@ details.hmore[open] > summary { border-style: solid; }
       <button class="more-item" id="mIncome"><span>收入記帳</span><span id="mIncomeVal"></span></button>
       <button class="more-item" id="mCats"><span>分類管理</span><span id="mCatsVal"></span></button>
       <button class="more-item" id="mTidy"><span>整理未分類</span><span id="mTidyVal"></span></button>
+      <button class="more-item" id="mData"><span>資料檢查</span><span>新舊資料對帳 ›</span></button>
       <button class="more-item" id="mHow"><span>怎麼用（5 秒上手）</span><span>›</span></button>
       <button class="more-item" id="mLogout"><span>登出</span><span></span></button>
       <div class="ver" id="verMore" style="text-align:center"></div>
@@ -879,7 +880,7 @@ details.hmore[open] > summary { border-style: solid; }
   'use strict';
 
   var DEFAULT_API = 'https://script.google.com/macros/s/AKfycbxPkzgIjUT7O4YMPVPjFi5u9JsZL_WWcNhAgVXnH_Erg5Z3jWo2ZgTnpiZTRGUYZqun/exec';
-  var PAGE_VERSION = '8.1';
+  var PAGE_VERSION = '8.2';
   var LS_KEY = 'zz_expense_key';
   var LS_API = 'zz_expense_api';
   var LS_CACHE = 'zz_expense_cache';
@@ -2333,7 +2334,7 @@ details.hmore[open] > summary { border-style: solid; }
         h += '<div class="more-item sp-p"><span>' + esc(p) + (d.me === p ? '　<small>（我）</small>' : '') + '</span><span><button class="mini-btn wide" data-sp="me" data-p="' + esc(p) + '">' + (d.me === p ? '取消「我」' : '設為我') + '</button><button class="mini-btn wide" data-sp="delp" data-p="' + esc(p) + '">刪除</button></span></div>';
       });
       h += '<div class="note" style="margin-top:14px">備份：資料只存在這支手機的瀏覽器。換手機或清除資料前，先複製備份碼。</div>' +
-        '<button class="btn line" data-sp="bk">複製備份碼</button><textarea id="spRestore" class="input" rows="2" placeholder="要還原時，把備份碼貼在這裡"></textarea><button class="btn line" data-sp="rs">用貼上的備份碼還原</button>';
+        '<button class="btn line" data-sp="bkcloud">備份到試算表</button><button class="btn line" data-sp="rscloud">從試算表還原</button><button class="btn line" data-sp="bk">複製備份碼</button><textarea id="spRestore" class="input" rows="2" placeholder="要還原時，把備份碼貼在這裡"></textarea><button class="btn line" data-sp="rs">用貼上的備份碼還原</button>';
     } else if (sp.view === 'members') {
       $('spTitle').textContent = '調整參加的人';
       h += '<div class="sp-chips" id="spM">' + spChips(d.people, ev.members, 'data-m') + '</div><div class="note" style="margin-top:8px">已經有分攤項目的人不能直接拿掉，請先修改那些項目。</div><button class="btn" data-sp="savem">儲存</button>';
@@ -2426,7 +2427,23 @@ details.hmore[open] > summary { border-style: solid; }
       if (d.events.some(function (x) { return x.members.indexOf(p) >= 0; })) { toast(p + ' 已經在活動裡，不能刪'); return; }
       d.people = d.people.filter(function (x) { return x !== p; }); if (d.me === p) d.me = ''; spSave(); spRender();
     } else if (act === 'me') { d.me = d.me === p ? '' : p; spSave(); spRender(); }
-    else if (act === 'bk') {
+    else if (act === 'bkcloud') {
+      apiPost({ action: 'splitSave', json: JSON.stringify(d) }).then(function (res) {
+        if (res && res.ok && /^split saved/.test(res.result)) toast('已備份到試算表');
+        else if (res && res.ok && res.result === 'unknown action') toast('後端還沒更新到 v7，請先更新 Apps Script');
+        else toast('備份失敗：' + ((res && (res.msg || res.result)) || '未知錯誤'));
+      }).catch(function () { toast('連不上後端'); });
+    } else if (act === 'rscloud') {
+      apiPost({ action: 'splitGet' }).then(function (res) {
+        var r = res && res.ok ? res.result : null;
+        if (r === 'no backup') { toast('試算表裡還沒有備份'); return; }
+        if (!r || !r.json) { toast(res && res.result === 'unknown action' ? '後端還沒更新到 v7' : '讀取備份失敗'); return; }
+        var cl = spClean(JSON.parse(r.json));
+        if (!window.confirm('要用試算表的備份覆蓋現在的資料嗎？\n\n備份時間：' + new Date(r.time).toLocaleString('zh-TW') + '\n裡面有：' + cl.people.length + ' 位成員、' + cl.events.length + ' 場分帳、' + cl.debts.length + ' 筆欠款。\n（現在的資料會先自動留一份）')) return;
+        lsSet('zz_split_prev', JSON.stringify(spLoad()));
+        sp.data = cl; spSave(); toast('已還原'); spRender();
+      }).catch(function () { toast('還原失敗'); });
+    } else if (act === 'bk') {
       var code = JSON.stringify(d);
       if (navigator.clipboard && navigator.clipboard.writeText) navigator.clipboard.writeText(code).then(function () { toast('已複製備份碼'); }, function () { toast('複製失敗'); });
       else toast('這個瀏覽器不能自動複製');
@@ -2918,6 +2935,24 @@ details.hmore[open] > summary { border-style: solid; }
       } else if (res && res.ok && res.result === 'unknown action') toast('後端還沒更新，請先更新 Apps Script 並部署新版本');
       else toast('失敗：' + ((res && (res.msg || res.result)) || '未知錯誤'));
     }).catch(function () { toast('連不上後端'); }).then(function () { btn.disabled = false; });
+  }
+
+  /* 資料檢查：把舊資料複製進新表，再逐帳戶驗算新舊餘額 */
+  function dataCheck() {
+    toast('檢查中…');
+    apiPost({ action: 'migrate' }).then(function (m) {
+      if (m && m.ok && m.result === 'unknown action') { toast('後端還沒更新到 v7，請先更新 Apps Script'); return; }
+      if (!m || !m.ok) { toast('失敗：' + ((m && (m.msg || m.result)) || '未知錯誤')); return; }
+      return apiPost({ action: 'verify' }).then(function (v) {
+        var r = v && v.ok ? v.result : null;
+        if (!r) { toast('驗算失敗'); return; }
+        if (r.ok) { toast('新舊資料一致（' + (r.counts.記帳 + r.counts.收入) + ' 筆）'); return; }
+        var msg = '新舊資料有差異：\n';
+        r.accts.forEach(function (a) { if (a.diff !== 0) msg += '\n' + a.name + '：舊 ' + num(a.old) + '、新 ' + (a.new === null ? '無' : num(a.new)); });
+        if (r.counts.記帳 !== r.counts.交易記帳 || r.counts.收入 !== r.counts.交易收入) msg += '\n\n筆數：記帳 ' + r.counts.記帳 + '／' + r.counts.交易記帳 + '，收入 ' + r.counts.收入 + '／' + r.counts.交易收入;
+        window.alert(msg + '\n\n（差異通常是舊網頁剛改過或刪過紀錄，再按一次資料檢查會對齊）');
+      });
+    }).catch(function () { toast('連不上後端'); });
   }
 
   /* 預算 */
@@ -3656,6 +3691,7 @@ details.hmore[open] > summary { border-style: solid; }
     $('mRefresh').addEventListener('click', function () { refresh(); });
     $('mBudget').addEventListener('click', openBudget);
     $('mTidy').addEventListener('click', openTidy);
+    $('mData').addEventListener('click', dataCheck);
     $('mImport').addEventListener('click', openImport);
     $('fFile').addEventListener('change', onFile);
     $('impGo').addEventListener('click', doImport);
