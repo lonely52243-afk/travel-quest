@@ -195,6 +195,8 @@
   }
 
   .person-btn .pname { flex: 1; font-size: 17px; font-weight: 800; min-width: 0; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+  .self-tag { display: inline-block; margin-left: 8px; padding: 1px 8px; border-radius: 99px; background: var(--red-soft); color: var(--red); font-size: 11px; font-weight: 700; vertical-align: 2px; letter-spacing: 1px; }
+  .unset, .person-btn .pname.unset { color: var(--muted); }
   .person-btn .pcount { font-size: 12px; color: var(--muted); font-weight: 600; }
   .person-btn .pcount:empty { display: none; }
   .person-btn .chev { color: var(--muted); }
@@ -568,12 +570,13 @@
     display: inline-flex;
     align-items: center;
     gap: 4px;
-    padding: 6px 10px;
+    min-height: 36px;
+    padding: 6px 12px;
     border: 1px solid var(--line);
     border-radius: 999px;
     background: var(--card);
     color: var(--text2);
-    font-size: 12px;
+    font-size: 13px;
     font-weight: 700;
     cursor: pointer;
   }
@@ -654,6 +657,7 @@
     color: var(--brown);
   }
 
+  .note-ret { flex-basis: 100%; font-size: 12px; color: var(--ok); font-weight: 700; margin-top: 4px; }
   .owe-chip.done { background: var(--ok-soft); border-color: #D3E6DB; color: var(--ok); }
 
   .note-del {
@@ -1090,6 +1094,76 @@
   .swap-hint.done { color: var(--ok); background: var(--ok-soft); }
 
   .date-row { display: grid; grid-template-columns: 1fr 1fr; gap: 8px; margin-bottom: 10px; }
+
+  .sw-head { display: flex; align-items: center; gap: 8px; margin-bottom: 14px; }
+  .sw-head h2 { flex: 1; margin: 0 !important; }
+  .sw-x, .sw-back { width: 40px; height: 40px; flex-shrink: 0; border: none; background: none; color: var(--text); display: flex; align-items: center; justify-content: center; border-radius: 50%; cursor: pointer; }
+  .sw-x:active, .sw-back:active { background: var(--paper); }
+  .pick-card {
+    display: flex; align-items: center; gap: 12px; width: 100%;
+    min-height: 72px; padding: 12px 14px; margin-bottom: 10px;
+    border: 1px solid var(--line); border-radius: 16px; background: var(--card);
+    text-align: left; color: var(--text); cursor: pointer;
+  }
+  .pick-card:first-of-type { border-color: #E9C3BA; background: var(--red-soft); }
+  .pick-card .pc-ic { width: 40px; height: 40px; border-radius: 12px; background: var(--card); border: 1px solid var(--line); color: var(--red); display: flex; align-items: center; justify-content: center; flex-shrink: 0; }
+  .pick-card b { display: block; font-size: 17px; }
+  .pick-card small { display: block; font-size: 12px; color: var(--muted); font-weight: 600; margin-top: 2px; line-height: 1.5; }
+  .pick-card .chev { color: var(--muted); flex-shrink: 0; }
+  .owe-pill { font-size: 12px; font-weight: 700; color: var(--red); background: var(--red-soft); padding: 3px 10px; border-radius: 99px; }
+  .owe-pill:empty { display: none; }
+  .who-wrap { display: flex; align-items: center; gap: 8px; height: 50px; padding: 0 6px 0 14px; border: 1px solid var(--line); border-radius: 12px; background: var(--paper); margin-bottom: 8px; color: var(--muted); }
+  .who-wrap input { flex: 1; min-width: 0; height: 100%; border: none; background: none; font-size: 16px; font-weight: 700; color: var(--text); outline: none; }
+  .who-wrap input[readonly] { color: var(--text2); }
+  .who-clear { width: 36px; height: 36px; border: none; background: none; color: var(--muted); display: flex; align-items: center; justify-content: center; visibility: hidden; cursor: pointer; }
+  .chk { display: flex; align-items: center; gap: 10px; font-size: 14px; font-weight: 700; color: var(--text); margin: 6px 2px 12px; min-height: 36px; cursor: pointer; }
+  .chk input { width: 22px; height: 22px; accent-color: var(--red); flex-shrink: 0; }
+  .btn-block { width: 100%; min-height: 50px; font-size: 16px; }
+  #blockOut, #blockIn { margin-bottom: 4px; }
+  .date-field { width: 100%; flex-direction: row !important; align-items: center !important; gap: 10px; }
+  .date-field .df-val { flex: 1; text-align: left; }
+  .date-field .ic { color: var(--muted); flex-shrink: 0; }
+  .gone-tag { margin-top: auto; align-self: center; font-size: 11px; font-weight: 800; color: #9C9B94; background: #EDEBE6; border-radius: 6px; padding: 1px 6px; pointer-events: none; }
+  .ledger-row .when { font-family: var(--num); font-size: 15px; font-weight: 800; }
+  .ledger-row .tag { display: inline-block; margin-left: 8px; vertical-align: 2px; font-size: 12px; font-weight: 700; padding: 2px 9px; border-radius: 99px; background: var(--red-soft); color: var(--red); white-space: nowrap; }
+  .ledger-row .tag.ok { background: var(--ok-soft); color: var(--ok); }
+  .ledger-row .tag.off { background: var(--paper); color: var(--muted); }
+
+  .dir { display: grid; grid-template-columns: 1fr 1fr; gap: 8px; margin-bottom: 10px; }
+  .dir button {
+    display: flex; flex-direction: column; align-items: center; justify-content: center; gap: 2px;
+    min-height: 54px; padding: 6px 4px;
+    border: 1px solid var(--line); border-radius: 12px; background: var(--card);
+    color: var(--text); font-size: 15px; font-weight: 800; cursor: pointer;
+  }
+  .dir button small { font-size: 12px; font-weight: 600; color: var(--muted); }
+  .dir button.on { border-color: var(--red); background: var(--red-soft); color: var(--red); }
+  .dir button.on small { color: var(--red); }
+  .return-note { font-size: 14px; line-height: 1.6; padding: 10px 12px; border-radius: 12px; background: var(--paper); border: 1px solid var(--line); margin-bottom: 10px; }
+  .return-note:empty { display: none; }
+  .mini-cal.hide { display: none; }
+  .mc-hint { font-size: 13px; font-weight: 700; color: var(--red); text-align: center; margin: 0 0 8px; }
+  .swap-sum { font-size: 14px; line-height: 1.6; font-weight: 600; padding: 10px 12px; border-radius: 12px; background: var(--ok-soft); color: var(--text); margin: 4px 0 14px; }
+  .swap-sum:empty { display: none; }
+  .swap-sum b { color: var(--red); }
+
+  .owe-bar {
+    display: flex; align-items: center; gap: 10px; width: 100%;
+    min-height: 46px; margin: 10px 0 0; padding: 8px 14px;
+    border: 1px solid #EBCFC8; border-radius: 12px; background: var(--red-soft);
+    color: var(--red); font-size: 14px; font-weight: 800; text-align: left; cursor: pointer;
+  }
+  .owe-bar small { flex: 1; min-width: 0; font-size: 12px; font-weight: 600; color: var(--text2); white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+  .owe-bar .ic { flex-shrink: 0; }
+  .ledger-sec { font-size: 12px; font-weight: 700; color: var(--muted); letter-spacing: 1px; margin: 4px 2px 8px; }
+  .ledger-row { display: flex; align-items: center; gap: 10px; padding: 10px 12px; border-bottom: 1px solid var(--line); }
+  .ledger-row:last-child { border-bottom: none; }
+  .ledger-row .grow { flex: 1; min-width: 0; font-size: 15px; font-weight: 700; cursor: pointer; }
+  .ledger-row .grow small { display: block; font-size: 12px; color: var(--muted); font-weight: 600; margin-top: 2px; }
+  .ledger-row .chip-btn { flex-shrink: 0; min-height: 40px; }
+  .ledger-done summary { font-size: 13px; color: var(--muted); font-weight: 700; padding: 6px 2px; cursor: pointer; list-style: none; }
+  .ledger-done summary::-webkit-details-marker { display: none; }
+  .ledger-empty { font-size: 14px; color: var(--muted); text-align: center; padding: 18px 0; }
   .date-row.one { grid-template-columns: 1fr; }
 
   .date-field {
@@ -1356,6 +1430,16 @@
   .img-name { display: flex; align-items: center; gap: 10px; margin-bottom: 10px; font-size: 13px; font-weight: 700; color: var(--text2); white-space: nowrap; }
   .img-name .field { margin: 0; height: 40px; font-size: 15px; }
 
+  @media (max-width: 359px) {
+    .topbar { gap: 6px; }
+    .topbar .person-btn { padding: 6px 8px 6px 6px; max-width: 40%; }
+    .topbar .person-btn .chev { display: none; }
+    .topbar .nav-btn { width: 36px; }
+    .topbar .month-center { min-width: 0; gap: 2px; }
+    .topbar .year-select { font-size: 13px; }
+    .topbar .month-label { font-size: 24px; }
+  }
+
   @media (max-width: 370px) {
     .act-btn { font-size: 13px; gap: 4px; letter-spacing: 0; }
     .seg button { font-size: 12px; }
@@ -1407,6 +1491,7 @@
   <symbol id="i-tap" viewBox="0 0 24 24"><circle cx="12" cy="12" r="3.5"/><circle cx="12" cy="12" r="8"/></symbol>
   <symbol id="i-more" viewBox="0 0 24 24"><circle cx="5" cy="12" r="1.3"/><circle cx="12" cy="12" r="1.3"/><circle cx="19" cy="12" r="1.3"/></symbol>
   <symbol id="i-compass" viewBox="0 0 24 24"><circle cx="12" cy="12" r="9"/><path d="m15.5 8.5-2 5-5 2 2-5z"/></symbol>
+  <symbol id="i-cal" viewBox="0 0 24 24"><rect x="3.5" y="5" width="17" height="15.5" rx="2.5"/><path d="M3.5 10h17M8 3v4M16 3v4"/></symbol>
   <symbol id="i-sheet" viewBox="0 0 24 24"><rect x="4" y="4" width="16" height="16" rx="2.5"/><path d="M4 10h16M4 15h16M10 4v16"/></symbol>
 </svg>
 
@@ -1465,9 +1550,11 @@
   </div>
 
 
+  <button class="owe-bar" id="oweBar" onclick="openLedger('open')" style="display:none"></button>
+
   <div class="action-bar">
     <button class="act-btn" id="quickBtn" onclick="toggleQuick()"><svg class="ic"><use href="#i-clip"/></svg>貼上班表</button>
-    <button class="act-btn" onclick="openSwap()"><svg class="ic"><use href="#i-swap"/></svg>調班</button>
+    <button class="act-btn" onclick="openSwapMenu()"><svg class="ic"><use href="#i-swap"/></svg>調班</button>
     <button class="act-btn" onclick="makeImage()"><svg class="ic"><use href="#i-image"/></svg>產圖</button>
   </div>
 
@@ -1503,7 +1590,7 @@
     <div id="modalHoliday" class="modal-holiday"></div>
     <div class="sec-label">這天是</div>
     <div class="mark-pick" id="markPick"></div>
-    <div class="sec-label" id="actLabel">要換班嗎？</div>
+    <div class="sec-label" id="actLabel">調班</div>
     <div class="note-quick" id="noteQuick"></div>
     <details class="note-more">
       <summary>寫其他字（例：休）</summary>
@@ -1522,45 +1609,102 @@
 <!-- 調班 -->
 <div class="modal-overlay" id="swapOverlay">
   <div class="modal">
-    <h2 id="swapTitle"></h2>
-    <div class="seg" id="swapSeg">
-      <button data-t="cover" onclick="setSwapType('cover')">別人幫我上</button>
-      <button data-t="help" onclick="setSwapType('help')">我幫別人上</button>
-      <button data-t="swap" onclick="setSwapType('swap')">跟別人換</button>
-    </div>
-    <div class="swap-hint" id="swapHint" aria-live="polite"></div>
-    <div class="date-row" id="dateRow">
-      <button class="date-field" id="fieldOut" onclick="pickField('out')">
-        <span class="df-label" id="labelOut"></span>
-        <span class="df-val empty" id="valOut">點下方日期</span>
+    <!-- 第一頁：選要做什麼 -->
+    <div id="swPick">
+      <div class="sw-head"><h2 id="swPickTitle">調班</h2><button class="sw-x" onclick="closeSwap()" aria-label="關閉"><svg class="ic"><use href="#i-x"/></svg></button></div>
+      <button class="pick-card" onclick="openSwap({ type: 'swap' }, true)">
+        <span class="pc-ic"><svg class="ic"><use href="#i-swap"/></svg></span>
+        <span class="grow"><b>換留守</b><small>和同事交換留守日期</small></span>
+        <svg class="ic sm chev"><use href="#i-right"/></svg>
       </button>
-      <button class="date-field" id="fieldIn" onclick="pickField('in')">
-        <span class="df-label" id="labelIn"></span>
-        <span class="df-val empty" id="valIn">點下方日期</span>
+      <button class="pick-card" onclick="openSwap({ type: 'cover' }, true)">
+        <span class="pc-ic"><svg class="ic"><use href="#i-hand"/></svg></span>
+        <span class="grow"><b>代理留守</b><small>別人幫我上，或我幫別人上（會提醒歸還）</small></span>
+        <svg class="ic sm chev"><use href="#i-right"/></svg>
       </button>
-    </div>
-    <div class="mini-cal">
-      <div class="mc-head">
-        <button onclick="mcMove(-1)" aria-label="上個月"><svg class="ic"><use href="#i-left"/></svg></button>
-        <span class="mc-title" id="mcTitle"></span>
-        <button onclick="mcMove(1)" aria-label="下個月"><svg class="ic"><use href="#i-right"/></svg></button>
-      </div>
-      <div class="mc-week"><div>日</div><div>一</div><div>二</div><div>三</div><div>四</div><div>五</div><div>六</div></div>
-      <div class="mc-days" id="mcDays"></div>
-      <div class="mc-legend">
-        <span><i style="background:#527F9A"></i>原本的班</span>
-        <span><i style="background:#A9A8A1"></i>給出去</span>
-        <span><i style="background:#C65A4B"></i>換來</span>
+      <div class="sec-label" style="margin-top:16px">相關紀錄</div>
+      <div class="list">
+        <button class="list-row" onclick="openLedger('open', true)">
+          <svg class="ic row-ic"><use href="#i-cal"/></svg>
+          <span class="grow">代理紀錄</span>
+          <span class="owe-pill" id="pickOwe"></span>
+          <svg class="ic sm chev"><use href="#i-right"/></svg>
+        </button>
+        <button class="list-row" onclick="openLedger('swap', true)">
+          <svg class="ic row-ic"><use href="#i-swap"/></svg>
+          <span class="grow">交換紀錄</span>
+          <svg class="ic sm chev"><use href="#i-right"/></svg>
+        </button>
       </div>
     </div>
-    <div class="field-label" id="whoLabel"></div>
-    <input type="text" class="field swap-who" id="swapWho" maxlength="10" autocomplete="off" placeholder="名字（可不填）" onfocus="setTimeout(() => this.scrollIntoView({ behavior: 'smooth', block: 'center' }), 300)">
-    <div class="who-chips" id="whoChips"></div>
-    <div class="swap-preview-wrap" id="swapPreview"></div>
-    <div class="btn-row">
-      <button class="btn btn-soft" onclick="closeSwap()">取消</button>
-      <button class="btn btn-primary" id="swapSaveBtn" onclick="saveSwap()" disabled>確認</button>
+
+    <!-- 第二頁：填表 -->
+    <div id="swForm">
+      <div class="sw-head">
+        <button class="sw-back" id="swBack" onclick="openSwapMenu()" aria-label="上一頁"><svg class="ic"><use href="#i-left"/></svg></button>
+        <h2 id="swapTitle"></h2>
+        <button class="sw-x" onclick="closeSwap()" aria-label="關閉"><svg class="ic"><use href="#i-x"/></svg></button>
+      </div>
+      <div class="dir" id="swapDir">
+        <button data-t="cover" onclick="setSwapType('cover')"><span id="dirCover">別人幫我上</span><small id="dirCoverSub">我欠一次</small></button>
+        <button data-t="help" onclick="setSwapType('help')"><span id="dirHelp">我幫別人上</span><small id="dirHelpSub">對方欠一次</small></button>
+      </div>
+      <div class="return-note" id="returnNote"></div>
+
+      <div id="blockOut">
+        <div class="field-label" id="labelOut"></div>
+        <button class="date-field" id="fieldOut" onclick="pickField('out')">
+          <svg class="ic"><use href="#i-cal"/></svg><span class="df-val empty" id="valOut"></span><svg class="ic sm chev"><use href="#i-right"/></svg>
+        </button>
+      </div>
+      <div id="blockIn">
+        <div class="field-label" id="labelIn"></div>
+        <button class="date-field" id="fieldIn" onclick="pickField('in')">
+          <svg class="ic"><use href="#i-cal"/></svg><span class="df-val empty" id="valIn"></span><svg class="ic sm chev"><use href="#i-right"/></svg>
+        </button>
+      </div>
+
+      <div class="mini-cal hide" id="miniCal">
+        <div class="mc-hint" id="mcHint"></div>
+        <div class="mc-head">
+          <button onclick="mcMove(-1)" aria-label="上個月"><svg class="ic"><use href="#i-left"/></svg></button>
+          <span class="mc-title" id="mcTitle"></span>
+          <button onclick="mcMove(1)" aria-label="下個月"><svg class="ic"><use href="#i-right"/></svg></button>
+        </div>
+        <div class="mc-week"><div>日</div><div>一</div><div>二</div><div>三</div><div>四</div><div>五</div><div>六</div></div>
+        <div class="mc-days" id="mcDays"></div>
+        <div class="mc-legend">
+          <span><i style="background:#527F9A"></i>留守日</span>
+          <span><i style="background:#A9A8A1"></i>不用上</span>
+          <span><i style="background:#C65A4B"></i>要上</span>
+        </div>
+      </div>
+
+      <div class="field-label" id="whoLabel"></div>
+      <div class="who-wrap">
+        <svg class="ic"><use href="#i-user"/></svg>
+        <input type="text" id="swapWho" maxlength="10" autocomplete="off" placeholder="名字（可不填）" oninput="updateSwapPreview(); renderWhoChips(); document.getElementById('whoClear').style.visibility = this.value ? 'visible' : 'hidden'" onfocus="setTimeout(() => this.scrollIntoView({ behavior: 'smooth', block: 'center' }), 300)">
+        <button class="who-clear" id="whoClear" onclick="clearWho()" aria-label="清除名字"><svg class="ic sm"><use href="#i-x"/></svg></button>
+      </div>
+      <div class="who-chips" id="whoChips"></div>
+      <label class="chk" id="trackRow"><input type="checkbox" id="swapTrack" checked> 記錄代理，之後提醒歸還</label>
+      <div class="swap-sum" id="swapPreview" aria-live="polite"></div>
+      <button class="btn btn-primary btn-block" id="swapSaveBtn" onclick="saveSwap()" disabled>確認</button>
     </div>
+  </div>
+</div>
+
+<!-- 代理紀錄／交換紀錄 -->
+<div class="modal-overlay" id="ledgerOverlay">
+  <div class="modal">
+    <div class="sw-head">
+      <button class="sw-back" id="ledgerBack" onclick="closeLedger(); openSwapMenu()" aria-label="上一頁"><svg class="ic"><use href="#i-left"/></svg></button>
+      <h2 id="ledgerTitle">代理紀錄</h2>
+      <button class="sw-x" onclick="closeLedger()" aria-label="關閉"><svg class="ic"><use href="#i-x"/></svg></button>
+    </div>
+    <div class="seg" id="ledgerTabs"></div>
+    <div id="ledgerBody"></div>
+    <button class="btn btn-soft btn-block" id="ledgerAdd" style="margin-top:12px"></button>
   </div>
 </div>
 
@@ -1740,7 +1884,7 @@
       </details>
       <details>
         <summary><span class="help-icon"><svg class="ic sm"><use href="#i-swap"/></svg></span><span class="grow">調班</span><svg class="ic sm chev"><use href="#i-right"/></svg></summary>
-        <div class="help-body"><b>長按日期</b>，或按上方「調班」。有三種：<br>・<b>別人幫我上</b>：這天我不用上，改由別人上<br>・<b>跟別人換一天</b>：這天給他上，換他另一天給我上<br>・<b>我幫別人上</b>：原本不是我的班，改成我上<br>選好日期就會顯示結果，名字可以不填。<img data-pic="swap" src="data:image/jpeg;base64,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" alt=""></div>
+        <div class="help-body"><b>長按日期</b>，或按「調班」：<br>・<b>換留守</b>：選你原本的日期和對方原本的日期<br>・<b>代理留守</b>：點你的留守日＝別人幫你上（你欠他一次）；點空白日＝你幫別人上（他欠你一次）<br>有待歸還時，月曆下方會出現「待歸還」，點進去按「歸還」選日期就結清了。<img data-pic="swap" src="data:image/jpeg;base64,/9j/4AAQSkZJRgABAQAAAQABAAD/2wBDAAYEBAUEBAYFBQUGBgYHCQ4JCQgICRINDQoOFRIWFhUSFBQXGiEcFxgfGRQUHScdHyIjJSUlFhwpLCgkKyEkJST/2wBDAQYGBgkICREJCREkGBQYJCQkJCQkJCQkJCQkJCQkJCQkJCQkJCQkJCQkJCQkJCQkJCQkJCQkJCQkJCQkJCQkJCT/wgARCACxAWgDASIAAhEBAxEB/8QAGwABAAIDAQEAAAAAAAAAAAAAAAEFAgMGBAf/xAAZAQEBAQEBAQAAAAAAAAAAAAAAAQIDBQT/2gAMAwEAAhADEAAAAfqgAAAAAAAAAAACls513mN5ZAAEEgAAAAAAAAAAAMRkwLm1yZsBmxlJIOTuqqyx6dnw9xpl6TbFfvzrEi4lEGTEuTGUkAAAAAAAwM8cYamJLAJRJBIAACas8ktPY7vNO3N+qws59Mwb+AASQmCc9cpsYZsgAAAIjBZhLUEgAAADGn5f7fl6/wA1L6/o5WNhzNYnYVlNHXn9AiXi+nCSokRIARKABliTaiWQAGLBRQ23Wih9e+dmrRZK0WStFkrhY76fYeW81V3TF7B8/wBE1FtRd+PMa+y9npfFnr1ePyfQsValslaLJWwWasFmrJLbfzmo6mMM86nZrzZkIMTGBvxVfo9PTl7ggmITAaVbgARR3visn3Ul3z6zBNYc3eV2s3Qx0AJgHjT2IlQHh9yyh6Dl+p1hlhlm5hlrz1qmDVL6/L6unL28n1mmTl9Wvs64Lr+c6EpvVWdkfP76o9VeW11UkfSPF7PGeO7pLvPRMM68fg99frN1TXOOdcJc0vdazwt3n5S2pvN2R8x+h8r2xwno6rkLO6S59eY6rleq3yjLHLOswzGvZraTErS+ry+rpy9urbEnFZdRormuo82JSdt4PecPc2XpOU8t5dmXj9niPHd0l3npIzrxV9h4NZuZhjfCXNo1nhO78u9OY7ejvV4Tsde4+b9rlsstUMdOZ6rleq3yjPDPOsgy17MFxmDVXja8p05dUr/Um5qG1qG1pG5pG5pg3Vvq8Bnb46efb0A00vQc7rPQxX+rOt7SXc0ja1I2tStrSjdq0Umpl0/k9jLPDZAIiRrjLFthmKfzdE1jnnQjnXRDnZ6Ec9HQjnnQyeXnur4rn6Hntamz5+j1cVG3r49lNPXzd7rrugvPm3SN8ObnopObdIObdIObno4KC29MyoTLlkMAANeyDWyxbkgmAlEkJgEkJlMee6TVO1St9svKa+vh15m1sIc4TGuEokIEoEkCYCQZpZBAAAGsUGghBUiGRZkGQEBIAGsUJpBQCSAGZZIZAA//xAAvEAABAwIFAwMDAwUAAAAAAAADAAIEAQUQERMUFTAyNAYSICEiQCQ2UCMmMTNg/9oACAEBAAEFAv8AhZs+sZ4C6wlV1KfxV3p/Xt1f0bnUbQ5KyjDbVrPzM1ms1ms1ms1ms/hd6ffbfEusnJtqB7q50omTgPLhms1ms1n+Fms+rmiDYajaUY2Vb9wbMUUMuY6SoUB1HdHPq5/iSQUkijQGAr08+ln1quo2j7jGaq3YSbdo9UKSEyuL3ii2qU5z+vToVr1plxpHqQhZT2WyS5UtBE60noiBICtZRXjjv0j/AIFPlWuLyMGt2BbsC3YFuwLdgW7At2BbsC3YFuwIZhlRLS58gEYUamMucINSOa53+UDNsfdgW7At2BbsC3YFuwLdgW7At2BbsC3YE2QJ/RrjMnVbUcExVxq41cauNXGrjVxq41cauOQ4VROIQ7Wx59ffie2axh2qPRZRoyIR0hnGrjVxq41cauNXGLjFxi41can256FJNFc11Ht6EwukC3gz61wBRQiaoMXu9jYzNyfqygaw7aWvuwpjXG59kLxvkUrAsEVhx/GZT9Na+3GX41tp9PmCYCV84n0nYUxrjc+yF4quFwkvP6fMU7LlNlEmyYlxtw7dJ3sT1Cb2x5UqtqiQZEzmLzcnQRNtl0Iyz3Eshyl+Na+3GZ4tt7Vc5xIbbdIl8ve7g6ELjLpp2S4OmhuknbQLZWkCzzZtxzlyNpFjx7jdGQJsuPPwiefhT5XPsh+Kn0o0fpqv26bfderhqq2xdlELTfeoK0pm2n9zeooj3Ub6ki6VscR17UzxrX24zPFtnavog/X1NUTXK63FsEdjhPig9QVqV7BMGP1P31yc00kMINuYW43HCJ5+FPlc+yH4yJ/r9Ndl6uzw1thbZBZSYEkf04NzsG/uW7TjwBNuVpa2xiJIlqX41r7cZni2ztwD+5bvc+PHbCQ2PjzY0ysf9bf16lr98mUOJG3IrlKBcoDq4RPPwp8rn2Q/GVaZ0jxARUW2xDk4eApNtpWFBjbOKtmDcOZR7eEt/ua2jGqZ41r7cZnjW3twpCBSQeDGlV4eAhQQxaWm3ut7VIhR5SNHHIHw8BMtcIb8Inn4U+VxZ7gW8nuD1bg/2gtrchYnZqBtzsn9Uj6DZbqVfJ+NcXNo5r6EgHFNESmsNao1qjWqNao1qjWqNao1qjWqNaw1rNfV8Ixn0a0TKSBOfjKA8JAy6PbriWqNao1qjWqNao1qjWsNao1qjWsNPlBGjSHy3Rgbcfxr8HsaRr7a1cY9cY9cY9cY9cY9cY9cY9cY9cY9cY9cY9RY+3YeedzsyFdGgl9+OWarKCx0mGw9OLIuLeuLeuLeuLeuLeuLeuLeuLeuLeqWtBjjBTCnxr+DMZpyfa9qDcSsVLmGq5GOn3MdE+cQqDDqX+GurPrb3asYlrE5OtZVS2nTLW9ChBF+Rl1MlkskQLCtGJgmrJZLJZfwdPyKfL//xAApEQABAgUEAgAHAQAAAAAAAAABAAIDEBESIQQgMDETQRQiIzJAQlFh/9oACAEDAQE/AeR0F7WB56P4NFRUVJxs6Rq0zfDCMdyDHPqQJ04qcFcUXkL6MecKLqg1vjg9babgN8TUhuAvJHPQXnit+4Ix6xA7kARNFeVcVcVcVcVcU2GxplGvp8iGlce0K0WVlZWVlV/sjsd3wN6l73lNRkJHvgb1L2ih0qZwvaFVSkmoyEj3wN6l7lQgIApqtQBEmoyEnD3wNaaYkf6qqqqqqsi5NCO20KwK0KwKwKwLQMaXEEKMH2/SR08Qfqm6OI7/ABR4bG4arQrQrQrQrVTkqoEXxvDk7UkPLoeF8fET9VEf2eAnaNp3Dcdn/8QAKxEAAgECBAQGAgMAAAAAAAAAAAECERIQIDAxAwQhIhMyQEFCUQUUIzNQ/9oACAECAQE/AdSvp15h9XT09BR+/RcDkpTV0uiPA5WO8j9TgcT+uRHlLeDKD31UqlqLYlqLUWotRPjcScaN4cv4d38g/wAhBdIqo6N1Z0O07TtO0t+sy8udEt8FtoT3y/HQlvh8RD3PY9hlcJ5V5dCW+HxwqNokVG1hPLHqqaDfXCP0UzKJJ1zXsvZey9l7L2TYqe5UuItlzL2XsvZcxt6rVShain+F/8QAOhAAAQICBggEBQIGAwAAAAAAAgABAxESITEzcZEEEBMiMkFRoSAwYYEUUFKxwTRyBUBCYILCI2Lh/9oACAEBAAY/Av7FYBFneU60MSylqrdm+VB+1Q07vYypdahZCzvN2b5TDwdDi6aC3OsltnayodWzYq+vL5RIxYmVEWkzLaMcp2r6QFUWqDp1TRYlUq2H5XQnLmqTvTL7fJJu8mXHS/auA1XTH2W5EF0Tg8nRQjJ3qm0/k1AGpH2Zbzub9FwsP7nVcQFU4F7rfBxWzIqQ+qCJ0f8Amt4mHFXoq9FXoq9FXoq9FXoq9FXoq9Fbhs6d6bUHefqpAMvXm/geG47R+bJ3EKDdFJBtKno1q9FXoq9FXoq9FXoq9FXoq9FXoq9FVRBfzNnC9yVI92f1Wq97K97K97K97K97K97K97K97K97K97KkMWvBboiSoRefPwPE2kmK2pb0zxUv+MFRhcL2k6vOyveyveyveyveyveyveyveyveyveyvey3TYsVQNnl0dMQvNn8l3a16mW1LlZ521b3TTtarwOXRO52Wv53/ZrEUJ8W8kMUHjeJEJhFrXTRIZUhex/FEUTHwRMFEx8gtjEY6NsvHL1fyQxQaj0TQ4b0h4z6KPtIhnJ2lSdNoGiPRfm6+IHS3OXFW/5QRnqKx8VDgNxRCUCBChbSI7URQwtIinOukM6rEIw7yJY/Rltn0x2iPXRcnR6NpN6HPrqiYKJi3giYKJjqAYMPaRYnCmg6RFN3rpDOqxCMG8iWP0W2+MLaSnQpOiGLeQ+fVlFNrZUW90WkuM578vsgixCOCJ8AjUjjvXRazqviC0rZi/Db+F8DpRU51M78tfuXkhig1RJMzTZ5qP/AIqnRGl1lWvgNHanEN5FL7IILvMrSxQhaED8f+qcq25p8f8AVQtJBptDqL0UzE9p9LMqZtRIqTu3SrVEwUTFvBEwUTHVOVaPEvst4RLFk4i84xNU3T1RRIrSOLy6MtH0MLTef4ZDDlui0lo3v+FJxZ29VTOQA3Jk/wDEDajDF93X7l5IYoNR/tdR/wDFPosCo/6z6KkUdijPaVF6sEekQzpAE1pGlHaZS/L6nx/1QxIcMTF3kVLktvQhtF+loe9NRtPNpMU5aomCiY+CJgomOs8S+yYQacU+Ho3qvitM0inHd5ydneSdoMSm7W1KJFtCDZ9tWje6eNEsZbXTo2zhjZDaaCDCit9Iiwvr9y8kMUGqSfYw2Cdsk8SJAEie11+mDuj0bRaMFietBBqd2tfq+r4jZttfqTiTM7Pazql8O2E3kmEWZmbk2qJgomLeCJgomOv4hoTbX6kzx4TG7VNNfph7o/hoYwyJpTUSmTGZva2pttCY6Nk1s4oMQdF+mHumMNHFiGtn1+5eTS+l1R5j51HmSIur+Ax6siDr5zm/JU+jeS4vY6m1nL1Vb0H6OrwM1xjmrwc1eBmrwM1eBmrwc1xjmrwc1eDmrwM1KHvv6KlEiDg3JMzVMyoNEFy8G1DhtwW+zi/WVSvAzV4GavAzV4GavAzV4GavAzV4GavAzV4GavAzVcRvZMADVyZS/qe3yqJNNluG7Yq8DJXg5LjHJcY5K8HJXg5LjHJcY5LjHJcY5LjHJSnN3dPRKg3opbxuhI9xmefr4aE8rFNpCfVXgZLjDJXgZK8DJXgZK8DJXgZK8DJXgZK8DJb0TJluN7/zJtytTFJ26OpHI29bVWxCuJ8luiRdlKdFujKZbo/f5MET2TgTTZnkpi7gt0gdf0ZrfiC2CnKk/V/k9ExmyogMm/sb/8QAKxAAAgECBAYCAwEBAQEAAAAAAREAITFBUWFxECChsfDxMJFAwdGB4VBg/9oACAEBAAE/If8A4U/tMMAHBAay4EwChszf/wAqpZ/vHaDHWEbQGTlCUGSegGEU2AE5n8xxOBo0aNG4zHET9DrPIZwRnX6mAgS015icTCAyUBAookUEqPFOXmPwTDfK0xz5WCgNEAMJQBSQjtAABIBUI1fMcbKJZg7xn4AYG+U5PwlwLCI2h1migkimz5Bm+IpCX8psEDElSih2hwM0L9Swdxu0opnJ1+o0LEBi6giqak9/wC/GDwbH/bAp1sH6EGtXYiNEdjOlyneVBWBI/ccHgCpTKyptjNvwC+E6hz48zMxMxIMEExVCAmM7Q0iCix/Yh4njo0RvA1yYS1HATNCFWEWV8YAZmZmYhJGsnyA15SXEsLUU/QJWbEdRQa0rmnelc0rmlc0rmlM0pmnekFPAS77e39QlkVUtR15AhnjCqsxNakOktAMNA4ZDwaILTOIRWvSdydyVzSuaVzSmaUzSmeVzTuSGHpQKNKDe8NovAGDxFRyEs8CGilDMgbITnn8wYAEytesaidfyAL2FwxE/t6SlgEPlEdCmy/UeBgj+3MPiVPX2grWZ689Xw5LCBhW5jBXlEdp9ZZaO3Ia8l4J2jiuTWZShWpHwWnJbLJ78buJV49b7ToT34BHQ7JOmW8OhipBVDLavWUSU74ACLNjCCh/lwhQgEYRZLzPGloP+kQixNXDAqVjef5Vxr7CkTrWYGrHeBAXI62dhM9LBBEAUQdRw8zWeEy5PI1nTO3Ag0kgE0tMYchh29Va0VsDkXEGO8Q5XFWzs4WcEgap37giSv/TRCMzdBRItFYx2rRpfG5gBq5GZhDcsgoCAOwsEpOyZMkmEcQZXh4W/G7m6/wBp0p78CwUMIC5WMMV59hgoTmV1StOEXa0a55QoaAyCzXgBFBXqPUIlMCxJUR28kpAQoDuYMVi0q4CdDDUvf+Zdo54ms8BlyeRrOiduBDBBAIFVEGEmwSgsQFQdamfUh4Cxe4LPWFobseGsEECAIIohPB1gB1kKAxDMtBALnIDOWzcMykANsZfh4W/KNuTr/adOe/DzGUP7+wwtptdiNdYtF+2KPcHWGIlEVAarMhWnwzEveJ/qg4qBm2Wg6CJ/QLdYx6g1kmq2FOHmazoHbk8jWdE7cKYzAwkQGNQo5v5LPcAQ8zSp7RYog1AvuCcUH0o6swmYJh3iMTWKC5OAgM4NQqZBdTBk5JAAGgtKcPA35Ztydf7Tpz34AMQYNDAoj11FK0syE16x39P6iOpFmRr2g34EkWIa8P3vuy7QWdkAwZ4UmjgIDIAQA4eJrPAZcniazpnbheFwk263ZQT3WEaCH/v/ANQwUCD/AMib5EgNhvq5eET1sUhIckSekX/f+od5iBND9xcPA342cxgBmna0Fm3ofmCbEr/Ic5p/5yEA3KoE9RWNx81t0XCgheJ3PEW43cQIsCIl2BXYDlAbwXGegz0eehz1Geoz1Gepz1eepz1OekwGDgeag3MSv0DRpFBDoOaUQB5K4QRqGOP4hdhKAlvqz1Geoz1Gesz1mesz0mesz1mekwZUnKow1avVOpg7M1DzPAX5ApyFQZ8DCfqQc9wnsU9mnu09ynuU9mns09mnv092jlbgkBQBoSQAFfuJ2PsGzEbAZHVyUEbQLpqlFEX3CLfeewT2ye0T2ie8T3ie8T3ie8Qf9BDumpKSSblUn4AL8B5Qy+orsYQVs1svYzson2g6tbOAn9suca0SpAiqn9WKAIfMA+chfgBGeBPvADEmhFFeVNWQqIKaLrSaNJRoGlwyAPdfwAFz3h+c0bZRgGMPARROI3zCsAXxG/4w/JZzf//aAAwDAQACAAMAAAAQAAAAAAAAAAAAABAAEAAAAAAAAEAAAJAIEJEE/nEBAJAAAAAAAFUw8I4AARba1c840oJAAAAFY4AAAANgHfxwQgAk89AAAN8/9ttxlG8PrQ982u7achABcud73IUoxfcCGKCLDGVyNAds2z6m1ofeUsOtG9ko12r9A8oWbmU9y4GUAare3VJlOLsAFsRqQAMMMme8CfIMywPaTZAAUsDDzjPLh7R1fwogAEYcBAAV0EcI049k/UO0IMMEskQAAAAdACcCcAAcAAdCc9iCAAAA/8QAKBEBAAIBAwIFBAMAAAAAAAAAAQARMRAgITBBUWFxodGBkcHwQLHx/9oACAEDAQE/EOoIXgQFx/AtLS0tKdFZ8/mHmDj9832nJJXLWlMtKegFw36lm148IXKr7EonXi/f7ztbRK2+JvbrthzaPp8zN45XPB3/ADDG9Ljr3IYtnkbarxpcA5YTsVsWthCAE9M9M9M9M9MuYaHvoF6ct9Ir5aPIGY1sutRZTHxUw2c+zEqY2XbApRC2BgKClW6nMhFIDM7c6cNnP1KMBCQpyxVqRrXho9KmL3UuI7gutLjAWUlJSUlkIOJQR6EG4x3RAHyWuL942lPz9O0yy+0zRTz+I2Pb320VYE0W9RqDe6kF3BmJQhb/AN7QMpr7QCuHy46FnSYdThs//8QAJhEBAAICAQIGAgMAAAAAAAAAAQARITEQIFEwQEFhcYGx0ZGh8P/aAAgBAgEBPxDxALXl9keBLDy2FpuIt+SDk/J/EcO77/UMLJ83/W5jGq0fx4ruiV7Z7k92e7Pdj6LC2Men74Od0Hzv6zD7X+fbEjBcrvld0ruld0rulHbqxw9et0wUjjBvRXI02QdI04cLG6nYilhKszDZN/BtEDmMApFuzND3jKGoWFTHGx06OMXfDmYnxDZN/BtwhRYiIXEogMRxsdLgpOalSoIOZdbjIVFEplMplMpjLnUsdQPr1aqm4rRXvEE2uqAlb8WpUrVPEE8y+D//xAApEAEAAgADBwQDAQEAAAAAAAABABEhMUEQUWFxgdHwIJGxwTCh8eFA/9oACAEBAAE/EOm2/S/my/4c/wAOvpNnHbd/iuXLJagCoBWuDFT4it2yT3mUeENAC3C85y9V/hy9GHo6ejL136mDyJ7PvM2XT2nDquOcAFrB8E6iygfPNnC7e4Uv5L9N7Ouy62sNqDWPGY8M5RONOJOJsrbiB1INk7bPwv2gfuIoCgK9+KYSaENL/sceREdXPgSjDmxmIFqtAb57AKSIdi70iGsoaM5JyQOpUGyfUfiUM8IJljFP8/JcA1h8aaByd5ugqMo6BAQcQ2pRV04aMAbEL5ir7seqZwLjxUz5Zc5QOhWYZO4cM+UUzX01K2KZQObZz9eu1aMan+qKueP5umyoo0YPCGHBGXQ3mpiwsYXJOQ38WW6/j0sm/ZXqrYXExFi/kqZ5fDA6sTUlop98CYGbfR+4iHEqx7mI8EdPepiQb3qCca3NTHJQpCOAXg30jTlKqX+TKU4Pov0U4HqfWEDS8Lv+h4HWGC5hlDk4EDNPcL2LY/k4P+4QpRoyeg+4ZCTkR0yezKQZmbdWcK6ofXw/RYpRYTR3/jfTYY5m120YG0a+HCL0h/ovaf03tP6T2njPaWf69p/be08J7T+g9p5T2nFPftAqvZMQvONOOqLa2gyc87ltQMfHmfTKJXhGAMyGjVY2ideFRGHYLHIvxMeja4AYr0mJQe+rBruwigrTcr9S3uvaV5+49p/be0/pPaf03tP672lffe0/vvaf03tP7b2hF4yBF99lbKvSpcXZnKDbUMafHH2mDHWDxFZ+7KM/ad5/Ad5T/J3j/hu8o7bvP4bvP4DvD/Jd4/5rvAnZd5wTvqTUS8SOmgYqA47/AEYSVKKrXZDdx0lszlTGBRbjVTevGKia3+ZSCwSCAHdK9pUamoOfNlABp1ZHzKHg+ZVz9t3n8t3n8N3n8N3n8N3n8t3n813lXad4HwfcfUrfL1xIFV9Zd3vwYRSmGptdG1oLlgzrMOsU3Lm9C5T8Z2G90ZH46jGBWQGb2XNo9Itk1Vzayfatl7GZpr6EXES804eNCUAABQBQHqqVtz2Yx5IRr2s+R+YTAiLomTrg9NrwTbQVv2sXMFoFYVRudvRTETMTmbDZmWdChpxSXjaptUaczeMFLIlSlLBTfUcJdyxMaI5gjcdgPXVK25zTL+kwFLpvhTOEqWq6ZZrKaumpZpEQdBi3LqOxALt1mG5ygd8McpZyTyJTul1BFIQcEUuFQ57M7bY5WzDMeE39l0Qw1eIWyNObFciXh0VLbKvKPVwRylhqxRTFiVtibG1aiXIPOaQ1XEqnBwestbYUM3JOvtJQSuRAiwxV5Dqy3I1LilAylWYGU3ASAqWTWyBeGcITADF4iGJwqiHa1oSkBMLKxMxiYyvQfCHyNXo/RfCeD3oVBSm5B0tRisSjLewLdxBGCKaLMso1yQAVYQOaUDrFDEYGjvM6FVeFw9ToBWKUMKIjvwgZTOmOU9rXpDx+oLMK3LDHrFstsYuLXMybzSiWmZKatoC7lS4IX6nBptACVba1LskM8Sc0Wjl7yhnBxOcxHwwh2Z3LZeDHH0EeU3pUOcFAbpa1aNZo0kgWpQuYVouUVOrAo3xkhuA51ezBGJ7BwMDpMGQnWX8oHSCF8GDbnTpdFy2hRJlS4IUJN1iPSYXn1PMWqXfjwg4jTKcFXIYE5zwOCeO3vRg5L4RX4eKVrLlUkihzB0uiLpuxmfeO3kUwi/PGOq4cENDNeEc+hDmXISrWmEr2Abev2PpBLxkaAGHS4jJvCRW1sOlBo4Q71UsdA2a3HNjqVFNO3agxWV4QWALJk+GEOzO8pnM/l6FEafyWw3Z4uGUGMgT0AGCEu/gS9F4Y5Yc1UrDndgN7nyYQjMzzCUA7veFAW4dcfkDpBMiUUZw4Iw4DTfZOJjMcNkgdQyZ71axPW6EM2agFt7KKxnk8E8fvejFyXwng96Z4QKMVxldrLAnhYBp3lOWpzwj202+8rBuaw0cDehIpFocBrCFgwszD+1dCPV1jF1FRUkWHNqoDisLu/OhawaN7i5FaAckQtAwBLGTcFU5w0fLCHPZq2Ylyj6CPPb2ygEUHUSmKmFC+VRdrlbFSeBqgDQGQRVbKBXjNKWOpbaEqLUNBBReNY/qXekpQNNut5lbmUWg4oHcjgkuGNG/8C6Qi7jgWgGRsVch8J5ze9GI/GCZDztsSlMbRKHFWzWssMoyR4Qo2mCazRziZc4gKXitcBbwlCeRgA4arspZmI4itdDHV1SbiJ0RCgqsyRwg6ycBW1TSyS4oGEME5yyHyqEx2H3bM4lWbTNtLmC31ELS6JxLH5Pw5ejOWFwgOBtfg6wq0OsBXzcvbiGEDjmfEUGxk62Wez+tp6ukvaYRVKTzOh1amHoTdA+X2jsFAhsNW37QwvO1GDFbQpz7j8ZxyGjFKL4ZH9QXwP3PDPueafc8Q+54h9zd+Bxnin3PDPueKfc8U+47i8N8IO1p9Gn7YzstAsbi1f2U1VRgAb1gBMyu3ycl22mWcuf4kuT/kKhih4iEMOTC7UeGsfEPmecfc8w+55B9zyj7nlH3PCPueUfcS8j9yzyP3FjpJ7uhD8FgMV+j2IUapVy3BwMthseiziPRnR8G+vB4xBRXdp1wYq3AJgrswxkgMR2WOX7cMMNvghRQeb4L4kWoNYrWWxnsTciOvwBahugMusaW9lyjCLKRLGP3IXxHcpHhxiGEbgZ848A9AQBAtAdkEBMF5B84DjS1GK9XtF9YU/q362mi9/ptXo/8AAIzTAQ/bX5uPzBuEcUCwRYX8Bn1IY3+wn3H6gVnLxviBVpzD9jLlT4F83NlTszlRcDQ4wpBQFEv8lSxRKK9KCUxljlDbn669JiMegsHyzGLeEkUwebGlb/huJ7xVuNZf7GKcTivaQM6iEf7ohohkuB4GRL/MF4Eo1HYehDAxjExPx1BOkFqkpvjtDb3DvEyY/SFMS1zVc2V3Es0iN7F6JHcXKTM9V+sKog83pdu+EzfSenJs3TfDY5wymuwjls6bNNm6HoZrsmOxhnP/2Q==" alt=""></div>
       </details>
       <details>
         <summary><span class="help-icon"><svg class="ic sm"><use href="#i-note"/></svg></span><span class="grow">查看調班歷程</span><svg class="ic sm chev"><use href="#i-right"/></svg></summary>
@@ -1837,9 +1981,22 @@
   const ME = 'me';
 
   /* ---------- 版本 ---------- */
-  const APP_VERSION = '4.3';
+  const APP_VERSION = '4.5';
   const VERSION_SEEN_KEY = 'duty_calendar_version_seen';
   const CHANGELOG = [
+    { v: '4.5', date: '2026/11/15', items: [
+      '調班先選「換留守」或「代理留守」，再選日期和對象；代理點藍色＝別人幫我上，點白色＝我幫別人上',
+      '月曆上給出去的日子會標灰色「代」「換」，看得出原本的班',
+      '代理紀錄分待歸還／已歸還／全部；交換紀錄另外看',
+      '日期欄位點了才展開月曆，選好自動收起',
+      '有待歸還時，月曆下方顯示「待歸還 N 筆」；按「歸還」選日期就結清，並和原本那筆連在一起',
+      '刪除歸還，原本那筆自動改回待歸還；同一天不能重複安排',
+      '產圖可以臨時改圖上的名字；手機返回鍵會先關閉視窗'
+    ]},
+    { v: '4.4', date: '2026/11/15', items: [
+      '自己不再顯示「我」：顯示你的名字並標「自己」；還沒設定名字顯示「未設定」，點鉛筆就能設定',
+      '綁定雲端或產圖寫過的名字會自動帶入'
+    ]},
     { v: '4.3', date: '2026/11/15', items: [
       '雲端同步改成一筆一筆合併：Safari 和桌面 App 各自改的，同步後兩邊都有，不會互相蓋掉',
       '綁定時，手機上的紀錄和雲端的紀錄自動合併'
@@ -2206,8 +2363,20 @@
      ========================================================= */
   function marksCount(p) { return Object.keys(p.marks).length; }
 
+  // 自己的名字：改過名就用改過的；沒改過就用綁定雲端或產圖寫過的名字；都沒有就是「未設定」
+  function selfName() {
+    const me = findPerson(ME);
+    if (me && me.name && me.name !== '我') return me.name;
+    return (cloudReady() ? acctName() : '') || lsGet(IMG_NAME_KEY) || '';
+  }
+
+  function showName(p) { return p.id === ME ? (selfName() || '未設定') : p.name; }
+  function selfTag(p) { return p.id === ME ? '<span class="self-tag">自己</span>' : ''; }
+
   function renderPersonBtn() {
-    document.getElementById('personName').textContent = P().name;
+    const nameEl = document.getElementById('personName');
+    nameEl.textContent = showName(P());
+    nameEl.classList.toggle('unset', P().id === ME && !selfName());
     document.getElementById('personCount').textContent = state.people.length > 1 ? `共 ${state.people.length} 人` : '';
   }
 
@@ -2233,7 +2402,7 @@
     const row = (p) => {
       const n = Object.keys(p.marks).filter(k => k.startsWith(pre)).length;
       return `<div class="list-row" role="button" onclick="pickPerson('${p.id}')">
-        <span class="grow">${esc(p.name)}</span>
+        <span class="grow${p.id === ME && !selfName() ? ' unset' : ''}">${esc(showName(p))}${selfTag(p)}</span>
         <span class="meta">${n ? `${currentMonth + 1} 月 ${n} 天` : ''}</span>
         ${p.id === curId ? icon('check', 'check') : ''}
         <button class="row-edit" onclick="event.stopPropagation(); openPersonMenu('${p.id}')" aria-label="改名、清空或刪除">${icon('edit', 'sm')}</button>
@@ -2242,7 +2411,7 @@
 
     let html = '';
     if (q) {
-      const hits = state.people.filter(p => p.name.includes(q));
+      const hits = state.people.filter(p => showName(p).includes(q) || p.name.includes(q));
       html += `<div class="group-label">搜尋結果</div><div class="list">${hits.length ? hits.map(row).join('') : '<div class="list-empty">找不到「' + esc(q) + '」，可以在下方新增</div>'}</div>`;
     } else {
       const recent = state.people.filter(p => p.id !== ME && p.used)
@@ -2302,7 +2471,7 @@
     document.getElementById('pmTotal').textContent = `共 ${state.people.length} 人`;
     box.innerHTML = `<div class="list">${state.people.map(p => `
       <button class="list-row" onclick="openPersonMenu('${p.id}')">
-        <span class="grow">${esc(p.name)}<span class="sub">${marksCount(p)} 個標記・${p.swaps.length} 筆調班</span></span>
+        <span class="grow">${esc(showName(p))}${selfTag(p)}<span class="sub">${marksCount(p)} 個標記・${p.swaps.length} 筆調班</span></span>
         ${icon('right', 'sm chev')}
       </button>`).join('')}</div>`;
     document.getElementById('pmSheet').classList.add('active');
@@ -2315,7 +2484,7 @@
   function openPersonMenu(id) {
     menuPersonId = id;
     const p = findPerson(id);
-    document.getElementById('personTitle').textContent = p.name;
+    document.getElementById('personTitle').textContent = showName(p);
     let html = `<button class="list-row" onclick="renamePerson()">${icon('edit', 'row-ic')}<span class="grow">改名字</span></button>`;
     html += `<button class="list-row danger" onclick="clearPersonRecords()">${icon('erase', 'row-ic')}<span class="grow">清空全部紀錄<span class="sub">刪除所有月份的標記與調班，人員保留</span></span></button>`;
     if (p.id !== ME) {
@@ -2340,7 +2509,7 @@
   function editPersonName(id) {
     const p = findPerson(id);
     if (!p) return false;
-    const input = prompt('改名字', p.name);
+    const input = prompt(p.id === ME ? '你的名字' : '改名字', p.id === ME ? selfName() : p.name);
     if (input === null) return false;
     const name = input.trim().slice(0, 10);
     if (!name || name === p.name) return false;
@@ -2419,6 +2588,8 @@
 
   function renderMonthTo(containerId, year, month) {
     const marks = P().marks;
+    const gone = {};
+    P().swaps.forEach(sw => { if (sw.out && !marks[sw.out]) gone[sw.out] = sw.type === 'swap' ? '換' : '代'; });
     const holidays = getHolidays(year);
     const daysEl = document.getElementById(containerId);
     const frag = document.createDocumentFragment();
@@ -2458,6 +2629,11 @@
         dot.textContent = marks[key].slice(0, 1);
         badgeWrap.appendChild(dot);
         dayEl.appendChild(badgeWrap);
+      } else if (gone[key]) {
+        const tag = document.createElement('div');
+        tag.className = 'gone-tag';
+        tag.textContent = gone[key];
+        dayEl.appendChild(tag);
       }
 
       bindDayEvents(dayEl, key, d, year, month);
@@ -2672,13 +2848,19 @@
 
   /* ---------- 一筆調班 → 卡片用的資訊 ---------- */
   function swapInfo(s, p) {
+    const info = swapInfoBase(s, p);
+    if (s.returnOf) info.title = '歸還・' + info.title;
+    return info;
+  }
+
+  function swapInfoBase(s, p) {
     const ow = ownerWord(p);
     const who = s.who || '';
     const other = who || '對方';
     if (s.type === 'swap') {
       return {
         kind: 'swap',
-        title: who ? `跟${who}換一天` : '跟別人換一天',
+        title: who ? `跟${who}換留守` : '跟別人換留守',
         left: { lab: '給出去', key: s.out, cls: 'out', sub: `由${other}上` },
         right: { lab: '換來', key: s.in, cls: 'in', sub: `由${ow}上` }
       };
@@ -2707,13 +2889,18 @@
     return `${i.title}：${i.left.lab} ${mdw(s.in)}，改由${i.right.who}`;
   }
 
+  // 代理：還沒歸還的才算欠；「歸還」那筆本身不算新的欠
+  function isProxy(s) { return (s.type === 'cover' || s.type === 'help') && !s.returnOf && !s.noTrack; }
+
   function oweText(s, p) {
+    if (!isProxy(s)) return '';
     const ow = ownerWord(p);
     const who = s.who || '別人';
-    if (s.type === 'cover') return s.settled ? '已還' : `${ow}欠${who} 1 天`;
-    if (s.type === 'help') return s.settled ? '已還' : `${who}欠${ow} 1 天`;
-    return '';
+    if (s.settled) return '已歸還';
+    return s.type === 'cover' ? `${ow}欠${who} 1 次` : `${who}欠${ow} 1 次`;
   }
+
+  function findSwap(p, id) { return p.swaps.find(x => x.id === id); }
 
   function ndHtml(key, cls) {
     return `<span class="nd${cls ? ' ' + cls : ''}">${md(key)}<small>週${weekOf(key)}</small></span>`;
@@ -2736,13 +2923,18 @@
     }
     let foot = '';
     const delBtn = `<button class="note-del" onclick="deleteSwap('${s.id}')">${icon('trash', 'sm')}刪除</button>`;
-    if (withActions && !oweText(s, p)) {
+    if (withActions && s.returnOf) {
+      const o = findSwap(p, s.returnOf);
+      flow += `<span class="spacer" style="flex:1"></span>${delBtn}`;
+      if (o) flow += `<div class="note-ret">還 ${esc(o.type === 'cover' ? md(o.out) : md(o.in))} 那次</div>`;
+    } else if (withActions && !oweText(s, p)) {
       // 沒有欠班標籤時，刪除放在同一行右邊，不另外佔一行
       flow += `<span class="spacer" style="flex:1"></span>${delBtn}`;
     } else if (withActions) {
       const owe = oweText(s, p);
       foot = `<div class="note-foot">
         ${owe ? `<button class="owe-chip${s.settled ? ' done' : ''}" onclick="toggleSettle('${s.id}')">${s.settled ? icon('check', 'sm') : ''}${esc(owe)}</button>` : ''}
+        ${owe && !s.settled ? `<button class="chip-btn" onclick="startReturn('${s.id}')">登記歸還</button>` : ''}
         <span class="spacer"></span>
         <button class="note-del" onclick="deleteSwap('${s.id}')">${icon('trash', 'sm')}刪除</button>
       </div>`;
@@ -2817,7 +3009,7 @@
 
   function monthText(p, y, m) {
     const now = dayNums(p.marks, y, m, false);
-    const name = p.id === ME ? (lsGet(IMG_NAME_KEY) || '我') : p.name;
+    const name = p.id === ME ? (selfName() || '我') : p.name;
     const groups = {};
     now.forEach(x => { (groups[x.v] = groups[x.v] || []).push(x.d); });
     const lines = [];
@@ -2854,14 +3046,14 @@
     const ow = ownerWord(p);
     const iOwe = {}, oweMe = {};
     p.swaps.forEach(s => {
-      if (s.settled) return;
+      if (s.settled || !isProxy(s)) return;
       const w = s.who || '別人';
       if (s.type === 'cover') iOwe[w] = (iOwe[w] || 0) + 1;
       if (s.type === 'help') oweMe[w] = (oweMe[w] || 0) + 1;
     });
     const out = [];
-    Object.keys(iOwe).forEach(w => out.push(`${ow}欠${w} ${iOwe[w]} 天`));
-    Object.keys(oweMe).forEach(w => out.push(`${w}欠${ow} ${oweMe[w]} 天`));
+    Object.keys(iOwe).forEach(w => out.push(`${ow}欠${w} ${iOwe[w]}`));
+    Object.keys(oweMe).forEach(w => out.push(`${w}欠${ow} ${oweMe[w]}`));
     return out;
   }
 
@@ -2881,17 +3073,17 @@
       : `<div class="card-head">
           <span class="card-title">調班歷程</span>
           <span class="spacer"></span>
-          <button class="chip-btn" onclick="openSwap()">${icon('plus', 'sm')}新增調班</button>
+          <button class="chip-btn" onclick="openSwapMenu()">${icon('plus', 'sm')}新增調班</button>
         </div>`;
     let html = head;
 
     if (list.length && recExpanded) {
       html += `<div class="notes">${list.map(s => swapNoteHtml(s, p, true)).join('')}</div>
-        <div class="btn-row" style="margin-top:10px"><button class="btn btn-pink" onclick="openSwap()">${icon('plus', 'sm')}新增調班</button></div>`;
+        <div class="btn-row" style="margin-top:10px"><button class="btn btn-pink" onclick="openSwapMenu()">${icon('plus', 'sm')}新增調班</button></div>`;
     }
 
-    if (owe.length) html += `<div class="owe-sum">目前欠班：${owe.map(esc).join('、')}</div>`;
     box.innerHTML = html;
+    renderOweBar();
   }
 
   function toggleRecExpand() {
@@ -2899,73 +3091,115 @@
     renderRecords();
   }
 
-  async function deleteSwap(id) {
-    const p = P();
-    const idx = p.swaps.findIndex(s => s.id === id);
+  // 刪掉一筆並改回月曆：後面的紀錄先倒回，再刪這筆，再把後面的重新套用（不影響其他紀錄）
+  function removeSwapRecord(p, id) {
+    const idx = p.swaps.findIndex(x => x.id === id);
     if (idx < 0) return;
-    const s = p.swaps[idx];
-    const i = swapInfo(s, p);
-    const dates = [s.out, s.in].filter(Boolean).map(md).join('、');
-    const ok = await confirmBox(
-      '刪除這筆調班歷程？',
-      `確定刪除「${i.title} ${dates}」？\n月曆會改回調班前的樣子。`,
-      '確認刪除'
-    );
-    if (!ok) return;
-    logAction(p, `刪除調班：${swapText(s, p)}`);
-    // 後面的紀錄先倒回，再刪這筆，再把後面的重新套用
     const later = p.swaps.slice(idx + 1);
     for (let k = later.length - 1; k >= 0; k--) undoSwapOn(p.marks, later[k]);
-    undoSwapOn(p.marks, s);
+    undoSwapOn(p.marks, p.swaps[idx]);
     p.swaps.splice(idx, 1);
     later.forEach(x => applySwapTo(p.marks, x));
+  }
+
+  async function deleteSwap(id) {
+    const p = P();
+    const s = findSwap(p, id);
+    if (!s) return;
+    const i = swapInfo(s, p);
+    const dates = [s.out, s.in].filter(Boolean).map(md).join('、');
+    const ret = s.settledBy ? findSwap(p, s.settledBy) : null;
+    const orig = s.returnOf ? findSwap(p, s.returnOf) : null;
+    let msg = `確定刪除「${i.title} ${dates}」？\n月曆會改回原本的樣子。`;
+    if (ret) msg += `\n這筆已經歸還（${[ret.out, ret.in].filter(Boolean).map(md).join('、')}），歸還紀錄也會一起刪除。`;
+    if (orig) msg += `\n原本那筆（${[orig.out, orig.in].filter(Boolean).map(md).join('、')}）會改回「待歸還」。`;
+    const ok = await confirmBox('刪除這筆紀錄？', msg, '確認刪除');
+    if (!ok) return;
+    if (ret) {
+      logAction(p, `刪除歸還：${swapText(ret, p)}`);
+      removeSwapRecord(p, ret.id);
+    }
+    logAction(p, `刪除調班：${swapText(s, p)}`);
+    removeSwapRecord(p, id);
+    if (orig) { orig.settled = false; delete orig.settledBy; }
     saveState();
     playUnmark();
     render();
-    showToast('調班歷程已刪除，月曆已改回');
+    showToast(orig ? '已刪除，原本那筆改回待歸還' : '已刪除，月曆已改回');
   }
 
   function toggleSettle(id) {
     const s = P().swaps.find(x => x.id === id);
     if (!s) return;
+    if (s.settledBy && findSwap(P(), s.settledBy)) {
+      showToast('這筆已登記歸還日期；要改請刪除那筆歸還紀錄', 2600);
+      return;
+    }
     s.settled = !s.settled;
+    delete s.settledBy;
     logAction(P(), `${s.settled ? '標記已還' : '改回未還'}：${swapText(s, P())}`);
     saveState();
     render();
-    showToast(s.settled ? '已標記還清' : '已改回未還');
+    showToast(s.settled ? '已標記歸還' : '已改回待歸還');
   }
 
   /* =========================================================
      調班視窗
      ========================================================= */
-  let swapType = 'cover';
+  let swapType = 'swap';        // swap 換留守｜cover 別人幫我上｜help 我幫別人上
   let swapOut = null, swapIn = null;
-  let swapField = 'out';
+  let swapField = null;          // 展開中的日期欄（out / in / null）
+  let swapReturnOf = null;       // 登記歸還時：原本那筆的編號
+  let swapSaving = false;
   let mcY = 0, mcM = 0;
 
-  let swapWasReady = false;
+  // preset：{ type, out, in, who, returnOf }
+  function openSwapMenu() {
+    const n = openProxies(P()).length;
+    document.getElementById('pickOwe').textContent = n ? `待歸還 ${n} 筆` : '';
+    const ow = ownerWord();
+    document.getElementById('swPickTitle').textContent = ow === '我' ? '調班' : `${ow} 的調班`;
+    document.getElementById('swPick').style.display = '';
+    document.getElementById('swForm').style.display = 'none';
+    document.getElementById('swapOverlay').classList.add('active');
+  }
 
-  function openSwap(preset) {
-    swapWasReady = false;
+  function clearWho() {
+    if (swapReturnOf) return;
+    const i = document.getElementById('swapWho');
+    i.value = '';
+    document.getElementById('whoClear').style.visibility = 'hidden';
+    renderWhoChips();
+    updateSwapPreview();
+  }
+
+  let swapFromMenu = false;
+
+  function openSwap(preset, fromMenu) {
+    swapFromMenu = !!fromMenu;
     swapOut = null;
     swapIn = null;
+    swapReturnOf = null;
+    swapSaving = false;
     mcY = currentYear;
     mcM = currentMonth;
-    document.getElementById('swapWho').value = '';
-    const ow = ownerWord();
-    document.getElementById('swapTitle').innerHTML = `${icon('swap')}${ow === '我' ? '調班' : esc(ow) + ' 的調班'}`;
-
-    let type = 'cover';
+    let type = 'swap';
     if (preset) {
-      type = preset.type;
-      if (preset.out) swapOut = preset.out;
-      if (preset.in) swapIn = preset.in;
-      const k = parseKey(preset.out || preset.in);
-      mcY = k.y;
-      mcM = k.m;
+      type = preset.type || 'swap';
+      swapOut = preset.out || null;
+      swapIn = preset.in || null;
+      swapReturnOf = preset.returnOf || null;
+      const k = preset.out || preset.in;
+      if (k) { const d = parseKey(k); mcY = d.y; mcM = d.m; }
     }
+    document.getElementById('swapWho').value = (preset && preset.who) || '';
+    document.getElementById('whoClear').style.visibility = document.getElementById('swapWho').value && !swapReturnOf ? 'visible' : 'hidden';
+    document.getElementById('swapTrack').checked = true;
+    document.getElementById('swBack').style.visibility = swapFromMenu ? 'visible' : 'hidden';
+    document.getElementById('swPick').style.display = 'none';
+    document.getElementById('swForm').style.display = '';
     renderWhoChips();
-    setSwapType(type);
+    setSwapType(type, true);
     document.getElementById('swapOverlay').classList.add('active');
   }
 
@@ -2980,7 +3214,7 @@
     P().swaps.slice().sort((a, b) => (b.at || 0) - (a.at || 0)).forEach(s => add(s.who));
     state.people.filter(p => p.id !== ME).sort((a, b) => (b.used || 0) - (a.used || 0)).forEach(p => add(p.name));
     const cur = document.getElementById('swapWho').value.trim();
-    document.getElementById('whoChips').innerHTML = names.slice(0, 6).map(n =>
+    document.getElementById('whoChips').innerHTML = swapReturnOf ? '' : names.slice(0, 6).map(n =>
       `<button class="name-chip${n === cur ? ' on' : ''}" onclick="pickWho(this)" data-n="${esc(n)}">${esc(n)}</button>`
     ).join('');
   }
@@ -2993,29 +3227,61 @@
     updateSwapPreview();
   }
 
-  function setSwapType(t) {
+  function needFields() {
+    return swapType === 'swap' ? ['out', 'in'] : swapType === 'cover' ? ['out'] : ['in'];
+  }
+
+  function firstEmptyField() {
+    return needFields().find(f => !(f === 'out' ? swapOut : swapIn)) || null;
+  }
+
+  function setSwapKind(k) {
+    if (swapReturnOf) return;
+    if (k === 'swap') setSwapType('swap');
+    else setSwapType(swapType === 'help' ? 'help' : 'cover');
+  }
+
+  // force：打開視窗時設定（歸還模式下，使用者不能自己切換方向）
+  function setSwapType(t, force) {
+    if (!force && swapReturnOf && t !== swapType) return;
     swapType = t;
     if (t === 'cover') swapIn = null;
     if (t === 'help') swapOut = null;
-    swapField = t === 'help' ? 'in' : (swapOut && t === 'swap' && !swapIn ? 'in' : 'out');
-    document.querySelectorAll('#swapSeg button').forEach(b => b.classList.toggle('on', b.dataset.t === t));
-
     const ow = ownerWord();
-    document.getElementById('fieldOut').style.display = t === 'help' ? 'none' : '';
-    document.getElementById('fieldIn').style.display = t === 'cover' ? 'none' : '';
-    document.getElementById('dateRow').classList.toggle('one', t !== 'swap');
+    const me = ow === '我';
+    const kind = t === 'swap' ? 'swap' : 'proxy';
+    document.getElementById('swapTitle').textContent = swapReturnOf ? '登記歸還' : kind === 'swap' ? '換留守' : '代理留守';
+    document.getElementById('swapDir').style.display = kind === 'proxy' && !swapReturnOf ? '' : 'none';
+    document.getElementById('trackRow').style.display = kind === 'proxy' && !swapReturnOf ? '' : 'none';
+    document.querySelectorAll('#swapDir button').forEach(b => b.classList.toggle('on', b.dataset.t === t));
+    document.getElementById('dirCover').textContent = me ? '別人幫我上' : `別人幫${ow}上`;
+    document.getElementById('dirHelp').textContent = me ? '我幫別人上' : `${ow}幫別人上`;
+    document.getElementById('dirCoverSub').textContent = `（${ow}欠一次）`;
+    document.getElementById('dirHelpSub').textContent = '（對方欠一次）';
 
-    document.getElementById('labelOut').textContent = t === 'swap' ? `${ow}給出去的那天` : `${ow}不用上的那天`;
-    document.getElementById('labelIn').textContent = t === 'swap' ? `${ow}換來的那天` : `${ow}幫人上的那天`;
+    // 歸還說明
+    const rn = document.getElementById('returnNote');
+    const orig = swapReturnOf ? findSwap(P(), swapReturnOf) : null;
+    rn.innerHTML = orig
+      ? (orig.type === 'cover'
+        ? `${esc(orig.who || '對方')} 在 <b>${mdw(orig.out)}</b> 幫${esc(ow)}上過，現在選${esc(ow)}幫他上的日子。`
+        : `${esc(ow)}在 <b>${mdw(orig.in)}</b> 幫 ${esc(orig.who || '對方')} 上過，現在選他幫${esc(ow)}上的日子。`)
+      : '';
 
-    const whoLabel = { cover: `誰幫${ow}上？`, help: `${ow}幫誰上？`, swap: `${ow}跟誰換？` }[t];
-    document.getElementById('whoLabel').textContent = `${whoLabel}（可不填）`;
+    document.getElementById('blockOut').style.display = t === 'help' ? 'none' : '';
+    document.getElementById('blockIn').style.display = t === 'cover' ? 'none' : '';
+    document.getElementById('labelOut').textContent = t === 'swap' ? `${ow}原本的留守日期` : (swapReturnOf ? '他幫你上的日期' : `${ow}原本的留守日期`);
+    document.getElementById('labelIn').textContent = t === 'swap' ? '對方原本的留守日期' : (swapReturnOf ? `${ow}幫他上的日期` : '對方原本的留守日期');
+    const whoLabel = { swap: '交換對象', cover: `代理人（誰幫${ow}上？）`, help: `幫誰上？` }[t];
+    document.getElementById('whoLabel').textContent = swapReturnOf ? '對方' : `${whoLabel}`;
+    document.getElementById('swapWho').readOnly = !!swapReturnOf;
 
+    swapField = firstEmptyField();
     refreshSwapUI();
   }
 
   function pickField(f) {
-    swapField = f;
+    swapField = swapField === f ? null : f;
     const key = f === 'out' ? swapOut : swapIn;
     if (key) { const k = parseKey(key); mcY = k.y; mcM = k.m; }
     refreshSwapUI();
@@ -3046,94 +3312,97 @@
     document.getElementById('mcDays').innerHTML = html;
   }
 
-  function pickDay(key) {
+  // 日期衝突檢查：回傳錯誤訊息，沒問題回傳空字串
+  function dayProblem(field, key) {
     const marks = P().marks;
     const ow = ownerWord();
-    if (swapField === 'out') {
-      if (!isDuty(marks[key])) {
-        showToast(`${md(key)} 不是${ow === '我' ? '你' : ow}的輪值日`);
-        return;
-      }
-      if (key === swapIn) { showToast('不能選同一天'); return; }
-      swapOut = key;
-      if (swapType === 'swap' && !swapIn) swapField = 'in';
+    const you = ow === '我' ? '你' : ow;
+    if (field === 'out') {
+      if (!isDuty(marks[key])) return `${md(key)} 不是${you}的留守日`;
+      if (key === swapIn) return '不能選同一天';
     } else {
-      if (marks[key] && key !== swapOut) {
-        showToast(`${md(key)} 已經有標記（${markName(marks[key])}）了`);
-        return;
-      }
-      if (key === swapOut) { showToast('不能選同一天'); return; }
-      swapIn = key;
-      if (swapType === 'swap' && !swapOut) swapField = 'out';
+      if (marks[key]) return `${md(key)} ${you}已經有「${markName(marks[key])}」了，同一天不能重複安排`;
+      if (key === swapOut) return '不能選同一天';
     }
+    return '';
+  }
+
+  function pickDay(key) {
+    const marks = P().marks;
+    let field = swapField || firstEmptyField() || (swapType === 'help' ? 'in' : 'out');
+    // 代理：點留守日＝別人幫我上；點空白日＝我幫別人上（自動切換）
+    if (swapType !== 'swap' && !swapReturnOf) {
+      if (isDuty(marks[key]) && swapType !== 'cover') { setSwapType('cover'); field = 'out'; }
+      else if (!marks[key] && swapType !== 'help') { setSwapType('help'); field = 'in'; }
+    }
+    const err = dayProblem(field, key);
+    if (err) { showToast(err, 2200); return; }
+    if (field === 'out') swapOut = key; else swapIn = key;
+    swapField = firstEmptyField();   // 選好就收起；還有沒選的就打開下一個
     refreshSwapUI();
   }
 
   function swapReady() {
-    return swapType === 'swap' ? !!(swapOut && swapIn) : swapType === 'cover' ? !!swapOut : !!swapIn;
+    return needFields().every(f => f === 'out' ? swapOut : swapIn);
   }
 
   function refreshSwapUI() {
-    document.getElementById('fieldOut').classList.toggle('active', swapField === 'out');
-    document.getElementById('fieldIn').classList.toggle('active', swapField === 'in');
-
-    const vo = document.getElementById('valOut');
-    const vi = document.getElementById('valIn');
-    vo.textContent = swapOut ? mdw(swapOut) : '點下方日期';
-    vo.classList.toggle('empty', !swapOut);
-    vi.textContent = swapIn ? mdw(swapIn) : '點下方日期';
-    vi.classList.toggle('empty', !swapIn);
-
+    ['out', 'in'].forEach(f => {
+      const key = f === 'out' ? swapOut : swapIn;
+      const el = document.getElementById(f === 'out' ? 'fieldOut' : 'fieldIn');
+      const v = document.getElementById(f === 'out' ? 'valOut' : 'valIn');
+      el.classList.toggle('active', swapField === f);
+      v.textContent = key ? mdw(key) : '點這裡選日期';
+      v.classList.toggle('empty', !key);
+    });
+    const cal = document.getElementById('miniCal');
+    cal.classList.toggle('hide', !swapField);
+    if (swapField) {
+      const ow = ownerWord();
+      const you = ow === '我' ? '你' : ow;
+      document.getElementById('mcHint').textContent =
+        swapType !== 'swap' && !swapReturnOf ? `點藍色＝別人幫${you}上，點白色＝${you}幫別人上`
+        : swapField === 'out' ? `點藍色日期（${you}的留守日）` : '點白色日期';
+      renderMiniCal();
+    }
     const ready = swapReady();
-    if (ready && !swapWasReady) {
-      setTimeout(() => document.getElementById('swapSaveBtn').scrollIntoView({ behavior: 'smooth', block: 'end' }), 80);
-    }
-    swapWasReady = ready;
-    const hint = document.getElementById('swapHint');
-    if (ready) {
-      hint.textContent = '✓ 日期選好了，確認下方的調整結果';
-    } else if (swapType === 'cover') {
-      hint.textContent = '第 1 步：點藍色日期，選不用上的那天';
-    } else if (swapType === 'help') {
-      hint.textContent = '第 1 步：點白色日期，選幫人上的那天';
-    } else {
-      hint.textContent = swapField === 'out' ? '第 1 步：點藍色日期，選給出去的那天' : '第 2 步：點白色日期，選換來的那天';
-    }
-    hint.classList.toggle('done', ready);
-
     const saveBtn = document.getElementById('swapSaveBtn');
     saveBtn.disabled = !ready;
-    saveBtn.textContent = '確認';
-
-    renderMiniCal();
+    saveBtn.textContent = swapReturnOf ? '確認歸還' : swapType === 'swap' ? '確認交換' : '確認代理';
+    if (ready) setTimeout(() => saveBtn.scrollIntoView({ behavior: 'smooth', block: 'end' }), 80);
     updateSwapPreview();
   }
 
+  // 確認前的一句話結果
   function updateSwapPreview() {
     const box = document.getElementById('swapPreview');
-    if (!swapReady()) {
-      box.innerHTML = `<div class="swap-preview-empty">${swapType === 'swap' ? '選好兩個日期，這裡會顯示調整結果' : '選好日期，這裡會顯示調整結果'}</div>`;
-      return;
+    if (!swapReady()) { box.innerHTML = ''; return; }
+    const ow = ownerWord();
+    const who = esc(document.getElementById('swapWho').value.trim()) || '';
+    const other = who || '對方';
+    let t;
+    if (swapType === 'swap') {
+      t = `<b>${mdw(swapOut)}</b> 給${other}上，<b>${mdw(swapIn)}</b> 改由${esc(ow)}上`;
+    } else if (swapType === 'cover') {
+      t = `<b>${mdw(swapOut)}</b> 由${who || '別人'}幫${esc(ow)}上` + (swapReturnOf ? '，這次歸還就結清了' : `，${esc(ow)}欠${other}一次`);
+    } else {
+      t = `${esc(ow)}在 <b>${mdw(swapIn)}</b> 幫${who || '別人'}上` + (swapReturnOf ? '，這次歸還就結清了' : `，${other}欠${esc(ow)}一次`);
     }
-    const draft = {
-      type: swapType,
-      who: document.getElementById('swapWho').value.trim(),
-      out: swapType === 'help' ? null : swapOut,
-      in: swapType === 'cover' ? null : swapIn
-    };
-    box.innerHTML = `<div class="preview-note">${swapNoteHtml(draft, P(), false)}</div>`;
+    box.innerHTML = t;
   }
 
   function saveSwap() {
-    if (!swapReady()) return;
+    if (!swapReady() || swapSaving) return;
     const who = document.getElementById('swapWho').value.trim().slice(0, 10);
     const p = P();
     // 儲存前再檢查一次：避免選完日期後資料被改動
-    if (swapType !== 'help' && !isDuty(p.marks[swapOut])) { showToast('這天已經不是輪值日，請重新選擇'); refreshSwapUI(); return; }
-    if (swapType !== 'cover' && (swapIn === swapOut || p.marks[swapIn])) { showToast('換來的那天不能重複，也不能已經有班'); refreshSwapUI(); return; }
-
+    for (const f of needFields()) {
+      const err = dayProblem(f, f === 'out' ? swapOut : swapIn);
+      if (err) { showToast(err, 2200); refreshSwapUI(); return; }
+    }
+    swapSaving = true;
     const s = {
-      id: 's' + Date.now(),
+      id: 's' + Date.now() + Math.random().toString(36).slice(2, 5),
       type: swapType,
       who,
       out: swapType === 'help' ? null : swapOut,
@@ -3141,18 +3410,134 @@
       at: Date.now(),
       settled: false
     };
+    if (swapType !== 'swap' && !swapReturnOf && !document.getElementById('swapTrack').checked) {
+      s.settled = true;
+      s.noTrack = true;
+    }
+    let orig = null;
+    if (swapReturnOf) {
+      orig = findSwap(p, swapReturnOf);
+      s.returnOf = swapReturnOf;
+      if (orig) { orig.settled = true; orig.settledBy = s.id; }
+    }
     applySwapTo(p.marks, s);
     p.swaps.push(s);
-    logAction(p, `登記調班：${swapText(s, p)}`);
+    logAction(p, `${orig ? '登記歸還' : '登記調班'}：${swapText(s, p)}`);
     saveState();
     closeSwap();
     recExpanded = true;   // 剛登記完，展開歷程讓使用者看到這一筆
     playMark();
-
     const k = parseKey(s.out || s.in);
     if (k.y !== currentYear || k.m !== currentMonth) goToMonth(k.y, k.m);
     else render();
-    showToast('調班完成');
+    showToast(orig ? '已登記歸還，這筆結清了' : swapType === 'swap' ? '已換留守' : '已登記代理', 1800);
+  }
+
+  /* ---------- 待歸還：首頁提示列＋代理紀錄 ---------- */
+  function openProxies(p) {
+    return p.swaps.filter(s => isProxy(s) && !s.settled).sort((a, b) => (a.out || a.in).localeCompare(b.out || b.in));
+  }
+
+  function renderOweBar() {
+    const bar = document.getElementById('oweBar');
+    const p = P();
+    const list = openProxies(p);
+    if (!list.length) { bar.style.display = 'none'; return; }
+    bar.style.display = '';
+    bar.innerHTML = `${icon('hand', 'sm')}代理待歸還 ${list.length} 筆<small>${esc(oweSummary(p).join('・'))}</small>${icon('right', 'sm')}`;
+  }
+
+  function proxyLine(s, p) {
+    const ow = ownerWord(p);
+    const who = s.who || '別人';
+    return s.type === 'cover'
+      ? { text: `${who}幫${ow}上 ${mdw(s.out)}`, sub: `${ow}欠${who} 1 次`, key: s.out }
+      : { text: `${ow}幫${who}上 ${mdw(s.in)}`, sub: `${who}欠${ow} 1 次`, key: s.in };
+  }
+
+  let ledgerTab = 'open';
+
+  function openLedger(tab, fromMenu) {
+    ledgerTab = tab || 'open';
+    document.getElementById('ledgerBack').style.visibility = fromMenu ? 'visible' : 'hidden';
+    if (fromMenu) document.getElementById('swapOverlay').classList.remove('active');
+    renderLedger();
+    document.getElementById('ledgerOverlay').classList.add('active');
+  }
+
+  function closeLedger() {
+    document.getElementById('ledgerOverlay').classList.remove('active');
+  }
+
+  function setLedgerTab(t) { ledgerTab = t; renderLedger(); }
+
+  function renderLedger() {
+    const p = P();
+    const ow = ownerWord(p);
+    const isSwapView = ledgerTab === 'swap';
+    document.getElementById('ledgerTitle').textContent = isSwapView ? '交換紀錄' : '代理紀錄';
+    const proxies = p.swaps.filter(s => (s.type === 'cover' || s.type === 'help') && !s.returnOf);
+    const open = proxies.filter(s => isProxy(s) && !s.settled);
+    const done = proxies.filter(s => s.settled);
+    const tabs = document.getElementById('ledgerTabs');
+    tabs.style.display = isSwapView ? 'none' : '';
+    tabs.innerHTML = [['open', `待歸還（${open.length}）`], ['done', '已歸還'], ['all', '全部']]
+      .map(([k, l]) => `<button class="${ledgerTab === k ? 'on' : ''}" onclick="setLedgerTab('${k}')">${l}</button>`).join('');
+
+    const byDate = (a, b) => (a.out || a.in || '').localeCompare(b.out || b.in || '');
+    const row = (s) => {
+      const who = s.who || '別人';
+      const key = s.out || s.in;
+      let text, tag, tagCls = '';
+      if (s.type === 'swap') {
+        text = `${ow}跟${who}換：${md(s.out)} → ${md(s.in)}`;
+        tag = '';
+      } else {
+        text = s.type === 'cover' ? `${who} 幫${ow}代理` : `${ow}幫 ${who} 代理`;
+        if (s.noTrack) { tag = '不追蹤'; tagCls = 'off'; }
+        else if (s.settled) {
+          const r = s.settledBy ? findSwap(p, s.settledBy) : null;
+          tag = r ? `${md(r.out || r.in)} 已歸還` : '已歸還';
+          tagCls = 'ok';
+        } else tag = s.type === 'cover' ? `${ow}欠 1 次` : '對方欠 1 次';
+      }
+      const canReturn = isProxy(s) && !s.settled;
+      return `<div class="ledger-row">
+        <svg class="ic" style="color:var(--muted)"><use href="#i-cal"/></svg>
+        <span class="grow" onclick="ledgerGo('${s.id}')"><span class="when">${esc(mdw(key))}</span>${tag ? `<span class="tag ${tagCls}">${esc(tag)}</span>` : ''}<small>${esc(text)}</small></span>
+        ${canReturn ? `<button class="chip-btn" onclick="startReturn('${s.id}')">歸還</button>` : ''}
+      </div>`;
+    };
+    let list, empty;
+    if (isSwapView) { list = p.swaps.filter(s => s.type === 'swap').sort(byDate); empty = '還沒有交換紀錄'; }
+    else if (ledgerTab === 'open') { list = open.sort(byDate); empty = '沒有待歸還的代理 ✓'; }
+    else if (ledgerTab === 'done') { list = done.sort(byDate); empty = '還沒有已歸還的代理'; }
+    else { list = proxies.sort(byDate); empty = '還沒有代理紀錄'; }
+    document.getElementById('ledgerBody').innerHTML = list.length
+      ? `<div class="list">${list.map(row).join('')}</div>`
+      : `<div class="ledger-empty">${empty}</div>`;
+    const add = document.getElementById('ledgerAdd');
+    add.innerHTML = `${icon('plus', 'sm')}${isSwapView ? '新增換留守' : '新增代理'}`;
+    add.onclick = () => { closeLedger(); openSwap({ type: isSwapView ? 'swap' : 'cover' }, true); };
+  }
+
+  // 點代理紀錄：跳到那個月份並展開調班歷程
+  function ledgerGo(id) {
+    const s = findSwap(P(), id);
+    if (!s) return;
+    closeLedger();
+    const k = parseKey(s.out || s.in);
+    recExpanded = true;
+    goToMonth(k.y, k.m);
+    setTimeout(() => document.getElementById('recCard').scrollIntoView({ behavior: 'smooth', block: 'start' }), 120);
+  }
+
+  // 歸還：別人幫我上 → 換我幫他上；我幫別人上 → 換他幫我上
+  function startReturn(id) {
+    const s = findSwap(P(), id);
+    if (!s || s.settled) return;
+    closeLedger();
+    openSwap({ type: s.type === 'cover' ? 'help' : 'cover', who: s.who || '', returnOf: id });
   }
 
   /* =========================================================
@@ -3326,9 +3711,9 @@
     document.getElementById('actLabel').style.display = marks[key] && !duty ? 'none' : '';
     quick.style.display = marks[key] && !duty ? 'none' : '';
     quick.innerHTML = duty
-      ? opt('cover', 'arrow', me ? '這天別人幫我上' : `這天別人幫${ow}上`, me ? '我不用上，改由別人上' : `${ow}不用上，改由別人上`) +
-        opt('swap', 'swap', me ? '跟別人換一天' : `${ow}跟別人換一天`, me ? '這天給他上，換他另一天給我上' : `這天給別人上，換別人另一天給${ow}上`)
-      : opt('help', 'hand', me ? '這天我幫別人上' : `這天${ow}幫別人上`, '原本不是' + (me ? '我' : ow) + '的班，改成' + (me ? '我' : ow) + '上');
+      ? opt('swap', 'swap', '換留守', me ? '這天跟別人換另一天' : `${ow}這天跟別人換另一天`) +
+        opt('cover', 'arrow', me ? '代理：別人幫我上' : `代理：別人幫${ow}上`, `${ow}欠對方一次`)
+      : opt('help', 'hand', me ? '代理：我幫別人上' : `代理：${ow}幫別人上`, `對方欠${ow}一次`);
     document.getElementById('noteClear').style.display = marks[key] ? '' : 'none';
     document.querySelector('#modalOverlay .note-more').open = false;
 
@@ -3593,7 +3978,7 @@
 
   function buildSwapRows(st) {
     const rows = [];
-    const typeName = { swap: '跟別人換一天', cover: '別人幫我上', help: '我幫別人上' };
+    const typeName = { swap: '換留守', cover: '代理：別人幫我上', help: '代理：我幫別人上' };
     (st || state).people.forEach(p => {
       p.swaps.forEach(s => {
         rows.push([
@@ -3602,7 +3987,7 @@
           typeName[s.type] || s.type,
           s.who || '（未填）',
           swapText(s, p),
-          s.type === 'swap' ? '—' : (s.settled ? '已還' : '未還'),
+          s.returnOf ? '歸還' : s.type === 'swap' ? '—' : (s.settled ? '已歸還' : '待歸還'),
           p.id
         ]);
       });
@@ -3629,7 +4014,7 @@
 
   // 比較調班紀錄（欄位順序、空值寫法不同也算一樣）
   function swapSig(x) {
-    return JSON.stringify([x.id, x.type, x.who || '', x.out || null, x.in || null, x.outLabel || '', x.inPrev || '', Number(x.at) || 0, !!x.settled]);
+    return JSON.stringify([x.id, x.type, x.who || '', x.out || null, x.in || null, x.outLabel || '', x.inPrev || '', Number(x.at) || 0, !!x.settled, x.returnOf || '', x.settledBy || '', !!x.noTrack]);
   }
 
   // 算出從 base 到 cur 改了哪些
@@ -3892,6 +4277,7 @@
     const had = j.data && Array.isArray(j.data.people);
     if (had && hasLocalData()) lsSet(BEFORE_LOGIN_KEY, JSON.stringify(state));   // 保險：留一份綁定前的
     closeCloud();
+    renderPersonBtn();
     await cloudSync(true);
     if (cloudState === 'ok') {
       showToast(had ? `歡迎回來，${j.name}，雲端和這支手機的紀錄已合併` : `歡迎，${j.name}，紀錄會自動存到雲端`, 2400);
@@ -3914,6 +4300,56 @@
     clearTimeout(syncTimer);
     syncTimer = null;
     cloudSync(false);
+  }
+
+  /* ---------- 返回鍵（Android 返回、iPhone 滑動返回）：先關最上層視窗 ---------- */
+  const BACK_CLOSE = {
+    modalOverlay: 'closeModal', swapOverlay: 'closeSwap', peopleSheet: 'closePeople', imgOverlay: 'closeImage',
+    cloudOverlay: 'closeCloud', manageSheet: 'closeManage', personOverlay: 'closePersonMenu', ledgerOverlay: 'closeLedger'
+  };
+  let ovDepth = 0, ovPopping = false, ovSkip = 0;
+
+  function activeOverlays() {
+    return [...document.querySelectorAll('.modal-overlay.active, .sheet-overlay.active')];
+  }
+
+  function syncOverlayHistory() {
+    if (ovPopping) return;
+    const n = activeOverlays().length;
+    if (n > ovDepth) {
+      for (let i = ovDepth; i < n; i++) history.pushState({ ddOverlay: true }, '');
+    } else if (n < ovDepth) {
+      ovSkip += ovDepth - n;
+      history.go(n - ovDepth);
+    }
+    ovDepth = n;
+  }
+
+  function closeTopOverlay() {
+    const list = activeOverlays();
+    if (!list.length) return;
+    const z = el => Number(getComputedStyle(el).zIndex) || 0;
+    const top = list.reduce((a, b) => (z(b) >= z(a) ? b : a));
+    if (top.id === 'confirmOverlay') { document.getElementById('confirmNo').click(); return; }
+    if (top.id === 'swapOverlay' && document.getElementById('swForm').style.display !== 'none' && swapFromMenu) {
+      openSwapMenu();
+      history.pushState({ ddOverlay: true }, '');   // 視窗還開著，補回一層，下次返回才會關掉
+      return;
+    }
+    const fn = BACK_CLOSE[top.id];
+    if (fn && typeof window[fn] === 'function') window[fn]();
+    else top.classList.remove('active');
+  }
+
+  function initBackKey() {
+    const obs = new MutationObserver(() => syncOverlayHistory());
+    document.querySelectorAll('.modal-overlay, .sheet-overlay').forEach(el => obs.observe(el, { attributes: true, attributeFilter: ['class'] }));
+    window.addEventListener('popstate', () => {
+      if (ovSkip > 0) { ovSkip--; return; }
+      ovPopping = true;
+      closeTopOverlay();
+      setTimeout(() => { ovPopping = false; ovDepth = activeOverlays().length; }, 0);
+    });
   }
 
   function initCloud() {
@@ -3985,7 +4421,7 @@
   const OB_STEPS = [
     { pic: 'people', title: '選擇人員', text: '點左上的名字，切換要看誰的月曆，也可以新增人員。' },
     { pic: 'mark', title: '點擊日期', text: '上方選留守、返家或監控，點一下日期就標好，再點一次取消。' },
-    { pic: 'swap', title: '換班', text: '長按日期，選「別人幫我上」「跟別人換一天」或「我幫別人上」。' }
+    { pic: 'swap', title: '換班', text: '長按日期，選「換留守」或「代理」。有人欠班時，月曆下方會提醒「待歸還」。' }
   ];
   let obIndex = 0;
 
@@ -4183,8 +4619,7 @@
   function makeImage() {
     const p = P();
     const mine = p.id === ME;
-    document.getElementById('imgNameRow').style.display = mine ? '' : 'none';
-    document.getElementById('imgName').value = mine ? (lsGet(IMG_NAME_KEY) || (cloudReady() ? acctName() : '')) : '';
+    document.getElementById('imgName').value = mine ? selfName() : p.name;
     drawImageNow();
     document.getElementById('imgOverlay').classList.add('active');
   }
@@ -4192,11 +4627,12 @@
   function redrawImage() {
     if (P().id === ME) lsSet(IMG_NAME_KEY, document.getElementById('imgName').value.trim().slice(0, 10));
     drawImageNow();
+    renderPersonBtn();
   }
 
   function drawImageNow() {
     const p = P();
-    const who = p.id === ME ? document.getElementById('imgName').value.trim().slice(0, 10) : p.name;
+    const who = document.getElementById('imgName').value.trim().slice(0, 10);
     const canvas = drawMonthImage(who, p);
     document.getElementById('imgPreview').src = canvas.toDataURL('image/png');
     imgFileName = `${who || '月曆'}_${currentYear}年${currentMonth + 1}月.png`;
@@ -4525,6 +4961,7 @@
   initHelp();
   initCloud();
   initVersion();
+  initBackKey();
 </script>
 
 </body>
