@@ -87,6 +87,10 @@ input{font:inherit;color:inherit}
 .login h1{font-size:26px;margin:0 0 6px}
 .login p{color:var(--sub);margin:0 0 22px;font-size:15px}
 .hide{display:none!important}
+.detbig{padding:2px 0 8px}.detbig .n{font-family:Georgia,"Songti TC",serif;font-size:34px;font-weight:700}.detbig .s{font-size:13px;color:var(--sub);margin-top:2px}
+.chip2{display:inline-block;border:1px solid var(--line);border-radius:999px;padding:1px 8px;font-size:11px;color:var(--sub);margin-left:6px;vertical-align:middle;white-space:nowrap}
+.drow{display:flex;justify-content:space-between;gap:12px;padding:9px 0;border-bottom:1px solid var(--line);font-size:14px}.drow span:first-child{color:var(--sub)}.drow span:last-child{font-weight:600;text-align:right}
+.trow>span:first-child,.acc .mid{min-width:0;overflow-wrap:anywhere}
 .sheet.z2{z-index:13}.sheet.z3{z-index:14}
 textarea.fld{font-family:inherit;resize:none;font-size:16px;line-height:1.5}
 .mgrow{display:flex;align-items:center;gap:10px;padding:12px 2px;border-bottom:1px solid var(--line)}
@@ -181,7 +185,7 @@ select.fld{appearance:none;-webkit-appearance:none}
   </div>
 
   <div id="pAsset" class="hide">
-    <div class="nw"><div class="lbl">淨資產</div><div class="n"><small>NT$</small><span id="nwT">0</span></div><div class="c" id="nwC"></div></div>
+    <div class="nw"><div class="lbl">淨資產</div><div class="n"><small>NT$</small><span id="nwT">0</span></div><div class="c" id="nwC"></div><div class="c" id="nwC2"></div></div>
     <div id="migBox"></div>
     <div id="accList"></div>
     <div class="twin" id="accBtns">
@@ -295,8 +299,43 @@ select.fld{appearance:none;-webkit-appearance:none}
   </div>
   <div class="sec" id="holdRecH">最近紀錄</div>
   <div id="holdRec"></div>
-  <p class="hint" style="margin-top:12px">現價要自己點持股輸入；沒輸入的先用成本計算。</p>
-  <div class="btns"><button id="holdClose" class="btn">關閉</button></div>
+  <div class="sub2" id="updT" style="margin-top:12px"></div>
+  <p class="hint" style="margin-top:6px">股價每個交易日收盤後自動更新，沒有報價的先用成本計算。</p>
+  <div class="btns"><button id="holdClose" class="btn">關閉</button><button id="hRefresh" class="btn">更新行情</button></div>
+</div></div>
+
+<div id="detSheet" class="sheet z2"><div class="in">
+  <h3 id="detT">持股</h3>
+  <div id="detBig" class="detbig"></div>
+  <div id="detRows"></div>
+  <div class="btns" style="margin-top:14px">
+    <button id="dBuy" class="btn p">買進</button>
+    <button id="dSell" class="btn">賣出</button>
+    <button id="dDiv" class="btn">記錄配息</button>
+  </div>
+  <div class="sec" id="detRecH">買進、賣出、配息紀錄</div>
+  <div id="detRec"></div>
+  <div class="btns"><button id="dPx" class="btn">手動改價</button><button id="detClose" class="btn">關閉</button></div>
+</div></div>
+
+<div id="annSheet" class="sheet z2"><div class="in">
+  <h3 id="annT">配息公告</h3>
+  <p class="hint" id="annInfo"></p>
+  <div class="lab">代碼</div>
+  <div class="opts" id="annSyms"></div>
+  <div class="lab">除息日</div>
+  <input id="annEx" class="fld" type="date">
+  <div class="lab">發放日（選填，官方預告表通常沒有）</div>
+  <input id="annPay" class="fld" type="date">
+  <div class="lab">每單位配息（元）</div>
+  <input id="annPer" class="fld amt" type="text" inputmode="decimal" placeholder="0" autocomplete="off">
+  <div class="err" id="annErr"></div>
+  <div class="btns">
+    <button id="annDel" class="btn d hide">刪除</button>
+    <button id="annCancel" class="btn">取消</button>
+    <button id="annConf" class="btn hide">確認入帳</button>
+    <button id="annSave" class="btn p">儲存</button>
+  </div>
 </div></div>
 
 <div id="trdSheet" class="sheet z2"><div class="in">
@@ -406,11 +445,11 @@ select.fld{appearance:none;-webkit-appearance:none}
 (function () {
   'use strict';
   var DEFAULT_API = 'https://script.google.com/macros/s/AKfycbxPkzgIjUT7O4YMPVPjFi5u9JsZL_WWcNhAgVXnH_Erg5Z3jWo2ZgTnpiZTRGUYZqun/exec';
-  var S = { tok: '', lv: '', legacy: false, hold: null, itrades: [], idivs: [], api: '', rows: [], income: [], accounts: [], transfers: [], snaps: [], hasAcc: false, tab: 'home',
+  var S = { tok: '', lv: '', legacy: false, hold: null, divs: [], upd: {}, today: '', divHist: false, itrades: [], idivs: [], api: '', rows: [], income: [], accounts: [], transfers: [], snaps: [], hasAcc: false, tab: 'home',
             isInc: false, tags: [], fallback: '其他', mg: '', ed: null, delArmed: false, cats: [], sources: [], ver: '',
             y: 0, m: 0, filter: '', editId: '', dupSel: {}, sw: null, swMoved: false };
   var $ = function (id) { return document.getElementById(id); };
-  var SHEETS = ['holdSheet', 'trdSheet', 'divSheet', 'migSheet', 'sheet', 'filSheet', 'dupSheet', 'accSheet', 'trfSheet', 'setSheet', 'mgSheet', 'edSheet'];
+  var SHEETS = ['detSheet', 'annSheet', 'holdSheet', 'trdSheet', 'divSheet', 'migSheet', 'sheet', 'filSheet', 'dupSheet', 'accSheet', 'trfSheet', 'setSheet', 'mgSheet', 'edSheet'];
 
   function lsGet(k) { try { return localStorage.getItem(k) || ''; } catch (e) { return ''; } }
   function lsSet(k, v) { try { localStorage.setItem(k, v); } catch (e) {} }
@@ -477,6 +516,9 @@ select.fld{appearance:none;-webkit-appearance:none}
     S.transfers = res.transfers || [];
     S.snaps = res.snaps || [];
     S.hold = res.hold || null;
+    S.divs = res.divs || [];
+    S.upd = res.upd || {};
+    S.today = res.today || '';
     S.itrades = res.itrades || [];
     S.idivs = res.idivs || [];
     if (res.lv) S.lv = res.lv;
@@ -545,6 +587,7 @@ select.fld{appearance:none;-webkit-appearance:none}
     renderAna();
     if ($('dupSheet').classList.contains('on')) renderDup();
     if ($('holdSheet').classList.contains('on')) renderHold();
+    if ($('detSheet').classList.contains('on')) renderDet();
   }
 
   /* ---------- 復原用的小工具 ---------- */
@@ -906,13 +949,16 @@ select.fld{appearance:none;-webkit-appearance:none}
     var has = S.hasAcc;
     $('noAcc').classList.toggle('hide', has);
     $('accBtns').classList.toggle('hide', !has);
-    $('nwT').textContent = '0'; $('nwC').textContent = '';
+    $('nwT').textContent = '0'; $('nwC').textContent = ''; $('nwC2').textContent = '';
     var box = $('accList'); box.textContent = '';
     $('presetBox').classList.add('hide'); $('trfBox').classList.add('hide');
     if (!has) return;
     var t = totals();
     $('nwT').textContent = smoney(t.net);
     $('nwC').textContent = '總資產 ' + smoney(t.asset) + '　總負債 ' + money(t.debt);
+    var cashSum = 0, manInv = 0;
+    S.accounts.forEach(function (a) { if (a.type === '活存' || a.type === '現金' || a.type === '外幣') cashSum += accVal(a); else if (a.type === '投資') manInv += a.balance; });
+    $('nwC2').textContent = '銀行與現金 ' + smoney(cashSum) + '　投資 ' + money((S.hold ? S.hold.value : 0) + manInv) + '　信用卡未繳 ' + money(t.debt);
     renderMig();
     ACC_GROUPS.forEach(function (g) {
       if (g[0] === '@hold') { renderHoldSection(box); return; }
@@ -993,9 +1039,52 @@ select.fld{appearance:none;-webkit-appearance:none}
       mid.appendChild(el('div', 'sb', h.shares + ' 股　均價 ' + h.avg + (h.hasPrice ? '　損益 ' + pl(h.unreal) : '　未設價')));
       b.appendChild(mid);
       b.appendChild(el('div', 'am', money(h.value)));
-      b.onclick = openHold;
+      b.onclick = function () { openDet(h.sym, 'asset'); };
       box.appendChild(b);
     });
+    var more = el('button', 'trow');
+    more.appendChild(el('span', '', '交易、配息與更新狀態 ›'));
+    more.onclick = openHold;
+    box.appendChild(more);
+    renderDivSection(box);
+  }
+  function md(s) { return s ? (+s.slice(5, 7)) + '/' + (+s.slice(8, 10)) : ''; }
+  var ST_NOTE = { '已公告': '已公告', '待發放': '待發放', '待確認入帳': '待確認入帳', '已確認入帳': '已確認入帳', '尚未公告': '尚未公告' };
+  function divRow(d, box) {
+    var b = el('button', 'acc');
+    b.appendChild(el('div', 'ic', (d.name || d.sym).charAt(0)));
+    var mid = el('div', 'mid');
+    var st = el('div', 'st', (d.name ? d.name + ' ' : '') + d.sym);
+    st.appendChild(el('span', 'chip2', ST_NOTE[d.status]));
+    mid.appendChild(st);
+    var sub = d.status === '尚未公告' ? '目前沒有配息公告資料' : ('除息 ' + md(d.ex) + '　發放 ' + (d.pay ? md(d.pay) : '未公布') + (d.last ? '　最後買進 ' + md(d.last) : ''));
+    mid.appendChild(el('div', 'sb', sub));
+    b.appendChild(mid);
+    var am = d.status === '已確認入帳' ? '入帳 ' + money(d.actual) : (d.status === '尚未公告' ? '' : (d.per > 0 ? '預估 ' + money(d.est) : '金額未公告'));
+    b.appendChild(el('div', 'am', am));
+    if (d.status !== '尚未公告') b.onclick = function () { openAnn(d); };
+    box.appendChild(b);
+  }
+  function renderDivSection(box) {
+    var active = S.divs.filter(function (d) { return d.status !== '已確認入帳' && d.status !== '尚未公告'; });
+    var none = S.divs.filter(function (d) { return d.status === '尚未公告'; });
+    var done = S.divs.filter(function (d) { return d.status === '已確認入帳'; });
+    var head = el('div', 'sec');
+    head.appendChild(el('span', '', '配息'));
+    var add = el('button', 'opt', '＋ 公告');
+    add.onclick = function () { openAnn(null); };
+    head.appendChild(add);
+    box.appendChild(head);
+    active.forEach(function (d) { divRow(d, box); });
+    none.forEach(function (d) { divRow(d, box); });
+    if (!active.length && !none.length && !done.length) box.appendChild(el('div', 'empty', '尚無配息資料'));
+    if (done.length) {
+      var t = el('button', 'trow');
+      t.appendChild(el('span', '', (S.divHist ? '收合' : '歷史紀錄（' + done.length + '）') + (S.divHist ? '' : ' ›')));
+      t.onclick = function () { S.divHist = !S.divHist; renderAsset(); };
+      box.appendChild(t);
+      if (S.divHist) done.forEach(function (d) { divRow(d, box); });
+    }
   }
   // 舊的「投資（手動）」帳戶和新的持股可能把同一筆錢算兩次：只提示，由你確認怎麼調整
   function renderMig() {
@@ -1037,6 +1126,7 @@ select.fld{appearance:none;-webkit-appearance:none}
   function renderHold() {
     var H = S.hold || { items: [], value: 0, cost: 0, unreal: 0, realized: 0, divCash: 0 };
     $('holdSum').textContent = '市值 ' + money(H.value) + '　成本 ' + money(H.cost) + '　未實現 ' + pl(H.unreal) + '　已實現 ' + pl(H.realized) + '　配息 ' + money(H.divCash);
+    $('updT').textContent = updText();
     var box = $('holdList'); box.textContent = '';
     H.items.filter(function (h) { return h.shares > 0 || h.realized !== 0 || h.divCash > 0; }).forEach(function (h) {
       var b = el('button', 'acc');
@@ -1051,7 +1141,7 @@ select.fld{appearance:none;-webkit-appearance:none}
       }
       b.appendChild(mid);
       b.appendChild(el('div', 'am', h.shares > 0 ? money(h.value) : '—'));
-      if (h.shares > 0) b.onclick = function () { setPrice(h); };
+      if (h.shares > 0) b.onclick = function () { openDet(h.sym, 'hold'); };
       box.appendChild(b);
     });
     if (!box.firstChild) box.appendChild(el('div', 'empty', '還沒有持股'));
@@ -1074,6 +1164,70 @@ select.fld{appearance:none;-webkit-appearance:none}
       rb.appendChild(b);
     });
   }
+  function hhmm(t) { var d = new Date(t); return (d.getMonth() + 1) + '/' + d.getDate() + ' ' + hm(t); }
+  function updText() {
+    var q = (S.upd || {})['行情'], dv = (S.upd || {})['配息'], parts = [];
+    if (!q) parts.push('行情：尚未更新過');
+    else if (q.status === '失敗') parts.push('行情更新失敗（保留' + (q.ok ? hhmm(q.ok) + '的' : '舊的') + '資料）：' + q.msg);
+    else parts.push('行情：' + hhmm(q.ok) + ' 更新' + (q.status === '部分成功' ? '（部分：' + q.msg + '）' : ''));
+    if (dv && dv.status === '失敗') parts.push('配息公告更新失敗：' + dv.msg);
+    else if (dv && dv.status === '部分成功') parts.push('配息公告部分更新：' + dv.msg);
+    var stale = heldItems().filter(function (h) { return h.hasPrice && h.priceSrc !== '手動' && h.priceDate && daysBetween(h.priceDate) > 5; });
+    if (stale.length) parts.push('報價較舊：' + stale.map(function (h) { return h.sym + ' ' + md(h.priceDate); }).join('、'));
+    return parts.join('。');
+  }
+  function daysBetween(ymd) { var p = ymd.split('-'); return Math.floor((Date.now() - new Date(+p[0], +p[1] - 1, +p[2]).getTime()) / 86400000); }
+  function refreshQuotes() {
+    $('hRefresh').disabled = true; $('hRefresh').textContent = '更新中…';
+    call({ action: 'quoteRefresh' }).then(function (res) {
+      $('hRefresh').disabled = false; $('hRefresh').textContent = '更新行情';
+      setData(res); toast(res.refreshMsg || '已更新');
+    }).catch(function (e) { $('hRefresh').disabled = false; $('hRefresh').textContent = '更新行情'; toast(e.message); });
+  }
+  function itemOf(sym) { return S.hold ? S.hold.items.filter(function (h) { return h.sym === sym; })[0] : null; }
+  var det = { sym: '', from: 'hold' };
+  function openDet(sym, from) {
+    det.sym = sym; det.from = from || 'hold';
+    renderDet();
+    $('holdSheet').classList.remove('on');
+    $('mask').classList.add('on'); $('detSheet').classList.add('on');
+  }
+  function closeDet() { $('detSheet').classList.remove('on'); if (det.from === 'hold') openHold(); else closeAll(); }
+  function backToDet() { openDet(det.sym, det.from); }
+  function renderDet() {
+    var h = itemOf(det.sym);
+    if (!h) { closeAll(); return; }
+    $('detT').textContent = (h.name ? h.name + ' ' : '') + h.sym;
+    var big = $('detBig'); big.textContent = '';
+    var n = el('div', 'n', h.hasPrice ? ('NT$ ' + h.price) : '未設價'); big.appendChild(n);
+    big.appendChild(el('div', 's', h.hasPrice ? ('報價日期 ' + (h.priceDate || '—') + '　來源 ' + (h.priceSrc || '—')) : '沒有報價，市值先用成本計算'));
+    var rows = $('detRows'); rows.textContent = '';
+    function row(k, v, color) { var r = el('div', 'drow'); r.appendChild(el('span', '', k)); var s = el('span', '', v); if (color) s.style.color = color; r.appendChild(s); rows.appendChild(r); }
+    var ret = h.cost > 0 && h.hasPrice ? ((h.unreal / h.cost) * 100).toFixed(2) + '%' : '';
+    row('持有股數', h.shares + ' 股');
+    row('平均成本', String(h.avg));
+    row('投入成本', 'NT$ ' + money(h.cost));
+    row('目前市值', 'NT$ ' + money(h.value));
+    row('未實現損益', h.hasPrice ? (pl(h.unreal) + (ret ? '（' + (h.unreal >= 0 ? '+' : '') + ret + '）' : '')) : '未設價', h.hasPrice ? plColor(h.unreal) : '');
+    row('已實現損益', pl(h.realized), plColor(h.realized));
+    row('累計配息', 'NT$ ' + money(h.divCash));
+    var rec = [];
+    S.itrades.forEach(function (t) { if (t.sym === h.sym) rec.push({ time: t.time, kind: 't', x: t }); });
+    S.idivs.forEach(function (d) { if (d.sym === h.sym) rec.push({ time: d.time, kind: 'd', x: d }); });
+    rec.sort(function (a, b) { return b.time - a.time; });
+    var rb = $('detRec'); rb.textContent = '';
+    $('detRecH').classList.toggle('hide', !rec.length);
+    rec.slice(0, 20).forEach(function (r) {
+      var d = new Date(r.time), x = r.x, b = el('button', 'trow'), left = el('span', '');
+      if (r.kind === 't') left.appendChild(document.createTextNode(x.side + ' ' + x.shares + ' 股 @ ' + x.price));
+      else left.appendChild(document.createTextNode((x.type === '現金' ? '現金股利' : (x.type === '股票' ? '股票股利' : '分割'))));
+      left.appendChild(el('span', 's', d.getFullYear() + '/' + (d.getMonth() + 1) + '/' + d.getDate()));
+      b.appendChild(left);
+      b.appendChild(el('span', '', r.kind === 't' ? money(x.shares * x.price) : (x.type === '現金' ? money(x.value) : (x.type === '股票' ? '+' + x.value + ' 股' : '× ' + x.value))));
+      b.onclick = function () { if (r.kind === 't') openTrd(x, null, null, backToDet); else openDiv(x, null, backToDet); };
+      rb.appendChild(b);
+    });
+  }
   function setPrice(h) {
     var v = window.prompt('「' + (h.name || h.sym) + '」現價（清空＝改回未設價）', h.hasPrice ? String(h.price) : '');
     if (v === null) return;
@@ -1089,7 +1243,7 @@ select.fld{appearance:none;-webkit-appearance:none}
     return d.getTime();
   }
   function cashAccs() { return S.accounts.filter(function (a) { return a.type !== '信用卡'; }); }
-  var trd = { edit: null, side: '買', acct: '' };
+  var trd = { edit: null, side: '買', acct: '', back: null };
   function drawTrd() {
     drawOpts('trdSide', ['買入', '賣出'], trd.side === '買' ? '買入' : '賣出', function (n) { trd.side = n === '買入' ? '買' : '賣'; $('trdT').textContent = n; $('trdTaxBox').classList.toggle('hide', trd.side !== '賣'); });
     var names = ['不連動現金'].concat(cashAccs().map(function (a) { return a.name; }));
@@ -1097,11 +1251,11 @@ select.fld{appearance:none;-webkit-appearance:none}
     cashAccs().forEach(function (a) { if (a.id === trd.acct) cur = a.name; });
     drawOpts('trdAcc', names, cur, function (n) { trd.acct = ''; cashAccs().forEach(function (a) { if (a.name === n) trd.acct = a.id; }); });
   }
-  function openTrd(t, side) {
-    trd.edit = t || null; trd.side = t ? t.side : (side || '買'); trd.acct = t ? (t.acct || '') : '';
+  function openTrd(t, side, sym, back) {
+    trd.back = back || null; trd.edit = t || null; trd.side = t ? t.side : (side || '買'); trd.acct = t ? (t.acct || '') : '';
     if (!t && !trd.acct) { var def = cashAccs().filter(function (a) { return /交割/.test(a.name); })[0]; if (def) trd.acct = def.id; }
     $('trdT').textContent = t ? '修改交易' : (trd.side === '買' ? '買入' : '賣出');
-    $('trdSym').value = t ? t.sym : ''; $('trdName').value = t ? t.name : '';
+    $('trdSym').value = t ? t.sym : (sym || ''); $('trdName').value = t ? t.name : (sym && itemOf(sym) ? itemOf(sym).name : '');
     $('trdSh').value = t ? String(t.shares) : ''; $('trdPx').value = t ? String(t.price) : '';
     $('trdFee').value = t && t.fee ? String(t.fee) : ''; $('trdTax').value = t && t.tax ? String(t.tax) : '';
     $('trdDate').value = dateVal(t ? t.time : 0);
@@ -1109,10 +1263,10 @@ select.fld{appearance:none;-webkit-appearance:none}
     $('trdDel').classList.toggle('hide', !t);
     $('trdErr').textContent = '';
     drawTrd();
-    $('holdSheet').classList.remove('on');
+    $('holdSheet').classList.remove('on'); $('detSheet').classList.remove('on');
     $('mask').classList.add('on'); $('trdSheet').classList.add('on');
   }
-  function closeTrd() { $('trdSheet').classList.remove('on'); openHold(); }
+  function closeTrd() { $('trdSheet').classList.remove('on'); (trd.back || openHold)(); }
   function num(id) { var v = parseFloat(String($(id).value).replace(/,/g, '')); return isNaN(v) ? 0 : v; }
   function trdSave() {
     var sym = $('trdSym').value.trim();
@@ -1130,7 +1284,7 @@ select.fld{appearance:none;-webkit-appearance:none}
     call({ action: 'invDelete', id: trd.edit.id }).then(function (res) { setData(res); closeTrd(); toast('已刪除'); }).catch(function (e) { $('trdErr').textContent = e.message; });
   }
 
-  var dv = { edit: null, type: '現金', sym: '', acct: '' };
+  var dv = { edit: null, type: '現金', sym: '', acct: '', note: '', back: null };
   var DIV_TYPES = ['現金股利', '股票股利', '分割'];
   function drawDiv() {
     var tn = { '現金': '現金股利', '股票': '股票股利', '分割': '分割' };
@@ -1144,20 +1298,20 @@ select.fld{appearance:none;-webkit-appearance:none}
     cashAccs().forEach(function (a) { if (a.id === dv.acct) cur = a.name; });
     drawOpts('divAcc', names, cur, function (n) { dv.acct = ''; cashAccs().forEach(function (a) { if (a.name === n) dv.acct = a.id; }); });
   }
-  function openDiv(x) {
-    dv.edit = x || null; dv.type = x ? x.type : '現金'; dv.sym = x ? x.sym : (heldItems()[0] ? heldItems()[0].sym : ''); dv.acct = x ? (x.acct || '') : '';
+  function openDiv(x, pre, back) {
+    dv.back = back || null; dv.edit = x || null; dv.type = x ? x.type : '現金'; dv.sym = x ? x.sym : (pre && pre.sym ? pre.sym : (heldItems()[0] ? heldItems()[0].sym : '')); dv.acct = x ? (x.acct || '') : ''; dv.note = x ? (x.note || '') : (pre && pre.note ? pre.note : '');
     if (!x && !dv.acct) { var def = cashAccs().filter(function (a) { return /交割/.test(a.name); })[0]; if (def) dv.acct = def.id; }
-    $('divVal').value = x ? String(x.value) : ''; $('divDate').value = dateVal(x ? x.time : 0);
+    $('divVal').value = x ? String(x.value) : (pre && pre.val ? String(pre.val) : ''); $('divDate').value = dateVal(x ? x.time : (pre && pre.time ? pre.time : 0));
     $('divDel').classList.toggle('hide', !x); $('divErr').textContent = '';
     drawDiv();
-    $('holdSheet').classList.remove('on');
+    $('holdSheet').classList.remove('on'); $('detSheet').classList.remove('on'); $('annSheet').classList.remove('on');
     $('mask').classList.add('on'); $('divSheet').classList.add('on');
   }
-  function closeDiv() { $('divSheet').classList.remove('on'); openHold(); }
+  function closeDiv() { $('divSheet').classList.remove('on'); (dv.back || openHold)(); }
   function divSave() {
     if (!dv.sym) { $('divErr').textContent = '請選代碼（要先有買入紀錄）'; return; }
     if (!(num('divVal') > 0)) { $('divErr').textContent = '請輸入數值'; return; }
-    var body = { action: 'invDiv', sym: dv.sym, type: dv.type, value: num('divVal'), acct: dv.type === '現金' ? dv.acct : '', time: dateToTime($('divDate').value, dv.edit && dv.edit.time) };
+    var body = { action: 'invDiv', sym: dv.sym, type: dv.type, value: num('divVal'), acct: dv.type === '現金' ? dv.acct : '', note: dv.note, time: dateToTime($('divDate').value, dv.edit && dv.edit.time) };
     if (dv.edit) body.id = dv.edit.id;
     $('divSave').disabled = true; $('divErr').textContent = '';
     call(body).then(function (res) { $('divSave').disabled = false; setData(res); closeDiv(); toast('已儲存'); })
@@ -1166,6 +1320,46 @@ select.fld{appearance:none;-webkit-appearance:none}
   function divDel() {
     if (!dv.edit || !window.confirm('刪除這筆？')) return;
     call({ action: 'invDelete', id: dv.edit.id }).then(function (res) { setData(res); closeDiv(); toast('已刪除'); }).catch(function (e) { $('divErr').textContent = e.message; });
+  }
+
+  /* ---------- 配息公告（自動取得；也能手動補） ---------- */
+  var an = { d: null, sym: '' };
+  function openAnn(d) {
+    an.d = d || null;
+    var syms = S.hold ? S.hold.items.map(function (h) { return h.sym; }) : [];
+    an.sym = d ? d.sym : (syms[0] || '');
+    $('annT').textContent = d ? '配息公告' : '新增配息公告';
+    var info = '';
+    if (d) {
+      info = '除息日前持有 ' + d.shares + ' 股，' + (d.per > 0 ? '預估 NT$ ' + money(d.est) + '（每單位 ' + d.per + '，實際入帳可能因匯費、補充保費略有差異）。' : '公告金額尚未取得。') + (d.src ? '　來源：' + d.src : '') + (d.status === '已確認入帳' ? '　實際入帳 NT$ ' + money(d.actual) + '。' : '');
+    } else info = '官方資料抓不到時，可以自己補。預估只是公告金額×當時持股，不會算進收入，要等你確認入帳才會記錄。';
+    $('annInfo').textContent = info;
+    drawOpts('annSyms', syms, an.sym, function (n) { if (!an.d) an.sym = n; });
+    $('annEx').value = d ? d.ex : ''; $('annPay').value = d ? d.pay : ''; $('annPer').value = d && d.per ? String(d.per) : '';
+    $('annErr').textContent = '';
+    $('annDel').classList.toggle('hide', !d || d.src !== '手動');
+    $('annConf').classList.toggle('hide', !d || d.status === '已公告' || d.status === '已確認入帳' || !(d.per > 0));
+    $('annSave').classList.toggle('hide', !!d && d.status === '已確認入帳');
+    $('mask').classList.add('on'); $('annSheet').classList.add('on');
+  }
+  function annSave() {
+    var per = parseFloat(String($('annPer').value).replace(/,/g, ''));
+    if (!an.sym) { $('annErr').textContent = '請選代碼'; return; }
+    if (!$('annEx').value) { $('annErr').textContent = '請選除息日'; return; }
+    if (!(per > 0)) { $('annErr').textContent = '請輸入每單位配息'; return; }
+    $('annSave').disabled = true;
+    call({ action: 'annSave', sym: an.sym, ex: $('annEx').value, pay: $('annPay').value, per: per }).then(function (res) { $('annSave').disabled = false; closeAll(); setData(res); toast('已儲存'); })
+      .catch(function (e) { $('annSave').disabled = false; $('annErr').textContent = e.message; });
+  }
+  function annDel() {
+    if (!an.d || !window.confirm('刪除這筆手動公告？')) return;
+    call({ action: 'annDelete', id: an.d.id }).then(function (res) { closeAll(); setData(res); toast('已刪除'); }).catch(function (e) { $('annErr').textContent = e.message; });
+  }
+  function annConfirm() {
+    var d = an.d; if (!d) return;
+    $('annSheet').classList.remove('on');
+    var t = d.pay ? new Date(d.pay + 'T12:00:00').getTime() : Date.now();
+    openDiv(null, { sym: d.sym, val: d.est, time: Math.min(t, Date.now()), note: 'ann:' + d.id }, function () { $('mask').classList.remove('on'); });
   }
 
   var accEdit = null, accType = '活存';
@@ -1504,6 +1698,13 @@ select.fld{appearance:none;-webkit-appearance:none}
   $('accCancel').onclick = closeAll;
   $('accLogB').onclick = accLog;
   $('holdClose').onclick = closeAll;
+  $('hRefresh').onclick = refreshQuotes;
+  $('detClose').onclick = closeDet;
+  $('dBuy').onclick = function () { openTrd(null, '買', det.sym, backToDet); };
+  $('dSell').onclick = function () { openTrd(null, '賣', det.sym, backToDet); };
+  $('dDiv').onclick = function () { openDiv(null, { sym: det.sym }, backToDet); };
+  $('dPx').onclick = function () { var h = itemOf(det.sym); if (h) setPrice(h); };
+  $('annCancel').onclick = closeAll; $('annSave').onclick = annSave; $('annDel').onclick = annDel; $('annConf').onclick = annConfirm;
   $('hBuy').onclick = function () { openTrd(null, '買'); };
   $('hSell').onclick = function () { openTrd(null, '賣'); };
   $('hDiv').onclick = function () { openDiv(null); };
