@@ -99,54 +99,37 @@
 
   /* ---------- 品牌標題（印刷感） ---------- */
   .masthead {
-    position: relative;
-    text-align: center;
-    padding: 4px 44px 12px;
-    margin-bottom: 10px;
-    border-bottom: 1px solid var(--line);
-  }
-
-  .masthead::after {
-    content: '';
-    position: absolute;
-    left: 0;
-    right: 0;
-    bottom: -4px;
-    border-bottom: 1px solid var(--line-soft);
-  }
-
-  .mh-kicker {
-    display: inline-flex;
+    display: flex;
     align-items: center;
-    gap: 6px;
-    font-family: var(--num);
-    font-size: 10px;
-    letter-spacing: 3.5px;
-    color: var(--muted);
+    justify-content: space-between;
+    gap: 10px;
+    padding: 2px 0 8px;
+    margin-bottom: 4px;
   }
+
+  .mh-title { display: flex; align-items: center; gap: 8px; min-width: 0; }
+
 
   .brand-text {
     display: block;
     font-family: var(--serif);
-    font-size: 27px;
+    font-size: 21px;
     font-weight: 900;
     color: var(--red);
-    letter-spacing: 8px;
-    text-indent: 8px;
+    letter-spacing: 4px;
     line-height: 1.3;
-    margin: 2px auto 2px;
+    margin: 0;
+    white-space: nowrap;
+    overflow: hidden;
     outline: none;
     cursor: text;
   }
 
   .brand-text:focus { text-decoration: underline dashed rgba(198,90,75,0.5); text-underline-offset: 6px; }
 
-  .mh-sub { font-size: 12px; color: var(--text2); letter-spacing: 1.5px; }
 
   .brand-help {
-    position: absolute;
-    right: 0;
-    top: 6px;
+    flex-shrink: 0;
     width: 36px;
     height: 36px;
     border: 1px solid var(--line);
@@ -273,11 +256,65 @@
   .month-label small { font-family: var(--serif); font-size: 16px; color: var(--text); margin-left: 2px; letter-spacing: 0; }
 
   /* ---------- 主要功能按鈕 ---------- */
+  /* ---------- 人員＋月份同一列 ---------- */
+  .topbar { display: flex; align-items: center; gap: 8px; margin-bottom: 8px; }
+  .topbar .person-btn { width: auto; max-width: 44%; flex: 0 1 auto; min-height: 48px; padding: 6px 10px 6px 6px; gap: 6px; margin: 0; }
+  .topbar .person-btn .pname { font-size: 16px; }
+  .topbar .person-btn .pcount { display: none; }
+  .topbar .month-bar { flex: 1; min-width: 0; margin: 0; gap: 4px; }
+  .topbar .nav-btn { width: 44px; height: 44px; flex-shrink: 0; }
+
+  /* ---------- 標記種類（點日期就標這一種） ---------- */
+  .pen {
+    display: grid;
+    grid-template-columns: repeat(3, 1fr);
+    gap: 4px;
+    padding: 4px;
+    margin-bottom: 4px;
+    background: var(--paper);
+    border: 1px solid var(--line);
+    border-radius: 14px;
+  }
+
+  .pen button {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 6px;
+    min-height: 44px;
+    border: none;
+    border-radius: 11px;
+    background: transparent;
+    color: var(--text2);
+    font-size: 15px;
+    font-weight: 700;
+    cursor: pointer;
+  }
+
+  .pen button i {
+    width: 22px;
+    height: 22px;
+    border-radius: 50%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-style: normal;
+    font-family: var(--serif);
+    font-size: 12px;
+    font-weight: 900;
+    color: #fff;
+    background: var(--blue);
+  }
+
+  .pen button i.home { background: var(--home); }
+  .pen button.on { background: var(--card); color: var(--text); box-shadow: 0 1px 3px rgba(48,55,59,0.14); }
+  .pen-tip { font-size: 12px; color: var(--muted); text-align: center; margin: 2px 0 8px; min-height: 17px; }
+
   .action-bar {
     display: grid;
     grid-template-columns: repeat(3, 1fr);
     gap: 8px;
-    margin-bottom: 8px;
+    margin: 10px 0 8px;
   }
 
   .act-btn {
@@ -303,7 +340,7 @@
   .act-btn:active { transform: scale(0.97); background: var(--paper); }
   .act-btn.on { border-color: var(--red); color: var(--red); background: var(--red-soft); }
 
-  /* ---------- 快速標記 ---------- */
+  /* ---------- 貼上班表（快速標記） ---------- */
   .quick-panel {
     display: none;
     background: var(--card);
@@ -796,7 +833,35 @@
   .field::placeholder { color: var(--muted); }
   .field-label { font-size: 12px; font-weight: 700; color: var(--text2); margin: 0 2px 6px; letter-spacing: 1px; }
 
-  .note-quick { display: flex; gap: 8px; margin: -4px 0 14px; }
+  .note-quick { display: flex; flex-direction: column; gap: 8px; margin: 0 0 14px; }
+  .sec-label { font-size: 12px; font-weight: 700; color: var(--muted); letter-spacing: 1px; margin: 0 2px 8px; }
+
+  .act-opt {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+    width: 100%;
+    min-height: 56px;
+    padding: 10px 14px;
+    border: 1px solid var(--line);
+    border-radius: 14px;
+    background: var(--card);
+    text-align: left;
+    cursor: pointer;
+    color: var(--text);
+  }
+  .act-opt .ic { color: var(--red); flex-shrink: 0; }
+  .act-opt b { display: block; font-size: 15px; }
+  .act-opt small { display: block; font-size: 12px; color: var(--muted); font-weight: 600; margin-top: 2px; }
+  .act-opt:active { background: var(--paper); }
+
+  .note-more { margin: 0 0 14px; }
+  .note-more summary { font-size: 13px; color: var(--muted); font-weight: 700; cursor: pointer; padding: 4px 2px; list-style: none; }
+  .note-more summary::-webkit-details-marker { display: none; }
+  .note-more[open] summary { margin-bottom: 8px; }
+  .note-row { display: flex; gap: 8px; }
+  .note-row .field { margin: 0; flex: 1; }
+  .note-row .btn { flex: 0 0 auto; padding: 0 18px; }
 
   .mark-pick { display: grid; grid-template-columns: repeat(3, 1fr); gap: 8px; margin-bottom: 14px; }
 
@@ -831,7 +896,7 @@
 
   .mark-opt i.home { background: var(--home); }
   .mark-opt.on { border-color: var(--text); background: var(--paper); }
-  .note-quick .btn { min-height: 42px; font-size: 14px; }
+
 
   .confirm-msg { font-size: 15px; line-height: 1.7; color: var(--text2); margin: -4px 0 18px; white-space: pre-line; }
 
@@ -1264,8 +1329,8 @@
 
   .backup-note { font-size: 13px; color: var(--text2); line-height: 1.6; margin-bottom: 14px; }
 
-  /* ---------- 團隊共用 ---------- */
-  .team-me {
+  /* ---------- 雲端帳號 ---------- */
+  .acct-me {
     display: flex;
     align-items: center;
     gap: 10px;
@@ -1276,30 +1341,25 @@
     font-size: 14px;
     color: var(--text2);
   }
-
-  .team-me b { color: var(--text); font-size: 16px; }
-  .team-me .ic { color: var(--red); }
-
+  .acct-me b { color: var(--text); font-size: 16px; }
+  .acct-me .grow { flex: 1; }
+  .acct-text { font-size: 14px; color: var(--text2); line-height: 1.7; margin: -4px 0 14px; }
   .adv { margin: 0 0 14px; }
   .adv summary { font-size: 12px; color: var(--muted); cursor: pointer; padding: 4px 2px; list-style: none; }
   .adv summary::-webkit-details-marker { display: none; }
   .adv[open] summary { margin-bottom: 8px; }
 
-  .join-text { font-size: 14px; color: var(--text2); line-height: 1.7; margin: -4px 0 14px; }
-  .join-list { max-height: 42vh; overflow-y: auto; }
-  .join-link { display: block; width: 100%; margin-top: 10px; border: none; background: none; color: var(--muted); font-size: 14px; font-weight: 700; padding: 8px; cursor: pointer; }
-  .list-row .owner { font-size: 11px; color: var(--muted); font-weight: 600; flex-shrink: 0; }
-  .view-only { display: inline-flex; align-items: center; gap: 4px; font-size: 11px; color: var(--muted); font-weight: 600; margin-left: 6px; }
-
   /* ---------- 產圖 ---------- */
   .modal.img-box { padding: 16px; max-width: 460px; }
   .img-box img { width: 100%; max-height: 62vh; object-fit: contain; border-radius: 12px; display: block; background: var(--bg); border: 1px solid var(--line); }
   .img-tip { font-size: 12px; color: var(--muted); text-align: center; margin: 10px 0 14px; }
+  .img-name { display: flex; align-items: center; gap: 10px; margin-bottom: 10px; font-size: 13px; font-weight: 700; color: var(--text2); white-space: nowrap; }
+  .img-name .field { margin: 0; height: 40px; font-size: 15px; }
 
   @media (max-width: 370px) {
     .act-btn { font-size: 13px; gap: 4px; letter-spacing: 0; }
     .seg button { font-size: 12px; }
-    .brand-text { font-size: 24px; letter-spacing: 6px; text-indent: 6px; }
+    .brand-text { font-size: 19px; letter-spacing: 3px; }
     .month-label { font-size: 26px; }
     .day { min-height: 46px; }
     .duty-dot { width: 25px; height: 25px; font-size: 12px; }
@@ -1353,43 +1413,39 @@
 <div class="container">
 
   <header class="masthead">
-    <div class="mh-kicker"><span class="sync-dot" id="brandDot"></span>DAILY RECORD · <span id="mhYear"></span></div>
-    <h1 class="brand-text" id="brandText" contenteditable="true" spellcheck="false" onclick="focusBrand()"></h1>
-    <div class="mh-sub">點一下標記留守・再點一下取消</div>
+    <div class="mh-title">
+      <span class="sync-dot" id="brandDot" title="同步狀態"></span>
+      <h1 class="brand-text" id="brandText" contenteditable="true" spellcheck="false" onclick="focusBrand()"></h1>
+      <span id="mhYear" hidden></span>
+    </div>
     <button class="brand-help" onclick="openHelp()" aria-label="使用說明"><svg class="ic"><use href="#i-help"/></svg></button>
   </header>
 
-  <button class="person-btn" onclick="openPeople()">
-    <span class="avatar"><svg class="ic"><use href="#i-user"/></svg></span>
-    <span class="pname" id="personName"></span>
-    <span class="pcount" id="personCount"></span>
-    <svg class="ic chev"><use href="#i-down"/></svg>
-  </button>
+  <div class="topbar">
+    <button class="person-btn" onclick="openPeople()" aria-label="切換人員">
+      <span class="avatar"><svg class="ic"><use href="#i-user"/></svg></span>
+      <span class="pname" id="personName"></span>
+      <span class="pcount" id="personCount"></span>
+      <svg class="ic chev"><use href="#i-down"/></svg>
+    </button>
 
-  <div class="month-bar">
-    <button class="nav-btn" onclick="navMonth(-1)" aria-label="上個月"><svg class="ic"><use href="#i-left"/></svg></button>
-    <div class="month-center">
-      <select class="year-select" id="yearSelect" aria-label="選擇年份"></select>
-      <span class="month-label" id="monthLabel"></span>
-    </div>
-    <button class="nav-btn" onclick="navMonth(1)" aria-label="下個月"><svg class="ic"><use href="#i-right"/></svg></button>
-  </div>
-
-  <div class="action-bar">
-    <button class="act-btn" id="quickBtn" onclick="toggleQuick()"><svg class="ic"><use href="#i-clip"/></svg>快速標記</button>
-    <button class="act-btn" onclick="openSwap()"><svg class="ic"><use href="#i-swap"/></svg>調班</button>
-    <button class="act-btn" onclick="makeImage()"><svg class="ic"><use href="#i-image"/></svg>產圖</button>
-  </div>
-
-  <div class="quick-panel" id="quickPanel">
-    <textarea id="quickInput" placeholder="貼上文字，例如：&#10;本月留守是&#10;8,22,9,11"></textarea>
-    <div class="quick-preview" id="quickPreview"></div>
-    <div class="btn-row">
-      <button class="btn btn-soft" onclick="closeQuick()">取消</button>
-      <button class="btn btn-pink" onclick="pasteQuick()"><svg class="ic sm"><use href="#i-clip"/></svg>貼上</button>
-      <button class="btn btn-primary" onclick="applyQuick()">標記</button>
+    <div class="month-bar">
+      <button class="nav-btn" onclick="navMonth(-1)" aria-label="上個月"><svg class="ic"><use href="#i-left"/></svg></button>
+      <div class="month-center">
+        <select class="year-select" id="yearSelect" aria-label="選擇年份"></select>
+        <span class="month-label" id="monthLabel"></span>
+      </div>
+      <button class="nav-btn" onclick="navMonth(1)" aria-label="下個月"><svg class="ic"><use href="#i-right"/></svg></button>
     </div>
   </div>
+
+  <!-- 標記種類：選好再點日期 -->
+  <div class="pen" id="pen" role="radiogroup" aria-label="標記種類">
+    <button data-v="留" class="on" onclick="setPen('留')"><i>留</i>留守</button>
+    <button data-v="返" onclick="setPen('返')"><i class="home">返</i>返家</button>
+    <button data-v="監" onclick="setPen('監')"><i>監</i>監控</button>
+  </div>
+  <div class="pen-tip" id="penTip"></div>
 
   <div class="calendar" id="calendar">
     <div class="calendar-track" id="calendarTrack">
@@ -1405,6 +1461,23 @@
         <div class="weekdays"><div>日</div><div>一</div><div>二</div><div>三</div><div>四</div><div>五</div><div>六</div></div>
         <div class="days" id="daysNext"></div>
       </div>
+    </div>
+  </div>
+
+
+  <div class="action-bar">
+    <button class="act-btn" id="quickBtn" onclick="toggleQuick()"><svg class="ic"><use href="#i-clip"/></svg>貼上班表</button>
+    <button class="act-btn" onclick="openSwap()"><svg class="ic"><use href="#i-swap"/></svg>調班</button>
+    <button class="act-btn" onclick="makeImage()"><svg class="ic"><use href="#i-image"/></svg>產圖</button>
+  </div>
+
+  <div class="quick-panel" id="quickPanel">
+    <textarea id="quickInput" placeholder="貼上文字，例如：&#10;本月留守是&#10;8,22,9,11"></textarea>
+    <div class="quick-preview" id="quickPreview"></div>
+    <div class="btn-row">
+      <button class="btn btn-soft" onclick="closeQuick()">取消</button>
+      <button class="btn btn-pink" onclick="pasteQuick()"><svg class="ic sm"><use href="#i-clip"/></svg>貼上</button>
+      <button class="btn btn-primary" onclick="applyQuick()">標記</button>
     </div>
   </div>
 
@@ -1428,14 +1501,20 @@
   <div class="modal">
     <h2 id="modalTitle"></h2>
     <div id="modalHoliday" class="modal-holiday"></div>
+    <div class="sec-label">這天是</div>
     <div class="mark-pick" id="markPick"></div>
+    <div class="sec-label" id="actLabel">要換班嗎？</div>
     <div class="note-quick" id="noteQuick"></div>
-    <div class="field-label">或自己輸入文字</div>
-    <input type="text" class="field" id="noteInput" placeholder="輸入文字（例：休）" maxlength="4">
+    <details class="note-more">
+      <summary>寫其他字（例：休）</summary>
+      <div class="note-row">
+        <input type="text" class="field" id="noteInput" placeholder="最多 4 個字" maxlength="4">
+        <button class="btn btn-primary" onclick="modalReady() && saveNote()">確定</button>
+      </div>
+    </details>
     <div class="btn-row">
-      <button class="btn btn-soft" onclick="modalReady() && deleteNote()">清除</button>
-      <button class="btn btn-soft" onclick="modalReady() && closeModal()">取消</button>
-      <button class="btn btn-primary" onclick="modalReady() && saveNote()">儲存</button>
+      <button class="btn btn-soft" id="noteClear" onclick="modalReady() && deleteNote()">清除這天</button>
+      <button class="btn btn-soft" onclick="modalReady() && closeModal()">關閉</button>
     </div>
   </div>
 </div>
@@ -1445,9 +1524,9 @@
   <div class="modal">
     <h2 id="swapTitle"></h2>
     <div class="seg" id="swapSeg">
-      <button data-t="cover" onclick="setSwapType('cover')">找人代班</button>
-      <button data-t="help" onclick="setSwapType('help')">幫人代班</button>
-      <button data-t="swap" onclick="setSwapType('swap')">互相調班</button>
+      <button data-t="cover" onclick="setSwapType('cover')">別人幫我上</button>
+      <button data-t="help" onclick="setSwapType('help')">我幫別人上</button>
+      <button data-t="swap" onclick="setSwapType('swap')">跟別人換</button>
     </div>
     <div class="swap-hint" id="swapHint" aria-live="polite"></div>
     <div class="date-row" id="dateRow">
@@ -1469,13 +1548,13 @@
       <div class="mc-week"><div>日</div><div>一</div><div>二</div><div>三</div><div>四</div><div>五</div><div>六</div></div>
       <div class="mc-days" id="mcDays"></div>
       <div class="mc-legend">
-        <span><i style="background:#527F9A"></i>原定輪值</span>
-        <span><i style="background:#A9A8A1"></i>轉出</span>
-        <span><i style="background:#C65A4B"></i>調入</span>
+        <span><i style="background:#527F9A"></i>原本的班</span>
+        <span><i style="background:#A9A8A1"></i>給出去</span>
+        <span><i style="background:#C65A4B"></i>換來</span>
       </div>
     </div>
     <div class="field-label" id="whoLabel"></div>
-    <input type="text" class="field swap-who" id="swapWho" maxlength="10" autocomplete="off" placeholder="名字（可不填）">
+    <input type="text" class="field swap-who" id="swapWho" maxlength="10" autocomplete="off" placeholder="名字（可不填）" onfocus="setTimeout(() => this.scrollIntoView({ behavior: 'smooth', block: 'center' }), 300)">
     <div class="who-chips" id="whoChips"></div>
     <div class="swap-preview-wrap" id="swapPreview"></div>
     <div class="btn-row">
@@ -1532,8 +1611,8 @@
       <div class="group-label">資料</div>
       <div class="list">
         <button class="list-row" onclick="closeManage(); openCloud()">
-          <svg class="ic row-ic"><use href="#i-users"/></svg>
-          <span class="grow">團隊共用<span class="sub" id="manageCloudSub"></span></span>
+          <svg class="ic row-ic"><use href="#i-cloud"/></svg>
+          <span class="grow">綁定雲端<span class="sub" id="manageCloudSub"></span></span>
           <svg class="ic sm chev"><use href="#i-right"/></svg>
         </button>
         <button class="list-row" onclick="closeManage(); openBackup()">
@@ -1620,29 +1699,7 @@
 
 <!-- 雲端同步設定 -->
 <div class="modal-overlay" id="cloudOverlay">
-  <div class="modal">
-    <h2><svg class="ic"><use href="#i-users"/></svg>團隊共用</h2>
-    <div class="cloud-status">
-      <span class="sync-dot" id="cloudDot"></span>
-      <div>
-        <div id="cloudText">尚未加入</div>
-        <div class="cloud-sub" id="cloudSub"></div>
-      </div>
-    </div>
-    <div id="teamBody"></div>
-    <a class="cloud-link" id="cloudSheetLink" target="_blank" rel="noopener" style="display:none"><svg class="ic sm"><use href="#i-sheet"/></svg>打開試算表看紀錄</a>
-    <details class="adv">
-      <summary>進階：後端網址</summary>
-      <input type="url" class="field" id="cloudUrl" autocomplete="off" spellcheck="false" inputmode="url">
-      <div class="btn-row"><button class="btn btn-soft" onclick="saveBackendUrl()">儲存網址</button><button class="btn btn-soft" onclick="resetBackendUrl()">還原預設</button></div>
-    </details>
-    <div class="btn-row" id="teamBtns"></div>
-  </div>
-</div>
-
-<!-- 加入團隊 -->
-<div class="modal-overlay" id="joinOverlay">
-  <div class="modal" id="joinBox"></div>
+  <div class="modal" id="cloudBox"></div>
 </div>
 
 <!-- 更新紀錄 -->
@@ -1671,7 +1728,7 @@
       </details>
       <details>
         <summary><span class="help-icon"><svg class="ic sm"><use href="#i-tap"/></svg></span><span class="grow">標記留守</span><svg class="ic sm chev"><use href="#i-right"/></svg></summary>
-        <div class="help-body"><b>點一下日期</b>，出現藍色「留」就完成。要標<b>返家</b>（綠色「返」）或監控，長按日期點選即可。<img data-pic="mark" src="data:image/jpeg;base64,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" alt=""></div>
+        <div class="help-body">先在月曆上方選<b>留守／返家／監控</b>，再<b>點日期</b>就標好了，再點一下取消。<img data-pic="mark" src="data:image/jpeg;base64,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" alt=""></div>
       </details>
       <details>
         <summary><span class="help-icon"><svg class="ic sm"><use href="#i-x"/></svg></span><span class="grow">取消標記</span><svg class="ic sm chev"><use href="#i-right"/></svg></summary>
@@ -1679,23 +1736,23 @@
       </details>
       <details>
         <summary><span class="help-icon"><svg class="ic sm"><use href="#i-clip"/></svg></span><span class="grow">一次標記多個日期</span><svg class="ic sm chev"><use href="#i-right"/></svg></summary>
-        <div class="help-body">按「<b>快速標記</b>」，貼上像「本月留守是 8,22,9,11」的文字，按「標記」。文字有寫「12月」會自動標到 12 月；有「返」字會標成返家，有「監」字會標成監控。</div>
+        <div class="help-body">按月曆下方「<b>貼上班表</b>」，貼上像「本月留守是 8,22,9,11」的文字，按「標記」。文字有寫「12月」會自動標到 12 月；有「返」字會標成返家，有「監」字會標成監控。</div>
       </details>
       <details>
         <summary><span class="help-icon"><svg class="ic sm"><use href="#i-swap"/></svg></span><span class="grow">調班</span><svg class="ic sm chev"><use href="#i-right"/></svg></summary>
-        <div class="help-body"><b>長按日期</b>，或按上方「調班」。有三種：<br>・找人代班：你的輪值請別人代班<br>・幫人代班：你幫別人代班<br>・互相調班：兩人交換輪值日期<br>選好日期就會顯示調整結果，對象可以不填。<img data-pic="swap" src="data:image/jpeg;base64,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" alt=""></div>
+        <div class="help-body"><b>長按日期</b>，或按上方「調班」。有三種：<br>・<b>別人幫我上</b>：這天我不用上，改由別人上<br>・<b>跟別人換一天</b>：這天給他上，換他另一天給我上<br>・<b>我幫別人上</b>：原本不是我的班，改成我上<br>選好日期就會顯示結果，名字可以不填。<img data-pic="swap" src="data:image/jpeg;base64,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" alt=""></div>
       </details>
       <details>
         <summary><span class="help-icon"><svg class="ic sm"><use href="#i-note"/></svg></span><span class="grow">查看調班歷程</span><svg class="ic sm chev"><use href="#i-right"/></svg></summary>
-        <div class="help-body">月曆下方的「<b>調班歷程</b>」，大字是日期、箭頭是調整方向。上方統計會列出「實際留守」和「原定輪值」，有變動的日期會特別標出。</div>
+        <div class="help-body">月曆下方的「<b>調班歷程</b>」，大字是日期、箭頭是調整方向。上方統計會列出「實際留守」和「原本的班」，有變動的日期會特別標出。</div>
       </details>
       <details>
         <summary><span class="help-icon"><svg class="ic sm"><use href="#i-image"/></svg></span><span class="grow">產生月曆圖片</span><svg class="ic sm chev"><use href="#i-right"/></svg></summary>
         <div class="help-body">按「<b>產圖</b>」，可以下載、分享，或長按圖片儲存。只想傳文字的話，按留守統計右上角的「複製」。<img data-pic="image" src="data:image/jpeg;base64,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" alt=""></div>
       </details>
       <details>
-        <summary><span class="help-icon"><svg class="ic sm"><use href="#i-users"/></svg></span><span class="grow">團隊共用</span><svg class="ic sm chev"><use href="#i-right"/></svg></summary>
-        <div class="help-body">「資料管理 → <b>團隊共用</b>」輸入團隊密碼、選自己的名字，就能看到大家的月曆。<b>只能修改自己新增的人</b>，別人新增的只能看。不想加入也可以只在自己手機用。</div>
+        <summary><span class="help-icon"><svg class="ic sm"><use href="#i-cloud"/></svg></span><span class="grow">綁定雲端（換手機）</span><svg class="ic sm chev"><use href="#i-right"/></svg></summary>
+        <div class="help-body">不綁定也能正常使用。想換手機也保留紀錄，到「資料管理 → <b>綁定雲端</b>」輸入名字和數字密碼，紀錄會自動存到雲端。<b>換手機、或 Safari 和桌面 App 都綁同一組</b>，紀錄會自動合併、互相同步。每個人的資料分開存，別人看不到。</div>
       </details>
       <details>
         <summary><span class="help-icon"><svg class="ic sm"><use href="#i-save"/></svg></span><span class="grow">備份及還原</span><svg class="ic sm chev"><use href="#i-right"/></svg></summary>
@@ -1749,6 +1806,10 @@
 <!-- 產圖 -->
 <div class="modal-overlay" id="imgOverlay">
   <div class="modal img-box">
+    <div class="img-name" id="imgNameRow">
+      <span>圖上的名字</span>
+      <input type="text" class="field" id="imgName" maxlength="10" placeholder="不寫名字" autocomplete="off" onchange="redrawImage()" onkeydown="if(event.key==='Enter') this.blur()">
+    </div>
     <img id="imgPreview" alt="月曆圖片">
     <div class="img-tip">長按圖片也可以儲存</div>
     <div class="btn-row">
@@ -1776,14 +1837,29 @@
   const ME = 'me';
 
   /* ---------- 版本 ---------- */
-  const APP_VERSION = '3.0';
+  const APP_VERSION = '4.3';
   const VERSION_SEEN_KEY = 'duty_calendar_version_seen';
   const CHANGELOG = [
-    { v: '3.0', date: '2026/11/15', items: [
-      '團隊共用：輸入團隊密碼就能看到大家的月曆（也可以不加入，只在自己手機用）',
-      '每個人只能修改自己新增的人，別人新增的只能看',
-      '個人密碼：換手機、換 App 都能改到自己的資料',
-      '每個改動分開存到試算表，多人同時使用不會互相覆蓋；約每分鐘自動更新'
+    { v: '4.3', date: '2026/11/15', items: [
+      '雲端同步改成一筆一筆合併：Safari 和桌面 App 各自改的，同步後兩邊都有，不會互相蓋掉',
+      '綁定時，手機上的紀錄和雲端的紀錄自動合併'
+    ]},
+    { v: '4.2', date: '2026/11/15', items: [
+      '月曆上方可選「留守／返家／監控」，選好點日期就標好，不用長按',
+      '畫面更精簡：標題縮成一行，人員和月份放同一列，月曆往上移',
+      '「快速標記」改名「貼上班表」，和調班、產圖一起放在月曆下方',
+      '產圖不再跳出輸入框，名字直接在預覽上修改',
+      '雲端沒存成功會提示；調班選好日期自動捲到下方'
+    ]},
+    { v: '4.1', date: '2026/11/15', items: [
+      '換班用白話：「別人幫我上」「跟別人換一天」「我幫別人上」，按鈕下面有一句說明',
+      '長按日期的視窗更簡單：點留守／返家／監控直接完成，其他字收在下面',
+      '「轉出／調入」改成「給出去／換來」，「原定輪值」改成「原本的班」'
+    ]},
+    { v: '4.0', date: '2026/11/15', items: [
+      '進階：綁定雲端（名字＋數字密碼），紀錄自動存到雲端；不綁定也能照常使用',
+      '換手機時輸入同一組名字和密碼，紀錄就回來',
+      '每個人的資料分開存，別人看不到'
     ]},
     { v: '2.9', date: '2026/11/13', items: [
       '新增「返家」綠色標示：長按日期點「返家」即可',
@@ -1969,35 +2045,20 @@
   let curId = ME;
 
   function newPersonObj(id, name) {
-    const p = { id, name, marks: {}, swaps: [], used: Date.now() };
-    if (isShared()) { p.ownerId = selfId(); p.ownerName = selfName(); }
-    return p;
+    return { id, name, marks: {}, swaps: [], used: Date.now() };
   }
 
   function fixState() {
-    if (!Array.isArray(state.people)) state.people = [];
-    if (isShared()) {
-      // 團隊資料還沒載入前，先放自己一筆，畫面才不會空掉
-      if (!state.people.some(p => p.id === selfId())) {
-        state.people.unshift({ id: selfId(), name: selfName(), ownerId: selfId(), ownerName: selfName(), isAccount: true, marks: {}, swaps: [] });
-      }
-    } else if (!state.people.some(p => p.id === ME)) {
-      state.people.unshift(newPersonObj(ME, '我'));
-    }
+    if (!state.people.some(p => p.id === ME)) state.people.unshift(newPersonObj(ME, '我'));
     state.people.forEach(p => {
       if (!p.marks || typeof p.marks !== 'object') p.marks = {};
       if (!Array.isArray(p.swaps)) p.swaps = [];
+      if (!p.used) p.used = 0;
       p.swaps.forEach(s => { if (typeof s.who !== 'string') s.who = ''; });
     });
   }
 
   function loadState() {
-    if (isShared()) {
-      try { state = JSON.parse(lsGet(TEAM_CACHE_KEY)); } catch { state = null; }
-      if (!state || !Array.isArray(state.people)) state = { people: [] };
-      fixState();
-      return;
-    }
     let s = null;
     try { s = JSON.parse(lsGet(DATA_KEY)); } catch {}
     if (!s || !Array.isArray(s.people)) {
@@ -2014,7 +2075,7 @@
     saveLocal();
   }
 
-  function saveLocal() { lsSet(isShared() ? TEAM_CACHE_KEY : DATA_KEY, JSON.stringify(state)); }
+  function saveLocal() { lsSet(DATA_KEY, JSON.stringify(state)); }
 
   function saveState() {
     state.updatedAt = Date.now();
@@ -2022,9 +2083,9 @@
     scheduleSync();
   }
 
-  function P() { return state.people.find(p => p.id === curId) || state.people.find(p => p.id === selfId()) || state.people[0]; }
+  function P() { return state.people.find(p => p.id === curId) || state.people.find(p => p.id === ME); }
   function findPerson(id) { return state.people.find(p => p.id === id); }
-  function ownerWord(p) { p = p || P(); return p.id === selfId() ? '我' : p.name; }
+  function ownerWord(p) { p = p || P(); return p.id === ME ? '我' : p.name; }
 
   function loadBrand() { return lsGet(BRAND_KEY) || DEFAULT_BRAND; }
   function saveBrand(n) { lsSet(BRAND_KEY, n); }
@@ -2171,34 +2232,27 @@
 
     const row = (p) => {
       const n = Object.keys(p.marks).filter(k => k.startsWith(pre)).length;
-      const mine = canEdit(p);
       return `<div class="list-row" role="button" onclick="pickPerson('${p.id}')">
         <span class="grow">${esc(p.name)}</span>
-        ${!mine && p.ownerName && !p.isAccount ? `<span class="owner">${esc(p.ownerName)}新增</span>` : ''}
         <span class="meta">${n ? `${currentMonth + 1} 月 ${n} 天` : ''}</span>
         ${p.id === curId ? icon('check', 'check') : ''}
-        ${mine ? `<button class="row-edit" onclick="event.stopPropagation(); editPersonName('${p.id}')" aria-label="改名字">${icon('edit', 'sm')}</button>` : ''}
+        <button class="row-edit" onclick="event.stopPropagation(); openPersonMenu('${p.id}')" aria-label="改名、清空或刪除">${icon('edit', 'sm')}</button>
       </div>`;
     };
-    // 團隊共用時：自己新增的排前面
-    const sorted = isShared()
-      ? state.people.filter(p => canEdit(p)).concat(state.people.filter(p => !canEdit(p)))
-      : state.people;
 
     let html = '';
     if (q) {
       const hits = state.people.filter(p => p.name.includes(q));
       html += `<div class="group-label">搜尋結果</div><div class="list">${hits.length ? hits.map(row).join('') : '<div class="list-empty">找不到「' + esc(q) + '」，可以在下方新增</div>'}</div>`;
     } else {
-      const rc = getRecent();
-      const recent = state.people.filter(p => p.id !== selfId() && rc[p.id])
-        .sort((a, b) => rc[b.id] - rc[a.id]).slice(0, 5);
+      const recent = state.people.filter(p => p.id !== ME && p.used)
+        .sort((a, b) => b.used - a.used).slice(0, 5);
       if (recent.length) {
         html += `<div class="group-label">最近使用</div><div class="recent-row">` +
           recent.map(p => `<button class="name-chip${p.id === curId ? ' on' : ''}" onclick="pickPerson('${p.id}')">${esc(p.name)}</button>`).join('') +
           `</div>`;
       }
-      html += `<div class="group-label">全部人員</div><div class="list">${sorted.map(row).join('')}</div>`;
+      html += `<div class="group-label">全部人員</div><div class="list">${state.people.map(row).join('')}</div>`;
     }
     box.innerHTML = html;
     if (q) document.getElementById('newPersonInput').value = q;
@@ -2213,8 +2267,10 @@
 
   function switchPerson(id) {
     curId = id;
-    if (id !== selfId()) touchRecent(id);
+    const p = P();
+    if (p.id !== ME) p.used = Date.now();
     recExpanded = false;
+    saveLocal();
     renderPersonBtn();
     render();
   }
@@ -2223,14 +2279,14 @@
     const input = document.getElementById('newPersonInput');
     const name = input.value.trim().slice(0, 10);
     if (!name) { input.focus(); showToast('請輸入姓名'); return; }
-    if (!isShared() && name === '我' && !state.people.some(p => p.name === '我')) { pickPerson(ME); return; }
-    const exist = state.people.find(p => p.name === name && canEdit(p));
+    if (name === '我' && !state.people.some(p => p.name === '我')) { pickPerson(ME); return; }
+    const exist = state.people.find(p => p.name === name);
     if (exist) {
       pickPerson(exist.id);
       showToast(`已切換到 ${name}`);
       return;
     }
-    const p = newPersonObj('p' + Date.now() + Math.random().toString(36).slice(2, 6), name);
+    const p = newPersonObj('p' + Date.now(), name);
     state.people.push(p);
     logAction(p, '新增這個人');
     saveState();
@@ -2244,16 +2300,11 @@
   function openPersonManage() {
     const box = document.getElementById('pmScroll');
     document.getElementById('pmTotal').textContent = `共 ${state.people.length} 人`;
-    const mine = state.people.filter(p => canEdit(p));
-    const others = state.people.filter(p => !canEdit(p));
-    const item = p => `
+    box.innerHTML = `<div class="list">${state.people.map(p => `
       <button class="list-row" onclick="openPersonMenu('${p.id}')">
-        <span class="grow">${esc(p.name)}<span class="sub">${marksCount(p)} 個標記・${p.swaps.length} 筆調班${canEdit(p) ? '' : p.isAccount ? '・只能看' : `・${esc(p.ownerName || '別人')}新增，只能看`}</span></span>
-        ${canEdit(p) ? icon('right', 'sm chev') : ''}
-      </button>`;
-    box.innerHTML = (isShared() ? '<div class="group-label">我新增的</div>' : '') +
-      `<div class="list">${mine.map(item).join('')}</div>` +
-      (others.length ? `<div class="group-label">其他人新增的（只能看）</div><div class="list">${others.map(item).join('')}</div>` : '');
+        <span class="grow">${esc(p.name)}<span class="sub">${marksCount(p)} 個標記・${p.swaps.length} 筆調班</span></span>
+        ${icon('right', 'sm chev')}
+      </button>`).join('')}</div>`;
     document.getElementById('pmSheet').classList.add('active');
   }
 
@@ -2262,13 +2313,12 @@
   }
 
   function openPersonMenu(id) {
-    const p = findPerson(id);
-    if (!guardEdit(p)) return;
     menuPersonId = id;
+    const p = findPerson(id);
     document.getElementById('personTitle').textContent = p.name;
     let html = `<button class="list-row" onclick="renamePerson()">${icon('edit', 'row-ic')}<span class="grow">改名字</span></button>`;
     html += `<button class="list-row danger" onclick="clearPersonRecords()">${icon('erase', 'row-ic')}<span class="grow">清空全部紀錄<span class="sub">刪除所有月份的標記與調班，人員保留</span></span></button>`;
-    if (p.id !== selfId()) {
+    if (p.id !== ME) {
       html += `<button class="list-row danger" onclick="deletePerson()">${icon('trash', 'row-ic')}<span class="grow">刪除人員<span class="sub">連同所有紀錄一起刪除</span></span></button>`;
     }
     document.getElementById('personActions').innerHTML = html;
@@ -2286,10 +2336,10 @@
     render();
   }
 
-  // 改名字（只能改自己新增的人）；回傳是否有改
+  // 改名字（任何人都可以，包含「我」）；回傳是否有改
   function editPersonName(id) {
     const p = findPerson(id);
-    if (!p || !guardEdit(p)) return false;
+    if (!p) return false;
     const input = prompt('改名字', p.name);
     if (input === null) return false;
     const name = input.trim().slice(0, 10);
@@ -2300,14 +2350,11 @@
     }
     const oldName = p.name;
     p.name = name;
-    if (p.id === selfId() && isShared()) lsSet(SELF_NAME_KEY, name);
-    // 調班紀錄裡寫的對象名字也一起改（團隊共用時由後端統一改）
+    // 別人調班紀錄裡寫的對象名字也一起改，紀錄才對得上
     let linked = 0;
-    if (!isShared()) {
-      state.people.forEach(o => o.swaps.forEach(sw => {
-        if (sw.who === oldName) { sw.who = name; linked++; }
-      }));
-    }
+    state.people.forEach(o => o.swaps.forEach(sw => {
+      if (sw.who === oldName) { sw.who = name; linked++; }
+    }));
     logAction(p, `改名（原本叫 ${oldName}${linked ? `，同步更新 ${linked} 筆調班對象` : ''}）`);
     saveState();
     renderPersonBtn();
@@ -2324,7 +2371,7 @@
 
   async function clearPersonRecords() {
     const p = findPerson(menuPersonId);
-    if (!p || !guardEdit(p)) return closePersonMenu();
+    if (!p) return closePersonMenu();
     const n = marksCount(p);
     if (!n && !p.swaps.length) { showToast('這個人目前沒有紀錄'); return; }
     const ok = await confirmBox(
@@ -2344,7 +2391,7 @@
 
   async function deletePerson() {
     const p = findPerson(menuPersonId);
-    if (!p || p.id === selfId() || !guardEdit(p)) return closePersonMenu();
+    if (!p || p.id === ME) return closePersonMenu();
     const ok = await confirmBox(
       `刪除人員「${p.name}」？`,
       `操作對象：${p.name}\n影響範圍：這個人和他的 ${marksCount(p)} 個標記、${p.swaps.length} 筆調班歷程\n\n這個動作無法復原，建議先備份。`,
@@ -2353,7 +2400,7 @@
     if (!ok) return;
     state.people = state.people.filter(o => o.id !== p.id);
     logAction(p, '刪除人員（含所有標記和調班歷程）');
-    if (curId === p.id) curId = selfId();
+    if (curId === p.id) curId = ME;
     saveState();
     closePersonMenu();
     afterPeopleChange();
@@ -2473,19 +2520,37 @@
     el.addEventListener('contextmenu', (e) => e.preventDefault());
   }
 
+  // 目前選的標記種類（不存檔，每次打開都是留守）
+  let penMark = DEFAULT_MARK;
+
+  function setPen(v) {
+    penMark = v;
+    document.querySelectorAll('#pen button').forEach(b => {
+      const on = b.dataset.v === v;
+      b.classList.toggle('on', on);
+      b.setAttribute('aria-checked', on);
+    });
+    updatePenTip();
+  }
+
+  function updatePenTip() {
+    document.getElementById('penTip').textContent = `點日期標「${markName(penMark)}」，再點一下取消・長按可調班`;
+  }
+
   function toggleMark(key) {
-    if (!guardEdit(P())) return;
     const marks = P().marks;
+    const v = penMark;
+    // 規則和以前一樣：有標記就取消；空白就標上目前選的種類
     if (marks[key]) {
       logAction(P(), `取消 ${md(key)}（原本是「${marks[key]}」）`);
       delete marks[key];
       playUnmark();
       showToast('已取消標記', 1100);
     } else {
-      marks[key] = DEFAULT_MARK;
-      logAction(P(), `標記 ${md(key)}「${DEFAULT_MARK}」`);
+      marks[key] = v;
+      logAction(P(), `標記 ${md(key)}「${v}」`);
       playMark();
-      showToast('已標記留守', 1100);
+      showToast(`已標記${markName(v)}`, 1100);
     }
     saveState();
     render();
@@ -2613,31 +2678,31 @@
     if (s.type === 'swap') {
       return {
         kind: 'swap',
-        title: who ? `與${who}互相調班` : '互相調班',
-        left: { lab: '轉出輪值', key: s.out, cls: 'out', sub: `由${other}留守` },
-        right: { lab: '調入輪值', key: s.in, cls: 'in', sub: `由${ow}留守` }
+        title: who ? `跟${who}換一天` : '跟別人換一天',
+        left: { lab: '給出去', key: s.out, cls: 'out', sub: `由${other}上` },
+        right: { lab: '換來', key: s.in, cls: 'in', sub: `由${ow}上` }
       };
     }
     if (s.type === 'cover') {
       return {
         kind: 'cover',
-        title: who ? `請${who}代班` : '找人代班',
-        left: { lab: `${ow}的原定輪值`, key: s.out, cls: 'out' },
-        right: { lab: '改由', who: `${who || '別人'}代班` }
+        title: who ? `${who}幫${ow}上` : `別人幫${ow}上`,
+        left: { lab: `${ow}原本的班`, key: s.out, cls: 'out' },
+        right: { lab: '改由', who: `${who || '別人'}上` }
       };
     }
     return {
       kind: 'help',
-      title: who ? `幫${who}代班` : '幫人代班',
-      left: { lab: `${who || '別人'}的原定輪值`, key: s.in },
-      right: { lab: '改由', who: `${ow}代班` }
+      title: who ? `${ow}幫${who}上` : `${ow}幫別人上`,
+      left: { lab: `${who || '別人'}原本的班`, key: s.in },
+      right: { lab: '改由', who: `${ow}上` }
     };
   }
 
   // 一行文字（異動紀錄、試算表、圖片、刪除確認用）
   function swapText(s, p) {
     const i = swapInfo(s, p);
-    if (s.type === 'swap') return `${i.title}：轉出 ${mdw(s.out)}，調入 ${mdw(s.in)}`;
+    if (s.type === 'swap') return `${i.title}：給出去 ${mdw(s.out)}，換來 ${mdw(s.in)}`;
     if (s.type === 'cover') return `${i.title}：${i.left.lab} ${mdw(s.out)}，改由${i.right.who}`;
     return `${i.title}：${i.left.lab} ${mdw(s.in)}，改由${i.right.who}`;
   }
@@ -2661,9 +2726,9 @@
     const reg = s.at ? `${new Date(s.at).getMonth() + 1}/${new Date(s.at).getDate()} 登記` : '';
     let flow;
     if (i.kind === 'swap') {
-      flow = `${ndHtml(s.out, 'out')}<span class="nl">轉出</span>
+      flow = `${ndHtml(s.out, 'out')}<span class="nl">給出去</span>
         <span class="n-arrow">${icon('swap', 'sm')}</span>
-        ${ndHtml(s.in, 'in')}<span class="nl">調入</span>`;
+        ${ndHtml(s.in, 'in')}<span class="nl">換來</span>`;
     } else {
       flow = `${ndHtml(i.left.key, i.kind === 'cover' ? 'out' : '')}<span class="nl">${esc(i.left.lab)}</span>
         <span class="n-arrow">${icon('arrow', 'sm')}</span>
@@ -2736,7 +2801,7 @@
         ? now.map(x => origSet.has(x.k) ? esc(dayLabel(x)) : `<span class="add">${esc(dayLabel(x))}</span>`).join('、')
         : '（沒有）';
       html += `<div class="stat-rows">
-        <div class="stat-row"><span class="stat-k">原定輪值</span><span class="stat-v">${origHtml}</span></div>
+        <div class="stat-row"><span class="stat-k">原本的班</span><span class="stat-v">${origHtml}</span></div>
         <div class="stat-row"><span class="stat-k">實際留守</span><span class="stat-v now">${nowHtml}</span></div>
         ${homeRow}
       </div>`;
@@ -2752,7 +2817,7 @@
 
   function monthText(p, y, m) {
     const now = dayNums(p.marks, y, m, false);
-    const name = p.id === selfId() && !isShared() ? (lsGet(IMG_NAME_KEY) || '我') : p.name;
+    const name = p.id === ME ? (lsGet(IMG_NAME_KEY) || '我') : p.name;
     const groups = {};
     now.forEach(x => { (groups[x.v] = groups[x.v] || []).push(x.d); });
     const lines = [];
@@ -2836,7 +2901,6 @@
 
   async function deleteSwap(id) {
     const p = P();
-    if (!guardEdit(p)) return;
     const idx = p.swaps.findIndex(s => s.id === id);
     if (idx < 0) return;
     const s = p.swaps[idx];
@@ -2862,7 +2926,6 @@
   }
 
   function toggleSettle(id) {
-    if (!guardEdit(P())) return;
     const s = P().swaps.find(x => x.id === id);
     if (!s) return;
     s.settled = !s.settled;
@@ -2880,8 +2943,10 @@
   let swapField = 'out';
   let mcY = 0, mcM = 0;
 
+  let swapWasReady = false;
+
   function openSwap(preset) {
-    if (!guardEdit(P())) return;
+    swapWasReady = false;
     swapOut = null;
     swapIn = null;
     mcY = currentYear;
@@ -2913,8 +2978,7 @@
     const names = [];
     const add = (n) => { if (n && n !== P().name && !names.includes(n)) names.push(n); };
     P().swaps.slice().sort((a, b) => (b.at || 0) - (a.at || 0)).forEach(s => add(s.who));
-    const rc = getRecent();
-    state.people.filter(p => p.id !== selfId()).sort((a, b) => (rc[b.id] || 0) - (rc[a.id] || 0)).forEach(p => add(p.name));
+    state.people.filter(p => p.id !== ME).sort((a, b) => (b.used || 0) - (a.used || 0)).forEach(p => add(p.name));
     const cur = document.getElementById('swapWho').value.trim();
     document.getElementById('whoChips').innerHTML = names.slice(0, 6).map(n =>
       `<button class="name-chip${n === cur ? ' on' : ''}" onclick="pickWho(this)" data-n="${esc(n)}">${esc(n)}</button>`
@@ -2941,10 +3005,10 @@
     document.getElementById('fieldIn').style.display = t === 'cover' ? 'none' : '';
     document.getElementById('dateRow').classList.toggle('one', t !== 'swap');
 
-    document.getElementById('labelOut').textContent = t === 'swap' ? '轉出輪值' : `${ow}要請人代班的日期`;
-    document.getElementById('labelIn').textContent = t === 'swap' ? '調入輪值' : `${ow}要幫忙代班的日期`;
+    document.getElementById('labelOut').textContent = t === 'swap' ? `${ow}給出去的那天` : `${ow}不用上的那天`;
+    document.getElementById('labelIn').textContent = t === 'swap' ? `${ow}換來的那天` : `${ow}幫人上的那天`;
 
-    const whoLabel = { cover: '代班的人', help: '原定輪值的人', swap: '調班對象' }[t];
+    const whoLabel = { cover: `誰幫${ow}上？`, help: `${ow}幫誰上？`, swap: `${ow}跟誰換？` }[t];
     document.getElementById('whoLabel').textContent = `${whoLabel}（可不填）`;
 
     refreshSwapUI();
@@ -3021,21 +3085,25 @@
     vi.classList.toggle('empty', !swapIn);
 
     const ready = swapReady();
+    if (ready && !swapWasReady) {
+      setTimeout(() => document.getElementById('swapSaveBtn').scrollIntoView({ behavior: 'smooth', block: 'end' }), 80);
+    }
+    swapWasReady = ready;
     const hint = document.getElementById('swapHint');
     if (ready) {
       hint.textContent = '✓ 日期選好了，確認下方的調整結果';
     } else if (swapType === 'cover') {
-      hint.textContent = '步驟 1：點藍色日期，選要請人代班的輪值';
+      hint.textContent = '第 1 步：點藍色日期，選不用上的那天';
     } else if (swapType === 'help') {
-      hint.textContent = '步驟 1：點白色日期，選要幫忙代班的日子';
+      hint.textContent = '第 1 步：點白色日期，選幫人上的那天';
     } else {
-      hint.textContent = swapField === 'out' ? '步驟 1：點藍色日期，選要轉出的輪值' : '步驟 2：點白色日期，選要調入的日期';
+      hint.textContent = swapField === 'out' ? '第 1 步：點藍色日期，選給出去的那天' : '第 2 步：點白色日期，選換來的那天';
     }
     hint.classList.toggle('done', ready);
 
     const saveBtn = document.getElementById('swapSaveBtn');
     saveBtn.disabled = !ready;
-    saveBtn.textContent = { cover: '確認代班', help: '確認代班', swap: '確認調班' }[swapType];
+    saveBtn.textContent = '確認';
 
     renderMiniCal();
     updateSwapPreview();
@@ -3062,7 +3130,7 @@
     const p = P();
     // 儲存前再檢查一次：避免選完日期後資料被改動
     if (swapType !== 'help' && !isDuty(p.marks[swapOut])) { showToast('這天已經不是輪值日，請重新選擇'); refreshSwapUI(); return; }
-    if (swapType !== 'cover' && (swapIn === swapOut || p.marks[swapIn])) { showToast('調入的日期不能重複，也不能已是留守日'); refreshSwapUI(); return; }
+    if (swapType !== 'cover' && (swapIn === swapOut || p.marks[swapIn])) { showToast('換來的那天不能重複，也不能已經有班'); refreshSwapUI(); return; }
 
     const s = {
       id: 's' + Date.now(),
@@ -3093,10 +3161,12 @@
   function toggleQuick() {
     const panel = document.getElementById('quickPanel');
     const open = !panel.classList.contains('open');
-    if (open && !guardEdit(P())) return;
     panel.classList.toggle('open', open);
     document.getElementById('quickBtn').classList.toggle('on', open);
-    if (open) updateQuickPreview();
+    if (open) {
+      updateQuickPreview();
+      setTimeout(() => panel.scrollIntoView({ behavior: 'smooth', block: 'nearest' }), 60);
+    }
   }
 
   function normDigits(text) {
@@ -3198,7 +3268,6 @@
   }
 
   function applyQuick() {
-    if (!guardEdit(P())) return;
     const text = document.getElementById('quickInput').value;
     const t = detectTarget(text);
     const days = parseDays(text, t.y, t.m);
@@ -3225,7 +3294,6 @@
   }
 
   function openModal(key, day, year, month) {
-    if (!guardEdit(P())) return;
     selectedDateKey = key;
     modalOpenedAt = Date.now();
     const marks = P().marks;
@@ -3251,12 +3319,20 @@
     ).join('');
 
     const quick = document.getElementById('noteQuick');
-    quick.innerHTML = isDuty(marks[key])
-      ? `<button class="btn btn-pink" onclick="modalReady() && swapFromDay('cover')">${icon('arrow', 'sm')}找人代班</button>
-         <button class="btn btn-pink" onclick="modalReady() && swapFromDay('swap')">${icon('swap', 'sm')}互相調班</button>`
-      : `<button class="btn btn-pink" onclick="modalReady() && swapFromDay('help')">${icon('hand', 'sm')}幫人代班</button>`;
+    const opt = (t, ic, title, sub) =>
+      `<button class="act-opt" onclick="modalReady() && swapFromDay('${t}')">${icon(ic)}<span><b>${title}</b><small>${sub}</small></span></button>`;
+    const duty = isDuty(marks[key]);
+    const me = ow === '我';
+    document.getElementById('actLabel').style.display = marks[key] && !duty ? 'none' : '';
+    quick.style.display = marks[key] && !duty ? 'none' : '';
+    quick.innerHTML = duty
+      ? opt('cover', 'arrow', me ? '這天別人幫我上' : `這天別人幫${ow}上`, me ? '我不用上，改由別人上' : `${ow}不用上，改由別人上`) +
+        opt('swap', 'swap', me ? '跟別人換一天' : `${ow}跟別人換一天`, me ? '這天給他上，換他另一天給我上' : `這天給別人上，換別人另一天給${ow}上`)
+      : opt('help', 'hand', me ? '這天我幫別人上' : `這天${ow}幫別人上`, '原本不是' + (me ? '我' : ow) + '的班，改成' + (me ? '我' : ow) + '上');
+    document.getElementById('noteClear').style.display = marks[key] ? '' : 'none';
+    document.querySelector('#modalOverlay .note-more').open = false;
 
-    document.getElementById('noteInput').value = marks[key] || DEFAULT_MARK;
+    document.getElementById('noteInput').value = marks[key] && !['留', '返', '監'].includes(marks[key]) ? marks[key] : '';
     document.getElementById('modalOverlay').classList.add('active');
   }
 
@@ -3318,7 +3394,7 @@
   function openManage() {
     document.getElementById('manageVersion').textContent = `v${APP_VERSION}`;
     document.getElementById('installRow').style.display = isAppMode() ? 'none' : '';
-    document.getElementById('manageCloudSub').textContent = isShared() ? `${selfName()}・${cloudStatusText()}` : '加入後可以看到大家的月曆（可不加入）';
+    document.getElementById('manageCloudSub').textContent = cloudReady() ? `${acctName()}・${cloudStatusText()}` : '進階：不綁定也能用；綁定後換手機也有紀錄';
     document.getElementById('manageSheet').classList.add('active');
   }
 
@@ -3349,7 +3425,6 @@
   }
 
   function openRestore() {
-    if (isShared()) { showToast('團隊共用中不能還原，避免蓋掉大家的資料', 2600); return; }
     document.getElementById('backupTitle').innerHTML = `${icon('restore')}還原備份資料`;
     const ta = document.getElementById('backupText');
     ta.value = '';
@@ -3383,7 +3458,6 @@
   }
 
   async function doRestore() {
-    if (isShared()) { showToast('團隊共用中不能還原', 2200); return; }
     let code = document.getElementById('backupText').value.trim();
     const i = code.indexOf(BACKUP_HEAD);
     if (i < 0) { showToast('這不是點點月曆的備份'); return; }
@@ -3407,7 +3481,7 @@
       document.getElementById('brandText').textContent = data.brand;
       document.title = data.brand;
     }
-    curId = selfId();
+    curId = ME;
     closeBackup();
     renderPersonBtn();
     render();
@@ -3415,25 +3489,24 @@
   }
 
   /* =========================================================
-     團隊共用（Google 試算表）
-     - 加入後以試算表為準；每個改動分開送出，多人同時用不會互相覆蓋
-     - 每個人只能改自己新增的人（後端也會檢查）
-     - 不加入時，資料只存在這支手機
+     雲端備份（Google 試算表）
+     - 每個人用「名字＋數字密碼」登入，資料分開存，別人看不到
+     - 每次改動後 1.5 秒自動上傳；打開網頁時，雲端比較新就自動下載
+     - 換手機：輸入同一組名字和密碼，紀錄就回來
      ========================================================= */
-  // 預設後端網址（這是設定，不是資料；可在「團隊共用 → 進階」更改）。團隊密碼不寫在程式裡。
+  // 預設後端網址（設定值，可在「綁定雲端 → 進階」更改）；密碼不寫在程式裡
   const DEFAULT_BACKEND_URL = 'https://script.google.com/macros/s/AKfycbyHojZl_JLEYWbgkPIfJ0WBu8ya9kjtY5AGsR90Wuk9UmYYUadUSWhVpnyBUxAU-NQC/exec';
   const CLOUD_URL_KEY = 'duty_calendar_cloud_url';
   const SHEET_LINK_KEY = 'duty_calendar_sheet_url';
-  const CLOUD_KEY = 'duty_calendar_cloud_key';        // 團隊密碼
-  const SELF_KEY = 'duty_calendar_self';              // 我的帳號編號
-  const SELF_NAME_KEY = 'duty_calendar_self_name';
-  const PIN_KEY = 'duty_calendar_pin';                // 我的個人密碼
-  const SOLO_KEY = 'duty_calendar_solo';              // 選了「先自己用」
-  const TEAM_CACHE_KEY = 'duty_calendar_team_cache';  // 團隊資料（離線時用）
-  const TEAM_SNAP_KEY = 'duty_calendar_team_snap';    // 最後一次跟試算表一致的資料
-  const RECENT_KEY = 'duty_calendar_recent';
+  const ACCT_ID_KEY = 'duty_calendar_acct_id';
+  const ACCT_NAME_KEY = 'duty_calendar_acct_name';
+  const ACCT_PIN_KEY = 'duty_calendar_acct_pin';
+  const ASKED_KEY = 'duty_calendar_cloud_asked';
+  const BEFORE_LOGIN_KEY = 'duty_calendar_before_login';
   const LOGQ_KEY = 'duty_calendar_logq';
-  const POLL_MS = 60000;
+  // 3.0 試用版留下的設定，用不到了
+  const OLD_V3_KEYS = ['duty_calendar_cloud_key', 'duty_calendar_self', 'duty_calendar_self_name', 'duty_calendar_pin',
+    'duty_calendar_solo', 'duty_calendar_team_cache', 'duty_calendar_team_snap', 'duty_calendar_recent'];
 
   let syncTimer = null;
   let syncing = false;
@@ -3441,31 +3514,31 @@
   let lastSyncAt = 0;
   let cloudState = 'off';
   let cloudMsg = '';
-  let warned = false;
+  let warnedKey = false;
   let backendVersion = '';
-  let teamSnap = null;
-  let pollTimer = null;
+  let loginBusy = false;
 
-  function cloudKey() { return lsGet(CLOUD_KEY) || ''; }
   function cloudUrl() { return lsGet(CLOUD_URL_KEY) || DEFAULT_BACKEND_URL; }
-  function isShared() { return !!(cloudKey() && lsGet(SELF_KEY) && lsGet(PIN_KEY)); }
-  function selfId() { return isShared() ? lsGet(SELF_KEY) : ME; }
-  function selfName() { return lsGet(SELF_NAME_KEY) || '我'; }
-  function canEdit(p) { return !isShared() || (!!p && p.ownerId === selfId()); }
-
-  function guardEdit(p) {
-    if (canEdit(p)) return true;
-    showToast(`${p ? p.name : ''} 是${p && p.ownerName ? p.ownerName : '別人'}新增的，只能看`, 2200);
-    return false;
-  }
-
-  function clone(o) { return JSON.parse(JSON.stringify(o)); }
-
-  function getRecent() { try { return JSON.parse(lsGet(RECENT_KEY)) || {}; } catch { return {}; } }
-  function touchRecent(id) { const r = getRecent(); r[id] = Date.now(); lsSet(RECENT_KEY, JSON.stringify(r)); }
+  function acctId() { return lsGet(ACCT_ID_KEY) || ''; }
+  function acctName() { return lsGet(ACCT_NAME_KEY) || ''; }
+  function acctPin() { return lsGet(ACCT_PIN_KEY) || ''; }
+  function cloudReady() { return !!(acctId() && acctPin()); }
+  function validPin(pin) { return /^\d{4,10}$/.test(pin); }
 
   function isScriptUrl(u) {
     return /^https:\/\/script\.google\.com\/macros\/s\/[\w-]+\/exec(\?.*)?$/.test(u);
+  }
+
+  function readBackendInfo(j) {
+    if (j.version) backendVersion = j.version;
+    if (j.sheetUrl) lsSet(SHEET_LINK_KEY, j.sheetUrl);
+  }
+
+  async function api(body) {
+    const res = await fetch(cloudUrl(), { method: 'POST', body: JSON.stringify(body) });
+    const j = await res.json();
+    readBackendInfo(j);
+    return j;
   }
 
   function nowStr(t) {
@@ -3477,235 +3550,289 @@
     try { return JSON.parse(lsGet(LOGQ_KEY)) || []; } catch { return []; }
   }
 
-  // 異動紀錄：只有團隊共用時才送到試算表
+  // p 可以是人員物件（會記下人員編號）或文字；沒登入就不記
   function logAction(p, text) {
-    if (!isShared()) return;
+    if (!cloudReady()) return;
     const q = getLogQ();
     const isObj = p && typeof p === 'object';
     q.push([nowStr(), isObj ? p.name : String(p), text, isObj ? p.id : '']);
     lsSet(LOGQ_KEY, JSON.stringify(q.slice(-1000)));
   }
 
-  /* ---------- 算出「跟試算表不一樣」的地方，變成一筆一筆的修改 ---------- */
-  // 比較調班紀錄用（欄位順序、空值寫法不同也算一樣）
-  function swapSig(x) {
-    return JSON.stringify([x.id, x.type, x.who || '', x.out || null, x.in || null, x.outLabel || '', x.inPrev || '', Number(x.at) || 0, !!x.settled]);
-  }
-  function diffOps(base, cur) {
-    const A = {}, B = {};
-    (base.people || []).forEach(p => { A[p.id] = p; });
-    (cur.people || []).forEach(p => { B[p.id] = p; });
-    const adds = [], renames = [], marks = [], swaps = [], swapDels = [], dels = [];
-    (cur.people || []).forEach(p => {
-      const a = A[p.id];
-      if (!a) { if (!p.isAccount) adds.push({ op: 'addPerson', id: p.id, name: p.name }); }
-      else if (a.name !== p.name) renames.push({ op: 'rename', id: p.id, name: p.name });
-      const am = (a && a.marks) || {};
-      const keys = new Set(Object.keys(am).concat(Object.keys(p.marks || {})));
-      keys.forEach(k => {
-        const before = am[k] || '', after = (p.marks || {})[k] || '';
-        if (before !== after) marks.push({ op: 'mark', pid: p.id, date: k, v: after });
-      });
-      const as = {};
-      ((a && a.swaps) || []).forEach(x => { as[x.id] = x; });
-      (p.swaps || []).forEach(x => {
-        if (!as[x.id] || swapSig(as[x.id]) !== swapSig(x)) swaps.push({ op: 'swap', pid: p.id, swap: x });
-        delete as[x.id];
-      });
-      Object.keys(as).forEach(id => swapDels.push({ op: 'swapDel', id }));
-    });
-    (base.people || []).forEach(p => { if (!B[p.id]) dels.push({ op: 'deletePerson', id: p.id }); });
-    return adds.concat(renames, marks, swaps, swapDels, dels);
-  }
-
-  // 把修改套到資料上（送出途中又改的部分，收到新資料後要重新套回去）
-  function applyOpsLocal(st, ops) {
-    const find = id => st.people.find(p => p.id === id);
-    ops.forEach(op => {
-      if (op.op === 'addPerson' && !find(op.id)) {
-        st.people.push({ id: op.id, name: op.name, ownerId: selfId(), ownerName: selfName(), marks: {}, swaps: [] });
-      } else if (op.op === 'rename' && find(op.id)) {
-        find(op.id).name = op.name;
-      } else if (op.op === 'deletePerson') {
-        st.people = st.people.filter(p => p.id !== op.id);
-      } else if (op.op === 'mark' && find(op.pid)) {
-        if (op.v) find(op.pid).marks[op.date] = op.v; else delete find(op.pid).marks[op.date];
-      } else if (op.op === 'swap' && find(op.pid)) {
-        const list = find(op.pid).swaps;
-        const i = list.findIndex(x => x.id === op.swap.id);
-        if (i >= 0) list[i] = op.swap; else list.push(op.swap);
-      } else if (op.op === 'swapDel') {
-        st.people.forEach(p => { p.swaps = p.swaps.filter(x => x.id !== op.id); });
-      }
-    });
-  }
-
-  function saveTeam() {
-    lsSet(TEAM_CACHE_KEY, JSON.stringify(state));
-    lsSet(TEAM_SNAP_KEY, JSON.stringify(teamSnap));
-  }
-
-  // 收到試算表的最新資料
-  function adoptServer(srv, laterOps) {
-    teamSnap = clone(srv);
-    state = clone(srv);
-    if (laterOps && laterOps.length) applyOpsLocal(state, laterOps);
-    fixState();
-    const me = findPerson(selfId());
-    if (me) lsSet(SELF_NAME_KEY, me.name);
-    saveTeam();
-    if (!findPerson(curId)) curId = selfId();
-    renderPersonBtn();
-    render();
-    if (document.getElementById('peopleSheet').classList.contains('active')) renderPeopleList();
-  }
-
-  function readBackendInfo(j) {
-    if (j.version) backendVersion = j.version;
-    if (j.sheetUrl) lsSet(SHEET_LINK_KEY, j.sheetUrl);
-  }
-
-  async function teamGet(params) {
-    const sep = cloudUrl().includes('?') ? '&' : '?';
-    const q = Object.keys(params).map(k => `${k}=${encodeURIComponent(params[k])}`).join('&');
-    const res = await fetch(`${cloudUrl()}${sep}${q}&t=${Date.now()}`);
-    return res.json();
-  }
-
-  async function teamPost(body) {
-    const res = await fetch(cloudUrl(), { method: 'POST', body: JSON.stringify(body) });
-    return res.json();
-  }
-
-  /* ---------- 狀態顯示 ---------- */
   function cloudStatusText() {
-    return { off: '尚未加入', busy: '同步中…', ok: '已同步', err: cloudMsg || '同步失敗' }[cloudState];
+    return { off: '尚未綁定', busy: '同步中…', ok: '已同步', err: cloudMsg || '同步失敗' }[cloudState];
   }
+
+  let errToasted = false;
 
   function setCloud(st, msg) {
+    if (st === 'err' && !errToasted && !warnedKey) {
+      errToasted = true;
+      showToast('沒存到雲端，資料先留在手機，有網路會自動補傳', 2600);
+    }
+    if (st === 'ok') errToasted = false;
     cloudState = st;
     cloudMsg = msg || '';
     const dot = document.getElementById('brandDot');
     dot.classList.remove('ok', 'busy', 'err');
     if (st !== 'off') dot.classList.add(st);
-    if (document.getElementById('cloudOverlay').classList.contains('active')) updateCloudModal();
+    if (document.getElementById('cloudOverlay').classList.contains('active') && cloudReady()) renderCloudBox();
   }
 
-  function handleTeamError(err) {
-    const msg = err || '同步失敗';
-    setCloud('err', msg);
-    if (!warned && /密碼/.test(msg)) { warned = true; showToast(msg + '，請到「資料管理 → 團隊共用」重新加入', 2800); }
+  /* ---------- 送到試算表的表格（方便直接看） ---------- */
+  function buildMarkRows(st) {
+    const rows = [];
+    (st || state).people.forEach(p => {
+      Object.keys(p.marks).sort().forEach(k => {
+        const d = parseKey(k);
+        rows.push([p.name, `${d.y}/${pad2(d.m + 1)}/${pad2(d.d)}`, `週${weekOf(k)}`, p.marks[k], p.id]);
+      });
+    });
+    return rows;
   }
 
-  /* ---------- 送出修改、讀取最新資料 ---------- */
+  function buildSwapRows(st) {
+    const rows = [];
+    const typeName = { swap: '跟別人換一天', cover: '別人幫我上', help: '我幫別人上' };
+    (st || state).people.forEach(p => {
+      p.swaps.forEach(s => {
+        rows.push([
+          p.name,
+          nowStr(s.at),
+          typeName[s.type] || s.type,
+          s.who || '（未填）',
+          swapText(s, p),
+          s.type === 'swap' ? '—' : (s.settled ? '已還' : '未還'),
+          p.id
+        ]);
+      });
+    });
+    return rows;
+  }
+
+  /* ---------- 同步：一筆一筆合併，兩個地方改的都會留下 ----------
+     1. 先抓驗算表最新的資料
+     2. 算出「這支手機上次同步後改了哪些」（跟上次同步的樣子比）
+     3. 把這些改動套到最新資料上，再存回去
+     → Safari 和桌面 App 各改各的，同步後兩邊都有，不會整份互相蓋掉
+     （同一天兩邊改得不一樣時，以後同步的為準）
+  ---------------------------------------------------------------- */
+  const SNAP_KEY = 'duty_calendar_cloud_snap';   // 上次跟雲端一致的樣子
+
+  function clone(o) { return JSON.parse(JSON.stringify(o)); }
+  function getSnap() { try { return JSON.parse(lsGet(SNAP_KEY)); } catch { return null; } }
+  function setSnap(d) { lsSet(SNAP_KEY, JSON.stringify(d)); }
+
+  function cloudPayload() {
+    return { people: state.people, updatedAt: state.updatedAt || Date.now(), brand: loadBrand() };
+  }
+
+  // 比較調班紀錄（欄位順序、空值寫法不同也算一樣）
+  function swapSig(x) {
+    return JSON.stringify([x.id, x.type, x.who || '', x.out || null, x.in || null, x.outLabel || '', x.inPrev || '', Number(x.at) || 0, !!x.settled]);
+  }
+
+  // 算出從 base 到 cur 改了哪些
+  function diffOps(base, cur) {
+    const A = {}, B = {};
+    (base.people || []).forEach(p => { A[p.id] = p; });
+    (cur.people || []).forEach(p => { B[p.id] = p; });
+    const ops = [];
+    (cur.people || []).forEach(p => {
+      const a = A[p.id];
+      if (!a) ops.push({ op: 'addPerson', id: p.id, name: p.name });
+      else if (a.name !== p.name) ops.push({ op: 'rename', id: p.id, name: p.name });
+      const am = (a && a.marks) || {}, pm = p.marks || {};
+      new Set(Object.keys(am).concat(Object.keys(pm))).forEach(k => {
+        if ((am[k] || '') !== (pm[k] || '')) ops.push({ op: 'mark', pid: p.id, date: k, v: pm[k] || '' });
+      });
+      const as = {};
+      ((a && a.swaps) || []).forEach(x => { as[x.id] = x; });
+      (p.swaps || []).forEach(x => {
+        if (!as[x.id] || swapSig(as[x.id]) !== swapSig(x)) ops.push({ op: 'swap', pid: p.id, swap: x });
+        delete as[x.id];
+      });
+      Object.keys(as).forEach(id => ops.push({ op: 'swapDel', pid: p.id, id }));
+    });
+    (base.people || []).forEach(p => { if (!B[p.id]) ops.push({ op: 'deletePerson', id: p.id }); });
+    return ops;
+  }
+
+  // 把改動套到資料上；同名的人視為同一人（兩支手機各自新增同一個人時會合在一起）
+  function applyOps(st, ops) {
+    const alias = {};
+    const find = id => st.people.find(p => p.id === (alias[id] || id));
+    ops.forEach(op => {
+      if (op.op === 'addPerson') {
+        if (find(op.id)) return;
+        const same = st.people.find(p => p.name === op.name);
+        if (same) alias[op.id] = same.id;
+        else st.people.push({ id: op.id, name: op.name, marks: {}, swaps: [], used: Date.now() });
+      } else if (op.op === 'rename') {
+        const p = find(op.id); if (p) p.name = op.name;
+      } else if (op.op === 'deletePerson') {
+        const id = alias[op.id] || op.id;
+        if (id !== ME) st.people = st.people.filter(p => p.id !== id);
+      } else if (op.op === 'mark') {
+        const p = find(op.pid); if (!p) return;
+        if (op.v) p.marks[op.date] = op.v; else delete p.marks[op.date];
+      } else if (op.op === 'swap') {
+        const p = find(op.pid); if (!p) return;
+        const i = p.swaps.findIndex(x => x.id === op.swap.id);
+        if (i >= 0) p.swaps[i] = clone(op.swap); else p.swaps.push(clone(op.swap));
+      } else if (op.op === 'swapDel') {
+        st.people.forEach(p => { p.swaps = p.swaps.filter(x => x.id !== op.id); });
+      }
+    });
+    return st;
+  }
+
+  // 換成合併後的資料（不會再觸發上傳）
+  function adoptData(data) {
+    const before = JSON.stringify(state.people);
+    state = { people: clone(data.people), updatedAt: data.updatedAt || Date.now() };
+    fixState();
+    saveLocal();
+    if (data.brand && data.brand !== loadBrand()) {
+      saveBrand(data.brand);
+      document.getElementById('brandText').textContent = data.brand;
+      document.title = data.brand;
+    }
+    if (!findPerson(curId)) curId = ME;
+    if (JSON.stringify(state.people) !== before) {
+      renderPersonBtn();
+      render();
+      if (document.getElementById('peopleSheet').classList.contains('active')) renderPeopleList();
+    }
+  }
+
   function scheduleSync() {
-    if (!isShared()) return;
+    if (!cloudReady()) return;
     clearTimeout(syncTimer);
     setCloud('busy');
-    syncTimer = setTimeout(() => { syncTimer = null; teamFlush(); }, 1200);
+    syncTimer = setTimeout(() => { syncTimer = null; cloudSync(true); }, 1500);
   }
 
-  async function teamFlush() {
-    if (!isShared()) return;
+  function handleCloudError(j) {
+    if (j.authFail) {
+      setCloud('err', '密碼錯誤，請到「綁定雲端」重新綁定');
+      if (!warnedKey) { warnedKey = true; showToast('雲端密碼錯誤，請重新綁定', 2400); }
+    } else {
+      setCloud('err', j.error || '同步失敗');
+    }
+  }
+
+  async function cloudSync(silent) {
+    if (!cloudReady()) return;
     if (syncing) { syncAgain = true; return; }
-    const sent = clone(state);
-    const ops = diffOps(teamSnap || { people: [] }, sent);
-    const logs = getLogQ();
-    if (!ops.length && !logs.length) { setCloud(lastSyncAt ? 'ok' : cloudState); return; }
     syncing = true;
     setCloud('busy');
+    let changed = false;
     try {
-      const j = await teamPost({ action: 'ops', key: cloudKey(), selfId: selfId(), pin: lsGet(PIN_KEY), ops, logs });
-      readBackendInfo(j);
-      if (j.ok) {
-        lsSet(LOGQ_KEY, JSON.stringify(getLogQ().slice(logs.length)));
-        const later = diffOps(sent, state);   // 送出途中又改的
-        adoptServer(j.state, later);
-        lastSyncAt = Date.now();
-        setCloud('ok');
-        if (j.rejected && j.rejected.length) showToast(`有 ${j.rejected.length} 筆修改沒有權限，已改回`, 2600);
-        if (later.length) syncAgain = true;
+      const j = await api({ action: 'load', id: acctId(), pin: acctPin() });
+      if (!j.ok) {
+        handleCloudError(j);
       } else {
-        handleTeamError(j.error);
+        const cloud = j.data && Array.isArray(j.data.people) ? j.data : null;
+        const sent = clone(cloudPayload());           // 開始同步時手機上的樣子
+        const snap = getSnap();
+        const ops = diffOps(snap || { people: [] }, sent);
+        const brandChanged = !snap || sent.brand !== snap.brand;
+        const merged = applyOps(cloud ? clone(cloud) : { people: [] }, ops);
+        merged.brand = brandChanged || !cloud ? sent.brand : (cloud.brand || sent.brand);
+        const logs = getLogQ();
+        const needUpload = !cloud || ops.length > 0 || merged.brand !== cloud.brand || logs.length > 0;
+        let okSave = true;
+        if (needUpload) {
+          merged.updatedAt = Date.now();
+          const r = await api({
+            action: 'save', id: acctId(), pin: acctPin(),
+            state: merged, marks: buildMarkRows(merged), swaps: buildSwapRows(merged), logs
+          });
+          if (r.ok) lsSet(LOGQ_KEY, JSON.stringify(getLogQ().slice(logs.length)));
+          else { okSave = false; handleCloudError(r); }
+        }
+        if (okSave) {
+          setSnap(merged);
+          // 同步途中又改的，套回去，下一輪再送
+          const later = diffOps(sent, cloudPayload());
+          const view = applyOps(clone(merged), later);
+          changed = JSON.stringify(view.people) !== JSON.stringify(sent.people);
+          adoptData(view);
+          if (later.length) syncAgain = true;
+          lastSyncAt = Date.now();
+          setCloud('ok');
+          if (!silent) showToast(changed ? '已同步，載入其他裝置的改動' : '已是最新', 1600);
+        }
       }
     } catch {
-      setCloud('err', '連不上，改動先存在手機，有網路會自動補傳');
+      setCloud('err', '連不上雲端，改動先存在手機，有網路會自動補傳');
     }
     syncing = false;
     if (syncAgain) { syncAgain = false; scheduleSync(); }
   }
 
-  async function teamLoad(silent) {
-    if (!isShared() || syncing || syncTimer) return;
-    if ((teamSnap && diffOps(teamSnap, state).length) || getLogQ().length) return teamFlush();
-    syncing = true;
-    setCloud('busy');
-    try {
-      const j = await teamGet({ action: 'load', key: cloudKey() });
-      readBackendInfo(j);
-      if (j.ok && !(j.state && Array.isArray(j.state.people))) {
-        setCloud('err', '後端還沒更新');
-      } else if (j.ok) {
-        // 讀取途中使用者又改了，就保留那些修改
-        const later = teamSnap ? diffOps(teamSnap, state) : [];
-        adoptServer(j.state, later);
-        lastSyncAt = Date.now();
-        setCloud('ok');
-        if (!silent) showToast('已讀取最新資料', 1200);
-        if (later.length) syncAgain = true;
-      } else {
-        handleTeamError(j.error);
-      }
-    } catch {
-      setCloud('err', '連不上，先顯示手機裡的資料');
-    }
-    syncing = false;
-    if (syncAgain) { syncAgain = false; scheduleSync(); }
+  // 打開網頁、切回網頁時（有排隊中的上傳就交給它）
+  function cloudLoad(silent) {
+    if (!cloudReady() || syncTimer) return;
+    cloudSync(silent);
   }
 
-  function startPoll() {
-    clearInterval(pollTimer);
-    pollTimer = setInterval(() => {
-      if (document.visibilityState === 'visible') teamLoad(true);
-    }, POLL_MS);
+  /* ---------- 雲端備份視窗 ---------- */
+  function hasLocalData() {
+    return state.people.some(p => Object.keys(p.marks).length || p.swaps.length) || state.people.length > 1;
   }
 
-  /* ---------- 團隊共用視窗 ---------- */
   function openCloud() {
-    updateCloudModal();
-    document.getElementById('cloudUrl').value = cloudUrl();
+    renderCloudBox();
     document.getElementById('cloudOverlay').classList.add('active');
   }
 
   function closeCloud() {
+    lsSet(ASKED_KEY, '1');
     document.getElementById('cloudOverlay').classList.remove('active');
-    document.getElementById('cloudUrl').blur();
   }
 
-  function updateCloudModal() {
-    const dot = document.getElementById('cloudDot');
-    dot.classList.remove('ok', 'busy', 'err');
-    if (cloudState !== 'off') dot.classList.add(cloudState);
-    document.getElementById('cloudText').textContent = isShared() ? cloudStatusText() + (cloudState === 'ok' ? ' ✓' : '') : '尚未加入（資料只存在這支手機）';
-    const pending = getLogQ().length;
-    document.getElementById('cloudSub').textContent = isShared()
-      ? (lastSyncAt ? `上次同步 ${nowStr(lastSyncAt)}` : '還沒同步過') + (pending ? `・${pending} 筆等待上傳` : '') + (backendVersion ? `・後端 v${backendVersion}` : '')
-      : '加入後可以看到大家的月曆，只能修改自己新增的人';
-
-    const link = document.getElementById('cloudSheetLink');
-    const sheet = lsGet(SHEET_LINK_KEY);
-    link.style.display = sheet && isShared() ? '' : 'none';
-    if (sheet) link.href = sheet;
-
-    document.getElementById('teamBody').innerHTML = isShared()
-      ? `<div class="team-me">${icon('user')}<span>目前身分 <b>${esc(selfName())}</b></span></div>`
-      : '';
-    document.getElementById('teamBtns').innerHTML = isShared()
-      ? `<button class="btn btn-soft" onclick="closeCloud()">關閉</button>
-         <button class="btn btn-pink" onclick="leaveTeam()">離開</button>
-         <button class="btn btn-primary" onclick="teamLoad(false)">立即同步</button>`
-      : `<button class="btn btn-soft" onclick="closeCloud()">關閉</button>
-         <button class="btn btn-primary" onclick="closeCloud(); openJoin('team')">加入團隊</button>`;
+  function renderCloudBox() {
+    const box = document.getElementById('cloudBox');
+    const adv = `<details class="adv">
+        <summary>進階：後端網址</summary>
+        <input type="url" class="field" id="cloudUrl" autocomplete="off" spellcheck="false" inputmode="url" value="${esc(cloudUrl())}">
+        <div class="btn-row"><button class="btn btn-soft" onclick="saveBackendUrl()">儲存網址</button><button class="btn btn-soft" onclick="resetBackendUrl()">還原預設</button></div>
+      </details>`;
+    if (cloudReady()) {
+      const pending = getLogQ().length;
+      const sheet = lsGet(SHEET_LINK_KEY);
+      box.innerHTML = `<h2>${icon('cloud')}綁定雲端</h2>
+        <div class="cloud-status">
+          <span class="sync-dot ${cloudState === 'off' ? '' : cloudState}"></span>
+          <div>
+            <div>${cloudStatusText()}${cloudState === 'ok' ? ' ✓' : ''}</div>
+            <div class="cloud-sub">${lastSyncAt ? `上次同步 ${nowStr(lastSyncAt)}` : '還沒同步過'}${pending ? `・${pending} 筆等待上傳` : ''}${backendVersion ? `・後端 v${backendVersion}` : ''}</div>
+          </div>
+        </div>
+        <div class="acct-me">${icon('user')}<span class="grow">已綁定 <b>${esc(acctName())}</b></span>
+          <button class="chip-btn" onclick="cloudLogout()">解除綁定</button></div>
+        <div class="backup-note">Safari、桌面 App、換新手機都綁這一組，紀錄會自動合併、互相同步。</div>
+        ${sheet ? `<a class="cloud-link" href="${esc(sheet)}" target="_blank" rel="noopener">${icon('sheet', 'sm')}打開試算表看紀錄</a>` : ''}
+        ${adv}
+        <div class="btn-row">
+          <button class="btn btn-soft" onclick="closeCloud()">關閉</button>
+          <button class="btn btn-primary" onclick="cloudSyncNow()">立即同步</button>
+        </div>`;
+    } else {
+      box.innerHTML = `<h2>${icon('cloud')}綁定雲端</h2>
+        <div class="acct-text">不綁定也能正常使用，紀錄存在這支手機。<br>綁定後紀錄會自動存到雲端，<b>換手機時輸入同一組名字和密碼</b>，紀錄就回來了。每個人的資料分開存，別人看不到。</div>
+        <div class="field-label">名字</div>
+        <input type="text" class="field" id="acctName" maxlength="10" autocomplete="off" value="${esc(acctName())}">
+        <div class="field-label">密碼（4～10 位數字，自己記得住就好）</div>
+        <input type="password" class="field" id="acctPin" inputmode="numeric" autocomplete="off" maxlength="10">
+        ${adv}
+        <div class="btn-row">
+          <button class="btn btn-soft" onclick="closeCloud()">關閉</button>
+          <button class="btn btn-primary" id="acctGo" onclick="cloudLogin()">綁定</button>
+        </div>`;
+    }
   }
 
   function saveBackendUrl() {
@@ -3714,7 +3841,6 @@
     lsSet(CLOUD_URL_KEY, u);
     lsDel(SHEET_LINK_KEY);
     showToast('已儲存網址');
-    if (isShared()) teamLoad(false);
   }
 
   function resetBackendUrl() {
@@ -3724,188 +3850,83 @@
     showToast('已還原預設網址');
   }
 
-  async function leaveTeam() {
-    const ok = await confirmBox(
-      '離開團隊？',
-      '這支手機會回到「自己用」的資料。\n團隊的資料還在試算表裡，之後可以再加入。',
-      '離開', false
-    );
-    if (!ok) return;
-    [SELF_KEY, SELF_NAME_KEY, PIN_KEY, TEAM_CACHE_KEY, TEAM_SNAP_KEY, LOGQ_KEY].forEach(lsDel);
-    lsSet(SOLO_KEY, '1');
-    clearInterval(pollTimer);
-    teamSnap = null;
-    loadState();
-    curId = selfId();
-    setCloud('off');
-    closeCloud();
-    renderPersonBtn();
-    render();
-    showToast('已離開團隊');
+  function loginBusyBtn(on) {
+    loginBusy = on;
+    const b = document.getElementById('acctGo');
+    if (b) { b.disabled = on; b.textContent = on ? '處理中…' : '綁定'; }
   }
 
-  /* ---------- 加入團隊（團隊密碼 → 我是誰 → 個人密碼） ---------- */
-  let joinState = null;   // 加入途中拿到的團隊資料
-  let joinPick = null;    // 選到的帳號
-
-  function maybeAskJoin() {
-    if (!isShared() && lsGet(SOLO_KEY) !== '1') openJoin('team');
-  }
-
-  function joinBtns(left, right) {
-    return `<div class="btn-row">${left}${right}</div>`;
-  }
-
-  function openJoin(step) {
-    const box = document.getElementById('joinBox');
-    let html = '';
-    if (step === 'team') {
-      html = `<h2>${icon('users')}加入團隊</h2>
-        <div class="join-text">輸入團隊密碼，就能看到大家的月曆。<br>每個人<b>只能修改自己新增的人</b>，別人的只能看。</div>
-        <div class="field-label">團隊密碼</div>
-        <input type="text" class="field" id="joinKey" autocomplete="off" spellcheck="false" inputmode="numeric" value="${esc(cloudKey())}">
-        ${joinBtns('<button class="btn btn-soft" onclick="joinSolo()">先自己用</button>', '<button class="btn btn-primary" id="joinGo" onclick="joinTeam()">下一步</button>')}`;
-    } else if (step === 'who') {
-      const accounts = joinState.people.filter(p => p.isAccount);
-      html = `<h2>${icon('user')}你是誰？</h2>
-        <div class="join-text">點自己的名字；名單裡沒有，就按「我是新的人」。</div>
-        <div class="list join-list">${accounts.length ? accounts.map(p => `
-          <button class="list-row" onclick="joinChoose('${p.id}')">
-            <span class="grow">${esc(p.name)}</span>
-            <span class="meta">${p.hasPin ? '' : '尚未設定密碼'}</span>
-            ${icon('right', 'sm chev')}
-          </button>`).join('') : '<div class="list-empty">目前還沒有人加入</div>'}</div>
-        ${joinBtns('<button class="btn btn-soft" onclick="openJoin(\'team\')">上一步</button>', '<button class="btn btn-primary" onclick="openJoin(\'new\')">我是新的人</button>')}`;
-    } else if (step === 'pin') {
-      const first = !joinPick.hasPin;
-      html = `<h2>${icon('user')}${esc(joinPick.name)}</h2>
-        <div class="join-text">${first ? '第一次登入，請<b>設定</b>你的個人密碼（4～8 位數字）。<br>換手機、換 App 都用這組。' : '輸入你的個人密碼。'}</div>
-        <div class="field-label">個人密碼</div>
-        <input type="password" class="field" id="joinPin" inputmode="numeric" autocomplete="off" maxlength="8">
-        ${joinBtns('<button class="btn btn-soft" onclick="openJoin(\'who\')">上一步</button>', `<button class="btn btn-primary" id="joinGo" onclick="joinLogin()">${first ? '設定並進入' : '進入'}</button>`)}`;
-    } else if (step === 'new') {
-      html = `<h2>${icon('plus')}建立我的帳號</h2>
-        <div class="join-text">個人密碼用來證明是你本人，換手機、換 App 都要用，請記好。</div>
-        <div class="field-label">名字</div>
-        <input type="text" class="field" id="joinName" maxlength="10" autocomplete="off">
-        <div class="field-label">個人密碼（4～8 位數字）</div>
-        <input type="password" class="field" id="joinPin" inputmode="numeric" autocomplete="off" maxlength="8">
-        ${joinBtns('<button class="btn btn-soft" onclick="openJoin(\'who\')">上一步</button>', '<button class="btn btn-primary" id="joinGo" onclick="joinRegister()">建立並進入</button>')}`;
-    }
-    box.innerHTML = html;
-    document.getElementById('joinOverlay').classList.add('active');
-  }
-
-  function closeJoin() {
-    document.getElementById('joinOverlay').classList.remove('active');
-  }
-
-  function joinSolo() {
-    lsSet(SOLO_KEY, '1');
-    closeJoin();
-    showToast('好，資料只存在這支手機。之後可到「資料管理 → 團隊共用」加入', 2800);
-  }
-
-  function joinBusy(on) {
-    const b = document.getElementById('joinGo');
-    if (b) { b.disabled = on; if (on) b.dataset.t = b.textContent; b.textContent = on ? '處理中…' : (b.dataset.t || b.textContent); }
-  }
-
-  async function joinTeam() {
-    const key = document.getElementById('joinKey').value.trim();
-    if (!key) { showToast('請輸入團隊密碼'); return; }
-    joinBusy(true);
-    try {
-      const sep = cloudUrl().includes('?') ? '&' : '?';
-      const res = await fetch(`${cloudUrl()}${sep}action=load&key=${encodeURIComponent(key)}&t=${Date.now()}`);
-      const j = await res.json();
-      readBackendInfo(j);
-      if (!j.ok) { joinBusy(false); showToast(j.error || '加入失敗', 2200); return; }
-      if (!j.state || !Array.isArray(j.state.people)) {
-        // 後端還是舊版（沒有團隊共用功能）
-        joinBusy(false);
-        showToast('團隊功能還沒開通，請先自己用', 2600);
-        return;
-      }
-      lsSet(CLOUD_KEY, key);
-      joinState = j.state;
-      openJoin('who');
-    } catch {
-      joinBusy(false);
-      showToast('連不上，請確認有網路', 2200);
-    }
-  }
-
-  function joinChoose(id) {
-    joinPick = joinState.people.find(p => p.id === id);
-    openJoin('pin');
-  }
-
-  function validPin(pin) { return /^\d{4,8}$/.test(pin); }
-
-  async function joinLogin() {
-    const pin = document.getElementById('joinPin').value.trim();
-    if (!validPin(pin)) { showToast('個人密碼要 4～8 位數字'); return; }
-    joinBusy(true);
-    try {
-      const j = await teamPost({ action: 'login', key: cloudKey(), selfId: joinPick.id, pin });
-      readBackendInfo(j);
-      if (!j.ok) { joinBusy(false); showToast(j.error || '登入失敗', 2200); return; }
-      finishJoin(j, pin);
-    } catch {
-      joinBusy(false);
-      showToast('連不上，請確認有網路', 2200);
-    }
-  }
-
-  async function joinRegister() {
-    const name = document.getElementById('joinName').value.trim().slice(0, 10);
-    const pin = document.getElementById('joinPin').value.trim();
+  async function cloudLogin() {
+    if (loginBusy) return;
+    const name = document.getElementById('acctName').value.trim().slice(0, 10);
+    const pin = document.getElementById('acctPin').value.trim();
     if (!name) { showToast('請輸入名字'); return; }
-    if (!validPin(pin)) { showToast('個人密碼要 4～8 位數字'); return; }
-    joinBusy(true);
+    if (!validPin(pin)) { showToast('密碼要 4～10 位數字'); return; }
+    loginBusyBtn(true);
     try {
-      const id = 'u' + Date.now() + Math.random().toString(36).slice(2, 6);
-      const j = await teamPost({ action: 'register', key: cloudKey(), id, name, pin });
-      readBackendInfo(j);
-      if (!j.ok) { joinBusy(false); showToast(j.error || '建立失敗', 2200); return; }
-      finishJoin(j, pin);
+      let j = await api({ action: 'login', name, pin });
+      if (!j.ok && j.notFound) {
+        loginBusyBtn(false);
+        const ok = await confirmBox('建立新帳號？', `還沒有「${name}」這個名字。\n要用這組名字和密碼建立新帳號嗎？`, '建立', false);
+        if (!ok) return;
+        loginBusyBtn(true);
+        j = await api({ action: 'register', name, pin });
+      }
+      loginBusyBtn(false);
+      if (!j.ok) { showToast(j.error || '登入失敗', 2400); return; }
+      await finishLogin(j, pin);
     } catch {
-      joinBusy(false);
+      loginBusyBtn(false);
       showToast('連不上，請確認有網路', 2200);
     }
   }
 
-  function finishJoin(j, pin) {
-    lsSet(SELF_KEY, j.selfId);
-    lsSet(PIN_KEY, pin);
-    lsDel(SOLO_KEY);
+  async function finishLogin(j, pin) {
+    lsSet(ACCT_ID_KEY, j.id);
+    lsSet(ACCT_NAME_KEY, j.name);
+    lsSet(ACCT_PIN_KEY, pin);
+    lsSet(ASKED_KEY, '1');
     lsDel(LOGQ_KEY);
-    const me = j.state.people.find(p => p.id === j.selfId);
-    lsSet(SELF_NAME_KEY, me ? me.name : '我');
-    curId = j.selfId;
-    adoptServer(j.state);
-    lastSyncAt = Date.now();
-    warned = false;
-    setCloud('ok');
-    startPoll();
-    closeJoin();
-    showToast(`歡迎，${selfName()}`, 1800);
+    lsDel(SNAP_KEY);   // 第一次同步：手機上的和雲端的合在一起，兩邊都不會少
+    warnedKey = false;
+    const had = j.data && Array.isArray(j.data.people);
+    if (had && hasLocalData()) lsSet(BEFORE_LOGIN_KEY, JSON.stringify(state));   // 保險：留一份綁定前的
+    closeCloud();
+    await cloudSync(true);
+    if (cloudState === 'ok') {
+      showToast(had ? `歡迎回來，${j.name}，雲端和這支手機的紀錄已合併` : `歡迎，${j.name}，紀錄會自動存到雲端`, 2400);
+    }
   }
 
-  function initTeam() {
-    try { teamSnap = JSON.parse(lsGet(TEAM_SNAP_KEY)); } catch { teamSnap = null; }
+  async function cloudLogout() {
+    const ok = await confirmBox('解除綁定？', '這支手機的紀錄會留著，只是不再自動存到雲端。\n雲端的紀錄也還在，之後可以再綁定。', '解除', false);
+    if (!ok) return;
+    [ACCT_ID_KEY, ACCT_PIN_KEY, LOGQ_KEY, SNAP_KEY].forEach(lsDel);
+    clearTimeout(syncTimer);
+    syncTimer = null;
+    setCloud('off');
+    renderCloudBox();
+    showToast('已解除綁定');
+  }
+
+  function cloudSyncNow() {
+    if (!cloudReady()) return;
+    clearTimeout(syncTimer);
+    syncTimer = null;
+    cloudSync(false);
+  }
+
+  function initCloud() {
+    OLD_V3_KEYS.forEach(lsDel);
     document.addEventListener('visibilitychange', () => {
-      if (document.visibilityState === 'visible') teamLoad(true);
+      if (document.visibilityState === 'visible') cloudLoad(true);
     });
-    window.addEventListener('online', () => teamLoad(true));
-    if (!isShared()) {
+    window.addEventListener('online', () => cloudLoad(true));
+    if (!cloudReady()) {
       setCloud('off');
-      if (lsGet(ONBOARD_KEY) === '1') maybeAskJoin();
       return;
     }
-    teamLoad(true);
-    startPoll();
+    cloudLoad(true);
   }
 
   /* =========================================================
@@ -3962,9 +3983,9 @@
   /* ---------- 新手引導（三步驟，看過就不再出現；狀態獨立儲存） ---------- */
   const ONBOARD_KEY = 'duty_calendar_onboard_v1';
   const OB_STEPS = [
-    { pic: 'people', title: '選擇人員', text: '點上方的名字，切換要看誰的月曆，也可以新增人員。' },
-    { pic: 'mark', title: '點擊日期', text: '點一下日期標記留守，再點一次就取消。' },
-    { pic: 'swap', title: '調整輪值', text: '長按日期或按「調班」，登記代班和互相調班。' }
+    { pic: 'people', title: '選擇人員', text: '點左上的名字，切換要看誰的月曆，也可以新增人員。' },
+    { pic: 'mark', title: '點擊日期', text: '上方選留守、返家或監控，點一下日期就標好，再點一次取消。' },
+    { pic: 'swap', title: '換班', text: '長按日期，選「別人幫我上」「跟別人換一天」或「我幫別人上」。' }
   ];
   let obIndex = 0;
 
@@ -4006,7 +4027,6 @@
   function finishOnboard() {
     lsSet(ONBOARD_KEY, '1');
     document.getElementById('onboardOverlay').classList.remove('active');
-    maybeAskJoin();
   }
 
   function initHelp() {
@@ -4159,19 +4179,24 @@
     return lines;
   }
 
+  // 產圖：自己的月曆用上次寫的名字（可在預覽上直接改）；別人的用他的名字
   function makeImage() {
     const p = P();
-    let who;
-    if (p.id === selfId() && !isShared()) {
-      const last = lsGet(IMG_NAME_KEY) || '';
-      const input = prompt('圖片上要寫你的名字嗎？（可留空）', last);
-      if (input === null) return;
-      who = input.trim();
-      lsSet(IMG_NAME_KEY, who);
-    } else {
-      who = p.name;
-    }
+    const mine = p.id === ME;
+    document.getElementById('imgNameRow').style.display = mine ? '' : 'none';
+    document.getElementById('imgName').value = mine ? (lsGet(IMG_NAME_KEY) || (cloudReady() ? acctName() : '')) : '';
+    drawImageNow();
+    document.getElementById('imgOverlay').classList.add('active');
+  }
 
+  function redrawImage() {
+    if (P().id === ME) lsSet(IMG_NAME_KEY, document.getElementById('imgName').value.trim().slice(0, 10));
+    drawImageNow();
+  }
+
+  function drawImageNow() {
+    const p = P();
+    const who = p.id === ME ? document.getElementById('imgName').value.trim().slice(0, 10) : p.name;
     const canvas = drawMonthImage(who, p);
     document.getElementById('imgPreview').src = canvas.toDataURL('image/png');
     imgFileName = `${who || '月曆'}_${currentYear}年${currentMonth + 1}月.png`;
@@ -4186,8 +4211,6 @@
         if (navigator.canShare && navigator.canShare({ files: [file] })) shareBtn.style.display = '';
       } catch {}
     }, 'image/png');
-
-    document.getElementById('imgOverlay').classList.add('active');
   }
 
   function drawMonthImage(who, p) {
@@ -4220,7 +4243,7 @@
 
     // 下方調班紀錄
     const swaps = swapsInMonth(p, y, m).slice().sort((a, b) => (a.at || 0) - (b.at || 0));
-    const imgP = who && p.id === selfId() ? Object.assign({}, p, { id: 'img', name: who }) : p;
+    const imgP = who && p.id === ME ? Object.assign({}, p, { id: 'img', name: who }) : p;
     const recRows = [];
     if (swaps.length) {
       const push = (text, font, color, gapBefore) => {
@@ -4228,13 +4251,13 @@
         wrapText(measure, text, TEXT_W).forEach((t, i) => recRows.push({ text: t, font, color, gapBefore: i === 0 ? gapBefore : 0 }));
       };
       const listTxt = (arr) => arr.length ? arr.map(dayLabel).join('、') : '（沒有）';
-      push(`原定輪值：${listTxt(dayNums(originalMarks(p), y, m, true))}`, `700 32px ${FONT}`, '#858780', 0);
+      push(`原本的班：${listTxt(dayNums(originalMarks(p), y, m, true))}`, `700 32px ${FONT}`, '#858780', 0);
       push(`實際留守：${listTxt(dayNums(marks, y, m, true))}`, `900 32px ${FONT}`, '#527F9A', 4);
       swaps.forEach(s => {
         const i = swapInfo(s, imgP);
         push(i.title, `900 32px ${FONT}`, '#C65A4B', 22);
         if (s.type === 'swap') {
-          push(`　轉出 ${mdw(s.out)}　⇄　調入 ${mdw(s.in)}`, `700 30px ${FONT}`, '#30373B', 4);
+          push(`　給出去 ${mdw(s.out)}　⇄　換來 ${mdw(s.in)}`, `700 30px ${FONT}`, '#30373B', 4);
         } else {
           push(`　${i.left.lab} ${mdw(s.out || s.in)}　→　改由${i.right.who}`, `700 30px ${FONT}`, '#30373B', 4);
         }
@@ -4492,14 +4515,15 @@
   });
 
   loadState();
-  curId = selfId();
+  curId = ME;
+  updatePenTip();
   initBrand();
   initYearSelect();
   renderPersonBtn();
   render();
   initManifest();
   initHelp();
-  initTeam();
+  initCloud();
   initVersion();
 </script>
 
