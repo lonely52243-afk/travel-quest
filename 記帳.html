@@ -16,13 +16,13 @@
 :root{--bg:#f7f3eb;--card:#fffdf8;--line:#e6dfd2;--ink:#2e2a24;--sub:#8c8577;--acc:#a67c52;--exp:#b8603e;--pos:#4f8a5b;--neg:#b3402e;--r:16px;--tabh:58px}
 *{box-sizing:border-box;-webkit-tap-highlight-color:transparent}
 html,body{margin:0;background:var(--bg);color:var(--ink);font-family:-apple-system,BlinkMacSystemFont,"PingFang TC","Noto Sans TC",sans-serif;-webkit-text-size-adjust:100%}
-body{padding:env(safe-area-inset-top) 0 calc(var(--tabh) + 110px + env(safe-area-inset-bottom))}
+body{padding:env(safe-area-inset-top) 0 calc(var(--tabh) + 84px + env(safe-area-inset-bottom))}
 button{font:inherit;color:inherit;border:0;background:none;cursor:pointer}
 input{font:inherit;color:inherit}
 .wrap{max-width:560px;margin:0 auto;padding:0 18px}
 .top{display:flex;align-items:center;justify-content:space-between;padding:14px 0 6px;min-height:58px}
 .mo{display:flex;align-items:center;gap:6px;font-size:19px;font-weight:600}
-.mo button{width:36px;height:36px;border-radius:18px;font-size:22px;color:var(--sub)}
+.mo button{width:44px;height:44px;border-radius:22px;font-size:26px;color:var(--sub)}
 .mo button:disabled{opacity:.25}
 .ttl{font-size:22px;font-weight:700}
 .ico{width:40px;height:40px;border-radius:20px;font-size:20px;color:var(--sub)}
@@ -33,15 +33,15 @@ input{font:inherit;color:inherit}
 .total .c{color:var(--sub);font-size:14px}
 .inc{font-size:14px;color:var(--sub);margin-top:2px}.inc b{color:var(--pos);font-weight:700}
 .row.in .ic{background:rgba(79,138,91,.16);color:var(--pos)}.row.in .am{color:var(--pos)}
-.day{display:flex;justify-content:space-between;align-items:baseline;padding:18px 2px 8px;border-bottom:2px solid var(--ink);margin-top:6px}
-.day span:first-child{font-weight:700;font-size:16px}
+.day{display:flex;justify-content:space-between;align-items:baseline;padding:16px 2px 6px;border-bottom:1px solid var(--line);margin-top:4px}
+.day span:first-child{font-weight:700;font-size:14px;color:var(--sub)}
 .day span:last-child{font-family:Georgia,"Songti TC",serif;color:var(--sub);font-size:15px}
 .row{display:flex;align-items:center;gap:12px;padding:13px 2px;border-bottom:1px solid var(--line);width:100%;text-align:left}
-.row .ic{flex:none;width:42px;height:42px;border-radius:12px;display:flex;align-items:center;justify-content:center;font-weight:700;font-size:15px}
+.row .ic{flex:none;width:36px;height:36px;border-radius:10px;display:flex;align-items:center;justify-content:center;font-weight:700;font-size:14px}
 .row .mid{flex:1;min-width:0}
-.row .st{font-size:16px;font-weight:600;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.row .st{font-size:16px;font-weight:600;overflow:hidden;text-overflow:ellipsis;display:-webkit-box;-webkit-line-clamp:2;-webkit-box-orient:vertical;overflow-wrap:anywhere}
 .row .sb{font-size:13px;color:var(--sub);margin-top:3px}
-.row .am{font-family:Georgia,"Songti TC",serif;font-size:21px;font-weight:700;color:var(--exp);white-space:nowrap;text-align:right}
+.row .am{font-family:Georgia,"Songti TC",serif;font-size:18px;font-weight:700;color:var(--exp);white-space:nowrap;text-align:right}
 .row .am small{font-size:11px;margin-right:3px;font-family:inherit}
 .row .am.neg{color:var(--neg)}
 .row .am.pos{color:var(--ink)}
@@ -57,7 +57,8 @@ input{font:inherit;color:inherit}
 .warn{display:flex;align-items:center;justify-content:space-between;width:100%;margin:10px 0 0;padding:12px 14px;border-radius:14px;background:#f6e8d2;border:1px solid #e3cfa8;font-size:15px;font-weight:600;color:#7a5a24}
 .card{background:var(--card);border:1px solid var(--line);border-radius:var(--r);padding:14px 16px;margin-top:14px}
 .card h4{margin:0 0 10px;font-size:15px;font-weight:700}
-.fab{position:fixed;right:20px;bottom:calc(var(--tabh) + 16px + env(safe-area-inset-bottom));width:60px;height:60px;border-radius:30px;background:var(--acc);color:#fff;font-size:34px;line-height:1;box-shadow:0 8px 22px rgba(120,80,40,.35);z-index:5}
+.fabw{position:fixed;left:0;right:0;bottom:calc(var(--tabh) + env(safe-area-inset-bottom));z-index:5;background:linear-gradient(to bottom,rgba(247,243,235,0),var(--bg) 22%);padding:14px 18px 10px}
+.fab{display:block;width:100%;max-width:524px;margin:0 auto;height:48px;border-radius:24px;background:var(--acc);color:#fff;font-size:17px;font-weight:700;letter-spacing:.5px}
 .tabs{position:fixed;left:0;right:0;bottom:0;z-index:6;display:flex;justify-content:space-around;background:rgba(247,243,235,.94);-webkit-backdrop-filter:blur(14px);backdrop-filter:blur(14px);border-top:1px solid var(--line);padding:6px 0 calc(6px + env(safe-area-inset-bottom))}
 .tabs button{flex:1;display:flex;flex-direction:column;align-items:center;gap:2px;color:var(--sub);font-size:11px;font-weight:600;padding:4px 0;height:46px}
 .tabs button.on{color:var(--acc)}
@@ -87,6 +88,7 @@ input{font:inherit;color:inherit}
 .login h1{font-size:26px;margin:0 0 6px}
 .login p{color:var(--sub);margin:0 0 22px;font-size:15px}
 .hide{display:none!important}
+.sec .opt{padding:4px 12px;font-size:13px}
 .detbig{padding:2px 0 8px}.detbig .n{font-family:Georgia,"Songti TC",serif;font-size:34px;font-weight:700}.detbig .s{font-size:13px;color:var(--sub);margin-top:2px}
 .chip2{display:inline-block;border:1px solid var(--line);border-radius:999px;padding:1px 8px;font-size:11px;color:var(--sub);margin-left:6px;vertical-align:middle;white-space:nowrap}
 .drow{display:flex;justify-content:space-between;gap:12px;padding:9px 0;border-bottom:1px solid var(--line);font-size:14px}.drow span:first-child{color:var(--sub)}.drow span:last-child{font-weight:600;text-align:right}
@@ -113,12 +115,12 @@ select.fld{appearance:none;-webkit-appearance:none}
 .nw .n small{font-size:18px;margin-right:6px;font-weight:600}
 .nw .c{color:var(--sub);font-size:13px;line-height:1.6;margin-top:2px}
 .acc{display:flex;align-items:center;gap:12px;padding:13px 2px;border-bottom:1px solid var(--line);width:100%;text-align:left}
-.acc .ic{flex:none;width:42px;height:42px;border-radius:12px;display:flex;align-items:center;justify-content:center;font-weight:700;font-size:15px;background:#efe6d6;color:var(--acc)}
+.acc .ic{flex:none;width:36px;height:36px;border-radius:10px;display:flex;align-items:center;justify-content:center;font-weight:700;font-size:15px;background:#efe6d6;color:var(--acc)}
 .acc.cc .ic{background:rgba(179,64,46,.12);color:var(--neg)}
 .acc .mid{flex:1;min-width:0}
-.acc .st{font-size:16px;font-weight:600;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.acc .st{font-size:16px;font-weight:600;overflow:hidden;text-overflow:ellipsis;overflow-wrap:anywhere}
 .acc .sb{font-size:12px;color:var(--sub);margin-top:3px}
-.acc .am{font-family:Georgia,"Songti TC",serif;font-size:20px;font-weight:700;white-space:nowrap}
+.acc .am{font-family:Georgia,"Songti TC",serif;font-size:17px;font-weight:700;white-space:nowrap;text-align:right}
 .acc.cc .am{color:var(--neg)}
 .twin{display:flex;gap:10px;margin-top:16px}
 .sec{display:flex;justify-content:space-between;font-size:13px;color:var(--sub);margin:22px 0 2px;font-weight:600}
@@ -128,13 +130,13 @@ select.fld{appearance:none;-webkit-appearance:none}
 .trow>span:last-child{font-family:Georgia,"Songti TC",serif;font-weight:700;white-space:nowrap}
 .trow .s{color:var(--sub);font-size:12px;display:block;margin-top:2px}
 /* 分析 */
-.bars{display:flex;align-items:flex-end;justify-content:space-between;gap:6px;height:140px;margin-top:6px}
+.bars{display:flex;align-items:flex-end;justify-content:space-between;gap:4px;height:128px;margin-top:6px}
 .bc{flex:1;display:flex;flex-direction:column;align-items:center;justify-content:flex-end;height:100%}
-.pair{display:flex;align-items:flex-end;gap:3px;height:104px;width:100%;justify-content:center}
+.pair{display:flex;align-items:flex-end;gap:3px;height:96px;width:100%;justify-content:center}
 .pair i{display:block;width:34%;max-width:18px;border-radius:4px 4px 0 0;min-height:2px}
 .pair i.e{background:var(--exp)}.pair i.g{background:var(--pos)}
 .bc .l{font-size:12px;color:var(--sub);margin-top:6px}
-.bc .v{font-size:11px;color:var(--ink);margin-bottom:3px;font-weight:600}
+.bc{border-radius:10px;padding:4px 0 2px}.bc.cur{background:#f1e7d8}
 .bc.cur .l{color:var(--acc);font-weight:700}
 .lg{display:flex;gap:14px;font-size:12px;color:var(--sub);margin-top:10px}
 .lg span::before{content:"";display:inline-block;width:9px;height:9px;border-radius:5px;margin-right:5px;background:var(--exp)}
@@ -158,6 +160,17 @@ select.fld{appearance:none;-webkit-appearance:none}
 .dr .x{flex:none;color:var(--neg);font-size:13px;font-weight:600;padding:6px 8px}
 .dg .btns{margin-top:10px}
 .dg .btn{padding:11px;font-size:15px}
+
+.topr{display:flex;align-items:center;gap:2px}
+button.sec{background:none;border:0;padding:0;margin:22px 0 2px;font-family:inherit}
+.total .tl{font-size:13px;color:var(--sub);font-weight:600}
+.lg em{margin-left:auto;font-style:normal}
+.bdet{margin-top:12px;padding-top:10px;border-top:1px solid var(--line)}
+.bdet .bt{font-size:14px;font-weight:700;margin-bottom:4px}
+.bd{display:flex;justify-content:space-between;gap:12px;padding:5px 0;font-size:14px}.bd span{color:var(--sub)}.bd b{font-family:Georgia,"Songti TC",serif}
+.bn{color:var(--sub);font-size:14px;padding:6px 0}
+.crow .bg{height:6px}
+.card .hint{margin-top:6px}
 </style>
 </head>
 <body>
@@ -174,37 +187,34 @@ select.fld{appearance:none;-webkit-appearance:none}
   <div class="top">
     <div class="mo" id="moBox"><button id="prev" aria-label="上個月">‹</button><span id="moT"></span><button id="next" aria-label="下個月">›</button></div>
     <div class="ttl hide" id="ttl">資產</div>
-    <button id="gear" class="ico" aria-label="設定">⚙</button>
+    <div class="topr"><button id="actBtn" class="ico hide" aria-label="資產操作">＋</button><button id="gear" class="ico" aria-label="設定">⚙</button></div>
   </div>
 
   <div id="pHome">
-    <div class="total"><div class="n"><small>NT$</small><span id="tot">0</span></div><div class="c" id="cnt"></div><div class="inc hide" id="inc"></div></div>
+    <div class="total"><div class="tl">本月支出</div><div class="n"><small>NT$</small><span id="tot">0</span></div><div class="c" id="cnt"></div><div class="inc hide" id="inc"></div></div>
     <button id="dupBar" class="warn hide"><span id="dupT"></span><span>›</span></button>
     <div class="fbar"><button id="fBtn" class="fbtn">全部分類 ▾</button><span class="c" id="fCnt"></span></div>
     <div id="list"></div>
   </div>
 
   <div id="pAsset" class="hide">
-    <div class="nw"><div class="lbl">淨資產</div><div class="n"><small>NT$</small><span id="nwT">0</span></div><div class="c" id="nwC"></div><div class="c" id="nwC2"></div></div>
+    <div class="nw"><div class="lbl">淨資產</div><div class="n"><small>NT$</small><span id="nwT">0</span></div><div class="c" id="nwC"></div></div>
     <div id="migBox"></div>
     <div id="accList"></div>
-    <div class="twin" id="accBtns">
-      <button id="accNew" class="btn">＋ 新增帳戶</button>
-      <button id="trfNew" class="btn p">轉帳／繳卡費</button>
-    </div>
     <div id="presetBox" class="hide"><div class="sec">快速新增</div><div class="opts" id="presets"></div></div>
-    <div id="trfBox" class="hide"><div class="sec">最近轉帳</div><div id="trfList"></div></div>
+    <div id="trfBox" class="hide"><button class="sec" id="trfHead" style="width:100%;text-align:left"></button><div id="trfList"></div></div>
     <div id="noAcc" class="empty hide">後端還沒更新到 v9.0，資產頁暫時不能用</div>
   </div>
 
   <div id="pAna" class="hide">
-    <div class="card"><h4>近 6 個月收支</h4><div class="bars" id="bars"></div><div class="lg"><span class="g">收入</span><span>支出</span></div></div>
+    <div class="card"><h4>近 6 個月收支</h4><div class="bars" id="bars"></div><div class="lg"><span class="g">收入</span><span>支出</span><em>點月份看明細</em></div><div id="barDet" class="bdet"></div></div>
     <div class="card"><h4 id="catH">本月消費分類</h4><div id="catList"></div></div>
+    <div class="card"><h4>與上月比較</h4><div id="cmpBody"></div></div>
     <div class="card"><h4>資產變化</h4><div id="assetChart"></div></div>
   </div>
 </div>
 
-<button id="fab" class="fab hide" aria-label="記一筆">+</button>
+<div id="fabw" class="fabw hide"><button id="fab" class="fab" aria-label="記一筆">＋ 記一筆</button></div>
 
 <nav id="tabs" class="tabs hide">
   <button data-t="home" class="on"><svg viewBox="0 0 24 24"><path d="M3 11.5 12 4l9 7.5V20a1 1 0 0 1-1 1h-5v-6H9v6H4a1 1 0 0 1-1-1z"/></svg><span>首頁</span></button>
@@ -258,7 +268,7 @@ select.fld{appearance:none;-webkit-appearance:none}
   <div class="opts" id="accType"></div>
   <div class="lab" id="accBalLab">餘額</div>
   <input id="accBal" class="fld amt" type="text" inputmode="decimal" placeholder="0" autocomplete="off">
-  <div id="accRateBox" class="hide"><div class="lab">匯率（1 單位外幣＝幾元台幣）</div><input id="accRate" class="fld" type="text" inputmode="decimal" placeholder="例如：31.5" autocomplete="off"></div>
+  <div id="accRateBox" class="hide"><div class="lab">幣別（3 個英文字母，例如 JPY、USD）</div><input id="accCur" class="fld" type="text" maxlength="3" autocapitalize="characters" autocomplete="off" placeholder="JPY"><div class="lab">匯率來源</div><div class="opts" id="accMode"></div><div class="lab">匯率（1 單位外幣＝幾元台幣）</div><input id="accRate" class="fld" type="text" inputmode="decimal" placeholder="例如：31.5" autocomplete="off"></div>
   <p class="hint" style="margin-top:10px" id="accHint"></p>
   <button id="accLogB" class="opt hide">異動紀錄</button>
   <div id="accLogBox" class="hide"></div>
@@ -268,6 +278,12 @@ select.fld{appearance:none;-webkit-appearance:none}
     <button id="accCancel" class="btn">取消</button>
     <button id="accSave" class="btn p">儲存</button>
   </div>
+</div></div>
+
+<div id="actSheet" class="sheet"><div class="in">
+  <h3 id="actT">資產操作</h3>
+  <div id="actList"></div>
+  <div class="btns"><button id="actClose" class="btn">關閉</button></div>
 </div></div>
 
 <div id="trfSheet" class="sheet"><div class="in">
@@ -445,11 +461,11 @@ select.fld{appearance:none;-webkit-appearance:none}
 (function () {
   'use strict';
   var DEFAULT_API = 'https://script.google.com/macros/s/AKfycbxPkzgIjUT7O4YMPVPjFi5u9JsZL_WWcNhAgVXnH_Erg5Z3jWo2ZgTnpiZTRGUYZqun/exec';
-  var S = { tok: '', lv: '', legacy: false, hold: null, divs: [], upd: {}, today: '', divHist: false, itrades: [], idivs: [], api: '', rows: [], income: [], accounts: [], transfers: [], snaps: [], hasAcc: false, tab: 'home',
+  var S = { tok: '', lv: '', legacy: false, hold: null, fx: { cfg: {}, rates: {} }, accMore: false, trfOpen: false, anaSel: 5, catMore: false, divs: [], upd: {}, today: '', divHist: false, itrades: [], idivs: [], api: '', rows: [], income: [], accounts: [], transfers: [], snaps: [], hasAcc: false, tab: 'home',
             isInc: false, tags: [], fallback: '其他', mg: '', ed: null, delArmed: false, cats: [], sources: [], ver: '',
             y: 0, m: 0, filter: '', editId: '', dupSel: {}, sw: null, swMoved: false };
   var $ = function (id) { return document.getElementById(id); };
-  var SHEETS = ['detSheet', 'annSheet', 'holdSheet', 'trdSheet', 'divSheet', 'migSheet', 'sheet', 'filSheet', 'dupSheet', 'accSheet', 'trfSheet', 'setSheet', 'mgSheet', 'edSheet'];
+  var SHEETS = ['actSheet', 'detSheet', 'annSheet', 'holdSheet', 'trdSheet', 'divSheet', 'migSheet', 'sheet', 'filSheet', 'dupSheet', 'accSheet', 'trfSheet', 'setSheet', 'mgSheet', 'edSheet'];
 
   function lsGet(k) { try { return localStorage.getItem(k) || ''; } catch (e) { return ''; } }
   function lsSet(k, v) { try { localStorage.setItem(k, v); } catch (e) {} }
@@ -517,6 +533,7 @@ select.fld{appearance:none;-webkit-appearance:none}
     S.snaps = res.snaps || [];
     S.hold = res.hold || null;
     S.divs = res.divs || [];
+    S.fx = res.fx || { cfg: {}, rates: {} };
     S.upd = res.upd || {};
     S.today = res.today || '';
     S.itrades = res.itrades || [];
@@ -542,7 +559,7 @@ select.fld{appearance:none;-webkit-appearance:none}
     $('loginV').classList.toggle('hide', which !== 'login');
     $('mainV').classList.toggle('hide', which !== 'main');
     $('tabs').classList.toggle('hide', which !== 'main');
-    $('fab').classList.toggle('hide', which !== 'main' || S.tab !== 'home');
+    $('fabw').classList.toggle('hide', which !== 'main' || S.tab !== 'home');
   }
 
   function showTab(name) {
@@ -553,7 +570,8 @@ select.fld{appearance:none;-webkit-appearance:none}
     $('pAna').classList.toggle('hide', name !== 'ana');
     $('moBox').classList.toggle('hide', name === 'asset');
     $('ttl').classList.toggle('hide', name !== 'asset');
-    $('fab').classList.toggle('hide', name !== 'home' || $('mainV').classList.contains('hide'));
+    $('actBtn').classList.toggle('hide', name !== 'asset' || !S.hasAcc);
+    $('fabw').classList.toggle('hide', name !== 'home' || $('mainV').classList.contains('hide'));
     var bs = $('tabs').querySelectorAll('button');
     for (var i = 0; i < bs.length; i++) bs[i].classList.toggle('on', bs[i].getAttribute('data-t') === name);
     window.scrollTo(0, 0);
@@ -655,15 +673,13 @@ select.fld{appearance:none;-webkit-appearance:none}
     var total = 0, byCat = {};
     live.forEach(function (r) { total += r.amount; byCat[r.category] = (byCat[r.category] || 0) + r.amount; });
     $('tot').textContent = money(total);
-    $('cnt').textContent = '本月支出　共 ' + live.length + ' 筆';
+    $('cnt').textContent = live.length + ' 筆消費';
     var monthInc = S.income.filter(function (r) { return inMonth(r.time); });
     var incTotal = 0; monthInc.forEach(function (r) { incTotal += r.amount; });
     var incEl = $('inc'); incEl.textContent = '';
     incEl.classList.toggle('hide', !incTotal);
     if (incTotal) {
-      incEl.appendChild(document.createTextNode('收入 '));
-      incEl.appendChild(el('b', '', '+' + money(incTotal)));
-      incEl.appendChild(document.createTextNode('　結餘 ' + smoney(incTotal - total)));
+      incEl.appendChild(document.createTextNode('收入 NT$' + money(incTotal) + ' ｜ 收支差額 ' + (incTotal - total >= 0 ? '+' : '-') + 'NT$' + money(Math.abs(incTotal - total))));
     }
 
     var groups = dupGroups();
@@ -705,7 +721,7 @@ select.fld{appearance:none;-webkit-appearance:none}
       var ic = el('div', 'ic', r.category.charAt(0)); if (!r.inc) { ic.style.background = tint(col); ic.style.color = col; }
       var mid = el('div', 'mid');
       mid.appendChild(el('div', 'st', r.store || '（沒有店名）'));
-      mid.appendChild(el('div', 'sb', r.inc ? ('收入　' + hm(r.time)) : (r.category + (r.tag ? '·' + r.tag : '') + '　' + hm(r.time) + '　' + r.source + (r.status === '已取消' ? '　已取消' : ''))));
+      mid.appendChild(el('div', 'sb', r.inc ? ('收入 · ' + hm(r.time)) : ([r.category + (r.tag ? '·' + r.tag : ''), hm(r.time), r.source, r.status === '已取消' ? '已取消' : ''].filter(function (x) { return x; }).join(' · '))));
       var am = el('div', 'am'); am.appendChild(el('small', '', r.inc ? '+NT$' : 'NT$')); am.appendChild(document.createTextNode(money(r.amount)));
       b.appendChild(ic); b.appendChild(mid); b.appendChild(am);
       b.onclick = function () {
@@ -931,64 +947,89 @@ select.fld{appearance:none;-webkit-appearance:none}
   }
 
   /* ---------- 資產 ---------- */
-  var ACC_TYPES = ['活存', '現金', '投資', '外幣', '其他', '信用卡'];
-  var ACC_LABEL = { '活存': '存款', '現金': '現金', '投資': '投資（手動）', '外幣': '外幣', '其他': '其他資產', '信用卡': '信用卡' };
-  var ACC_GROUPS = [['帳戶', ['活存', '現金']], ['@hold', []], ['其他資產', ['投資', '外幣', '其他']], ['負債', ['信用卡']]];
-  var PRESETS = [['台新薪資戶', '活存'], ['中信扣款戶', '活存'], ['現金', '現金'], ['台新信用卡', '信用卡'], ['中信信用卡', '信用卡']];
+  var ACC_TYPES = ['活存', '現金', '投資', '外幣', '其他', '信用卡', '貸款'];
+  function isDebtT(t) { return t === '信用卡' || t === '貸款'; }
+  var ACC_LABEL = { '活存': '存款', '現金': '現金', '投資': '投資（手動）', '外幣': '外幣', '其他': '其他資產', '信用卡': '信用卡', '貸款': '貸款' };
+  var ACC_GROUPS = [['銀行與現金', ['活存', '現金']], ['@hold', []], ['外幣', ['外幣']], ['其他資產', ['投資', '其他']], ['負債', ['信用卡', '貸款']]];
+  var PRESETS = [['台新薪資戶', '活存'], ['中信扣款戶', '活存'], ['現金', '現金'], ['台新信用卡', '信用卡'], ['中信信用卡', '信用卡'], ['機車貸款', '貸款']];
   // 資產＝所有非信用卡帳戶的價值（外幣已乘匯率）；負債＝信用卡未繳；淨資產＝資產−負債。扣款戶裡預留的錢不另外扣，已經由信用卡未繳反映。
   function accVal(a) { return a.type === '外幣' ? a.balance * a.rate : a.balance; }
   function accById(id) { for (var i = 0; i < S.accounts.length; i++) if (S.accounts[i].id === id) return S.accounts[i]; return null; }
   function totals() {
     var asset = 0, debt = 0;
-    S.accounts.forEach(function (a) { if (a.type === '信用卡') debt += a.balance; else asset += accVal(a); });
+    S.accounts.forEach(function (a) { if (isDebtT(a.type)) debt += a.balance; else asset += accVal(a); });
     if (S.hold) asset += S.hold.value;
     return { asset: asset, debt: debt, net: asset - debt };
+  }
+
+  function mdOf(t) { var d = new Date(t); return (d.getMonth() + 1) + '/' + (d.getDate()); }
+  function secHead(box, title, sum, cls) {
+    var head = el('div', 'sec' + (cls ? ' ' + cls : ''));
+    head.appendChild(el('span', '', title));
+    head.appendChild(el('b', '', sum));
+    box.appendChild(head);
+  }
+  function accRow(box, a) {
+    var debt = isDebtT(a.type), fx = a.type === '外幣';
+    var b = el('button', 'acc' + (debt ? ' cc' : ''));
+    b.appendChild(el('div', 'ic', a.name.charAt(0)));
+    var mid = el('div', 'mid');
+    mid.appendChild(el('div', 'st', a.name));
+    var sub = ACC_LABEL[a.type];
+    if (fx) {
+      var cfg = S.fx.cfg[a.id], cur = cfg ? cfg.cur : '';
+      sub = (cur ? cur + ' ' : '') + money(a.balance) + '　匯率 ' + a.rate;
+      var rt = cur ? S.fx.rates[cur] : null, fq = (S.upd || {})['匯率'];
+      var line2 = !cfg ? '尚未設定幣別' : (cfg.mode === '手動' ? '匯率手動輸入' : (rt ? '匯率自動更新，' + (rt.date ? md(rt.date) : mdOf(rt.time)) + ' 報價' : '等待第一次匯率更新'));
+      if (cfg && cfg.mode === '自動' && fq && fq.status === '失敗') line2 += '（最近更新失敗，用舊匯率）';
+      mid.appendChild(el('div', 'sb', sub));
+      mid.appendChild(el('div', 'sb', line2));
+    } else {
+      if (a.time && !debt) sub += ' · 手動更新 ' + mdOf(a.time);
+      mid.appendChild(el('div', 'sb', sub));
+    }
+    b.appendChild(mid);
+    var amt = debt ? (a.type === '貸款' ? '剩餘 ' : '未繳 ') + money(a.balance) : (fx ? '約 ' + smoney(accVal(a)) : smoney(accVal(a)));
+    b.appendChild(el('div', 'am', amt));
+    b.onclick = function () { openAcc(a); };
+    box.appendChild(b);
   }
 
   function renderAsset() {
     var has = S.hasAcc;
     $('noAcc').classList.toggle('hide', has);
-    $('accBtns').classList.toggle('hide', !has);
-    $('nwT').textContent = '0'; $('nwC').textContent = ''; $('nwC2').textContent = '';
+    $('actBtn').classList.toggle('hide', !has || S.tab !== 'asset');
+    $('nwT').textContent = '0'; $('nwC').textContent = '';
     var box = $('accList'); box.textContent = '';
     $('presetBox').classList.add('hide'); $('trfBox').classList.add('hide');
     if (!has) return;
     var t = totals();
     $('nwT').textContent = smoney(t.net);
     $('nwC').textContent = '總資產 ' + smoney(t.asset) + '　總負債 ' + money(t.debt);
-    var cashSum = 0, manInv = 0;
-    S.accounts.forEach(function (a) { if (a.type === '活存' || a.type === '現金' || a.type === '外幣') cashSum += accVal(a); else if (a.type === '投資') manInv += a.balance; });
-    $('nwC2').textContent = '銀行與現金 ' + smoney(cashSum) + '　投資 ' + money((S.hold ? S.hold.value : 0) + manInv) + '　信用卡未繳 ' + money(t.debt);
     renderMig();
     ACC_GROUPS.forEach(function (g) {
       if (g[0] === '@hold') { renderHoldSection(box); return; }
       var items = S.accounts.filter(function (a) { return g[1].indexOf(a.type) >= 0; });
       if (!items.length) return;
-      var sum = 0; items.forEach(function (a) { sum += (a.type === '信用卡' ? a.balance : accVal(a)); });
-      var head = el('div', 'sec' + (g[0] === '負債' ? ' cc' : ''));
-      head.appendChild(el('span', '', g[0]));
-      head.appendChild(el('b', '', (g[0] === '負債' ? '' : '') + 'NT$ ' + smoney(sum)));
-      box.appendChild(head);
-      items.forEach(function (a) {
-        var b = el('button', 'acc' + (a.type === '信用卡' ? ' cc' : ''));
-        b.appendChild(el('div', 'ic', a.name.charAt(0)));
-        var mid = el('div', 'mid');
-        mid.appendChild(el('div', 'st', a.name));
-        var d = a.time ? new Date(a.time) : null;
-        var sub = ACC_LABEL[a.type];
-        if (a.type === '外幣') sub += '　' + money(a.balance) + ' × ' + a.rate;
-        if (d) sub += '　更新 ' + (d.getMonth() + 1) + '/' + d.getDate();
-        mid.appendChild(el('div', 'sb', sub));
-        b.appendChild(mid);
-        b.appendChild(el('div', 'am', a.type === '信用卡' ? '未繳 ' + money(a.balance) : smoney(accVal(a))));
-        b.onclick = function () { openAcc(a); };
-        box.appendChild(b);
-      });
+      var sum = 0; items.forEach(function (a) { sum += isDebtT(a.type) ? a.balance : accVal(a); });
+      secHead(box, g[0], 'NT$ ' + smoney(sum), g[0] === '負債' ? 'cc' : '');
+      var shown = items;
+      if (g[0] === '銀行與現金' && items.length > 3) {
+        items = items.slice().sort(function (x, y) { return y.balance - x.balance; });
+        shown = S.accMore ? items : items.slice(0, 3);
+      }
+      shown.forEach(function (a) { accRow(box, a); });
+      if (g[0] === '銀行與現金' && items.length > 3) {
+        var mb = el('button', 'trow');
+        mb.appendChild(el('span', '', S.accMore ? '收合' : '其他 ' + (items.length - 3) + ' 個帳戶 ›'));
+        mb.onclick = function () { S.accMore = !S.accMore; renderAsset(); };
+        box.appendChild(mb);
+      }
     });
     if (!S.accounts.length && !(S.hold && S.hold.items.length)) box.appendChild(el('div', 'empty', '還沒有帳戶，先從下面挑一個'));
     var used = S.accounts.map(function (a) { return a.name; });
     var pre = PRESETS.filter(function (p) { return used.indexOf(p[0]) < 0; });
-    $('presetBox').classList.toggle('hide', !pre.length || S.accounts.length >= 5);
+    $('presetBox').classList.toggle('hide', !!S.accounts.length || !pre.length);
     var pb = $('presets'); pb.textContent = '';
     pre.forEach(function (p) {
       var o = el('button', 'opt', p[0]);
@@ -998,12 +1039,14 @@ select.fld{appearance:none;-webkit-appearance:none}
     var tr = S.transfers.slice().sort(function (a, b) { return b.time - a.time; }).slice(0, 5);
     $('trfBox').classList.toggle('hide', !tr.length);
     var tl = $('trfList'); tl.textContent = '';
+    $('trfHead').textContent = '最近轉帳（' + tr.length + '）' + (S.trfOpen ? '' : ' ›');
+    if (!S.trfOpen) return;
     tr.forEach(function (t) {
       var f = accById(t.from), to = accById(t.to), d = new Date(t.time);
       var b = el('button', 'trow');
       var left = el('span', '');
       left.appendChild(document.createTextNode((f ? f.name : '（已刪除）') + ' → ' + (to ? to.name : '（已刪除）')));
-      left.appendChild(el('span', 's', (d.getMonth() + 1) + '/' + d.getDate() + ' ' + hm(t.time) + (t.note ? '　' + t.note : '')));
+      left.appendChild(el('span', 's', (d.getMonth() + 1) + '/' + d.getDate() + ' ' + hm(t.time) + (t.note ? '　' + t.note : '') + '　點一下可刪除'));
       b.appendChild(left);
       b.appendChild(el('span', '', 'NT$ ' + money(t.amount)));
       b.onclick = function () {
@@ -1013,6 +1056,49 @@ select.fld{appearance:none;-webkit-appearance:none}
       tl.appendChild(b);
     });
   }
+
+  /* ---------- 資產操作選單（集中入口） ---------- */
+  function actClose() { closeAll(); }
+  function actMain() {
+    $('actT').textContent = '資產操作';
+    var box = $('actList'); box.textContent = '';
+    function item(t, s, fn) {
+      var b = el('button', 'trow'), l = el('span', '', t);
+      if (s) l.appendChild(el('span', 's', s));
+      b.appendChild(l); b.appendChild(el('span', '', '›')); b.onclick = fn; box.appendChild(b);
+    }
+    item('新增帳戶', '銀行、現金、信用卡、貸款、外幣', function () { actClose(); openAcc(null); });
+    item('校正餘額', '實際金額跟畫面不一樣時', function () { actPick('校正哪個帳戶？', S.accounts, function (a) { actClose(); openAcc(a); }); });
+    item('帳戶轉帳', '兩個帳戶之間移動，不算收支', function () { actClose(); openTrf('move'); });
+    item('繳信用卡費／貸款', '從銀行轉到信用卡或貸款', function () {
+      if (!S.accounts.some(function (a) { return isDebtT(a.type); })) { toast('還沒有信用卡或貸款帳戶'); return; }
+      actClose(); openTrf('debt');
+    });
+    item('新增股票交易', '買進或賣出', function () { actClose(); openTrd(null, '買'); });
+    item('管理外幣', '匯率、幣別、自動更新', actFx);
+  }
+  function actPick(title, accs, fn, extra) {
+    $('actT').textContent = title;
+    var box = $('actList'); box.textContent = '';
+    accs.forEach(function (a) {
+      var b = el('button', 'trow'), l = el('span', '', a.name);
+      l.appendChild(el('span', 's', ACC_LABEL[a.type]));
+      b.appendChild(l);
+      b.appendChild(el('span', '', isDebtT(a.type) ? money(a.balance) : smoney(accVal(a))));
+      b.onclick = function () { fn(a); };
+      box.appendChild(b);
+    });
+    if (extra) extra(box);
+    var back = el('button', 'trow'); back.appendChild(el('span', '', '‹ 回上一層')); back.onclick = actMain; box.appendChild(back);
+  }
+  function actFx() {
+    var fxs = S.accounts.filter(function (a) { return a.type === '外幣'; });
+    actPick('外幣帳戶', fxs, function (a) { actClose(); openAcc(a); }, function (box) {
+      var n = el('button', 'trow'); n.appendChild(el('span', '', '＋ 新增外幣帳戶')); n.onclick = function () { actClose(); openAcc(null, ['', '外幣']); }; box.appendChild(n);
+      var u = el('button', 'trow'); u.appendChild(el('span', '', '立即更新行情與匯率')); u.onclick = function () { actClose(); refreshQuotes(true); }; box.appendChild(u);
+    });
+  }
+  function openAct() { actMain(); $('mask').classList.add('on'); $('actSheet').classList.add('on'); }
 
   /* ---------- 股票／ETF 持股 ---------- */
   function pl(n) { return (n > 0 ? '+' : (n < 0 ? '-' : '')) + money(Math.abs(n)); }
@@ -1177,8 +1263,8 @@ select.fld{appearance:none;-webkit-appearance:none}
     return parts.join('。');
   }
   function daysBetween(ymd) { var p = ymd.split('-'); return Math.floor((Date.now() - new Date(+p[0], +p[1] - 1, +p[2]).getTime()) / 86400000); }
-  function refreshQuotes() {
-    $('hRefresh').disabled = true; $('hRefresh').textContent = '更新中…';
+  function refreshQuotes(fromMenu) {
+    if (fromMenu !== true) { $('hRefresh').disabled = true; $('hRefresh').textContent = '更新中…'; } else toast('更新中…');
     call({ action: 'quoteRefresh' }).then(function (res) {
       $('hRefresh').disabled = false; $('hRefresh').textContent = '更新行情';
       setData(res); toast(res.refreshMsg || '已更新');
@@ -1242,7 +1328,7 @@ select.fld{appearance:none;-webkit-appearance:none}
     if (old && dateVal(old) === s) return old;
     return d.getTime();
   }
-  function cashAccs() { return S.accounts.filter(function (a) { return a.type !== '信用卡'; }); }
+  function cashAccs() { return S.accounts.filter(function (a) { return !isDebtT(a.type); }); }
   var trd = { edit: null, side: '買', acct: '', back: null };
   function drawTrd() {
     drawOpts('trdSide', ['買入', '賣出'], trd.side === '買' ? '買入' : '賣出', function (n) { trd.side = n === '買入' ? '買' : '賣'; $('trdT').textContent = n; $('trdTaxBox').classList.toggle('hide', trd.side !== '賣'); });
@@ -1364,12 +1450,15 @@ select.fld{appearance:none;-webkit-appearance:none}
 
   var accEdit = null, accType = '活存';
   function accLabels() {
-    var lab = { '活存': '餘額', '現金': '現金金額', '投資': '目前市值', '外幣': '外幣金額', '其他': '目前價值', '信用卡': '未繳金額' }[accType];
-    var hint = accType === '信用卡' ? '手動校正目前未繳總額；繳卡費請用「轉帳」。' : (accType === '外幣' ? '換算成台幣＝外幣金額 × 匯率。' : '');
+    var lab = { '活存': '餘額', '現金': '現金金額', '投資': '目前市值', '外幣': '外幣金額', '其他': '目前價值', '信用卡': '未繳金額', '貸款': '剩餘金額' }[accType];
+    var hint = accType === '信用卡' ? '手動校正目前未繳總額；繳卡費請用「轉帳」。' : (accType === '貸款' ? '還沒繳完的金額。每個月繳款用「轉帳」從銀行轉到這個貸款，剩餘金額就會減少。' : (accType === '外幣' ? '換算成台幣＝外幣金額 × 匯率。幣別選自動時，每個交易日收盤後會更新匯率。' : ''));
     $('accBalLab').textContent = lab;
     $('accHint').textContent = hint;
     $('accRateBox').classList.toggle('hide', accType !== '外幣');
+    if (accType === '外幣') drawAccMode();
   }
+  var accMode = '自動';
+  function drawAccMode() { drawOpts('accMode', ['自動', '手動'], accMode, function (n) { accMode = n; }); }
   function drawAccType() {
     var labels = ACC_TYPES.map(function (t) { return ACC_LABEL[t]; });
     drawOpts('accType', labels, ACC_LABEL[accType], function (n) {
@@ -1384,6 +1473,9 @@ select.fld{appearance:none;-webkit-appearance:none}
     $('accName').value = a ? a.name : (preset ? preset[0] : '');
     $('accBal').value = a ? String(a.balance) : '';
     $('accRate').value = a && a.type === '外幣' ? String(a.rate) : '';
+    var cf = a ? S.fx.cfg[a.id] : null;
+    $('accCur').value = cf ? cf.cur : (preset && preset[2] ? preset[2] : (a && a.type === '外幣' ? '' : 'JPY'));
+    accMode = cf ? cf.mode : '自動';
     $('accErr').textContent = '';
     $('accDel').classList.toggle('hide', !a);
     $('accLogB').classList.toggle('hide', !a);
@@ -1397,10 +1489,17 @@ select.fld{appearance:none;-webkit-appearance:none}
     if (isNaN(bal)) { $('accErr').textContent = '請輸入金額'; return; }
     var rate = parseFloat(String($('accRate').value).replace(/,/g, ''));
     if (accType === '外幣' && !(rate > 0)) { $('accErr').textContent = '請輸入匯率'; return; }
+    var cur = String($('accCur').value || '').toUpperCase().replace(/[^A-Z]/g, '');
+    if (accType === '外幣' && !/^[A-Z]{3}$/.test(cur)) { $('accErr').textContent = '幣別請填 3 個英文字母，例如 JPY'; return; }
     var body = { action: 'accSave', name: $('accName').value, type: accType, balance: bal, rate: rate > 0 ? rate : 1 };
     if (accEdit) body.id = accEdit.id;
     $('accSave').disabled = true; $('accErr').textContent = '';
-    call(body).then(function (res) { $('accSave').disabled = false; closeAll(); setData(res); toast('已儲存'); })
+    call(body).then(function (res) {
+      if (accType !== '外幣') return res;
+      var nm = String($('accName').value).trim(), id = accEdit ? accEdit.id : '';
+      if (!id) res.accounts.forEach(function (x) { if (x.name === nm) id = x.id; });
+      return call({ action: 'fxSet', id: id, cur: cur, mode: accMode });
+    }).then(function (res) { $('accSave').disabled = false; closeAll(); setData(res); toast('已儲存'); })
       .catch(function (e) { $('accSave').disabled = false; $('accErr').textContent = e.message; });
   }
   function accLog() {
@@ -1443,12 +1542,12 @@ select.fld{appearance:none;-webkit-appearance:none}
     drawOpts('trfFrom', names, trfFrom, function (n) { trfFrom = n; });
     drawOpts('trfTo', names, trfTo, function (n) { trfTo = n; });
   }
-  function openTrf() {
+  function openTrf(kind) {
     if (S.accounts.length < 2) { toast('至少要有兩個帳戶才能轉帳'); return; }
     var pay = S.accounts.filter(function (a) { return a.type === '活存' || a.type === '現金'; })[0] || S.accounts[0];
-    var card = S.accounts.filter(function (a) { return a.type === '信用卡'; })[0];
-    var other = S.accounts.filter(function (a) { return a.id !== pay.id; })[0];
-    trfFrom = pay.name; trfTo = (card || other).name;
+    var debt = S.accounts.filter(function (a) { return a.type === '信用卡'; })[0] || S.accounts.filter(function (a) { return a.type === '貸款'; })[0];
+    var other = S.accounts.filter(function (a) { return a.id !== pay.id && !isDebtT(a.type); })[0] || S.accounts.filter(function (a) { return a.id !== pay.id; })[0];
+    trfFrom = pay.name; trfTo = (kind === 'debt' ? (debt || other) : (kind === 'move' ? other : (debt || other))).name;
     $('trfAmt').value = ''; $('trfNote').value = ''; $('trfErr').textContent = '';
     drawTrf();
     $('mask').classList.add('on'); $('trfSheet').classList.add('on');
@@ -1472,25 +1571,43 @@ select.fld{appearance:none;-webkit-appearance:none}
     for (var k in attrs) n.setAttribute(k, attrs[k]);
     return n;
   }
+  function sumPeriod(y, m, maxDay) {
+    var e = 0;
+    S.rows.forEach(function (r) { var d = new Date(r.time); if (r.status !== '已取消' && d.getFullYear() === y && d.getMonth() === m && (!maxDay || d.getDate() <= maxDay)) e += r.amount; });
+    return e;
+  }
+  function hasData(y, m) {
+    var s = monthSum(y, m); if (s.exp || s.inc) return true;
+    return S.rows.some(function (r) { var d = new Date(r.time); return d.getFullYear() === y && d.getMonth() === m; });
+  }
   function renderAna() {
     var bars = $('bars'); bars.textContent = '';
     var months = [], i, mx = 1;
     for (i = 5; i >= 0; i--) {
       var d = new Date(S.y, S.m - i, 1), s = monthSum(d.getFullYear(), d.getMonth());
-      months.push({ m: d.getMonth() + 1, exp: s.exp, inc: s.inc, cur: i === 0 });
+      months.push({ y: d.getFullYear(), m: d.getMonth() + 1, exp: s.exp, inc: s.inc, has: hasData(d.getFullYear(), d.getMonth()) || s.inc > 0 });
       mx = Math.max(mx, s.exp, s.inc);
     }
-    months.forEach(function (x) {
-      var c = el('div', 'bc' + (x.cur ? ' cur' : ''));
-      c.appendChild(el('div', 'v', x.exp ? short(x.exp) : ''));
+    if (S.anaSel < 0 || S.anaSel > 5) S.anaSel = 5;
+    months.forEach(function (x, k) {
+      var c = el('button', 'bc' + (k === S.anaSel ? ' cur' : ''));
       var p = el('div', 'pair');
       var g = el('i', 'g'); g.style.height = (x.inc / mx * 100) + '%'; if (!x.inc) g.style.visibility = 'hidden';
       var e = el('i', 'e'); e.style.height = (x.exp / mx * 100) + '%'; if (!x.exp) e.style.visibility = 'hidden';
       p.appendChild(g); p.appendChild(e);
       c.appendChild(p);
       c.appendChild(el('div', 'l', x.m + '月'));
+      c.onclick = function () { S.anaSel = k; renderAna(); };
       bars.appendChild(c);
     });
+    var sel = months[S.anaSel], det = $('barDet'); det.textContent = '';
+    det.appendChild(el('div', 'bt', sel.y + '年' + sel.m + '月'));
+    if (!sel.has) det.appendChild(el('div', 'bn', '這個月沒有資料'));
+    else {
+      var diff = sel.inc - sel.exp;
+      var rowsD = [['收入', 'NT$ ' + money(sel.inc)], ['支出', 'NT$ ' + money(sel.exp)], ['收支差額', (diff >= 0 ? '+' : '-') + 'NT$ ' + money(Math.abs(diff))]];
+      rowsD.forEach(function (r) { var o = el('div', 'bd'); o.appendChild(el('span', '', r[0])); o.appendChild(el('b', '', r[1])); det.appendChild(o); });
+    }
 
     var byCat = {}, total = 0;
     S.rows.forEach(function (r) { if (inMonth(r.time) && r.status !== '已取消') { byCat[r.category] = (byCat[r.category] || 0) + r.amount; total += r.amount; } });
@@ -1498,7 +1615,7 @@ select.fld{appearance:none;-webkit-appearance:none}
     var box = $('catList'); box.textContent = '';
     var names = Object.keys(byCat).sort(function (a, b) { return byCat[b] - byCat[a]; });
     if (!names.length) box.appendChild(el('div', 'empty', '這個月還沒有消費'));
-    names.forEach(function (n) {
+    function catRow(n) {
       var b = el('button', 'crow');
       var t = el('div', 't');
       var l = el('span', '', n); l.appendChild(el('i', '', Math.round(byCat[n] / total * 100) + '%'));
@@ -1508,7 +1625,35 @@ select.fld{appearance:none;-webkit-appearance:none}
       b.appendChild(t); b.appendChild(bg);
       b.onclick = function () { S.filter = n; showTab('home'); renderHome(); };
       box.appendChild(b);
-    });
+    }
+    (S.catMore ? names : names.slice(0, 5)).forEach(catRow);
+    if (names.length > 5) {
+      var mb = el('button', 'trow');
+      mb.appendChild(el('span', '', S.catMore ? '收合' : '其他 ' + (names.length - 5) + ' 個分類 ›'));
+      mb.onclick = function () { S.catMore = !S.catMore; renderAna(); };
+      box.appendChild(mb);
+    }
+
+    var cb = $('cmpBody'); cb.textContent = '';
+    var now = new Date(), isCur = (S.y === now.getFullYear() && S.m === now.getMonth());
+    var pm = new Date(S.y, S.m - 1, 1), thisM = isCur ? sumPeriod(S.y, S.m, now.getDate()) : sumPeriod(S.y, S.m, 0);
+    var lastM = isCur ? sumPeriod(pm.getFullYear(), pm.getMonth(), now.getDate()) : sumPeriod(pm.getFullYear(), pm.getMonth(), 0);
+    function cmpRow(k, v) { var o = el('div', 'bd'); o.appendChild(el('span', '', k)); o.appendChild(el('b', '', v)); cb.appendChild(o); }
+    if (!hasData(pm.getFullYear(), pm.getMonth())) {
+      cb.appendChild(el('div', 'bn', '上個月沒有資料，無法比較'));
+    } else {
+      var df = thisM - lastM;
+      cmpRow(isCur ? '本月 1–' + now.getDate() + ' 日' : (S.m + 1) + '月全月', 'NT$ ' + money(thisM));
+      cmpRow(isCur ? '上月同期 1–' + now.getDate() + ' 日' : (pm.getMonth() + 1) + '月全月', 'NT$ ' + money(lastM));
+      cmpRow(df > 0 ? '多花了' : (df < 0 ? '少花了' : '差額'), (df > 0 ? '+' : (df < 0 ? '-' : '')) + 'NT$ ' + money(Math.abs(df)));
+      if (isCur) cb.appendChild(el('div', 'hint', '本月還沒結束，所以拿上個月同一段日期來比。'));
+    }
+    var avg = [], k2;
+    for (k2 = 1; k2 <= 3; k2++) { var dm = new Date(S.y, S.m - k2, 1); if (hasData(dm.getFullYear(), dm.getMonth())) avg.push(sumPeriod(dm.getFullYear(), dm.getMonth(), 0)); }
+    if (avg.length) {
+      var sm = 0; avg.forEach(function (x) { sm += x; });
+      cmpRow('前' + avg.length + '個完整月平均', 'NT$ ' + money(Math.round(sm / avg.length)));
+    }
 
     var ch = $('assetChart'); ch.textContent = '';
     var pts = S.snaps.slice(-90);
@@ -1536,7 +1681,7 @@ select.fld{appearance:none;-webkit-appearance:none}
     var loT = svgEl('text', { x: W - R, y: 11, 'text-anchor': 'end' }); loT.textContent = '最低 ' + money(lo); svg.appendChild(loT);
     ch.appendChild(svg);
     var first = pts[0].total, diff = last.total - first;
-    var note = el('div', 'hint', '目前 NT$ ' + smoney(last.total) + '，比最早紀錄' + (diff >= 0 ? '多' : '少') + ' ' + money(Math.abs(diff)));
+    var note = el('div', 'hint', '目前 NT$ ' + smoney(last.total) + '，比最早紀錄' + (diff >= 0 ? '多' : '少') + ' ' + money(Math.abs(diff)) + '。這是總資產的變化，包含存入的錢、持股市值、匯率和負債，不等於投資獲利。');
     note.style.marginTop = '8px';
     ch.appendChild(note);
   }
@@ -1693,12 +1838,13 @@ select.fld{appearance:none;-webkit-appearance:none}
   $('fBtn').onclick = openFilter;
   $('dupBar').onclick = openDup;
   $('dupClose').onclick = closeAll;
-  $('accNew').onclick = function () { openAcc(null); };
-  $('trfNew').onclick = openTrf;
+  $('actBtn').onclick = openAct;
+  $('actClose').onclick = closeAll;
+  $('trfHead').onclick = function () { S.trfOpen = !S.trfOpen; renderAsset(); };
   $('accCancel').onclick = closeAll;
   $('accLogB').onclick = accLog;
   $('holdClose').onclick = closeAll;
-  $('hRefresh').onclick = refreshQuotes;
+  $('hRefresh').onclick = function () { refreshQuotes(); };
   $('detClose').onclick = closeDet;
   $('dBuy').onclick = function () { openTrd(null, '買', det.sym, backToDet); };
   $('dSell').onclick = function () { openTrd(null, '賣', det.sym, backToDet); };
@@ -1712,6 +1858,7 @@ select.fld{appearance:none;-webkit-appearance:none}
   $('divCancel').onclick = closeDiv; $('divSave').onclick = divSave; $('divDel').onclick = divDel;
   $('migCancel').onclick = closeAll; $('migKeep').onclick = function () { migDo(true); }; $('migOk').onclick = function () { migDo(false); };
   $('accSave').onclick = accSave;
+  $('accRate').oninput = function () { if (accMode !== '手動') { accMode = '手動'; drawAccMode(); } };
   $('accDel').onclick = accDel;
   $('trfCancel').onclick = closeAll;
   $('trfSave').onclick = trfSave;
