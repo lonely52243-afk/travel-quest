@@ -1,0 +1,269 @@
+
+<!doctype html>
+<html lang="zh-Hant">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>系統語音工坊</title>
+<style>
+:root {
+  font-family: -apple-system, "Noto Sans TC", sans-serif;
+  color: #182C48;
+  background: #F7F3EC;
+}
+* { box-sizing: border-box; }
+body { margin: 0; }
+main { max-width: 620px; margin: auto; padding: 22px 16px; }
+h1 { font-size: 26px; margin-bottom: 4px; }
+h2 { font-size: 16px; }
+small, p { color: #817B72; }
+.card {
+  background: #FFFCF7;
+  border: 1px solid #E8E0D6;
+  border-radius: 18px;
+  padding: 18px;
+  margin: 16px 0;
+}
+textarea, select {
+  width: 100%;
+  padding: 12px;
+  border: 1px solid #DDD5CA;
+  border-radius: 12px;
+  font: inherit;
+  color: #182C48;
+  background: white;
+}
+textarea { min-height: 190px; line-height: 1.8; }
+button {
+  padding: 12px;
+  border: 1px solid #182C48;
+  border-radius: 12px;
+  background: transparent;
+  color: #182C48;
+  font-weight: bold;
+  cursor: pointer;
+}
+button.primary {
+  background: #B98748;
+  color: white;
+  border-color: #B98748;
+}
+button:disabled { opacity: .45; }
+.presets { display: flex; flex-wrap: wrap; gap: 8px; }
+.actions { display: grid; grid-template-columns: 1fr 1fr; gap: 10px; }
+input[type=range] { width: 100%; accent-color: #B98748; }
+audio { width: 100%; margin-top: 14px; }
+#status { font-size: 13px; margin-top: 12px; }
+</style>
+</head>
+<body>
+<main>
+<header>
+  <small>SYSTEM VOICE GENERATOR</small>
+  <h1>系統語音工坊</h1>
+  <p>輸入台詞 · 選擇聲線 · 產生語音</p>
+</header>
+
+<section class="card">
+  <h2>快速套用任務</h2>
+  <div class="presets" id="presets"></div>
+  <h2>系統播報台詞</h2>
+  <textarea id="script"></textarea>
+</section>
+
+<section class="card">
+  <h2>語音設定</h2>
+  <label for="voice">AI 聲線</label>
+  <select id="voice">
+    <option value="nova">Nova 女聲</option>
+    <option value="shimmer">Shimmer 女聲</option>
+    <option value="alloy">Alloy 中性聲</option>
+    <option value="echo">Echo 沉穩聲</option>
+  </select>
+  <p>語速：<span id="speedValue">1.00</span> 倍</p>
+  <input id="speed" type="range"
+    min="0.75" max="1.25" step="0.05" value="1">
+</section>
+
+<section class="card">
+  <h2>生成與播放</h2>
+  <div class="actions">
+    <button id="preview">免費朗讀</button>
+    <button class="primary" id="generate">生成 MP3</button>
+  </div>
+  <audio id="player" controls hidden></audio>
+  <div class="actions" style="margin-top:12px">
+    <button id="stop">停止播放</button>
+    <button id="download" disabled>下載 MP3</button>
+  </div>
+  <p id="status"></p>
+  <small>
+    免費朗讀使用裝置內建聲音。
+    MP3 生成需連接語音 API 後端。
+  </small>
+</section>
+</main>
+
+<script>
+const scripts = {
+  "早上起床":
+`叮！系統提示。
+檢測到宿主休眠時間已結束。
+每日主線任務已刷新。
+被動技能「精神覺醒」，自動啟動。
+請宿主立即起床。`,
+
+  "下午起床":
+`叮！系統提示。
+檢測到宿主午間休眠已結束。
+體力值恢復完成。
+精神狀態已重置。
+被動技能「強制清醒」，自動啟動。
+下午主線任務已刷新。
+請宿主立即返回工作崗位。`,
+
+  "勤前提示":
+`滴！滴！系統警告。
+檢測到限時任務即將開始。
+任務名稱：勤前提示。
+所有支線任務，強制終止。
+集合模式，自動啟動。
+請宿主立即前往指定地點。`,
+
+  "升旗":
+`叮！系統提示。
+每日固定任務已觸發。
+任務名稱：升旗。
+技能「軍人紀律」，自動啟動。
+請宿主立即前往指定位置。`,
+
+  "降旗":
+`叮！系統提示。
+限時任務已觸發。
+任務名稱：降旗。
+當前活動暫停。
+請宿主立即前往指定位置。`,
+
+  "車長":
+`滴！系統通知。
+特殊勤務已觸發。
+任務名稱：車長勤務。
+技能「人員清點」與「安全確認」，自動啟動。
+請宿主確認人員及車輛狀態。`
+};
+
+const $ = id => document.getElementById(id);
+let currentName = "下午起床";
+let audioUrl = null;
+
+function selectPreset(name) {
+  currentName = name;
+  $("script").value = scripts[name];
+}
+
+Object.keys(scripts).forEach(name => {
+  const button = document.createElement("button");
+  button.textContent = name;
+  button.onclick = () => selectPreset(name);
+  $("presets").appendChild(button);
+});
+
+selectPreset(currentName);
+
+$("script").addEventListener("input", () => {
+  currentName = "自訂";
+});
+
+$("speed").oninput = () => {
+  $("speedValue").textContent =
+    Number($("speed").value).toFixed(2);
+};
+
+$("preview").onclick = () => {
+  if (!("speechSynthesis" in window)) {
+    $("status").textContent = "瀏覽器不支援朗讀";
+    return;
+  }
+
+  speechSynthesis.cancel();
+
+  const utterance = new SpeechSynthesisUtterance(
+    $("script").value
+  );
+  utterance.lang = "zh-TW";
+  utterance.rate = Number($("speed").value);
+
+  const voices = speechSynthesis.getVoices();
+  utterance.voice =
+    voices.find(v => v.lang.startsWith("zh")) || null;
+
+  speechSynthesis.speak(utterance);
+  $("status").textContent = "正在朗讀";
+};
+
+$("stop").onclick = () => {
+  if ("speechSynthesis" in window) {
+    speechSynthesis.cancel();
+  }
+  $("player").pause();
+  $("status").textContent = "已停止";
+};
+
+$("generate").onclick = async () => {
+  const text = $("script").value.trim();
+
+  if (!text || text.length > 2000) {
+    $("status").textContent = "請輸入 1 至 2000 字";
+    return;
+  }
+
+  const button = $("generate");
+  button.disabled = true;
+  $("status").textContent = "正在生成 MP3…";
+
+  try {
+    const response = await fetch("/api/speech", {
+      method: "POST",
+      headers: {
+        "Content-Type": "application/json"
+      },
+      body: JSON.stringify({
+        text,
+        voice: $("voice").value,
+        speed: Number($("speed").value)
+      })
+    });
+
+    if (!response.ok) {
+      throw new Error("語音服務尚未連接或生成失敗");
+    }
+
+    const blob = await response.blob();
+
+    if (audioUrl) URL.revokeObjectURL(audioUrl);
+    audioUrl = URL.createObjectURL(blob);
+
+    $("player").src = audioUrl;
+    $("player").hidden = false;
+    $("download").disabled = false;
+    $("status").textContent = "MP3 已生成";
+  } catch (error) {
+    $("status").textContent = error.message;
+  } finally {
+    button.disabled = false;
+  }
+};
+
+$("download").onclick = () => {
+  if (!audioUrl) return;
+
+  const a = document.createElement("a");
+  a.href = audioUrl;
+  a.download = "系統語音_" + currentName + ".mp3";
+  document.body.appendChild(a);
+  a.click();
+  a.remove();
+};
+</script>
+</body>
+</html>
