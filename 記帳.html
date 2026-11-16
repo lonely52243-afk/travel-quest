@@ -15,7 +15,7 @@
 <style>
 :root{--bg:#F7F4ED;--card:#FFFCF7;--line:#E5DDD0;--ink:#302D29;--sub:#8D8377;--acc:#A77B55;--exp:#B96143;--pos:#4D8964;--inv:#54748B;--up:#C0392B;--dn:#2F8F5B;--neg:#b3402e;--r:16px;--tabh:58px}
 *{box-sizing:border-box;-webkit-tap-highlight-color:transparent}
-html,body{margin:0;background:var(--bg);color:var(--ink);font-family:-apple-system,BlinkMacSystemFont,"PingFang TC","Noto Sans TC",sans-serif;-webkit-text-size-adjust:100%}
+html,body{--num:ui-serif,"New York",Georgia,"Songti TC",serif;margin:0;background:var(--bg);color:var(--ink);font-family:-apple-system,BlinkMacSystemFont,"PingFang TC","Noto Sans TC",sans-serif;-webkit-text-size-adjust:100%}
 body{padding:env(safe-area-inset-top) 0 calc(var(--tabh) + 84px + env(safe-area-inset-bottom))}
 button{font:inherit;color:inherit;border:0;background:none;cursor:pointer}
 input{font:inherit;color:inherit}
@@ -25,9 +25,9 @@ input{font:inherit;color:inherit}
 .mo button{width:44px;height:44px;border-radius:22px;font-size:26px;color:var(--sub)}
 .mo button:disabled{opacity:.25}
 .ttl{font-size:22px;font-weight:700}
-.ico{width:40px;height:40px;border-radius:20px;font-size:20px;color:var(--sub)}
+.ico{width:44px;height:44px;border-radius:22px;font-size:20px;color:var(--sub)}
 .total{padding:8px 0 4px}
-.total .n{font-family:Georgia,"Songti TC",serif;font-size:42px;font-weight:700;color:var(--exp);letter-spacing:.5px}
+.total .n{font-family:var(--num);font-size:42px;font-weight:700;color:var(--exp);letter-spacing:.5px}
 .total .n small{font-size:18px;margin-right:6px;font-weight:600}
 .total .n.pos{color:var(--ink)}
 .total .c{color:var(--sub);font-size:14px}
@@ -35,13 +35,13 @@ input{font:inherit;color:inherit}
 .row.in .ic{background:rgba(79,138,91,.16);color:var(--pos)}.row.in .am{color:var(--pos)}
 .day{display:flex;justify-content:space-between;align-items:baseline;padding:16px 2px 6px;border-bottom:1px solid var(--line);margin-top:4px}
 .day span:first-child{font-weight:700;font-size:14px;color:var(--sub)}
-.day span:last-child{font-family:Georgia,"Songti TC",serif;color:var(--sub);font-size:15px}
+.day span:last-child{font-family:var(--num);color:var(--sub);font-size:15px}
 .row{display:flex;align-items:center;gap:12px;padding:13px 2px;border-bottom:1px solid var(--line);width:100%;text-align:left}
 .row .ic{flex:none;width:36px;height:36px;border-radius:10px;display:flex;align-items:center;justify-content:center;font-weight:700;font-size:14px}
 .row .mid{flex:1;min-width:0}
 .row .st{font-size:16px;font-weight:600;overflow:hidden;text-overflow:ellipsis;display:-webkit-box;-webkit-line-clamp:2;-webkit-box-orient:vertical;overflow-wrap:anywhere}
 .row .sb{font-size:13px;color:var(--sub);margin-top:3px}
-.row .am{font-family:Georgia,"Songti TC",serif;font-size:18px;font-weight:700;color:var(--exp);white-space:nowrap;text-align:right}
+.row .am{font-family:var(--num);font-size:18px;font-weight:700;color:var(--exp);white-space:nowrap;text-align:right}
 .row .am small{font-size:11px;margin-right:3px;font-family:inherit}
 .row .am.neg{color:var(--neg)}
 .row .am.pos{color:var(--ink)}
@@ -51,7 +51,7 @@ input{font:inherit;color:inherit}
 .swp .row{position:relative;background:var(--bg);transition:transform .18s}
 .swd{position:absolute;right:0;top:0;bottom:0;width:84px;background:var(--neg);color:#fff;font-weight:600;font-size:16px}
 .fbar{display:flex;align-items:center;justify-content:space-between;padding:12px 0 2px}
-.fbtn{display:inline-flex;align-items:center;gap:6px;padding:7px 14px;border-radius:999px;background:var(--card);border:1px solid var(--line);font-size:14px;font-weight:600}
+.fbtn{position:relative;display:inline-flex;align-items:center;gap:6px;padding:7px 14px;border-radius:999px;background:var(--card);border:1px solid var(--line);font-size:14px;font-weight:600}
 .fbtn.on{border-color:var(--acc);background:#f1e7d8}
 .fbar .c{font-size:13px;color:var(--sub)}
 .warn{display:flex;align-items:center;justify-content:space-between;width:100%;margin:10px 0 0;padding:12px 14px;border-radius:14px;background:#f6e8d2;border:1px solid #e3cfa8;font-size:15px;font-weight:600;color:#7a5a24}
@@ -71,7 +71,7 @@ input{font:inherit;color:inherit}
 .sheet h3{margin:0 0 12px;font-size:18px}
 .lab{font-size:13px;color:var(--sub);margin:14px 0 6px}
 .fld{width:100%;padding:13px 14px;border-radius:12px;border:1px solid var(--line);background:var(--card);font-size:17px}
-.amt{font-family:Georgia,"Songti TC",serif;font-size:30px;font-weight:700;color:var(--exp)}
+.amt{font-family:var(--num);font-size:30px;font-weight:700;color:var(--exp)}
 .opts{display:flex;flex-wrap:wrap;gap:8px}
 .opt{padding:8px 14px;border-radius:999px;border:1px solid var(--line);background:var(--card);font-size:15px}
 .opt.on{background:var(--acc);border-color:var(--acc);color:#fff}
@@ -98,7 +98,7 @@ input{font:inherit;color:inherit}
 .row.pd .st{color:var(--acc)}.row.pd .am{color:var(--sub)}
 .acc.iv .ic{background:rgba(84,116,139,.14);color:var(--inv)}
 .sec .opt{padding:4px 12px;font-size:13px}
-.detbig{padding:2px 0 8px}.detbig .n{font-family:Georgia,"Songti TC",serif;font-size:34px;font-weight:700}.detbig .s{font-size:13px;color:var(--sub);margin-top:2px}
+.detbig{padding:2px 0 8px}.detbig .n{font-family:var(--num);font-size:34px;font-weight:700}.detbig .s{font-size:13px;color:var(--sub);margin-top:2px}
 .chip2{display:inline-block;border:1px solid var(--line);border-radius:999px;padding:1px 8px;font-size:11px;color:var(--sub);margin-left:6px;vertical-align:middle;white-space:nowrap}
 .drow{display:flex;justify-content:space-between;gap:12px;padding:9px 0;border-bottom:1px solid var(--line);font-size:14px}.drow span:first-child{color:var(--sub)}.drow span:last-child{font-weight:600;text-align:right}
 .trow>span:first-child,.acc .mid{min-width:0;overflow-wrap:anywhere}
@@ -120,7 +120,7 @@ select.fld{appearance:none;-webkit-appearance:none}
 /* 資產 */
 .nw{padding:14px 0 6px}
 .nw .lbl{font-size:13px;color:var(--sub);font-weight:600}
-.nw .n{font-family:Georgia,"Songti TC",serif;font-size:40px;font-weight:700}
+.nw .n{font-family:var(--num);font-size:40px;font-weight:700}
 .nw .n small{font-size:18px;margin-right:6px;font-weight:600}
 .nw .c{color:var(--sub);font-size:13px;line-height:1.6;margin-top:2px}
 .acc{display:flex;align-items:center;gap:12px;padding:13px 2px;border-bottom:1px solid var(--line);width:100%;text-align:left}
@@ -129,14 +129,14 @@ select.fld{appearance:none;-webkit-appearance:none}
 .acc .mid{flex:1;min-width:0}
 .acc .st{font-size:16px;font-weight:600;overflow:hidden;text-overflow:ellipsis;overflow-wrap:anywhere}
 .acc .sb{font-size:12px;color:var(--sub);margin-top:3px}
-.acc .am{font-family:Georgia,"Songti TC",serif;font-size:17px;font-weight:700;white-space:nowrap;text-align:right}
+.acc .am{font-family:var(--num);font-size:17px;font-weight:700;white-space:nowrap;text-align:right}
 .acc.cc .am{color:var(--neg)}
 .twin{display:flex;gap:10px;margin-top:16px}
 .sec{display:flex;justify-content:space-between;font-size:13px;color:var(--sub);margin:22px 0 2px;font-weight:600}
-.sec b{font-family:Georgia,"Songti TC",serif;color:var(--ink)}
+.sec b{font-family:var(--num);color:var(--ink)}
 .sec.cc b{color:var(--neg)}
-.trow{display:flex;align-items:center;justify-content:space-between;gap:10px;padding:11px 2px;border-bottom:1px solid var(--line);width:100%;text-align:left;font-size:14px}
-.trow>span:last-child{font-family:Georgia,"Songti TC",serif;font-weight:700;white-space:nowrap}
+.trow{display:flex;align-items:center;justify-content:space-between;gap:10px;padding:11px 2px;min-height:44px;border-bottom:1px solid var(--line);width:100%;text-align:left;font-size:14px}
+.trow>span:last-child{font-family:var(--num);font-weight:700;white-space:nowrap}
 .trow .s{color:var(--sub);font-size:12px;display:block;margin-top:2px}
 /* 分析 */
 .bars{display:flex;align-items:flex-end;justify-content:space-between;gap:4px;height:128px;margin-top:6px}
@@ -152,7 +152,7 @@ select.fld{appearance:none;-webkit-appearance:none}
 .lg span.g::before{background:var(--pos)}
 .crow{display:block;width:100%;text-align:left;padding:9px 0}
 .crow .t{display:flex;justify-content:space-between;font-size:14px;margin-bottom:6px}
-.crow .t b{font-family:Georgia,"Songti TC",serif}
+.crow .t b{font-family:var(--num)}
 .crow .t span i{font-style:normal;color:var(--sub);margin-left:8px;font-size:12px}
 .crow .bg{height:8px;border-radius:4px;background:var(--line);overflow:hidden}
 .crow .bg i{display:block;height:100%;border-radius:4px}
@@ -176,7 +176,7 @@ button.sec{background:none;border:0;padding:0;margin:22px 0 2px;font-family:inhe
 .lg em{margin-left:auto;font-style:normal}
 .bdet{margin-top:12px;padding-top:10px;border-top:1px solid var(--line)}
 .bdet .bt{font-size:14px;font-weight:700;margin-bottom:4px}
-.bd{display:flex;justify-content:space-between;gap:12px;padding:5px 0;font-size:14px}.bd span{color:var(--sub)}.bd b{font-family:Georgia,"Songti TC",serif}
+.bd{display:flex;justify-content:space-between;gap:12px;padding:5px 0;font-size:14px}.bd span{color:var(--sub)}.bd b{font-family:var(--num)}
 .bn{color:var(--sub);font-size:14px;padding:6px 0}
 .crow .bg{height:6px}
 .card .hint{margin-top:6px}
@@ -185,16 +185,16 @@ button.sec{background:none;border:0;padding:0;margin:22px 0 2px;font-family:inhe
 .total .n{font-size:38px}
 .tw2{display:flex;gap:10px;margin-top:10px}
 .mini{flex:1;min-width:0;background:var(--card);border:1px solid var(--line);border-radius:var(--r);padding:10px 14px}
-.mini .k{font-size:12px;color:var(--sub)}.mini .v{font-family:Georgia,"Songti TC",serif;font-size:19px;font-weight:700;margin-top:2px;white-space:nowrap}.mini .v.g{color:var(--pos)}
+.mini .k{font-size:12px;color:var(--sub)}.mini .v{font-family:var(--num);font-size:19px;font-weight:700;margin-top:2px;white-space:nowrap}.mini .v.g{color:var(--pos)}
 .fh{font-size:17px;font-weight:700}.fr{display:flex;align-items:center;gap:8px}
 .fbar{padding:18px 0 4px}
 .nw{background:#F1E7D8;border:1px solid var(--line);border-radius:var(--r);padding:14px 16px;margin-top:8px}
 .gc{background:var(--card);border:1px solid var(--line);border-radius:var(--r);padding:2px 14px 4px;margin-top:12px}
 .gc .sec{margin:12px 0 0;font-size:14px;color:var(--ink);align-items:center}
-.gc .sec b{font-family:Georgia,"Songti TC",serif}
+.gc .sec b{font-family:var(--num)}
 .gc .acc:last-child,.gc .trow:last-child{border-bottom:0}
 .gc .acc{padding:11px 0}
-.g3{display:flex;gap:8px}.gi{flex:1;min-width:0}.gi .k{font-size:12px;color:var(--sub)}.gi .v{font-family:Georgia,"Songti TC",serif;font-size:16px;font-weight:700;margin-top:3px;white-space:nowrap}.gi .v.g{color:var(--pos)}.gi .v.e{color:var(--exp)}
+.g3{display:flex;gap:8px}.gi{flex:1;min-width:0}.gi .k{font-size:12px;color:var(--sub)}.gi .v{font-family:var(--num);font-size:16px;font-weight:700;margin-top:3px;white-space:nowrap}.gi .v.g{color:var(--pos)}.gi .v.e{color:var(--exp)}
 .bdet .bt{display:flex;justify-content:space-between;align-items:center}
 .sgrp{background:var(--card);border:1px solid var(--line);border-radius:var(--r);overflow:hidden}
 .srow{display:flex;align-items:center;justify-content:space-between;gap:10px;width:100%;text-align:left;padding:13px 14px;border-bottom:1px solid var(--line);font-size:16px;font-weight:600}
@@ -233,6 +233,10 @@ body{background:var(--bg)}
 .bc{transition:background-color .2s ease}
 .pair i{transition:height .25s ease}
 @media (prefers-reduced-motion:reduce){*,*::before,*::after{animation:none!important;transition:none!important}}
+[style*="--num"],.total .n,.nw .n,.row .am,.acc .am,.sec b,.mini .v,.gi .v,.trow>span:last-child,.crow .t b,.day span:last-child,.amt,.detbig .n{font-variant-numeric:lining-nums tabular-nums}
+.fbtn::after{content:"";position:absolute;inset:-4px -2px}
+.gc button.sec{width:100%;min-height:44px;margin:0;padding:0;text-align:left}
+.more{display:flex;align-items:center;justify-content:center;gap:6px;width:100%;min-height:44px;margin-top:12px;font-size:14px;font-weight:600;color:var(--sub)}
 </style>
 </head>
 <body>
@@ -273,8 +277,11 @@ body{background:var(--bg)}
   <div id="pAna" class="hide">
     <div class="card"><h4>近 6 個月收支</h4><div class="bars" id="bars"></div><div class="lg"><span class="g">收入</span><span>支出</span><em>點月份看明細</em></div><div id="barDet" class="bdet"></div></div>
     <div class="card"><h4 id="catH">本月消費分類</h4><div id="catList"></div></div>
-    <div class="card"><h4>與上月比較</h4><div id="cmpBody"></div></div>
-    <div class="card"><h4>資產變化</h4><div id="assetChart"></div></div>
+    <button id="anaMoreB" class="more"></button>
+    <div id="anaMore" class="hide">
+      <div class="card"><h4>與上月比較</h4><div id="cmpBody"></div></div>
+      <div class="card"><h4>資產變化</h4><div id="assetChart"></div></div>
+    </div>
   </div>
 </div>
 
@@ -1130,7 +1137,7 @@ body{background:var(--bg)}
       mid.appendChild(el('div', 'sb', sub));
       mid.appendChild(el('div', 'sb', line2));
     } else {
-      if (a.time && !debt) sub += ' · 手動更新 ' + mdOf(a.time);
+      if (!debt) sub = (a.type === '活存' || a.type === '現金' ? '' : sub + ' · ') + '手動更新 ' + (a.time ? mdOf(a.time) : '—');
       mid.appendChild(el('div', 'sb', sub));
     }
     b.appendChild(mid);
@@ -1254,17 +1261,19 @@ body{background:var(--bg)}
   function renderHoldSection(outerBox) {
     var box = el('div', 'gc'); outerBox.appendChild(box);
     var items = heldItems();
-    var head = el('div', 'sec');
-    head.appendChild(el('span', '', '股票／ETF'));
-    head.appendChild(el('b', '', 'NT$ ' + money(S.hold ? S.hold.value : 0)));
-    box.appendChild(head);
     if (!items.length) {
-      var e = el('button', 'trow');
-      e.appendChild(el('span', '', '＋ 記錄買入的股票／ETF'));
+      var e = el('button', 'sec');
+      e.appendChild(el('span', '', '股票／ETF'));
+      e.appendChild(el('b', '', 'NT$ ' + money(S.hold ? S.hold.value : 0) + ' ＋'));
+      e.setAttribute('aria-label', '記錄買入的股票或ETF');
       e.onclick = function () { openTrd(null, '買'); };
       box.appendChild(e);
       return;
     }
+    var head = el('div', 'sec');
+    head.appendChild(el('span', '', '股票／ETF'));
+    head.appendChild(el('b', '', 'NT$ ' + money(S.hold ? S.hold.value : 0)));
+    box.appendChild(head);
     items.forEach(function (h) {
       var b = el('button', 'acc iv');
       b.appendChild(ico('invest'));
@@ -1796,6 +1805,8 @@ body{background:var(--bg)}
       box.appendChild(mb);
     }
 
+    var mB = $('anaMoreB'); $('anaMore').classList.toggle('hide', !S.anaMore); mB.textContent = S.anaMore ? '收起 ▴' : '更多分析：與上月比較、資產變化 ▾';
+    mB.onclick = function () { S.anaMore = !S.anaMore; renderAna(); };
     var cb = $('cmpBody'); cb.textContent = '';
     var now = new Date(), isCur = (S.y === now.getFullYear() && S.m === now.getMonth());
     var pm = new Date(S.y, S.m - 1, 1), thisM = isCur ? sumPeriod(S.y, S.m, now.getDate()) : sumPeriod(S.y, S.m, 0);
