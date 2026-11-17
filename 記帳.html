@@ -81,6 +81,7 @@ input{font:inherit;color:inherit}
 .toast{position:fixed;left:50%;top:calc(env(safe-area-inset-top) + 12px);transform:translateX(-50%);background:#182C48;color:#fff;padding:10px 16px;border-radius:12px;font-size:14px;z-index:30;display:none;max-width:90%;align-items:center;gap:14px;white-space:nowrap;box-shadow:0 6px 20px rgba(0,0,0,.25)}
 .toast.on{display:flex}
 .toast{white-space:normal;text-align:left;line-height:1.4}.toast .spin{width:16px;height:16px;border:2.5px solid rgba(255,255,255,.35);border-top-color:#f1d6a8;border-radius:50%;display:inline-block;vertical-align:middle;margin-right:8px;animation:tspin .8s linear infinite}@keyframes tspin{to{transform:rotate(360deg)}}
+.impr{display:flex;gap:10px;align-items:flex-start;padding:10px 2px;border-bottom:1px solid rgba(24,44,72,.08);font-size:14px;line-height:1.45}.impr input{margin-top:4px;width:20px;height:20px;flex:none}.impr .w{font-size:12px;color:#8a6a2c}.impr .d{font-size:12px;color:#B5483B}.impr.off{opacity:.55}.impr b{font-weight:700}
 .toolln{padding:9px 2px;font-size:14px;line-height:1.5;border-bottom:1px solid rgba(24,44,72,.08);color:#182C48}.toolln.bad{color:#B5483B;font-weight:600}.toolln.warn{color:#8a6a2c}
 .toast button{color:#f1d6a8;font-weight:700;font-size:15px;padding:2px 4px}
 .login{padding-top:18vh;text-align:center}
@@ -466,6 +467,7 @@ body{background:var(--bg)}
   <h3>股票／ETF</h3>
   <div id="holdSum" class="hint"></div>
   <div id="holdList"></div>
+  <button id="hImp" class="srow" style="margin-top:12px;border:1px solid var(--line);border-radius:12px"><span>匯入成交<em>貼上成交明細或截圖文字，確認後一次入帳</em></span><i>›</i></button>
   <div class="btns" style="margin-top:12px">
     <button id="hBuy" class="btn p">買入</button>
     <button id="hSell" class="btn">賣出</button>
@@ -476,6 +478,17 @@ body{background:var(--bg)}
   <div class="sub2" id="updT" style="margin-top:12px"></div>
   <p class="hint" style="margin-top:6px">股價每個交易日收盤後自動更新，沒有報價的先用成本計算。損益顏色：紅色賺、綠色賠。</p>
   <div class="btns"><button id="holdClose" class="btn">關閉</button><button id="hRefresh" class="btn">更新行情</button></div>
+</div></div>
+
+<div id="impSheet" class="sheet z2"><div class="in">
+  <h3>匯入成交</h3>
+  <p class="hint">把券商的成交明細、對帳單（可從表格直接複製）或截圖辨識出的文字貼在下面。只會認「成交」，委託、庫存、餘額會自動略過。先預覽，確認後才入帳。</p>
+  <textarea id="impTx" class="fld" rows="6" placeholder="例如：&#10;2026/11/10 買進 0050 元大台灣50 31股 95.25 手續費 1"></textarea>
+  <div class="lab">交割帳戶</div>
+  <div class="opts" id="impAcc"></div>
+  <div class="err" id="impErr"></div>
+  <div id="impList"></div>
+  <div class="btns"><button id="impClose" class="btn">關閉</button><button id="impPrev" class="btn">預覽</button><button id="impOk" class="btn p hide">確認入帳</button></div>
 </div></div>
 
 <div id="detSheet" class="sheet z2"><div class="in">
@@ -671,7 +684,7 @@ body{background:var(--bg)}
             isInc: false, tags: [], fallback: '其他', mg: '', ed: null, delArmed: false, cats: [], sources: [], ver: '',
             y: 0, m: 0, filter: '', editId: '', dupSel: {}, sw: null, swMoved: false };
   var $ = function (id) { return document.getElementById(id); };
-  var SHEETS = ['toolSheet', 'trashSheet', 'actSheet', 'detSheet', 'annSheet', 'holdSheet', 'trdSheet', 'stlSheet', 'divSheet', 'migSheet', 'sheet', 'filSheet', 'dupSheet', 'pendSheet', 'accSheet', 'trfSheet', 'payS', 'ccSetS', 'ccBillS', 'setSheet', 'mgSheet', 'edSheet'];
+  var SHEETS = ['impSheet', 'toolSheet', 'trashSheet', 'actSheet', 'detSheet', 'annSheet', 'holdSheet', 'trdSheet', 'stlSheet', 'divSheet', 'migSheet', 'sheet', 'filSheet', 'dupSheet', 'pendSheet', 'accSheet', 'trfSheet', 'payS', 'ccSetS', 'ccBillS', 'setSheet', 'mgSheet', 'edSheet'];
 
   function lsGet(k) { try { return localStorage.getItem(k) || ''; } catch (e) { return ''; } }
   function lsSet(k, v) { try { localStorage.setItem(k, v); } catch (e) {} }
@@ -780,7 +793,7 @@ body{background:var(--bg)}
   };
 
   var EXPIRED = '登入已過期，請重新登入';
-  var PLAIN = { list: 1, login: 1, opStatus: 1, health: 1, backupList: 1, restorePreview: 1, accLog: 1 };
+  var PLAIN = { invImportPreview: 1, list: 1, login: 1, opStatus: 1, health: 1, backupList: 1, restorePreview: 1, accLog: 1 };
   var inflight = {}, TIMEOUT_MS = 25000, RESEND_MAX = 3;
   function newOpId() { return 't' + Date.now() + '-' + Math.random().toString(36).slice(2, 8) + Math.random().toString(36).slice(2, 5); }
   function pendLoad() { try { return JSON.parse(lsGet('zz_ops') || '{}') || {}; } catch (e) { return {}; } }
@@ -2485,6 +2498,60 @@ body{background:var(--bg)}
   $('dDiv').onclick = function () { openDiv(null, { sym: det.sym }, backToDet); };
   $('dPx').onclick = function () { var h = itemOf(det.sym); if (h) setPrice(h); };
   $('annCancel').onclick = closeAll; $('annSave').onclick = annSave; $('annDel').onclick = annDel; $('annConf').onclick = annConfirm;
+
+  /* ---------- 匯入成交：預覽 → 勾選 → 一次入帳 ---------- */
+  var imp = { acct: '', items: [], text: '' };
+  function drawImpAcc() {
+    var names = ['不連動現金'].concat(cashAccs().map(function (a) { return a.name; })), cur = '不連動現金';
+    cashAccs().forEach(function (a) { if (a.id === imp.acct) cur = a.name; });
+    drawOpts('impAcc', names, cur, function (n) { imp.acct = ''; cashAccs().forEach(function (a) { if (a.name === n) imp.acct = a.id; }); });
+  }
+  function openImp() {
+    imp.items = []; imp.text = ''; $('impTx').value = ''; $('impList').textContent = ''; $('impErr').textContent = ''; $('impOk').classList.add('hide');
+    if (!imp.acct) { var def = cashAccs().filter(function (a) { return /交割/.test(a.name); })[0]; if (def) imp.acct = def.id; }
+    drawImpAcc(); $('mask').classList.add('on'); $('impSheet').classList.add('on');
+  }
+  function impPicked() { var o = []; imp.items.forEach(function (x) { if (x.on) o.push(x.i); }); return o; }
+  function drawImpList() {
+    var box = $('impList'); box.textContent = '';
+    imp.items.forEach(function (x) {
+      var r = el('label', 'impr' + (x.dup || x.bad ? ' off' : '')), cb = el('input'); cb.type = 'checkbox'; cb.checked = !!x.on; cb.disabled = !!(x.dup || x.bad);
+      cb.onchange = function () { x.on = cb.checked; drawImpList(); };
+      var d = el('div');
+      d.appendChild(el('b', '', (x.side === '買' ? '買 ' : '賣 ') + x.sym + (x.name ? ' ' + x.name : '')));
+      d.appendChild(el('div', '', (x.day || '沒有日期') + '　' + x.shares + ' 股 × ' + x.price + '　= ' + money(x.shares * x.price) + (x.fee ? '　手續費 ' + x.fee : '') + (x.side === '賣' ? '　證交稅 ' + x.tax : '')));
+      if (x.dup) d.appendChild(el('div', 'd', x.dupWhy + '，不會重複入帳'));
+      else if (x.bad) d.appendChild(el('div', 'd', x.bad));
+      else x.warn.forEach(function (w) { d.appendChild(el('div', 'w', w)); });
+      r.appendChild(cb); r.appendChild(d); box.appendChild(r);
+    });
+    var n = impPicked().length;
+    $('impOk').classList.toggle('hide', !imp.items.length); $('impOk').textContent = n ? '確認入帳（' + n + ' 筆）' : '確認入帳'; $('impOk').disabled = !n;
+  }
+  $('hImp').onclick = function () { closeAll(); openImp(); };
+  $('impClose').onclick = function () { closeAll(); renderHold(); $('mask').classList.add('on'); $('holdSheet').classList.add('on'); };
+  $('impPrev').onclick = function () {
+    var tx = $('impTx').value.trim(); $('impErr').textContent = '';
+    if (!tx) { $('impErr').textContent = '請先貼上成交明細'; return; }
+    var b = $('impPrev'); b.disabled = true;
+    call({ action: 'invImportPreview', text: tx, day: S.today || '' }).then(function (r) {
+      b.disabled = false; imp.text = tx; imp.items = r.items || [];
+      imp.items.forEach(function (x) { x.on = !x.dup && !x.bad && !!x.day; });
+      if (!imp.items.length) $('impErr').textContent = '沒有找到成交明細。請確認貼的是「成交」，不是委託或庫存。';
+      else if (r.skipped && r.skipped.length) $('impErr').textContent = '已略過 ' + r.skipped.length + ' 行（委託、庫存、餘額或看不懂）';
+      drawImpList();
+    }).catch(function (e) { b.disabled = false; $('impErr').textContent = e.message; });
+  };
+  $('impTx').oninput = function () { if (imp.items.length) { imp.items = []; drawImpList(); } };
+  $('impOk').onclick = function () {
+    var pick = impPicked(); if (!pick.length) return;
+    $('impOk').disabled = true;
+    call({ action: 'invImport', text: imp.text, day: S.today || '', pick: pick, acct: imp.acct }).then(function (r) {
+      setData(r); try { lsSet('zz_cache', JSON.stringify(r)); } catch (e) {}
+      closeAll(); renderHold(); $('mask').classList.add('on'); $('holdSheet').classList.add('on');
+      toast('已儲存：匯入 ' + (r.imported || pick.length) + ' 筆成交');
+    }).catch(function (e) { $('impOk').disabled = false; $('impErr').textContent = e.message; });
+  };
   $('hBuy').onclick = function () { openTrd(null, '買'); };
   $('hSell').onclick = function () { openTrd(null, '賣'); };
   $('hDiv').onclick = function () { openDiv(null); };
