@@ -81,7 +81,9 @@ input{font:inherit;color:inherit}
 .toast{position:fixed;left:50%;top:calc(env(safe-area-inset-top) + 12px);transform:translateX(-50%);background:#182C48;color:#fff;padding:10px 16px;border-radius:12px;font-size:14px;z-index:30;display:none;max-width:90%;align-items:center;gap:14px;white-space:nowrap;box-shadow:0 6px 20px rgba(0,0,0,.25)}
 .toast.on{display:flex}
 .toast{white-space:normal;text-align:left;line-height:1.4}.toast .spin{width:16px;height:16px;border:2.5px solid rgba(255,255,255,.35);border-top-color:#f1d6a8;border-radius:50%;display:inline-block;vertical-align:middle;margin-right:8px;animation:tspin .8s linear infinite}@keyframes tspin{to{transform:rotate(360deg)}}
-.impr{display:flex;gap:10px;align-items:flex-start;padding:10px 2px;border-bottom:1px solid rgba(24,44,72,.08);font-size:14px;line-height:1.45}.impr input{margin-top:4px;width:20px;height:20px;flex:none}.impr .w{font-size:12px;color:#8a6a2c}.impr .d{font-size:12px;color:#B5483B}.impr.off{opacity:.55}.impr b{font-weight:700}
+#impBtns{flex-wrap:wrap}#impBtns .btn{white-space:nowrap}#impBtns #impOk{flex:1 1 100%;order:-1}
+.impr{display:flex;gap:10px;align-items:flex-start;padding:11px 2px;border-bottom:1px solid rgba(24,44,72,.08);font-size:14px;line-height:1.45}.impr input{margin-top:3px;width:22px;height:22px;flex:none}.impb{min-width:0;flex:1;overflow-wrap:anywhere}.impr .imph{display:flex;gap:8px;align-items:baseline;flex-wrap:wrap}.impr .sd{font-size:12px;font-weight:700;padding:1px 8px;border-radius:9px;color:#fff;flex:none}.impr .sd.b{background:#B96143}.impr .sd.s{background:#438A70}.impr .il{color:#4a4640}.impr .il.nt{color:#182C48;font-weight:600}.impr .w{font-size:12px;color:#8a6a2c}.impr .d{font-size:12px;color:#B5483B}.impr.off{opacity:.55}.impr.may{background:rgba(185,135,72,.09);border-radius:10px;padding-left:8px;padding-right:8px}.impr b{font-weight:700}
+.impsum{position:sticky;bottom:0;background:var(--card,#FFFCF7);padding:10px 2px;font-size:14px;font-weight:600;color:#182C48;border-top:1px solid rgba(24,44,72,.12)}
 .toolln{padding:9px 2px;font-size:14px;line-height:1.5;border-bottom:1px solid rgba(24,44,72,.08);color:#182C48}.toolln.bad{color:#B5483B;font-weight:600}.toolln.warn{color:#8a6a2c}
 .toast button{color:#f1d6a8;font-weight:700;font-size:15px;padding:2px 4px}
 .login{padding-top:18vh;text-align:center}
@@ -488,7 +490,8 @@ body{background:var(--bg)}
   <div class="opts" id="impAcc"></div>
   <div class="err" id="impErr"></div>
   <div id="impList"></div>
-  <div class="btns"><button id="impClose" class="btn">關閉</button><button id="impPrev" class="btn">預覽</button><button id="impOk" class="btn p hide">確認入帳</button></div>
+  <div id="impSum" class="impsum"></div>
+  <div class="btns" id="impBtns"><button id="impOk" class="btn p hide">確認入帳</button><button id="impClose" class="btn">關閉</button><button id="impPrev" class="btn">預覽</button></div>
 </div></div>
 
 <div id="detSheet" class="sheet z2"><div class="in">
@@ -2512,20 +2515,27 @@ body{background:var(--bg)}
     drawImpAcc(); $('mask').classList.add('on'); $('impSheet').classList.add('on');
   }
   function impPicked() { var o = []; imp.items.forEach(function (x) { if (x.on) o.push(x.i); }); return o; }
+  function dueShort(s) { return s ? Number(s.slice(5, 7)) + '/' + Number(s.slice(8, 10)) : ''; }
   function drawImpList() {
     var box = $('impList'); box.textContent = '';
     imp.items.forEach(function (x) {
-      var r = el('label', 'impr' + (x.dup || x.bad ? ' off' : '')), cb = el('input'); cb.type = 'checkbox'; cb.checked = !!x.on; cb.disabled = !!(x.dup || x.bad);
+      var off = !!(x.dup || x.bad), r = el('label', 'impr' + (off ? ' off' : '') + (x.maybe ? ' may' : '')), cb = el('input'); cb.type = 'checkbox'; cb.checked = !!x.on; cb.disabled = off;
       cb.onchange = function () { x.on = cb.checked; drawImpList(); };
-      var d = el('div');
-      d.appendChild(el('b', '', (x.side === '買' ? '買 ' : '賣 ') + x.sym + (x.name ? ' ' + x.name : '')));
-      d.appendChild(el('div', '', (x.day || '沒有日期') + '　' + x.shares + ' 股 × ' + x.price + '　= ' + money(x.shares * x.price) + (x.fee ? '　手續費 ' + x.fee : '') + (x.side === '賣' ? '　證交稅 ' + x.tax : '')));
+      var d = el('div', 'impb');
+      var h = el('div', 'imph'); h.appendChild(el('span', 'sd ' + (x.side === '買' ? 'b' : 's'), x.side === '買' ? '買進' : '賣出')); h.appendChild(el('b', '', x.sym + (x.name ? '　' + x.name : ''))); d.appendChild(h);
+      d.appendChild(el('div', 'il', (x.day || '沒有日期') + '　' + x.shares + ' 股 × ' + x.price + ' ＝ ' + money(x.shares * x.price)));
+      d.appendChild(el('div', 'il', x.feePend ? '手續費待確認' + (x.side === '賣' ? '　證交稅 ' + money(x.tax) + (x.taxAuto ? '（估）' : '') : '') : '手續費 ' + money(x.fee) + (x.side === '賣' ? '　證交稅 ' + money(x.tax) + (x.taxAuto ? '（估）' : '') : '')));
+      if (x.net != null && !x.bad) d.appendChild(el('div', 'il nt', (x.side === '買' ? '預估付款 ' : '預估收款 ') + money(x.net) + (x.due ? '　預計 ' + dueShort(x.due) + ' 交割' : '') + (x.feePend ? '（手續費未含）' : '')));
       if (x.dup) d.appendChild(el('div', 'd', x.dupWhy + '，不會重複入帳'));
       else if (x.bad) d.appendChild(el('div', 'd', x.bad));
-      else x.warn.forEach(function (w) { d.appendChild(el('div', 'w', w)); });
+      else if (x.maybe) d.appendChild(el('div', 'w', x.dupWhy));
+      if (!x.dup && !x.bad) x.warn.forEach(function (w) { d.appendChild(el('div', 'w', w)); });
       r.appendChild(cb); r.appendChild(d); box.appendChild(r);
     });
-    var n = impPicked().length;
+    var pay = 0, rec = 0, n = 0;
+    imp.items.forEach(function (x) { if (x.on) { n++; if (x.side === '買') pay += x.net; else rec += x.net; } });
+    var sm = $('impSum'); sm.textContent = '';
+    if (imp.items.length) sm.textContent = n ? ('已勾選 ' + n + ' 筆' + (pay ? '　預估付款 ' + money(pay) : '') + (rec ? '　預估收款 ' + money(rec) : '')) : '沒有勾選任何一筆';
     $('impOk').classList.toggle('hide', !imp.items.length); $('impOk').textContent = n ? '確認入帳（' + n + ' 筆）' : '確認入帳'; $('impOk').disabled = !n;
   }
   $('hImp').onclick = function () { closeAll(); openImp(); };
@@ -2536,9 +2546,10 @@ body{background:var(--bg)}
     var b = $('impPrev'); b.disabled = true;
     call({ action: 'invImportPreview', text: tx, day: S.today || '' }).then(function (r) {
       b.disabled = false; imp.text = tx; imp.items = r.items || [];
-      imp.items.forEach(function (x) { x.on = !x.dup && !x.bad && !!x.day; });
+      imp.items.forEach(function (x) { x.on = !x.dup && !x.maybe && !x.bad && !!x.day; });
       if (!imp.items.length) $('impErr').textContent = '沒有找到成交明細。請確認貼的是「成交」，不是委託或庫存。';
       else if (r.skipped && r.skipped.length) $('impErr').textContent = '已略過 ' + r.skipped.length + ' 行（委託、庫存、餘額或看不懂）';
+      else if (r.counts && r.counts.maybe) $('impErr').textContent = '有 ' + r.counts.maybe + ' 筆疑似已經記過，預設沒有勾選';
       drawImpList();
     }).catch(function (e) { b.disabled = false; $('impErr').textContent = e.message; });
   };
