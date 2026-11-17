@@ -399,6 +399,15 @@ body{background:var(--bg)}
   <div id="filList"></div>
 </div></div>
 
+<div id="pendSheet" class="sheet"><div class="in">
+  <h3>待確認的紀錄</h3>
+  <p class="hint">截圖辨識不完整，還沒算進支出。勾選後可以一次刪除（刪掉的可到垃圾桶還原）；點「修改」可以補店名、金額並確認。</p>
+  <div class="btns"><button id="pendAll" class="btn">全選</button></div>
+  <div id="pendList"></div>
+  <div class="err" id="pendErr"></div>
+  <div class="btns"><button id="pendClose" class="btn">關閉</button><button id="pendDel" class="btn d">刪除選取</button></div>
+</div></div>
+
 <div id="dupSheet" class="sheet"><div class="in">
   <h3>疑似重複</h3>
   <p class="hint">金額一樣、5 分鐘內的紀錄。點一筆選擇要留哪一筆；「合併」會把另一筆比較完整的店名、分類補到留下的那筆。處理完可以按「復原」。</p>
@@ -511,18 +520,45 @@ body{background:var(--bg)}
   <input id="trdSh" class="fld" type="text" inputmode="decimal" placeholder="0" autocomplete="off">
   <div class="lab">單價</div>
   <input id="trdPx" class="fld" type="text" inputmode="decimal" placeholder="0" autocomplete="off">
-  <div class="lab">手續費</div>
-  <input id="trdFee" class="fld" type="text" inputmode="decimal" placeholder="0" autocomplete="off">
+  <div class="lab">手續費（不知道可留空，先算 0 並標「待確認」）</div>
+  <input id="trdFee" class="fld" type="text" inputmode="decimal" placeholder="待確認" autocomplete="off">
+  <div id="trdPtBox" class="hide"><div class="lab">商品類型（決定證交稅預設值）</div><div class="opts" id="trdPt"></div><p class="hint" id="trdPtH"></p></div>
   <div id="trdTaxBox" class="hide"><div class="lab">證交稅</div><input id="trdTax" class="fld" type="text" inputmode="decimal" placeholder="0" autocomplete="off"></div>
-  <div class="lab">日期</div>
+  <div class="lab">成交日期</div>
   <input id="trdDate" class="fld" type="date">
-  <div class="lab">交割帳戶（會同步增減現金）</div>
+  <div class="lab">委託編號（分批成交時填同一個，選填）</div>
+  <input id="trdOrd" class="fld" type="text" maxlength="30" autocomplete="off" placeholder="例如：A001">
+  <div class="lab">交割帳戶</div>
   <div class="opts" id="trdAcc"></div>
+  <div id="trdDueBox"><div class="lab" id="trdDueL">預計交割日</div><input id="trdDue" class="fld" type="date"></div>
+  <p class="hint" id="trdStlH"></p>
+  <div id="trdMigBox" class="hide"><button id="trdMig" class="btn">改成待交割（遷移）</button></div>
+  <div id="trdReBox" class="hide"><button id="trdRe" class="btn">撤銷交割</button></div>
   <div class="err" id="trdErr"></div>
   <div class="btns">
     <button id="trdDel" class="btn d hide">刪除</button>
     <button id="trdCancel" class="btn">取消</button>
     <button id="trdSave" class="btn p">儲存</button>
+  </div>
+</div></div>
+
+<div id="stlSheet" class="sheet z2"><div class="in">
+  <h3 id="stlT">確認交割</h3>
+  <div id="stlRows"></div>
+  <div class="lab">實際交割日（銀行明細上的日期）</div>
+  <input id="stlDate" class="fld" type="date">
+  <div class="lab" id="stlAmtL">銀行實際扣款金額</div>
+  <input id="stlAmt" class="fld amt" type="text" inputmode="decimal" placeholder="0" autocomplete="off">
+  <p class="hint" id="stlHint"></p>
+  <div class="err" id="stlErr"></div>
+  <div class="btns">
+    <button id="stlDueB" class="btn">改預計日</button>
+    <button id="stlEditB" class="btn">改交易</button>
+    <button id="stlUndo" class="btn d hide">復原遷移</button>
+  </div>
+  <div class="btns">
+    <button id="stlCancel" class="btn">關閉</button>
+    <button id="stlOk" class="btn p">確認交割</button>
   </div>
 </div></div>
 
@@ -621,11 +657,11 @@ body{background:var(--bg)}
 (function () {
   'use strict';
   var DEFAULT_API = 'https://script.google.com/macros/s/AKfycbxPkzgIjUT7O4YMPVPjFi5u9JsZL_WWcNhAgVXnH_Erg5Z3jWo2ZgTnpiZTRGUYZqun/exec';
-  var S = { tok: '', lv: '', legacy: false, hold: null, barAnim: false, trash: [], fx: { cfg: {}, rates: {} }, accMore: false, trfOpen: false, anaSel: 5, catMore: false, divs: [], upd: {}, today: '', divHist: false, itrades: [], idivs: [], api: '', rows: [], income: [], accounts: [], transfers: [], snaps: [], hasAcc: false, tab: 'home',
+  var S = { tok: '', lv: '', legacy: false, hold: null, barAnim: false, trash: [], fx: { cfg: {}, rates: {} }, stl: { items: [], pay: 0, recv: 0 }, tax: {}, cal: { hol: {}, special: [] }, accMore: false, trfOpen: false, anaSel: 5, catMore: false, divs: [], upd: {}, today: '', divHist: false, itrades: [], idivs: [], api: '', rows: [], income: [], accounts: [], transfers: [], snaps: [], hasAcc: false, tab: 'home',
             isInc: false, tags: [], fallback: '其他', mg: '', ed: null, delArmed: false, cats: [], sources: [], ver: '',
             y: 0, m: 0, filter: '', editId: '', dupSel: {}, sw: null, swMoved: false };
   var $ = function (id) { return document.getElementById(id); };
-  var SHEETS = ['trashSheet', 'actSheet', 'detSheet', 'annSheet', 'holdSheet', 'trdSheet', 'divSheet', 'migSheet', 'sheet', 'filSheet', 'dupSheet', 'accSheet', 'trfSheet', 'payS', 'ccSetS', 'ccBillS', 'setSheet', 'mgSheet', 'edSheet'];
+  var SHEETS = ['trashSheet', 'actSheet', 'detSheet', 'annSheet', 'holdSheet', 'trdSheet', 'stlSheet', 'divSheet', 'migSheet', 'sheet', 'filSheet', 'dupSheet', 'pendSheet', 'accSheet', 'trfSheet', 'payS', 'ccSetS', 'ccBillS', 'setSheet', 'mgSheet', 'edSheet'];
 
   function lsGet(k) { try { return localStorage.getItem(k) || ''; } catch (e) { return ''; } }
   function lsSet(k, v) { try { localStorage.setItem(k, v); } catch (e) {} }
@@ -749,6 +785,9 @@ body{background:var(--bg)}
     S.transfers = res.transfers || [];
     S.snaps = res.snaps || [];
     S.hold = res.hold || null;
+    S.stl = res.stl || { items: [], pay: 0, recv: 0 };
+    S.tax = res.taxRates || {};
+    S.cal = res.cal || { hol: {}, special: [] };
     S.divs = res.divs || [];
     S.trash = res.trash || [];
     S.fx = res.fx || { cfg: {}, rates: {} };
@@ -905,7 +944,7 @@ body{background:var(--bg)}
     var dif = incTotal - total;
     $('difV').textContent = (dif >= 0 ? '+' : '-') + 'NT$ ' + money(Math.abs(dif));
 
-    var pend = monthRows.filter(function (r) { return r.status === '待確認'; });
+    var pend = S.rows.filter(function (r) { return r.status === '待確認'; });   // 不分月份，全部待確認都列出
     $('pendBar').classList.toggle('hide', !pend.length);
     $('pendT').textContent = '有 ' + pend.length + ' 筆待確認（截圖辨識不完整，未算進支出）';
     S.pend = pend;
@@ -1082,6 +1121,55 @@ body{background:var(--bg)}
     $('mask').classList.add('on'); $('dupSheet').classList.add('on');
   }
 
+  /* ---------- 待確認清單：勾選、全選、批量刪除 ---------- */
+  var pendSel = {};
+  function pendRows() { return S.rows.filter(function (r) { return r.status === '待確認'; }).sort(function (a, b) { return b.time - a.time; }); }
+  function pendCount() { var n = 0; pendRows().forEach(function (r) { if (pendSel[r.id]) n++; }); return n; }
+  function renderPend() {
+    var rows = pendRows(), box = $('pendList'); box.textContent = '';
+    var n = pendCount();
+    $('pendErr').textContent = '';
+    $('pendDel').textContent = n ? '刪除選取（' + n + '）' : '刪除選取';
+    $('pendDel').disabled = !n;
+    $('pendAll').textContent = rows.length && n === rows.length ? '取消全選' : '全選';
+    $('pendAll').classList.toggle('hide', !rows.length);
+    if (!rows.length) { box.appendChild(el('div', 'empty', '沒有待確認的紀錄了')); return; }
+    rows.forEach(function (r) {
+      var b = el('div', 'dr' + (pendSel[r.id] ? ' on' : ''));
+      b.setAttribute('role', 'button');
+      b.appendChild(el('span', 'rd'));
+      var mid = el('div', 'mid');
+      mid.appendChild(el('div', 'st', (r.store || '（沒有店名）') + '　NT$ ' + money(r.amount)));
+      var d = new Date(r.time);
+      mid.appendChild(el('div', 'sb', (d.getMonth() + 1) + '/' + d.getDate() + ' ' + hm(r.time) + '　' + r.source));
+      b.appendChild(mid);
+      var x = el('button', 'x', '修改');
+      x.onclick = function (e) { e.stopPropagation(); $('pendSheet').classList.remove('on'); openEdit(r.id); };
+      b.appendChild(x);
+      b.onclick = function () { pendSel[r.id] = !pendSel[r.id]; renderPend(); };
+      box.appendChild(b);
+    });
+  }
+  function openPend() { pendSel = {}; renderPend(); $('mask').classList.add('on'); $('pendSheet').classList.add('on'); }
+  function pendAllToggle() {
+    var rows = pendRows(), all = rows.length && pendCount() === rows.length;
+    pendSel = {}; if (!all) rows.forEach(function (r) { pendSel[r.id] = true; });
+    renderPend();
+  }
+  function pendDelete() {
+    var ids = pendRows().filter(function (r) { return pendSel[r.id]; }).map(function (r) { return r.id; });
+    if (!ids.length) return;
+    if (!window.confirm('刪除選取的 ' + ids.length + ' 筆待確認紀錄？刪掉的可以到垃圾桶還原。')) return;
+    $('pendDel').disabled = true; $('pendErr').textContent = '';
+    var last = null;
+    chain(ids.map(function (id) {
+      return function () { return call({ action: 'delete', id: id }).then(function (r) { last = r; }).catch(function (e) { if (!/找不到/.test(e.message)) throw e; }); };   // 已經不在的（被刪過）就略過，不中斷
+    })).then(function () { return last || call({ action: 'list' }); }).then(function (res) {
+      setData(res); pendSel = {}; renderPend(); toast('已刪除 ' + ids.length + ' 筆');
+      if (!pendRows().length) closeAll();
+    }).catch(function (e) { $('pendErr').textContent = e.message; renderPend(); });
+  }
+
   /* ---------- 編輯／新增（支出、收入） ---------- */
   var fCat = '', fSrc = '';
   function localInput(t) {
@@ -1200,6 +1288,7 @@ body{background:var(--bg)}
     var asset = 0, debt = 0;
     S.accounts.forEach(function (a) { if (isDebtT(a.type)) debt += a.balance; else asset += accVal(a); });
     if (S.hold) asset += S.hold.value;
+    if (S.stl) { asset += S.stl.recv; debt += S.stl.pay; }   // 待交割應收算資產、應付算負債（和後端 netTotals_ 同一條規則）
     return { asset: asset, debt: debt, net: asset - debt };
   }
 
@@ -1226,8 +1315,10 @@ body{background:var(--bg)}
       mid.appendChild(el('div', 'sb', sub));
       mid.appendChild(el('div', 'sb', line2));
     } else {
-      if (!debt) sub = (a.type === '活存' || a.type === '現金' ? '' : sub + ' · ') + '手動更新 ' + (a.time ? mdOf(a.time) : '—');
+      if (!debt) sub = (a.type === '活存' || a.type === '現金' ? '' : sub + ' · ') + '最後核對 ' + (a.cal ? mdOf(a.cal) : (a.time ? mdOf(a.time) : '—'));
       mid.appendChild(el('div', 'sb', sub));
+      if (!debt && a.pendPay > 0) mid.appendChild(el('div', 'sb', '待交割付款 ' + m2(a.pendPay) + '　可規劃 ' + m2(a.balance - a.pendPay)));
+      if (!debt && a.pendRcv > 0) mid.appendChild(el('div', 'sb', '待交割收款 ' + m2(a.pendRcv)));
     }
     b.appendChild(mid);
     var amt = debt ? (a.type === '貸款' ? '剩餘 ' : '未繳 ') + money(a.balance) : (fx ? '約 ' + smoney(accVal(a)) : smoney(accVal(a)));
@@ -1352,6 +1443,13 @@ body{background:var(--bg)}
   function renderHoldSection(outerBox) {
     var box = el('div', 'gc'); outerBox.appendChild(box);
     var items = heldItems();
+    if (stlItems().length) {
+      var ph = el('div', 'sec');
+      ph.appendChild(el('span', '', '待交割'));
+      ph.appendChild(el('b', '', (S.stl.pay > 0 ? '應付 ' + m2(S.stl.pay) : '') + (S.stl.pay > 0 && S.stl.recv > 0 ? ' · ' : '') + (S.stl.recv > 0 ? '應收 ' + m2(S.stl.recv) : '')));
+      box.appendChild(ph);
+      stlItems().forEach(function (it) { pendRow(box, it); });
+    }
     if (!items.length) {
       var e = el('button', 'sec');
       e.appendChild(el('span', '', '股票／ETF'));
@@ -1370,7 +1468,7 @@ body{background:var(--bg)}
       b.appendChild(ico('invest'));
       var mid = el('div', 'mid');
       mid.appendChild(el('div', 'st', (h.name ? h.name + ' ' : '') + h.sym));
-      mid.appendChild(el('div', 'sb', h.shares + ' 股 · 均價 ' + h.avg + ' · 成本 ' + money(h.cost)));
+      mid.appendChild(el('div', 'sb', h.shares + ' 股 · 均價 ' + h.avg + ' · 含費成本 ' + m2(h.cost)));
       var l2 = el('div', 'sb');
       if (h.hasPrice) {
         var pc = h.cost > 0 ? ' (' + (h.unreal >= 0 ? '+' : '') + (h.unreal / h.cost * 100).toFixed(1) + '%)' : '';
@@ -1477,7 +1575,7 @@ body{background:var(--bg)}
       b.appendChild(ico('invest'));
       var mid = el('div', 'mid');
       mid.appendChild(el('div', 'st', (h.name ? h.name + ' ' : '') + h.sym));
-      mid.appendChild(el('div', 'sb', h.shares > 0 ? (h.shares + ' 股 × ' + (h.hasPrice ? h.price : '未設價') + '　成本 ' + money(h.cost) + '（均價 ' + h.avg + '）') : '已全部賣出'));
+      mid.appendChild(el('div', 'sb', h.shares > 0 ? (h.shares + ' 股 × ' + (h.hasPrice ? h.price : '未設價') + '　含費成本 ' + m2(h.cost) + '（均價 ' + h.avg + '）') : '已全部賣出'));
       if (h.shares > 0 || h.realized !== 0) {
         var s2 = el('div', 'sb');
         s2.textContent = (h.shares > 0 && h.hasPrice ? '未實現 ' + pl(h.unreal) + '　' : '') + '已實現 ' + pl(h.realized) + (h.divCash ? '　配息 ' + money(h.divCash) : '');
@@ -1499,7 +1597,7 @@ body{background:var(--bg)}
       var d = new Date(r.time), x = r.x;
       var b = el('button', 'trow');
       var left = el('span', '');
-      if (r.kind === 't') left.appendChild(document.createTextNode(x.side + ' ' + x.sym + ' ' + x.shares + ' 股 @ ' + x.price));
+      if (r.kind === 't') left.appendChild(document.createTextNode(x.side + ' ' + x.sym + ' ' + x.shares + ' 股 @ ' + x.price + tradeTag(x)));
       else left.appendChild(document.createTextNode((x.type === '現金' ? '現金股利 ' : (x.type === '股票' ? '股票股利 ' : '分割 ')) + x.sym));
       left.appendChild(el('span', 's', (d.getMonth() + 1) + '/' + d.getDate()));
       b.appendChild(left);
@@ -1508,6 +1606,7 @@ body{background:var(--bg)}
       rb.appendChild(b);
     });
   }
+  function tradeTag(x) { return (x.stl && x.stl.st === '待交割' ? '（待交割）' : '') + (x.feePend ? '（手續費待確認）' : ''); }
   function hhmm(t) { var d = new Date(t); return (d.getMonth() + 1) + '/' + d.getDate() + ' ' + hm(t); }
   function updText() {
     var q = (S.upd || {})['行情'], dv = (S.upd || {})['配息'], parts = [];
@@ -1549,8 +1648,9 @@ body{background:var(--bg)}
     function row(k, v, color) { var r = el('div', 'drow'); r.appendChild(el('span', '', k)); var s = el('span', '', v); if (color) s.style.color = color; r.appendChild(s); rows.appendChild(r); }
     var ret = h.cost > 0 && h.hasPrice ? ((h.unreal / h.cost) * 100).toFixed(2) + '%' : '';
     row('持有股數', h.shares + ' 股');
-    row('平均成本', String(h.avg));
-    row('投入成本', 'NT$ ' + money(h.cost));
+    row('平均成本（含手續費）', String(h.avg));
+    row('投入成本', 'NT$ ' + m2(h.cost));
+    stlOfSym(h.sym).forEach(function (it) { row('待交割', (it.side === '買' ? '應付 ' : '應收 ') + m2(it.amount) + '　預計 ' + md(it.due)); });
     row('目前市值', 'NT$ ' + money(h.value));
     row('未實現損益', h.hasPrice ? (pl(h.unreal) + (ret ? '（' + (h.unreal >= 0 ? '+' : '') + ret + '）' : '')) : '未設價', h.hasPrice ? plColor(h.unreal) : '');
     row('已實現損益', pl(h.realized), plColor(h.realized));
@@ -1563,7 +1663,7 @@ body{background:var(--bg)}
     $('detRecH').classList.toggle('hide', !rec.length);
     rec.slice(0, 20).forEach(function (r) {
       var d = new Date(r.time), x = r.x, b = el('button', 'trow'), left = el('span', '');
-      if (r.kind === 't') left.appendChild(document.createTextNode(x.side + ' ' + x.shares + ' 股 @ ' + x.price));
+      if (r.kind === 't') left.appendChild(document.createTextNode(x.side + ' ' + x.shares + ' 股 @ ' + x.price + tradeTag(x)));
       else left.appendChild(document.createTextNode((x.type === '現金' ? '現金股利' : (x.type === '股票' ? '股票股利' : '分割'))));
       left.appendChild(el('span', 's', d.getFullYear() + '/' + (d.getMonth() + 1) + '/' + d.getDate()));
       b.appendChild(left);
@@ -1586,27 +1686,166 @@ body{background:var(--bg)}
     if (old && dateVal(old) === s) return old;
     return d.getTime();
   }
+  /* ---------- 交割（v17）：成交日記持股，交割日（你確認後）才動銀行 ---------- */
+  function m2(n) { var r = Math.round(n * 100) / 100; return r.toLocaleString('en-US', { minimumFractionDigits: (Math.abs(r % 1) > 0 ? 2 : 0), maximumFractionDigits: 2 }); }
+  var TW_DOW = ['日', '一', '二', '三', '四', '五', '六'];
+  function ymdAddF(ymd, n) { var p = ymd.split('-'); return new Date(Date.UTC(+p[0], +p[1] - 1, +p[2] + n)).toISOString().slice(0, 10); }
+  // 預計交割日預覽：規則和後端 stlDue_ 相同（實際存的日期以後端算的為準）
+  function stlDueF(tradeYmd, side) {
+    var cal = S.cal || { hol: {}, special: [] }, d = tradeYmd, n = 0, g = 0, src = cal.hol[tradeYmd.slice(0, 4)] ? '日曆' : '預估';
+    while (n < 2 && g++ < 40) {
+      d = ymdAddF(d, 1);
+      var p = d.split('-'), dw = new Date(Date.UTC(+p[0], +p[1] - 1, +p[2])).getUTCDay(), sp = cal.special.indexOf(d) >= 0, h = cal.hol[d.slice(0, 4)];
+      if (sp) src = '預估';
+      if (dw === 0 || dw === 6 || (h && h.indexOf(d) >= 0)) continue;
+      if (sp && side === '賣') continue;
+      n++;
+    }
+    if (!cal.hol[d.slice(0, 4)]) src = '預估';
+    return { due: d, src: src };
+  }
+  function dueSrcText(src) { return src === '日曆' ? '依證交所休市日曆計算' : (src === '手動' ? '你手動設定' : '預估，只排除週末，請自行確認'); }
+  function stlItems() { return (S.stl && S.stl.items) || []; }
+  function stlOfSym(sym) { return stlItems().filter(function (i) { return i.sym === sym; }); }
+  function stlTradeOf(id) { for (var i = 0; i < S.itrades.length; i++) if (S.itrades[i].id === id) return S.itrades[i]; return null; }
+  function pendRow(box, it) {
+    var b = el('button', 'acc iv');
+    b.appendChild(ico('invest'));
+    var mid = el('div', 'mid');
+    var st = el('div', 'st', '待交割 · ' + it.side + ' ' + (it.name ? it.name + ' ' : '') + it.sym + ' ' + it.shares + ' 股');
+    mid.appendChild(st);
+    var due = it.due ? md(it.due) : '—', late = it.due && it.due <= (S.today || '');
+    var sb = el('div', 'sb', (late ? '已到預計日 ' : '預計 ') + due + '（' + dueSrcText(it.src) + '）' + (late ? ' · 請對照銀行明細後確認' : '') + (it.feePend ? ' · 手續費待確認' : ''));
+    if (late) sb.style.color = 'var(--exp)';
+    mid.appendChild(sb);
+    b.appendChild(mid);
+    var am = el('div', 'am', (it.side === '買' ? '應付 ' : '應收 ') + m2(it.amount));
+    b.appendChild(am);
+    b.onclick = function () { openStl(it.id); };
+    box.appendChild(b);
+  }
+  var stl = { id: '', it: null };
+  function openStl(id) {
+    var it = null; stlItems().forEach(function (i) { if (i.id === id) it = i; });
+    if (!it) return;
+    stl.id = id; stl.it = it;
+    var acc = accById(it.acct);
+    $('stlT').textContent = '確認交割';
+    var rows = $('stlRows'); rows.textContent = '';
+    function row(k, v) { var r = el('div', 'drow'); r.appendChild(el('span', '', k)); r.appendChild(el('span', '', v)); rows.appendChild(r); }
+    row('交易', it.side + ' ' + (it.name ? it.name + ' ' : '') + it.sym + ' ' + it.shares + ' 股 @ ' + it.price);
+    row('成交金額', 'NT$ ' + m2(it.shares * it.price));
+    row('手續費' + (it.feePend ? '（待確認）' : ''), 'NT$ ' + m2(it.fee));
+    if (it.side === '賣') row('證交稅', 'NT$ ' + m2(it.tax));
+    row(it.side === '買' ? '預計應付' : '預計應收', 'NT$ ' + m2(it.amount));
+    row('預計交割日', md(it.due) + '（' + dueSrcText(it.src) + '）');
+    row('交割帳戶', acc ? acc.name : '—');
+    $('stlDate').value = dateVal(Date.now());
+    $('stlDate').max = dateVal(Date.now());
+    $('stlAmtL').textContent = it.side === '買' ? '銀行實際扣款金額' : '銀行實際入帳金額';
+    $('stlAmt').value = String(it.amount);
+    $('stlErr').textContent = '';
+    $('stlUndo').classList.toggle('hide', !it.mig);
+    stlFeeHint();
+    $('holdSheet').classList.remove('on'); $('detSheet').classList.remove('on');
+    $('mask').classList.add('on'); $('stlSheet').classList.add('on');
+  }
+  function stlFeeHint() {
+    var it = stl.it; if (!it) return;
+    var amt = num('stlAmt'), gross = it.shares * it.price;
+    var fee = it.side === '買' ? amt - gross : gross - it.tax - amt;
+    var same = Math.abs(amt - it.amount) < 0.005;
+    var t = '請對照銀行明細填實際金額。交割日只是提醒，不會自動結算。';
+    if (amt > 0) t += (fee < -0.005 ? '　金額比成交金額' + (it.side === '買' ? '還少' : '加稅費還多') + '，請再核對。' : '　→ 手續費 ' + m2(Math.max(0, fee)) + (same && it.feePend ? '（和原本相同，仍標待確認）' : ''));
+    $('stlHint').textContent = t;
+  }
+  function closeStl() { $('stlSheet').classList.remove('on'); closeAll(); }
+  function stlOk() {
+    var it = stl.it; if (!it) return;
+    if (!(num('stlAmt') > 0)) { $('stlErr').textContent = '請輸入銀行實際金額'; return; }
+    $('stlOk').disabled = true; $('stlErr').textContent = '';
+    call({ action: 'stlConfirm', id: it.id, amount: num('stlAmt'), date: $('stlDate').value }).then(function (res) {
+      $('stlOk').disabled = false; setData(res); closeStl(); toast(res.note || '已確認交割，銀行餘額已更新');
+    }).catch(function (e) { $('stlOk').disabled = false; $('stlErr').textContent = e.message; });
+  }
+  function stlDueEdit() {
+    var it = stl.it; if (!it) return;
+    var v = window.prompt('預計交割日（格式 2026-11-19）。只是提醒，不會自動結算。', it.due);
+    if (v === null) return;
+    call({ action: 'stlDue', id: it.id, due: v.trim() }).then(function (res) { setData(res); openStl(it.id); toast('已更新預計日'); }).catch(function (e) { $('stlErr').textContent = e.message; });
+  }
+  function stlMigUndo() {
+    var it = stl.it; if (!it || !window.confirm('復原遷移：這筆會回到舊做法（銀行已扣款），待交割付款移除，淨資產不變。要復原嗎？')) return;
+    call({ action: 'stlMigUndo', id: it.id }).then(function (res) { setData(res); closeStl(); toast('已復原遷移'); }).catch(function (e) { $('stlErr').textContent = e.message; });
+  }
+  function stlToTrade() { var it = stl.it, t = it ? stlTradeOf(it.id) : null; if (!t) return; $('stlSheet').classList.remove('on'); openTrd(t, null, null, function () { closeAll(); }); }
+  function stlMigrate() {
+    var t = trd.edit; if (!t) return;
+    var amt = t.shares * t.price + t.fee;
+    if (!window.confirm('把這筆舊買入改成「待交割」？\n\n銀行餘額會加回 ' + m2(amt) + '，同時建立同金額的待交割付款，淨資產不變。之後你對照銀行明細按「確認交割」才會再扣。\n\n系統會先檢查：還沒遷移過、原本的扣款還有效、且在最近一次銀行校正之後。')) return;
+    $('trdSave').disabled = true;
+    call({ action: 'stlMigrate', id: t.id }).then(function (res) { $('trdSave').disabled = false; setData(res); closeTrd(); toast(res.note || '已改成待交割'); })
+      .catch(function (e) { $('trdSave').disabled = false; $('trdErr').textContent = e.message; });
+  }
+  function stlReopen() {
+    var t = trd.edit; if (!t || !window.confirm('撤銷這筆的交割？銀行會還原，這筆回到待交割。')) return;
+    call({ action: 'stlReopen', id: t.id }).then(function (res) { setData(res); closeTrd(); toast('已撤銷交割'); }).catch(function (e) { $('trdErr').textContent = e.message; });
+  }
+  var PT_HINT = { '股票': '一般股票賣出 0.3%', 'ETF': '股票型 ETF 賣出 0.1%', '債券ETF': '一般債券 ETF 目前免徵（至 2026 年底）', '當沖': '現股當沖 0.15%', '其他': '權證、槓桿／反向債券 ETF 等請看成交單，自己填稅額' };
+  function ptGuess(sym) { return /^00\d{2,4}B$/i.test(sym) ? '債券ETF' : (/^00\d{2,4}[A-Z]?$/i.test(sym) ? 'ETF' : '股票'); }   // 只是預設，你要自己確認
+  function trdTaxAuto() {
+    if (trd.side !== '賣' || trd.taxTouched) return;
+    var r = (S.tax || {})[trd.pt], sh = num('trdSh'), px = num('trdPx');
+    if (r === undefined) { $('trdTax').value = ''; }
+    else if (sh > 0 && px > 0) $('trdTax').value = String(Math.floor(sh * px * r + 1e-9));
+    $('trdPtH').textContent = (PT_HINT[trd.pt] || '') + '。已帶入預設值，實際以成交單為準，可以直接改。';
+  }
+  function trdDueAuto() {
+    if (trd.dueTouched || trd.legacy || trd.settled) return;
+    var d = $('trdDate').value; if (!d || !trd.acct) return;
+    var r = stlDueF(d, trd.side);
+    $('trdDue').value = r.due;
+    $('trdDueL').textContent = '預計交割日（' + dueSrcText(r.src) + '）';
+  }
+  var PTYPES_F = ['股票', 'ETF', '債券ETF', '當沖', '其他'];
   function cashAccs() { return S.accounts.filter(function (a) { return !isDebtT(a.type); }); }
-  var trd = { edit: null, side: '買', acct: '', back: null };
+  var trd = { edit: null, side: '買', acct: '', back: null, pt: 'ETF', taxTouched: false, dueTouched: false, legacy: false, settled: false };
   function drawTrd() {
-    drawOpts('trdSide', ['買入', '賣出'], trd.side === '買' ? '買入' : '賣出', function (n) { trd.side = n === '買入' ? '買' : '賣'; $('trdT').textContent = n; $('trdTaxBox').classList.toggle('hide', trd.side !== '賣'); });
+    drawOpts('trdSide', ['買入', '賣出'], trd.side === '買' ? '買入' : '賣出', function (n) { trd.side = n === '買入' ? '買' : '賣'; $('trdT').textContent = n; $('trdTaxBox').classList.toggle('hide', trd.side !== '賣'); $('trdPtBox').classList.toggle('hide', trd.side !== '賣'); trdTaxAuto(); trdDueAuto(); });
     var names = ['不連動現金'].concat(cashAccs().map(function (a) { return a.name; }));
     var cur = '不連動現金';
     cashAccs().forEach(function (a) { if (a.id === trd.acct) cur = a.name; });
-    drawOpts('trdAcc', names, cur, function (n) { trd.acct = ''; cashAccs().forEach(function (a) { if (a.name === n) trd.acct = a.id; }); });
+    drawOpts('trdAcc', names, cur, function (n) { trd.acct = ''; cashAccs().forEach(function (a) { if (a.name === n) trd.acct = a.id; }); $('trdDueBox').classList.toggle('hide', !trd.acct || trd.legacy || trd.settled); trdDueAuto(); });
+    drawOpts('trdPt', PTYPES_F, trd.pt, function (n) { trd.pt = n; trd.taxTouched = false; trdTaxAuto(); });
   }
   function openTrd(t, side, sym, back) {
     trd.back = back || null; trd.edit = t || null; trd.side = t ? t.side : (side || '買'); trd.acct = t ? (t.acct || '') : '';
     if (!t && !trd.acct) { var def = cashAccs().filter(function (a) { return /交割/.test(a.name); })[0]; if (def) trd.acct = def.id; }
+    trd.taxTouched = !!(t && t.tax > 0); trd.dueTouched = false;
+    trd.pt = t && t.ptype ? t.ptype : ptGuess(t ? t.sym : (sym || ''));
+    trd.legacy = !!(t && t.acct && !t.stl); trd.settled = !!(t && t.stl && t.stl.st === '已交割');
     $('trdT').textContent = t ? '修改交易' : (trd.side === '買' ? '買入' : '賣出');
     $('trdSym').value = t ? t.sym : (sym || ''); $('trdName').value = t ? t.name : (sym && itemOf(sym) ? itemOf(sym).name : '');
     $('trdSh').value = t ? String(t.shares) : ''; $('trdPx').value = t ? String(t.price) : '';
-    $('trdFee').value = t && t.fee ? String(t.fee) : ''; $('trdTax').value = t && t.tax ? String(t.tax) : '';
+    $('trdFee').value = t ? (t.fee ? String(t.fee) : (t.feePend ? '' : '0')) : ''; $('trdTax').value = t && t.tax ? String(t.tax) : '';
     $('trdDate').value = dateVal(t ? t.time : 0);
+    $('trdOrd').value = t ? (t.ord || '') : '';
     $('trdTaxBox').classList.toggle('hide', trd.side !== '賣');
+    $('trdPtBox').classList.toggle('hide', trd.side !== '賣');
     $('trdDel').classList.toggle('hide', !t);
     $('trdErr').textContent = '';
+    $('trdDueBox').classList.toggle('hide', !trd.acct || trd.legacy || trd.settled);
+    if (t && t.stl && t.stl.st === '待交割') { $('trdDue').value = t.stl.due; $('trdDueL').textContent = '預計交割日（' + dueSrcText(t.stl.src) + '）'; }
+    var sh = '';
+    if (t && trd.settled) sh = '已交割 ' + md(t.stl.done) + '，銀行已記 ' + m2(t.stl.amt) + '。改手續費會同步更新成本和銀行異動。';
+    else if (t && trd.legacy) sh = '這是舊紀錄：成交時就已經扣過（加過）銀行餘額，維持原樣，不會重算。';
+    else if (t && t.stl && t.stl.st === '待交割') sh = '還沒交割：銀行餘額沒有動。對照銀行明細後，到資產頁「待交割」按「確認交割」。';
+    else sh = '成交後先記持股和「待交割」，銀行餘額要等你確認交割才會動。選「不連動現金」就完全不碰銀行。';
+    $('trdStlH').textContent = sh;
+    $('trdMigBox').classList.toggle('hide', !(t && trd.legacy && t.side === '買'));
+    $('trdReBox').classList.toggle('hide', !(t && trd.settled));
     drawTrd();
+    if (!t) { trdTaxAuto(); trdDueAuto(); }
     $('holdSheet').classList.remove('on'); $('detSheet').classList.remove('on');
     $('mask').classList.add('on'); $('trdSheet').classList.add('on');
   }
@@ -1617,14 +1856,15 @@ body{background:var(--bg)}
     if (!sym) { $('trdErr').textContent = '請輸入代碼'; return; }
     if (!(num('trdSh') > 0)) { $('trdErr').textContent = '請輸入股數'; return; }
     if (!(num('trdPx') > 0)) { $('trdErr').textContent = '請輸入單價'; return; }
-    var body = { action: 'invTrade', sym: sym, name: $('trdName').value, side: trd.side, shares: num('trdSh'), price: num('trdPx'), fee: num('trdFee'), tax: trd.side === '賣' ? num('trdTax') : 0, acct: trd.acct, time: dateToTime($('trdDate').value, trd.edit && trd.edit.time) };
+    var feeRaw = $('trdFee').value.trim();
+    var body = { action: 'invTrade', sym: sym, name: $('trdName').value, side: trd.side, shares: num('trdSh'), price: num('trdPx'), fee: num('trdFee'), feePend: feeRaw === '', tax: trd.side === '賣' ? num('trdTax') : 0, ptype: trd.side === '賣' ? trd.pt : '', ord: $('trdOrd').value.trim(), acct: trd.acct, due: $('trdDue').value, dueManual: trd.dueTouched, time: dateToTime($('trdDate').value, trd.edit ? trd.edit.time : 0) };
     if (trd.edit) body.id = trd.edit.id;
     $('trdSave').disabled = true; $('trdErr').textContent = '';
     call(body).then(function (res) { $('trdSave').disabled = false; setData(res); closeTrd(); toast('已儲存'); })
       .catch(function (e) { $('trdSave').disabled = false; $('trdErr').textContent = e.message; });
   }
   function trdDel() {
-    if (!trd.edit || !window.confirm('刪除這筆交易？持股會重新計算，交割帳戶的現金也會一起還原。')) return;
+    if (!trd.edit || !window.confirm('刪除這筆交易？持股會重新計算；待交割會取消，已交割的銀行異動會作廢。')) return;
     call({ action: 'invDelete', id: trd.edit.id }).then(function (res) { setData(res); closeTrd(); toast('已刪除'); }).catch(function (e) { $('trdErr').textContent = e.message; });
   }
 
@@ -2114,7 +2354,8 @@ body{background:var(--bg)}
   var tb = $('tabs').querySelectorAll('button');
   for (var ti = 0; ti < tb.length; ti++) tb[ti].onclick = function () { showTab(this.getAttribute('data-t')); };
   $('fab').onclick = openAdd;
-  $('pendBar').onclick = function () { if (S.pend && S.pend[0]) openEdit(S.pend[0].id); };
+  $('pendBar').onclick = openPend;
+  $('pendClose').onclick = closeAll; $('pendAll').onclick = pendAllToggle; $('pendDel').onclick = pendDelete;
   $('mask').onclick = closeAll;
   $('shCancel').onclick = closeAll;
   $('shSave').onclick = save;
@@ -2140,6 +2381,12 @@ body{background:var(--bg)}
   $('hBuy').onclick = function () { openTrd(null, '買'); };
   $('hSell').onclick = function () { openTrd(null, '賣'); };
   $('hDiv').onclick = function () { openDiv(null); };
+  $('stlCancel').onclick = closeStl; $('stlOk').onclick = stlOk; $('stlDueB').onclick = stlDueEdit; $('stlEditB').onclick = stlToTrade; $('stlUndo').onclick = stlMigUndo;
+  $('stlAmt').oninput = stlFeeHint;
+  $('trdMig').onclick = stlMigrate; $('trdRe').onclick = stlReopen;
+  $('trdTax').oninput = function () { trd.taxTouched = true; };
+  $('trdDue').onchange = function () { trd.dueTouched = true; };
+  $('trdSh').oninput = trdTaxAuto; $('trdPx').oninput = trdTaxAuto; $('trdDate').onchange = trdDueAuto;
   $('trdCancel').onclick = closeTrd; $('trdSave').onclick = trdSave; $('trdDel').onclick = trdDel;
   $('divCancel').onclick = closeDiv; $('divSave').onclick = divSave; $('divDel').onclick = divDel;
   $('migCancel').onclick = closeAll; $('migKeep').onclick = function () { migDo(true); }; $('migOk').onclick = function () { migDo(false); };
