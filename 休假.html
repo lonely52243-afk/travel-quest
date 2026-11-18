@@ -4053,12 +4053,7 @@ try { var pl0 = dutyDayOf(d.k).plan || {}; Object.keys(pl0).forEach(function (it
 var l = offClash(d.k, p.n, tm, why); if (l) out.push(pre + l);
 dutyClash(d.k, p.n, why, tm).forEach(function (c) { out.push(c[0] === '~' ? '~' + pre + '已有' + c.slice(1) : pre + '已有' + c); });
 try {
-var pl = dutyDayOf(d.k).plan || {}, a = dayRng(tm);
-Object.keys(pl).forEach(function (it) {
-if (!pl[it].some(function (q) { return q.n === p.n && !q.away; })) return;
-var pt = planTm(it, d.k), b = pt ? dayRng(pt.a + '–' + pt.b) : dayRng('');
-if (a[0] < b[1] && b[0] < a[1]) out.push((it === '衛哨' ? '~' : '') + pre + (it === '衛哨' ? '衛哨（其中一人去）' : '輪值' + it) + (pt ? ' ' + pt.a + '–' + pt.b : ''));
-});
+planHits(d.k, p.n, tm, why).forEach(function (h) { out.push((h.itm === '衛哨' ? '~' : '') + pre + (h.itm === '衛哨' ? '衛哨（其中一人去）' : '輪值' + h.itm) + (h.pt ? ' ' + h.pt.a + '–' + h.pt.b : '')); });
 } catch (er) { /* 忽略 */ }
 if (!e.asEv) evClash(d.k, p.n, tm).forEach(function (t) { out.push(pre + '有行程：' + t); });
 }
@@ -4163,6 +4158,15 @@ return l;
 if (!r || (r.period !== '上午' && r.period !== '下午')) return l;
 var a = isUrine(why) && !String(tm || '').trim() ? [480, 1020] : tmRange(tm), b = r.period === '上午' ? [480, 720] : [810, 1020];
 return a[0] < b[1] && b[0] < a[1] ? l : '';
+}
+function planHits(k, n, tm, why) {
+var out = [], pl = dutyDayOf(k).plan || {}, a = dayRng(tm);
+Object.keys(pl).forEach(function (itm) {
+if (itm === why || !pl[itm].some(function (q) { return q.n === n && !q.away; })) return;
+var pt = planTm(itm, k), b = pt ? dayRng(pt.a + '–' + pt.b) : dayRng('');
+if (a[0] < b[1] && b[0] < a[1]) out.push({ itm: itm, pt: pt });
+});
+return out;
 }
 function offLabel(k, n) {
 var r = (recordsPub[k] || {})[n];
@@ -4670,16 +4674,19 @@ function dutyOpen(k) { dutyDayK = k; $('dutyDay').classList.add('show'); renderD
 function dutyCacheSave() { try { localStorage.setItem(DUTY_KEY, JSON.stringify(dutyAll)); } catch (e) { /* 忽略 */ } }
 function dutyCacheLoad() { try { var r = localStorage.getItem(DUTY_KEY); if (r) { var o = JSON.parse(r); if (o && typeof o === 'object') { dutyAll = o; dutyReady = true; } } } catch (e) { /* 忽略 */ } }
 function rosterCacheLoad() { try { var r = localStorage.getItem(ROSTER_KEY); if (r) { var o = JSON.parse(r); if (o && typeof o === 'object') rosterAll = o; } } catch (e) { /* 忽略 */ } }
+var rosterSeq = 0;
 function rosterLoad() {
+var seq = ++rosterSeq;   // 連按重新整理時，慢回來的舊結果不能蓋掉新的
 return apiCall({ action: 'getRoster' }).then(function (res) {
-if (!res || !res.ok) { rosterState = '讀取失敗：' + ((res && res.msg) || '未知原因'); if ($('dutyDay').classList.contains('show')) renderDutyDay(); return; }
+if (seq !== rosterSeq) return;
+if (!res || !res.ok) { rosterState = '讀取失敗：' + ((res && res.msg) || '未知原因'); if ($('dutyDay').classList.contains('show')) renderDutyDay(); todoSync(); mineSync(); return; }
 rosterState = res.cfg ? 'ok' : 'nocfg';
 var m = {}; (res.items || []).forEach(function (it) { (m[it.date] = m[it.date] || []).push({ item: it.item, n: it.name }); });
 if (res.cfg) { var hol0 = JSON.stringify(HOLIDAYS); applyCfg(res.cfg); if (JSON.stringify(HOLIDAYS) !== hol0) { try { renderAll(); } catch (e) { /* 忽略 */ } } try { localStorage.setItem(CFG_KEY, JSON.stringify(res.cfg)); } catch (e) { /* 忽略 */ } try { if (statAll) renderStat(); } catch (e) { /* 忽略 */ } }
 rosterAll = m; try { localStorage.setItem(ROSTER_KEY, JSON.stringify(m)); } catch (e) { /* 忽略 */ }
 if ($('dutyPage').classList.contains('show')) renderDutyMon();
-mineSync();
-}).catch(function (e) { rosterState = '讀取失敗：' + e.message; if ($('dutyDay').classList.contains('show')) renderDutyDay(); });
+todoSync(); mineSync();
+}).catch(function (e) { if (seq !== rosterSeq) return; rosterState = '讀取失敗：' + e.message; if ($('dutyDay').classList.contains('show')) renderDutyDay(); todoSync(); mineSync(); });
 }
 function dutyWarm() {
 rosterLoad(); notesLoad(); eventsLoad(true);
@@ -5142,7 +5149,7 @@ var r = todoRanges(), out = [], d = parseKey(mondayOf(r[0].a) < r[0].a ? mondayO
 while (keyOf(d) <= r[2].b) { out.push(d.getFullYear() + '-' + pad(d.getMonth() + 1)); d.setMonth(d.getMonth() + 1); }
 return out;
 }
-function rdLoadHtml() { return rdFail ? '<div class="tdload bad">資料讀取失敗，請檢查網路連線。<button type="button" class="linkbtn" data-tdretry="1">重試</button></div>' : '<div class="tdload">資料讀取中…</div>'; }
+function rdLoadHtml() { return rdFail || rosterBad() ? '<div class="tdload bad">' + (rosterBad() && !rdFail ? '輪值表讀取失敗，重疊提醒可能不完整。' : '資料讀取失敗，請檢查網路連線。') + '<button type="button" class="linkbtn" data-tdretry="1">重試</button></div>' : '<div class="tdload">資料讀取中…</div>'; }
 function todoEnsure() {
 todoMonths().forEach(function (ym) {
 if (todoAsked[ym]) return; todoAsked[ym] = 1;
@@ -5151,7 +5158,10 @@ if (!loaded[ym]) fetchPeriod(y, m).then(done).catch(function () { rdFail = true;
 apiCall({ action: 'getDuty', year: y, month: m }).then(function (res) { if (!res || !res.ok) { rdFail = true; done(); return; } dutyFill(y, m, res); done(); }).catch(function () { rdFail = true; done(); });
 });
 }
-function todoReady() { return qkAll().length > 0 && todoMonths().every(function (ym) { return loaded[ym]; }); }   // 名冊還沒進來時不能說「沒有重疊」
+function todoReady() { return qkAll().length > 0 && rosterState === 'ok' && todoMonths().every(function (ym) { return loaded[ym]; }); }   // 名冊或輪值表還沒進來時不能說「沒有重疊」
+function rosterBad() { return /^讀取失敗/.test(rosterState); }
+var todoSyncT = 0;   // 資料（輪值表）後到時重算待處理：合併成一次，不閃
+function todoSync() { clearTimeout(todoSyncT); todoSyncT = setTimeout(function () { try { if (employees.length) todoBadge(); if ($('todoPage').classList.contains('show')) renderTodo(); } catch (e) { /* 忽略 */ } }, 80); }
 function todoScan(a, b) {
 var names = {}; qkAll().forEach(function (e) { names[e.name] = 1; });   // 勤務重疊看全部人，不分班
 var hard = [], soft = [], miss = [], seen = {}, okd = prefs.todoOk || {};
@@ -5174,11 +5184,8 @@ if (urS || isUrine(x.why)) { it2.note = '尿篩時間重疊，確認一下來不
 else if (!tm || (oth && !otm)) { it2.note = '有一項時間還沒定'; if (!okd[key]) soft.push(it2); } else hard.push(it2);
 });
 try {
-var pl = dutyDayOf(k).plan || {}, ra = dayRng(x.time);
-Object.keys(pl).forEach(function (itm) {
-if (itm === x.why || !pl[itm].some(function (q) { return q.n === x.n && !q.away; })) return;
-var pt = planTm(itm, k), rb = pt ? dayRng(pt.a + '–' + pt.b) : dayRng('');
-if (!(ra[0] < rb[1] && rb[0] < ra[1])) return;
+planHits(k, x.n, x.time, x.why).forEach(function (h) {
+var itm = h.itm, pt = h.pt;
 var key3 = 'p|' + k + '|' + x.n + '|' + x.why + '|' + itm; if (seen[key3]) return; seen[key3] = 1;
 var it3 = { id: key3, k: k, n: x.n, why: x.why, kind: 'plan', a: '輪值 ' + itm + (pt ? ' ' + pt.a + '–' + pt.b : ''), b: x.why + (tm ? ' ' + fmtTm(tm) : '') };
 if (!tm || itm === '衛哨') { it3.note = itm === '衛哨' ? '衛哨只是提醒（留守的駐廠其中一人去）' : '勤務時間還沒定'; if (!okd[key3]) soft.push(it3); } else hard.push(it3);
@@ -5192,12 +5199,12 @@ soft.push({ id: key, k: k, n: x.n, why: x.why, kind: 'ev', a: t, b: x.why + (tm 
 try {
 var pl2 = dutyDayOf(k).plan || {};
 Object.keys(pl2).forEach(function (itm) { pl2[itm].forEach(function (q) {
-if (q.away || !names[q.n]) return;
-var r2 = (recordsPub[k] || {})[q.n]; if (!r2) return;
-var pt2 = planTm(itm, k), half2 = r2.period === '上午' || r2.period === '下午';
-if (!(r2.period === '全天' || r2.period === '外勤' || half2)) return;
-if (half2 && pt2) { var b2 = r2.period === '上午' ? [480, 720] : [810, 1020], a2 = dayRng(pt2.a + '–' + pt2.b); if (!(a2[0] < b2[1] && b2[0] < a2[1])) return; }
-hard.push({ id: 'l|' + k + '|' + q.n + '|' + itm, k: k, n: q.n, why: itm, kind: 'leaveplan', a: r2.period === '外勤' ? (r2.type || '外勤') : r2.period + '休', b: '輪值 ' + itm + (pt2 ? ' ' + pt2.a + '–' + pt2.b : '') });
+if (!names[q.n]) return;   // q.away＝這個人那天休假，正是要提醒的對象，不能跳過
+if ((dutyAll[k] || []).some(function (y) { return y.n === q.n && y.why === itm; })) return;   // 同一項已經是真的勤務：上面「休假／勤務重疊」講過了，不重複
+var pt2 = planTm(itm, k), off2 = offClash(k, q.n, pt2 ? pt2.a + '–' + pt2.b : '', itm);   // 跟「休假／勤務重疊」同一個判斷
+if (!off2) return;
+var r2 = (recordsPub[k] || {})[q.n], it4 = { id: 'l|' + k + '|' + q.n + '|' + itm, k: k, n: q.n, why: itm, kind: 'leaveplan', a: off2, b: '輪值 ' + itm + (pt2 ? ' ' + pt2.a + '–' + pt2.b : '') };
+if (r2 && (r2.period === '上午' || r2.period === '下午') && !pt2) { it4.note = '輪值時間還沒定'; if (!okd[it4.id]) soft.push(it4); } else hard.push(it4);
 }); });
 } catch (er2) { /* 忽略 */ }
 if (dayInfo(k).off && loaded[k.slice(0, 7)]) { var u = unfiledOf(k); if (u.length) miss.push({ k: k, l: u.map(function (x) { return x.name; }) }); }
@@ -6516,7 +6523,7 @@ if (!m) { m = document.createElement('div'); m.id = 'a2hsMask'; document.body.ap
 m.innerHTML = '<div id="a2hs" role="dialog" aria-modal="true" aria-label="加入主畫面"><h2>' + t + '</h2><ol>' + s.map(function (x) { return '<li>' + x + '</li>'; }).join('') + '</ol><p>網頁無法自動安裝，要自己按一下。</p><div class="a2b">' + (k === 'app' ? '<button class="ghost" id="a2hsCp">複製連結</button>' : '') + '<button class="primary" id="a2hsOk">知道了</button></div></div>';
 m.classList.add('show');
 }
-var CHANGELOG = [{"v": "v11.70", "d": "11/11", "t": ["提醒中心、修改紀錄、產出姓名整合：①拿掉「留守異動」提醒（不再自動彈出、不用按「都看過了」、不再同步已讀），提醒中心只剩「時間重疊」（有才出現、解除自動消失）和「假單還沒點」（這週為主，下週、之後可切換）；留守的新增、取消、修改全部照舊記在修改紀錄，歷史一筆不少；②修改紀錄改成簡單列表：搜尋（姓名、日期、事由、文字）＋全部／假單／留守與勤務，依實際操作時間新到舊、同一天集中，每筆兩行白話（例：林韋辰取消休假／11/20 全日休 → 未登記），點開看操作者、人員、日期、修改前後、實際操作時間與身分（沒存的欄位不編造），舊紀錄照常顯示；③產出新增「姓名寫法」：只寫名字／完整姓名／簡稱優先＋獨立勾選「幹部優先使用職務稱呼」，依股名冊（簡稱欄、幹部欄）判斷，複姓、同名、簡稱重複時自動改寫完整姓名；人員情況、留守、加班、尿篩、提醒複製、假單／休假文字、任務派遣複製文字與圖片全部共用，設定存在這支手機、不改試算表；原加班「只寫名字」設定自動沿用。不涉及後端；④快速標記：勾選兩天以上時多一顆「每天分開選」，按了每天一張卡，各自看當天勤務、各派各的人（存檔仍是一天一筆）。⑤勤務統計減法整理：「誰該先派」與「勤務統計」分成兩塊，統計改成一行總結＋簡潔列表，其餘改為點開才看。表定的擴大FO／查庫／監工不再算進勤務次數（尿篩、加班原本就不算）。⑥全程式健檢：儲存／新增改成「處理中→確認後才顯示成功」，失敗保留內容並可重試，送出後沒回應會提醒先重新整理確認，統計與任務頁讀取失敗有重試；清掉改版殘留的程式與圖片。", "留守儲存完的提示拿掉「班長會看到」，只留「已儲存 N 天」；任務派遣・點名官：人員情況改成分色（休假藍、外勤紫紅、留守紅、監控靛藍、到班綠）、人數同一排、勤務色卡加時間色塊；「複製這天人員情況」改成「複製文字」＋「產圖分享」（在手機上畫成圖片，可分享或儲存，文字複製內容不變）；封面「設定」下面新增「點點月曆」入口（開另一個分頁，獨立使用、資料不同步）；複製後的提示改成「請與班長反應」；瘦身：刪掉沒在用的舊程式、舊樣式、3 張沒用到的圖，並合併 3 組重複的圖（檔案變小、畫面不變）、「要改請找班長」改成「請與班長反應」；導覽拿掉「班長會收到提醒」（這個程式資料本來就公開）；紀錄頁重新排版：搜尋與「篩選」同一列（範圍、身分在展開面板），依操作日分組可收合，每筆姓名＋內容＋時間、動作標籤、日期、身分；同一分鐘大量新增自動歸成一組；點一筆看完整詳情（實際操作者沒存就寫未記錄）；假單「顯示」設定視窗拿掉：週／月、今天直接放在表格上面一列；日期列、假日提醒列、最下面的休假人數固定顯示；軍官一律顯示；顏色圖例併入「使用導覽」", "滿版後右下角圓鈕寫著「還原」，不用記提示", "三份獨立紀錄＋跨班代記（需搭配後端 v52）：股總、彈射、軍械各一份，都能替全部人員（含軍官）登記，一律記在自己那份、不覆蓋別人；彈射、軍械表格預設只列自己班，上面一列「全部人員」可列出所有人；自己那份空白時，別份只當淡色參考，不算已點；點名官等綜合畫面：股總 → 本班班長 → 代記（軍官：股總 → 彈射 → 軍械）；「清除」只清自己那份，不再兩邊都刪；取消後若別份還有紀錄會提示", "階段二：①產出「加班」表單很長，複製鈕不在畫面內時右下角浮出「↓ 到複製」（點了捲過去；鍵盤打開或其他表單不出現）；②勤務統計加一行說明「以下依所選期間統計、上方誰該先派固定看近 3 個月」；③使用導覽文字對齊現況：休假表（原寫「分析」）、統計（月／近3月／年／全部、勤務／尿篩／打靶／加班、誰該先派、排序）、產出含尿篩、快速標記按鈕名稱、換身分入口；複製留守／複製未點假單只顯示自己身分用得到的那句。權限、資料、後端、其餘畫面都不變。"], "n": 98}, {"v": "v11.69", "d": "11/11", "t": ["封面放大：標題、身分卡、兩個大按鈕（圖示、字）、待處理／編輯紀錄都加大，間距拉開，上下留白更平衡（螢幕夠高才放大，小螢幕不變）"], "n": 1}, {"v": "v11.68", "d": "11/11", "t": ["「我的重點」今天那行改簡短：只列類別（尿篩・公差・行程）加「共幾件」，時間重疊會直接標出來"], "n": 1}, {"v": "v11.67", "d": "11/11", "t": ["一般首頁最上面新增「我的重點」三行：今天要做什麼、下個假日（留守／休／還沒點幾天）、假單有沒有點好，打開 3 秒就知道"], "n": 1}, {"v": "v11.66", "d": "11/11", "t": ["一般首頁引導：右上多「看導覽」；紅條下面直接寫下一步（休假去公司點假單／留守按標留守）；名單沒載入（沒網路）時改顯示「重試」，不會卡在選名字；唯讀連結的「標留守」改成灰色並說明原因"], "n": 1}, {"v": "v11.65", "d": "11/11", "t": ["使用導覽說明文字全部精簡（拿掉贅詞，意思不變）；順便移除沒用到的程式碼"], "n": 1}];
+var CHANGELOG = [{"v": "v11.70", "d": "11/11", "t": ["提醒中心、修改紀錄、產出姓名整合：①拿掉「留守異動」提醒（不再自動彈出、不用按「都看過了」、不再同步已讀），提醒中心只剩「時間重疊」（有才出現、解除自動消失）和「假單還沒點」（這週為主，下週、之後可切換）；留守的新增、取消、修改全部照舊記在修改紀錄，歷史一筆不少；②修改紀錄改成簡單列表：搜尋（姓名、日期、事由、文字）＋全部／假單／留守與勤務，依實際操作時間新到舊、同一天集中，每筆兩行白話（例：林韋辰取消休假／11/20 全日休 → 未登記），點開看操作者、人員、日期、修改前後、實際操作時間與身分（沒存的欄位不編造），舊紀錄照常顯示；③產出新增「姓名寫法」：只寫名字／完整姓名／簡稱優先＋獨立勾選「幹部優先使用職務稱呼」，依股名冊（簡稱欄、幹部欄）判斷，複姓、同名、簡稱重複時自動改寫完整姓名；人員情況、留守、加班、尿篩、提醒複製、假單／休假文字、任務派遣複製文字與圖片全部共用，設定存在這支手機、不改試算表；原加班「只寫名字」設定自動沿用。不涉及後端；④快速標記：勾選兩天以上時多一顆「每天分開選」，按了每天一張卡，各自看當天勤務、各派各的人（存檔仍是一天一筆）。⑤勤務統計減法整理：「誰該先派」與「勤務統計」分成兩塊，統計改成一行總結＋簡潔列表，其餘改為點開才看。表定的擴大FO／查庫／監工不再算進勤務次數（尿篩、加班原本就不算）。⑥全程式健檢：儲存／新增改成「處理中→確認後才顯示成功」，失敗保留內容並可重試，送出後沒回應會提醒先重新整理確認，統計與任務頁讀取失敗有重試；清掉改版殘留的程式與圖片。；⑦ 修正漏報：休假撞「表定輪值」（擴大FO、查庫、監工）原本不會提醒，現在三項都會出現在時間重疊（同一項已是勤務的不重複）；勤務和輪值的比對整合成同一個判斷；輪值表還沒讀到時提醒中心顯示「讀取中」不再誤報「沒有重疊」，讀取失敗會提示並可重試，讀完自動更新", "留守儲存完的提示拿掉「班長會看到」，只留「已儲存 N 天」；任務派遣・點名官：人員情況改成分色（休假藍、外勤紫紅、留守紅、監控靛藍、到班綠）、人數同一排、勤務色卡加時間色塊；「複製這天人員情況」改成「複製文字」＋「產圖分享」（在手機上畫成圖片，可分享或儲存，文字複製內容不變）；封面「設定」下面新增「點點月曆」入口（開另一個分頁，獨立使用、資料不同步）；複製後的提示改成「請與班長反應」；瘦身：刪掉沒在用的舊程式、舊樣式、3 張沒用到的圖，並合併 3 組重複的圖（檔案變小、畫面不變）、「要改請找班長」改成「請與班長反應」；導覽拿掉「班長會收到提醒」（這個程式資料本來就公開）；紀錄頁重新排版：搜尋與「篩選」同一列（範圍、身分在展開面板），依操作日分組可收合，每筆姓名＋內容＋時間、動作標籤、日期、身分；同一分鐘大量新增自動歸成一組；點一筆看完整詳情（實際操作者沒存就寫未記錄）；假單「顯示」設定視窗拿掉：週／月、今天直接放在表格上面一列；日期列、假日提醒列、最下面的休假人數固定顯示；軍官一律顯示；顏色圖例併入「使用導覽」", "滿版後右下角圓鈕寫著「還原」，不用記提示", "三份獨立紀錄＋跨班代記（需搭配後端 v52）：股總、彈射、軍械各一份，都能替全部人員（含軍官）登記，一律記在自己那份、不覆蓋別人；彈射、軍械表格預設只列自己班，上面一列「全部人員」可列出所有人；自己那份空白時，別份只當淡色參考，不算已點；點名官等綜合畫面：股總 → 本班班長 → 代記（軍官：股總 → 彈射 → 軍械）；「清除」只清自己那份，不再兩邊都刪；取消後若別份還有紀錄會提示", "階段二：①產出「加班」表單很長，複製鈕不在畫面內時右下角浮出「↓ 到複製」（點了捲過去；鍵盤打開或其他表單不出現）；②勤務統計加一行說明「以下依所選期間統計、上方誰該先派固定看近 3 個月」；③使用導覽文字對齊現況：休假表（原寫「分析」）、統計（月／近3月／年／全部、勤務／尿篩／打靶／加班、誰該先派、排序）、產出含尿篩、快速標記按鈕名稱、換身分入口；複製留守／複製未點假單只顯示自己身分用得到的那句。權限、資料、後端、其餘畫面都不變。"], "n": 98}, {"v": "v11.69", "d": "11/11", "t": ["封面放大：標題、身分卡、兩個大按鈕（圖示、字）、待處理／編輯紀錄都加大，間距拉開，上下留白更平衡（螢幕夠高才放大，小螢幕不變）"], "n": 1}, {"v": "v11.68", "d": "11/11", "t": ["「我的重點」今天那行改簡短：只列類別（尿篩・公差・行程）加「共幾件」，時間重疊會直接標出來"], "n": 1}, {"v": "v11.67", "d": "11/11", "t": ["一般首頁最上面新增「我的重點」三行：今天要做什麼、下個假日（留守／休／還沒點幾天）、假單有沒有點好，打開 3 秒就知道"], "n": 1}, {"v": "v11.66", "d": "11/11", "t": ["一般首頁引導：右上多「看導覽」；紅條下面直接寫下一步（休假去公司點假單／留守按標留守）；名單沒載入（沒網路）時改顯示「重試」，不會卡在選名字；唯讀連結的「標留守」改成灰色並說明原因"], "n": 1}, {"v": "v11.65", "d": "11/11", "t": ["使用導覽說明文字全部精簡（拿掉贅詞，意思不變）；順便移除沒用到的程式碼"], "n": 1}];
 var APP_VER = CHANGELOG[0].v;
 document.addEventListener('toggle', function (ev) { var t = ev.target; if (t && t.classList && t.classList.contains('vrow') && t.open) document.querySelectorAll('#verList .vrow[open]').forEach(function (o) { if (o !== t) o.open = false; }); }, true);
 var TOUR = [
@@ -7155,10 +7162,10 @@ $('gTodo').addEventListener('click', function () { openTodo(); });
 $('todoBack').addEventListener('click', function () { if (todoView) { todoView = ''; renderTodo(); $('todoPage').scrollTop = todoScr; return; } $('todoPage').classList.remove('show'); showGate(); });
 document.addEventListener('click', function (ev) {
 var rb = ev.target.closest && ev.target.closest('[data-tdretry]'); if (!rb) return;
-rdFail = false; todoAsked = {}; todoEnsure();
+rdFail = false; todoAsked = {}; todoEnsure(); if (rosterState !== 'ok') rosterLoad();
 try { if ($('todoPage').classList.contains('show')) renderTodo(); if ($('minePage').classList.contains('show')) renderMine(); } catch (e) { /* 忽略 */ }
 });
-$('todoRefresh').addEventListener('click', function () { rdFail = false; todoAsked = {}; todoMonths().forEach(function (ym) { delete loaded[ym]; }); todoEnsure(); renderTodo(); showToast('重新整理中…', null, null, 1200); });
+$('todoRefresh').addEventListener('click', function () { rdFail = false; todoAsked = {}; todoMonths().forEach(function (ym) { delete loaded[ym]; }); todoEnsure(); rosterLoad(); renderTodo(); showToast('重新整理中…', null, null, 1200); });
 $('todoSeg').addEventListener('click', function (ev) { var b = ev.target.closest('[data-tw]'); if (!b) return; todoW = +b.dataset.tw; renderTodo(); });
 $('todoBody').addEventListener('toggle', function (ev) { var t = ev.target; if (t.dataset && t.dataset.fold) { prefs.todoFold = prefs.todoFold || {}; prefs.todoFold[t.dataset.fold] = !t.open;
 var old = addDays(todayKey(), -30); Object.keys(prefs.todoFold).forEach(function (q) { if (q.indexOf('d:') === 0 && q.slice(2) < old) delete prefs.todoFold[q]; });   // 日期收合記錄只留近 30 天，避免越存越多
