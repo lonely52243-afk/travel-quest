@@ -5550,6 +5550,13 @@ var y = +ym.slice(0, 4), m = +ym.slice(5, 7), done = function () { if ($('minePa
 if (!loaded[ym]) fetchPeriod(y, m).then(done).catch(function () { rdFail = true; done(); });
 apiCall({ action: 'getDuty', year: y, month: m }).then(function (res) { if (!res || !res.ok) { rdFail = true; done(); return; } dutyFill(y, m, res); done(); }).catch(function () { rdFail = true; done(); });
 }
+function flagMin(t, d) { var m = /^(\d{1,2}):(\d{2})$/.exec(t); if (!m) return ''; var v = +m[1] * 60 + +m[2] - d; return pad(Math.floor(v / 60)) + ':' + pad(v % 60); }
+function flagItems(k, me) {
+var sn = +k.slice(5, 7) >= 4 && +k.slice(5, 7) <= 9 ? 'sum' : 'win', T = FLAG_TM[sn], out = [];
+if (cvIs(k, me)) out.push({ t: 'ev', s: '旗', flag: 1, ttl: '降旗', tm: T.dn, nt: T.dn ? '約 ' + flagMin(T.dn, 10) + ' 集合' : '夏令降旗時間未設定' });
+if (cvIs(addDays(k, -1), me)) out.push({ t: 'ev', s: '旗', flag: 1, ttl: '升旗', tm: T.up, nt: '約 ' + flagMin(T.up, 10) + ' 集合' });
+return out;
+}
 function mineItems(k, me) {
 var out = [], r = (recordsPub[k] || {})[me] || getRec(k, me);
 if (r) {
@@ -5578,6 +5585,7 @@ add({ t: g ? 'guard' : 'plan', s: g ? '哨' : '輪', ttl: itm, tm: pt ? pt.a + '
 });
 } catch (e) { /* 忽略 */ }
 try { eventsOf(k).forEach(function (e) { if (evHas(e, me)) add({ t: 'ev', s: '行', ttl: e.title, tm: e.time || '' }); }); } catch (e2) { /* 忽略 */ }
+try { flagItems(k, me).forEach(add); } catch (e3) { /* 忽略 */ }
 var st0 = function (o) { if (o.st) return -1; try { return dayRng(o.tm)[0]; } catch (e) { return 0; } };
 return out.sort(function (p, q) { return st0(p) - st0(q); });
 }
@@ -5657,7 +5665,7 @@ var lfN = 0;
 for (var i = 0; i < lead; i++) h += '<div class="cc empty cgt' + (i === 0 ? ' cgl' : '') + '"></div>';   // 月初空格也畫格線
 for (var d = 1; d <= n; d++) {
 var k = ym + '-' + pad(d), inf = dayInfo(k), r = (recordsPub[k] || {})[me] || getRec(k, me);
-var dut = mineItems(k, me).filter(function (it) { return it.t !== 'stay' && it.t !== 'off' && it.t !== 'away' && it.t !== 'mon'; });
+var dut = mineItems(k, me).filter(function (it) { return it.t !== 'stay' && it.t !== 'off' && it.t !== 'away' && it.t !== 'mon' && !it.flag; });
 var ty = {}; dut.forEach(function (it) { ty[it.t] = 1; });
 if (r) { ty[isPub(r) ? 'comp' : isLeave(r) ? ((!inf.off && r.period === '全天') ? 'comp' : 'off') : isAway(r) ? 'away' : r.period === '留守' ? 'stay' : 'mon'] = 1; } else if (mineUnf(k, me)) ty.unf = 1;
 if (mineLF && ty[mineLF]) lfN++;
@@ -5712,7 +5720,7 @@ var ym = tk.slice(0, 7), mc = { hol: 0, comp: 0, pub: 0, off: 0, stay: 0, duty: 
 for (var mk = ym + '-01'; mk.slice(0, 7) === ym; mk = addDays(mk, 1)) {
 var r0 = (recordsPub[mk] || {})[me] || getRec(mk, me), lv = leaveValue(r0);
 if (lv) { if (dayInfo(mk).off) mc.hol += lv; else mc.comp += lv; mc.off += lv; }
-mineItems(mk, me).forEach(function (it) { if (it.t === 'stay') mc.stay++; else if (it.t !== 'off' && it.t !== 'away' && it.t !== 'mon') mc.duty++; });
+mineItems(mk, me).forEach(function (it) { if (it.t === 'stay') mc.stay++; else if (it.t !== 'off' && it.t !== 'away' && it.t !== 'mon' && !it.flag) mc.duty++; });
 }
 var nu = mineNextUrine(me);
 var unfM = 0; for (var uq = ym + '-01'; uq.slice(0, 7) === ym; uq = addDays(uq, 1)) if (mineUnf(uq, me)) unfM++;
@@ -5775,7 +5783,7 @@ if (stt && stt.t === 'off' && lv(T) && tasks.length) { out = tasks.every(functio
 else if (cl[T]) { out = cl[T].note ? W + '注意，輪值重疊記得更換' : W + '有安排的時間重疊了，記得跟班長確認一下喔！'; }
 else if (nTot) {
 var hol = dayInfo(T).off && tasks.some(function (x) { return x.t !== 'ev'; });
-if (stay && tasks.length) { var sdw = tasks.every(function (x) { return x.t === 'ev'; }) ? '行程' : (tasks.some(function (x) { return x.t === 'ev'; }) ? '安排' : '勤務'); out = W + '輪到你留守，另外還有' + sdw + '，別忘記了喔！'; kind = 'stayduty'; }   // 先提醒留守，下面再列勤務
+if (stay && tasks.length) { var sdw = tasks.every(function (x) { return x.flag; }) ? tasks.map(function (x) { return x.ttl; }).join('、') : tasks.every(function (x) { return x.t === 'ev'; }) ? '行程' : (tasks.some(function (x) { return x.t === 'ev'; }) ? '安排' : '勤務'); out = W + '輪到你留守，另外還有' + sdw + '，別忘記了喔！'; kind = 'stayduty'; }   // 先提醒留守，下面再列勤務
 else if (hol && !stay) out = W + '雖然是假日，但有勤務安排，別忘記了喔！';   // 輪到留守本來就要上班（留守不算休假），所以留守另外走上面那句
 else if (nTot >= 3) out = W + '有 ' + nTot + ' 項安排，記得看一下行程喔！';
 else if (nTot === 2) out = W + '有' + names.join('、') + (names.some(function (n) { return n !== '留守' && n !== '尿篩' && n !== '打靶' && n !== '加班'; }) && tasks.every(function (x) { return x.t === 'duty' || x.t === 'plan'; }) ? '勤務' : '') + '，別忘記了喔！';
@@ -5816,7 +5824,7 @@ if (!out) return '';
 gRemClash = cl[T] ? T : '';
 gRemDup = kind === 'unf' && wkU.indexOf(T) >= 0;   // 那天已在「假單提醒」的本週列出就不重複；時間重疊一律保留提醒
 var tm0 = kind === 'work' ? tasks.slice(0, 3).map(function (x) { return '　·　' + esc(lab(x)) + (x.tm ? ' ' + esc(x.tm.split('–')[0]) : ''); }).join('') : '';
-if (kind === 'stayduty') { tm0 = '　·　' + sdw + '：' + tasks.slice(0, 3).map(function (x) { return esc(lab(x)) + (x.tm ? ' ' + esc(x.tm.split('–')[0]) : ''); }).join('、'); kind = 'work'; }
+if (kind === 'stayduty') { tm0 = '　·　' + (tasks.every(function (x) { return x.flag; }) ? '' : sdw + '：') + tasks.slice(0, 3).map(function (x) { return esc(lab(x)) + (x.tm ? ' ' + esc(x.tm.split('–')[0]) : ''); }).join('、'); kind = 'work'; }
 var pic = ic; if (cl[T]) pic = 'ovl'; else if (kind === 'unf') pic = 'unf'; else if (/留守/.test(out)) pic = 'stay'; else if (/連休|放假啦|休假了|就放假/.test(out)) pic = 'trip';
 if (kind === 'leave' || kind === 'warm') return '<div class="gsoft"><i class="pic-' + pic + '"></i><span>' + esc(out) + '</span></div>';   // 沒事的暖心話：一行就好，不做成卡片
 return '<button class="gremind r-' + ic + ' k-' + kind + (cl[T] ? (cl[T].note ? ' k-note' : ' k-clash') : '') + '" data-gd="' + go + '"><span class="gri pic-' + pic + '"></span><span class="grt"><small>' + (tdy ? '今日小提醒' : '明日小提醒') + '</small><b>' + esc(out) + '</b>' + (go !== 'unf' ? '<em>' + mdLabel(T) + '（' + wkOf(T) + '）' + tm0 + '</em>' : '') + '</span><u>›</u></button>';
@@ -6045,6 +6053,7 @@ if (!me) return out;
 cxDays(R[0], R[1]).forEach(function (k) {
 var r = getRecV(k, me) || (recordsPub[k] || {})[me];
 mineItems(k, me).forEach(function (it) {
+if (it.flag) return;   // 升降旗只在備忘顯示，不同步日曆
 var kind, ttl = it.ttl, t, plan = false;
 if (it.st) {
 if (it.t === 'stay') { kind = 'stay'; t = { all: 1 }; }
@@ -6486,6 +6495,7 @@ var qkNoteN = 0;
 var dutyYM = null, dutyAll = {}, dutyFromApp = false, rosterAll = {}, ROSTER_KEY = 'leave_roster_v1', dutyNotes = {}, NOTES_KEY = 'leave_notes_v1', rosterEst = {};
 var EST_CK = [], EST_FO = [], EST_JG = [], CFG_KEY = 'leave_cfg_v1', CFG_WHY_PRE = [];   // 常用事由：後端設定送來
 var dutyDayK = null, dutyHereOpen = false;   // 當天頁：到班名單展開
+var FLAG_TM = { win: { dn: '17:10', up: '06:30' }, sum: { dn: '', up: '06:00' } };   // 升降旗時間（集合約提早 10 分）：夏令 4/1–9/30、冬令 10/1–3/31；夏令降旗時間還沒給，先空著
 var PLAN_TM = {}, GUARD_HIDE = [], BRIEF_TM = { thu: '17:20', other: '15:30' };   // 輪值時間、衛哨隱藏名單、勤前提示時間：後端設定送來
 var guardCfg = { ppl: [], tm: {} }, planK = '';
 var evtCur = null;
@@ -6557,7 +6567,7 @@ if (!m) { m = document.createElement('div'); m.id = 'a2hsMask'; document.body.ap
 m.innerHTML = '<div id="a2hs" role="dialog" aria-modal="true" aria-label="加入主畫面"><h2>' + t + '</h2><ol>' + s.map(function (x) { return '<li>' + x + '</li>'; }).join('') + '</ol><p>網頁無法自動安裝，要自己按一下。</p><div class="a2b">' + (k === 'app' ? '<button class="ghost" id="a2hsCp">複製連結</button>' : '') + '<button class="primary" id="a2hsOk">知道了</button></div></div>';
 m.classList.add('show');
 }
-var CHANGELOG = [{"v": "v11.70", "d": "11/11", "t": ["提醒中心、修改紀錄、產出姓名整合：①拿掉「留守異動」提醒（不再自動彈出、不用按「都看過了」、不再同步已讀），提醒中心只剩「時間重疊」（有才出現、解除自動消失）和「假單還沒點」（這週為主，下週、之後可切換）；留守的新增、取消、修改全部照舊記在修改紀錄，歷史一筆不少；②修改紀錄改成簡單列表：搜尋（姓名、日期、事由、文字）＋全部／假單／留守與勤務，依實際操作時間新到舊、同一天集中，每筆兩行白話（例：林韋辰取消休假／11/20 全日休 → 未登記），點開看操作者、人員、日期、修改前後、實際操作時間與身分（沒存的欄位不編造），舊紀錄照常顯示；③產出新增「姓名寫法」：只寫名字／完整姓名／簡稱優先＋獨立勾選「幹部優先使用職務稱呼」，依股名冊（簡稱欄、幹部欄）判斷，複姓、同名、簡稱重複時自動改寫完整姓名；人員情況、留守、加班、尿篩、提醒複製、假單／休假文字、任務派遣複製文字與圖片全部共用，設定存在這支手機、不改試算表；原加班「只寫名字」設定自動沿用。不涉及後端；④快速標記：勾選兩天以上時多一顆「每天分開選」，按了每天一張卡，各自看當天勤務、各派各的人（存檔仍是一天一筆）。⑤勤務統計減法整理：「誰該先派」與「勤務統計」分成兩塊，統計改成一行總結＋簡潔列表，其餘改為點開才看。表定的擴大FO／查庫／監工、核生化不再算進勤務次數（尿篩、加班原本就不算）。⑥全程式健檢：儲存／新增改成「處理中→確認後才顯示成功」，失敗保留內容並可重試，送出後沒回應會提醒先重新整理確認，統計與任務頁讀取失敗有重試；清掉改版殘留的程式與圖片。；⑦ 修正漏報：休假撞「表定輪值」（擴大FO、查庫、監工）原本不會提醒，現在三項都會出現在時間重疊（同一項已是勤務的不重複）；勤務和輪值的比對整合成同一個判斷；輪值表還沒讀到時提醒中心顯示「讀取中」不再誤報「沒有重疊」，讀取失敗會提示並可重試，讀完自動更新。每日到班改成「上午 N｜下午 N 人」：上午到班不含上午休、整天休；下午到班不含下午休、整天休（半天休的人在名單標只上午／只下午）。勤務統計「誰該先派」改成「派遣參考」：只算已完成的勤務，休假不扣可派遣天數（外勤、報到前才扣），顯示「比平均多／少幾次」，差不到 1 次算負擔相近；14 天內已排另標「近期已排」並提醒近 14 天次數，可派遣不到 20 天顯示資料不足，明細多一行近 6 個月參考。", "留守儲存完的提示拿掉「班長會看到」，只留「已儲存 N 天」；任務派遣・點名官：人員情況改成分色（休假藍、外勤紫紅、留守紅、監控靛藍、到班綠）、人數同一排、勤務色卡加時間色塊；「複製這天人員情況」改成「複製文字」＋「產圖分享」（在手機上畫成圖片，可分享或儲存，文字複製內容不變）；封面「設定」下面新增「點點月曆」入口（開另一個分頁，獨立使用、資料不同步）；複製後的提示改成「請與班長反應」；瘦身：刪掉沒在用的舊程式、舊樣式、3 張沒用到的圖，並合併 3 組重複的圖（檔案變小、畫面不變）、「要改請找班長」改成「請與班長反應」；導覽拿掉「班長會收到提醒」（這個程式資料本來就公開）；紀錄頁重新排版：搜尋與「篩選」同一列（範圍、身分在展開面板），依操作日分組可收合，每筆姓名＋內容＋時間、動作標籤、日期、身分；同一分鐘大量新增自動歸成一組；點一筆看完整詳情（實際操作者沒存就寫未記錄）；假單「顯示」設定視窗拿掉：週／月、今天直接放在表格上面一列；日期列、假日提醒列、最下面的休假人數固定顯示；軍官一律顯示；顏色圖例併入「使用導覽」", "滿版後右下角圓鈕寫著「還原」，不用記提示", "三份獨立紀錄＋跨班代記（需搭配後端 v52）：股總、彈射、軍械各一份，都能替全部人員（含軍官）登記，一律記在自己那份、不覆蓋別人；彈射、軍械表格預設只列自己班，上面一列「全部人員」可列出所有人；自己那份空白時，別份只當淡色參考，不算已點；點名官等綜合畫面：股總 → 本班班長 → 代記（軍官：股總 → 彈射 → 軍械）；「清除」只清自己那份，不再兩邊都刪；取消後若別份還有紀錄會提示", "階段二：①產出「加班」表單很長，複製鈕不在畫面內時右下角浮出「↓ 到複製」（點了捲過去；鍵盤打開或其他表單不出現）；②勤務統計加一行說明「以下依所選期間統計、上方誰該先派固定看近 3 個月」；③使用導覽文字對齊現況：休假表（原寫「分析」）、統計（月／近3月／年／全部、勤務／尿篩／打靶／加班、誰該先派、排序）、產出含尿篩、快速標記按鈕名稱、換身分入口；複製留守／複製未點假單只顯示自己身分用得到的那句。權限、資料、後端、其餘畫面都不變。"], "n": 98}, {"v": "v11.69", "d": "11/11", "t": ["封面放大：標題、身分卡、兩個大按鈕（圖示、字）、待處理／編輯紀錄都加大，間距拉開，上下留白更平衡（螢幕夠高才放大，小螢幕不變）"], "n": 1}, {"v": "v11.68", "d": "11/11", "t": ["「我的重點」今天那行改簡短：只列類別（尿篩・公差・行程）加「共幾件」，時間重疊會直接標出來"], "n": 1}, {"v": "v11.67", "d": "11/11", "t": ["一般首頁最上面新增「我的重點」三行：今天要做什麼、下個假日（留守／休／還沒點幾天）、假單有沒有點好，打開 3 秒就知道"], "n": 1}, {"v": "v11.66", "d": "11/11", "t": ["一般首頁引導：右上多「看導覽」；紅條下面直接寫下一步（休假去公司點假單／留守按標留守）；名單沒載入（沒網路）時改顯示「重試」，不會卡在選名字；唯讀連結的「標留守」改成灰色並說明原因"], "n": 1}, {"v": "v11.65", "d": "11/11", "t": ["使用導覽說明文字全部精簡（拿掉贅詞，意思不變）；順便移除沒用到的程式碼"], "n": 1}];
+var CHANGELOG = [{"v": "v11.70", "d": "11/11", "t": ["提醒中心、修改紀錄、產出姓名整合：①拿掉「留守異動」提醒（不再自動彈出、不用按「都看過了」、不再同步已讀），提醒中心只剩「時間重疊」（有才出現、解除自動消失）和「假單還沒點」（這週為主，下週、之後可切換）；留守的新增、取消、修改全部照舊記在修改紀錄，歷史一筆不少；②修改紀錄改成簡單列表：搜尋（姓名、日期、事由、文字）＋全部／假單／留守與勤務，依實際操作時間新到舊、同一天集中，每筆兩行白話（例：林韋辰取消休假／11/20 全日休 → 未登記），點開看操作者、人員、日期、修改前後、實際操作時間與身分（沒存的欄位不編造），舊紀錄照常顯示；③產出新增「姓名寫法」：只寫名字／完整姓名／簡稱優先＋獨立勾選「幹部優先使用職務稱呼」，依股名冊（簡稱欄、幹部欄）判斷，複姓、同名、簡稱重複時自動改寫完整姓名；人員情況、留守、加班、尿篩、提醒複製、假單／休假文字、任務派遣複製文字與圖片全部共用，設定存在這支手機、不改試算表；原加班「只寫名字」設定自動沿用。不涉及後端；④快速標記：勾選兩天以上時多一顆「每天分開選」，按了每天一張卡，各自看當天勤務、各派各的人（存檔仍是一天一筆）。⑤勤務統計減法整理：「誰該先派」與「勤務統計」分成兩塊，統計改成一行總結＋簡潔列表，其餘改為點開才看。表定的擴大FO／查庫／監工、核生化不再算進勤務次數（尿篩、加班原本就不算）。⑥全程式健檢：儲存／新增改成「處理中→確認後才顯示成功」，失敗保留內容並可重試，送出後沒回應會提醒先重新整理確認，統計與任務頁讀取失敗有重試；清掉改版殘留的程式與圖片。；⑦ 修正漏報：休假撞「表定輪值」（擴大FO、查庫、監工）原本不會提醒，現在三項都會出現在時間重疊（同一項已是勤務的不重複）；勤務和輪值的比對整合成同一個判斷；輪值表還沒讀到時提醒中心顯示「讀取中」不再誤報「沒有重疊」，讀取失敗會提示並可重試，讀完自動更新。每日到班改成「上午 N｜下午 N 人」：上午到班不含上午休、整天休；下午到班不含下午休、整天休（半天休的人在名單標只上午／只下午）。勤務統計「誰該先派」改成「派遣參考」：只算已完成的勤務，休假不扣可派遣天數（外勤、報到前才扣），顯示「比平均多／少幾次」，差不到 1 次算負擔相近；14 天內已排另標「近期已排」並提醒近 14 天次數，可派遣不到 20 天顯示資料不足，明細多一行近 6 個月參考。同仁當車長時，個人頁自動顯示當天下午降旗、隔天早上升旗與集合時間（冬令 10/1–3/31：降旗 17:10、升旗 06:30；夏令 4/1–9/30：升旗 06:00），只提醒、不算勤務、不比對重疊、不同步日曆。", "留守儲存完的提示拿掉「班長會看到」，只留「已儲存 N 天」；任務派遣・點名官：人員情況改成分色（休假藍、外勤紫紅、留守紅、監控靛藍、到班綠）、人數同一排、勤務色卡加時間色塊；「複製這天人員情況」改成「複製文字」＋「產圖分享」（在手機上畫成圖片，可分享或儲存，文字複製內容不變）；封面「設定」下面新增「點點月曆」入口（開另一個分頁，獨立使用、資料不同步）；複製後的提示改成「請與班長反應」；瘦身：刪掉沒在用的舊程式、舊樣式、3 張沒用到的圖，並合併 3 組重複的圖（檔案變小、畫面不變）、「要改請找班長」改成「請與班長反應」；導覽拿掉「班長會收到提醒」（這個程式資料本來就公開）；紀錄頁重新排版：搜尋與「篩選」同一列（範圍、身分在展開面板），依操作日分組可收合，每筆姓名＋內容＋時間、動作標籤、日期、身分；同一分鐘大量新增自動歸成一組；點一筆看完整詳情（實際操作者沒存就寫未記錄）；假單「顯示」設定視窗拿掉：週／月、今天直接放在表格上面一列；日期列、假日提醒列、最下面的休假人數固定顯示；軍官一律顯示；顏色圖例併入「使用導覽」", "滿版後右下角圓鈕寫著「還原」，不用記提示", "三份獨立紀錄＋跨班代記（需搭配後端 v52）：股總、彈射、軍械各一份，都能替全部人員（含軍官）登記，一律記在自己那份、不覆蓋別人；彈射、軍械表格預設只列自己班，上面一列「全部人員」可列出所有人；自己那份空白時，別份只當淡色參考，不算已點；點名官等綜合畫面：股總 → 本班班長 → 代記（軍官：股總 → 彈射 → 軍械）；「清除」只清自己那份，不再兩邊都刪；取消後若別份還有紀錄會提示", "階段二：①產出「加班」表單很長，複製鈕不在畫面內時右下角浮出「↓ 到複製」（點了捲過去；鍵盤打開或其他表單不出現）；②勤務統計加一行說明「以下依所選期間統計、上方誰該先派固定看近 3 個月」；③使用導覽文字對齊現況：休假表（原寫「分析」）、統計（月／近3月／年／全部、勤務／尿篩／打靶／加班、誰該先派、排序）、產出含尿篩、快速標記按鈕名稱、換身分入口；複製留守／複製未點假單只顯示自己身分用得到的那句。權限、資料、後端、其餘畫面都不變。"], "n": 98}, {"v": "v11.69", "d": "11/11", "t": ["封面放大：標題、身分卡、兩個大按鈕（圖示、字）、待處理／編輯紀錄都加大，間距拉開，上下留白更平衡（螢幕夠高才放大，小螢幕不變）"], "n": 1}, {"v": "v11.68", "d": "11/11", "t": ["「我的重點」今天那行改簡短：只列類別（尿篩・公差・行程）加「共幾件」，時間重疊會直接標出來"], "n": 1}, {"v": "v11.67", "d": "11/11", "t": ["一般首頁最上面新增「我的重點」三行：今天要做什麼、下個假日（留守／休／還沒點幾天）、假單有沒有點好，打開 3 秒就知道"], "n": 1}, {"v": "v11.66", "d": "11/11", "t": ["一般首頁引導：右上多「看導覽」；紅條下面直接寫下一步（休假去公司點假單／留守按標留守）；名單沒載入（沒網路）時改顯示「重試」，不會卡在選名字；唯讀連結的「標留守」改成灰色並說明原因"], "n": 1}, {"v": "v11.65", "d": "11/11", "t": ["使用導覽說明文字全部精簡（拿掉贅詞，意思不變）；順便移除沒用到的程式碼"], "n": 1}];
 var APP_VER = CHANGELOG[0].v;
 document.addEventListener('toggle', function (ev) { var t = ev.target; if (t && t.classList && t.classList.contains('vrow') && t.open) document.querySelectorAll('#verList .vrow[open]').forEach(function (o) { if (o !== t) o.open = false; }); }, true);
 var TOUR = [
