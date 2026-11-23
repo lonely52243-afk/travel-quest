@@ -473,6 +473,17 @@ body.ro [data-act]:not([data-act="history"]):not([data-act="log"]),body.ro [data
 .hs::-moz-range-thumb{width:44px;height:26px;border-radius:13px;background:var(--accent);border:3px solid var(--card)}
 .hs:focus-visible{outline:3px solid var(--ochre);outline-offset:2px;border-radius:8px}
 .srs{margin-top:0}.mpc{margin-top:4px}
+/* ===== 復原入口 ===== */
+.ubtn{position:relative;height:42px;min-width:44px;padding:0 12px 0 10px;border-radius:13px;display:flex;align-items:center;gap:4px;background:var(--card);border:1.5px solid var(--accent);box-shadow:var(--shadow);color:var(--accent);font-size:15px;font-weight:800;white-space:nowrap}
+.ubtn svg{width:19px;height:19px;flex:none}.ubtn:disabled{opacity:.55}
+.udot{position:absolute;top:-4px;right:-4px;width:13px;height:13px;border-radius:50%;background:var(--cta);border:2px solid var(--bg)}
+body.ro .ubtn{display:none}
+@media (max-width:340px){.ubtn span{display:none}.ubtn{padding:0 10px}}
+.ttl{min-width:0;flex:1}.ttl small{display:block;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.uit{padding:9px 0;border-bottom:1px solid var(--line)}.uit:last-child{border-bottom:0}
+.uit b{font-size:17px}.uit .ut{display:inline-block;margin-left:8px;padding:1px 8px;border-radius:8px;background:var(--soft);font-size:13px;font-weight:800}
+.uit .ud{font-size:15px;margin-top:2px}.uit small{display:block;color:var(--mute);font-size:12.5px}
+.ulist{max-height:38vh;overflow:auto;margin:8px 0}
 </style>
 </head>
 <body>
@@ -497,6 +508,7 @@ body.ro [data-act]:not([data-act="history"]):not([data-act="log"]),body.ro [data
   <div class="wrap">
     <div class="hdr-top">
       <img class="mk" id="hdrMark" alt="" width="40" height="40"><div class="ttl"><b>小記</b><small id="status">載入中…</small></div>
+      <button class="ubtn" id="btnUndo" aria-label="復原最近一次異動"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><path d="M4 12a8 8 0 1 1 2.3 5.7"/><path d="M4 5v6h6"/></svg><span>復原</span><i class="udot" id="udot" hidden></i></button>
       <button class="ibtn" id="btnRefresh" aria-label="重新整理資料" title="重新整理"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M20 11a8 8 0 1 0-2.3 5.7M20 4v7h-7"/></svg></button>
       <button class="ibtn" id="btnLock" aria-label="鎖定"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="5" y="11" width="14" height="10" rx="2"/><path d="M8 11V8a4 4 0 0 1 8 0v3"/></svg></button>
     </div>
@@ -903,7 +915,7 @@ function lsSet(k, v) { try { localStorage.setItem(k, JSON.stringify(v)); } catch
 const state = {
   records: [], aircraft: JSON.parse(JSON.stringify(CONFIG.AIRCRAFT)),
   source: 'none', updatedAt: null, loading: false, error: '',
-  logLoading: false, mpY: null, mpF: 'all', fy: null, fk: 'out', view: 'home', role: 'edit', sel: {}, wk: 'wait', undo: null, key: '', logs: null, demo: null, anH: 90, spg: 'loc', xp: {}, open: {}, dr: null, drSort: 'days', drType: 'all', set: {}, tour: null, year: null, yList: null, q: '', horizon: 90, expType: 'all', list: null, D: null
+  logLoading: false, mpY: null, mpF: 'all', fy: null, fk: 'out', view: 'home', role: 'edit', sel: {}, wk: 'wait', undo: null, recentUndo: null, key: '', logs: null, demo: null, anH: 90, spg: 'loc', xp: {}, open: {}, dr: null, drSort: 'days', drType: 'all', set: {}, tour: null, year: null, yList: null, q: '', horizon: 90, expType: 'all', list: null, D: null
 };
 
 /* =====================================================================
@@ -1605,6 +1617,7 @@ async function doAction(action, params) {
   try {
     const j = await apiPost(action, params);
     closeModal(); state.sel = {};
+    state.recentUndo = (j.undo && j.undo.length) ? j.undo : null; updUndoDot();
     toast('✓ ' + (j.msg || '完成') + (CONFIG.API_URL ? '（已寫入試算表）' : ''), 4000, (j.undo && j.undo.length) ? j.undo : null);
     await loadData(false);
     return true;
@@ -1614,15 +1627,52 @@ async function doAction(action, params) {
     return false;
   }
 }
-async function doUndo(items) {
+async function doUndo(items, inModal) {
   try {
     const j = await apiPost('undo', { items });
+    if (inModal) closeModal();
+    state.recentUndo = null; updUndoDot();
     toast('✓ ' + (j.msg || '已復原') + (CONFIG.API_URL ? '（已寫入試算表）' : ''), 3500);
     state.logs = null; await loadData(false);
+    return true;
   } catch (e) {
-    if (e.auth) return lock('密碼錯誤');
-    toast('復原失敗：' + (e.message || ''), 5000);
+    if (e.auth) { lock('密碼錯誤'); return false; }
+    const msg = e.name === 'AbortError' ? '連線逾時，不確定有沒有復原成功。請按右上角「更新」確認後再操作' : (e.message || '復原失敗，資料沒有改變');
+    if (inModal) modalErr(msg); else toast('復原失敗：' + msg, 5000);
+    return false;
   }
+}
+function updUndoDot() { const d = $('#udot'); if (d) d.hidden = !state.recentUndo; }
+/* 找出「現在還能安全復原」的最近一次異動。同一批的異動在紀錄裡是連續的（同時間、同動作），只把連續的一段當同一批 */
+function findUndoable(list) {
+  const seen = {}, first = list.map(x => { const k = seatKey(x['序號']); const f = !seen[k]; seen[k] = 1; return f; });
+  const hi = list.findIndex((x, i) => first[i] && x['可復原']);
+  if (hi < 0) return null;
+  const h = list[hi], same = x => x['時間'] === h['時間'] && x['動作'] === h['動作'] && x['可復原'];
+  let lo = hi, up = hi;
+  while (lo > 0 && same(list[lo - 1])) lo--;
+  while (up < list.length - 1 && same(list[up + 1])) up++;
+  const group = [], blocked = [];
+  for (let i = lo; i <= up; i++) (first[i] ? group : blocked).push(list[i]);
+  return { group, blocked, head: h };
+}
+async function openUndoSheet() {
+  if (state.role === 'view') return toast('這組密碼只能查看，不能修改');
+  const b = $('#btnUndo'); if (b.disabled) return;
+  b.disabled = true;
+  let list;
+  try { list = await fetchLog(); }
+  catch (e) { b.disabled = false; if (e.auth) return lock('密碼錯誤'); return toast('讀取異動紀錄失敗：' + (e.message || '') + '。目前不能復原，請檢查網路後再按', 5000); }
+  b.disabled = false;
+  const u = findUndoable(list);
+  const none = '<div class="mtxt">只能復原進廠、出廠、調撥、修改，而且該座椅之後不能再有新的異動。</div>';
+  if (!u) return openModal('復原最近一次異動', '<div class="empty">目前沒有可以復原的異動</div>' + none);
+  const line = x => '<div class="uit"><b>' + esc(x['序號']) + '</b><span class="ut">' + esc(x['動作']) + '</span><div class="ud">' + esc(LD(x['原位置'] || '')) + ' → ' + esc(LD(x['新位置'] || '')) + '</div><small>' + esc(x['時間']) + (x['說明'] ? '　' + esc(x['說明']) : '') + '</small></div>';
+  const items = u.group.map(x => line(x));
+  const shown = '<div class="ulist">' + items.join('') + '</div>';
+  if (u.blocked.length) return openModal('不能整批復原', '<div class="mtxt">這一批（' + esc(u.head['時間']) + '　' + esc(u.head['動作']) + '）有 ' + u.blocked.length + ' 張之後又有新的異動：' + esc(u.blocked.slice(0, 6).map(x => x['序號']).join('、')) + (u.blocked.length > 6 ? ' 等' : '') + '。為了不覆蓋後面的資料，整批都不復原；請用「修改資料」調整。</div>');
+  openModal('復原最近一次異動', '<div class="mtxt">' + (u.group.length > 1 ? '這一批共 <b>' + u.group.length + ' 張</b>，會一起' : '這一筆會') + '還原到異動之前的狀態。復原也會留下紀錄，不會刪除歷史。</div>' + shown, '確認復原 ' + u.group.length + ' 張',
+    () => doUndo(u.group.map(x => ({ serial: x['序號'], time: x['時間'], expect: x['動作'] })), true));
 }
 function openBatch(k) {
   const L = selList(); if (!L.length) return;
@@ -1974,6 +2024,7 @@ $('#pwshow').addEventListener('click', () => { const i = $('#pw'), s = i.type ==
 $('#qclear').addEventListener('click', () => { $('#q').value = ''; state.q = ''; $('#qclear').hidden = true; render(); $('#q').focus(); });
 $('#btnRefresh').addEventListener('click', () => { if (!state.loading) loadData(true); });
 $('#btnLock').addEventListener('click', lock);
+$('#btnUndo').addEventListener('click', openUndoSheet);
 
 /* ---------- 鎖定（密碼由 Apps Script 檢查，網頁裡不存密碼） ---------- */
 const AUTH_KEY = 'seatAsset.key';
