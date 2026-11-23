@@ -2395,15 +2395,17 @@ function odStatus(s, now) {
     const sp = map[prev].find(r => r[1] > 1440 && mi < r[1] - 1440);
     if (sp) { const left = sp[1] - 1440 - mi; return { k: left <= 30 ? 'soon' : 'open', t: left <= 30 ? '即將打烊 · ' + left + ' 分鐘後' : '營業中 · ' + odHM(sp[1]) + ' 打烊' }; }
   }
-  if (rest.includes(n)) return { k: 'rest', t: '今日休息' };
+  if (rest.includes(n)) return { k: 'rest', t: '今天休息' };
   if (!map) return s.hours ? { k: 'unk', t: s.hours } : { k: 'unk', t: '時間未設定' };
   const rg = (map[n] || []).slice().sort((a, b) => a[0] - b[0]);
-  if (!rg.length) return { k: 'rest', t: '今日休息' };
+  if (!rg.length) return { k: 'rest', t: '今天休息' };
   const cur = rg.find(r => mi >= r[0] && mi < r[1]);
   if (cur) { const left = cur[1] - mi; return { k: left <= 30 ? 'soon' : 'open', t: left <= 30 ? '即將打烊 · ' + left + ' 分鐘後' : '營業中 · ' + odHM(cur[1]) + ' 打烊' }; }
   const nx = rg.find(r => r[0] > mi);
+  /* 過了營業時間＝今天休息；凌晨 0–5 點仍屬昨晚，也算今天休息；「尚未營業」只在早上起、開店前才出現 */
+  if (nx && mi < 300) return { k: 'closed', t: '今天休息' };
   if (nx) return { k: 'wait', t: '尚未營業 · ' + odHM(nx[0]) + ' 開始' };
-  return { k: 'closed', t: '今日已打烊' };
+  return { k: 'closed', t: '今天休息' };
 }
 function odLineSub(l) { return l.price * l.qty; }
 function odTotal() { return OD.cur.lines.reduce((a, l) => a + odLineSub(l), 0); }
@@ -2794,7 +2796,7 @@ function odListInner() {
   const sh = odShown();
   if (sh.length) {
     let out = '', sep = false;
-    sh.forEach(s => { if (!sep && ['rest', 'closed'].includes(odStatus(s).k) && sh.some(x => !['rest', 'closed'].includes(odStatus(x).k))) { sep = true; out += '<div class="od-sep-t">今天休息／已打烊</div>'; } out += odCard(s); });
+    sh.forEach(s => { if (!sep && ['rest', 'closed'].includes(odStatus(s).k) && sh.some(x => !['rest', 'closed'].includes(odStatus(x).k))) { sep = true; out += '<div class="od-sep-t">今天休息</div>'; } out += odCard(s); });
     return out;
   }
   const fav = OD.ui.kind === '常用' && !OD.ui.sq.trim();
@@ -2836,7 +2838,7 @@ function odMenuHtml() {
   const q = OD.ui.q.trim().toLowerCase();
   const shown = items.filter(i => (OD.ui.cat === '全部' || (i.cat || '其他') === OD.ui.cat) && (!q || (i.name + ' ' + (i.note || '')).toLowerCase().includes(q)));
   const dest = (s.lat != null && s.lng != null) ? s.lat + ',' + s.lng : ((s.name || '') + ' ' + (s.addr || ''));
-  let h = odTop(s.name, (s.phone || '') + (odIsRest(s) ? '　今天休息' : ''), odBack('to-list'),
+  let h = odTop(s.name, (s.phone || '') + (['rest', 'closed'].includes(odStatus(s).k) ? '　今天休息' : ''), odBack('to-list'),
     '<button class="icon-btn" data-nav="' + escapeHtml(dest) + '" aria-label="導航">' + ic('navigation') + '</button>' +
     (odAdmin() ? '<button class="icon-btn' + (OD.ui.edit ? ' on' : '') + '" data-oa="toggle-edit" aria-label="編輯菜單" title="編輯菜單">' + ic(OD.ui.edit ? 'check' : 'pencil') + '</button>' : ''));
   h += odPeopleBar();
@@ -2922,7 +2924,7 @@ async function odDrawMap() {
   const put = (s) => {
     if (s.lat == null || s.lng == null) return;
     const mk = L.marker([s.lat, s.lng], { icon: L.divIcon({ className: 'od-pin', html: '<span></span>', iconSize: [26, 26], iconAnchor: [13, 24] }) }).addTo(map);
-    mk.bindPopup('<div class="pop-name">' + escapeHtml(odShort(s.name)) + '</div><div class="pop-meta">' + escapeHtml(s.addr || '') + (odIsRest(s) ? '<br>今天休息' : '') + '</div><a href="#" class="pop-nav" data-oa="open-store" data-id="' + s.id + '">點餐</a>　<a href="#" class="pop-nav" data-nav="' + s.lat + ',' + s.lng + '">導航</a>');
+    mk.bindPopup('<div class="pop-name">' + escapeHtml(odShort(s.name)) + '</div><div class="pop-meta">' + escapeHtml(s.addr || '') + (['rest', 'closed'].includes(odStatus(s).k) ? '<br>今天休息' : '') + '</div><a href="#" class="pop-nav" data-oa="open-store" data-id="' + s.id + '">點餐</a>　<a href="#" class="pop-nav" data-nav="' + s.lat + ',' + s.lng + '">導航</a>');
     pts.push([s.lat, s.lng]);
   };
   const fit = () => { if (OD.map !== map) return; if (pts.length > 1) map.fitBounds(pts, { padding: [30, 30], maxZoom: 16 }); else if (pts.length === 1) map.setView(pts[0], 16); };
