@@ -455,6 +455,18 @@ input[type=date].dt-input::-webkit-date-and-time-value { text-align: left; }
 .od-info:not(.open) > div { display: -webkit-box; -webkit-line-clamp: 1; -webkit-box-orient: vertical; overflow: hidden; }
 .od-info { cursor: pointer; }
 @media (max-width: 340px) { .od-store .icon-btn { width: 30px; } .od-store { padding-right: 2px; } }
+
+.od-st-name { flex-wrap: nowrap; min-width: 0; }
+.od-nm { min-width: 0; flex: 0 1 auto; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+.od-badge { flex: none; }
+.od-store { min-height: 64px; gap: 0; padding: 2px 4px 2px 2px; }
+.od-st-main { padding: 8px 6px; }
+.od-st-meta { white-space: nowrap; display: block; overflow: hidden; text-overflow: ellipsis; }
+.od-more, .od-go { width: 36px; flex: none; }
+.od-go { color: var(--muted); }
+.od-acts { display: flex; flex-direction: column; gap: 8px; padding: 4px 0 10px; }
+.od-act { display: flex; align-items: center; gap: 12px; min-height: 48px; padding: 0 14px; border: 1px solid var(--line); border-radius: 14px; background: var(--card, #fffdf6); color: var(--green-d); font-size: 16px; font-weight: 700; text-decoration: none; text-align: left; font-family: inherit; }
+.od-tt b { white-space: normal; display: -webkit-box; -webkit-line-clamp: 2; -webkit-box-orient: vertical; line-height: 1.25; font-size: 20px; }
 </style>
 </head>
 <body>
@@ -479,7 +491,7 @@ input[type=date].dt-input::-webkit-date-and-time-value { text-align: left; }
       <button class="entry" data-go="hsr"><img data-img="ico_hsr" alt=""><b>高鐵</b><span>南港到左營</span><i class="go" data-lucide="chevron-right"></i></button>
       <button class="entry" data-go="bus"><img data-img="ico_bus" alt=""><b>統聯</b><span>5 條常用路線</span><i class="go" data-lucide="chevron-right"></i></button>
       <button class="entry wide" data-go="map"><img data-img="ico_map" alt=""><div class="et"><b>地圖＆停車</b><span>搜尋地點、導航，附近停車場一次看</span></div><i class="go" data-lucide="chevron-right"></i></button>
-      <button class="entry wide" data-go="order"><img data-img="ico_order" alt=""><div class="et"><b>點餐</b><span>多家店合併統計，一鍵複製貼群組</span></div><i class="go" data-lucide="chevron-right"></i></button>
+      <button class="entry wide" data-go="order"><img data-img="ico_order" alt=""><div class="et"><b>餐車</b><span>多家店合併統計，一鍵複製貼群組</span></div><i class="go" data-lucide="chevron-right"></i></button>
     </div>
     <div class="recent" id="fav-area"></div>
     <div class="recent" id="hist-area"></div>
@@ -2515,12 +2527,26 @@ function odCard(s) {
   const dest = (s.lat != null && s.lng != null) ? s.lat + ',' + s.lng : ((s.name || '') + ' ' + (s.addr || ''));
   return '<div class="card od-store' + (rest ? ' rest' : '') + '">' +
     '<button class="icon-btn od-fav' + (odIsFav(s) ? ' on' : '') + '" data-oa="fav" data-id="' + s.id + '" aria-label="常用">' + ic('star') + '</button>' +
-    '<button class="od-st-main" data-oa="open-store" data-id="' + s.id + '"><div class="od-st-name">' + escapeHtml(odShort(s.name)) + (rest ? '<span class="od-badge">今天休息</span>' : '') + '</div>' +
+    '<button class="od-st-main" data-oa="open-store" data-id="' + s.id + '"><div class="od-st-name"><span class="od-nm">' + escapeHtml(odShort(s.name)) + '</span>' + (rest ? '<span class="od-badge">今天休息</span>' : '') + '</div>' +
     '<div class="od-st-meta">' + (hit ? escapeHtml(hit) : n + ' 項' + (s.hours ? '・' + escapeHtml(s.hours) : '')) + '</div></button>' +
-    '<div class="od-st-btns">' +
-    (tel ? '<a class="icon-btn" href="tel:' + tel + '" aria-label="打電話">' + ic('phone') + '</a>' : '') +
-    '<button class="icon-btn" data-nav="' + escapeHtml(dest) + '" aria-label="導航">' + ic('navigation') + '</button>' +
-    (admin ? '<button class="icon-btn" data-oa="edit-store" data-id="' + s.id + '" aria-label="編輯店家">' + ic('pencil') + '</button>' : '') + '</div></div>';
+    '<button class="icon-btn od-more" data-oa="store-menu" data-id="' + s.id + '" aria-label="更多操作">' + ic('more-horizontal') + '</button>' +
+    '<button class="icon-btn od-go" data-oa="open-store" data-id="' + s.id + '" aria-label="進入菜單" tabindex="-1">' + ic('chevron-right') + '</button></div>';
+}
+function odStoreMenu(id) {
+  const s = odStore(id); if (!s) return;
+  const tel = (s.phone || '').replace(/[^0-9+]/g, '');
+  const dest = (s.lat != null && s.lng != null) ? s.lat + ',' + s.lng : ((s.name || '') + ' ' + (s.addr || ''));
+  closeOdSheet();
+  const el = document.createElement('div');
+  el.className = 'od-sheet-bg'; el.id = 'od-sheet';
+  el.innerHTML = '<div class="od-sheet" role="dialog" aria-label="店家操作"><div class="od-sheet-h">' + escapeHtml(s.name) + '</div><div class="od-acts">' +
+    (tel ? '<a class="od-act" href="tel:' + tel + '">' + ic('phone') + '<span>打電話　' + escapeHtml(s.phone) + '</span></a>' : '') +
+    '<button class="od-act" data-nav="' + escapeHtml(dest) + '">' + ic('navigation') + '<span>導航</span></button>' +
+    (odAdmin() ? '<button class="od-act" data-sheet="edit-store" data-id="' + s.id + '">' + ic('pencil') + '<span>編輯店家</span></button>' : '') +
+    '</div><div class="od-sheet-b"><button class="btn btn-outline btn-sm" data-sheet="cancel">關閉</button></div></div>';
+  document.body.appendChild(el);
+  el.addEventListener('click', e => { if (e.target.closest('a.od-act,[data-nav]')) setTimeout(closeOdSheet, 0); });
+  drawIcons();
 }
 function odListInner() {
   const sh = odShown();
@@ -2530,7 +2556,7 @@ function odListInner() {
 }
 function odListHtml() {
   const t = odToday();
-  let h = odTop('點餐', '今天 ' + t.label, '<button class="icon-btn od-back" data-go="home" aria-label="返回首頁">' + ic('chevron-left') + '</button>',
+  let h = odTop('餐車', '今天 ' + t.label, '<button class="icon-btn od-back" data-go="home" aria-label="返回首頁">' + ic('chevron-left') + '</button>',
     '<button class="icon-btn" data-oa="map" aria-label="地圖" title="地圖">' + ic('map') + '</button><button class="icon-btn" data-oa="data" aria-label="資料管理" title="資料管理">' + ic('database') + '</button>');
   h += '<img class="od-banner" alt="" src="' + (window.IMG ? IMG.banner_order : '') + '">';
   h += odPeopleBar();
@@ -2560,7 +2586,7 @@ function odMenuHtml() {
   const q = OD.ui.q.trim().toLowerCase();
   const shown = items.filter(i => (OD.ui.cat === '全部' || (i.cat || '其他') === OD.ui.cat) && (!q || (i.name + ' ' + (i.note || '')).toLowerCase().includes(q)));
   const dest = (s.lat != null && s.lng != null) ? s.lat + ',' + s.lng : ((s.name || '') + ' ' + (s.addr || ''));
-  let h = odTop(odShort(s.name), (s.phone || '') + (odIsRest(s) ? '　今天休息' : ''), odBack('to-list'),
+  let h = odTop(s.name, (s.phone || '') + (odIsRest(s) ? '　今天休息' : ''), odBack('to-list'),
     '<button class="icon-btn" data-nav="' + escapeHtml(dest) + '" aria-label="導航">' + ic('navigation') + '</button>' +
     (odAdmin() ? '<button class="icon-btn' + (OD.ui.edit ? ' on' : '') + '" data-oa="toggle-edit" aria-label="編輯菜單" title="編輯菜單">' + ic(OD.ui.edit ? 'check' : 'pencil') + '</button>' : ''));
   h += odPeopleBar();
@@ -2877,6 +2903,7 @@ document.addEventListener('click', (e) => {
   if (sh) {
     const k = sh.dataset.sheet;
     if (k === 'cancel') { closeOdSheet(); OD.opt = null; return; }
+    if (k === 'edit-store') { e.preventDefault(); odStoreForm(odStore(sh.dataset.id)); return; }
     if (k.indexOf('tpl-') === 0) {
       const t = OD_TPL[k.slice(4)], ta = document.querySelector('#od-sheet [data-k=groups]');
       if (t && ta) {
@@ -2929,6 +2956,7 @@ document.addEventListener('click', (e) => {
       odSaveCur(); odRender(); break;
     }
     case 'cat': OD.ui.cat = a.dataset.cat; OD.memo[OD.ui.sid] = { cat: OD.ui.cat, q: OD.ui.q }; odKeep(odRender); break;
+    case 'store-menu': odStoreMenu(id); break;
     case 'info': OD.ui.infoOpen = !OD.ui.infoOpen; odKeep(odRender); break;
     case 'toggle-edit': OD.ui.edit = !OD.ui.edit; odRender(); break;
     case 'add': { const it = odItem(id); if (it && odGroupsFor(it).length) odOptOpen(id, null); else { odAdd(id); odKeep(odRender); } break; }
