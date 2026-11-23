@@ -830,6 +830,8 @@ const TDX = (() => {
         if (!res.ok) { lastErr = new Error('資料服務暫時無回應（HTTP ' + res.status + '）'); continue; }
         const data = await res.json();
         if (data && !Array.isArray(data) && typeof data.error === 'string') { lastErr = new Error('資料服務暫時無回應'); continue; }
+        /* 網址指到別的服務（例如點餐同步腳本，回 {ok:true,name:…}）：視為這個代理失效，改試下一個 */
+        if (data && !Array.isArray(data) && data.ok === true && !data.CarParks && !data.ParkingAvailabilities) { lastErr = new Error('資料服務設定錯誤：代理網址指到的不是 TDX 代理'); continue; }
         _cache.set(ck, { data, exp: now + ttlSec * 1000 });
         return data;
       } catch (e) {
