@@ -1746,7 +1746,7 @@ function gStep(n) {
 homeBtnSync();
 $('gStep1').hidden = n !== 1; $('gStep2').hidden = n !== 2; $('gOut').hidden = !(n === 2 && !prefs.pw);   // 一般首頁底下的「登出」
 $('idGate').querySelector('.idsub').textContent = n === 1 ? '請輸入密碼' : gSubDate();
-if (n === 1) { gVal = ''; $('gMsg').textContent = ''; gBusy = false; gRender(); return; }
+if (n === 1) { try { $('gSea').hidden = true; } catch (e) { } gVal = ''; $('gMsg').textContent = ''; gBusy = false; gRender(); return; }
 var r = prefs.role || '一般';
 $('gRole').textContent = prefs.pw ? r : '同仁'; $('gRole').classList.toggle('guest', !prefs.pw && !!prefs.guest);
 $('gNote').innerHTML = prefs.pw ? '' : ['只能查看', '自己的留守可以自己標'].map(function (t) { return '<span>' + esc(t) + '</span>'; }).join('') + (!prefs.guest ? '<small>要修改請按「換身分」</small>' : '');
