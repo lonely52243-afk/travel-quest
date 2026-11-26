@@ -6549,7 +6549,7 @@ var loadError = '';
 var lastActive = Date.now();
 var pressing = false;
 var dragging = false;
-var lastSig = '', gsPend = false;
+var lastSig = '', gridScrollPend = false;
 var sheetT = 0;
 var empAll = [];
 var writeFail = false, failCount = 0, syncFail = '';
@@ -6701,7 +6701,7 @@ else setEditing(b.dataset.mode === 'on');
 $('sPrev').onclick = function () { goSched(-1); };
 $('sNext').onclick = function () { goSched(1); };
 $('sToday').onclick = function () { anchor = todayKey(); renderAll(); ensureData(false); };
-$('gridBox').addEventListener('scroll', function () { if (!gsPend) { gsPend = true; requestAnimationFrame(function () { gsPend = false; onGridScroll(); }); } }, { passive: true });
+$('gridBox').addEventListener('scroll', function () { if (!gridScrollPend) { gridScrollPend = true; requestAnimationFrame(function () { gridScrollPend = false; onGridScroll(); }); } }, { passive: true });
 (function () {
 var b = document.createElement('button'); b.id = 'todayJump'; b.hidden = true; b.textContent = '今天'; b.setAttribute('aria-label', '回到今天');
 b.onclick = function () {
