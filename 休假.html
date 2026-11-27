@@ -5926,7 +5926,7 @@ items.push({ t: w, tm: one && t0 ? fmtTm(t0) : '', s: t0 ? tmRange(t0)[0] : 9998
 try { flagDay(k).forEach(function (f) { items.push({ t: f.ttl + '・' + f.nt, tm: f.tm || '', s: f.tm ? tmRange(f.tm)[0] : 9998, p: f.names.map(function (n) { return pp(n); }) }); }); } catch (e0) { /* 忽略 */ }
 pk.forEach(function (it) { var tm = planTm(it, k); items.push({ t: it, plan: 1, tm: tm ? tm.a + '–' + tm.b : '', s: tm ? tmRange(tm.a + '–' + tm.b)[0] : 9999, p: pl[it].map(function (p) { return pp({ n: p.n, t: p.away ? '休' : (p.est ? '預估' : '') }); }) }); });
 items.sort(function (a, b) { return a.s - b.s; });
-var ev = eventsOf(k).map(function (e) { return (e.time ? e.time + ' ' : '') + e.title + '（' + evWho(e) + '）'; });
+var ev = eventsOf(k).map(function (e) { var w = evWho(e); return { t: e.title, tm: e.time ? fmtTm(e.time) : '', who: w === '全員' ? [] : w.split(/[、,，\s]+/).filter(Boolean) }; });
 var busy = {}; (dutyAll[k] || []).forEach(function (z) { busy[z.n] = 1; });   // 和畫面一樣：當天有排勤務的人，到班名單裡加方塊
 var busyAny = !o.off && rows.some(function (r) { return /到班$/.test(r[0]) && r[1].some(function (c) { return busy[c.n]; }); });
 var rs = { '全天': 0, '上午': 0, '下午': 0 }; o.rest.forEach(function (z) { if (rs[z.p] !== undefined) rs[z.p]++; });
@@ -5981,8 +5981,22 @@ rr(P, y, bw, 44, 3); x.fillStyle = '#fff'; x.fill(); x.strokeStyle = '#D3DDE0'; 
 cells.forEach(function (cl, i) { var cx0 = P + (i + .5) * bw / cells.length; F(800, 24); var nw = x.measureText(String(cl[0])).width; F(600, 12.5); var lw = x.measureText(cl[1]).width, sx = cx0 - (nw + 6 + lw) / 2; F(800, 24); x.fillStyle = cl[2]; x.textAlign = 'left'; x.fillText(String(cl[0]), sx, y + 30); F(600, 12.5); x.fillStyle = '#5d7385'; x.fillText(cl[1], sx + nw + 6, y + 29); if (i) { x.strokeStyle = '#D3DDE0'; x.beginPath(); x.moveTo(P + i * bw / cells.length, y + 8); x.lineTo(P + i * bw / cells.length, y + 36); x.stroke(); } });
 }
 y += 44 + 16;
-if (M.ev.length) { M.ev.forEach(function (e) { wrap('行程：' + e, W - 2 * P, 600, 14).forEach(function (ln) { T(ln, P, y + 15, NAVY, 600, 14); y += 21; }); }); y += 10; }
 function sec(t, line) { if (!dry) { x.fillStyle = GOLD; x.fillRect(P, y + 2, 4, 20); } T(t, P + 14, y + 19, NAVY, 800, 18); if (line && !dry) { x.fillStyle = GOLD; x.fillRect(P, y + 30, W - 2 * P, 1.5); } y += line ? 40 : 34; }
+if (M.ev.length) {   // 今日行程：每項一張卡（標題、時間靠右、人員標籤），不再擠成一段文字
+sec('今日行程');
+M.ev.forEach(function (e) {
+var x0 = P + 14, mx = W - P - 10; F(600, 14); var tw = e.tm ? x.measureText(e.tm).width + 10 : 0;
+var tl = wrap(e.t, mx - x0 - tw, 700, 15.5), th = tl.length * 21, pl = place(e.who.length ? e.who.map(function (n) { return { n: n }; }) : [{ n: '全員' }], x0, mx, 26, null, 0), h = 10 + th + 6 + pl.h + 10;
+if (!dry) {
+rr(P, y, W - 2 * P, h, 3); x.fillStyle = '#fff'; x.fill(); x.strokeStyle = '#D3DDE0'; x.lineWidth = 1; x.stroke(); x.fillStyle = GOLD; x.fillRect(P, y + 1, 4, h - 2);
+tl.forEach(function (ln, i) { T(ln, x0, y + 10 + 16 + i * 21, NAVY, 700, 15.5); });
+if (e.tm) T(e.tm, mx, y + 10 + 16, '#5d7385', 600, 14, 'right');
+}
+pl.pos.forEach(function (q) { chip(q, y + 10 + th + 6, 26, CD, 0); });
+y += h + 8;
+});
+y += 8;
+}
 sec('人員情況', 0);
 var cats = [], hereRows = [];
 M.rows.forEach(function (r) { if (!r[1].length) return; if (/到班$/.test(r[0])) hereRows.push(r); else cats.push({ lab: r[0], L: r[1], here: 0 }); });
@@ -6065,12 +6079,7 @@ x.fillStyle = '#EEF2F5'; x.fillRect(0, 0, W, H); run(false);
 return c;
 }
 var attImgUrl = null;
-function attImgs() {   // 橫幅、頁尾圖：取畫面正在用的那組（依時段），載入失敗就略過
-var cs = getComputedStyle(document.body);
-function ld(v) { return new Promise(function (res) { var m = /url\(["']?([^"')]+)["']?\)/.exec(cs.getPropertyValue(v) || ''); if (!m) return res(null); var im = new Image(); im.onload = function () { res(im); }; im.onerror = function () { res(null); }; im.src = m[1]; }); }
-return Promise.all([ld('--ix-bg-jet'), ld('--ix-bg-hangar')]).then(function (a) { return { jet: a[0], hangar: a[1] }; });
-}
-function attShare() { attImgs().then(attShare2, function () { attShare2({}); }); }
+function attShare() { attShare2({}); }   // 產圖不放橫幅與頁尾背景圖，只留深藍頁首（標題＋日期）
 function attShare2(IM) {
 var k = attK || todayKey(), cv;
 if (!loaded[k.slice(0, 7)]) { showToast('資料還在讀取，請稍後再按', null, null, 2400); return; }
