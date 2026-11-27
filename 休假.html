@@ -3282,12 +3282,15 @@ return '<button class="evb"' + (edit ? ' data-evk="' + esc(e.title) + '"' : ' ta
 function evRerender() {
 try { if ($('todoPage').classList.contains('show')) renderTodo(); if ($('dutyPage').classList.contains('show')) renderDutyMon(); if ($('dutyDay').classList.contains('show')) renderDutyDay(); if ($('attPage').classList.contains('show')) renderAtt(); mineSync(); if (tab === 'days') safeRender(); } catch (e) { /* 忽略 */ }
 }
+function evTmFix(t) {   // 試算表的時間格有時被存成日期（Sat Dec 30 1899 18:00:00 GMT+0800…），只取時:分
+t = String(t || '').trim(); var m = /1899[^\d]+(\d{1,2}):(\d{2}):\d{2}/.exec(t); return m ? (m[1].length < 2 ? '0' : '') + m[1] + ':' + m[2] : t;
+}
 function eventsLoad(force) {
 if (!force && Date.now() - evLoadAt < 60000) return;
 evLoadAt = Date.now();
 return apiCall({ action: 'getEvents' }).then(function (res) {
 if (!res || !res.ok) return;
-var m = {}; (res.items || []).forEach(function (it) { (m[it.date] = m[it.date] || []).push({ time: it.time || '', title: it.title, who: it.who || '全員' }); });
+var m = {}; (res.items || []).forEach(function (it) { (m[it.date] = m[it.date] || []).push({ time: evTmFix(it.time), title: it.title, who: it.who || '全員' }); });
 EVENTS = m; try { localStorage.setItem(EV_KEY, JSON.stringify(m)); } catch (e) { /* 忽略 */ }
 evRerender();
 }).catch(function () { /* 忽略 */ });
@@ -4446,7 +4449,7 @@ else if (kind === 'rest') { names = o.rest; title = '休假'; }
 else if (kind === 'stay') { names = o.stay; title = '留守'; }
 else if (kind === 'mon') { names = o.mon; title = '監控'; }
 else if (kind === 'out') { names = o.out[lab] || []; title = '外勤：' + lab; }
-else if (kind === 'plan') { names = (o.plan[lab] || []).map(function (p) { return p.n + (p.sub ? '（代理）' : '') + (p.away ? '（當天休假）' : '') + (p.est ? '（預估）' : ''); }); title = lab + '（輪值）'; tm = planTm(lab) || { a: '未定', b: '' }; }
+else if (kind === 'plan') { names = (o.plan[lab] || []).map(function (p) { return p.n + (p.sub ? '（代理）' : '') + (p.away ? '（當天休假）' : '') + (p.est ? '（預估）' : ''); }); title = lab === '莒光課' ? '莒光課（每週四）' : lab + '（輪值）'; tm = planTm(lab) || { a: '未定', b: '' }; }
 var y = +k.slice(0, 4), md = mdLabel(k), full = y + '年' + md.replace('/', '月') + '日 週' + wkOf(k);
 var h = '<div class="evtt">' + esc(title) + '</div>';
 if (tm.b) h += '<div class="evtime"><div><small>' + esc(full) + '</small><b>' + esc(tm.a) + '</b></div><span class="evarrow">›</span><div class="evend"><small>' + esc(full) + '</small><b>' + esc(tm.b) + '</b></div></div>';
@@ -5554,7 +5557,7 @@ for (var i = 0; i < r.length; i++) for (var j = i + 1; j < r.length; j++) if (r[
 return o;
 }
 function mineTaskHtml(it, ov) {
-return '<div class="mi t-' + it.t + (ov ? ' ovl' + (ov === 2 ? ' ovn' : '') : '') + '"><i>' + ({ duty: '勤務', ur: '尿篩', shoot: '打靶', ot: '加班', plan: '輪值', guard: '衛哨', ev: '行程' }[it.t] || esc(it.s)) + '</i><span class="mtt">' + esc(it.ttl) + (it.nt ? '<small>' + esc(it.nt) + '</small>' : '') + '</span>' + (it.tm ? '<span class="mtm">' + esc(it.tm) + '</span>' : '') + '</div>';
+return '<div class="mi t-' + it.t + (ov ? ' ovl' + (ov === 2 ? ' ovn' : '') : '') + '"><i>' + ({ duty: '勤務', ur: '尿篩', shoot: '打靶', ot: '加班', plan: it.ttl === '莒光課' ? '上課' : '勤務', guard: '衛哨', ev: '行程' }[it.t] || esc(it.s)) + '</i><span class="mtt">' + esc(it.ttl) + (it.nt ? '<small>' + esc(it.nt) + '</small>' : '') + '</span>' + (it.tm ? '<span class="mtm">' + esc(it.tm) + '</span>' : '') + '</div>';
 }
 function mineDayHtml(k, its, o) {
 o = o || {}; var tk = todayKey(), sts = its.filter(function (x) { return x.st; })[0], tasks = its.filter(function (x) { return !x.st; });
@@ -5628,9 +5631,9 @@ if (ed && !gsIsD(r)) r = null;   // 標留守／監控時：月曆只留留守�
 var dut = ed ? [] : mineItems(k, me).filter(function (it) { return it.t !== 'stay' && it.t !== 'off' && it.t !== 'away' && it.t !== 'mon' && !it.flag; });
 var ty = {}; dut.forEach(function (it) { ty[it.t] = 1; });
 if (r) { ty[isPub(r) ? 'comp' : isLeave(r) ? ((!inf.off && r.period === '全天') ? 'comp' : 'off') : isAway(r) ? 'away' : r.period === '留守' ? 'stay' : 'mon'] = 1; } else if (!ed && mineUnf(k, me)) ty.unf = 1;
-if (mineLF && ty[mineLF]) lfN++;
+if (mineLF && (ty[mineLF] || (mineLF === 'duty' && ty.plan))) lfN++;
 var col = (lead + d - 1) % 7;
-var cls = 'cc' + (inf.off ? ' off' : '') + (k === tk ? ' today' : '') + (!ed && cl[k] ? (cl[k].note ? ' note' : ' clash') : '') + (k < tk ? ' past' : '') + (mineLF ? (ty[mineLF] ? ' lfhit' : ' lfdim') : '') + (col === 0 ? ' cgl' : '') + (lead + d <= 7 ? ' cgt' : '');
+var cls = 'cc' + (inf.off ? ' off' : '') + (k === tk ? ' today' : '') + (!ed && cl[k] ? (cl[k].note ? ' note' : ' clash') : '') + (k < tk ? ' past' : '') + (mineLF ? ((ty[mineLF] || (mineLF === 'duty' && ty.plan)) ? ' lfhit' : ' lfdim') : '') + (col === 0 ? ' cgl' : '') + (lead + d <= 7 ? ' cgt' : '');
 h += '<div class="' + cls + '" data-' + (ed ? 'mk' : 'mv') + '="' + k + '"><span class="n">' + d + '</span><span class="pl">';
 var np = 0;
 if (r) {
@@ -5642,17 +5645,17 @@ else if (r.period === '留守') { pt = '留守'; pc = 'stay'; }
 else { pt = '監控'; pc = 'mon'; }
 h += '<b class="p-' + pc + '">' + esc(pt) + '</b>'; np++;
 } else if (!ed && mineUnf(k, me)) { h += '<b class="p-unf">未點</b>'; np++; }
-var rest = [], gc = {}; dut.forEach(function (it) { if (gc[it.t]) gc[it.t].n++; else { gc[it.t] = { it: it, n: 1 }; rest.push(gc[it.t]); } });
-while (np < 2 && rest.length) { var g0 = rest.shift(), it = g0.it; h += '<b class="p-d t-' + it.t + '">' + ({ duty: '勤務', ur: '尿篩', shoot: '打靶', ot: '加班', plan: '輪值', guard: '衛哨', ev: '行程' }[it.t] || esc(it.s)) + (g0.n > 1 ? ' ×' + g0.n : '') + '</b>'; np++; }
+var rest = [], gc = {}; dut.forEach(function (it) { var gk = it.t === 'plan' ? 'plan:' + it.ttl : it.t; if (gc[gk]) gc[gk].n++; else { gc[gk] = { it: it, n: 1 }; rest.push(gc[gk]); } });   // 固定勤務（擴大FO、查庫、莒光課…）各自一個標籤，寫項目名稱才認得出來
+while (np < 2 && rest.length) { var g0 = rest.shift(), it = g0.it; h += '<b class="p-d t-' + it.t + '">' + (it.t === 'plan' ? esc(String(it.ttl).replace(/^擴大/, '')) : ({ duty: '勤務', ur: '尿篩', shoot: '打靶', ot: '加班', guard: '衛哨', ev: '行程' }[it.t] || esc(it.s))) + (g0.n > 1 ? ' ×' + g0.n : '') + '</b>'; np++; }
 h += '</span>';
 if (rest.length) h += '<span class="dd"><s>＋' + rest.reduce(function (a, g) { return a + g.n; }, 0) + '</s></span>';
 h += '</div>';
 }
 for (var t0 = lead + n; t0 % 7; t0++) h += '<div class="cc empty"></div>';   // 月底補滿，整個月曆是完整矩形
 h += '</div>';
-var LFN = {stay:'留守',comp:'補休／慰休／公假',off:'例假日休',away:'出差・受訓',duty:'勤務',ur:'尿篩',shoot:'打靶',plan:'輪值',ev:'行程',unf:'假單未點'};
+var LFN = {stay:'留守',comp:'補休／慰休／公假',off:'例假日休',away:'出差・受訓',duty:'勤務',ur:'尿篩',shoot:'打靶',plan:'勤務',ev:'行程',unf:'假單未點'};
 h = h.replace('<!--LFB-->', mineLF ? '<div class="mnlfb" data-lf="' + mineLF + '"><b>只看「' + LFN[mineLF] + '」</b><span>' + (lfN ? '本月共 ' + lfN + ' 天' : '本月沒有') + '</span><button data-lf="">✕ 全部</button></div>' : '');
-var lgh = '<div class="mnlg mnlgf' + (mineLF ? ' filtering' : '') + '" id="mnLeg"><button data-lf="stay"' + (mineLF === 'stay' ? ' class="on"' : '') + '><i class="t-stay"></i>留守</button><button data-lf="comp"' + (mineLF === 'comp' ? ' class="on"' : '') + '><i style="background:var(--comp)"></i>補休／慰休／公假</button><button data-lf="off"' + (mineLF === 'off' ? ' class="on"' : '') + '><i class="t-off"></i>例假日休</button><button data-lf="away"' + (mineLF === 'away' ? ' class="on"' : '') + '><i class="t-away"></i>出差・受訓</button><button data-lf="duty"' + (mineLF === 'duty' ? ' class="on"' : '') + '><i class="t-duty"></i>勤務</button><button data-lf="ur"' + (mineLF === 'ur' ? ' class="on"' : '') + '><i class="t-ur"></i>尿篩</button><button data-lf="shoot"' + (mineLF === 'shoot' ? ' class="on"' : '') + '><i class="t-shoot"></i>打靶</button><button data-lf="plan"' + (mineLF === 'plan' ? ' class="on"' : '') + '><i class="t-plan"></i>輪值</button><button data-lf="ev"' + (mineLF === 'ev' ? ' class="on"' : '') + '><i class="t-ev"></i>行程</button><button data-lf="unf"' + (mineLF === 'unf' ? ' class="on"' : '') + '><i class="unfi"></i>假單未點</button></div>';
+var lgh = '<div class="mnlg mnlgf' + (mineLF ? ' filtering' : '') + '" id="mnLeg"><button data-lf="stay"' + (mineLF === 'stay' ? ' class="on"' : '') + '><i class="t-stay"></i>留守</button><button data-lf="comp"' + (mineLF === 'comp' ? ' class="on"' : '') + '><i style="background:var(--comp)"></i>補休／慰休／公假</button><button data-lf="off"' + (mineLF === 'off' ? ' class="on"' : '') + '><i class="t-off"></i>例假日休</button><button data-lf="away"' + (mineLF === 'away' ? ' class="on"' : '') + '><i class="t-away"></i>出差・受訓</button><button data-lf="duty"' + (mineLF === 'duty' ? ' class="on"' : '') + '><i class="t-duty"></i>勤務</button><button data-lf="ur"' + (mineLF === 'ur' ? ' class="on"' : '') + '><i class="t-ur"></i>尿篩</button><button data-lf="shoot"' + (mineLF === 'shoot' ? ' class="on"' : '') + '><i class="t-shoot"></i>打靶</button><button data-lf="ev"' + (mineLF === 'ev' ? ' class="on"' : '') + '><i class="t-ev"></i>行程</button><button data-lf="unf"' + (mineLF === 'unf' ? ' class="on"' : '') + '><i class="unfi"></i>假單未點</button></div>';
 h += '<details class="mnlgd" data-mf="lg"' + (mineFold('lg') || mineLF ? ' open' : '') + '><summary>標記說明<span>點類別只看那一種</span></summary>' + lgh + '</details>';
 h += '<div class="mnlfh">' + (mineLF ? '只看「' + LFN[mineLF] + '」<button data-lf="">✕ 全部</button>' : '點上面的類別可以只看那一種') + '</div>';
 return h;
@@ -5818,7 +5821,7 @@ return '<button class="gremind r-' + ic + ' k-' + kind + (cl[T] ? (cl[T].note ? 
 } catch (e) { return ''; }
 }
 function gBrief(me, tk, tier, cl, dchip) {
-var LB = { duty: '勤務', ur: '尿篩', shoot: '打靶', ot: '加班', plan: '輪值', guard: '衛哨', ev: '行程' };
+var LB = { duty: '勤務', ur: '尿篩', shoot: '打靶', ot: '加班', plan: '勤務', guard: '衛哨', ev: '行程' };
 var td = mineItems(tk, me), st = td.filter(function (x) { return x.st; })[0], tasks = td.filter(function (x) { return !x.st; });
 var p1 = [];
 if (st) p1.push(esc(st.ttl));
