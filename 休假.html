@@ -5929,7 +5929,8 @@ items.sort(function (a, b) { return a.s - b.s; });
 var ev = eventsOf(k).map(function (e) { return (e.time ? e.time + ' ' : '') + e.title + '（' + evWho(e) + '）'; });
 return { k: k, date: mdLabel(k) + '（' + wkOf(k) + '）', tag: info.label || (info.off ? '假日' : ''), off: o.off, total: total, present: present, half: half, amP: amP, pmP: pmP, absent: fullRest + o.out.length, rows: rows, items: items, ev: ev, unsure: Object.keys(o.unsure).length > 0 };
 }
-function attDraw(M) {
+function attDraw(M, IM) {
+IM = IM || {};
 var W = 390, P = 14, NAVY = '#142C42', GOLD = '#D9A441', FAM = (getComputedStyle(document.body).fontFamily || '') + ',"PingFang TC","Noto Sans CJK TC","Microsoft JhengHei",sans-serif';
 var CAT = { '休假': ['#2a68c8', '#e6eefb', '#b9cdee', '#1d3f78'], '外勤': ['#a63a78', '#f9e8f1', '#e8bcd3', '#6e2253'], '留守': ['#c0453a', '#fde9e5', '#efbdb4', '#7d2c1c'], '監控': ['#3d4f7c', '#e8ebf5', '#c3cbe2', '#26355c'], '到班': ['#1f7a45', '#fff', '#C5D1D8', '#142C42'] };
 var TM = { '全天': ['#142C42', '#ffffff'], '上午': ['#ffefc2', '#7a4f00'], '下午': ['#ffe0cc', '#8f3f0c'] };
@@ -5946,7 +5947,11 @@ function run(dry) {
 var y = P;
 function T(t, px, py, col, w, s, al) { if (dry) return; F(w, s); x.fillStyle = col; x.textAlign = al || 'left'; x.fillText(t, px, py); }
 function chip(q, y0, h, sm, cat) { if (dry) return; rr(q.x, y0 + q.y, q.w, h, 3); x.fillStyle = '#fff'; x.fill(); x.setLineDash(q.un ? [3, 2] : []); x.strokeStyle = q.un ? '#b08a3c' : cat[2]; x.lineWidth = q.un ? 1.5 : 1; x.stroke(); x.setLineDash([]); x.fillStyle = cat[3]; F(700, sm ? 13 : 14); x.textAlign = 'center'; x.fillText(q.t, q.x + q.w / 2, y0 + q.y + h / 2 + 5); }
-if (!dry) { x.fillStyle = NAVY; x.fillRect(0, 0, W, 94); x.fillStyle = GOLD; x.fillRect(0, 94, W, 3); x.fillStyle = GOLD; x.fillRect(P, y + 6, 4, 20); }
+if (!dry) {   // 頁首：和畫面一樣的深藍底＋戰機橫幅（右側）
+var hg = x.createLinearGradient(0, 0, 0, 94); hg.addColorStop(0, '#0f2538'); hg.addColorStop(1, NAVY); x.fillStyle = hg; x.fillRect(0, 0, W, 94);
+if (IM.jet) { var jw = 94 * IM.jet.width / IM.jet.height; x.drawImage(IM.jet, W - jw, 0, jw, 94); var lg = x.createLinearGradient(0, 0, W, 0); lg.addColorStop(0, '#0f2538'); lg.addColorStop(.34, '#0f2538'); lg.addColorStop(.78, 'rgba(15,37,56,0)'); x.fillStyle = lg; x.fillRect(0, 0, W, 94); }
+x.fillStyle = GOLD; x.fillRect(0, 94, W, 3); x.fillRect(P, y + 6, 4, 20);
+}
 T('任務派遣・人員情況', P + 12, y + 23, '#ffffff', 800, 20); y += 34;
 if (!dry) { F(800, 18); var tw = x.measureText(M.date).width; x.fillStyle = '#F2B63C'; rr(P, y, tw + 28, 34, 5); x.fill(); x.fillStyle = NAVY; x.textAlign = 'left'; x.fillText(M.date, P + 14, y + 24); if (M.tag) { F(700, 13); x.fillStyle = '#a9bccb'; x.fillText(M.tag, P + tw + 28 + 10, y + 23); } }
 y += 60;
@@ -6007,6 +6012,10 @@ y += hh + 8; ii += 2;
 y += 2;
 if (M.unsure) { T('虛線框：其他來源（如股總／彈射／軍械）', P + 2, y + 12, '#6f8496', 600, 11); y += 22; }
 T('備忘', W - P, y + 8, '#8a9aa8', 700, 11, 'right'); y += 22;
+if (IM.hangar) {   // 頁尾：機庫圖（裁成窄條）＋金線
+var fh = 58; if (!dry) { var sh = IM.hangar.width * fh / W, sy = (IM.hangar.height - sh) * .5; x.drawImage(IM.hangar, 0, Math.max(0, sy), IM.hangar.width, Math.min(sh, IM.hangar.height), 0, y, W, fh); x.fillStyle = GOLD; x.fillRect(0, y, W, 2); }
+y += fh;
+}
 return y;
 }
 c.width = 10; c.height = 10; var H = Math.ceil(run(true));
@@ -6016,10 +6025,16 @@ x.fillStyle = '#EEF2F5'; x.fillRect(0, 0, W, H); run(false);
 return c;
 }
 var attImgUrl = null;
-function attShare() {
+function attImgs() {   // 橫幅、頁尾圖：取畫面正在用的那組（依時段），載入失敗就略過
+var cs = getComputedStyle(document.body);
+function ld(v) { return new Promise(function (res) { var m = /url\(["']?([^"')]+)["']?\)/.exec(cs.getPropertyValue(v) || ''); if (!m) return res(null); var im = new Image(); im.onload = function () { res(im); }; im.onerror = function () { res(null); }; im.src = m[1]; }); }
+return Promise.all([ld('--ix-bg-jet'), ld('--ix-bg-hangar')]).then(function (a) { return { jet: a[0], hangar: a[1] }; });
+}
+function attShare() { attImgs().then(attShare2, function () { attShare2({}); }); }
+function attShare2(IM) {
 var k = attK || todayKey(), cv;
 if (!loaded[k.slice(0, 7)]) { showToast('資料還在讀取，請稍後再按', null, null, 2400); return; }
-try { cv = attDraw(attModel(k)); } catch (e) { showToast('產圖失敗，請先用「複製文字」', null, null, 3200); return; }
+try { cv = attDraw(attModel(k), IM); } catch (e) { showToast('產圖失敗，請先用「複製文字」', null, null, 3200); return; }
 cv.toBlob(function (blob) {
 if (!blob) { showToast('產圖失敗，請先用「複製文字」', null, null, 3200); return; }
 if (attImgUrl) { try { URL.revokeObjectURL(attImgUrl); } catch (e) { /* 忽略 */ } }
