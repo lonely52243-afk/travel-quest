@@ -5929,9 +5929,9 @@ var ev = eventsOf(k).map(function (e) { return (e.time ? e.time + ' ' : '') + e.
 return { k: k, date: mdLabel(k) + '（' + wkOf(k) + '）', tag: info.label || (info.off ? '假日' : ''), off: o.off, total: total, present: present, half: half, amP: amP, pmP: pmP, absent: fullRest + o.out.length, rows: rows, items: items, ev: ev, unsure: Object.keys(o.unsure).length > 0 };
 }
 function attDraw(M) {
-var W = 390, P = 14, NAVY = '#1e2a4a', GOLD = '#e9c46a', FAM = (getComputedStyle(document.body).fontFamily || '') + ',"PingFang TC","Noto Sans CJK TC","Microsoft JhengHei",sans-serif';
+var W = 390, P = 14, NAVY = '#142C42', GOLD = '#D9A441', FAM = (getComputedStyle(document.body).fontFamily || '') + ',"PingFang TC","Noto Sans CJK TC","Microsoft JhengHei",sans-serif';
 var CAT = { '休假': ['#2a68c8', '#e6eefb', '#b9cdee', '#1d3f78'], '外勤': ['#a63a78', '#f9e8f1', '#e8bcd3', '#6e2253'], '留守': ['#c0453a', '#fde9e5', '#efbdb4', '#7d2c1c'], '監控': ['#3d4f7c', '#e8ebf5', '#c3cbe2', '#26355c'], '到班': ['#1f7a45', '#e9f5ee', '#a9d9bb', '#145c33'] };
-var TM = { '全天': ['#1e2a4a', '#ffffff'], '上午': ['#ffefc2', '#7a4f00'], '下午': ['#ffe0cc', '#8f3f0c'] };
+var TM = { '全天': ['#142C42', '#ffffff'], '上午': ['#ffefc2', '#7a4f00'], '下午': ['#ffe0cc', '#8f3f0c'] };
 var c = document.createElement('canvas'), x = c.getContext('2d'), S = 3;
 function F(w, s) { x.font = w + ' ' + s + 'px ' + FAM; }
 function rr(a, b, w, h, r) { x.beginPath(); x.moveTo(a + r, b); x.arcTo(a + w, b, a + w, b + h, r); x.arcTo(a + w, b + h, a, b + h, r); x.arcTo(a, b + h, a, b, r); x.arcTo(a, b, a + w, b, r); x.closePath(); }
@@ -5944,26 +5944,27 @@ return { pos: pos, h: cy + h };
 function run(dry) {
 var y = P;
 function T(t, px, py, col, w, s, al) { if (dry) return; F(w, s); x.fillStyle = col; x.textAlign = al || 'left'; x.fillText(t, px, py); }
-function chip(q, y0, h, sm, cat) { if (dry) return; rr(q.x, y0 + q.y, q.w, h, 8); x.fillStyle = '#fff'; x.fill(); x.setLineDash(q.un ? [3, 2] : []); x.strokeStyle = q.un ? '#b0905a' : cat[2]; x.lineWidth = q.un ? 1.5 : 1.2; x.stroke(); x.setLineDash([]); x.fillStyle = cat[3]; F(700, sm ? 13 : 14); x.textAlign = 'center'; x.fillText(q.t, q.x + q.w / 2, y0 + q.y + h / 2 + 5); }
-T('任務派遣・人員情況', P, y + 22, NAVY, 800, 20); y += 34;
-if (!dry) { F(800, 18); var tw = x.measureText(M.date).width; x.fillStyle = '#f6d98a'; rr(P, y, tw + 28, 34, 17); x.fill(); x.strokeStyle = NAVY; x.lineWidth = 1.5; x.stroke(); x.fillStyle = NAVY; x.textAlign = 'left'; x.fillText(M.date, P + 14, y + 24); if (M.tag) { F(700, 13); x.fillStyle = '#6b7390'; x.fillText(M.tag, P + tw + 28 + 10, y + 23); } }
-y += 46;
-var bw = W - 2 * P, cells = M.off ? [[M.present, '假日在營', '#eef1f9', NAVY]] : [[M.total, '應到', '#eef1f9', NAVY], ].concat(M.half ? [[M.amP, '上午', '#e6f4ec', '#2f7a4a'], [M.pmP, '下午', '#e6f4ec', '#2f7a4a']] : [[M.present, '實到', '#e6f4ec', '#2f7a4a']]).concat([ [M.absent, '不在', M.absent ? '#fbe8e3' : '#f4f1ea', M.absent ? '#b8564b' : '#8a90a8']]);
-if (!dry) { x.save(); rr(P, y, bw, 46, 14); x.clip(); cells.forEach(function (cl, i) { x.fillStyle = cl[2]; x.fillRect(P + i * bw / cells.length, y, bw / cells.length + 1, 46); }); x.restore(); rr(P, y, bw, 46, 14); x.strokeStyle = '#e0d7c3'; x.lineWidth = 1.5; x.stroke(); cells.forEach(function (cl, i) { var cx0 = P + (i + .5) * bw / cells.length; F(900, 22); var nw = x.measureText(String(cl[0])).width; F(700, 12); var lw = x.measureText(cl[1]).width, sx = cx0 - (nw + 6 + lw) / 2; F(900, 22); x.fillStyle = cl[3]; x.textAlign = 'left'; x.fillText(String(cl[0]), sx, y + 31); F(700, 12); x.fillStyle = '#69758c'; x.fillText(cl[1], sx + nw + 6, y + 30); if (i) { x.strokeStyle = '#e0d7c3'; x.lineWidth = 1.5; x.beginPath(); x.moveTo(P + i * bw / cells.length, y); x.lineTo(P + i * bw / cells.length, y + 46); x.stroke(); } }); }
+function chip(q, y0, h, sm, cat) { if (dry) return; rr(q.x, y0 + q.y, q.w, h, 5); x.fillStyle = cat[1] || '#F2F5F8'; x.fill(); x.setLineDash(q.un ? [3, 2] : []); x.strokeStyle = q.un ? '#b08a3c' : cat[2]; x.lineWidth = q.un ? 1.5 : 1; x.stroke(); x.setLineDash([]); x.fillStyle = cat[3]; F(700, sm ? 13 : 14); x.textAlign = 'center'; x.fillText(q.t, q.x + q.w / 2, y0 + q.y + h / 2 + 5); }
+if (!dry) { x.fillStyle = NAVY; x.fillRect(0, 0, W, 94); x.fillStyle = GOLD; x.fillRect(0, 94, W, 3); x.fillStyle = GOLD; x.fillRect(P, y + 6, 4, 20); }
+T('任務派遣・人員情況', P + 12, y + 23, '#ffffff', 800, 20); y += 34;
+if (!dry) { F(800, 18); var tw = x.measureText(M.date).width; x.fillStyle = '#F2B63C'; rr(P, y, tw + 28, 34, 5); x.fill(); x.fillStyle = NAVY; x.textAlign = 'left'; x.fillText(M.date, P + 14, y + 24); if (M.tag) { F(700, 13); x.fillStyle = '#a9bccb'; x.fillText(M.tag, P + tw + 28 + 10, y + 23); } }
+y += 60;
+var bw = W - 2 * P, cells = M.off ? [[M.present, '假日在營', '#fff', NAVY]] : [[M.total, '應到', '#fff', NAVY], ].concat(M.half ? [[M.amP, '上午', '#fff', '#2f7a4a'], [M.pmP, '下午', '#fff', '#2f7a4a']] : [[M.present, '實到', '#fff', '#2f7a4a']]).concat([ [M.absent, '不在', '#fff', M.absent ? '#b8564b' : '#8a9aa8']]);
+if (!dry) { x.save(); rr(P, y, bw, 46, 6); x.clip(); cells.forEach(function (cl, i) { x.fillStyle = cl[2]; x.fillRect(P + i * bw / cells.length, y, bw / cells.length + 1, 46); }); x.restore(); rr(P, y, bw, 46, 6); x.strokeStyle = '#D3DDE0'; x.lineWidth = 1; x.stroke(); cells.forEach(function (cl, i) { var cx0 = P + (i + .5) * bw / cells.length; F(900, 22); var nw = x.measureText(String(cl[0])).width; F(700, 12); var lw = x.measureText(cl[1]).width, sx = cx0 - (nw + 6 + lw) / 2; F(900, 22); x.fillStyle = cl[3]; x.textAlign = 'left'; x.fillText(String(cl[0]), sx, y + 31); F(700, 12); x.fillStyle = '#5d7385'; x.fillText(cl[1], sx + nw + 6, y + 30); if (i) { x.strokeStyle = '#D3DDE0'; x.lineWidth = 1; x.beginPath(); x.moveTo(P + i * bw / cells.length, y); x.lineTo(P + i * bw / cells.length, y + 46); x.stroke(); } }); }
 y += 58;
 if (M.ev.length) { M.ev.forEach(function (e) { wrap('行程：' + e, W - 2 * P, 700, 14).forEach(function (ln) { T(ln, P, y + 15, NAVY, 700, 14); y += 22; }); }); y += 8; }
 M.rows.forEach(function (r) {
 var lab = r[0], L = r[1], cat = CAT[lab] || CAT['到班'], x0 = P + 14, mx = W - P - 8;
 if (!L.length) return;   // 0 人的狀態不畫
 var pl = L.length ? place(L, x0, mx, 26, 0) : null, h = 12 + 22 + (pl ? 6 + pl.h : 0) + 10;
-if (!dry) { rr(P, y, W - 2 * P, h, 12); x.fillStyle = cat[1]; x.fill(); x.save(); rr(P, y, W - 2 * P, h, 12); x.clip(); x.fillStyle = cat[0]; x.fillRect(P, y, 4, h); x.restore(); }
+if (!dry) { rr(P, y, W - 2 * P, h, 6); x.fillStyle = '#fff'; x.fill(); x.save(); rr(P, y, W - 2 * P, h, 6); x.clip(); x.fillStyle = cat[0]; x.fillRect(P, y, 4, h); x.restore(); rr(P, y, W - 2 * P, h, 6); x.strokeStyle = '#D3DDE0'; x.lineWidth = 1; x.stroke(); }
 T(lab, x0, y + 12 + 17, cat[0], 800, 16);
-if (!dry) { F(800, 16); var lw = x.measureText(lab).width; x.fillStyle = '#69758c'; F(700, 12.5); x.textAlign = 'left'; x.fillText(L.length + ' 人', x0 + lw + 8, y + 12 + 17); if (!L.length) { x.fillStyle = '#8a90a8'; F(600, 14); x.fillText('無', x0 + lw + 8 + 38, y + 12 + 17); } }
+if (!dry) { F(800, 16); var lw = x.measureText(lab).width; x.fillStyle = '#5d7385'; F(700, 12.5); x.textAlign = 'left'; x.fillText(L.length + ' 人', x0 + lw + 8, y + 12 + 17); if (!L.length) { x.fillStyle = '#8a90a8'; F(600, 14); x.fillText('無', x0 + lw + 8 + 38, y + 12 + 17); } }
 if (pl) pl.pos.forEach(function (q) { chip(q, y + 12 + 22 + 6, 26, 0, cat); });
 y += h + 6;
 });
 y += 6; T('今日勤務（共 ' + M.items.length + ' 項）', P + 2, y + 18, NAVY, 800, 16); y += 26;
-if (!dry) { x.strokeStyle = '#ecd9a0'; x.lineWidth = 2; x.beginPath(); x.moveTo(P, y); x.lineTo(W - P, y); x.stroke(); }
+if (!dry) { x.strokeStyle = GOLD; x.lineWidth = 2; x.beginPath(); x.moveTo(P, y); x.lineTo(W - P, y); x.stroke(); }
 y += 12;
 if (!M.items.length) { T('今天沒有勤務', P + 2, y + 14, '#8a90a8', 600, 14); y += 28; }
 function card(d, px, cw, y, half) {
@@ -5973,15 +5974,15 @@ var rw = (tagw ? tagw + 6 : 0) + (tmw ? tmw : 0), x0 = px + 14, mx = px + cw - 8
 var tl = wrap(d.t, mx - x0 - (!half && rw ? rw + 8 : 0), 800, 15.5), titleH = tl.length * 22, metaH = half && rw ? 26 : 0;
 var pl = place(d.p, x0, mx, 24, 1), h = 10 + titleH + metaH + 8 + pl.h + 10;
 if (!dry) {
-rr(px, y, cw, h, 12); x.fillStyle = bg; x.fill(); x.save(); rr(px, y, cw, h, 12); x.clip(); x.fillStyle = bar; x.fillRect(px, y, 4, h); x.restore();
+rr(px, y, cw, h, 6); x.fillStyle = '#fff'; x.fill(); x.save(); rr(px, y, cw, h, 6); x.clip(); x.fillStyle = bar; x.fillRect(px, y, 4, h); x.restore(); rr(px, y, cw, h, 6); x.strokeStyle = '#D3DDE0'; x.lineWidth = 1; x.stroke();
 tl.forEach(function (ln, i) { T(ln, x0, y + 10 + 17 + i * 22, NAVY, 800, 15.5); });
 var rx = half ? x0 : mx, ty = half ? y + 10 + titleH : y;
 if (half) {
-if (d.plan) { rr(rx, ty + 2, tagw, 18, 6); x.fillStyle = '#fff'; x.fill(); x.strokeStyle = '#2f8fa5'; x.lineWidth = 1.2; x.stroke(); F(700, 11); x.fillStyle = '#1f6f82'; x.textAlign = 'left'; x.fillText('表定', rx + 6, ty + 2 + 13); rx += tagw + 6; }
-if (d.tm) { var k2 = TM[d.tm] || ['#e8edf6', '#3b4a6a']; rr(rx, ty, tmw, 22, 11); x.fillStyle = k2[0]; x.fill(); F(800, 12.5); x.fillStyle = k2[1]; x.textAlign = 'center'; x.fillText(d.tm, rx + tmw / 2, ty + 16); }
+if (d.plan) { rr(rx, ty + 2, tagw, 18, 3); x.fillStyle = '#fff'; x.fill(); x.strokeStyle = '#2f8fa5'; x.lineWidth = 1.2; x.stroke(); F(700, 11); x.fillStyle = '#1f6f82'; x.textAlign = 'left'; x.fillText('表定', rx + 6, ty + 2 + 13); rx += tagw + 6; }
+if (d.tm) { var k2 = TM[d.tm] || ['#e8edf6', '#3b4a6a']; rr(rx, ty, tmw, 22, 4); x.fillStyle = k2[0]; x.fill(); F(800, 12.5); x.fillStyle = k2[1]; x.textAlign = 'center'; x.fillText(d.tm, rx + tmw / 2, ty + 16); }
 } else {
-if (d.tm) { var k = TM[d.tm] || ['#e8edf6', '#3b4a6a']; rx -= tmw; rr(rx, y + 8, tmw, 22, 11); x.fillStyle = k[0]; x.fill(); F(800, 12.5); x.fillStyle = k[1]; x.textAlign = 'center'; x.fillText(d.tm, rx + tmw / 2, y + 8 + 16); rx -= 6; }
-if (d.plan) { rx -= tagw; rr(rx, y + 10, tagw, 18, 6); x.fillStyle = '#fff'; x.fill(); x.strokeStyle = '#2f8fa5'; x.lineWidth = 1.2; x.stroke(); F(700, 11); x.fillStyle = '#1f6f82'; x.textAlign = 'left'; x.fillText('表定', rx + 6, y + 10 + 13); }
+if (d.tm) { var k = TM[d.tm] || ['#e8edf6', '#3b4a6a']; rx -= tmw; rr(rx, y + 8, tmw, 22, 4); x.fillStyle = k[0]; x.fill(); F(800, 12.5); x.fillStyle = k[1]; x.textAlign = 'center'; x.fillText(d.tm, rx + tmw / 2, y + 8 + 16); rx -= 6; }
+if (d.plan) { rx -= tagw; rr(rx, y + 10, tagw, 18, 3); x.fillStyle = '#fff'; x.fill(); x.strokeStyle = '#2f8fa5'; x.lineWidth = 1.2; x.stroke(); F(700, 11); x.fillStyle = '#1f6f82'; x.textAlign = 'left'; x.fillText('表定', rx + 6, y + 10 + 13); }
 }
 }
 pl.pos.forEach(function (q) { chip(q, y + 10 + titleH + metaH + 8, 24, 1, cb); });
@@ -6003,15 +6004,14 @@ y += hh + 8; ii += 2;
 } else { y += card(d1, P, W - 2 * P, y, 0) + 8; ii++; }
 }
 y += 2;
-if (M.unsure) { T('虛線框：其他來源（如股總／彈射／軍械）', P + 2, y + 12, '#8a90a8', 600, 11); y += 22; }
-T('備忘', W - P, y + 8, '#b9b19a', 700, 11, 'right'); y += 22;
+if (M.unsure) { T('虛線框：其他來源（如股總／彈射／軍械）', P + 2, y + 12, '#6f8496', 600, 11); y += 22; }
+T('備忘', W - P, y + 8, '#8a9aa8', 700, 11, 'right'); y += 22;
 return y;
 }
 c.width = 10; c.height = 10; var H = Math.ceil(run(true));
 while (H * S > 14000 && S > 1) S--;
 c.width = W * S; c.height = H * S; x.scale(S, S);
-x.fillStyle = '#fbf3e1'; x.fillRect(0, 0, W, H); run(false);
-x.strokeStyle = GOLD; x.lineWidth = 3; x.strokeRect(1.5, 1.5, W - 3, H - 3);
+x.fillStyle = '#EEF2F5'; x.fillRect(0, 0, W, H); run(false);
 return c;
 }
 var attImgUrl = null;
