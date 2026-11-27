@@ -2449,6 +2449,7 @@ var cls = 'cell' + (inf.off ? ' off' : '') + (k === tk ? ' tdy' : '');
 var txt = '';
 var rl0 = myRole();
 var gsrc = '';
+if (!rec) { var vr = (recordsPub[k] || {})[emp.name]; if (vr && vr.virt && vr.type === '受訓') { rec = vr; gsrc = ''; } }   // 受訓（訓期表算出來的）：淡色顯示「訓」，不是假單
 if (!rec && rl0) {   // 我這份空白：淡色參考別份（不算我已點；點一下可採用）
 var rf0 = refOf(emp.name, k, rl0);
 if (rf0) { rec = rf0.rec; cls += ' hint'; gsrc = rf0.label; }
