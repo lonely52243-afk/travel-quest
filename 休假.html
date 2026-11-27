@@ -3259,7 +3259,7 @@ var k = ym + '-' + pad(d), items = [];
 var r = (recordsPub[k] || {})[n];
 if (r) { var cp = isLeave(r) && r.period === '全天' && !dayInfo(k).off; items.push({ c: isLeave(r) ? 'rest' + (cp ? ' comp' : '') : (r.period === '留守' ? 'stay' : (r.period === '監控' ? 'mon' : 'away')), t: isPub(r) ? recLabel(r) : (cp ? '補休／慰休' : recLabel(r)) }); if (isLeave(r)) { if (dayInfo(k).off) cnt.offRest = (cnt.offRest || 0) + 1; else cnt.rest += r.period === '全天' ? 1 : 0.5; } else if (r.period === '留守') cnt.stay++; }
 (dutyAll[k] || []).forEach(function (x) { if (x.n !== n) return; var u = isUrine(x.why), o = isOT(x.why); items.push({ c: u ? 'urine' : (o ? 'ot' : (isShoot(x.why) ? 'shoot' : 'duty')), t: x.why + (x.time ? '　' + fmtTm(x.time) : ''), ic: whyIcon(x.why) }); if (u) cnt.urine++; else if (o) cnt.ot += otHours(x.time); else cnt.duty++; });
-try { var pl0 = dutyDayOf(k).plan || {}; Object.keys(pl0).forEach(function (it) { pl0[it].forEach(function (p) { if (p.n !== n) return; var pt = planTm(it, k); items.push({ c: 'plan', t: it + (pt ? '　' + pt.a + '–' + pt.b : '') + (p.est ? '（預估）' : '（表定）'), ic: whyIcon(it) }); cnt.plan = (cnt.plan || 0) + 1; }); }); } catch (e2) { /* 忽略 */ }
+try { var pl0 = dutyDayOf(k).plan || {}; Object.keys(pl0).forEach(function (it) { pl0[it].forEach(function (p) { if (p.n !== n) return; var pt = planTm(it, k); items.push({ c: 'plan', t: it + (pt ? '　' + pt.a + '–' + pt.b : '') + (p.est ? '（預估）' : '（輪值）'), ic: whyIcon(it) }); cnt.plan = (cnt.plan || 0) + 1; }); }); } catch (e2) { /* 忽略 */ }
 try { flagDay(k).forEach(function (f) { if (f.names.indexOf(n) >= 0) items.push({ c: 'ev', t: f.ttl + (f.tm ? ' ' + f.tm : '') + '（' + f.nt + '）' }); }); } catch (e9) { /* 忽略 */ }
 eventsOf(k).forEach(function (e) { if (e.who !== '全員' && evHas(e, n)) items.push({ c: 'ev', t: '行程：' + (e.time ? e.time + ' ' : '') + e.title }); });
 if (items.length) rows.push('<div class="srow' + (dayInfo(k).off ? ' off' : '') + '"><b>' + mdLabel(k) + '<small>' + wkOf(k) + '</small></b><div>' + items.map(function (it) { return '<span class="sit ' + it.c + '">' + (it.ic ? '<i class="wi ' + it.ic + '"></i>' : '') + esc(it.t) + '</span>'; }).join('') + '</div></div>');
@@ -4292,7 +4292,7 @@ if (gn.length) o.plan['衛哨'] = gn.map(function (n) { return { n: n, est: fals
 if (parseKey(k).getDay() === 4 && !dayInfo(k).off && !o.planOff['莒光課'] && !o.plan['莒光課']) {   // 每週四固定有莒光課 14:00–16:00：上課的人＝當天人員扣掉下午休假、外勤、監控、會客室公差、時段重疊的加班；班長在輪值表另外派人就以派的為準
 var rp = recordsPub[k] || {}, bz = {}, cls = [];
 (dutyAll[k] || []).forEach(function (x) { var tr = x.time ? tmRange(x.time) : (isOT(x.why) ? null : dayRng('')); if (tr && tr[0] < 960 && 840 < tr[1]) bz[x.n] = 1; });   // 勤務（含加班）時段碰到 14:00–16:00 的都不算；沒寫時間的勤務視為整天，沒寫時間的加班（夜間）不算
-Object.keys(o.plan).forEach(function (it) { var pt = planTm(it, k), tr = pt ? tmRange(pt.a + '–' + pt.b) : null; if (tr && tr[0] < 960 && 840 < tr[1]) o.plan[it].forEach(function (p) { if (!p.away) bz[p.n] = 1; }); });   // 表定輪值（監工、擴大FO…）碰到也不算
+Object.keys(o.plan).forEach(function (it) { var pt = planTm(it, k), tr = pt ? tmRange(pt.a + '–' + pt.b) : null; if (tr && tr[0] < 960 && 840 < tr[1]) o.plan[it].forEach(function (p) { if (!p.away) bz[p.n] = 1; }); });   // 輪值（監工、擴大FO…）碰到也不算
 dutyEmps().forEach(function (e) { var n = e.name, r = rp[n]; if (bz[n]) return; if (r && (r.period === '全天' || r.period === '下午' || r.period === '外勤' || r.period === '監控')) return; cls.push({ n: n, est: false, sub: false, away: false, auto: true }); });
 o.plan['莒光課'] = cls;
 }
@@ -4380,7 +4380,7 @@ return;
 }
 nTl++;
 var pl = cls === 'plan';
-h += '<div class="tlrow"><div class="tl ' + cls + '" data-kind="' + cls + '" data-lab="' + esc((tkey || '').indexOf(':') < 0 ? '' : tkey.slice(tkey.indexOf(':') + 1)) + '" data-ttl="' + esc(title) + '"><i class="tlbar"></i><div class="tlm"><b class="' + (ic || '') + '">' + esc(title) + (pl ? '<u>表定</u>' : '') + '</b>' + (function () { var wl = otWhyLine(k, (tkey || '').indexOf(':') < 0 ? '' : tkey.slice(tkey.indexOf(':') + 1)); return wl ? '<span class="tlwhy">' + esc(wl) + '</span>' : ''; })() + '<span class="tlr"><small>' + esc(tm.a + (tm.b ? '–' + tm.b : '')) + '</small><em>' + names.length + ' 人</em></span><div class="tln">' + chips(names, cls === 'out') + '</div></div></div>' +
+h += '<div class="tlrow"><div class="tl ' + cls + '" data-kind="' + cls + '" data-lab="' + esc((tkey || '').indexOf(':') < 0 ? '' : tkey.slice(tkey.indexOf(':') + 1)) + '" data-ttl="' + esc(title) + '"><i class="tlbar"></i><div class="tlm"><b class="' + (ic || '') + '">' + esc(title) + '' + '</b>' + (function () { var wl = otWhyLine(k, (tkey || '').indexOf(':') < 0 ? '' : tkey.slice(tkey.indexOf(':') + 1)); return wl ? '<span class="tlwhy">' + esc(wl) + '</span>' : ''; })() + '<span class="tlr"><small>' + esc(tm.a + (tm.b ? '–' + tm.b : '')) + '</small><em>' + names.length + ' 人</em></span><div class="tln">' + chips(names, cls === 'out') + '</div></div></div>' +
 (lab ? '<div class="dlbtns"><button class="ghost dledit" data-why="' + esc(lab) + '">編輯這項</button><button class="ghost dldel" data-why="' + esc(lab) + '">刪除這項</button></div>' : '') + '</div>';
 }
 var ALLD = { a: '全天', b: '', s: -1 };
@@ -4446,7 +4446,7 @@ else if (kind === 'rest') { names = o.rest; title = '休假'; }
 else if (kind === 'stay') { names = o.stay; title = '留守'; }
 else if (kind === 'mon') { names = o.mon; title = '監控'; }
 else if (kind === 'out') { names = o.out[lab] || []; title = '外勤：' + lab; }
-else if (kind === 'plan') { names = (o.plan[lab] || []).map(function (p) { return p.n + (p.sub ? '（代理）' : '') + (p.away ? '（當天休假）' : '') + (p.est ? '（預估）' : ''); }); title = lab + '（輪值表定）'; tm = planTm(lab) || { a: '未定', b: '' }; }
+else if (kind === 'plan') { names = (o.plan[lab] || []).map(function (p) { return p.n + (p.sub ? '（代理）' : '') + (p.away ? '（當天休假）' : '') + (p.est ? '（預估）' : ''); }); title = lab + '（輪值）'; tm = planTm(lab) || { a: '未定', b: '' }; }
 var y = +k.slice(0, 4), md = mdLabel(k), full = y + '年' + md.replace('/', '月') + '日 週' + wkOf(k);
 var h = '<div class="evtt">' + esc(title) + '</div>';
 if (tm.b) h += '<div class="evtime"><div><small>' + esc(full) + '</small><b>' + esc(tm.a) + '</b></div><span class="evarrow">›</span><div class="evend"><small>' + esc(full) + '</small><b>' + esc(tm.b) + '</b></div></div>';
@@ -5026,7 +5026,7 @@ h += '<details class="fairhow"><summary>這個數字怎麼算？</summary><div>'
 '比「照全體平均，這個人該做幾次」：實際完成次數 − 平均該有次數。負的＝比平均少，正的＝比平均多，差不到 ' + FAIR_TOL + ' 次算負擔相近。<br>' +
 '可派遣天數：近 90 天上班日，扣外勤、報到前。<b>休假不扣</b>，休息過的人回來就一起補。<br>' +
 '只算已經做完的；14 天內已排的另外標「近期已排」，更遠的只在明細列出。<br>' +
-'算進去：勤務、打靶。不算：尿篩、加班、表定的擴大FO／查庫／監工／核生化、指定勤務（名目含「會客室、講習…」等，清單在統計頁下方可編輯）。<br>' +
+'算進去：勤務、打靶。不算：尿篩、加班、輪值的擴大FO／查庫／監工／核生化、指定勤務（名目含「會客室、講習…」等，清單在統計頁下方可編輯）。<br>' +
 '新進或剛回來的同仁：股名冊填「報到日」，從那天開始算；可派遣不到 ' + FAIR_MIN + ' 天顯示「資料不足」。</div></details></div></div>';
 return h;
 }
@@ -5035,7 +5035,7 @@ if (!statAll) { if (!/讀取失敗/.test($('statBody').innerHTML) || !renderStat
 if (statKind === 'urine') { renderUrine(); return; }
 if (statKind === 'shoot') { renderShoot(); return; }
 if (statKind === 'ot') { renderOT(); return; }
-var SA = statAll.filter(function (x) { return !isUrine(x.why) && !isOT(x.why) && !isRot(x.why) && !isDesig(x.why); });   // 尿篩、加班、表定輪值、核生化、指定勤務不算勤務次數
+var SA = statAll.filter(function (x) { return !isUrine(x.why) && !isOT(x.why) && !isRot(x.why) && !isDesig(x.why); });   // 尿篩、加班、輪值、核生化、指定勤務不算勤務次數
 var tk = todayKey(), P = statPeriod(statOff), P0 = statRange === 'all' ? null : statPeriod(statOff + 1);
 var inR = SA.filter(function (x) { return x.date >= P.a && x.date <= P.b; });
 var prv = P0 ? SA.filter(function (x) { return x.date >= P0.a && x.date <= P0.b; }) : null;
@@ -5351,7 +5351,7 @@ for (var j = i + 1; j < items.length; j++) if (!used[j] && items[j].short) { use
 });
 items = ord;
 })();
-if (items.length) h += '<div class="asec duty"><div class="ash"><b>勤務</b><i>' + items.length + ' 項</i></div>' + '<div class="aitems">' + items.map(function (x) { return '<div class="aitem' + (x.plan ? ' plan' : '') + (x.half ? ' half' : '') + '"><div class="ait"><b>' + esc(x.t) + '</b>' + (x.plan ? '<u>表定</u>' : '') + (x.why ? '<span class="atw">' + esc(x.why) + '</span>' : '') + (x.tm ? '<small data-p="' + (x.tm === '全天' || x.tm === '上午' || x.tm === '下午' ? x.tm : '時段') + '">' + esc(x.tm) + '</small>' : '') + '</div><div class="achs">' + x.h + '</div></div>'; }).join('') + '</div></div>';
+if (items.length) h += '<div class="asec duty"><div class="ash"><b>勤務</b><i>' + items.length + ' 項</i></div>' + '<div class="aitems">' + items.map(function (x) { return '<div class="aitem' + (x.plan ? ' plan' : '') + (x.half ? ' half' : '') + '"><div class="ait"><b>' + esc(x.t) + '</b>' + '' + (x.why ? '<span class="atw">' + esc(x.why) + '</span>' : '') + (x.tm ? '<small data-p="' + (x.tm === '全天' || x.tm === '上午' || x.tm === '下午' ? x.tm : '時段') + '">' + esc(x.tm) + '</small>' : '') + '</div><div class="achs">' + x.h + '</div></div>'; }).join('') + '</div></div>';
 if (Object.keys(o.unsure).length) h += '<div class="anote"><span class="ach un">名字</span> 有虛線框的：股總還沒記，先顯示彈射／軍械記的</div>';
 h += '<div class="attbtns"><button type="button" class="attb" id="attCopy"><b>複製文字</b><small>貼到 Juiker／LINE</small></button><button type="button" class="attb pri" id="attImg"><b>產圖分享</b><small>儲存或傳送圖片</small></button></div>';
 $('attBody').innerHTML = h;
@@ -5927,71 +5927,113 @@ try { flagDay(k).forEach(function (f) { items.push({ t: f.ttl + '・' + f.nt, tm
 pk.forEach(function (it) { var tm = planTm(it, k); items.push({ t: it, plan: 1, tm: tm ? tm.a + '–' + tm.b : '', s: tm ? tmRange(tm.a + '–' + tm.b)[0] : 9999, p: pl[it].map(function (p) { return pp({ n: p.n, t: p.away ? '休' : (p.est ? '預估' : '') }); }) }); });
 items.sort(function (a, b) { return a.s - b.s; });
 var ev = eventsOf(k).map(function (e) { return (e.time ? e.time + ' ' : '') + e.title + '（' + evWho(e) + '）'; });
-return { k: k, date: mdLabel(k) + '（' + wkOf(k) + '）', tag: info.label || (info.off ? '假日' : ''), off: o.off, total: total, present: present, half: half, amP: amP, pmP: pmP, absent: fullRest + o.out.length, rows: rows, items: items, ev: ev, unsure: Object.keys(o.unsure).length > 0 };
+var busy = {}; (dutyAll[k] || []).forEach(function (z) { busy[z.n] = 1; });   // 和畫面一樣：當天有排勤務的人，到班名單裡加方塊
+var busyAny = !o.off && rows.some(function (r) { return /到班$/.test(r[0]) && r[1].some(function (c) { return busy[c.n]; }); });
+var rs = { '全天': 0, '上午': 0, '下午': 0 }; o.rest.forEach(function (z) { if (rs[z.p] !== undefined) rs[z.p]++; });
+var restSum = ['全天', '上午', '下午'].filter(function (q) { return rs[q]; }).map(function (q) { return q + ' ' + rs[q]; }).join('｜');
+return { restSum: restSum, md: mdLabel(k), wk: '星期' + wkOf(k), busy: busy, busyAny: busyAny, k: k, date: mdLabel(k) + '（' + wkOf(k) + '）', tag: info.label || (info.off ? '假日' : ''), off: o.off, total: total, present: present, half: half, amP: amP, pmP: pmP, absent: fullRest + o.out.length, rows: rows, items: items, ev: ev, unsure: Object.keys(o.unsure).length > 0 };
 }
 function attDraw(M, IM) {
 IM = IM || {};
 var W = 390, P = 14, NAVY = '#142C42', GOLD = '#D9A441', FAM = (getComputedStyle(document.body).fontFamily || '') + ',"PingFang TC","Noto Sans CJK TC","Microsoft JhengHei",sans-serif';
 var CAT = { '休假': ['#2a68c8', '#e6eefb', '#b9cdee', '#1d3f78'], '外勤': ['#a63a78', '#f9e8f1', '#e8bcd3', '#6e2253'], '留守': ['#c0453a', '#fde9e5', '#efbdb4', '#7d2c1c'], '監控': ['#3d4f7c', '#e8ebf5', '#c3cbe2', '#26355c'], '到班': ['#1f7a45', '#fff', '#C5D1D8', '#142C42'] };
-var TM = { '全天': ['#142C42', '#ffffff'], '上午': ['#ffefc2', '#7a4f00'], '下午': ['#ffe0cc', '#8f3f0c'] };
+var CD = ['', '#fff', '#C9C4E6', '#142C42'], CP = ['', '#fff', '#9cc9d3', '#14566a'], TM = { '全天': ['#142C42', '#ffffff'], '上午': ['#ffefc2', '#7a4f00'], '下午': ['#ffe0cc', '#8f3f0c'] };
 var c = document.createElement('canvas'), x = c.getContext('2d'), S = 3;
 function F(w, s) { x.font = w + ' ' + s + 'px ' + FAM; }
 function rr(a, b, w, h, r) { x.beginPath(); x.moveTo(a + r, b); x.arcTo(a + w, b, a + w, b + h, r); x.arcTo(a + w, b + h, a, b + h, r); x.arcTo(a, b + h, a, b, r); x.arcTo(a, b, a + w, b, r); x.closePath(); }
 function wrap(t, mw, w, s) { F(w, s); var out = [], cur = ''; String(t).split('').forEach(function (ch) { if (cur && x.measureText(cur + ch).width > mw) { out.push(cur); cur = ch; } else cur += ch; }); if (cur) out.push(cur); return out.length ? out : ['']; }
-function place(list, x0, mx, h, sm) {
-var cx = x0, cy = 0, lh = h + 6, pos = []; F(700, sm ? 13 : 14);
-list.forEach(function (p) { var t = p.n + (p.t ? ' ' + p.t : ''), w = Math.min(x.measureText(t).width + 20, mx - x0); if (cx + w > mx && cx > x0) { cx = x0; cy += lh; } pos.push({ x: cx, y: cy, w: w, t: t, un: p.un }); cx += w + 6; });
+function place(list, x0, mx, h, busy, here) {   // 姓名標籤排版（只量不畫）：名字 14px、半天休等備註 11.5px 灰藍、有排勤務的加方塊
+var cx = x0, cy = 0, lh = h + 6, pos = [];
+list.forEach(function (p) {
+F(600, 14); var nw = x.measureText(p.n).width, tw = 0, b = !!(here && busy && busy[String(p.n).replace(/（車）$/, '')]);
+if (p.t) { F(500, 11.5); tw = x.measureText(p.t).width + 5; }
+var w = Math.min(nw + tw + 18 + (b ? 11 : 0), mx - x0); if (cx + w > mx && cx > x0) { cx = x0; cy += lh; }
+pos.push({ x: cx, y: cy, w: w, n: p.n, t: p.t, nw: nw, un: p.un, b: b }); cx += w + 5;
+});
 return { pos: pos, h: cy + h };
 }
+var catH = 0;
 function run(dry) {
 var y = P;
 function T(t, px, py, col, w, s, al) { if (dry) return; F(w, s); x.fillStyle = col; x.textAlign = al || 'left'; x.fillText(t, px, py); }
-function chip(q, y0, h, sm, cat) { if (dry) return; rr(q.x, y0 + q.y, q.w, h, 3); x.fillStyle = '#fff'; x.fill(); x.setLineDash(q.un ? [3, 2] : []); x.strokeStyle = q.un ? '#b08a3c' : cat[2]; x.lineWidth = q.un ? 1.5 : 1; x.stroke(); x.setLineDash([]); x.fillStyle = cat[3]; F(700, sm ? 13 : 14); x.textAlign = 'center'; x.fillText(q.t, q.x + q.w / 2, y0 + q.y + h / 2 + 5); }
-if (!dry) {   // 頁首：和畫面一樣的深藍底＋戰機橫幅（右側）
-var hg = x.createLinearGradient(0, 0, 0, 94); hg.addColorStop(0, '#0f2538'); hg.addColorStop(1, NAVY); x.fillStyle = hg; x.fillRect(0, 0, W, 94);
-if (IM.jet) { var jw = 94 * IM.jet.width / IM.jet.height; x.drawImage(IM.jet, W - jw, 0, jw, 94); var lg = x.createLinearGradient(0, 0, W, 0); lg.addColorStop(0, '#0f2538'); lg.addColorStop(.34, '#0f2538'); lg.addColorStop(.78, 'rgba(15,37,56,0)'); x.fillStyle = lg; x.fillRect(0, 0, W, 94); }
-x.fillStyle = GOLD; x.fillRect(0, 94, W, 3); x.fillRect(P, y + 6, 4, 20);
+function chip(q, y0, h, cat, here) {
+if (dry) return; var yy = y0 + q.y;
+rr(q.x, yy, q.w, h, 4); x.fillStyle = here ? '#fff' : (cat[1] || '#fff'); x.fill(); x.setLineDash(q.un ? [3, 2.5] : []); x.strokeStyle = q.un ? '#D9A441' : (here ? '#C9D4DC' : cat[2]); x.lineWidth = q.un ? 1.2 : 1; x.stroke(); x.setLineDash([]);
+F(600, 14); x.fillStyle = here ? NAVY : cat[3]; x.textAlign = 'left'; x.fillText(q.n, q.x + 9, yy + h / 2 + 5);
+if (q.t) { F(500, 11.5); x.fillStyle = '#6f8496'; x.fillText(q.t, q.x + 9 + q.nw + 5, yy + h / 2 + 4.5); }
+if (q.b) { x.fillStyle = '#142C42'; x.fillRect(q.x + q.w - 15, yy + h / 2 - 3.5, 7, 7); }
 }
-T('任務派遣・人員情況', P + 12, y + 23, '#ffffff', 800, 20); y += 34;
-if (!dry) { F(800, 18); var tw = x.measureText(M.date).width; x.fillStyle = '#F2B63C'; rr(P, y, tw + 28, 34, 5); x.fill(); x.fillStyle = NAVY; x.textAlign = 'left'; x.fillText(M.date, P + 14, y + 24); if (M.tag) { F(700, 13); x.fillStyle = '#a9bccb'; x.fillText(M.tag, P + tw + 28 + 10, y + 23); } }
-y += 60;
-var bw = W - 2 * P, cells = M.off ? [[M.present, '假日在營', '#fff', NAVY]] : [[M.total, '應到', '#fff', NAVY], ].concat(M.half ? [[M.amP, '上午', '#fff', '#2f7a4a'], [M.pmP, '下午', '#fff', '#2f7a4a']] : [[M.present, '實到', '#fff', '#2f7a4a']]);
-if (!dry) { x.save(); rr(P, y, bw, 46, 6); x.clip(); cells.forEach(function (cl, i) { x.fillStyle = cl[2]; x.fillRect(P + i * bw / cells.length, y, bw / cells.length + 1, 46); }); x.restore(); rr(P, y, bw, 46, 6); x.strokeStyle = '#D3DDE0'; x.lineWidth = 1; x.stroke(); cells.forEach(function (cl, i) { var cx0 = P + (i + .5) * bw / cells.length; F(900, 22); var nw = x.measureText(String(cl[0])).width; F(700, 12); var lw = x.measureText(cl[1]).width, sx = cx0 - (nw + 6 + lw) / 2; F(900, 22); x.fillStyle = cl[3]; x.textAlign = 'left'; x.fillText(String(cl[0]), sx, y + 31); F(700, 12); x.fillStyle = '#5d7385'; x.fillText(cl[1], sx + nw + 6, y + 30); if (i) { x.strokeStyle = '#D3DDE0'; x.lineWidth = 1; x.beginPath(); x.moveTo(P + i * bw / cells.length, y); x.lineTo(P + i * bw / cells.length, y + 46); x.stroke(); } }); }
-y += 58;
-if (M.ev.length) { M.ev.forEach(function (e) { wrap('行程：' + e, W - 2 * P, 700, 14).forEach(function (ln) { T(ln, P, y + 15, NAVY, 700, 14); y += 22; }); }); y += 8; }
-M.rows.forEach(function (r) {
-var lab = r[0], L = r[1], cat = CAT[lab] || CAT['到班'], x0 = P + 14, mx = W - P - 8;
-if (!L.length) return;   // 0 人的狀態不畫
-var pl = L.length ? place(L, x0, mx, 26, 0) : null, h = 12 + 22 + (pl ? 6 + pl.h : 0) + 10;
-if (!dry) { rr(P, y, W - 2 * P, h, 4); x.fillStyle = '#fff'; x.fill(); rr(P, y, W - 2 * P, h, 4); x.strokeStyle = '#D3DDE0'; x.lineWidth = 1; x.stroke(); }
-T(lab, x0, y + 12 + 17, cat[0], 800, 16);
-if (!dry) { F(800, 16); var lw = x.measureText(lab).width; x.fillStyle = '#5d7385'; F(700, 12.5); x.textAlign = 'left'; x.fillText(L.length + ' 人', x0 + lw + 8, y + 12 + 17); if (!L.length) { x.fillStyle = '#8a90a8'; F(600, 14); x.fillText('無', x0 + lw + 8 + 38, y + 12 + 17); } }
-if (pl) pl.pos.forEach(function (q) { chip(q, y + 12 + 22 + 6, 26, 0, cat); });
-y += h + 6;
-});
-y += 6; T('今日勤務（共 ' + M.items.length + ' 項）', P + 2, y + 18, NAVY, 800, 16); y += 26;
-if (!dry) { x.strokeStyle = GOLD; x.lineWidth = 2; x.beginPath(); x.moveTo(P, y); x.lineTo(W - P, y); x.stroke(); }
-y += 12;
-if (!M.items.length) { T('今天沒有勤務', P + 2, y + 14, '#8a90a8', 600, 14); y += 28; }
-function card(d, px, cw, y, half) {
-var bar = d.plan ? '#2f8fa5' : NAVY, bg = d.plan ? '#e9f5f7' : '#f5f2fc', cb = d.plan ? ['', '', '#b4dae2', '#14566a'] : ['', '', '#d3caee', '#2c2457'];
-F(700, 11); var tagw = d.plan ? x.measureText('表定').width + 12 : 0; F(800, 12.5); var tmw = d.tm ? x.measureText(d.tm).width + 18 : 0;
-var rw = (tagw ? tagw + 6 : 0) + (tmw ? tmw : 0), x0 = px + 14, mx = px + cw - 8;
-var tl = wrap(d.t, mx - x0 - (!half && rw ? rw + 8 : 0), 800, 15.5), titleH = tl.length * 22, metaH = half && rw ? 26 : 0;
-var pl = place(d.p, x0, mx, 24, 1), h = 10 + titleH + metaH + 8 + pl.h + 10;
+var HB = 58;
 if (!dry) {
-rr(px, y, cw, h, 4); x.fillStyle = '#F1F4F6'; x.fill(); x.save(); rr(px, y, cw, h, 4); x.clip(); x.fillStyle = bar; x.fillRect(px, y, 4, h); x.restore(); rr(px, y, cw, h, 4); x.strokeStyle = '#D3DDE0'; x.lineWidth = 1; x.stroke();
-tl.forEach(function (ln, i) { T(ln, x0, y + 10 + 17 + i * 22, NAVY, 800, 15.5); });
-var rx = half ? x0 : mx, ty = half ? y + 10 + titleH : y;
+var hg = x.createLinearGradient(0, 0, 0, HB); hg.addColorStop(0, '#0f2538'); hg.addColorStop(1, NAVY); x.fillStyle = hg; x.fillRect(0, 0, W, HB);
+if (IM.jet) { var jw = HB * IM.jet.width / IM.jet.height; x.drawImage(IM.jet, (W - jw) / 2 - 15, 0, jw, HB); var lg = x.createLinearGradient(0, 0, W, 0); lg.addColorStop(0, '#0f2538'); lg.addColorStop(.3, '#0f2538'); lg.addColorStop(.5, 'rgba(15,37,56,0)'); lg.addColorStop(.62, 'rgba(15,37,56,0)'); lg.addColorStop(.72, 'rgba(15,37,56,.92)'); lg.addColorStop(1, 'rgba(15,37,56,.92)'); x.fillStyle = lg; x.fillRect(0, 0, W, HB); }
+x.fillStyle = GOLD; x.fillRect(0, HB, W, 3);
+x.beginPath(); x.moveTo(P + 5, 10); x.lineTo(P + 11, 10); x.lineTo(P + 5, 34); x.lineTo(P - 1, 34); x.closePath(); x.fill();
+F(800, 22); x.fillStyle = '#fff'; x.textAlign = 'left'; x.fillText('任務派遣', P + 20, 31);
+F(500, 11.5); x.fillStyle = '#a9bccb'; x.fillText(M.tag ? M.tag : '人員情況與勤務安排', P + 20, 48);
+F(600, 13.5); var wkw = x.measureText(M.wk).width; x.fillStyle = '#d6e0e8'; x.textAlign = 'left'; x.fillText(M.wk, W - P - wkw, 38);
+F(800, 24); var mdw = x.measureText(M.md).width; x.fillStyle = '#F2B63C'; x.fillText(M.md, W - P - wkw - 8 - mdw, 38);
+}
+y = HB + 3 + 12;
+var bw = W - 2 * P, cells = M.off ? [[M.present, '假日在營', NAVY]] : [[M.total, '應到', NAVY]].concat(M.half ? [[M.amP, '上午', '#28764D'], [M.pmP, '下午', '#28764D']] : [[M.present, '實到', '#28764D']]);
+if (!dry) {
+rr(P, y, bw, 44, 3); x.fillStyle = '#fff'; x.fill(); x.strokeStyle = '#D3DDE0'; x.lineWidth = 1; x.stroke();
+cells.forEach(function (cl, i) { var cx0 = P + (i + .5) * bw / cells.length; F(800, 24); var nw = x.measureText(String(cl[0])).width; F(600, 12.5); var lw = x.measureText(cl[1]).width, sx = cx0 - (nw + 6 + lw) / 2; F(800, 24); x.fillStyle = cl[2]; x.textAlign = 'left'; x.fillText(String(cl[0]), sx, y + 30); F(600, 12.5); x.fillStyle = '#5d7385'; x.fillText(cl[1], sx + nw + 6, y + 29); if (i) { x.strokeStyle = '#D3DDE0'; x.beginPath(); x.moveTo(P + i * bw / cells.length, y + 8); x.lineTo(P + i * bw / cells.length, y + 36); x.stroke(); } });
+}
+y += 44 + 16;
+if (M.ev.length) { M.ev.forEach(function (e) { wrap('行程：' + e, W - 2 * P, 600, 14).forEach(function (ln) { T(ln, P, y + 15, NAVY, 600, 14); y += 21; }); }); y += 10; }
+function sec(t, line) { if (!dry) { x.fillStyle = GOLD; x.fillRect(P, y + 2, 4, 20); } T(t, P + 14, y + 19, NAVY, 800, 18); if (line && !dry) { x.fillStyle = GOLD; x.fillRect(P, y + 30, W - 2 * P, 1.5); } y += line ? 40 : 34; }
+sec('人員情況', 0);
+var cats = [], hereRows = [];
+M.rows.forEach(function (r) { if (!r[1].length) return; if (/到班$/.test(r[0])) hereRows.push(r); else cats.push({ lab: r[0], L: r[1], here: 0 }); });
+if (hereRows.length) cats.push({ lab: '到班', here: 1, rows: hereRows, L: hereRows[0][1] });
+var cx0 = P + 12, cmx = W - P - 12, ytop = y, bm = !dry && M.busyAny;
+if (!dry && catH) { rr(P, ytop, W - 2 * P, catH, 3); x.fillStyle = '#fff'; x.fill(); }
+cats.forEach(function (ct, ci) {
+var cat = CAT[ct.lab] || CAT['到班'];
+if (ci) { if (!dry) { x.fillStyle = '#D3DDE0'; x.fillRect(P, y, W - 2 * P, 1); } }
+var yc0 = y; y += 10;
+var cnt = ct.here ? (ct.rows.length > 1 ? '上午 ' + ct.rows[0][1].length + ' ｜ 下午 ' + ct.rows[1][1].length : ct.L.length + ' 人') : ct.L.length + ' 人';
+T(ct.lab, cx0, y + 15, cat[0], 800, 18);
+if (!dry) { F(800, 18); var lw = x.measureText(ct.lab).width; F(600, 13); x.fillStyle = '#5d7385'; x.textAlign = 'left'; x.fillText(cnt, cx0 + lw + 10, y + 14); }
+if (ct.lab === '休假' && M.restSum) T(M.restSum, W - P - 12, y + 14, '#5d7385', 600, 12.5, 'right');
+y += 28;
+(ct.here && ct.rows.length > 1 ? ct.rows : [[null, ct.L]]).forEach(function (r) {
+if (r[0]) { if (!dry) { x.fillStyle = '#EEF2F5'; x.fillRect(cx0, y, cmx - cx0, 24); } T(r[0] + ' ' + r[1].length + ' 人', cx0 + 10, y + 17, '#385B75', 700, 13.5); y += 32; }
+var pl = place(r[1], cx0, cmx, 26, M.busy, ct.here);
+pl.pos.forEach(function (q) { chip(q, y, 26, cat, ct.here); });
+y += pl.h + 10;
+});
+y += 2;
+if (!dry) { x.fillStyle = cat[0]; x.fillRect(P, yc0 + (ci ? 1 : 0), 4, y - yc0 - (ci ? 1 : 0)); }
+});
+if (dry) catH = y - ytop;
+if (!dry) { rr(P, ytop, W - 2 * P, y - ytop, 3); x.strokeStyle = '#D3DDE0'; x.lineWidth = 1; x.stroke(); }
+y += 6;
+var lx = P + 2;
+if (M.busyAny) { if (!dry) { x.fillStyle = '#142C42'; x.fillRect(lx, y + 4, 8, 8); } T('：已派勤務', lx + 11, y + 13, '#5d7385', 500, 12); F(500, 12); lx += 11 + x.measureText('：已派勤務').width + 14; }
+if (M.unsure) { if (!dry) { rr(lx, y + 1, 26, 14, 3); x.setLineDash([3, 2.5]); x.strokeStyle = '#D9A441'; x.lineWidth = 1.2; x.stroke(); x.setLineDash([]); } T('：其他來源（如股總／彈射／軍械）', lx + 28, y + 13, '#5d7385', 500, 12); }
+if (M.busyAny || M.unsure) y += 24;
+y += 12;
+sec('今日勤務（共 ' + M.items.length + ' 項）', 1);
+function card(d, px, cw, y, half) {
+var plan = !!d.plan, x0 = px + 14, mx = px + cw - 10, CC = plan ? CP : CD;
+F(700, 11); var tagw = 0; F(600, 14); var tmw = d.tm ? x.measureText(d.tm).width : 0;
+var rw = half ? 0 : (tmw ? tmw + 10 : 0), tl = wrap(d.t, mx - x0 - rw - (plan && !half ? tagw + 8 : 0), 700, 15.5), titleH = tl.length * 21;
+var metaH = half && d.tm ? 22 : 0;
+var pl = place(d.p, x0, mx, 26, null, 0), h = 10 + titleH + metaH + 6 + pl.h + 10;
+if (!dry) {
+rr(px, y, cw, h, 3); x.fillStyle = plan ? '#fff' : '#EDF1F4'; x.fill(); rr(px, y, cw, h, 3); x.strokeStyle = '#D3DDE0'; x.lineWidth = 1; x.stroke();
+x.save(); x.strokeStyle = plan ? '#5fa7b5' : NAVY; x.lineWidth = 4; if (plan) x.setLineDash([6, 4]); x.beginPath(); x.moveTo(px + 2, y + 1); x.lineTo(px + 2, y + h - 1); x.stroke(); x.restore();
+tl.forEach(function (ln, i) { T(ln, x0, y + 10 + 16 + i * 21, NAVY, 700, 15.5); });
 if (half) {
-if (d.plan) { rr(rx, ty + 2, tagw, 18, 3); x.fillStyle = '#fff'; x.fill(); x.strokeStyle = '#2f8fa5'; x.lineWidth = 1.2; x.stroke(); F(700, 11); x.fillStyle = '#1f6f82'; x.textAlign = 'left'; x.fillText('表定', rx + 6, ty + 2 + 13); rx += tagw + 6; }
-if (d.tm) { var k2 = TM[d.tm] || ['#e8edf6', '#3b4a6a']; rr(rx, ty, tmw, 22, 4); x.fillStyle = k2[0]; x.fill(); F(800, 12.5); x.fillStyle = k2[1]; x.textAlign = 'center'; x.fillText(d.tm, rx + tmw / 2, ty + 16); }
+var rx = x0, ty = y + 10 + titleH;
+if (d.tm) { F(600, 14); x.fillStyle = '#5d7385'; x.textAlign = 'left'; x.fillText(d.tm, rx, ty + 16); }
 } else {
-if (d.tm) { var k = TM[d.tm] || ['#e8edf6', '#3b4a6a']; rx -= tmw; rr(rx, y + 8, tmw, 22, 4); x.fillStyle = k[0]; x.fill(); F(800, 12.5); x.fillStyle = k[1]; x.textAlign = 'center'; x.fillText(d.tm, rx + tmw / 2, y + 8 + 16); rx -= 6; }
-if (d.plan) { rx -= tagw; rr(rx, y + 10, tagw, 18, 3); x.fillStyle = '#fff'; x.fill(); x.strokeStyle = '#2f8fa5'; x.lineWidth = 1.2; x.stroke(); F(700, 11); x.fillStyle = '#1f6f82'; x.textAlign = 'left'; x.fillText('表定', rx + 6, y + 10 + 13); }
+if (d.tm) { F(600, 14); x.fillStyle = '#5d7385'; x.textAlign = 'right'; x.fillText(d.tm, mx, y + 10 + 16); }
 }
 }
-pl.pos.forEach(function (q) { chip(q, y + 10 + titleH + metaH + 8, 24, 1, cb); });
+pl.pos.forEach(function (q) { chip(q, y + 10 + titleH + metaH + 6, 26, CC, 0); });
 return h;
 }
 M.items.forEach(function (d) { d.short = String(d.t).length <= 6 && d.p.length <= 2 && d.p.map(function (q) { return q.n; }).join('').length <= 8; });
@@ -6007,11 +6049,9 @@ var dry0 = dry; dry = true; var h1 = card(d1, P, gw, y, 1), h2 = card(d2, P + gw
 var hh = Math.max(h1, h2);
 if (!dry) { card(d1, P, gw, y, 1); card(d2, P + gw + 8, gw, y, 1); }
 y += hh + 8; ii += 2;
-} else { y += card(d1, P, W - 2 * P, y, 0) + 8; ii++; }
+} else { y += card(d1, P, W - 2 * P, y) + 8; ii++; }
 }
-y += 2;
-if (M.unsure) { T('虛線框：其他來源（如股總／彈射／軍械）', P + 2, y + 12, '#6f8496', 600, 11); y += 22; }
-T('備忘', W - P, y + 8, '#8a9aa8', 700, 11, 'right'); y += 22;
+y += 14;
 if (IM.hangar) {   // 頁尾：機庫圖（裁成窄條）＋金線
 var fh = 58; if (!dry) { var sh = IM.hangar.width * fh / W, sy = (IM.hangar.height - sh) * .5; x.drawImage(IM.hangar, 0, Math.max(0, sy), IM.hangar.width, Math.min(sh, IM.hangar.height), 0, y, W, fh); x.fillStyle = GOLD; x.fillRect(0, y, W, 2); }
 y += fh;
@@ -6160,10 +6200,10 @@ G[id].ns.push(n); if (/・車長$/.test(x.ttl)) G[id].cv.push(n);
 });
 });
 return order.map(function (id) {
-var g = G[id], x = g.x, what = (x.plan ? '【表定】' : '') + x.ttl.replace(/・車長$/, '') + (x.t.unk ? '（時間未定）' : '');
+var g = G[id], x = g.x, what = '' + x.ttl.replace(/・車長$/, '') + (x.t.unk ? '（時間未定）' : '');
 var ev = x.kind === 'ev' && g.ns.length >= ppl.length * 0.8;
 var title = ev ? '全員' : g.ns.map(function (n) { return calShort(n) + (g.cv.indexOf(n) >= 0 ? '（車）' : ''); }).join('、');
-var desc = (what === cxLab(x.kind) ? what : cxLab(x.kind) + '：' + what) + (x.t.all ? '' : '\n時間：' + x.t.a + '–' + x.t.b) + '\n人員：' + (ev ? '全員' : g.ns.map(calShort).join('、')) + (g.cv.length ? '\n車長：' + g.cv.map(calShort).join('、') : '') + '\n來自「備忘」' + (x.plan ? '・表定（還沒確認）' : '');
+var desc = (what === cxLab(x.kind) ? what : cxLab(x.kind) + '：' + what) + (x.t.all ? '' : '\n時間：' + x.t.a + '–' + x.t.b) + '\n人員：' + (ev ? '全員' : g.ns.map(calShort).join('、')) + (g.cv.length ? '\n車長：' + g.cv.map(calShort).join('、') : '') + '\n來自「備忘」' + (x.plan ? '・輪值（還沒確認）' : '');
 return { uid: 'bw-all-' + x.k.replace(/-/g, '') + '-' + cxHash(id) + '@beiwang', sig: title + '|' + desc + '|' + (x.t.all ? '全天' : x.t.a + '-' + x.t.b), k: x.k, all: x.t.all ? 1 : 0, a: x.t.a || '', b: x.t.b || '', title: title.slice(0, 80), desc: desc };
 });
 }
@@ -6187,8 +6227,8 @@ return send(0)
 }
 function calEvents(name, a, b, kk) {
 return cxItems(name, a, b, kk || calKK(name)).map(function (x) {
-var ttl = (x.plan ? '【表定】' : '') + x.ttl + (x.t.unk ? '（時間未定）' : '');
-return { uid: x.uid, sig: ttl + '|' + (x.t.all ? '全天' : x.t.a + '-' + x.t.b), k: x.k, all: x.t.all ? 1 : 0, a: x.t.a || '', b: x.t.b || '', title: ttl, desc: '來自「備忘」・' + cxLab(x.kind) + (x.plan ? '・表定（還沒確認）' : '') + (x.t.unk ? '・備忘沒有寫時間' : '') + (x.t.one ? '・只寫了開始時間' : '') + (/^(降旗|升旗)$/.test(x.ttl) && x.nt ? '・' + x.nt : '') };
+var ttl = '' + x.ttl + (x.t.unk ? '（時間未定）' : '');
+return { uid: x.uid, sig: ttl + '|' + (x.t.all ? '全天' : x.t.a + '-' + x.t.b), k: x.k, all: x.t.all ? 1 : 0, a: x.t.a || '', b: x.t.b || '', title: ttl, desc: '來自「備忘」・' + cxLab(x.kind) + (x.plan ? '・輪值（還沒確認）' : '') + (x.t.unk ? '・備忘沒有寫時間' : '') + (x.t.one ? '・只寫了開始時間' : '') + (/^(降旗|升旗)$/.test(x.ttl) && x.nt ? '・' + x.nt : '') };
 });
 }
 function calFlush() {
@@ -6711,7 +6751,7 @@ if (!m) { m = document.createElement('div'); m.id = 'a2hsMask'; document.body.ap
 m.innerHTML = '<div id="a2hs" role="dialog" aria-modal="true" aria-label="加入主畫面"><h2>' + t + '</h2><ol>' + s.map(function (x) { return '<li>' + x + '</li>'; }).join('') + '</ol><p>網頁無法自動安裝，要自己按一下。</p><div class="a2b">' + (k === 'app' ? '<button class="ghost" id="a2hsCp">複製連結</button>' : '') + '<button class="primary" id="a2hsOk">知道了</button></div></div>';
 m.classList.add('show');
 }
-var CHANGELOG = [{"v": "v11.70", "d": "11/11", "t": ["提醒中心、修改紀錄、產出姓名整合：①拿掉「留守異動」提醒（不再自動彈出、不用按「都看過了」、不再同步已讀），提醒中心只剩「時間重疊」（有才出現、解除自動消失）和「假單還沒點」（這週為主，下週、之後可切換）；留守的新增、取消、修改全部照舊記在修改紀錄，歷史一筆不少；②修改紀錄改成簡單列表：搜尋（姓名、日期、事由、文字）＋全部／假單／留守與勤務，依實際操作時間新到舊、同一天集中，每筆兩行白話（例：林韋辰取消休假／11/20 全日休 → 未登記），點開看操作者、人員、日期、修改前後、實際操作時間與身分（沒存的欄位不編造），舊紀錄照常顯示；③產出新增「姓名寫法」：只寫名字／完整姓名／簡稱優先＋獨立勾選「幹部優先使用職務稱呼」，依股名冊（簡稱欄、幹部欄）判斷，複姓、同名、簡稱重複時自動改寫完整姓名；人員情況、留守、加班、尿篩、提醒複製、假單／休假文字、任務派遣複製文字與圖片全部共用，設定存在這支手機、不改試算表；原加班「只寫名字」設定自動沿用。不涉及後端；④快速標記：勾選兩天以上時多一顆「每天分開選」，按了每天一張卡，各自看當天勤務、各派各的人（存檔仍是一天一筆）。⑤勤務統計減法整理：「誰該先派」與「勤務統計」分成兩塊，統計改成一行總結＋簡潔列表，其餘改為點開才看。表定的擴大FO／查庫／監工、核生化不再算進勤務次數（尿篩、加班原本就不算）。⑥全程式健檢：儲存／新增改成「處理中→確認後才顯示成功」，失敗保留內容並可重試，送出後沒回應會提醒先重新整理確認，統計與任務頁讀取失敗有重試；清掉改版殘留的程式與圖片。；⑦ 修正漏報：休假撞「表定輪值」（擴大FO、查庫、監工）原本不會提醒，現在三項都會出現在時間重疊（同一項已是勤務的不重複）；勤務和輪值的比對整合成同一個判斷；輪值表還沒讀到時提醒中心顯示「讀取中」不再誤報「沒有重疊」，讀取失敗會提示並可重試，讀完自動更新。每日到班改成「上午 N｜下午 N 人」：上午到班不含上午休、整天休；下午到班不含下午休、整天休收合看人數、打開看上午到班、下午到班各自的名單（半天休的人標下午休／上午休），點名官、當天詳細頁、產圖一致。勤務統計「誰該先派」改成「派遣參考」：只算已完成的勤務，休假不扣可派遣天數（外勤、報到前才扣），顯示「比平均多／少幾次」，差不到 1 次算負擔相近；14 天內已排另標「近期已排」並提醒近 14 天次數，可派遣不到 20 天顯示資料不足，明細多一行近 6 個月參考。同仁當車長時，個人頁自動顯示當天下午降旗、隔天早上升旗與集合時間（冬令 10/1–3/31：降旗 17:10、升旗 06:30；夏令 4/1–9/30：降旗 18:10、升旗 06:00），點名官、每日到班、任務派遣當天詳細頁、複製文字、產圖、搜尋同仁也都會列出降旗／升旗與車長姓名，方便班長幫忙提醒；只顯示、不存資料、不算勤務、不比對重疊。⑥休假表看個人時，最上方多一顆「← 回全體統計」，不用再從「切換人員」找。⑦首頁小提醒加入換季提醒：換季日前 7 天起到當天（先說換令與起床時間，服裝說明換季、提醒先準備；班長、股總也會在畫面上方看到）（4/1 夏令作息、5/1 短袖、10/1 冬令作息、11/1 長袖、12/1 長袖加外套），沒有更要緊的安排時才出現。⑧彈射、軍械班長的產出與休假表預設只看本班，按「全部人員」才看到別班（和假單同一個開關，記住你的選擇）。⑨首頁小提醒加入節日祝福（含軍人節），當天留守的人改成「留守辛苦了」。⑩首頁小提醒加入生日祝福（只有本人看到；需要後端 v53 讀「生日」分頁）。⑪「標留守」多了「監控」：編輯時先選留守或監控再點日子，寫入方式跟留守一樣（需要後端 v54，同仁才能標監控）。；⑫ 日曆同步：信箱欄檢查是否為 Google 帳號，每個步驟顯示要用的帳號（可複製），新增開 Google 日曆、同步勾選頁、行事曆 App 的連結，iPhone／Android 步驟與常見錯誤說明補齊；⑬ 新增「訂閱網址」：免 Google 帳號，iPhone 行事曆用網址訂閱，可隨時停止並刪除（後端第五十五版）；⑭ 產出「假日留守」期間改為上週／這週／下一次／本月／自選；加班名單在當天已標留守、監控的人旁邊顯示標籤（和休假不同色）；⑮ 底部選單改成浮動式深色膠囊，內容可從後面捲過；使用導覽整套重做：畫面變暗、只亮起正在講的那個東西，每步一句話，有上一步／略過；修正一般同仁每次開啟都會自動跳出導覽的問題；⑯勤務清單精簡：點名官／任務派遣／勤務月曆當天頁拿掉勤務小圖，只有 1 人的勤務兩個並排，備註改文字標記；⑰外觀改版第一輪：直角、霧青灰、琥珀重點，底部選單改扁平，更緊湊（假單的章維持原樣），標留守按鈕改深色長條、頂欄按鈕白底，勤務月曆格子縮矮、勤務條改墨黑，數字與時間改等寬字、標題更粗，休假表清單去米色紋，頂欄底欄壓縮、假單固定月檢視、拿掉閒置時的標留守條，假單連續橫向滑動（不再限月，滑到邊緣自動補月份，今天鈕回到今天），編輯列縮成一行（編輯中／復原／結束），班長首頁重排（點假單置頂、任派／公差、提醒中心，設定與編輯紀錄縮在底部、文字產出／任派獨立頁、點假單只留假單＋休假表、未點假單移到文字產出、各頁離開鈕統一為「返回」、設定頁精簡、拿掉使用導覽頁只留引導式教學、底部列去圖示、點假單改浮動膠囊、拿掉假單頁的未點假單條、勤務／提醒中心上方只留返回、開啟一律先到首頁、換季公告移到首頁最上面、點假單頁編輯列與全部人員併進上方列、格子延伸到底部、上方列統一、加班時段選項不再被截、全站改小圓角與細框線、任派與當天詳細排版緊湊、頂部列顏色與頁面一致、假單列高可放大填滿、全站按鈕與輸入框統一小圓角、勤務頁頂部列只留返回、移除新版本紅點、設定頁移除舊底部分頁列、修正一般同仁開設定的錯誤、登入密碼畫面改金屬斜角按鍵與新門禁圖、班長首頁入口加文字旁小圖（圖片）、當天詳細單人勤務兩欄並排、勤務統計分頁小圖改新圖（全部身分）、文字產出按「全部人員」改為與一般同仁點名官相同的抓取（含軍官、全部班別）、當天詳細新增按鈕與統計卡也縮小、按鈕文字恢復「全部人員／只看本班」）；⑱教學大幅縮減：拿掉黃色提示條、第一次用說明、同仁導覽、設定頁說明小字與行事曆常見問題；班長導覽縮成 4 步；同仁首頁拿掉「今日小提醒」「本週尚有未標記」勤務卡片並排改依字數：標題與人名都短的兩個並排、字多的獨占一列，任務派遣與當天詳細同一規則，版型統一（編輯身分的當天詳細維持不並排，方便選取、修改）。任務派遣「到班」名單也列出留守、監控的人，人數與實到一致。加班卡片（任務派遣、點名官、當天詳細）標題下顯示事由（取自備註「事由：」，去掉「作業」）。產出「假日留守」可選「留守＋勤務」，每個假日列出留守名單與當天各項勤務（加班帶事由）。修正：不計次關鍵字、到班展開、當天情況收合、留守＋勤務的選擇，重開程式後會保留。產出「加班」新增「彙整」：依本週、本月、全部（今年）、自選期間，列出已加入勤務月曆的加班（日期、時段、事由、督導、人員）。登入畫面改成切角面板、標題兩側琥珀斜線、立體銀色按鍵（只改外觀，輸入與驗證流程不變）。班長首頁的天空戰機頁首換成新圖（白天／黃昏／夜間）。", "留守儲存完的提示拿掉「班長會看到」，只留「已儲存 N 天」；任務派遣・點名官：人員情況改成分色（休假藍、外勤紫紅、留守紅、監控靛藍、到班綠）、人數同一排、勤務色卡加時間色塊；「複製這天人員情況」改成「複製文字」＋「產圖分享」（在手機上畫成圖片，可分享或儲存，文字複製內容不變）；封面「設定」下面新增「點點月曆」入口（開另一個分頁，獨立使用、資料不同步）；複製後的提示改成「請與班長反應」；瘦身：刪掉沒在用的舊程式、舊樣式、3 張沒用到的圖，並合併 3 組重複的圖（檔案變小、畫面不變）、「要改請找班長」改成「請與班長反應」；導覽拿掉「班長會收到提醒」（這個程式資料本來就公開）；紀錄頁重新排版：搜尋與「篩選」同一列（範圍、身分在展開面板），依操作日分組可收合，每筆姓名＋內容＋時間、動作標籤、日期、身分；同一分鐘大量新增自動歸成一組；點一筆看完整詳情（實際操作者沒存就寫未記錄）；假單「顯示」設定視窗拿掉：週／月、今天直接放在表格上面一列；日期列、假日提醒列、最下面的休假人數固定顯示；軍官一律顯示；顏色圖例併入「使用導覽」", "滿版後右下角圓鈕寫著「還原」，不用記提示", "三份獨立紀錄＋跨班代記（需搭配後端 v52）：股總、彈射、軍械各一份，都能替全部人員（含軍官）登記，一律記在自己那份、不覆蓋別人；彈射、軍械表格預設只列自己班，上面一列「全部人員」可列出所有人；自己那份空白時，別份只當淡色參考，不算已點；點名官等綜合畫面：股總 → 本班班長 → 代記（軍官：股總 → 彈射 → 軍械）；「清除」只清自己那份，不再兩邊都刪；取消後若別份還有紀錄會提示", "階段二：①產出「加班」表單很長，複製鈕不在畫面內時右下角浮出「↓ 到複製」（點了捲過去；鍵盤打開或其他表單不出現）；②勤務統計加一行說明「以下依所選期間統計、上方誰該先派固定看近 3 個月」；③使用導覽文字對齊現況：休假表（原寫「分析」）、統計（月／近3月／年／全部、勤務／尿篩／打靶／加班、誰該先派、排序）、產出含尿篩、快速標記按鈕名稱、換身分入口；複製留守／複製未點假單只顯示自己身分用得到的那句。權限、資料、後端、其餘畫面都不變。"], "n": 98}, {"v": "v11.69", "d": "11/11", "t": ["封面放大：標題、身分卡、兩個大按鈕（圖示、字）、待處理／編輯紀錄都加大，間距拉開，上下留白更平衡（螢幕夠高才放大，小螢幕不變）"], "n": 1}, {"v": "v11.68", "d": "11/11", "t": ["「我的重點」今天那行改簡短：只列類別（尿篩・公差・行程）加「共幾件」，時間重疊會直接標出來"], "n": 1}, {"v": "v11.67", "d": "11/11", "t": ["一般首頁最上面新增「我的重點」三行：今天要做什麼、下個假日（留守／休／還沒點幾天）、假單有沒有點好，打開 3 秒就知道"], "n": 1}, {"v": "v11.66", "d": "11/11", "t": ["一般首頁引導：右上多「看導覽」；紅條下面直接寫下一步（休假去公司點假單／留守按標留守）；名單沒載入（沒網路）時改顯示「重試」，不會卡在選名字；唯讀連結的「標留守」改成灰色並說明原因"], "n": 1}, {"v": "v11.65", "d": "11/11", "t": ["使用導覽說明文字全部精簡（拿掉贅詞，意思不變）；順便移除沒用到的程式碼"], "n": 1}];
+var CHANGELOG = [{"v": "v11.70", "d": "11/11", "t": ["提醒中心、修改紀錄、產出姓名整合：①拿掉「留守異動」提醒（不再自動彈出、不用按「都看過了」、不再同步已讀），提醒中心只剩「時間重疊」（有才出現、解除自動消失）和「假單還沒點」（這週為主，下週、之後可切換）；留守的新增、取消、修改全部照舊記在修改紀錄，歷史一筆不少；②修改紀錄改成簡單列表：搜尋（姓名、日期、事由、文字）＋全部／假單／留守與勤務，依實際操作時間新到舊、同一天集中，每筆兩行白話（例：林韋辰取消休假／11/20 全日休 → 未登記），點開看操作者、人員、日期、修改前後、實際操作時間與身分（沒存的欄位不編造），舊紀錄照常顯示；③產出新增「姓名寫法」：只寫名字／完整姓名／簡稱優先＋獨立勾選「幹部優先使用職務稱呼」，依股名冊（簡稱欄、幹部欄）判斷，複姓、同名、簡稱重複時自動改寫完整姓名；人員情況、留守、加班、尿篩、提醒複製、假單／休假文字、任務派遣複製文字與圖片全部共用，設定存在這支手機、不改試算表；原加班「只寫名字」設定自動沿用。不涉及後端；④快速標記：勾選兩天以上時多一顆「每天分開選」，按了每天一張卡，各自看當天勤務、各派各的人（存檔仍是一天一筆）。⑤勤務統計減法整理：「誰該先派」與「勤務統計」分成兩塊，統計改成一行總結＋簡潔列表，其餘改為點開才看。輪值的擴大FO／查庫／監工、核生化不再算進勤務次數（尿篩、加班原本就不算）。⑥全程式健檢：儲存／新增改成「處理中→確認後才顯示成功」，失敗保留內容並可重試，送出後沒回應會提醒先重新整理確認，統計與任務頁讀取失敗有重試；清掉改版殘留的程式與圖片。；⑦ 修正漏報：休假撞「輪值輪值」（擴大FO、查庫、監工）原本不會提醒，現在三項都會出現在時間重疊（同一項已是勤務的不重複）；勤務和輪值的比對整合成同一個判斷；輪值表還沒讀到時提醒中心顯示「讀取中」不再誤報「沒有重疊」，讀取失敗會提示並可重試，讀完自動更新。每日到班改成「上午 N｜下午 N 人」：上午到班不含上午休、整天休；下午到班不含下午休、整天休收合看人數、打開看上午到班、下午到班各自的名單（半天休的人標下午休／上午休），點名官、當天詳細頁、產圖一致。勤務統計「誰該先派」改成「派遣參考」：只算已完成的勤務，休假不扣可派遣天數（外勤、報到前才扣），顯示「比平均多／少幾次」，差不到 1 次算負擔相近；14 天內已排另標「近期已排」並提醒近 14 天次數，可派遣不到 20 天顯示資料不足，明細多一行近 6 個月參考。同仁當車長時，個人頁自動顯示當天下午降旗、隔天早上升旗與集合時間（冬令 10/1–3/31：降旗 17:10、升旗 06:30；夏令 4/1–9/30：降旗 18:10、升旗 06:00），點名官、每日到班、任務派遣當天詳細頁、複製文字、產圖、搜尋同仁也都會列出降旗／升旗與車長姓名，方便班長幫忙提醒；只顯示、不存資料、不算勤務、不比對重疊。⑥休假表看個人時，最上方多一顆「← 回全體統計」，不用再從「切換人員」找。⑦首頁小提醒加入換季提醒：換季日前 7 天起到當天（先說換令與起床時間，服裝說明換季、提醒先準備；班長、股總也會在畫面上方看到）（4/1 夏令作息、5/1 短袖、10/1 冬令作息、11/1 長袖、12/1 長袖加外套），沒有更要緊的安排時才出現。⑧彈射、軍械班長的產出與休假表預設只看本班，按「全部人員」才看到別班（和假單同一個開關，記住你的選擇）。⑨首頁小提醒加入節日祝福（含軍人節），當天留守的人改成「留守辛苦了」。⑩首頁小提醒加入生日祝福（只有本人看到；需要後端 v53 讀「生日」分頁）。⑪「標留守」多了「監控」：編輯時先選留守或監控再點日子，寫入方式跟留守一樣（需要後端 v54，同仁才能標監控）。；⑫ 日曆同步：信箱欄檢查是否為 Google 帳號，每個步驟顯示要用的帳號（可複製），新增開 Google 日曆、同步勾選頁、行事曆 App 的連結，iPhone／Android 步驟與常見錯誤說明補齊；⑬ 新增「訂閱網址」：免 Google 帳號，iPhone 行事曆用網址訂閱，可隨時停止並刪除（後端第五十五版）；⑭ 產出「假日留守」期間改為上週／這週／下一次／本月／自選；加班名單在當天已標留守、監控的人旁邊顯示標籤（和休假不同色）；⑮ 底部選單改成浮動式深色膠囊，內容可從後面捲過；使用導覽整套重做：畫面變暗、只亮起正在講的那個東西，每步一句話，有上一步／略過；修正一般同仁每次開啟都會自動跳出導覽的問題；⑯勤務清單精簡：點名官／任務派遣／勤務月曆當天頁拿掉勤務小圖，只有 1 人的勤務兩個並排，備註改文字標記；⑰外觀改版第一輪：直角、霧青灰、琥珀重點，底部選單改扁平，更緊湊（假單的章維持原樣），標留守按鈕改深色長條、頂欄按鈕白底，勤務月曆格子縮矮、勤務條改墨黑，數字與時間改等寬字、標題更粗，休假表清單去米色紋，頂欄底欄壓縮、假單固定月檢視、拿掉閒置時的標留守條，假單連續橫向滑動（不再限月，滑到邊緣自動補月份，今天鈕回到今天），編輯列縮成一行（編輯中／復原／結束），班長首頁重排（點假單置頂、任派／公差、提醒中心，設定與編輯紀錄縮在底部、文字產出／任派獨立頁、點假單只留假單＋休假表、未點假單移到文字產出、各頁離開鈕統一為「返回」、設定頁精簡、拿掉使用導覽頁只留引導式教學、底部列去圖示、點假單改浮動膠囊、拿掉假單頁的未點假單條、勤務／提醒中心上方只留返回、開啟一律先到首頁、換季公告移到首頁最上面、點假單頁編輯列與全部人員併進上方列、格子延伸到底部、上方列統一、加班時段選項不再被截、全站改小圓角與細框線、任派與當天詳細排版緊湊、頂部列顏色與頁面一致、假單列高可放大填滿、全站按鈕與輸入框統一小圓角、勤務頁頂部列只留返回、移除新版本紅點、設定頁移除舊底部分頁列、修正一般同仁開設定的錯誤、登入密碼畫面改金屬斜角按鍵與新門禁圖、班長首頁入口加文字旁小圖（圖片）、當天詳細單人勤務兩欄並排、勤務統計分頁小圖改新圖（全部身分）、文字產出按「全部人員」改為與一般同仁點名官相同的抓取（含軍官、全部班別）、當天詳細新增按鈕與統計卡也縮小、按鈕文字恢復「全部人員／只看本班」）；⑱教學大幅縮減：拿掉黃色提示條、第一次用說明、同仁導覽、設定頁說明小字與行事曆常見問題；班長導覽縮成 4 步；同仁首頁拿掉「今日小提醒」「本週尚有未標記」勤務卡片並排改依字數：標題與人名都短的兩個並排、字多的獨占一列，任務派遣與當天詳細同一規則，版型統一（編輯身分的當天詳細維持不並排，方便選取、修改）。任務派遣「到班」名單也列出留守、監控的人，人數與實到一致。加班卡片（任務派遣、點名官、當天詳細）標題下顯示事由（取自備註「事由：」，去掉「作業」）。產出「假日留守」可選「留守＋勤務」，每個假日列出留守名單與當天各項勤務（加班帶事由）。修正：不計次關鍵字、到班展開、當天情況收合、留守＋勤務的選擇，重開程式後會保留。產出「加班」新增「彙整」：依本週、本月、全部（今年）、自選期間，列出已加入勤務月曆的加班（日期、時段、事由、督導、人員）。登入畫面改成切角面板、標題兩側琥珀斜線、立體銀色按鍵（只改外觀，輸入與驗證流程不變）。班長首頁的天空戰機頁首換成新圖（白天／黃昏／夜間）。", "留守儲存完的提示拿掉「班長會看到」，只留「已儲存 N 天」；任務派遣・點名官：人員情況改成分色（休假藍、外勤紫紅、留守紅、監控靛藍、到班綠）、人數同一排、勤務色卡加時間色塊；「複製這天人員情況」改成「複製文字」＋「產圖分享」（在手機上畫成圖片，可分享或儲存，文字複製內容不變）；封面「設定」下面新增「點點月曆」入口（開另一個分頁，獨立使用、資料不同步）；複製後的提示改成「請與班長反應」；瘦身：刪掉沒在用的舊程式、舊樣式、3 張沒用到的圖，並合併 3 組重複的圖（檔案變小、畫面不變）、「要改請找班長」改成「請與班長反應」；導覽拿掉「班長會收到提醒」（這個程式資料本來就公開）；紀錄頁重新排版：搜尋與「篩選」同一列（範圍、身分在展開面板），依操作日分組可收合，每筆姓名＋內容＋時間、動作標籤、日期、身分；同一分鐘大量新增自動歸成一組；點一筆看完整詳情（實際操作者沒存就寫未記錄）；假單「顯示」設定視窗拿掉：週／月、今天直接放在表格上面一列；日期列、假日提醒列、最下面的休假人數固定顯示；軍官一律顯示；顏色圖例併入「使用導覽」", "滿版後右下角圓鈕寫著「還原」，不用記提示", "三份獨立紀錄＋跨班代記（需搭配後端 v52）：股總、彈射、軍械各一份，都能替全部人員（含軍官）登記，一律記在自己那份、不覆蓋別人；彈射、軍械表格預設只列自己班，上面一列「全部人員」可列出所有人；自己那份空白時，別份只當淡色參考，不算已點；點名官等綜合畫面：股總 → 本班班長 → 代記（軍官：股總 → 彈射 → 軍械）；「清除」只清自己那份，不再兩邊都刪；取消後若別份還有紀錄會提示", "階段二：①產出「加班」表單很長，複製鈕不在畫面內時右下角浮出「↓ 到複製」（點了捲過去；鍵盤打開或其他表單不出現）；②勤務統計加一行說明「以下依所選期間統計、上方誰該先派固定看近 3 個月」；③使用導覽文字對齊現況：休假表（原寫「分析」）、統計（月／近3月／年／全部、勤務／尿篩／打靶／加班、誰該先派、排序）、產出含尿篩、快速標記按鈕名稱、換身分入口；複製留守／複製未點假單只顯示自己身分用得到的那句。權限、資料、後端、其餘畫面都不變。"], "n": 98}, {"v": "v11.69", "d": "11/11", "t": ["封面放大：標題、身分卡、兩個大按鈕（圖示、字）、待處理／編輯紀錄都加大，間距拉開，上下留白更平衡（螢幕夠高才放大，小螢幕不變）"], "n": 1}, {"v": "v11.68", "d": "11/11", "t": ["「我的重點」今天那行改簡短：只列類別（尿篩・公差・行程）加「共幾件」，時間重疊會直接標出來"], "n": 1}, {"v": "v11.67", "d": "11/11", "t": ["一般首頁最上面新增「我的重點」三行：今天要做什麼、下個假日（留守／休／還沒點幾天）、假單有沒有點好，打開 3 秒就知道"], "n": 1}, {"v": "v11.66", "d": "11/11", "t": ["一般首頁引導：右上多「看導覽」；紅條下面直接寫下一步（休假去公司點假單／留守按標留守）；名單沒載入（沒網路）時改顯示「重試」，不會卡在選名字；唯讀連結的「標留守」改成灰色並說明原因"], "n": 1}, {"v": "v11.65", "d": "11/11", "t": ["使用導覽說明文字全部精簡（拿掉贅詞，意思不變）；順便移除沒用到的程式碼"], "n": 1}];
 var APP_VER = CHANGELOG[0].v;
 document.addEventListener('toggle', function (ev) { var t = ev.target; if (t && t.classList && t.classList.contains('vrow') && t.open) document.querySelectorAll('#verList .vrow[open]').forEach(function (o) { if (o !== t) o.open = false; }); }, true);
 var attK = null, attDutyAsked = {};
