@@ -893,7 +893,9 @@ if (info.off) {
 var st = stayOf(k).map(fmtStay);
 lines.push('留守：' + (st.length ? st.join('、') : '無'));
 } else {
-lines.push('到班：' + presentCount(k) + ' 人');
+var pc = presentCount(k), ao = 0, po = 0;   // 有人休半天：上午、下午到班人數分開寫（和任務派遣一致）
+leavesOf(k).forEach(function (l) { if (/^上午/.test(l.period)) ao++; else if (/^下午/.test(l.period)) po++; });
+if (ao + po) { lines.push('上午到班：' + (pc - ao) + ' 人'); lines.push('下午到班：' + (pc - po) + ' 人'); } else lines.push('到班：' + pc + ' 人');
 }
 var mons = monOf(k).map(function (m) { return nameOut(m.name); });
 if (mons.length) lines.push('監控：' + mons.join('、'));
@@ -5340,12 +5342,15 @@ try { flagDay(k).forEach(function (f) { items.push({ c: f.names.length, t: f.ttl
 pk.forEach(function (it) { var tm = planTm(it, k); items.push({ c: pl[it].length, t: it, plan: 1, tm: tm ? tm.a + '–' + tm.b : '', s: tm ? tmRange(tm.a + '–' + tm.b)[0] : 9999, h: pl[it].map(function (p) { return chip({ n: p.n, t: p.away ? '休' : (p.est ? '預估' : '') }, 'plan' + (p.away ? ' away' : '')); }).join('') }); });
 items.sort(function (a, b) { return a.s - b.s; });
 items.forEach(function (x) { x.short = x.t.length <= 6 && x.c <= 2 && x.h.replace(/<[^>]*>/g, '').length <= 8; });
-for (var hi = 0; hi < items.length;) {
-if (!items[hi].short) { hi++; continue; }
-var hj = hi; while (hj < items.length && items[hj].short) hj++;
-for (var hq = hi; hq < hj - ((hj - hi) % 2); hq++) items[hq].half = 1;
-hi = hj;
-}
+(function () {   // 短的勤務不必相鄰也能並排：後面還有短的就拉上來跟前一個配對，剩下單出來的獨占一列
+var ord = [], used = {};
+items.forEach(function (x, i) {
+if (used[i]) return; used[i] = 1; ord.push(x);
+if (!x.short) return;
+for (var j = i + 1; j < items.length; j++) if (!used[j] && items[j].short) { used[j] = 1; x.half = 1; items[j].half = 1; ord.push(items[j]); break; }
+});
+items = ord;
+})();
 if (items.length) h += '<div class="asec duty"><div class="ash"><b>勤務</b><i>' + items.length + ' 項</i></div>' + '<div class="aitems">' + items.map(function (x) { return '<div class="aitem' + (x.plan ? ' plan' : '') + (x.half ? ' half' : '') + '"><div class="ait"><b>' + esc(x.t) + '</b>' + (x.plan ? '<u>表定</u>' : '') + (x.why ? '<span class="atw">' + esc(x.why) + '</span>' : '') + (x.tm ? '<small data-p="' + (x.tm === '全天' || x.tm === '上午' || x.tm === '下午' ? x.tm : '時段') + '">' + esc(x.tm) + '</small>' : '') + '</div><div class="achs">' + x.h + '</div></div>'; }).join('') + '</div></div>';
 if (Object.keys(o.unsure).length) h += '<div class="anote"><span class="ach un">名字</span> 有虛線框的：股總還沒記，先顯示彈射／軍械記的</div>';
 h += '<div class="attbtns"><button type="button" class="attb" id="attCopy"><b>複製文字</b><small>貼到 Juiker／LINE</small></button><button type="button" class="attb pri" id="attImg"><b>產圖分享</b><small>儲存或傳送圖片</small></button></div>';
@@ -5983,6 +5988,11 @@ pl.pos.forEach(function (q) { chip(q, y + 10 + titleH + metaH + 8, 24, 1, cb); }
 return h;
 }
 M.items.forEach(function (d) { d.short = String(d.t).length <= 6 && d.p.length <= 2 && d.p.map(function (q) { return q.n; }).join('').length <= 8; });
+(function () {   // 同畫面：短的勤務不必相鄰也能配對
+var ord = [], used = {}, L = M.items;
+L.forEach(function (x, i) { if (used[i]) return; used[i] = 1; ord.push(x); if (!x.short) return; for (var j = i + 1; j < L.length; j++) if (!used[j] && L[j].short) { used[j] = 1; ord.push(L[j]); break; } });
+M.items = ord;
+})();
 for (var ii = 0; ii < M.items.length;) {
 var d1 = M.items[ii], d2 = M.items[ii + 1], gw = (W - 2 * P - 8) / 2;
 if (d1.short && d2 && d2.short) {
