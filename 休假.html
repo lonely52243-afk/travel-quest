@@ -174,6 +174,239 @@ html body #page-more .sbody:not(#z1){padding:2px 14px 14px 52px !important}
 html body #page-more .sbody.calx:not(#z1),html body #page-more #foldRemind .sbody:not(#z1),html body #page-more #myrmBody:not(#z1){padding-left:14px !important}
 @media (max-width:340px){html body #page-more .srow:not(#z1){gap:10px;padding:7px 10px !important}html body #page-more .srow .st b{font-size:14.5px}html body #page-more .rmadd{padding:0 9px}}
 
+/* ===== 勤務統計（看勤務／公差共用；v11.72）===== */
+#dutyPage #statBody.st2{--d-n:#142D42;--d-n2:#39566F;--d-gd:#D6AF58;--d-gdl:#FBF3E1;--d-bd:#CCD7DF;--d-ln:#E3E9EE;--d-mu:#718995;--d-ok:#237B46;--d-wr:#B65A32;--d-pl:#486B9A;--d-st:#5B7FA6;color:var(--d-n)}
+/* 分類分頁 */
+#dutyPage #statBody.st2 .stkind{display:grid;grid-template-columns:repeat(4,1fr);gap:4px;padding:4px;margin:0 0 10px;background:#E4EAEF;border:0;border-radius:10px}
+#dutyPage #statBody.st2 .stkind button{min-height:38px;border:0;border-radius:7px;background:transparent;color:var(--d-n2);font-size:14.5px;font-weight:800;box-shadow:none;display:flex;align-items:center;justify-content:center;gap:5px;padding:0 4px}
+#dutyPage #statBody.st2 .stkind button.on{background:var(--d-n);color:#fff;box-shadow:inset 0 -2px 0 var(--d-gd)}
+#dutyPage #statBody.st2 .stkind .ski{width:16px;height:16px}
+/* 區塊 */
+#dutyPage #statBody.st2 .stflat,#dutyPage #statBody.st2 .otsec{background:#fff;border:1px solid var(--d-bd);border-radius:10px;box-shadow:0 1px 2px rgba(20,45,66,.05);padding:12px 12px 10px;margin:0 0 12px}
+#dutyPage #statBody.st2 .sthd{display:flex;align-items:baseline;flex-wrap:wrap;gap:4px 8px;margin:0 0 10px;padding:0}
+#dutyPage #statBody.st2 .sthd b{font-size:17px;font-weight:800;color:var(--d-n)}
+#dutyPage #statBody.st2 .sthd span{font-size:12px;color:var(--d-mu);font-weight:600}
+#dutyPage #statBody.st2 .sthd em{margin-left:auto;font-style:normal;font-size:12px;font-weight:700;color:var(--d-n2)}
+#dutyPage #statBody.st2 .fair,#dutyPage #statBody.st2 .fair.urf{background:none;border:0;padding:0;margin:0;box-shadow:none}
+/* 摘要格 */
+#dutyPage #statBody.st2 .fsum{display:grid;grid-template-columns:1.25fr repeat(4,1fr);border:1px solid var(--d-ln);border-radius:8px;overflow:hidden;margin:0 0 10px}
+#dutyPage #statBody.st2 .fsum.u4{grid-template-columns:repeat(4,1fr)}
+#dutyPage #statBody.st2 .fsum > div{display:flex;flex-direction:column;align-items:center;justify-content:center;padding:7px 2px 6px;min-width:0;background:#F7F9FA}
+#dutyPage #statBody.st2 .fsum > div + div{border-left:1px solid var(--d-ln)}
+#dutyPage #statBody.st2 .fsum span{font-size:11.5px;font-weight:700;color:var(--d-mu);white-space:nowrap}
+#dutyPage #statBody.st2 .fsum b{font-size:21px;line-height:1.15;font-weight:800;color:var(--d-n);font-variant-numeric:tabular-nums}
+#dutyPage #statBody.st2 .fsum small{font-size:10.5px;color:var(--d-mu);font-weight:600;white-space:nowrap}
+#dutyPage #statBody.st2 .fsum .low b{color:var(--d-ok)}
+#dutyPage #statBody.st2 .fsum .hi b{color:var(--d-wr)}
+#dutyPage #statBody.st2 .fsum .plan b{color:var(--d-pl)}
+#dutyPage #statBody.st2 .fsum .avg{background:#EEF3F7}
+/* 人員列（派遣參考、尿篩、打靶共用） */
+#dutyPage #statBody.st2 .fairl{border-top:1px solid var(--d-ln)}
+#dutyPage #statBody.st2 .fth{display:grid !important;grid-template-columns:26px 1fr auto;gap:6px;padding:6px 4px;font-size:11.5px;font-weight:700;color:var(--d-mu);border-bottom:1px solid var(--d-ln)}
+#dutyPage #statBody.st2 .fth span:nth-child(3){text-align:right}
+#dutyPage #statBody.st2 .fth span:nth-child(n+4){display:none}
+#dutyPage #statBody.st2 .frow{display:grid !important;grid-template-columns:26px 1fr auto;grid-template-rows:auto auto;column-gap:6px;row-gap:1px;align-items:center;width:100%;min-height:52px;padding:7px 4px;margin:0;border:0;border-bottom:1px solid var(--d-ln);border-radius:0;background:#fff;box-shadow:none;text-align:left;color:var(--d-n)}
+#dutyPage #statBody.st2 .frow.open{background:#FBF6EA}
+#dutyPage #statBody.st2 .frow .frk{grid-row:1 / 3;align-self:center;font-size:13px;font-weight:700;color:var(--d-mu);text-align:center;font-variant-numeric:tabular-nums}
+#dutyPage #statBody.st2 .frow .frn{grid-column:2;grid-row:1;display:flex;align-items:center;gap:6px;flex-wrap:wrap;min-width:0}
+#dutyPage #statBody.st2 .frow .frn b{font-size:15.5px;font-weight:800;color:var(--d-n)}
+#dutyPage #statBody.st2 .frow .fsub{grid-column:2;grid-row:2;font-size:12px;color:var(--d-mu);font-weight:600;display:block}
+#dutyPage #statBody.st2 .frow .frt{grid-column:3;grid-row:1 / 3;display:flex;flex-direction:column;align-items:flex-end;justify-content:center;text-align:right}
+#dutyPage #statBody.st2 .frow .frt b{font-size:18px;font-weight:800;font-variant-numeric:tabular-nums;color:var(--d-n)}
+#dutyPage #statBody.st2 .frow .frt small{font-size:10.5px;color:var(--d-mu);font-weight:600}
+#dutyPage #statBody.st2 .frow .fc,#dutyPage #statBody.st2 .frow .fl{display:none}
+#dutyPage #statBody.st2 .frow .ftag{font-style:normal;font-size:11.5px;font-weight:800;padding:1px 6px;border-radius:4px;background:#EEF2F5;color:var(--d-n2)}
+#dutyPage #statBody.st2 .frow.low .ftag{background:#E5F1E9;color:var(--d-ok)}
+#dutyPage #statBody.st2 .frow.hi .ftag{background:#F8E9E1;color:var(--d-wr)}
+#dutyPage #statBody.st2 .frow.plan .ftag{background:#E7EDF6;color:var(--d-pl)}
+#dutyPage #statBody.st2 .frow.low .frt b{color:var(--d-ok)}
+#dutyPage #statBody.st2 .frow.hi .frt b{color:var(--d-wr)}
+#dutyPage #statBody.st2 .urf .frow.low .frt b{color:var(--d-wr)}
+#dutyPage #statBody.st2 .urf .frow.mid .frt b{color:#9A6B12}
+#dutyPage #statBody.st2 .urf .frow.hi .frt b{color:var(--d-ok)}
+#dutyPage #statBody.st2 .urf .frow.low .ftag{background:#F8E9E1;color:var(--d-wr)}
+#dutyPage #statBody.st2 .urf .frow.hi .ftag{background:#E5F1E9;color:var(--d-ok)}
+#dutyPage #statBody.st2 .urf .frow.mid .ftag{background:#FBF1DC;color:#8A6326}
+#dutyPage #statBody.st2 .frow .frt .nr{font-size:14px;color:var(--d-mu)}
+#dutyPage #statBody.st2 .frow s{text-decoration:none;font-size:11px;font-weight:700;padding:1px 5px;border-radius:4px;background:#EEF2F5;color:var(--d-n2)}
+/* 個人展開（統一淡灰藍底＋左側金線） */
+#dutyPage #statBody.st2 .fdet,#dutyPage #statBody.st2 .urx,#dutyPage #statBody.st2 .scd,#dutyPage #statBody.st2 .otpd{background:#F3F6F9;border:0;border-left:3px solid var(--d-gd);border-bottom:1px solid var(--d-ln);border-radius:0;margin:0;padding:8px 10px 10px 12px}
+#dutyPage #statBody.st2 .urxh,#dutyPage #statBody.st2 .otpdh{display:flex;align-items:baseline;gap:8px;font-size:12.5px;font-weight:800;color:var(--d-n2);margin:2px 0 6px}
+#dutyPage #statBody.st2 .otpdh small{margin-left:auto;font-size:12px;font-weight:700;color:var(--d-mu)}
+#dutyPage #statBody.st2 .sdr.sdrb{display:grid !important;grid-template-columns:auto 1fr auto 14px;align-items:center;gap:8px;width:100%;min-height:40px;padding:6px 6px;margin:0;border:0;border-bottom:1px solid var(--d-ln);border-radius:0;background:transparent;box-shadow:none;text-align:left;color:var(--d-n)}
+#dutyPage #statBody.st2 .sdr.sdrb:last-child{border-bottom:0}
+#dutyPage #statBody.st2 .sdr.sdrb b{font-size:14px;font-weight:800}
+#dutyPage #statBody.st2 .sdr.sdrb span{font-size:13.5px;color:var(--d-n2);min-width:0;overflow-wrap:anywhere}
+#dutyPage #statBody.st2 .sdr.sdrb em{font-style:normal;font-size:12px;color:var(--d-mu)}
+#dutyPage #statBody.st2 .sdrgo{font-style:normal;color:#8A99A8;font-size:18px;line-height:1}
+#dutyPage #statBody.st2 .fcalc{background:#fff;border:1px solid var(--d-ln);border-radius:6px}
+#dutyPage #statBody.st2 .fdl{font-size:12.5px;line-height:1.6;color:var(--d-n2)}
+#dutyPage #statBody.st2 .fairall{display:block;width:100%;min-height:42px;margin:8px 0 0;border:1px solid var(--d-bd);border-radius:8px;background:#fff;color:var(--d-n2);font-size:13.5px;font-weight:800;box-shadow:none}
+#dutyPage #statBody.st2 .fairhow,#dutyPage #statBody.st2 .stfold{border-top:1px solid var(--d-ln);margin-top:8px}
+/* 勤務統計 */
+#dutyPage #statBody.st2 .strg:not(.stkind){display:grid;grid-template-columns:repeat(4,1fr);border:1px solid var(--d-bd);border-radius:8px;overflow:hidden;padding:0;gap:0;margin:0 0 8px;background:#fff}
+#dutyPage #statBody.st2 .strg:not(.stkind) button{min-height:36px;border:0;border-radius:0;background:#fff;color:var(--d-n2);font-size:14px;font-weight:800;box-shadow:none}
+#dutyPage #statBody.st2 .strg:not(.stkind) button + button{border-left:1px solid var(--d-bd)}
+#dutyPage #statBody.st2 .strg:not(.stkind) button.on{background:var(--d-n);color:#fff}
+#dutyPage #statBody.st2 .stnav{display:grid;grid-template-columns:40px 1fr 40px;align-items:center;gap:8px;margin:0 0 8px}
+#dutyPage #statBody.st2 .stnav > b{text-align:center;font-size:17px;font-weight:800}
+#dutyPage #statBody.st2 .stnav button.ghost{min-height:38px;width:40px;padding:0;border:1px solid var(--d-bd);border-radius:8px;background:#fff;color:var(--d-n);font-size:20px;box-shadow:none}
+#dutyPage #statBody.st2 .otmon{position:relative;display:flex;align-items:center;justify-content:center;gap:6px;min-height:38px;cursor:pointer}
+#dutyPage #statBody.st2 .otmon b{font-size:17px;font-weight:800;color:var(--d-n)}
+#dutyPage #statBody.st2 .otmon b::after{content:'';display:inline-block;width:6px;height:6px;margin:0 0 3px 7px;border:solid var(--d-gd);border-width:0 2px 2px 0;transform:rotate(45deg)}
+#dutyPage #statBody.st2 .otmon input,#dutyPage #statBody.st2 .otmon select{position:absolute;inset:0;width:100%;height:100%;opacity:0;cursor:pointer;border:0;margin:0;padding:0;font-size:16px}
+#dutyPage #statBody.st2 .stsum1{display:grid;grid-template-columns:repeat(3,1fr);border:1px solid var(--d-ln);border-radius:8px;overflow:hidden;margin:0 0 4px;padding:0;gap:0;background:none}
+#dutyPage #statBody.st2 .stsum1 > div{display:flex;flex-direction:column;align-items:center;padding:7px 2px;background:#F7F9FA;min-width:0;border:0;box-shadow:none;gap:0}
+#dutyPage #statBody.st2 .stsum1 > div + div{border-left:1px solid var(--d-ln)}
+#dutyPage #statBody.st2 .stsum1 span{font-size:11.5px;font-weight:700;color:var(--d-mu)}
+#dutyPage #statBody.st2 .stsum1 b{font-size:21px;font-weight:800;color:var(--d-n);line-height:1.2}
+#dutyPage #statBody.st2 .stsum1 small{font-size:10.5px;color:var(--d-mu)}
+#dutyPage #statBody.st2 .stsum1 .sdel{font-style:normal;font-size:11px;font-weight:800}
+#dutyPage #statBody.st2 .stprv{font-size:11px;color:var(--d-mu);text-align:right;margin:0 0 8px}
+#dutyPage #statBody.st2 .stsort2{display:flex;gap:6px;margin:6px 0 8px}
+#dutyPage #statBody.st2 .stsort2 button,#dutyPage #statBody.st2 .otsrt button{min-height:32px;padding:0 10px;border:1px solid var(--d-bd);border-radius:6px;background:#fff;color:var(--d-n2);font-size:12.5px;font-weight:800;box-shadow:none}
+#dutyPage #statBody.st2 .stsort2 button.on,#dutyPage #statBody.st2 .otsrt button.on{background:var(--d-n);border-color:var(--d-n);color:#fff}
+#dutyPage #statBody.st2 .scard{border:0;border-bottom:1px solid var(--d-ln);border-radius:0;margin:0;box-shadow:none;background:#fff}
+#dutyPage #statBody.st2 .scard.open > .sct{background:#FBF6EA}
+#dutyPage #statBody.st2 .sbar u{background:var(--d-st)}
+/* ===== 加班 ===== */
+#dutyPage #statBody.st2 .otsh{display:flex;justify-content:flex-start;align-items:center;gap:8px;margin:-12px -12px 10px;padding:0 12px 0 0;height:40px;background:linear-gradient(90deg,#EAF0F4,#fff);border-bottom:1px solid var(--d-ln);border-radius:10px 10px 0 0}
+#dutyPage #statBody.st2 .otsh i{align-self:stretch;display:flex;align-items:center;padding:0 10px;font-style:normal;font-size:16px;font-weight:800;color:var(--d-gd);background:var(--d-n);border-radius:10px 0 0 0;clip-path:polygon(0 0,100% 0,82% 100%,0 100%);padding-right:16px}
+#dutyPage #statBody.st2 .otsh b{flex:none;text-align:left;margin:0;font-size:16.5px;font-weight:800;color:var(--d-n)}
+#dutyPage #statBody.st2 .otsh small{margin-left:auto}
+#dutyPage #statBody.st2 .otsh small + .linkbtn{margin-left:8px}
+#dutyPage #statBody.st2 .otsh small{font-size:12.5px;font-weight:700;color:var(--d-n2)}
+#dutyPage #statBody.st2 .otsh .linkbtn{margin-left:auto;font-size:13px}
+#dutyPage #statBody.st2 .otnav2{display:grid;grid-template-columns:40px 1fr 40px;align-items:center;gap:8px;margin:0 0 8px}
+#dutyPage #statBody.st2 .otarw{min-height:38px;width:40px;padding:0;border:1px solid var(--d-bd);border-radius:8px;background:#fff;color:var(--d-n);font-size:20px;font-weight:700;box-shadow:none}
+#dutyPage #statBody.st2 .otarw:disabled{opacity:.35}
+#dutyPage #statBody.st2 .ot3{display:grid;grid-template-columns:repeat(3,1fr);border:1px solid var(--d-ln);border-radius:8px;overflow:hidden}
+#dutyPage #statBody.st2 .ot3 > div{display:flex;flex-wrap:wrap;align-items:baseline;justify-content:center;column-gap:3px;padding:8px 2px 7px;background:#F7F9FA;min-width:0}
+#dutyPage #statBody.st2 .ot3 > div + div{border-left:1px solid var(--d-ln)}
+#dutyPage #statBody.st2 .ot3 b{font-size:24px;font-weight:800;line-height:1.1;color:var(--d-n);font-variant-numeric:tabular-nums}
+#dutyPage #statBody.st2 .ot3 small{font-size:12px;font-weight:700;color:var(--d-n2)}
+#dutyPage #statBody.st2 .ot3 span{flex-basis:100%;text-align:center;font-size:11.5px;color:var(--d-mu);font-weight:600}
+#dutyPage #statBody.st2 .otcmp{display:flex;flex-wrap:wrap;justify-content:center;gap:2px 12px;margin:8px 0 0;padding:7px 8px;background:#F3F6F9;border-radius:6px;font-size:13px;font-weight:700;color:var(--d-n2)}
+#dutyPage #statBody.st2 .otcmp i{font-style:normal}
+#dutyPage #statBody.st2 .otcmp i.dn{color:var(--d-ok)}
+#dutyPage #statBody.st2 .otcmp i.up{color:var(--d-wr)}
+#dutyPage #statBody.st2 .otwhy{margin:8px 0 0;border-top:1px solid var(--d-ln)}
+#dutyPage #statBody.st2 .otwhy > summary{min-height:38px;display:flex;align-items:center;font-size:13px;font-weight:800;color:var(--d-n2);cursor:pointer}
+#dutyPage #statBody.st2 .otwl > div{display:grid;grid-template-columns:minmax(0,1fr) 70px auto auto;gap:6px;align-items:center;padding:4px 0;font-size:13px}
+#dutyPage #statBody.st2 .otwl span{overflow-wrap:anywhere}
+#dutyPage #statBody.st2 .otwl i{height:6px;background:#E8EDF1;border-radius:3px;overflow:hidden}
+#dutyPage #statBody.st2 .otwl u{display:block;height:100%;background:var(--d-st)}
+#dutyPage #statBody.st2 .otwl small{color:var(--d-mu);font-size:11.5px}
+/* 年度直條圖（整體＋個人共用） */
+#dutyPage #statBody.st2 .otyt{display:flex;flex-wrap:wrap;align-items:baseline;gap:2px 6px;font-size:13px;font-weight:700;color:var(--d-n2);margin:0 0 6px}
+#dutyPage #statBody.st2 .otyt b{color:var(--d-n);font-size:15px}
+#dutyPage #statBody.st2 .otyt span{margin-left:auto;font-size:11.5px;color:var(--d-mu);font-weight:600}
+#dutyPage #statBody.st2 .otyc{overflow-x:auto;-webkit-overflow-scrolling:touch;margin:0 -4px;padding:0 4px 2px}
+#dutyPage #statBody.st2 .otyg{display:grid;grid-template-columns:repeat(12,minmax(23px,1fr));gap:2px;min-width:298px}
+#dutyPage #statBody.st2 .otyb{display:flex !important;flex-direction:column;align-items:center;justify-content:flex-end;gap:0;min-width:0;min-height:0;padding:4px 0 3px;margin:0;border:1px solid transparent;border-radius:6px;background:none;box-shadow:none;color:var(--d-n)}
+#dutyPage #statBody.st2 .otyb.cur{background:var(--d-gdl);border-color:var(--d-gd)}
+#dutyPage #statBody.st2 .otyb b{font-size:10.5px;font-weight:800;line-height:1.2;height:14px;white-space:nowrap;font-variant-numeric:tabular-nums}
+#dutyPage #statBody.st2 .otys{display:flex;flex-direction:column;justify-content:flex-end;width:62%;max-width:24px;border-bottom:1.5px solid #9AA9B6}
+#dutyPage #statBody.st2 .otys i{display:block;width:100%}
+#dutyPage #statBody.st2 .otys i.w{background:var(--d-st)}
+#dutyPage #statBody.st2 .otys i.h{background:var(--d-gd)}
+#dutyPage #statBody.st2 .otyb em{font-style:normal;font-size:11px;font-weight:800;margin-top:3px;white-space:nowrap}
+#dutyPage #statBody.st2 .otyb small{font-size:10px;color:var(--d-mu);height:13px;white-space:nowrap}
+#dutyPage #statBody.st2 .otyb.fut{opacity:1}
+#dutyPage #statBody.st2 .otyb.fut .otys{border-bottom-color:#D5DCE2;background:repeating-linear-gradient(0deg,#F1F4F6 0 2px,transparent 2px 6px)}
+#dutyPage #statBody.st2 .otyb.fut em{color:#AAB6C0}
+#dutyPage #statBody.st2 .otyc.mini .otyg{min-width:0;grid-template-columns:repeat(12,minmax(0,1fr))}
+#dutyPage #statBody.st2 .otyc.mini .otyb{padding:2px 0}
+#dutyPage #statBody.st2 .otyc.mini .otyb b{font-size:9.5px}
+#dutyPage #statBody.st2 .otleg{display:flex;flex-wrap:wrap;gap:4px 14px;margin:8px 0 0;font-size:12px;font-weight:700;color:var(--d-n2)}
+#dutyPage #statBody.st2 .otleg i{display:inline-block;width:10px;height:10px;margin-right:5px;vertical-align:-1px;border-radius:2px}
+#dutyPage #statBody.st2 .otleg i.w{background:var(--d-st)}
+#dutyPage #statBody.st2 .otleg i.h{background:var(--d-gd)}
+/* 個人加班 */
+#dutyPage #statBody.st2 .otsrt{display:flex;gap:6px;margin:0 0 8px;flex-wrap:wrap}
+#dutyPage #statBody.st2 .otpt{border-top:1px solid var(--d-ln)}
+#dutyPage #statBody.st2 .otph,#dutyPage #statBody.st2 .otpr{display:grid !important;grid-template-columns:minmax(0,1.1fr) 1fr 1fr 62px;align-items:center;gap:6px}
+#dutyPage #statBody.st2 .otph{padding:6px 4px;font-size:11.5px;font-weight:700;color:var(--d-mu);border-bottom:1px solid var(--d-ln)}
+#dutyPage #statBody.st2 .otph span:last-child,#dutyPage #statBody.st2 .otpr > span:last-child{text-align:right}
+#dutyPage #statBody.st2 .otpr{width:100%;min-height:46px;padding:6px 22px 6px 4px;margin:0;border:0;border-bottom:1px solid var(--d-ln);border-radius:0;background:#fff;box-shadow:none;text-align:left;color:var(--d-n);position:relative}
+#dutyPage #statBody.st2 .otpr::after{content:'';position:absolute;right:8px;top:50%;width:6px;height:6px;margin-top:-5px;border:solid #8A99A8;border-width:0 2px 2px 0;transform:rotate(45deg)}
+#dutyPage #statBody.st2 .otpr.open{background:#FBF6EA}
+#dutyPage #statBody.st2 .otpr.open::after{transform:rotate(-135deg);margin-top:-1px}
+#dutyPage #statBody.st2 .otpr b{font-size:15px;font-weight:800;overflow-wrap:anywhere}
+#dutyPage #statBody.st2 .otpr > span{font-size:13.5px;font-weight:700;color:var(--d-n2);font-variant-numeric:tabular-nums;white-space:nowrap}
+#dutyPage #statBody.st2 .otpr em{font-style:normal;font-size:15px;font-weight:800;color:var(--d-n)}
+#dutyPage #statBody.st2 .otpr small{font-size:11.5px;color:var(--d-mu);font-weight:600;margin-left:3px}
+#dutyPage #statBody.st2 .otpr > span.dn{color:var(--d-ok);font-weight:800}
+#dutyPage #statBody.st2 .otpr > span.up{color:var(--d-wr);font-weight:800}
+#dutyPage #statBody.st2 .otdl,#dutyPage #statBody.st2 .oqr{display:grid !important;grid-template-columns:1fr 14px;grid-template-rows:auto auto;column-gap:6px;row-gap:2px;align-items:center;width:100%;padding:7px 4px;margin:0;border:0;border-bottom:1px solid var(--d-ln);border-radius:0;background:transparent;box-shadow:none;text-align:left;color:var(--d-n)}
+#dutyPage #statBody.st2 .otdl .sdrgo,#dutyPage #statBody.st2 .oqr .sdrgo{grid-column:2;grid-row:1 / 5}
+#dutyPage #statBody.st2 .od1,#dutyPage #statBody.st2 .oq1{display:flex;flex-wrap:wrap;align-items:center;gap:2px 6px;min-width:0}
+#dutyPage #statBody.st2 .od1 u,#dutyPage #statBody.st2 .oq1 u{margin-left:auto}
+#dutyPage #statBody.st2 .od1 b,#dutyPage #statBody.st2 .oq1 b{font-size:14px;font-weight:800;white-space:nowrap}
+#dutyPage #statBody.st2 .od1 em,#dutyPage #statBody.st2 .oq1 em{font-style:normal;font-size:12.5px;font-weight:600;color:var(--d-n2);white-space:nowrap}
+#dutyPage #statBody.st2 .od1 u,#dutyPage #statBody.st2 .oq1 u{text-decoration:none;font-size:14px;font-weight:800;font-variant-numeric:tabular-nums}
+#dutyPage #statBody.st2 .od2,#dutyPage #statBody.st2 .oq2{grid-column:1;font-size:13px;color:var(--d-n2);overflow-wrap:anywhere;line-height:1.45}
+#dutyPage #statBody.st2 .oq3{grid-column:1;font-size:12.5px;color:var(--d-n);font-weight:600;overflow-wrap:anywhere;line-height:1.45}
+#dutyPage #statBody.st2 .oq4{grid-column:1;font-size:12px;color:var(--d-mu);overflow-wrap:anywhere}
+#dutyPage #statBody.st2 .otk{font-style:normal;font-size:11px;font-weight:800;padding:1px 6px;border-radius:4px;background:#E7EDF6;color:var(--d-pl);white-space:nowrap}
+#dutyPage #statBody.st2 .otk.hol{background:#FBF1DC;color:#8A6326}
+#dutyPage #statBody.st2 .otcat{margin:10px 0 0;padding:8px 10px;background:#fff;border:1px solid var(--d-ln);border-radius:6px}
+#dutyPage #statBody.st2 .otcat > div:not(.otpdh){display:grid;grid-template-columns:minmax(0,1fr) auto 46px;gap:8px;padding:3px 0;font-size:13px;align-items:baseline}
+#dutyPage #statBody.st2 .otcat > div span{overflow-wrap:anywhere}
+#dutyPage #statBody.st2 .otcat > div small{text-align:right;color:var(--d-mu);font-size:12px}
+#dutyPage #statBody.st2 .otcat .tot{border-top:1px solid var(--d-ln);margin-top:3px;padding-top:6px !important;font-weight:800}
+#dutyPage #statBody.st2 .otpyr{margin:10px 0 0;padding:8px 10px;background:#fff;border:1px solid var(--d-ln);border-radius:6px}
+#dutyPage #statBody.st2 .otnone2{padding:12px 4px;font-size:13px;color:var(--d-mu)}
+/* 加班紀錄查詢 */
+#dutyPage #statBody.st2 .oqf{display:flex;flex-direction:column;gap:8px}
+#dutyPage #statBody.st2 .oqrow{display:flex;flex-direction:column;gap:4px}
+#dutyPage #statBody.st2 .oql0{font-size:12px;font-weight:800;color:var(--d-n2)}
+#dutyPage #statBody.st2 .oqd{display:grid;grid-template-columns:minmax(0,1fr) auto minmax(0,1fr);align-items:center;gap:6px}
+#dutyPage #statBody.st2 .oqd input,#dutyPage #statBody.st2 .oqs input,#dutyPage #statBody.st2 .oqpkh input{width:100%;min-width:0;min-height:40px;box-sizing:border-box;padding:0 10px;border:1px solid var(--d-bd);border-radius:8px;background:#fff;color:var(--d-n);font-size:16px;font-weight:600;margin:0}
+#dutyPage #statBody.st2 .oqd span{color:var(--d-mu);font-weight:700}
+#dutyPage #statBody.st2 .oqq{display:grid;grid-template-columns:repeat(4,1fr);gap:6px}
+#dutyPage #statBody.st2 .oqq button{min-height:34px;border:1px solid var(--d-bd);border-radius:6px;background:#fff;color:var(--d-n2);font-size:13.5px;font-weight:800;box-shadow:none;padding:0}
+#dutyPage #statBody.st2 .oqq button.on{background:var(--d-n);border-color:var(--d-n);color:#fff}
+#dutyPage #statBody.st2 .oqppl{display:flex !important;align-items:center;gap:10px;width:100%;min-height:42px;padding:0 12px;border:1px solid var(--d-bd);border-radius:8px;background:#fff;box-shadow:none;text-align:left;color:var(--d-n)}
+#dutyPage #statBody.st2 .oqppl span{font-size:12px;font-weight:800;color:var(--d-n2);flex:none}
+#dutyPage #statBody.st2 .oqppl b{flex:1;min-width:0;font-size:14px;font-weight:700;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+#dutyPage #statBody.st2 .oqppl i{flex:none;width:7px;height:7px;border:solid #8A99A8;border-width:0 2px 2px 0;transform:rotate(45deg);margin-top:-4px}
+#dutyPage #statBody.st2 .oqppl.open i{transform:rotate(-135deg);margin-top:3px}
+#dutyPage #statBody.st2 .oqpk{border:1px solid var(--d-bd);border-radius:8px;padding:8px;background:#F7F9FA}
+#dutyPage #statBody.st2 .oqpkh{display:flex;align-items:center;gap:8px;margin:0 0 8px}
+#dutyPage #statBody.st2 .oqpkh .linkbtn{flex:none;font-size:13px;white-space:nowrap}
+#dutyPage #statBody.st2 .oqpkl{display:flex;flex-wrap:wrap;gap:6px;max-height:220px;overflow-y:auto}
+#dutyPage #statBody.st2 .oqpkl button{min-height:34px;padding:0 10px;border:1px solid var(--d-bd);border-radius:6px;background:#fff;color:var(--d-n);font-size:13.5px;font-weight:700;box-shadow:none}
+#dutyPage #statBody.st2 .oqpkl button.on{background:var(--d-n);border-color:var(--d-n);color:#fff}
+#dutyPage #statBody.st2 .oqpkl button small{margin-left:4px;font-size:10.5px;color:#9A6B12}
+#dutyPage #statBody.st2 .oqpkl button.on small{color:var(--d-gd)}
+#dutyPage #statBody.st2 .oqclr{align-self:flex-end;font-size:13px}
+#dutyPage #statBody.st2 .oqsum{display:grid;grid-template-columns:repeat(4,1fr);margin:10px 0 8px;background:var(--d-gdl);border:1px solid #EEDDB2;border-radius:8px;overflow:hidden}
+#dutyPage #statBody.st2 .oqsum > div{display:flex;flex-direction:column;align-items:center;padding:7px 2px;min-width:0}
+#dutyPage #statBody.st2 .oqsum > div + div{border-left:1px solid #EEDDB2}
+#dutyPage #statBody.st2 .oqsum b{font-size:19px;font-weight:800;line-height:1.15;font-variant-numeric:tabular-nums}
+#dutyPage #statBody.st2 .oqsum span{font-size:11px;font-weight:700;color:#8A6326;white-space:nowrap}
+#dutyPage #statBody.st2 .oqbar{display:flex;align-items:center;justify-content:space-between;padding:0 0 6px;border-bottom:1px solid var(--d-ln);font-size:13px;font-weight:800;color:var(--d-n2)}
+#dutyPage #statBody.st2 .oqsort{min-height:30px;padding:0 10px;border:1px solid var(--d-bd);border-radius:6px;background:#fff;color:var(--d-n2);font-size:12.5px;font-weight:800;box-shadow:none}
+#dutyPage #statBody.st2 .oqbad{margin:10px 0;padding:10px 12px;border-radius:8px;background:#F8E9E1;color:var(--d-wr);font-size:13.5px;font-weight:800}
+#dutyPage #statBody.st2 .oqempty{display:flex;flex-direction:column;align-items:center;gap:8px;padding:18px 8px;font-size:14px;font-weight:700;color:var(--d-mu)}
+#dutyPage #statBody.st2 .oqnote{margin:6px 0 0;font-size:11.5px;color:var(--d-mu)}
+#dutyPage #statBody.st2 .oqout{display:grid;grid-template-columns:1fr 1fr;gap:8px;margin:12px 0 0}
+#dutyPage #statBody.st2 .oqbtn{min-height:46px;border:0;border-radius:8px;background:var(--d-n);color:#fff;font-size:15px;font-weight:800;box-shadow:none}
+#dutyPage #statBody.st2 .oqbtn.gold{background:var(--d-gd);color:var(--d-n)}
+#dutyPage #statBody.st2 .oqbtn:disabled{opacity:.4}
+#dutyPage #statBody.st2 .stcmp{font-size:11.5px;line-height:1.6;color:var(--d-mu);padding:0 4px 8px}
+#sheetMask .aipimg img + img{margin-top:8px}
+@media (max-width:359px){
+#dutyPage #statBody.st2 .fsum{grid-template-columns:repeat(4,1fr)}
+#dutyPage #statBody.st2 .fsum .avg{grid-column:1 / -1;flex-direction:row;gap:6px;border-bottom:1px solid var(--d-ln)}
+#dutyPage #statBody.st2 .fsum .avg + div{border-left:0}
+#dutyPage #statBody.st2 .otph,#dutyPage #statBody.st2 .otpr{grid-template-columns:minmax(0,1fr) 1fr 1fr 52px;gap:4px}
+#dutyPage #statBody.st2 .ot3 b{font-size:21px}
+#dutyPage #statBody.st2 .stkind button{font-size:13.5px}
+}
+html body #dutyPage .dmain:not(.fit):not(#q1):not(#q2){padding-bottom:calc(84px + env(safe-area-inset-bottom)) !important}
+
 </style>
 </head>
 <body>
@@ -527,7 +760,7 @@ html body #page-more .sbody.calx:not(#z1),html body #page-more #foldRemind .sbod
     <div id="dutyGrid"></div>
     <div class="dtip" id="dutyLegend"><button data-lf="" class="lgall">全部</button><button data-lf="du"><i class="lgb du"></i>勤務</button><button data-lf="tr"><i class="lgb tr"></i>出差</button><button data-lf="ur"><i class="lgb ur"></i>尿篩</button><button data-lf="sh"><i class="lgb sh"></i>打靶</button><button data-lf="ot"><i class="lgb ot"></i>加班</button><button data-lf="ev"><i class="lgb ev"></i>行程</button><button data-lf="stay"><u class="dot stay"></u>留守</button><button data-lf="note"><u class="dot note"></u>備註</button><button data-lf="fo"><u class="dot fo"></u>擴大FO</button><span class="lfhint" id="dutyLfHint"></span></div>
     </div>
-    <div id="dutyStat" hidden><div id="statBody"></div></div>
+    <div id="dutyStat" hidden><div id="statBody" class="st2"></div></div>
     </div>
     <nav class="tabbar" aria-label="勤務選單">
       <button id="segCal" class="on" aria-label="月曆"><span class="icw"><span class="ic sched"></span></span>月曆</button>
@@ -2120,6 +2353,19 @@ $('otBox').addEventListener('input', function () { setTimeout(otStepsDraw, 0); }
 $('otLast').addEventListener('click', function () { otUseLast(); });
 $('otBox').addEventListener('click', function () { setTimeout(otStepsDraw, 0); });
 }
+var oqT = null;
+$('statBody').addEventListener('input', function (ev) {
+var t = ev.target;
+if (t.id === 'oqQ') { OQ.q = t.value; OQ.lim = 30; clearTimeout(oqT); oqT = setTimeout(oqPaint, 250); }
+else if (t.id === 'oqPq') { OQ.pq = t.value; var pl = document.querySelector('#statBody .oqpk'); if (pl) { var tmp = document.createElement('div'); tmp.innerHTML = oqPickHtml(); pl.querySelector('.oqpkl').innerHTML = tmp.querySelector('.oqpkl').innerHTML; } }
+});
+$('statBody').addEventListener('change', function (ev) {
+var t = ev.target;
+if (t.id === 'oqA' || t.id === 'oqB') { OQ[t.id === 'oqA' ? 'a' : 'b'] = t.value || ''; OQ.lim = 30; oqPaint(); }
+else if (t.id === 'otMon' && t.value) { var nn2 = new Date(); otOff = Math.max(-1, (nn2.getFullYear() - +t.value.slice(0, 4)) * 12 + (nn2.getMonth() + 1 - +t.value.slice(5, 7))); renderStat(); }
+else if (t.id === 'stMon' && t.value) { var nn3 = new Date(); statOff = Math.max(-1, (nn3.getFullYear() - +t.value.slice(0, 4)) * 12 + (nn3.getMonth() + 1 - +t.value.slice(5, 7))); statWhy = ''; renderStat(); }
+else if (t.id === 'stYear' && t.value) { statOff = new Date().getFullYear() - +t.value; statWhy = ''; renderStat(); }
+});
 $('statBody').addEventListener('toggle', function (ev) { var t = ev.target; if (t.dataset && t.dataset.sf) { statOpen['f:' + t.dataset.sf] = t.open; return; } if (t.classList && t.classList.contains('stmore')) statOpen[t.classList.contains('otmore') ? 'ot:more' : 'an:more'] = t.open; }, true);
 $('statBody').addEventListener('click', function (ev) {
 var mo = ev.target.closest && ev.target.closest('.hbars [data-mo], .otbars [data-mo]');
@@ -2132,6 +2378,18 @@ if (b.dataset.otm) { otOff = Math.max(-1, otOff + +b.dataset.otm); renderStat();
 if (b.dataset.otm0) { otOff = 0; renderStat(); return; }
 if (b.dataset.otym) { var nn = new Date(), yy = +b.dataset.otym.slice(0, 4), mm = +b.dataset.otym.slice(5); otOff = (nn.getFullYear() - yy) * 12 + (nn.getMonth() + 1 - mm); renderStat(); return; }
 if (b.dataset.otcopy) { copyText(otStatText()); return; }
+if (b.dataset.otsrt) { statOpen['ot:sort'] = b.dataset.otsrt; renderStat(); return; }
+if (b.dataset.oqr) { var qr = oqRange(b.dataset.oqr); OQ.a = qr[0]; OQ.b = qr[1]; OQ.lim = 30; $('oqA').value = OQ.a; $('oqB').value = OQ.b; oqPaint(); return; }
+if (b.dataset.oqp) { var pi = OQ.ppl.indexOf(b.dataset.oqp); if (pi >= 0) OQ.ppl.splice(pi, 1); else OQ.ppl.push(b.dataset.oqp); OQ.lim = 30; b.classList.toggle('on', pi < 0); b.setAttribute('aria-pressed', pi < 0 ? 'true' : 'false'); oqPaint(); return; }
+if (b.dataset.oqout) { var oR = oqResult(); if (oR.bad || !oR.n) return; if (b.dataset.oqout === 'txt') copyText(oqText(oR)); else oqImg(); return; }
+if (b.dataset.oq) { var oa = b.dataset.oq;
+if (oa === 'pick') { OQ.pick = !OQ.pick; renderStat(); if (OQ.pick && $('oqPq')) $('oqPq').focus(); }
+else if (oa === 'pdone') { OQ.pick = false; OQ.pq = ''; renderStat(); }
+else if (oa === 'pclr') { OQ.ppl = []; OQ.lim = 30; document.querySelectorAll('#statBody [data-oqp]').forEach(function (x) { x.classList.remove('on'); x.setAttribute('aria-pressed', 'false'); }); oqPaint(); }
+else if (oa === 'clr') { OQ.a = ''; OQ.b = ''; OQ.q = ''; OQ.ppl = []; OQ.pq = ''; OQ.lim = 30; OQ.pick = false; renderStat(); }
+else if (oa === 'sort') { OQ.desc = !OQ.desc; oqPaint(); }
+else if (oa === 'more') { OQ.lim += 30; oqPaint(); }
+return; }
 if (b.dataset.on) { statOpen['o:' + b.dataset.on] = !statOpen['o:' + b.dataset.on]; renderStat(); return; }
 if (b.dataset.dgdel) { var dl = noCountList().slice(); dl.splice(+b.dataset.dgdel, 1); prefs.noCount = dl; savePrefs(); statOpen['f:desig'] = true; renderStat(); return; }
 if (b.dataset.dgadd) { var dv = String(($('dgIn') && $('dgIn').value) || '').trim(); if (dv) { var dl2 = noCountList().slice(); if (dl2.indexOf(dv) < 0) dl2.push(dv); prefs.noCount = dl2; savePrefs(); } statOpen['f:desig'] = true; renderStat(); return; }
@@ -2146,7 +2404,7 @@ else if (b.dataset.clr) { statWhy = ''; renderStat(); }
 else if (b.dataset.r) { statRange = b.dataset.r; statOff = 0; statWhy = ''; renderStat(); }
 else if (b.dataset.off) { statOff = Math.max(-1, statOff + (+b.dataset.off)); statWhy = ''; renderStat(); }
 else if (b.dataset.off0) { statOff = 0; renderStat(); }
-else if (b.classList.contains('sdrb')) { var kk = b.dataset.k, ew = b.dataset.ew, et = b.dataset.et; dutySeg('cal'); dutyYM = [+kk.slice(0, 4), +kk.slice(5, 7)]; renderDutyMon(); dutyLoad(); dutyOpen(kk);
+else if (b.classList.contains('sdrb')) { try { statScroll = document.querySelector('#dutyPage .dmain').scrollTop; } catch (e) { /* 忽略 */ } var kk = b.dataset.k, ew = b.dataset.ew, et = b.dataset.et; dutySeg('cal'); dutyYM = [+kk.slice(0, 4), +kk.slice(5, 7)]; renderDutyMon(); dutyLoad(); dutyOpen(kk);
 if (ew && dutyEditor()) { var tryEv = function (n) { var lb = ew + (et ? '　' + et : ''); if (dutyDayOf(kk).duty[lb]) { dutyDayK = kk; evtOpen('duty:' + lb); } else if (n > 0) setTimeout(function () { tryEv(n - 1); }, 500); }; tryEv(4); } }
 else if (b.dataset.w !== undefined && b.classList.contains('sch')) { statWhy = b.dataset.w; renderStat(); }
 else if (b.dataset.n) { statOpen[b.dataset.n] = !statOpen[b.dataset.n]; renderStat(); }
@@ -4940,7 +5198,7 @@ var st = which === 'stat';
 $('segCal').classList.toggle('on', !st); $('segStat').classList.toggle('on', st);
 $('dutyCalBox').hidden = st; $('dutyStat').hidden = !st; if (st) statAnim = true;
 document.querySelector('#dutyPage .dmain').classList.toggle('fit', !st);
-if (st) { if (statAll) renderStat(); statLoad(); }
+if (st) { if (statAll) renderStat(); statLoad(); if (statScroll) { var dm = document.querySelector('#dutyPage .dmain'), sy = statScroll; statScroll = 0; requestAnimationFrame(function () { dm.scrollTop = sy; }); } }
 }
 function showDuty() {
 if (rosterState !== 'ok') rosterLoad();
@@ -5076,74 +5334,250 @@ function otHours(t) { var t0 = String(t || '').trim(); if (/^(整天|全天)$/.t
 function otKind(x) { return dayInfo(x.date).off || /假日/.test(x.why) ? '假日' : '平日'; }
 function fmtH(h) { return (Math.round(h * 10) / 10) + ''; }
 function otStatText() {
-var ym = otYm(otOff), L = otRecs(ym), per = {}, order = qkAll().map(function (e) { return e.name; });
-L.forEach(function (x) { (per[x.name] = per[x.name] || []).push(x); });
-var ns = order.filter(function (n) { return per[n]; });
-return '加班統計（' + ym.slice(0, 4) + ' 年 ' + (+ym.slice(5)) + ' 月）\n共 ' + fmtH(otSum(L)) + ' 小時、' + L.length + ' 人次\n' +
+var ym = otYm(otOff), L = otRecs(ym), per = {}, days = {};
+L.forEach(function (x) { (per[x.name] = per[x.name] || []).push(x); days[x.date] = 1; });
+var ns = otNames().filter(function (n) { return per[n]; });
+return '加班統計（' + ym.slice(0, 4) + ' 年 ' + (+ym.slice(5)) + ' 月）\n共 ' + fmtH(otSum(L)) + ' 人時、' + Object.keys(days).length + ' 天、' + L.length + ' 人次\n' +
 (ns.length ? ns.map(function (n) { return nameOut(n) + '　' + fmtH(otSum(per[n])) + ' 小時（' + per[n].length + ' 次）'; }).join('\n') : '（沒有加班）');
 }
 function otYm(off) { var d = new Date(); d.setDate(1); d.setMonth(d.getMonth() - off); return d.getFullYear() + '-' + pad(d.getMonth() + 1); }
-function otWhyTx(w) { w = String(w || '').replace(/^(夜間|假日|平日)?加班[：:\-－、 ]*/, '').trim(); return w || '（沒寫事由）'; }
+function otWhyTx(w) { w = String(w || '').replace(/^(夜間|假日|平日)?加班[：:\-－、 ]*/, '').trim(); return w || '未填寫事由'; }
 function otRecs(ym) { return (statAll || []).filter(function (x) { return isOT(x.why) && x.date.slice(0, 7) === ym; }).sort(function (a, b) { return a.date < b.date ? -1 : (a.date > b.date ? 1 : (a.name < b.name ? -1 : 1)); }); }
 function otSum(L) { var t = 0; L.forEach(function (x) { t += otHours(x.time); }); return t; }
+// 名單順序：股名冊順序，再接紀錄裡有、名冊已沒有的人（離退人員的舊資料仍可查）
+function otNames() {
+var out = qkAll().map(function (e) { return e.name; }), seen = {};
+out.forEach(function (n) { seen[n] = 1; });
+(statAll || []).forEach(function (x) { if (isOT(x.why) && x.name && !seen[x.name]) { seen[x.name] = 1; out.push(x.name); } });
+return out;
+}
+function otTmTx(x) { return x.time ? fmtTm(x.time) : '未填時間'; }
+function otDay(k) { return mdLabel(k) + '（' + wkOf(k) + '）'; }
+function otKindTag(x) { var h = otKind(x) === '假日'; return '<i class="otk' + (h ? ' hol' : '') + '">' + (h ? '假日' : '平日') + '</i>'; }
+// 十二個月直條圖（整體與個人共用）：v(m)＝{w 平日, h 假日, d 天數}
+function otBarsHtml(Y, ym, v, opt) {
+opt = opt || {};
+var tk = todayKey().slice(0, 7), ms = [], mx = 0, i;
+for (i = 1; i <= 12; i++) ms.push(Y + '-' + pad(i));
+ms.forEach(function (m) { var o = v(m); if (o.w + o.h > mx) mx = o.w + o.h; });
+var H = opt.h || 92;
+return '<div class="otyc' + (opt.mini ? ' mini' : '') + '"><div class="otyg">' + ms.map(function (m) {
+var o = v(m), t = o.w + o.h, fut = m > tk, cur = m === ym, pw = mx ? Math.round(o.w / mx * H) : 0, ph = mx ? Math.round(o.h / mx * H) : 0;
+var tag = opt.mini ? 'div' : 'button';
+return '<' + tag + ' class="otyb' + (cur ? ' cur' : '') + (fut ? ' fut' : '') + '"' + (opt.mini ? '' : ' type="button" data-otym="' + m + '"' + (fut ? ' disabled' : '')) + ' aria-label="' + (+m.slice(5)) + ' 月 ' + fmtH(t) + ' 小時">' +
+'<b>' + (fut ? '' : Math.round(t)) + '</b><span class="otys" style="height:' + H + 'px"><i class="h" style="height:' + ph + 'px"></i><i class="w" style="height:' + pw + 'px"></i></span>' +
+'<em>' + (+m.slice(5)) + (opt.mini ? '' : '月') + '</em>' + (opt.mini ? '' : '<small>' + (fut ? '' : o.d + '天') + '</small>') + '</' + tag + '>';
+}).join('') + '</div></div>';
+}
+// ===== 加班紀錄查詢（獨立條件，不跟著上面的月份變）=====
+var OQ = { a: '', b: '', q: '', ppl: [], desc: true, lim: 30, pick: false, pq: '' };
+function oqRange(t) {
+var tk = todayKey(), d = parseKey(tk);
+if (t === 'week') { var wd = (d.getDay() + 6) % 7, a = addDays(tk, -wd); return [a, addDays(a, 6)]; }
+if (t === 'month') return [tk.slice(0, 8) + '01', keyOf(new Date(d.getFullYear(), d.getMonth() + 1, 0))];
+if (t === 'year') return [tk.slice(0, 4) + '-01-01', tk.slice(0, 4) + '-12-31'];
+return ['', ''];
+}
+function oqQuick() { var r = ['all', 'week', 'month', 'year'].filter(function (t) { var x = oqRange(t); return x[0] === OQ.a && x[1] === OQ.b; }); return r[0] || ''; }
+// 查詢結果（畫面、文字、圖片共用同一份）
+function oqResult() {
+if (OQ.a && OQ.b && OQ.b < OQ.a) return { bad: '結束日期早於開始日期，請重新選擇' };
+var q = OQ.q.trim().toLowerCase(), pp = {}, G = {}, keys = [];
+OQ.ppl.forEach(function (n) { pp[n] = 1; });
+var src = (statAll || []).filter(function (x) { return isOT(x.why); });
+src.forEach(function (x) {
+if (OQ.a && x.date < OQ.a) return;
+if (OQ.b && x.date > OQ.b) return;
+var w = otWhyTx(x.why);
+if (q && String(x.why || '').toLowerCase().indexOf(q) < 0 && w.toLowerCase().indexOf(q) < 0) return;
+var key = x.date + '|' + (x.time || '') + '|' + w;
+if (!G[key]) { G[key] = { k: x.date, x: x, w: w, all: [], hit: [] }; keys.push(key); }
+var g = G[key]; if (g.all.indexOf(x.name) < 0) g.all.push(x.name);
+if ((!OQ.ppl.length || pp[x.name]) && g.hit.indexOf(x.name) < 0) g.hit.push(x.name);
+});
+var ev = keys.map(function (k) { return G[k]; }).filter(function (g) { return g.hit.length; });
+ev.forEach(function (g) { g.hr = otHours(g.x.time); g.ph = g.hr * g.hit.length; });
+ev.sort(function (p, r) { var c = p.k < r.k ? -1 : (p.k > r.k ? 1 : (tmRange(p.x.time)[0] - tmRange(r.x.time)[0])); return OQ.desc ? -c : c; });
+var days = {}, ppl = 0, ph = 0;
+ev.forEach(function (g) { days[g.k] = 1; ppl += g.hit.length; ph += g.ph; });
+return { ev: ev, n: ev.length, days: Object.keys(days).length, ppl: ppl, ph: ph };
+}
+function oqCondTx() {
+var per = !OQ.a && !OQ.b ? '全部' : (OQ.a ? OQ.a.replace(/-/g, '/') : '最早') + '～' + (OQ.b ? OQ.b.replace(/-/g, '/') : '最新');
+return { per: per, why: OQ.q.trim() || '全部', ppl: OQ.ppl.length ? OQ.ppl.join('、') : '全部' };
+}
+function oqText(R) {
+var c = oqCondTx(), L = ['【加班紀錄】', '', '期間：' + c.per, '事由：' + c.why, '人員：' + c.ppl];
+R.ev.slice().sort(function (p, r) { return p.k < r.k ? -1 : (p.k > r.k ? 1 : tmRange(p.x.time)[0] - tmRange(r.x.time)[0]); }).forEach(function (g) {
+L.push('', otDay(g.k) + '　' + otKind(g.x), otTmTx(g.x) + '（' + fmtH(g.hr) + ' 小時）', '事由：' + g.w, '人員：' + g.hit.map(nameOut).join('、'));
+});
+L.push('', '合計：' + R.n + ' 筆、' + R.days + ' 天、' + R.ppl + ' 人次、' + fmtH(R.ph) + ' 人時');
+return L.join('\n');
+}
+function oqPickHtml() {
+var names = otNames(), pq = OQ.pq.trim(), f = names.filter(function (n) { return !pq || n.indexOf(pq) >= 0; });
+var on = {}, have = {}; OQ.ppl.forEach(function (n) { on[n] = 1; }); qkAll().forEach(function (e) { have[e.name] = 1; });
+return '<div class="oqpk"><div class="oqpkh"><input type="search" id="oqPq" placeholder="搜尋姓名" autocomplete="off" value="' + esc(OQ.pq) + '" aria-label="搜尋姓名"><button type="button" class="linkbtn" data-oq="pclr">清除已選</button><button type="button" class="linkbtn" data-oq="pdone">完成</button></div>' +
+'<div class="oqpkl">' + (f.length ? f.map(function (n) { return '<button type="button" class="' + (on[n] ? 'on' : '') + '" data-oqp="' + esc(n) + '" aria-pressed="' + (on[n] ? 'true' : 'false') + '">' + esc(n) + (have[n] ? '' : '<small>歷史</small>') + '</button>'; }).join('') : '<div class="oqnone">找不到這個姓名</div>') + '</div></div>';
+}
+function oqResHtml() {
+var R = oqResult(), qk = oqQuick();
+if (R.bad) return '<div class="oqbad">' + R.bad + '</div>';
+var h = '<div class="oqsum"><div><b>' + R.n + '</b><span>筆紀錄</span></div><div><b>' + R.days + '</b><span>加班天數</span></div><div><b>' + R.ppl + '</b><span>加班人次</span></div><div><b>' + fmtH(R.ph) + '</b><span>累計人時</span></div></div>';
+if (!R.n) return h + '<div class="oqempty">沒有符合條件的加班紀錄<button type="button" class="ghost small" data-oq="clr">清除條件</button></div>';
+h += '<div class="oqbar"><span>查詢結果</span><button type="button" class="oqsort" data-oq="sort">日期：' + (OQ.desc ? '新→舊' : '舊→新') + '</button></div><div class="oql">';
+var show = R.ev.slice(0, OQ.lim), fil = OQ.ppl.length > 0;
+h += show.map(function (g) {
+var rest = g.all.filter(function (n) { return g.hit.indexOf(n) < 0; });
+return '<button type="button" class="oqr sdrb" data-k="' + g.k + '"><span class="oq1"><b>' + otDay(g.k) + '</b>' + otKindTag(g.x) + '<em>' + esc(otTmTx(g.x)) + '</em><u>' + fmtH(g.hr) + 'h</u></span>' +
+'<span class="oq2">' + esc(g.w) + '</span><span class="oq3">' + (fil ? '符合 ' : '共 ') + g.hit.length + ' 人・' + fmtH(g.ph) + ' 人時：' + g.hit.map(esc).join('、') + '</span>' +
+(fil && rest.length ? '<span class="oq4">同筆另有 ' + rest.length + ' 人（不計入）：' + rest.map(esc).join('、') + '</span>' : '') + '<i class="sdrgo">›</i></button>';
+}).join('') + '</div>';
+if (R.n > OQ.lim) h += '<button type="button" class="fairall" data-oq="more">再顯示 ' + Math.min(30, R.n - OQ.lim) + ' 筆（已顯示 ' + OQ.lim + '／共 ' + R.n + ' 筆）</button>';
+h += '<div class="oqnote">統計與輸出包含全部 ' + R.n + ' 筆，不只畫面上顯示的部分。</div>';
+return h;
+}
+function oqPaint() {
+var r = $('oqRes'); if (!r) return;
+r.innerHTML = oqResHtml();
+var qk = oqQuick(); document.querySelectorAll('#statBody [data-oqr]').forEach(function (b) { b.classList.toggle('on', b.dataset.oqr === qk); });
+var pb = $('oqPplTx'); if (pb) pb.textContent = OQ.ppl.length ? OQ.ppl.join('、') : '全部人員';
+var R = oqResult(); document.querySelectorAll('#statBody [data-oqout]').forEach(function (b) { b.disabled = !!R.bad || !R.n; });
+}
+function oqHtml() {
+var qk = oqQuick();
+return '<section class="otsec"><div class="otsh"><i>04</i><b>加班紀錄查詢</b></div><div class="oqf">' +
+'<div class="oqrow"><span class="oql0">日期範圍</span><div class="oqd"><input type="date" id="oqA" value="' + OQ.a + '" aria-label="開始日期"><span>～</span><input type="date" id="oqB" value="' + OQ.b + '" aria-label="結束日期"></div></div>' +
+'<div class="oqq">' + [['all', '全部'], ['week', '本週'], ['month', '本月'], ['year', '今年']].map(function (t) { return '<button type="button" data-oqr="' + t[0] + '" class="' + (qk === t[0] ? 'on' : '') + '">' + t[1] + '</button>'; }).join('') + '</div>' +
+'<div class="oqs"><input type="search" id="oqQ" placeholder="輸入加班事由（選填）" autocomplete="off" value="' + esc(OQ.q) + '" aria-label="加班事由"></div>' +
+'<button type="button" class="oqppl' + (OQ.pick ? ' open' : '') + '" data-oq="pick" aria-expanded="' + (OQ.pick ? 'true' : 'false') + '"><span>人員</span><b id="oqPplTx">' + esc(OQ.ppl.length ? OQ.ppl.join('、') : '全部人員') + '</b><i></i></button>' +
+(OQ.pick ? oqPickHtml() : '') +
+'<button type="button" class="linkbtn oqclr" data-oq="clr">清除條件</button></div>' +
+'<div id="oqRes">' + oqResHtml() + '</div>' +
+'<div class="oqout"><button type="button" class="oqbtn" data-oqout="txt">複製文字</button><button type="button" class="oqbtn gold" data-oqout="img">產出圖片</button></div></section>';
+}
+// ===== 加班紀錄圖片（多筆時自動分頁，不縮小字、不省略）=====
+function oqDraw(R) {
+var W = 390, P = 16, NAVY = '#142D42', N2 = '#39566F', GOLD = '#D6AF58', LN = '#DCE3E8', MU = '#718995', FAM = (getComputedStyle(document.body).fontFamily || '') + ',"PingFang TC","Noto Sans CJK TC","Microsoft JhengHei",sans-serif';
+var cv0 = document.createElement('canvas'), x0 = cv0.getContext('2d');
+function F(x, w, s) { x.font = w + ' ' + s + 'px ' + FAM; }
+function wrap(x, t, mw) { var out = [], line = ''; String(t).split('').forEach(function (ch) { if (x.measureText(line + ch).width > mw && line) { out.push(line); line = ch; } else line += ch; }); if (line) out.push(line); return out.length ? out : ['']; }
+var c = oqCondTx(), ev = R.ev.slice().sort(function (p, r) { return p.k < r.k ? -1 : (p.k > r.k ? 1 : tmRange(p.x.time)[0] - tmRange(r.x.time)[0]); });
+// 先量每筆高度，再分頁（每頁最高約 2400px，避免手機 Canvas 上限）
+var items = ev.map(function (g) {
+F(x0, '600', 13); var wl = wrap(x0, '事由：' + g.w, W - P * 2 - 16); F(x0, '400', 13); var nl = wrap(x0, '人員：' + g.hit.join('、'), W - P * 2 - 16);
+return { g: g, wl: wl, nl: nl, h: 30 + wl.length * 19 + nl.length * 19 + 12 };
+});
+var HEAD = 222, FOOT = 72, MAXH = 2400, pages = [], cur = [], ch = 0;
+items.forEach(function (it) { if (cur.length && HEAD + ch + it.h + FOOT > MAXH) { pages.push(cur); cur = []; ch = 0; } cur.push(it); ch += it.h; });
+pages.push(cur);
+return pages.map(function (pg, pi) {
+var H = HEAD + FOOT; pg.forEach(function (it) { H += it.h; }); if (!pg.length) H += 40;
+var S = 3; while (H * S > 9000 && S > 1) S--;
+var cv = document.createElement('canvas'), x = cv.getContext('2d'); cv.width = W * S; cv.height = H * S; x.scale(S, S);
+x.fillStyle = '#F1F5F7'; x.fillRect(0, 0, W, H);
+x.fillStyle = NAVY; x.fillRect(0, 0, W, 64); x.fillStyle = GOLD; x.fillRect(P, 20, 5, 24);
+x.fillStyle = '#fff'; F(x, '800', 21); x.textBaseline = 'middle'; x.fillText('加班紀錄', P + 14, 33);
+if (pages.length > 1) { F(x, '700', 12); x.fillStyle = GOLD; x.textAlign = 'right'; x.fillText('第 ' + (pi + 1) + '／' + pages.length + ' 頁', W - P, 33); x.textAlign = 'left'; }
+x.fillStyle = GOLD; x.fillRect(0, 64, W, 2);
+var y = 82; F(x, '600', 12.5); x.fillStyle = N2;
+[['期間', c.per], ['事由', c.why], ['人員', c.ppl]].forEach(function (r) { var t = wrap(x, r[0] + '：' + r[1], W - P * 2)[0]; x.fillText(t, P, y + 8); y += 20; });
+y += 6; x.fillStyle = '#fff'; x.strokeStyle = LN; x.lineWidth = 1; x.fillRect(P, y, W - P * 2, 54); x.strokeRect(P + .5, y + .5, W - P * 2 - 1, 53);
+[[R.n, '筆'], [R.days, '天'], [R.ppl, '人次'], [fmtH(R.ph), '人時']].forEach(function (s, i) {
+var cx = P + (W - P * 2) / 4 * (i + .5); x.textAlign = 'center'; F(x, '800', 19); x.fillStyle = NAVY; x.fillText(String(s[0]), cx, y + 22); F(x, '600', 11); x.fillStyle = MU; x.fillText(s[1], cx, y + 42);
+});
+x.textAlign = 'left'; y += 66;
+if (!pg.length) { F(x, '600', 13); x.fillStyle = MU; x.fillText('沒有符合條件的加班紀錄', P, y + 16); y += 40; }
+pg.forEach(function (it) {
+var g = it.g, top = y;
+x.fillStyle = '#fff'; x.fillRect(P, y, W - P * 2, it.h - 6); x.fillStyle = otKind(g.x) === '假日' ? GOLD : '#5B7FA6'; x.fillRect(P, y, 3, it.h - 6);
+F(x, '800', 14); x.fillStyle = NAVY; x.fillText(otDay(g.k), P + 12, y + 16);
+var dw = x.measureText(otDay(g.k)).width; F(x, '700', 11); x.fillStyle = otKind(g.x) === '假日' ? '#9A6B12' : '#486B9A'; x.fillText(otKind(g.x), P + 18 + dw, y + 16);
+F(x, '600', 12.5); x.fillStyle = N2; x.fillText(otTmTx(g.x), P + 54 + dw, y + 16);
+F(x, '800', 13.5); x.fillStyle = NAVY; x.textAlign = 'right'; x.fillText(fmtH(g.hr) + 'h × ' + g.hit.length + ' 人', W - P - 10, y + 16); x.textAlign = 'left';
+y += 30; F(x, '600', 13); x.fillStyle = NAVY; it.wl.forEach(function (l) { x.fillText(l, P + 12, y + 8); y += 19; });
+F(x, '400', 13); x.fillStyle = N2; it.nl.forEach(function (l) { x.fillText(l, P + 12, y + 8); y += 19; });
+y = top + it.h;
+});
+x.fillStyle = '#FBF3E1'; x.fillRect(P, y + 4, W - P * 2, 34); F(x, '800', 13.5); x.fillStyle = NAVY; x.textAlign = 'center';
+x.fillText('合計：' + R.days + ' 天・' + R.ppl + ' 人次・' + fmtH(R.ph) + ' 人時', W / 2, y + 21);
+F(x, '700', 11); x.fillStyle = MU; x.fillText('備忘', W / 2, H - 12); x.textAlign = 'left';
+return cv;
+});
+}
+function oqImg() {
+var R = oqResult(); if (R.bad || !R.n) return;
+var cvs; try { cvs = oqDraw(R); } catch (e) { showToast('產圖失敗，請先用「複製文字」', null, null, 3200); return; }
+var tk = todayKey().slice(5).replace('-', ''), out = [];
+cvs.forEach(function (cv, i) {
+cv.toBlob(function (b) {
+out[i] = b;
+if (out.filter(Boolean).length < cvs.length) return;
+if (out.some(function (z) { return !z; })) { showToast('產圖失敗，請先用「複製文字」', null, null, 3200); return; }
+imgShare(out.map(function (z, j) { return { blob: z, fn: '加班紀錄-' + tk + (cvs.length > 1 ? '-' + (j + 1) : '') + '.png' }; }), '加班紀錄', R.n + ' 筆' + (cvs.length > 1 ? '・共 ' + cvs.length + ' 張' : ''));
+}, 'image/png');
+});
+}
 function renderOT() {
 var tk = todayKey(), h = statKindBar(), ym = otYm(otOff), ym0 = otYm(otOff + 1), Y = ym.slice(0, 4);
 var mLab = function (m) { return (+m.slice(5)) + ' 月'; };
 var L = otRecs(ym), L0 = otRecs(ym0), tot = otSum(L), tot0 = otSum(L0);
 var days = {}; L.forEach(function (x) { days[x.date] = 1; });
-h += '<div class="stnav otnav"><button class="ghost" data-otm="1" aria-label="上個月">‹</button><b>' + Y + ' 年 ' + mLab(ym) + '</b><button class="ghost" data-otm="-1" aria-label="下個月"' + (otOff <= -1 ? ' disabled' : '') + '>›</button></div>';
-if (otOff !== 0) h += '<div class="stback"><button class="linkbtn" data-otm0="1">回到這個月</button></div>';
-var dt = tot - tot0;
-h += '<div class="stflat"><div class="otsum"><div class="ot1"><span>' + mLab(ym) + '加班</span><b>' + fmtH(tot) + '</b><span>小時</span><i>・</i><b>' + Object.keys(days).length + '</b><span>天</span><i>・</i><b>' + L.length + '</b><span>人次</span><button class="linkbtn" data-otcopy="1">複製文字</button></div>' +
-'<div class="ot2">' + mLab(ym0) + ' ' + fmtH(tot0) + ' 小時，<i class="' + (dt > 0 ? 'up' : (dt < 0 ? 'dn' : 'eq')) + '">' + (dt > 0 ? '這個月多 ' + fmtH(dt) + ' 小時' : (dt < 0 ? '這個月少 ' + fmtH(-dt) + ' 小時' : '一樣')) + '</i></div></div>';
-var mw = {}, mh = {}, md = {};
-(statAll || []).forEach(function (x) { if (!isOT(x.why) || x.date.slice(0, 4) !== Y) return; var m = x.date.slice(0, 7), v = otHours(x.time); if (otKind(x) === '假日') mh[m] = (mh[m] || 0) + v; else mw[m] = (mw[m] || 0) + v; (md[m] = md[m] || {})[x.date] = 1; });
-var ms = []; for (var i = 1; i <= 12; i++) ms.push(Y + '-' + pad(i));
-var mx = 1; ms.forEach(function (m) { var t = (mw[m] || 0) + (mh[m] || 0); if (t > mx) mx = t; });
-var yt = 0; ms.forEach(function (m) { yt += (mw[m] || 0) + (mh[m] || 0); });
-h += '<div class="stsec"><div class="ot3h"><b>' + Y + ' 年每個月</b><small>今年共 ' + fmtH(yt) + ' 小時・點長條看那個月</small></div><div class="otyb">' + ms.map(function (m) {
-var a = mw[m] || 0, b2 = mh[m] || 0, nd = md[m] ? Object.keys(md[m]).length : 0, fut = m > tk.slice(0, 7);
-return '<button class="' + (m === ym ? 'cur' : '') + (fut ? ' fut' : '') + '" data-otym="' + m + '"' + (fut ? ' disabled' : '') + '><b>' + (a + b2 ? fmtH(a + b2) : '') + '</b><span class="stk"><i class="h" style="height:' + Math.round(b2 / mx * 44) + 'px"></i><i class="w" style="height:' + Math.round(a / mx * 44) + 'px"></i></span><em>' + (+m.slice(5)) + '</em><small>' + (nd ? nd + '天' : '') + '</small></button>';
-}).join('') + '</div><div class="otleg2"><span><i class="w"></i>平日</span><span><i class="h"></i>假日</span><span>長條上＝小時，下面＝加班天數</span></div></div>';
+var maxYm = otYm(-1), dt = tot - tot0;
+// 01 加班總覽
+h += '<section class="otsec"><div class="otsh"><i>01</i><b>加班總覽</b><button type="button" class="linkbtn" data-otcopy="1">複製文字</button></div>' +
+'<div class="otnav2"><button type="button" class="otarw" data-otm="1" aria-label="上個月">‹</button><label class="otmon"><b>' + Y + ' 年 ' + mLab(ym) + '</b><input type="month" id="otMon" value="' + ym + '" max="' + maxYm + '" aria-label="選擇年月"></label><button type="button" class="otarw" data-otm="-1" aria-label="下個月"' + (otOff <= -1 ? ' disabled' : '') + '>›</button></div>' +
+(otOff !== 0 ? '<div class="stback"><button class="linkbtn" data-otm0="1">回到本月</button></div>' : '') +
+'<div class="ot3"><div><b>' + fmtH(tot) + '</b><small>人時</small><span>累計人員工時</span></div><div><b>' + Object.keys(days).length + '</b><small>天</small><span>加班天數</span></div><div><b>' + L.length + '</b><small>人次</small><span>加班人次</span></div></div>' +
+'<div class="otcmp"><span>' + mLab(ym0) + ' ' + fmtH(tot0) + ' 人時</span><i class="' + (dt > 0 ? 'up' : (dt < 0 ? 'dn' : 'eq')) + '">' + (dt > 0 ? '本月增加 ' + fmtH(dt) + ' 人時' : (dt < 0 ? '本月減少 ' + fmtH(-dt) + ' 人時' : '與上月相同')) + (tot0 > 0 && dt ? '（' + (dt > 0 ? '+' : '−') + Math.round(Math.abs(dt) / tot0 * 100) + '%）' : '') + '</i></div>';
+if (L.length) {
+var wc = {}, wn = {}; L.forEach(function (x) { var w = otWhyTx(x.why); wc[w] = (wc[w] || 0) + otHours(x.time); wn[w] = (wn[w] || 0) + 1; });
+var wk = Object.keys(wc).sort(function (p, q) { return wc[q] - wc[p]; }), wmx = wc[wk[0]] || 1;
+h += '<details class="otwhy" data-sf="otwhy"' + (statOpen['f:otwhy'] ? ' open' : '') + '><summary>' + mLab(ym) + '事由分類（' + wk.length + ' 種）</summary><div class="otwl">' + wk.map(function (w) {
+return '<div><span>' + esc(w) + '</span><i><u style="width:' + Math.max(4, Math.round(wc[w] / wmx * 100)) + '%"></u></i><b>' + fmtH(wc[w]) + 'h</b><small>' + wn[w] + ' 人次</small></div>';
+}).join('') + '</div></details>';
+}
+h += '</section>';
+// 02 年度加班分布
+var mw = {}, mh = {}, md = {}, yw = 0, yh = 0, yd = {};
+(statAll || []).forEach(function (x) { if (!isOT(x.why) || x.date.slice(0, 4) !== Y) return; var m = x.date.slice(0, 7), v = otHours(x.time); if (otKind(x) === '假日') { mh[m] = (mh[m] || 0) + v; yh += v; } else { mw[m] = (mw[m] || 0) + v; yw += v; } (md[m] = md[m] || {})[x.date] = 1; yd[x.date] = 1; });
+var yt = yw + yh;
+h += '<section class="otsec"><div class="otsh"><i>02</i><b>年度加班分布</b><small>' + Y + ' 年</small></div><div class="otyt">年度累計 <b>' + fmtH(yt) + '</b> 人時・共 <b>' + Object.keys(yd).length + '</b> 天<span>點月份切換</span></div>' +
+otBarsHtml(Y, ym, function (m) { return { w: mw[m] || 0, h: mh[m] || 0, d: md[m] ? Object.keys(md[m]).length : 0 }; }) +
+'<div class="otleg"><span><i class="w"></i>平日加班 ' + fmtH(yw) + ' 人時' + (yt ? '（' + Math.round(yw / yt * 100) + '%）' : '') + '</span><span><i class="h"></i>假日加班 ' + fmtH(yh) + ' 人時' + (yt ? '（' + Math.round(yh / yt * 100) + '%）' : '') + '</span></div></section>';
+// 03 個人加班統計
 var per = {}, per0 = {};
 L.forEach(function (x) { (per[x.name] = per[x.name] || []).push(x); });
 L0.forEach(function (x) { (per0[x.name] = per0[x.name] || []).push(x); });
-var ppl = qkAll().map(function (e) { return e.name; }).filter(function (n) { return per[n] || per0[n]; });
-h += '<div class="stsec"><div class="ot3h"><b>每個人</b><small>點名字看每天明細</small></div>';
+var ppl = otNames().filter(function (n) { return per[n] || per0[n]; }).map(function (n, i) { return { n: n, i: i, a: per[n] || [], b: per0[n] || [] }; });
+ppl.forEach(function (p) { p.ha = otSum(p.a); p.hb = otSum(p.b); });
+var srt = statOpen['ot:sort'] || 'roster';
+if (srt === 'asc') ppl.sort(function (p, q) { return p.ha - q.ha || p.i - q.i; }); else if (srt === 'desc') ppl.sort(function (p, q) { return q.ha - p.ha || p.i - q.i; });
+h += '<section class="otsec"><div class="otsh"><i>03</i><b>個人加班統計</b><small>' + Y + ' 年 ' + mLab(ym) + '</small></div>' +
+'<div class="otsrt">' + [['roster', '原始順序'], ['asc', '時數少→多'], ['desc', '時數多→少']].map(function (o) { return '<button type="button" data-otsrt="' + o[0] + '" class="' + (srt === o[0] ? 'on' : '') + '">' + o[1] + '</button>'; }).join('') + '</div>';
 if (!ppl.length) h += '<div class="otnone2">' + mLab(ym0) + '、' + mLab(ym) + '都沒有加班紀錄</div>';
 else {
-h += '<div class="otpt"><div class="otph"><span>姓名</span><span>' + mLab(ym) + '</span><span>' + mLab(ym0) + '</span><span>差</span></div>';
-ppl.forEach(function (n) {
-var a = per[n] || [], b0 = per0[n] || [], ha = otSum(a), hb = otSum(b0), d = ha - hb, op = statOpen['o:' + n];
-h += '<button class="otpr' + (op ? ' open' : '') + '" data-on="' + esc(n) + '"><b>' + esc(n) + '</b><span><em>' + fmtH(ha) + '</em>h<small>' + a.length + '次</small></span><span>' + fmtH(hb) + 'h<small>' + b0.length + '次</small></span><span class="' + (d > 0 ? 'up' : (d < 0 ? 'dn' : 'eq')) + '">' + (d > 0 ? '+' + fmtH(d) : (d < 0 ? '−' + fmtH(-d) : '—')) + '</span></button>';
+h += '<div class="otpt"><div class="otph"><span>姓名</span><span>' + mLab(ym) + '</span><span>' + mLab(ym0) + '</span><span>差異</span></div>';
+ppl.forEach(function (p) {
+var n = p.n, a = p.a, d = p.ha - p.hb, op = statOpen['o:' + n];
+h += '<button type="button" class="otpr' + (op ? ' open' : '') + '" data-on="' + esc(n) + '" aria-expanded="' + (op ? 'true' : 'false') + '"><b>' + esc(n) + '</b><span><em>' + fmtH(p.ha) + 'h</em><small>' + a.length + '次</small></span><span>' + fmtH(p.hb) + 'h<small>' + p.b.length + '次</small></span><span class="' + (d > 0 ? 'up' : (d < 0 ? 'dn' : 'eq')) + '">' + (d > 0 ? '+' + fmtH(d) + 'h' : (d < 0 ? '−' + fmtH(-d) + 'h' : '—')) + '</span></button>';
 if (op) {
-var ws = {}; a.forEach(function (x) { var w = otWhyTx(x.why); ws[w] = (ws[w] || 0) + otHours(x.time); });
-var py = {}; (statAll || []).forEach(function (x) { if (x.name === n && isOT(x.why) && x.date.slice(0, 4) === Y) { var m = x.date.slice(0, 7); py[m] = (py[m] || 0) + otHours(x.time); } });
-var pmx = 1; ms.forEach(function (m) { if ((py[m] || 0) > pmx) pmx = py[m]; });
-h += '<div class="otpd">' + (a.length ? '<div class="otpl">' + a.map(function (x) {
-return '<button class="sdrb otdl" data-k="' + x.date + '"><b>' + mdLabel(x.date) + '<small>（' + wkOf(x.date) + '）</small></b><span>' + esc(otWhyTx(x.why)) + '</span><i class="otk' + (otKind(x) === '假日' ? ' hol' : '') + '">' + otKind(x) + '</i><em>' + (x.time ? esc(fmtTm(x.time)) : '') + '</em><u>' + fmtH(otHours(x.time)) + 'h</u></button>';
+var ws = {}, wn2 = {}; a.forEach(function (x) { var w = otWhyTx(x.why); ws[w] = (ws[w] || 0) + otHours(x.time); wn2[w] = (wn2[w] || 0) + 1; });
+var pw = {}, ph = {}, pd = {}; (statAll || []).forEach(function (x) { if (x.name === n && isOT(x.why) && x.date.slice(0, 4) === Y) { var m = x.date.slice(0, 7), v = otHours(x.time); if (otKind(x) === '假日') ph[m] = (ph[m] || 0) + v; else pw[m] = (pw[m] || 0) + v; (pd[m] = pd[m] || {})[x.date] = 1; } });
+var pyt = 0; Object.keys(pw).forEach(function (m) { pyt += pw[m]; }); Object.keys(ph).forEach(function (m) { pyt += ph[m]; });
+h += '<div class="otpd"><div class="otpdh">' + mLab(ym) + '加班明細<small>共 ' + a.length + ' 次・' + fmtH(p.ha) + ' 小時</small></div>' +
+(a.length ? '<div class="otpl">' + a.map(function (x) {
+return '<button type="button" class="sdrb otdl" data-k="' + x.date + '"><span class="od1"><b>' + otDay(x.date) + '</b>' + otKindTag(x) + '<em>' + esc(otTmTx(x)) + '</em><u>' + fmtH(otHours(x.time)) + 'h</u></span><span class="od2">' + esc(otWhyTx(x.why)) + '</span><i class="sdrgo">›</i></button>';
 }).join('') + '</div>' : '<div class="otnone2">' + mLab(ym) + '沒有加班</div>') +
-(Object.keys(ws).length ? '<div class="otpw">' + Object.keys(ws).sort(function (p, q) { return ws[q] - ws[p]; }).map(function (w) { return '<span>' + esc(w) + '<b>' + fmtH(ws[w]) + 'h</b></span>'; }).join('') + '</div>' : '') +
-'<div class="otpy"><small>' + Y + ' 年每個月</small><div>' + ms.map(function (m) { var v = py[m] || 0; return '<i class="' + (m === ym ? 'cur' : '') + '" title="' + (+m.slice(5)) + '月 ' + fmtH(v) + 'h"><u style="height:' + Math.round(v / pmx * 28) + 'px"></u><s>' + (+m.slice(5)) + '</s></i>'; }).join('') + '</div></div></div>';
+(a.length ? '<div class="otcat"><div class="otpdh">事由分類</div>' + Object.keys(ws).sort(function (p2, q) { return ws[q] - ws[p2]; }).map(function (w) { return '<div><span>' + esc(w) + '</span><b>' + fmtH(ws[w]) + 'h</b><small>' + wn2[w] + ' 次</small></div>'; }).join('') + '<div class="tot"><span>合計</span><b>' + fmtH(p.ha) + 'h</b><small>' + a.length + ' 次</small></div></div>' : '') +
+'<div class="otpyr"><div class="otpdh">' + Y + ' 年度加班分布<small>共 ' + fmtH(pyt) + ' 小時</small></div>' + otBarsHtml(Y, ym, function (m) { return { w: pw[m] || 0, h: ph[m] || 0, d: pd[m] ? Object.keys(pd[m]).length : 0 }; }, { mini: 1, h: 40 }) + '</div></div>';
 }
 });
 h += '</div>';
 }
-h += '</div>';
-if (L.length) {
-var wc = {}, wn = {}; L.forEach(function (x) { var w = otWhyTx(x.why); wc[w] = (wc[w] || 0) + otHours(x.time); wn[w] = (wn[w] || 0) + 1; });
-var wk = Object.keys(wc).sort(function (p, q) { return wc[q] - wc[p]; }), wmx = wc[wk[0]] || 1;
-h += '<div class="stsec"><div class="ot3h"><b>' + mLab(ym) + '做什麼</b></div><div class="otwl">' + wk.map(function (w) {
-return '<div><span>' + esc(w) + '</span><i><u style="width:' + Math.max(4, Math.round(wc[w] / wmx * 100)) + '%"></u></i><b>' + fmtH(wc[w]) + 'h</b><small>' + wn[w] + ' 人次</small></div>';
-}).join('') + '</div></div>';
-var byD = {}; L.forEach(function (x) { var key = x.date + '|' + (x.time || '') + '|' + otWhyTx(x.why); (byD[key] = byD[key] || []).push(x); });
-h += '<div class="stsec"><div class="ot3h"><b>' + mLab(ym) + '每天明細</b><small>點一下到當天</small></div><div class="otdd">' + Object.keys(byD).sort().map(function (key) {
-var g = byD[key], x = g[0];
-return '<button class="sdrb otdr" data-k="' + x.date + '"><div class="otdt"><b>' + mdLabel(x.date) + '（' + wkOf(x.date) + '）</b><i class="otk' + (otKind(x) === '假日' ? ' hol' : '') + '">' + otKind(x) + '</i><span>' + (x.time ? esc(fmtTm(x.time)) : '') + '</span><u>' + fmtH(otHours(x.time)) + 'h × ' + g.length + ' 人</u></div>' +
-'<div class="otdw">' + esc(otWhyTx(x.why)) + '</div><div class="otdn">' + g.map(function (y) { return esc(y.name); }).join('、') + '</div></button>';
-}).join('') + '</div></div>';
-}
-h += '</div><div class="stcmp">時數依登記的起訖時間計算（沒寫開始時間：夜間從 18:00、假日從 08:00 算）。週末、國定假日算假日加班。加班不算進勤務次數。</div>';
+h += '</section>';
+h += oqHtml();
+h += '<div class="stcmp">時數依登記的起訖時間計算（全天 9 小時、上午 4 小時、下午 3.5 小時）。週末、國定假日算假日加班。「人時」＝每位人員的加班時數加總。加班不算進勤務次數。</div>';
 $('statBody').innerHTML = h; statRowsNow = [];
 }
 function renderShoot() { urKind = 'shoot'; try { renderUrine(); } finally { urKind = 'urine'; } }
@@ -5153,14 +5587,15 @@ var lv = function (r) { return r.fut ? 'plan' : (!r.last || r.days >= 90 ? 'low'
 var TAG = { low: '該' + vb + '了', mid: '快了', hi: '最近' + vb + '過', plan: '已排' };
 var cnt = { low: 0, mid: 0, hi: 0, plan: 0 }; rows.forEach(function (r) { cnt[lv(r)]++; });
 var allK = (sh ? 's' : 'u') + ':all', all = !!statOpen[allK], show = all ? rows : rows.slice(0, 8);
-h += '<div class="stflat"><div class="fair urf"><div class="fairh"><div><b>誰該' + (sh ? '去打靶' : '去尿篩') + '？</b><span>越久沒' + vb + '排越前面・點名字看紀錄</span></div><em><button class="linkbtn" data-ucopy="' + urKind + '">複製文字</button></em></div>';
-h += '<div class="fleg"><span class="low">' + TAG.low + ' ' + cnt.low + ' 人</span><span class="mid">快了 ' + cnt.mid + '</span><span class="hi">最近' + vb + '過 ' + cnt.hi + '</span>' + (cnt.plan ? '<span class="plan">已排 ' + cnt.plan + '</span>' : '') + '</div>';
+h += '<div class="stflat"><div class="fair urf"><div class="sthd"><b>' + nm + '紀錄</b><span>越久沒' + vb + '排越前面</span><em><button class="linkbtn" data-ucopy="' + urKind + '">複製文字</button></em></div>';
+h += '<div class="fsum u4"><div class="low"><span>' + TAG.low + '</span><b>' + cnt.low + '</b><small>人</small></div><div class="mid"><span>快了</span><b>' + cnt.mid + '</b><small>人</small></div><div class="hi"><span>最近' + vb + '過</span><b>' + cnt.hi + '</b><small>人</small></div><div class="plan"><span>已排</span><b>' + cnt.plan + '</b><small>人</small></div></div>';
+if (false) h += '<div class="fleg"><span class="low">' + TAG.low + ' ' + cnt.low + ' 人</span><span class="mid">快了 ' + cnt.mid + '</span><span class="hi">最近' + vb + '過 ' + cnt.hi + '</span>' + (cnt.plan ? '<span class="plan">已排 ' + cnt.plan + '</span>' : '') + '</div>';
 h += '<div class="fairl">' + show.map(function (r, i) {
 var L = lv(r), open = statOpen[(sh ? 's:' : 'u:') + r.n];
 var big = r.fut ? '<b>' + mdLabel(r.fut) + '</b><small>已排</small>' : (r.last ? (r.days === 0 ? '<b>今天</b><small>剛' + vb + '</small>' : '<b>' + r.days + '</b><small>天沒' + vb + '</small>') : '<b class="nr">沒紀錄</b>');
 var x = '<button class="frow ' + L + (open ? ' open' : '') + '" data-un="' + esc(r.n) + '"><span class="frk">' + (i + 1) + '</span><span class="frn"><b>' + esc(r.n) + '</b><i class="ftag">' + TAG[L] + '</i></span>' +
 '<span class="frt">' + big + '</span><span class="fsub">共 ' + r.cnt + ' 次' + (r.last ? '・最近 ' + mdLabel(r.last) : '') + '</span></button>';
-if (open) x += '<div class="urx">' + (r.l.length ? r.l.map(function (d) { return '<button class="sdr sdrb" data-k="' + d + '"><b>' + mdLabel(d) + '（' + wkOf(d) + '）</b><span>' + (d > tk ? '已排' : nm) + '</span><em></em><i class="sdrgo">›</i></button>'; }).join('') : '<div class="urnone">還沒有紀錄</div>') + '</div>';
+if (open) x += '<div class="urx"><div class="urxh">' + esc(r.n) + '・' + nm + '紀錄（' + r.l.length + '）</div>' + (r.l.length ? r.l.map(function (d) { return '<button class="sdr sdrb" data-k="' + d + '"><b>' + mdLabel(d) + '（' + wkOf(d) + '）</b><span>' + (d > tk ? '已排' : nm) + '</span><em></em><i class="sdrgo">›</i></button>'; }).join('') : '<div class="urnone">還沒有紀錄</div>') + '</div>';
 return x;
 }).join('') + '</div>';
 if (rows.length > 8) h += '<button class="fairall" data-urall="' + allK + '">' + (all ? '收起' : '看全部 ' + rows.length + ' 人 ▾') + '</button>';
@@ -5309,14 +5744,16 @@ var grp = function (n) { return F[n].few ? 2 : (F[n].soon ? 1 : 0); };   // 一�
 names = names.filter(function (n) { return grp(n) === 0; }).concat(names.filter(function (n) { return grp(n) === 1; }), names.filter(function (n) { return grp(n) === 2; }));
 var cn = function (t) { return names.filter(function (n) { return t(F[n]); }).length; };
 var all = !!statOpen['fair:all'], show = all ? names : names.slice(0, 6);
-var h = '<div class="stflat stfair"><div class="sthd"><b>派遣參考</b><span>點名字看算式</span><em>近 3 個月（固定）</em></div><div class="fair">';
-h += '<div class="fleg"><span class="low">相對較少 ' + cn(function (f) { return !f.few && !f.soon && f.lv === 'low'; }) + ' 人</span><span class="mid">負擔相近</span><span class="hi">相對較多</span><span class="plan">近期已排 ' + cn(function (f) { return !f.few && f.soon; }) + '</span><span class="avg">平均 ' + F.__avg.r.toFixed(1) + ' 次／30 個上班日</span></div>';
-h += '<div class="fairl"><div class="fth"><span>#</span><span>姓名</span><span>近3月</span><span>最近／已排</span><span>比平均</span></div>' + show.map(function (n, i) {
+var h = '<div class="stflat stfair"><div class="sthd"><b>派遣參考</b><em>近 3 個月（固定）</em></div><div class="fair">';
+var cnL = cn(function (f) { return !f.few && !f.soon && f.lv === 'low'; }), cnM = cn(function (f) { return !f.few && !f.soon && f.lv === 'mid'; }), cnH = cn(function (f) { return !f.few && !f.soon && f.lv === 'hi'; }), cnP = cn(function (f) { return !f.few && f.soon; });
+h += '<div class="fsum"><div class="avg"><span>平均負擔</span><b>' + F.__avg.r.toFixed(1) + '</b><small>次／30 上班日</small></div><div class="low"><span>相對較少</span><b>' + cnL + '</b><small>人</small></div><div class="mid"><span>負擔相近</span><b>' + cnM + '</b><small>人</small></div><div class="hi"><span>相對較多</span><b>' + cnH + '</b><small>人</small></div><div class="plan"><span>近期已排</span><b>' + cnP + '</b><small>人</small></div></div>';
+if (false) h += '<div class="fleg"><span class="low">相對較少 ' + cn(function (f) { return !f.few && !f.soon && f.lv === 'low'; }) + ' 人</span><span class="mid">負擔相近</span><span class="hi">相對較多</span><span class="plan">近期已排 ' + cn(function (f) { return !f.few && f.soon; }) + '</span><span class="avg">平均 ' + F.__avg.r.toFixed(1) + ' 次／30 個上班日</span></div>';
+h += '<div class="fairl"><div class="fth"><span>#</span><span>姓名・負擔</span><span>差異（次）</span></div>' + show.map(function (n, i) {
 var f = F[n], g = grp(n), cl = g === 2 ? 'mid' : (g === 1 ? 'plan' : f.lv), op = !!statOpen['fair:' + n];
-var sub = '近 3 個月 ' + f.c + ' 次' + (f.last ? '・最近 ' + mdLabel(f.last) : '');
+var sub = '近 3 個月 ' + f.c + ' 次' + (f.soon ? '・已排 ' + mdLabel(f.nx) : (f.last ? '・最近 ' + mdLabel(f.last) : ''));
 var r = '<button class="frow ' + cl + (op ? ' open' : '') + '" data-fn="' + esc(n) + '"><span class="frk">' + (i + 1) + '</span>' +
 '<span class="frn"><b>' + esc(n) + '</b><i class="ftag">' + fairTxt(f) + '</i>' + (f.nw ? '<s class="fnew">新</s>' : '') + (f.n14 >= 2 ? '<s class="fn14">近14天 ' + f.n14 + '</s>' : '') + '</span><span class="fc">' + f.c + ' 次</span><span class="fl">' + (f.soon ? '<s class="fnx">已排 ' + mdLabel(f.nx) + '</s>' : (f.last ? '最近 ' + mdLabel(f.last) : '—')) + '</span>' +
-'<span class="frt"><b>' + (f.few ? '—' : fairSgn(f.df)) + '</b><small>次</small></span><span class="fsub">' + sub + '</span></button>';
+'<span class="frt"><b>' + (f.few ? '—' : fairSgn(f.df)) + '</b><small>比應有</small></span><span class="fsub">' + sub + '</span></button>';
 if (op) {
 var off = f.w - f.p, far = f.fl.filter(function (d) { return d > addDays(todayKey(), FAIR_S); });
 r += '<div class="fdet"><div class="fcalc"><span><b>' + f.c + '</b>次已完成</span><i>vs</i><span>照平均應 <b>' + f.ex.toFixed(1) + '</b> 次</span><i>＝</i><span class="' + (f.few ? '' : f.lv) + '"><b>' + (f.few ? '—' : fairSgn(f.df)) + '</b>次</span></div>' +
@@ -5333,7 +5770,7 @@ return r;
 if (names.length > 6) h += '<button class="fairall" data-fairall="1">' + (all ? '收起' : '看全部 ' + names.length + ' 人 ▾') + '</button>';
 if (!ok) h += '<div class="fairnote">休假資料讀取中…</div>';
 h += '<details class="fairhow"><summary>這個數字怎麼算？</summary><div>' +
-'比「照全體平均，這個人該做幾次」：實際完成次數 − 平均該有次數。負的＝比平均少，正的＝比平均多，差不到 ' + FAIR_TOL + ' 次算負擔相近。<br>' +
+'差異＝近 3 個月實際完成次數 − 照全體平均「應有次數」（應有次數＝平均負擔 × 個人可派遣天數 ÷ 30），單位都是「次」；上方「平均負擔」是每 30 個可派遣上班日的次數。負的＝比平均少，正的＝比平均多，差不到 ' + FAIR_TOL + ' 次算負擔相近。<br>' +
 '可派遣天數：近 90 天上班日，扣外勤、報到前。<b>休假不扣</b>，休息過的人回來就一起補。<br>' +
 '只算已經做完的；14 天內已排的另外標「近期已排」，更遠的只在明細列出。<br>' +
 '算進去：勤務、打靶。不算：尿篩、加班、輪值的擴大FO／查庫／監工／核生化、指定勤務（名目含「會客室、講習…」等，清單在統計頁下方可編輯）。<br>' +
@@ -5352,7 +5789,7 @@ var prv = P0 ? SA.filter(function (x) { return x.date >= P0.a && x.date <= P0.b;
 var RNG = [['month', '月'], ['3m', '近3月'], ['year', '年'], ['all', '全部']];
 var fh = fairHtml();
 var dg = desigHtml(), h = statKindBar() + fh + '<div class="stflat"><div class="sthd"><b>勤務統計</b><span>依下面選的期間</span></div><div class="strg">' + RNG.map(function (r) { return '<button class="' + (statRange === r[0] ? 'on' : '') + '" data-r="' + r[0] + '">' + r[1] + '</button>'; }).join('') + '</div>';
-h += '<div class="stnav">' + (statRange === 'all' ? '<span></span>' : '<button class="ghost" data-off="1" aria-label="上一期">‹</button>') + '<b>' + esc(P.lab) + '</b>' +
+h += '<div class="stnav">' + (statRange === 'all' ? '<span></span>' : '<button class="ghost" data-off="1" aria-label="上一期">‹</button>') + (statRange === 'month' ? '<label class="otmon"><b>' + esc(P.lab) + '</b><input type="month" id="stMon" value="' + P.a.slice(0, 7) + '" max="' + otYm(-1) + '" aria-label="選擇年月"></label>' : (statRange === 'year' ? '<label class="otmon"><b>' + esc(P.lab) + '</b><select id="stYear" aria-label="選擇年份">' + (function () { var y0 = new Date().getFullYear(), o = '', ys = {}; (statAll || []).forEach(function (x) { ys[x.date.slice(0, 4)] = 1; }); ys[y0] = 1; Object.keys(ys).sort().reverse().forEach(function (y) { o += '<option value="' + y + '"' + (+y === y0 - statOff ? ' selected' : '') + '>' + y + ' 年</option>'; }); return o; })() + '</select></label>' : '<b>' + esc(P.lab) + '</b>')) +
 (statRange === 'all' ? '<span></span>' : '<button class="ghost" data-off="-1" aria-label="下一期"' + (statOff <= -1 ? ' disabled' : '') + '>›</button>') + '</div>';
 if (statOff !== 0 && statRange !== 'all') h += '<div class="stback"><button class="linkbtn" data-off0="1">回到' + ({ month: '本月', '3m': '近 3 個月', year: '今年', all: '' }[statRange]) + '</button></div>';
 if (!inR.length) { $('statBody').innerHTML = h + '<div class="dnone">這段期間沒有勤務紀錄</div></div>' + dg; statRowsNow = []; return; }
@@ -5366,13 +5803,13 @@ var pLab = { month: '這個月', '3m': '近 3 個月', year: '今年', all: '全
 if (statOff !== 0) pLab = P.lab;
 var maxN = 0; names.forEach(function (n) { var c = (per[n] || []).length; if (c > maxN) maxN = c; });
 var avgN = names.length ? nPer / names.length : 0;
-h += '<div class="stsum1"><div><i class="sti cnt"></i><span>勤務</span><b>' + nEv + '</b><span>件</span>' + statDelta(nEv, pEv) + '</div><div><i class="sti ppl"></i><b>' + nPer + '</b><span>人次</span>' + statDelta(nPer, pPer) + '</div><div><i class="sti avg"></i><span>平均</span><b>' + avgN.toFixed(1) + '</b></div></div>';
+h += '<div class="stsum1"><div><span>勤務件數</span><b>' + nEv + '</b>' + statDelta(nEv, pEv) + '</div><div><span>勤務人次</span><b>' + nPer + '</b>' + statDelta(nPer, pPer) + '</div><div><span>平均次數</span><b>' + avgN.toFixed(1) + '</b><small>次／人</small></div></div>' + (P0 ? '<div class="stprv">▲▼ 與' + ({ month: '上個月', '3m': '前 3 個月', year: '去年' }[statRange] || '前期') + '比較</div>' : '');
 var rows = names.map(function (n, i) { var l = (per[n] || []).filter(function (x) { return !statWhy || normWhy(x.why) === statWhy; }).sort(function (a, b) { return a.date < b.date ? 1 : -1; }); return { n: n, l: l, i: i }; });
 var max = 1; rows.forEach(function (r) { if (r.l.length > max) max = r.l.length; });
 if (statSort === 'asc') rows.sort(function (a, b) { return a.l.length - b.l.length || a.i - b.i; }); else if (statSort === 'desc') rows.sort(function (a, b) { return b.l.length - a.l.length || a.i - b.i; });
 h += '<div class="sum2"><span>' + (statWhy ? '「' + esc(statWhy) + '」<button class="linkbtn" data-clr="1">清除</button>' : esc(pLab) + '每個人幾次・點名字看紀錄') + '</span><button class="linkbtn" id="statCopy">複製文字</button></div>';
 h += '<div class="stsort2">' + [['roster', '原始順序'], ['asc', '少→多'], ['desc', '多→少']].map(function (o) { return '<button data-sort="' + o[0] + '"' + (statSort === o[0] ? ' class="on"' : '') + '>' + o[1] + '</button>'; }).join('') + '</div>';
-h += '<div class="shead"><span>姓名</span><span>派遣比例</span><span>次</span><span>最近／已排</span></div>';
+h += '<div class="shead"><span>姓名</span><span>勤務次數比較</span><span>次</span><span>最近／已排</span></div>';
 var allR = !!statOpen['st:all'], shownR = allR ? rows : rows.filter(function (r, i) { return i < 6 || statOpen[r.n]; });
 shownR.forEach(function (r) {
 var open = statOpen[r.n], past = r.l.filter(function (x) { return x.date <= tk; }), fut = r.l.filter(function (x) { return x.date > tk; }), last = past.length ? past[0].date : '', nx = fut.length ? fut[fut.length - 1].date : '';
@@ -6455,17 +6892,23 @@ if (!loaded[k.slice(0, 7)]) { showToast('資料還在讀取，請稍後再按', 
 try { cv = attDraw(attModel(k), IM); } catch (e) { showToast('產圖失敗，請先用「複製文字」', null, null, 3200); return; }
 cv.toBlob(function (blob) {
 if (!blob) { showToast('產圖失敗，請先用「複製文字」', null, null, 3200); return; }
-if (attImgUrl) { try { URL.revokeObjectURL(attImgUrl); } catch (e) { /* 忽略 */ } }
-attImgUrl = URL.createObjectURL(blob);
-var fn = '人員情況-' + k.slice(5).replace('-', '') + '.png', file = null, canShare = false;
-try { file = new File([blob], fn, { type: 'image/png' }); canShare = !!(navigator.canShare && navigator.share && navigator.canShare({ files: [file] })); } catch (e) { canShare = false; }
-openSheet({ title: '產圖分享', sub: mdLabel(k) + '（' + wkOf(k) + '）人員情況', body: '<div class="aipimg"><img src="' + attImgUrl + '" alt="人員情況圖片"></div><div class="aipbtn">' + (canShare ? '<button type="button" class="sh-btn aipri" id="aiShare">分享圖片</button>' : '') + '<button type="button" class="sh-btn" id="aiSave">儲存圖片</button></div><div class="aiph">' + (canShare ? '' : '這個瀏覽器不能直接分享，請按「儲存圖片」，或長按上面的圖片存到相簿。') + '</div>', actions: [] });
-var sh = $('aiShare'), sv = $('aiSave');
-if (sh) sh.addEventListener('click', function () { navigator.share({ files: [file], title: fn }).catch(function (e) { if (!e || e.name !== 'AbortError') showToast('不能分享，請改按「儲存圖片」', null, null, 3000); }); });
-sv.addEventListener('click', function () {
-try { var a = document.createElement('a'); a.href = attImgUrl; a.download = fn; document.body.appendChild(a); a.click(); a.remove(); showToast('已送出儲存，若沒反應請長按圖片存到相簿', null, null, 3600); } catch (e) { showToast('請長按上面的圖片存到相簿', null, null, 3200); }
-});
+imgShare([{ blob: blob, fn: '人員情況-' + k.slice(5).replace('-', '') + '.png' }], '產圖分享', mdLabel(k) + '（' + wkOf(k) + '）人員情況');
 }, 'image/png');
+}
+// 產圖預覽＋分享／儲存（list：[{blob, fn}]，多張時一起分享、分別儲存）
+var attImgUrls = [];
+function imgShare(list, title, sub) {
+attImgUrls.forEach(function (u) { try { URL.revokeObjectURL(u); } catch (e) { /* 忽略 */ } });
+attImgUrls = list.map(function (it) { return URL.createObjectURL(it.blob); }); attImgUrl = attImgUrls[0];
+var files = null, canShare = false;
+try { files = list.map(function (it) { return new File([it.blob], it.fn, { type: 'image/png' }); }); canShare = !!(navigator.canShare && navigator.share && navigator.canShare({ files: files })); } catch (e) { canShare = false; }
+var many = list.length > 1;
+openSheet({ title: title, sub: sub, body: '<div class="aipimg">' + attImgUrls.map(function (u, i) { return '<img src="' + u + '" alt="' + esc(title) + (many ? ' 第 ' + (i + 1) + ' 張' : '') + '">'; }).join('') + '</div><div class="aipbtn">' + (canShare ? '<button type="button" class="sh-btn aipri" id="aiShare">分享圖片' + (many ? '（' + list.length + ' 張）' : '') + '</button>' : '') + '<button type="button" class="sh-btn" id="aiSave">儲存圖片' + (many ? '（' + list.length + ' 張）' : '') + '</button></div><div class="aiph">' + (canShare ? '' : '這個瀏覽器不能直接分享，請按「儲存圖片」，或長按上面的圖片存到相簿。') + '</div>', actions: [] });
+var sh = $('aiShare'), sv = $('aiSave');
+if (sh) sh.addEventListener('click', function () { navigator.share({ files: files, title: list[0].fn }).catch(function (e) { if (!e || e.name !== 'AbortError') showToast('不能分享，請改按「儲存圖片」', null, null, 3000); }); });
+sv.addEventListener('click', function () {
+try { attImgUrls.forEach(function (u, i) { var a = document.createElement('a'); a.href = u; a.download = list[i].fn; document.body.appendChild(a); a.click(); a.remove(); }); showToast('已送出儲存，若沒反應請長按圖片存到相簿', null, null, 3600); } catch (e) { showToast('請長按上面的圖片存到相簿', null, null, 3200); }
+});
 }
 var CX_KINDS = [['duty', '勤務', '輪值、打靶、公差'], ['stay', '留守', '含車長、勤前提示'], ['trip', '出差', ''], ['ot', '加班', ''], ['hol', '例假', '週末、國定假日'], ['urine', '尿篩', ''], ['pto', '排休', '上班日請的假'], ['ev', '行程', '專精訓練、全員活動']];
 var cx = { kinds: { duty: 1, stay: 1, trip: 1, ot: 1, hol: 1, urine: 1, pto: 1, ev: 1 }, busy: false };
@@ -7295,7 +7738,7 @@ var rosterState = '';
 var dutySyncAt = 0, dutySyncOk = true;
 var STAT_SKIP = [];
 var statKind = 'duty';
-var otOff = 0;
+var otOff = 0, statScroll = 0;
 var urKind = 'urine';
 var statAll = null, statRange = 'month', statOff = 0, statWhy = '', statOpen = {}, statSort = 'desc'; // statOff：往前幾個月（季、年同理）
 var WHY_ALIAS = { '擦拭槍': '擦槍', '擦拭': '擦槍', '信義樓頂樓防水監工': '頂樓防水監工', '信義樓防水監工': '頂樓防水監工', '防水監工': '頂樓防水監工', '平台監工': '平台監工', '平臺監工': '平台監工' };
@@ -7356,7 +7799,7 @@ if (!m) { m = document.createElement('div'); m.id = 'a2hsMask'; document.body.ap
 m.innerHTML = '<div id="a2hs" role="dialog" aria-modal="true" aria-label="加入主畫面"><h2>' + t + '</h2><ol>' + s.map(function (x) { return '<li>' + x + '</li>'; }).join('') + '</ol><p>網頁無法自動安裝，要自己按一下。</p><div class="a2b">' + (k === 'app' ? '<button class="ghost" id="a2hsCp">複製連結</button>' : '') + '<button class="primary" id="a2hsOk">知道了</button></div></div>';
 m.classList.add('show');
 }
-var CHANGELOG = [{"v": "v11.71", "d": "11/28", "t": ["人員管理改版：人員名冊、受訓管理改成全螢幕清單（統計、搜尋、班別篩選、預定異動、歷史人員）。", "設定頁改版：班長、點名官、一般同仁共用同一套樣式與圖示；依身分顯示功能。", "留守提醒信、假單提醒信可直接用開關停止或啟用，停止後設定保留、再啟用不補寄（假單提醒信要後端第五十八版）。"]}, {"v": "v11.70", "d": "11/11", "t": ["提醒中心、修改紀錄、產出姓名整合：①拿掉「留守異動」提醒（不再自動彈出、不用按「都看過了」、不再同步已讀），提醒中心只剩「時間重疊」（有才出現、解除自動消失）和「假單還沒點」（這週為主，下週、之後可切換）；留守的新增、取消、修改全部照舊記在修改紀錄，歷史一筆不少；②修改紀錄改成簡單列表：搜尋（姓名、日期、事由、文字）＋全部／假單／留守與勤務，依實際操作時間新到舊、同一天集中，每筆兩行白話（例：林韋辰取消休假／11/20 全日休 → 未登記），點開看操作者、人員、日期、修改前後、實際操作時間與身分（沒存的欄位不編造），舊紀錄照常顯示；③產出新增「姓名寫法」：只寫名字／完整姓名／簡稱優先＋獨立勾選「幹部優先使用職務稱呼」，依股名冊（簡稱欄、幹部欄）判斷，複姓、同名、簡稱重複時自動改寫完整姓名；人員情況、留守、加班、尿篩、提醒複製、假單／休假文字、任務派遣複製文字與圖片全部共用，設定存在這支手機、不改試算表；原加班「只寫名字」設定自動沿用。不涉及後端；④快速標記：勾選兩天以上時多一顆「每天分開選」，按了每天一張卡，各自看當天勤務、各派各的人（存檔仍是一天一筆）。⑤勤務統計減法整理：「誰該先派」與「勤務統計」分成兩塊，統計改成一行總結＋簡潔列表，其餘改為點開才看。輪值的擴大FO／查庫／監工、核生化不再算進勤務次數（尿篩、加班原本就不算）。⑥全程式健檢：儲存／新增改成「處理中→確認後才顯示成功」，失敗保留內容並可重試，送出後沒回應會提醒先重新整理確認，統計與任務頁讀取失敗有重試；清掉改版殘留的程式與圖片。；⑦ 修正漏報：休假撞「輪值輪值」（擴大FO、查庫、監工）原本不會提醒，現在三項都會出現在時間重疊（同一項已是勤務的不重複）；勤務和輪值的比對整合成同一個判斷；輪值表還沒讀到時提醒中心顯示「讀取中」不再誤報「沒有重疊」，讀取失敗會提示並可重試，讀完自動更新。每日到班改成「上午 N｜下午 N 人」：上午到班不含上午休、整天休；下午到班不含下午休、整天休收合看人數、打開看上午到班、下午到班各自的名單（半天休的人標下午休／上午休），點名官、當天詳細頁、產圖一致。勤務統計「誰該先派」改成「派遣參考」：只算已完成的勤務，休假不扣可派遣天數（外勤、報到前才扣），顯示「比平均多／少幾次」，差不到 1 次算負擔相近；14 天內已排另標「近期已排」並提醒近 14 天次數，可派遣不到 20 天顯示資料不足，明細多一行近 6 個月參考。同仁當車長時，個人頁自動顯示當天下午降旗、隔天早上升旗與集合時間（冬令 10/1–3/31：降旗 17:10、升旗 06:30；夏令 4/1–9/30：降旗 18:10、升旗 06:00），點名官、每日到班、任務派遣當天詳細頁、複製文字、產圖、搜尋同仁也都會列出降旗／升旗與車長姓名，方便班長幫忙提醒；只顯示、不存資料、不算勤務、不比對重疊。⑥休假表看個人時，最上方多一顆「← 回全體統計」，不用再從「切換人員」找。⑦首頁小提醒加入換季提醒：換季日前 7 天起到當天（先說換令與起床時間，服裝說明換季、提醒先準備；班長、股總也會在畫面上方看到）（4/1 夏令作息、5/1 短袖、10/1 冬令作息、11/1 長袖、12/1 長袖加外套），沒有更要緊的安排時才出現。⑧彈射、軍械班長的產出與休假表預設只看本班，按「全部人員」才看到別班（和假單同一個開關，記住你的選擇）。⑨首頁小提醒加入節日祝福（含軍人節），當天留守的人改成「留守辛苦了」。⑩首頁小提醒加入生日祝福（只有本人看到；需要後端 v53 讀「生日」分頁）。⑪「標留守」多了「監控」：編輯時先選留守或監控再點日子，寫入方式跟留守一樣（需要後端 v54，同仁才能標監控）。；⑫ 日曆同步：信箱欄檢查是否為 Google 帳號，每個步驟顯示要用的帳號（可複製），新增開 Google 日曆、同步勾選頁、行事曆 App 的連結，iPhone／Android 步驟與常見錯誤說明補齊；⑬ 新增「訂閱網址」：免 Google 帳號，iPhone 行事曆用網址訂閱，可隨時停止並刪除（後端第五十五版）；⑭ 產出「假日留守」期間改為上週／這週／下一次／本月／自選；加班名單在當天已標留守、監控的人旁邊顯示標籤（和休假不同色）；⑮ 底部選單改成浮動式深色膠囊，內容可從後面捲過；使用導覽整套重做：畫面變暗、只亮起正在講的那個東西，每步一句話，有上一步／略過；修正一般同仁每次開啟都會自動跳出導覽的問題；⑯勤務清單精簡：點名官／任務派遣／勤務月曆當天頁拿掉勤務小圖，只有 1 人的勤務兩個並排，備註改文字標記；⑰外觀改版第一輪：直角、霧青灰、琥珀重點，底部選單改扁平，更緊湊（假單的章維持原樣），標留守按鈕改深色長條、頂欄按鈕白底，勤務月曆格子縮矮、勤務條改墨黑，數字與時間改等寬字、標題更粗，休假表清單去米色紋，頂欄底欄壓縮、假單固定月檢視、拿掉閒置時的標留守條，假單連續橫向滑動（不再限月，滑到邊緣自動補月份，今天鈕回到今天），編輯列縮成一行（編輯中／復原／結束），班長首頁重排（點假單置頂、任派／公差、提醒中心，設定與編輯紀錄縮在底部、文字產出／任派獨立頁、點假單只留假單＋休假表、未點假單移到文字產出、各頁離開鈕統一為「返回」、設定頁精簡、拿掉使用導覽頁只留引導式教學、底部列去圖示、點假單改浮動膠囊、拿掉假單頁的未點假單條、勤務／提醒中心上方只留返回、開啟一律先到首頁、換季公告移到首頁最上面、點假單頁編輯列與全部人員併進上方列、格子延伸到底部、上方列統一、加班時段選項不再被截、全站改小圓角與細框線、任派與當天詳細排版緊湊、頂部列顏色與頁面一致、假單列高可放大填滿、全站按鈕與輸入框統一小圓角、勤務頁頂部列只留返回、移除新版本紅點、設定頁移除舊底部分頁列、修正一般同仁開設定的錯誤、登入密碼畫面改金屬斜角按鍵與新門禁圖、班長首頁入口加文字旁小圖（圖片）、當天詳細單人勤務兩欄並排、勤務統計分頁小圖改新圖（全部身分）、文字產出按「全部人員」改為與一般同仁點名官相同的抓取（含軍官、全部班別）、當天詳細新增按鈕與統計卡也縮小、按鈕文字恢復「全部人員／只看本班」）；⑱教學大幅縮減：拿掉黃色提示條、第一次用說明、同仁導覽、設定頁說明小字與行事曆常見問題；班長導覽縮成 4 步；同仁首頁拿掉「今日小提醒」「本週尚有未標記」勤務卡片並排改依字數：標題與人名都短的兩個並排、字多的獨占一列，任務派遣與當天詳細同一規則，版型統一（編輯身分的當天詳細維持不並排，方便選取、修改）。任務派遣「到班」名單也列出留守、監控的人，人數與實到一致。加班卡片（任務派遣、點名官、當天詳細）標題下顯示事由（取自備註「事由：」，去掉「作業」）。產出「假日留守」可選「留守＋勤務」，每個假日列出留守名單與當天各項勤務（加班帶事由）。修正：不計次關鍵字、到班展開、當天情況收合、留守＋勤務的選擇，重開程式後會保留。產出「加班」新增「彙整」：依本週、本月、全部（今年）、自選期間，列出已加入勤務月曆的加班（日期、時段、事由、督導、人員）。登入畫面改成切角面板、標題兩側琥珀斜線、立體銀色按鍵（只改外觀，輸入與驗證流程不變）。班長首頁的天空戰機頁首換成新圖（白天／黃昏／夜間）。", "留守儲存完的提示拿掉「班長會看到」，只留「已儲存 N 天」；任務派遣・點名官：人員情況改成分色（休假藍、外勤紫紅、留守紅、監控靛藍、到班綠）、人數同一排、勤務色卡加時間色塊；「複製這天人員情況」改成「複製文字」＋「產圖分享」（在手機上畫成圖片，可分享或儲存，文字複製內容不變）；封面「設定」下面新增「點點月曆」入口（開另一個分頁，獨立使用、資料不同步）；複製後的提示改成「請與班長反應」；瘦身：刪掉沒在用的舊程式、舊樣式、3 張沒用到的圖，並合併 3 組重複的圖（檔案變小、畫面不變）、「要改請找班長」改成「請與班長反應」；導覽拿掉「班長會收到提醒」（這個程式資料本來就公開）；紀錄頁重新排版：搜尋與「篩選」同一列（範圍、身分在展開面板），依操作日分組可收合，每筆姓名＋內容＋時間、動作標籤、日期、身分；同一分鐘大量新增自動歸成一組；點一筆看完整詳情（實際操作者沒存就寫未記錄）；假單「顯示」設定視窗拿掉：週／月、今天直接放在表格上面一列；日期列、假日提醒列、最下面的休假人數固定顯示；軍官一律顯示；顏色圖例併入「使用導覽」", "滿版後右下角圓鈕寫著「還原」，不用記提示", "三份獨立紀錄＋跨班代記（需搭配後端 v52）：股總、彈射、軍械各一份，都能替全部人員（含軍官）登記，一律記在自己那份、不覆蓋別人；彈射、軍械表格預設只列自己班，上面一列「全部人員」可列出所有人；自己那份空白時，別份只當淡色參考，不算已點；點名官等綜合畫面：股總 → 本班班長 → 代記（軍官：股總 → 彈射 → 軍械）；「清除」只清自己那份，不再兩邊都刪；取消後若別份還有紀錄會提示", "階段二：①產出「加班」表單很長，複製鈕不在畫面內時右下角浮出「↓ 到複製」（點了捲過去；鍵盤打開或其他表單不出現）；②勤務統計加一行說明「以下依所選期間統計、上方誰該先派固定看近 3 個月」；③使用導覽文字對齊現況：休假表（原寫「分析」）、統計（月／近3月／年／全部、勤務／尿篩／打靶／加班、誰該先派、排序）、產出含尿篩、快速標記按鈕名稱、換身分入口；複製留守／複製未點假單只顯示自己身分用得到的那句。權限、資料、後端、其餘畫面都不變。"], "n": 98}, {"v": "v11.69", "d": "11/11", "t": ["封面放大：標題、身分卡、兩個大按鈕（圖示、字）、待處理／編輯紀錄都加大，間距拉開，上下留白更平衡（螢幕夠高才放大，小螢幕不變）"], "n": 1}, {"v": "v11.68", "d": "11/11", "t": ["「我的重點」今天那行改簡短：只列類別（尿篩・公差・行程）加「共幾件」，時間重疊會直接標出來"], "n": 1}, {"v": "v11.67", "d": "11/11", "t": ["一般首頁最上面新增「我的重點」三行：今天要做什麼、下個假日（留守／休／還沒點幾天）、假單有沒有點好，打開 3 秒就知道"], "n": 1}, {"v": "v11.66", "d": "11/11", "t": ["一般首頁引導：右上多「看導覽」；紅條下面直接寫下一步（休假去公司點假單／留守按標留守）；名單沒載入（沒網路）時改顯示「重試」，不會卡在選名字；唯讀連結的「標留守」改成灰色並說明原因"], "n": 1}, {"v": "v11.65", "d": "11/11", "t": ["使用導覽說明文字全部精簡（拿掉贅詞，意思不變）；順便移除沒用到的程式碼"], "n": 1}];
+var CHANGELOG = [{"v": "v11.72", "d": "11/28", "t": ["勤務統計改版（看勤務、公差共用）：派遣參考、尿篩、打靶加上摘要格與兩行式名單；勤務統計可直接點月份或年份切換。", "加班頁改成四區：加班總覽、年度加班分布、個人加班統計、加班紀錄查詢（日期、事由、人員可交叉查詢，可複製文字、產出圖片）。", "加班時數改標「人時」（每位人員時數加總）；沒填事由顯示「未填寫事由」。"]}, {"v": "v11.71", "d": "11/28", "t": ["人員管理改版：人員名冊、受訓管理改成全螢幕清單（統計、搜尋、班別篩選、預定異動、歷史人員）。", "設定頁改版：班長、點名官、一般同仁共用同一套樣式與圖示；依身分顯示功能。", "留守提醒信、假單提醒信可直接用開關停止或啟用，停止後設定保留、再啟用不補寄（假單提醒信要後端第五十八版）。"]}, {"v": "v11.70", "d": "11/11", "t": ["提醒中心、修改紀錄、產出姓名整合：①拿掉「留守異動」提醒（不再自動彈出、不用按「都看過了」、不再同步已讀），提醒中心只剩「時間重疊」（有才出現、解除自動消失）和「假單還沒點」（這週為主，下週、之後可切換）；留守的新增、取消、修改全部照舊記在修改紀錄，歷史一筆不少；②修改紀錄改成簡單列表：搜尋（姓名、日期、事由、文字）＋全部／假單／留守與勤務，依實際操作時間新到舊、同一天集中，每筆兩行白話（例：林韋辰取消休假／11/20 全日休 → 未登記），點開看操作者、人員、日期、修改前後、實際操作時間與身分（沒存的欄位不編造），舊紀錄照常顯示；③產出新增「姓名寫法」：只寫名字／完整姓名／簡稱優先＋獨立勾選「幹部優先使用職務稱呼」，依股名冊（簡稱欄、幹部欄）判斷，複姓、同名、簡稱重複時自動改寫完整姓名；人員情況、留守、加班、尿篩、提醒複製、假單／休假文字、任務派遣複製文字與圖片全部共用，設定存在這支手機、不改試算表；原加班「只寫名字」設定自動沿用。不涉及後端；④快速標記：勾選兩天以上時多一顆「每天分開選」，按了每天一張卡，各自看當天勤務、各派各的人（存檔仍是一天一筆）。⑤勤務統計減法整理：「誰該先派」與「勤務統計」分成兩塊，統計改成一行總結＋簡潔列表，其餘改為點開才看。輪值的擴大FO／查庫／監工、核生化不再算進勤務次數（尿篩、加班原本就不算）。⑥全程式健檢：儲存／新增改成「處理中→確認後才顯示成功」，失敗保留內容並可重試，送出後沒回應會提醒先重新整理確認，統計與任務頁讀取失敗有重試；清掉改版殘留的程式與圖片。；⑦ 修正漏報：休假撞「輪值輪值」（擴大FO、查庫、監工）原本不會提醒，現在三項都會出現在時間重疊（同一項已是勤務的不重複）；勤務和輪值的比對整合成同一個判斷；輪值表還沒讀到時提醒中心顯示「讀取中」不再誤報「沒有重疊」，讀取失敗會提示並可重試，讀完自動更新。每日到班改成「上午 N｜下午 N 人」：上午到班不含上午休、整天休；下午到班不含下午休、整天休收合看人數、打開看上午到班、下午到班各自的名單（半天休的人標下午休／上午休），點名官、當天詳細頁、產圖一致。勤務統計「誰該先派」改成「派遣參考」：只算已完成的勤務，休假不扣可派遣天數（外勤、報到前才扣），顯示「比平均多／少幾次」，差不到 1 次算負擔相近；14 天內已排另標「近期已排」並提醒近 14 天次數，可派遣不到 20 天顯示資料不足，明細多一行近 6 個月參考。同仁當車長時，個人頁自動顯示當天下午降旗、隔天早上升旗與集合時間（冬令 10/1–3/31：降旗 17:10、升旗 06:30；夏令 4/1–9/30：降旗 18:10、升旗 06:00），點名官、每日到班、任務派遣當天詳細頁、複製文字、產圖、搜尋同仁也都會列出降旗／升旗與車長姓名，方便班長幫忙提醒；只顯示、不存資料、不算勤務、不比對重疊。⑥休假表看個人時，最上方多一顆「← 回全體統計」，不用再從「切換人員」找。⑦首頁小提醒加入換季提醒：換季日前 7 天起到當天（先說換令與起床時間，服裝說明換季、提醒先準備；班長、股總也會在畫面上方看到）（4/1 夏令作息、5/1 短袖、10/1 冬令作息、11/1 長袖、12/1 長袖加外套），沒有更要緊的安排時才出現。⑧彈射、軍械班長的產出與休假表預設只看本班，按「全部人員」才看到別班（和假單同一個開關，記住你的選擇）。⑨首頁小提醒加入節日祝福（含軍人節），當天留守的人改成「留守辛苦了」。⑩首頁小提醒加入生日祝福（只有本人看到；需要後端 v53 讀「生日」分頁）。⑪「標留守」多了「監控」：編輯時先選留守或監控再點日子，寫入方式跟留守一樣（需要後端 v54，同仁才能標監控）。；⑫ 日曆同步：信箱欄檢查是否為 Google 帳號，每個步驟顯示要用的帳號（可複製），新增開 Google 日曆、同步勾選頁、行事曆 App 的連結，iPhone／Android 步驟與常見錯誤說明補齊；⑬ 新增「訂閱網址」：免 Google 帳號，iPhone 行事曆用網址訂閱，可隨時停止並刪除（後端第五十五版）；⑭ 產出「假日留守」期間改為上週／這週／下一次／本月／自選；加班名單在當天已標留守、監控的人旁邊顯示標籤（和休假不同色）；⑮ 底部選單改成浮動式深色膠囊，內容可從後面捲過；使用導覽整套重做：畫面變暗、只亮起正在講的那個東西，每步一句話，有上一步／略過；修正一般同仁每次開啟都會自動跳出導覽的問題；⑯勤務清單精簡：點名官／任務派遣／勤務月曆當天頁拿掉勤務小圖，只有 1 人的勤務兩個並排，備註改文字標記；⑰外觀改版第一輪：直角、霧青灰、琥珀重點，底部選單改扁平，更緊湊（假單的章維持原樣），標留守按鈕改深色長條、頂欄按鈕白底，勤務月曆格子縮矮、勤務條改墨黑，數字與時間改等寬字、標題更粗，休假表清單去米色紋，頂欄底欄壓縮、假單固定月檢視、拿掉閒置時的標留守條，假單連續橫向滑動（不再限月，滑到邊緣自動補月份，今天鈕回到今天），編輯列縮成一行（編輯中／復原／結束），班長首頁重排（點假單置頂、任派／公差、提醒中心，設定與編輯紀錄縮在底部、文字產出／任派獨立頁、點假單只留假單＋休假表、未點假單移到文字產出、各頁離開鈕統一為「返回」、設定頁精簡、拿掉使用導覽頁只留引導式教學、底部列去圖示、點假單改浮動膠囊、拿掉假單頁的未點假單條、勤務／提醒中心上方只留返回、開啟一律先到首頁、換季公告移到首頁最上面、點假單頁編輯列與全部人員併進上方列、格子延伸到底部、上方列統一、加班時段選項不再被截、全站改小圓角與細框線、任派與當天詳細排版緊湊、頂部列顏色與頁面一致、假單列高可放大填滿、全站按鈕與輸入框統一小圓角、勤務頁頂部列只留返回、移除新版本紅點、設定頁移除舊底部分頁列、修正一般同仁開設定的錯誤、登入密碼畫面改金屬斜角按鍵與新門禁圖、班長首頁入口加文字旁小圖（圖片）、當天詳細單人勤務兩欄並排、勤務統計分頁小圖改新圖（全部身分）、文字產出按「全部人員」改為與一般同仁點名官相同的抓取（含軍官、全部班別）、當天詳細新增按鈕與統計卡也縮小、按鈕文字恢復「全部人員／只看本班」）；⑱教學大幅縮減：拿掉黃色提示條、第一次用說明、同仁導覽、設定頁說明小字與行事曆常見問題；班長導覽縮成 4 步；同仁首頁拿掉「今日小提醒」「本週尚有未標記」勤務卡片並排改依字數：標題與人名都短的兩個並排、字多的獨占一列，任務派遣與當天詳細同一規則，版型統一（編輯身分的當天詳細維持不並排，方便選取、修改）。任務派遣「到班」名單也列出留守、監控的人，人數與實到一致。加班卡片（任務派遣、點名官、當天詳細）標題下顯示事由（取自備註「事由：」，去掉「作業」）。產出「假日留守」可選「留守＋勤務」，每個假日列出留守名單與當天各項勤務（加班帶事由）。修正：不計次關鍵字、到班展開、當天情況收合、留守＋勤務的選擇，重開程式後會保留。產出「加班」新增「彙整」：依本週、本月、全部（今年）、自選期間，列出已加入勤務月曆的加班（日期、時段、事由、督導、人員）。登入畫面改成切角面板、標題兩側琥珀斜線、立體銀色按鍵（只改外觀，輸入與驗證流程不變）。班長首頁的天空戰機頁首換成新圖（白天／黃昏／夜間）。", "留守儲存完的提示拿掉「班長會看到」，只留「已儲存 N 天」；任務派遣・點名官：人員情況改成分色（休假藍、外勤紫紅、留守紅、監控靛藍、到班綠）、人數同一排、勤務色卡加時間色塊；「複製這天人員情況」改成「複製文字」＋「產圖分享」（在手機上畫成圖片，可分享或儲存，文字複製內容不變）；封面「設定」下面新增「點點月曆」入口（開另一個分頁，獨立使用、資料不同步）；複製後的提示改成「請與班長反應」；瘦身：刪掉沒在用的舊程式、舊樣式、3 張沒用到的圖，並合併 3 組重複的圖（檔案變小、畫面不變）、「要改請找班長」改成「請與班長反應」；導覽拿掉「班長會收到提醒」（這個程式資料本來就公開）；紀錄頁重新排版：搜尋與「篩選」同一列（範圍、身分在展開面板），依操作日分組可收合，每筆姓名＋內容＋時間、動作標籤、日期、身分；同一分鐘大量新增自動歸成一組；點一筆看完整詳情（實際操作者沒存就寫未記錄）；假單「顯示」設定視窗拿掉：週／月、今天直接放在表格上面一列；日期列、假日提醒列、最下面的休假人數固定顯示；軍官一律顯示；顏色圖例併入「使用導覽」", "滿版後右下角圓鈕寫著「還原」，不用記提示", "三份獨立紀錄＋跨班代記（需搭配後端 v52）：股總、彈射、軍械各一份，都能替全部人員（含軍官）登記，一律記在自己那份、不覆蓋別人；彈射、軍械表格預設只列自己班，上面一列「全部人員」可列出所有人；自己那份空白時，別份只當淡色參考，不算已點；點名官等綜合畫面：股總 → 本班班長 → 代記（軍官：股總 → 彈射 → 軍械）；「清除」只清自己那份，不再兩邊都刪；取消後若別份還有紀錄會提示", "階段二：①產出「加班」表單很長，複製鈕不在畫面內時右下角浮出「↓ 到複製」（點了捲過去；鍵盤打開或其他表單不出現）；②勤務統計加一行說明「以下依所選期間統計、上方誰該先派固定看近 3 個月」；③使用導覽文字對齊現況：休假表（原寫「分析」）、統計（月／近3月／年／全部、勤務／尿篩／打靶／加班、誰該先派、排序）、產出含尿篩、快速標記按鈕名稱、換身分入口；複製留守／複製未點假單只顯示自己身分用得到的那句。權限、資料、後端、其餘畫面都不變。"], "n": 98}, {"v": "v11.69", "d": "11/11", "t": ["封面放大：標題、身分卡、兩個大按鈕（圖示、字）、待處理／編輯紀錄都加大，間距拉開，上下留白更平衡（螢幕夠高才放大，小螢幕不變）"], "n": 1}, {"v": "v11.68", "d": "11/11", "t": ["「我的重點」今天那行改簡短：只列類別（尿篩・公差・行程）加「共幾件」，時間重疊會直接標出來"], "n": 1}, {"v": "v11.67", "d": "11/11", "t": ["一般首頁最上面新增「我的重點」三行：今天要做什麼、下個假日（留守／休／還沒點幾天）、假單有沒有點好，打開 3 秒就知道"], "n": 1}, {"v": "v11.66", "d": "11/11", "t": ["一般首頁引導：右上多「看導覽」；紅條下面直接寫下一步（休假去公司點假單／留守按標留守）；名單沒載入（沒網路）時改顯示「重試」，不會卡在選名字；唯讀連結的「標留守」改成灰色並說明原因"], "n": 1}, {"v": "v11.65", "d": "11/11", "t": ["使用導覽說明文字全部精簡（拿掉贅詞，意思不變）；順便移除沒用到的程式碼"], "n": 1}];
 var APP_VER = CHANGELOG[0].v;
 document.addEventListener('toggle', function (ev) { var t = ev.target; if (t && t.classList && t.classList.contains('vrow') && t.open) document.querySelectorAll('#verList .vrow[open]').forEach(function (o) { if (o !== t) o.open = false; }); }, true);
 var attK = null, attDutyAsked = {};
